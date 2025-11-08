@@ -44,21 +44,12 @@ All colors MUST be HSL.
 
     --radius: 0.75rem;
 
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --gradient-pro: linear-gradient(135deg, hsl(28, 100%, 50%), hsl(38, 92%, 50%));
+    --gradient-basic: linear-gradient(135deg, hsl(142, 76%, 36%), hsl(158, 64%, 52%));
+    --gradient-card: linear-gradient(135deg, hsl(0, 0%, 12%), hsl(0, 0%, 16%));
+    --shadow-glow: 0 8px 32px -8px hsl(var(--primary) / 0.3);
+    --shadow-card: 0 4px 24px -4px rgba(0, 0, 0, 0.5);
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .dark {
