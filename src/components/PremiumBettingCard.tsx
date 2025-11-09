@@ -151,6 +151,15 @@ export const PremiumBettingCard = ({
           </div>
         </div>
 
+        {/* Insights - Moved below logos */}
+        {insights && (
+          <div className="bg-accent/5 border border-accent/20 rounded-lg p-2">
+            <p className="text-[10px] text-foreground/90 leading-snug font-medium line-clamp-2">
+              {insights}
+            </p>
+          </div>
+        )}
+
         {/* Bet Details & Odds - Compact */}
         <div className="bg-gradient-to-br from-muted/40 to-muted/20 backdrop-blur-sm rounded-lg p-2.5 border border-border/20">
           <div className="flex items-center justify-between mb-2">
@@ -190,30 +199,6 @@ export const PremiumBettingCard = ({
             </div>
           </div>
         </div>
-
-        {/* Indicators - Compact */}
-        {indicators && indicators.length > 0 && (
-          <div className="flex flex-wrap gap-1.5">
-            {indicators.slice(0, 2).map((indicator, index) => (
-              <Badge
-                key={index}
-                variant="outline"
-                className="bg-muted/20 border-border/30 text-[9px] font-medium text-foreground/80 px-2 py-0.5"
-              >
-                {indicator.label}: {indicator.value}
-              </Badge>
-            ))}
-          </div>
-        )}
-
-        {/* Insights - Compact */}
-        {insights && (
-          <div className="bg-accent/5 border border-accent/20 rounded-lg p-2">
-            <p className="text-[10px] text-foreground/90 leading-snug font-medium line-clamp-2">
-              {insights}
-            </p>
-          </div>
-        )}
 
         {/* Action Buttons - Compact */}
         <div className="flex gap-2 pt-1">
