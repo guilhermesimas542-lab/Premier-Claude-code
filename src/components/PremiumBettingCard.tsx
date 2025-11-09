@@ -121,28 +121,16 @@ export const PremiumBettingCard = ({
           : "border-border/30"
       } overflow-hidden select-none transition-all duration-300 ${
         isHovered ? "-translate-y-1" : ""
-      } backdrop-blur-sm relative group`}
+      } ${isLocked ? "opacity-70" : ""} backdrop-blur-sm relative group`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Background Texture */}
       <div className="absolute inset-0 opacity-[0.08] bg-[radial-gradient(circle_at_30%_50%,rgba(34,211,238,0.1),transparent_50%)]" />
       
-      {/* Locked Overlay with Police Tape Effect */}
+      {/* Locked Overlay - Discreto */}
       {isLocked && (
-        <div className="absolute inset-0 z-20 bg-black/60 backdrop-blur-[2px]">
-          {/* Diagonal stripes pattern */}
-          <div className="absolute inset-0 opacity-40" style={{
-            backgroundImage: 'repeating-linear-gradient(45deg, #fbbf24 0px, #fbbf24 40px, #1f2937 40px, #1f2937 80px)',
-          }} />
-          {/* Lock icon */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="text-center animate-pulse">
-              <div className="text-6xl mb-2">🔒</div>
-              <div className="text-warning font-black text-lg tracking-wider drop-shadow-lg">BLOQUEADO</div>
-            </div>
-          </div>
-        </div>
+        <div className="absolute inset-0 z-20 bg-black/20 backdrop-blur-[1px]" />
       )}
       
       {/* Animated GIF Background for Premium Tiers */}
