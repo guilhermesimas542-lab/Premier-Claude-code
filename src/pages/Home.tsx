@@ -43,10 +43,10 @@ const Home = () => {
       name: "Futebol",
       description: "💰 Apostas com as maiores taxas de acerto — 97% de greens comprovados!",
       route: "/futebol",
-      gradient: "from-success via-emerald-500 to-success",
+      gradient: "from-primary via-orange-600 to-primary",
       image: "https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=600&h=400&fit=crop",
       badge: "🔥 Destaque",
-      badgeColor: "bg-success text-white border-success",
+      badgeColor: "bg-warning text-black border-warning",
       isPremium: true,
     },
     {
@@ -252,7 +252,7 @@ const Home = () => {
                 {/* Rotating Border Effect for Premium */}
                 {sport.isPremium && (
                   <div className="absolute -inset-[2px] rounded-xl overflow-hidden pointer-events-none">
-                    <div className="absolute inset-0 bg-gradient-to-r from-success via-yellow-400 via-success to-yellow-400 bg-[length:400%_100%] animate-gradient opacity-70" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-warning via-primary via-warning to-primary bg-[length:400%_100%] animate-gradient opacity-80" />
                   </div>
                 )}
 
@@ -278,25 +278,30 @@ const Home = () => {
                 </div>
 
                 {/* Content */}
-                <div className="p-4 space-y-2 relative">
+                <div className="p-4 space-y-3 relative">
                   <h3 className={`text-xl font-display font-extrabold tracking-tight ${
                     sport.isPremium 
-                      ? "text-success drop-shadow-[0_0_8px_rgba(34,197,94,0.5)]" 
+                      ? "text-white" 
                       : "text-foreground"
                   }`}>
                     {sport.name}
                   </h3>
-                  <p className={`text-xs leading-relaxed ${
-                    sport.isPremium 
-                      ? "text-foreground font-medium" 
-                      : "text-muted-foreground"
-                  }`}>
-                    {sport.description}
-                  </p>
+                  
+                  {sport.isPremium ? (
+                    <div className="bg-gradient-to-r from-warning/20 via-primary/20 to-warning/20 border border-warning/40 rounded-lg p-3 backdrop-blur-sm">
+                      <p className="text-[11px] leading-relaxed text-white font-bold text-center">
+                        {sport.description}
+                      </p>
+                    </div>
+                  ) : (
+                    <p className="text-xs leading-relaxed text-muted-foreground">
+                      {sport.description}
+                    </p>
+                  )}
                   
                   {sport.route !== "#" && (
-                    <div className={`flex items-center text-xs font-bold pt-2 ${
-                      sport.isPremium ? "text-success" : "text-primary"
+                    <div className={`flex items-center text-xs font-bold pt-1 ${
+                      sport.isPremium ? "text-warning" : "text-primary"
                     }`}>
                       Acessar agora
                       <ChevronRight className="w-3 h-3 ml-1 transition-transform group-hover:translate-x-1" />
