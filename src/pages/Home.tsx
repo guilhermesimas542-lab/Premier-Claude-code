@@ -367,7 +367,7 @@ const Home = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#0C0F14] to-[#121826]">
       {/* Header */}
-      <header className="sticky top-0 z-10 bg-[#0C0F14]/80 backdrop-blur-xl border-b border-border/30">
+      <header className="sticky top-0 z-50 bg-[#0C0F14]/80 backdrop-blur-xl border-b border-border/30">
         <div className="container max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
           <h1 className="text-2xl font-display font-extrabold text-foreground tracking-tight">
             Premier FC
