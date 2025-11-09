@@ -159,23 +159,23 @@ const Home = () => {
     navigate("/login");
   };
 
-  // Mapear esportes da API para o formato do componente
-  const sportEmojiMap: Record<string, string> = {
-    "Futebol": "⚽",
-    "Cassino": "🎰",
-    "Futsal": "⚽",
-    "MMA": "🥊",
-    "Baseball": "⚾",
-    "Rugby": "🏈",
-    "Tenis": "🎾",
-    "Basquete": "🏀",
-    "Hoquei": "🏒",
-    "Handball": "🤾",
-    "Volei": "🏐",
+  // Mapear esportes da API para o formato do componente (por ID)
+  const sportEmojiMap: Record<number, string> = {
+    1: "⚽",  // Futebol
+    2: "🥊",  // MMA
+    3: "⚾",  // Baseball
+    4: "🏈",  // Rugby
+    5: "🎾",  // Tenis
+    6: "🏀",  // Basquete
+    7: "⚽",  // Futsal
+    8: "🏒",  // Hoquei
+    9: "🤾",  // Handball
+    10: "🏐", // Volei
+    11: "🎰", // Cassino
   };
 
-  // Definir cores únicas para cada esporte
-  const sportColorSchemes: Record<string, {
+  // Definir cores únicas para cada esporte (por ID)
+  const sportColorSchemes: Record<number, {
     primary: string;
     secondary: string;
     glow: string;
@@ -183,7 +183,7 @@ const Home = () => {
     shadow: string;
     border: string;
   }> = {
-    "Futebol": {
+    1: { // Futebol
       primary: "#00FF87",
       secondary: "#00C853",
       glow: "rgba(0, 255, 135, 0.9)",
@@ -191,15 +191,7 @@ const Home = () => {
       shadow: "shadow-[#00FF87]/60",
       border: "#00FF87",
     },
-    "Cassino": {
-      primary: "#C026D3",
-      secondary: "#A21CAF",
-      glow: "rgba(192, 38, 211, 0.9)",
-      gradient: "from-[#A21CAF] via-[#C026D3] to-[#A21CAF]",
-      shadow: "shadow-[#C026D3]/60",
-      border: "#C026D3",
-    },
-    "MMA": {
+    2: { // MMA
       primary: "#DC2626",
       secondary: "#991B1B",
       glow: "rgba(220, 38, 38, 0.9)",
@@ -207,7 +199,7 @@ const Home = () => {
       shadow: "shadow-[#DC2626]/60",
       border: "#DC2626",
     },
-    "Baseball": {
+    3: { // Baseball
       primary: "#1E40AF",
       secondary: "#1E3A8A",
       glow: "rgba(30, 64, 175, 0.9)",
@@ -215,7 +207,7 @@ const Home = () => {
       shadow: "shadow-[#1E40AF]/60",
       border: "#1E40AF",
     },
-    "Rugby": {
+    4: { // Rugby
       primary: "#15803D",
       secondary: "#166534",
       glow: "rgba(21, 128, 61, 0.9)",
@@ -223,7 +215,7 @@ const Home = () => {
       shadow: "shadow-[#15803D]/60",
       border: "#15803D",
     },
-    "Tenis": {
+    5: { // Tenis
       primary: "#FACC15",
       secondary: "#CA8A04",
       glow: "rgba(250, 204, 21, 0.9)",
@@ -231,7 +223,7 @@ const Home = () => {
       shadow: "shadow-[#FACC15]/60",
       border: "#FACC15",
     },
-    "Basquete": {
+    6: { // Basquete
       primary: "#EA580C",
       secondary: "#C2410C",
       glow: "rgba(234, 88, 12, 0.9)",
@@ -239,7 +231,7 @@ const Home = () => {
       shadow: "shadow-[#EA580C]/60",
       border: "#EA580C",
     },
-    "Futsal": {
+    7: { // Futsal
       primary: "#14B8A6",
       secondary: "#0D9488",
       glow: "rgba(20, 184, 166, 0.9)",
@@ -247,7 +239,7 @@ const Home = () => {
       shadow: "shadow-[#14B8A6]/60",
       border: "#14B8A6",
     },
-    "Hoquei": {
+    8: { // Hoquei
       primary: "#06B6D4",
       secondary: "#0891B2",
       glow: "rgba(6, 182, 212, 0.9)",
@@ -255,7 +247,7 @@ const Home = () => {
       shadow: "shadow-[#06B6D4]/60",
       border: "#06B6D4",
     },
-    "Handball": {
+    9: { // Handball
       primary: "#EC4899",
       secondary: "#DB2777",
       glow: "rgba(236, 72, 153, 0.9)",
@@ -263,7 +255,7 @@ const Home = () => {
       shadow: "shadow-[#EC4899]/60",
       border: "#EC4899",
     },
-    "Volei": {
+    10: { // Volei
       primary: "#F59E0B",
       secondary: "#D97706",
       glow: "rgba(245, 158, 11, 0.9)",
@@ -271,11 +263,19 @@ const Home = () => {
       shadow: "shadow-[#F59E0B]/60",
       border: "#F59E0B",
     },
+    11: { // Cassino
+      primary: "#C026D3",
+      secondary: "#A21CAF",
+      glow: "rgba(192, 38, 211, 0.9)",
+      gradient: "from-[#A21CAF] via-[#C026D3] to-[#A21CAF]",
+      shadow: "shadow-[#C026D3]/60",
+      border: "#C026D3",
+    },
   };
 
   const mappedSports = sports.map((sport) => {
     const tipo = sport.tipo ?? 0;
-    const colors = sportColorSchemes[sport.name] || sportColorSchemes["Futebol"];
+    const colors = sportColorSchemes[sport.id] || sportColorSchemes[1]; // Fallback para Futebol (ID 1)
     
     // Tipo 0: Verifica enabled para premium ou bloqueado
     // Tipo 1: Em desenvolvimento
@@ -293,7 +293,7 @@ const Home = () => {
 
     return {
       ...sport,
-      emoji: sportEmojiMap[sport.name] || "🏆",
+      emoji: sportEmojiMap[sport.id] || "🏆",
       route: cardType === 'premium' ? `/${sport.name.toLowerCase()}` : "#",
       image: getBackgroundImageUrl(sport.background),
       gradient: "from-[#000636] via-[#0026A3] to-[#0033C6]",
