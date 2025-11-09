@@ -393,14 +393,14 @@ const Home = () => {
       </header>
 
       <main className="container max-w-7xl mx-auto px-4 py-8 space-y-8">
-        {/* Conditional Alerts based on user plan */}
-        {config?.user?.telegran === 0 ? (
-          <TelegramAlert telegramUrl={config.telegramUrl} />
-        ) : config?.user?.purchasedPlan === 0 || config?.user?.purchasedPlan === -1 ? (
+        {/* Conditional Alerts based on user plan - Priority: Free → Basic → Pro → Telegram → Default */}
+        {config?.user?.purchasedPlan === 0 || config?.user?.purchasedPlan === -1 ? (
           <BasicPlanAlert checkoutUrl={config.checkout} />
         ) : config?.user?.purchasedPlan === 1 ? (
           <ProPlanAlert proUrl={config.proUrl} />
         ) : (config?.user?.purchasedPlan === 2 || config?.user?.purchasedPlan === 3) ? (
+          <TelegramAlert telegramUrl={config.telegramUrl} />
+        ) : config?.user?.telegran !== 0 ? (
           <NewEntriesAlert />
         ) : null}
 
