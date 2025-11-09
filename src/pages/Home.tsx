@@ -1,4 +1,4 @@
-import { LogOut, ChevronRight, Info, Lock, Clock, Sparkles, CheckCircle2 } from "lucide-react";
+import { LogOut, ChevronRight, Info, Lock, Clock, Sparkles, CheckCircle2, LockOpen } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -393,13 +393,10 @@ const Home = () => {
                     ) : sport.isPremium ? (
                       /* Premium - Esporte Desbloqueado */
                       <div className="space-y-3">
-                        {/* Status Badge - Glassmorphism */}
-                        <div className="flex items-center gap-3 bg-success/10 backdrop-blur-md border border-success/30 rounded-lg p-3">
-                          <CheckCircle2 className="w-6 h-6 text-success flex-shrink-0" />
-                          <div>
-                            <p className="text-sm font-black text-success">Esporte Desbloqueado</p>
-                            <p className="text-[10px] text-success/80 leading-tight">{sport.description}</p>
-                          </div>
+                        {/* Status Badge - Glassmorphism com Ícone Centralizado */}
+                        <div className="flex flex-col items-center justify-center gap-2 bg-success/10 backdrop-blur-md border border-success/30 rounded-lg p-4">
+                          <LockOpen className="w-12 h-12 text-success" />
+                          <p className="text-sm font-black text-success">Desbloqueado</p>
                         </div>
                       </div>
                     ) : (
