@@ -65,15 +65,15 @@ const Home = () => {
       id: "futebol",
       name: "FUTEBOL",
       emoji: "⚽",
-      tagline: "🔥 Esporte desbloqueado — 97% de acertos comprovados!",
-      description: "Acesso liberado — dados atualizados em tempo real",
+      tagline: "⚡ Esporte desbloqueado — Alta taxa de acertos!",
+      description: "Resultados com precisão máxima",
       route: "/futebol",
-      gradient: "from-[#DFAC2A] via-[#FFD85C] to-[#DFAC2A]",
+      gradient: "from-[#000636] via-[#0026A3] to-[#0033C6]",
       image: "https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=800&h=600&fit=crop&q=80",
       badge: "🔥 Destaque",
-      badgeColor: "bg-[#FFD85C]/20 text-[#FFD85C] border-[#FFD85C]/40",
+      badgeColor: "bg-[#00D4FF]/20 text-[#00D4FF] border-[#00D4FF]/40",
       isPremium: true,
-      borderColor: "#DFAC2A",
+      borderColor: "#00D4FF",
     },
     {
       id: "cassino",
@@ -311,34 +311,40 @@ const Home = () => {
                       : ""
                   } transition-all duration-500 border-0 p-0 h-full ${sport.isPremium ? 'rounded-xl' : 'rounded-lg'}`}
                 >
-                  {/* Background Image - Cinematográfico */}
+                  {/* Background Image - Cinematográfico Arena Noturna */}
                   <div className="absolute inset-0 z-0">
                     <div
                       className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 group-hover:scale-110"
                       style={{ 
                         backgroundImage: `url('${sport.image}')`,
-                        filter: 'brightness(0.9) contrast(1.1)'
+                        filter: 'brightness(0.7) contrast(1.2) saturate(1.1)'
                       }}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-black/60" />
+                    {/* Overlay Azul Escuro para Arena Noturna */}
+                    <div className="absolute inset-0 bg-[#000636]/85" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-[#000636]/70 to-[#000636]/50" />
                     {sport.isPremium && (
-                      <div className="absolute inset-0 bg-gradient-to-br from-[#DFAC2A]/20 via-transparent to-[#00FF87]/20" />
+                      <>
+                        <div className="absolute inset-0 bg-gradient-to-br from-[#00D4FF]/15 via-transparent to-[#0099FF]/15" />
+                        {/* Reflexos de Refletores de Estádio */}
+                        <div className="absolute top-0 left-0 w-full h-1/3 bg-gradient-to-b from-white/5 to-transparent" />
+                      </>
                     )}
                   </div>
 
                   {/* Content Container */}
                   <div className="relative z-10 flex flex-col h-full min-h-[320px]">
-                    {/* Top Bar - Faixa Dourada Líquida */}
+                    {/* Top Bar - Faixa Azul Royal Energética */}
                     <div className={`${
                       sport.isPremium 
-                        ? 'liquid-gold-bar shadow-2xl shadow-[#DFAC2A]/50' 
+                        ? 'liquid-gold-bar' 
                         : 'bg-gradient-to-r from-primary via-orange-600 to-primary'
                     } px-5 py-4`}>
                       <div className="flex items-center gap-3">
-                        <span className="text-3xl filter drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]">
+                        <span className="text-3xl filter drop-shadow-[0_0_15px_rgba(0,212,255,0.8)]">
                           {(sport as any).emoji || (sport.isPremium ? '⚽' : sport.id === 'cassino' ? '🎰' : sport.id === 'basquete' ? '🏀' : sport.id === 'tenis' ? '🎾' : sport.id === 'esports' ? '🎮' : '🏐')}
                         </span>
-                        <h3 className="text-xl font-display font-black tracking-wider text-black drop-shadow-lg">
+                        <h3 className="text-xl font-display font-black tracking-wider text-white drop-shadow-[0_0_10px_rgba(0,212,255,0.6)]">
                           {sport.name}
                         </h3>
                       </div>
@@ -398,19 +404,25 @@ const Home = () => {
                         </div>
                       </div>
                       ) : sport.isPremium ? (
-                        /* Premium - Card Épico */
+                        /* Premium - Card Épico Arena Azul */
                         <div className="space-y-4">
-                          {/* Tagline Poderosa */}
+                          {/* Tagline Poderosa - Tema Azul */}
                           <div className="text-center animate-fade-in">
-                            <p className="text-sm font-black text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.5)] leading-relaxed">
-                              {(sport as any).tagline || "🔥 Esporte desbloqueado — 97% de acertos comprovados!"}
+                            <p className="text-sm font-black text-white drop-shadow-[0_0_20px_rgba(0,212,255,0.7)] leading-relaxed">
+                              {(sport as any).tagline || "⚡ Esporte desbloqueado — Alta taxa de acertos!"}
                             </p>
                           </div>
 
-                          {/* Selo IA ATIVADA com Glassmorphism */}
-                          <div className="relative flex items-center justify-center gap-3 bg-gradient-to-r from-[#DFAC2A]/15 to-[#FFD85C]/15 backdrop-blur-xl border-2 border-[#DFAC2A]/50 rounded-xl p-4 shadow-2xl shadow-[#DFAC2A]/30 glass-particles overflow-hidden">
-                            <Sparkles className="w-5 h-5 text-[#DFAC2A] animate-pulse drop-shadow-[0_0_10px_rgba(223,172,42,0.8)]" />
-                            <span className="text-sm font-black text-[#DFAC2A] tracking-widest drop-shadow-lg">IA ATIVADA</span>
+                          {/* Selo IA ATIVADA - Tecnologia Azul com Partículas */}
+                          <div className="relative flex items-center justify-center gap-3 bg-gradient-to-r from-[#000636]/40 to-[#0033C6]/30 backdrop-blur-xl border-2 border-[#00D4FF]/60 rounded-xl p-4 shadow-2xl shadow-[#00D4FF]/40 glass-particles overflow-hidden">
+                            <Sparkles className="w-5 h-5 text-[#00D4FF] animate-pulse drop-shadow-[0_0_12px_rgba(0,212,255,1)]" />
+                            <span className="text-sm font-black text-[#00D4FF] tracking-widest drop-shadow-[0_0_10px_rgba(0,212,255,0.8)]">IA ATIVADA</span>
+                            {/* Partículas de luz tecnológicas */}
+                            <div className="absolute inset-0 opacity-30">
+                              <div className="absolute top-2 left-4 w-1 h-1 bg-[#00FFFF] rounded-full animate-pulse" />
+                              <div className="absolute bottom-3 right-6 w-1 h-1 bg-white rounded-full animate-pulse" style={{ animationDelay: '0.5s' }} />
+                              <div className="absolute top-1/2 right-3 w-1 h-1 bg-[#0099FF] rounded-full animate-pulse" style={{ animationDelay: '1s' }} />
+                            </div>
                           </div>
                         </div>
                       ) : (
@@ -424,18 +436,18 @@ const Home = () => {
                     }
                   </div>
 
-                  {/* Bottom Section - Botão Épico */}
+                  {/* Bottom Section - Botão Azul Metálico */}
                   <div className="mt-auto p-5 pt-0 space-y-3">
-                    {/* Botão Dourado Metálico com Reflexo Animado */}
+                    {/* Botão Azul Metálico com Linha de Luz */}
                     {(sport as any).isLocked || (sport as any).isPreSale || sport.isPremium ? (
                       <Button 
                         className={`w-full relative overflow-hidden ${
                           sport.isPremium 
-                            ? 'bg-gradient-to-r from-[#DFAC2A] via-[#FFD85C] to-[#DFAC2A] bg-[length:200%_100%] hover:bg-[length:100%_100%] shadow-2xl shadow-[#DFAC2A]/50 hover:shadow-[#DFAC2A]/70 shimmer-effect' 
+                            ? 'bg-gradient-to-r from-[#00196B] via-[#0033C6] to-[#00196B] bg-[length:200%_100%] hover:bg-[length:100%_100%] shadow-2xl shadow-[#0033C6]/60 hover:shadow-[#00D4FF]/80 shimmer-effect border border-[#00D4FF]/30' 
                             : 'bg-[#DFAC2A] hover:bg-[#C89824] shadow-lg hover:shadow-xl'
-                        } text-black font-black py-7 text-base transition-all duration-500 border-0`}
+                        } text-white font-black py-7 text-base transition-all duration-500`}
                       >
-                        <span className="relative z-10 drop-shadow-md tracking-wide">
+                        <span className="relative z-10 drop-shadow-[0_0_10px_rgba(0,212,255,0.8)] tracking-wide">
                           {(sport as any).isLocked || (sport as any).isPreSale ? "ADQUIRIR AGORA" : "ACESSAR AGORA"}
                         </span>
                       </Button>
