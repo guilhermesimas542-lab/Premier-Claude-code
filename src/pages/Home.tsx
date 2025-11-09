@@ -1,4 +1,4 @@
-import { LogOut, ChevronRight, Info } from "lucide-react";
+import { LogOut, ChevronRight, Info, Lock, Clock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,11 @@ import { AppConfig } from "@/types/auth";
 const Home = () => {
   const navigate = useNavigate();
   const [config, setConfig] = useState<AppConfig | null>(null);
+  const [countdown, setCountdown] = useState({
+    hours: 23,
+    minutes: 59,
+    seconds: 45,
+  });
 
   useEffect(() => {
     if (!isAuthenticated()) {
@@ -30,6 +35,24 @@ const Home = () => {
       setConfig(storedConfig);
     }
   }, [navigate]);
+
+  // Countdown timer
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev.seconds > 0) {
+          return { ...prev, seconds: prev.seconds - 1 };
+        } else if (prev.minutes > 0) {
+          return { hours: prev.hours, minutes: prev.minutes - 1, seconds: 59 };
+        } else if (prev.hours > 0) {
+          return { hours: prev.hours - 1, minutes: 59, seconds: 59 };
+        }
+        return prev;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   const handleLogout = () => {
     clearAuth();
@@ -81,6 +104,32 @@ const Home = () => {
       badge: "Em breve",
       badgeColor: "bg-muted/30 text-muted-foreground border-border/30",
       isPremium: false,
+    },
+    {
+      id: "esports",
+      name: "E-Sports",
+      description: "Apostas em jogos eletrônicos",
+      route: "#",
+      gradient: "from-vip via-purple-600 to-vip",
+      image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&h=400&fit=crop",
+      badge: "Bloqueado",
+      badgeColor: "bg-destructive/20 text-destructive border-destructive/30",
+      isPremium: false,
+      isLocked: true,
+    },
+    {
+      id: "volei",
+      name: "Vôlei",
+      description: "Garanta com desconto exclusivo!",
+      route: "#",
+      gradient: "from-accent via-cyan-500 to-accent",
+      image: "https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=600&h=400&fit=crop",
+      badge: "Pré-venda",
+      badgeColor: "bg-accent/20 text-accent border-accent/30",
+      isPremium: false,
+      isPreSale: true,
+      priceFrom: "R$ 299,00",
+      priceTo: "R$ 149,00",
     },
   ];
 
@@ -266,7 +315,7 @@ const Home = () => {
                 )}
 
                 {/* Content Container */}
-                <div className="relative z-10 flex flex-col h-full">
+                <div className="relative z-10 flex flex-col h-full min-h-[320px]">
                   {/* Top Section - Badge and Title */}
                   <div className="p-4 space-y-3">
                     {/* Badge */}
@@ -281,8 +330,58 @@ const Home = () => {
                       {sport.name}
                     </h3>
                     
-                    {/* Description Badge */}
-                    {sport.isPremium ? (
+                    {/* Locked Card */}
+                    {(sport as any).isLocked ? (
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-center py-4">
+                          <Lock className="w-12 h-12 text-muted-foreground opacity-50" />
+                        </div>
+                        <p className="text-xs text-center text-muted-foreground">
+                          Você ainda não possui acesso a este esporte
+                        </p>
+                      </div>
+                    ) : (sport as any).isPreSale ? (
+                      /* Pre-sale Card */
+                      <div className="space-y-3">
+                        {/* Countdown */}
+                        <div className="bg-accent/10 border border-accent/30 rounded-lg p-3 backdrop-blur-sm">
+                          <div className="flex items-center justify-center gap-2 mb-2">
+                            <Clock className="w-4 h-4 text-accent" />
+                            <span className="text-[10px] text-accent font-bold uppercase">Termina em</span>
+                          </div>
+                          <div className="flex justify-center gap-2">
+                            <div className="text-center">
+                              <div className="bg-accent/20 rounded px-2 py-1 min-w-[40px]">
+                                <span className="text-lg font-bold text-white">{String(countdown.hours).padStart(2, '0')}</span>
+                              </div>
+                              <span className="text-[8px] text-muted-foreground">horas</span>
+                            </div>
+                            <span className="text-lg text-white">:</span>
+                            <div className="text-center">
+                              <div className="bg-accent/20 rounded px-2 py-1 min-w-[40px]">
+                                <span className="text-lg font-bold text-white">{String(countdown.minutes).padStart(2, '0')}</span>
+                              </div>
+                              <span className="text-[8px] text-muted-foreground">min</span>
+                            </div>
+                            <span className="text-lg text-white">:</span>
+                            <div className="text-center">
+                              <div className="bg-accent/20 rounded px-2 py-1 min-w-[40px]">
+                                <span className="text-lg font-bold text-white">{String(countdown.seconds).padStart(2, '0')}</span>
+                              </div>
+                              <span className="text-[8px] text-muted-foreground">seg</span>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Price */}
+                        <div className="text-center">
+                          <p className="text-xs text-muted-foreground line-through">{(sport as any).priceFrom}</p>
+                          <p className="text-2xl font-bold text-accent">{(sport as any).priceTo}</p>
+                          <p className="text-[10px] text-accent/80 font-semibold mt-1">{sport.description}</p>
+                        </div>
+                      </div>
+                    ) : sport.isPremium ? (
+                      /* Premium Description Badge */
                       <div className="bg-primary/10 border border-primary/30 rounded-lg p-3 backdrop-blur-sm">
                         <p className="text-[11px] leading-relaxed text-white font-bold text-center">
                           {sport.description}
@@ -297,14 +396,18 @@ const Home = () => {
 
                   {/* Bottom Section - CTA */}
                   <div className="mt-auto p-4 pt-0">
-                    {sport.route !== "#" && (
+                    {(sport as any).isLocked || (sport as any).isPreSale ? (
+                      <Button className="w-full bg-primary hover:bg-primary/90 text-white font-bold">
+                        Adquirir
+                      </Button>
+                    ) : sport.route !== "#" ? (
                       <div className={`flex items-center text-sm font-bold ${
                         sport.isPremium ? "text-[#DFAC2A]" : "text-primary"
                       }`}>
                         Acessar agora
                         <ChevronRight className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-1" />
                       </div>
-                    )}
+                    ) : null}
                   </div>
                 </div>
               </Card>
