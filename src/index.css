@@ -128,19 +128,19 @@ All colors MUST be HSL.
     padding: 2px;
     background: linear-gradient(
       90deg,
-      #00D4FF,
-      #0099FF,
+      #00FF87,
+      #00E676,
       #FFFFFF,
-      #00FFFF,
-      #0066FF,
-      #00D4FF
+      #00FFA3,
+      #00C853,
+      #00FF87
     );
     background-size: 300% 100%;
     animation: border-fire 3s linear infinite;
     box-shadow: 
-      0 0 20px rgba(0, 212, 255, 0.5),
-      0 0 40px rgba(0, 153, 255, 0.3),
-      inset 0 0 20px rgba(0, 255, 255, 0.2);
+      0 0 20px rgba(0, 255, 135, 0.6),
+      0 0 40px rgba(0, 230, 118, 0.4),
+      inset 0 0 20px rgba(0, 255, 163, 0.2);
   }
 
   .liquid-gold-bar {

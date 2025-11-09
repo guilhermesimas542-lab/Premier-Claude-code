@@ -71,9 +71,9 @@ const Home = () => {
       gradient: "from-[#000636] via-[#0026A3] to-[#0033C6]",
       image: "https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=800&h=600&fit=crop&q=80",
       badge: "🔥 Destaque",
-      badgeColor: "bg-[#00D4FF]/20 text-[#00D4FF] border-[#00D4FF]/40",
+      badgeColor: "bg-[#00FF87]/20 text-[#00FF87] border-[#00FF87]/40",
       isPremium: true,
-      borderColor: "#00D4FF",
+      borderColor: "#00FF87",
     },
     {
       id: "cassino",
