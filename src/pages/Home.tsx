@@ -191,76 +191,76 @@ const Home = () => {
       border: "#00FF87",
     },
     "MMA": {
-      primary: "#FF3D00",
-      secondary: "#D32F2F",
-      glow: "rgba(255, 61, 0, 0.9)",
-      gradient: "from-[#D32F2F] via-[#FF3D00] to-[#D32F2F]",
-      shadow: "shadow-[#FF3D00]/60",
-      border: "#FF3D00",
+      primary: "#DC2626",
+      secondary: "#991B1B",
+      glow: "rgba(220, 38, 38, 0.9)",
+      gradient: "from-[#991B1B] via-[#DC2626] to-[#991B1B]",
+      shadow: "shadow-[#DC2626]/60",
+      border: "#DC2626",
     },
     "Baseball": {
-      primary: "#2196F3",
-      secondary: "#1565C0",
-      glow: "rgba(33, 150, 243, 0.9)",
-      gradient: "from-[#1565C0] via-[#2196F3] to-[#1565C0]",
-      shadow: "shadow-[#2196F3]/60",
-      border: "#2196F3",
+      primary: "#1E40AF",
+      secondary: "#1E3A8A",
+      glow: "rgba(30, 64, 175, 0.9)",
+      gradient: "from-[#1E3A8A] via-[#1E40AF] to-[#1E3A8A]",
+      shadow: "shadow-[#1E40AF]/60",
+      border: "#1E40AF",
     },
     "Rugby": {
-      primary: "#8BC34A",
-      secondary: "#558B2F",
-      glow: "rgba(139, 195, 74, 0.9)",
-      gradient: "from-[#558B2F] via-[#8BC34A] to-[#558B2F]",
-      shadow: "shadow-[#8BC34A]/60",
-      border: "#8BC34A",
+      primary: "#15803D",
+      secondary: "#166534",
+      glow: "rgba(21, 128, 61, 0.9)",
+      gradient: "from-[#166534] via-[#15803D] to-[#166534]",
+      shadow: "shadow-[#15803D]/60",
+      border: "#15803D",
     },
     "Tenis": {
-      primary: "#FFEB3B",
-      secondary: "#F57F17",
-      glow: "rgba(255, 235, 59, 0.9)",
-      gradient: "from-[#F57F17] via-[#FFEB3B] to-[#F57F17]",
-      shadow: "shadow-[#FFEB3B]/60",
-      border: "#FFEB3B",
+      primary: "#FACC15",
+      secondary: "#CA8A04",
+      glow: "rgba(250, 204, 21, 0.9)",
+      gradient: "from-[#CA8A04] via-[#FACC15] to-[#CA8A04]",
+      shadow: "shadow-[#FACC15]/60",
+      border: "#FACC15",
     },
     "Basquete": {
-      primary: "#FF9800",
-      secondary: "#E65100",
-      glow: "rgba(255, 152, 0, 0.9)",
-      gradient: "from-[#E65100] via-[#FF9800] to-[#E65100]",
-      shadow: "shadow-[#FF9800]/60",
-      border: "#FF9800",
+      primary: "#EA580C",
+      secondary: "#C2410C",
+      glow: "rgba(234, 88, 12, 0.9)",
+      gradient: "from-[#C2410C] via-[#EA580C] to-[#C2410C]",
+      shadow: "shadow-[#EA580C]/60",
+      border: "#EA580C",
     },
     "Futsal": {
-      primary: "#9C27B0",
-      secondary: "#6A1B9A",
-      glow: "rgba(156, 39, 176, 0.9)",
-      gradient: "from-[#6A1B9A] via-[#9C27B0] to-[#6A1B9A]",
-      shadow: "shadow-[#9C27B0]/60",
-      border: "#9C27B0",
+      primary: "#A855F7",
+      secondary: "#7E22CE",
+      glow: "rgba(168, 85, 247, 0.9)",
+      gradient: "from-[#7E22CE] via-[#A855F7] to-[#7E22CE]",
+      shadow: "shadow-[#A855F7]/60",
+      border: "#A855F7",
     },
     "Hoquei": {
-      primary: "#00BCD4",
-      secondary: "#0097A7",
-      glow: "rgba(0, 188, 212, 0.9)",
-      gradient: "from-[#0097A7] via-[#00BCD4] to-[#0097A7]",
-      shadow: "shadow-[#00BCD4]/60",
-      border: "#00BCD4",
+      primary: "#06B6D4",
+      secondary: "#0891B2",
+      glow: "rgba(6, 182, 212, 0.9)",
+      gradient: "from-[#0891B2] via-[#06B6D4] to-[#0891B2]",
+      shadow: "shadow-[#06B6D4]/60",
+      border: "#06B6D4",
     },
     "Handball": {
-      primary: "#E91E63",
-      secondary: "#C2185B",
-      glow: "rgba(233, 30, 99, 0.9)",
-      gradient: "from-[#C2185B] via-[#E91E63] to-[#C2185B]",
-      shadow: "shadow-[#E91E63]/60",
-      border: "#E91E63",
+      primary: "#EC4899",
+      secondary: "#DB2777",
+      glow: "rgba(236, 72, 153, 0.9)",
+      gradient: "from-[#DB2777] via-[#EC4899] to-[#DB2777]",
+      shadow: "shadow-[#EC4899]/60",
+      border: "#EC4899",
     },
     "Volei": {
-      primary: "#FFC107",
-      secondary: "#FF8F00",
-      glow: "rgba(255, 193, 7, 0.9)",
-      gradient: "from-[#FF8F00] via-[#FFC107] to-[#FF8F00]",
-      shadow: "shadow-[#FFC107]/60",
-      border: "#FFC107",
+      primary: "#F59E0B",
+      secondary: "#D97706",
+      glow: "rgba(245, 158, 11, 0.9)",
+      gradient: "from-[#D97706] via-[#F59E0B] to-[#D97706]",
+      shadow: "shadow-[#F59E0B]/60",
+      border: "#F59E0B",
     },
   };
 
@@ -556,20 +556,18 @@ const Home = () => {
                     {/* Top Bar - Faixa Colorida por Esporte */}
                     <div 
                       className="px-5 py-4"
-                      style={sport.isPremium ? {
-                        background: `linear-gradient(90deg, ${(sport as any).colors?.secondary || '#00C853'}, ${(sport as any).colors?.primary || '#00FF87'}, ${(sport as any).colors?.primary || '#00FF87'}, ${(sport as any).colors?.secondary || '#00C853'})`,
+                      style={{
+                        background: `linear-gradient(90deg, ${(sport as any).colors?.secondary || 'hsl(18, 100%, 56%)'}, ${(sport as any).colors?.primary || 'hsl(27, 96%, 50%)'}, ${(sport as any).colors?.primary || 'hsl(27, 96%, 50%)'}, ${(sport as any).colors?.secondary || 'hsl(18, 100%, 56%)'})`,
                         backgroundSize: '200% 100%',
-                        animation: 'liquid-gradient 3s ease-in-out infinite',
-                        boxShadow: `0 4px 20px ${(sport as any).colors?.primary || '#00FF87'}40`
-                      } : {
-                        background: 'linear-gradient(to right, hsl(18, 100%, 56%), hsl(27, 96%, 50%), hsl(18, 100%, 56%))'
+                        animation: sport.isPremium ? 'liquid-gradient 3s ease-in-out infinite' : 'none',
+                        boxShadow: `0 4px 20px ${(sport as any).colors?.primary || 'hsl(18, 100%, 56%)'}40`
                       }}
                     >
                       <div className="flex items-center gap-3">
                         <span 
                           className="text-3xl filter"
                           style={{
-                            filter: `drop-shadow(0 0 15px ${(sport as any).colors?.primary || '#00D4FF'})`
+                            filter: `drop-shadow(0 0 15px ${(sport as any).colors?.primary || '#FF6B35'})`
                           }}
                         >
                           {(sport as any).emoji || '🏆'}
@@ -577,7 +575,7 @@ const Home = () => {
                         <h3 
                           className="text-xl font-display font-black tracking-wider text-white"
                           style={{
-                            textShadow: sport.isPremium ? `0 0 10px ${(sport as any).colors?.glow || 'rgba(0,212,255,0.6)'}` : '0 0 10px rgba(0,212,255,0.6)'
+                            textShadow: `0 0 10px ${(sport as any).colors?.glow || 'rgba(255,107,53,0.6)'}`
                           }}
                         >
                           {sport.name}
