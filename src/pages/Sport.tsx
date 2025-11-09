@@ -92,6 +92,35 @@ const Sport = () => {
     }
   };
 
+  const isTipLocked = (tipProPlan: number, userPlan: number): boolean => {
+    // Free user (plan -1, 0): vê apenas is_pro_plan = -1
+    if (userPlan <= 0) {
+      return tipProPlan !== -1;
+    }
+    
+    // Básico user (plan 1): vê is_pro_plan = -1, 0, 1 (2 bloqueado)
+    if (userPlan === 1) {
+      return tipProPlan === 2;
+    }
+    
+    // Pro user (plan 2+): vê tudo
+    return false;
+  };
+
+  const handleUnlock = (tipProPlan: number) => {
+    const checkout = localStorage.getItem('checkout');
+    const proUrl = localStorage.getItem('proUrl');
+    
+    // Se é básico bloqueado (is_pro_plan = 1), abre checkout
+    if (tipProPlan === 1 && checkout) {
+      window.open(checkout, '_blank');
+    }
+    // Se é pro bloqueado (is_pro_plan = 2), abre proUrl
+    else if (tipProPlan === 2 && proUrl) {
+      window.open(proUrl, '_blank');
+    }
+  };
+
   const handleLogout = () => {
     clearAuth();
     toast.success("Logout realizado com sucesso");
@@ -168,28 +197,34 @@ const Sport = () => {
                 className="w-full"
               >
                 <CarouselContent className="-ml-2">
-                  {tips.map((tip) => (
-                    <CarouselItem key={tip.id} className="pl-2 basis-[90%] min-[480px]:basis-[85%] sm:basis-[75%] md:basis-[60%] lg:basis-[45%] xl:basis-[35%]">
-                      <PremiumBettingCard
-                        tier={mapTipToCardTier(tip.is_pro_plan)}
-                        team1={{
-                          name: tip.time1_name,
-                          logo: `https://imagedelivery.net/uGmh4EK74r0qnuu3lZf-oA/${tip.time1_logo}/public`,
-                        }}
-                        team2={{
-                          name: tip.time2_name,
-                          logo: `https://imagedelivery.net/uGmh4EK74r0qnuu3lZf-oA/${tip.time2_logo}/public`,
-                        }}
-                        market={tip.real_odd_market}
-                        betChoice={tip.odd_Name}
-                        odds={tip.odd_Value}
-                        confidence={tip.is_super_odd ? 95 : 75}
-                        insights={tip.odd_market}
-                        footer={`Expira em: ${new Date(tip.expiration_date).toLocaleDateString()}`}
-                        onAddTip={() => handleAddTip(String(tip.id), tip.url_iframe)}
-                      />
-                    </CarouselItem>
-                  ))}
+                  {tips.map((tip) => {
+                    const userPlan = config?.user?.purchasedPlan ?? 0;
+                    const isLocked = isTipLocked(tip.is_pro_plan, userPlan);
+                    
+                    return (
+                      <CarouselItem key={tip.id} className="pl-2 basis-[90%] min-[480px]:basis-[85%] sm:basis-[75%] md:basis-[60%] lg:basis-[45%] xl:basis-[35%]">
+                        <PremiumBettingCard
+                          tier={mapTipToCardTier(tip.is_pro_plan)}
+                          team1={{
+                            name: tip.time1_name,
+                            logo: `https://imagedelivery.net/uGmh4EK74r0qnuu3lZf-oA/${tip.time1_logo}/public`,
+                          }}
+                          team2={{
+                            name: tip.time2_name,
+                            logo: `https://imagedelivery.net/uGmh4EK74r0qnuu3lZf-oA/${tip.time2_logo}/public`,
+                          }}
+                          market={tip.real_odd_market}
+                          betChoice={tip.odd_Name}
+                          odds={tip.odd_Value}
+                          confidence={tip.is_super_odd ? 95 : 75}
+                          insights={tip.odd_market}
+                          footer={`Expira em: ${new Date(tip.expiration_date).toLocaleDateString()}`}
+                          isLocked={isLocked}
+                          onAddTip={() => isLocked ? handleUnlock(tip.is_pro_plan) : handleAddTip(String(tip.id), tip.url_iframe)}
+                        />
+                      </CarouselItem>
+                    );
+                  })}
                 </CarouselContent>
               </Carousel>
               

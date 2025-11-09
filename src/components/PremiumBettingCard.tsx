@@ -28,6 +28,7 @@ interface PremiumBettingCardProps {
   insights?: string;
   footer?: string;
   lineAlert?: boolean;
+  isLocked?: boolean;
   onAddTip?: () => void;
   onViewAnalysis?: () => void;
 }
@@ -45,6 +46,7 @@ export const PremiumBettingCard = ({
   insights,
   footer = "Gestão 1–2% • Pré-jogo",
   lineAlert = false,
+  isLocked = false,
   onAddTip,
   onViewAnalysis,
 }: PremiumBettingCardProps) => {
@@ -278,9 +280,13 @@ export const PremiumBettingCard = ({
         <div className="pt-1">
           <Button
             onClick={onAddTip}
-            className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 text-xs shadow-lg shadow-primary/30 transition-all duration-300 hover:scale-[1.02] relative overflow-hidden group/btn"
+            className={`w-full font-bold py-4 text-xs shadow-lg transition-all duration-300 hover:scale-[1.02] relative overflow-hidden group/btn ${
+              isLocked 
+                ? "bg-warning hover:bg-warning/90 text-black shadow-warning/30" 
+                : "bg-primary hover:bg-primary/90 text-white shadow-primary/30"
+            }`}
           >
-            <span className="relative">Adicionar</span>
+            <span className="relative">{isLocked ? "🔒 Desbloquear" : "Adicionar"}</span>
           </Button>
         </div>
 
