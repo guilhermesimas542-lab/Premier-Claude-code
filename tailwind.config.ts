@@ -129,10 +129,10 @@ export default {
         },
         "border-glow": {
           "0%, 100%": { 
-            boxShadow: "0 0 24px rgba(223, 172, 42, 0.487), 0 0 48px rgba(223, 172, 42, 0.244), inset 0 0 24px rgba(223, 172, 42, 0.12)"
+            opacity: "0.8"
           },
           "50%": { 
-            boxShadow: "0 0 32px rgba(223, 172, 42, 0.7), 0 0 64px rgba(223, 172, 42, 0.4), inset 0 0 32px rgba(223, 172, 42, 0.2)"
+            opacity: "1"
           },
         },
       },
