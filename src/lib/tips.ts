@@ -40,6 +40,17 @@ export async function loadTipsForSport(sportId: number = 1): Promise<TipsRespons
           }
         }
         
+        // Atualizar aff do usuário com affCasa
+        if (data.response.affCasa !== undefined && storedConfig.user) {
+          storedConfig.user.aff = data.response.affCasa;
+          localStorage.setItem("_user", JSON.stringify(storedConfig.user));
+          
+          // Atualizar userData também
+          if (storedConfig.metric) {
+            localStorage.setItem("userData", JSON.stringify({ _user: storedConfig.user, metric: storedConfig.metric }));
+          }
+        }
+        
         // Salvar appConfig atualizado
         localStorage.setItem("appConfig", JSON.stringify(storedConfig));
       }
