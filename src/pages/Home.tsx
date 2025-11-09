@@ -407,36 +407,37 @@ const Home = () => {
             }}
             className="w-full"
           >
-            <CarouselContent>
+            <CarouselContent className="-ml-2 md:-ml-4">
               {banners.map((banner) => (
-                <CarouselItem key={banner.id}>
-                  <div className="relative h-[300px] md:h-[400px] rounded-2xl overflow-hidden group cursor-pointer">
+                <CarouselItem key={banner.id} className="pl-2 md:pl-4">
+                  <div className="relative h-[240px] sm:h-[300px] md:h-[400px] rounded-xl md:rounded-2xl overflow-hidden group cursor-pointer">
                     <div
                       className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
                       style={{ backgroundImage: `url('${banner.image}')` }}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0C0F14] via-[#0C0F14]/50 to-transparent" />
-                    <div className="absolute bottom-0 left-0 right-0 p-8 space-y-4">
-                      <h2 className="text-3xl md:text-4xl font-display font-extrabold text-white tracking-tight">
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#0C0F14] via-[#0C0F14]/60 to-transparent" />
+                    <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-8 space-y-2 sm:space-y-3 md:space-y-4">
+                      <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-display font-extrabold text-white tracking-tight">
                         {banner.title}
                       </h2>
-                      <p className="text-lg text-white/80 max-w-2xl">
+                      <p className="text-sm sm:text-base md:text-lg text-white/80 max-w-2xl line-clamp-2">
                         {banner.description}
                       </p>
                       <Button
                         onClick={() => banner.ctaUrl !== "#" && window.open(banner.ctaUrl, "_blank")}
-                        className="bg-primary hover:bg-primary/90 text-white font-bold"
+                        className="bg-primary hover:bg-primary/90 text-white font-bold text-xs sm:text-sm"
+                        size="sm"
                       >
                         {banner.ctaText}
-                        <ChevronRight className="w-4 h-4 ml-2" />
+                        <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 ml-1 sm:ml-2" />
                       </Button>
                     </div>
                   </div>
                 </CarouselItem>
               ))}
             </CarouselContent>
-            <CarouselPrevious className="left-4" />
-            <CarouselNext className="right-4" />
+            <CarouselPrevious className="left-2 md:left-4 h-7 w-7 md:h-8 md:w-8" />
+            <CarouselNext className="right-2 md:right-4 h-7 w-7 md:h-8 md:w-8" />
           </Carousel>
         </section>
 
