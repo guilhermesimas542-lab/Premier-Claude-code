@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, AlertCircle } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface Indicator {
   label: string;
@@ -49,6 +49,34 @@ export const PremiumBettingCard = ({
   onViewAnalysis,
 }: PremiumBettingCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
+  const [peopleCount, setPeopleCount] = useState(0);
+  
+  // Gera número aleatório final entre 100 e 5000
+  const [finalCount] = useState(() => Math.floor(Math.random() * (5000 - 100 + 1)) + 100);
+  
+  // Anima o contador subindo
+  useEffect(() => {
+    const startCount = Math.floor(finalCount * 0.3); // Começa com 30% do valor final
+    const duration = 2000; // 2 segundos
+    const steps = 60;
+    const increment = (finalCount - startCount) / steps;
+    let current = startCount;
+    let step = 0;
+    
+    const timer = setInterval(() => {
+      step++;
+      current += increment;
+      
+      if (step >= steps) {
+        setPeopleCount(finalCount);
+        clearInterval(timer);
+      } else {
+        setPeopleCount(Math.floor(current));
+      }
+    }, duration / steps);
+    
+    return () => clearInterval(timer);
+  }, [finalCount]);
 
   const getTierConfig = () => {
     switch (tier) {
@@ -183,7 +211,21 @@ export const PremiumBettingCard = ({
           </div>
         </div>
 
-        {/* Insights - Moved below logos */}
+        {/* People Counter with Fire Animation */}
+        <div className="bg-gradient-to-r from-warning/10 via-warning/5 to-transparent border border-warning/20 rounded-lg p-2 flex items-center gap-2 animate-fade-in">
+          <div className="relative">
+            <img 
+              src="https://media.giphy.com/media/l0HlR3kHtkgFbYfgQ/giphy.gif" 
+              alt="" 
+              className="w-5 h-5 object-contain opacity-90 animate-pulse"
+            />
+          </div>
+          <p className="text-[10px] text-foreground font-bold leading-tight">
+            Já são <span className="text-warning font-extrabold text-xs">{peopleCount.toLocaleString('pt-BR')}</span> pessoas nessa aposta!
+          </p>
+        </div>
+
+        {/* Insights - Moved below people counter */}
         {insights && (
           <div className="bg-accent/5 border border-accent/20 rounded-lg p-2">
             <p className="text-[10px] text-foreground/90 leading-snug font-medium line-clamp-2">
