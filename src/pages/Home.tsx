@@ -66,12 +66,12 @@ const Home = () => {
       name: "Futebol",
       description: "Acesso liberado — dados atualizados em tempo real",
       route: "/futebol",
-      gradient: "from-[#DFAC2A] via-[#F4C542] to-[#DFAC2A]",
+      gradient: "from-success via-emerald-500 to-success",
       image: "https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=600&h=400&fit=crop",
       badge: "🔥 Destaque",
       badgeColor: "bg-success/20 text-success border-success/40",
       isPremium: true,
-      borderColor: "#DFAC2A",
+      borderColor: "#22C55E",
     },
     {
       id: "cassino",
@@ -314,8 +314,8 @@ const Home = () => {
                     className="absolute inset-0 rounded-xl border pointer-events-none z-30" 
                     style={{
                       borderWidth: '2px',
-                      borderColor: (sport as any).borderColor || '#DFAC2A',
-                      boxShadow: `0 0 16px rgba(223, 172, 42, 0.3), 0 0 32px rgba(223, 172, 42, 0.15), inset 0 0 16px rgba(223, 172, 42, 0.08)`,
+                      borderColor: (sport as any).borderColor || '#22C55E',
+                      boxShadow: `0 0 16px rgba(34, 197, 94, 0.3), 0 0 32px rgba(34, 197, 94, 0.15), inset 0 0 16px rgba(34, 197, 94, 0.08)`,
                       animation: 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite'
                     }} 
                   />
@@ -326,12 +326,12 @@ const Home = () => {
                   {/* Top Bar - Barra Colorida de Destaque */}
                   <div className={`${
                     sport.isPremium 
-                      ? 'bg-gradient-to-r from-[#DFAC2A] via-[#F4C542] to-[#DFAC2A]' 
+                      ? 'bg-gradient-to-r from-success via-emerald-500 to-success' 
                       : 'bg-gradient-to-r from-primary via-orange-600 to-primary'
                   } px-4 py-3`}>
                     <div className="flex items-center gap-3">
                       <span className="text-2xl filter drop-shadow-lg">{sport.isPremium ? '⚽' : sport.id === 'cassino' ? '🎰' : sport.id === 'basquete' ? '🏀' : sport.id === 'tenis' ? '🎾' : sport.id === 'esports' ? '🎮' : '🏐'}</span>
-                      <h3 className="text-xl font-display font-black tracking-tight text-black">
+                      <h3 className="text-xl font-display font-black tracking-tight text-white">
                         {sport.name}
                       </h3>
                     </div>
@@ -425,9 +425,9 @@ const Home = () => {
                     {/* Badges - Glassmorphism Premium */}
                     {sport.isPremium && (
                       <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-2 bg-[#DFAC2A]/15 backdrop-blur-md border border-[#DFAC2A]/40 rounded-full px-3 py-1.5">
-                          <Sparkles className="w-3.5 h-3.5 text-[#DFAC2A] animate-pulse" />
-                          <span className="text-[10px] font-black text-[#DFAC2A] tracking-wide">IA ATIVADA</span>
+                        <div className="flex items-center gap-2 bg-success/15 backdrop-blur-md border border-success/40 rounded-full px-3 py-1.5">
+                          <Sparkles className="w-3.5 h-3.5 text-success animate-pulse" />
+                          <span className="text-[10px] font-black text-success tracking-wide">IA ATIVADA</span>
                         </div>
                         <Badge className={`${sport.badgeColor} text-[10px] font-bold backdrop-blur-md px-3 py-1`}>
                           {sport.badge}
