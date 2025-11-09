@@ -32,6 +32,7 @@ export function persistConfig(cfg: AppConfig): void {
   if (cfg.user && cfg.metric) {
     localStorage.setItem("userData", JSON.stringify({ _user: cfg.user, metric: cfg.metric }));
   }
+  localStorage.setItem("betSiteType", String(cfg.betSiteType ?? 0));
   localStorage.setItem("appConfig", JSON.stringify(cfg));
 }
 
@@ -65,4 +66,25 @@ export async function fetchAuth(url: string, options: RequestInit = {}): Promise
 
 export function isAuthenticated(): boolean {
   return !!localStorage.getItem("jwt");
+}
+
+export function getBetSiteType(): number {
+  const fromLS = localStorage.getItem("betSiteType");
+  if (fromLS !== null && fromLS !== undefined && fromLS !== "null") {
+    const n = Number(fromLS);
+    if (!Number.isNaN(n)) return n;
+  }
+  
+  try {
+    const userData = localStorage.getItem("userData");
+    if (userData) {
+      const parsed = JSON.parse(userData);
+      const n = parsed?.betSiteType ?? parsed?._user?._betSiteType ?? parsed?.user?._betSiteType ?? 0;
+      return Number(n) || 0;
+    }
+  } catch {
+    return 0;
+  }
+  
+  return 0;
 }

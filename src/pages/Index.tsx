@@ -12,11 +12,15 @@ import {
 } from "@/components/ui/carousel";
 import { toast } from "sonner";
 import { getStoredConfig, clearAuth, isAuthenticated } from "@/lib/auth";
+import { loadTipsForSport, mapTipToCardTier } from "@/lib/tips";
 import { AppConfig } from "@/types/auth";
+import { Tip } from "@/types/tips";
 
 const Index = () => {
   const navigate = useNavigate();
   const [config, setConfig] = useState<AppConfig | null>(null);
+  const [tips, setTips] = useState<Tip[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // Verifica se está autenticado
@@ -29,135 +33,38 @@ const Index = () => {
     const storedConfig = getStoredConfig();
     if (storedConfig) {
       setConfig(storedConfig);
+      loadTips();
+    } else {
+      setIsLoading(false);
     }
   }, [navigate]);
+
+  const loadTips = async () => {
+    setIsLoading(true);
+    try {
+      const response = await loadTipsForSport(1);
+      if (response.success && response.data) {
+        setTips(response.data);
+      } else {
+        toast.error(response.message || "Erro ao carregar tips");
+      }
+    } catch (error) {
+      console.error("Erro ao carregar tips:", error);
+      toast.error("Erro ao carregar tips");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleLogout = () => {
     clearAuth();
     toast.success("Logout realizado com sucesso");
     navigate("/login");
   };
-  const premiumTips = [
-    {
-      id: "1",
-      tier: "PRO" as const,
-      team1: {
-        name: "São Paulo",
-        logo: "https://upload.wikimedia.org/wikipedia/commons/6/6f/Brasao_do_Sao_Paulo_Futebol_Clube.svg",
-      },
-      team2: {
-        name: "Flamengo",
-        logo: "https://upload.wikimedia.org/wikipedia/commons/9/93/Flamengo-RJ_%28BRA%29.png",
-      },
-      market: "Escanteios 1x2",
-      betChoice: "Fora",
-      odds: 1.70,
-      confidence: 78,
-      indicators: [
-        { label: "Forma (5j)", value: "WWWDL" },
-        { label: "Janela", value: "0'-10'" },
-      ],
-      insights: "Forma fora superior + volume médio de corners nos últimos 10j",
-      footer: "Gestão 1–2% • Pré-jogo • Cancelar se odd <1.60",
-    },
-    {
-      id: "2",
-      tier: "BÁSICO" as const,
-      team1: {
-        name: "São Paulo",
-        logo: "https://upload.wikimedia.org/wikipedia/commons/6/6f/Brasao_do_Sao_Paulo_Futebol_Clube.svg",
-      },
-      team2: {
-        name: "Flamengo",
-        logo: "https://upload.wikimedia.org/wikipedia/commons/9/93/Flamengo-RJ_%28BRA%29.png",
-      },
-      market: "Total de gols",
-      betChoice: "Mais de 1.5",
-      odds: 1.44,
-      confidence: 84,
-      indicators: [
-        { label: "Média Gols", value: "2.6" },
-        { label: "BTTS", value: "4/6" },
-      ],
-      insights: "Média 2.6 gols (10j) • BTTS 4/6 • Clima/gramado ok",
-      footer: "Entrada simples • Sem múltiplas • Gestão 1%",
-    },
-    {
-      id: "3",
-      tier: "PRO" as const,
-      team1: {
-        name: "Grêmio",
-        logo: "https://upload.wikimedia.org/wikipedia/commons/3/32/Gr%C3%AAmio_FBPA_%28logo%29.svg",
-      },
-      team2: {
-        name: "Cruzeiro",
-        logo: "https://upload.wikimedia.org/wikipedia/commons/9/90/Cruzeiro_Esporte_Clube_%28logo%29.svg",
-      },
-      market: "Ambas marcam",
-      betChoice: "Não",
-      odds: 1.92,
-      confidence: 76,
-      indicators: [
-        { label: "H2H", value: "Under" },
-        { label: "Forma Casa", value: "Sólida" },
-      ],
-      insights: "H2H under • Cruzeiro fora pouco efetivo • Grêmio sólido em casa",
-      footer: "Pré-jogo • Cancelar se escalação alterar linha",
-      lineAlert: false,
-    },
-    {
-      id: "4",
-      tier: "GRÁTIS" as const,
-      team1: {
-        name: "Palmeiras",
-        logo: "https://upload.wikimedia.org/wikipedia/commons/1/10/Palmeiras_logo.svg",
-      },
-      team2: {
-        name: "Corinthians",
-        logo: "https://upload.wikimedia.org/wikipedia/commons/5/5a/Corinthians_simbolo.png",
-      },
-      market: "Resultado Final",
-      betChoice: "Casa",
-      odds: 1.85,
-      confidence: 75,
-      insights: "Derby paulista • Palmeiras favorito jogando em casa",
-      footer: "Entrada gratuita • Teste sem risco",
-    },
-    {
-      id: "5",
-      tier: "MÚLTIPLA" as const,
-      team1: {
-        name: "Fluminense",
-        logo: "https://upload.wikimedia.org/wikipedia/commons/a/ad/Fluminense_FC_escudo.svg",
-      },
-      team2: {
-        name: "Botafogo",
-        logo: "https://upload.wikimedia.org/wikipedia/commons/5/52/Botafogo_de_Futebol_e_Regatas_logo.svg",
-      },
-      market: "Múltipla Especial",
-      betChoice: "Over 1.5 + BTTS",
-      odds: 2.35,
-      confidence: 82,
-      insights: "Combinação de mercados com alto valor • Jogos abertos recentes",
-      footer: "Múltipla validada • Gestão 1.5%",
-    },
-  ];
 
   const handleAddTip = (tipId: string) => {
     toast.success("Tip adicionada!", {
       description: `Entrada ID: ${tipId} adicionada ao seu cupom`,
-    });
-  };
-
-  const handleViewAnalysis = (tipId: string) => {
-    toast.info("Análise completa", {
-      description: `Abrindo análise detalhada do tip ${tipId}`,
-    });
-  };
-
-  const handleCopy = (tipId: string) => {
-    toast.success("Copiado!", {
-      description: "Entrada copiada para área de transferência",
     });
   };
 
@@ -210,45 +117,60 @@ const Index = () => {
       <main className="container max-w-7xl mx-auto px-4 py-6 space-y-6">
         {/* Premium Cards Carousel */}
         <section className="relative">
-          <Carousel
-            opts={{
-              align: "start",
-              loop: false,
-            }}
-            className="w-full"
-          >
-            <CarouselContent className="-ml-2">
-              {premiumTips.map((tip) => (
-                <CarouselItem key={tip.id} className="pl-2 basis-[90%] min-[480px]:basis-[85%] sm:basis-[75%] md:basis-[60%] lg:basis-[45%] xl:basis-[35%]">
-                  <PremiumBettingCard
-                    tier={tip.tier}
-                    team1={tip.team1}
-                    team2={tip.team2}
-                    market={tip.market}
-                    betChoice={tip.betChoice}
-                    odds={tip.odds}
-                    confidence={tip.confidence}
-                    indicators={tip.indicators}
-                    insights={tip.insights}
-                    footer={tip.footer}
-                    lineAlert={tip.lineAlert}
-                    onAddTip={() => handleAddTip(tip.id)}
-                    onViewAnalysis={() => handleViewAnalysis(tip.id)}
+          {isLoading ? (
+            <div className="flex items-center justify-center py-20">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            </div>
+          ) : tips.length > 0 ? (
+            <>
+              <Carousel
+                opts={{
+                  align: "start",
+                  loop: false,
+                }}
+                className="w-full"
+              >
+                <CarouselContent className="-ml-2">
+                  {tips.map((tip) => (
+                    <CarouselItem key={tip.id} className="pl-2 basis-[90%] min-[480px]:basis-[85%] sm:basis-[75%] md:basis-[60%] lg:basis-[45%] xl:basis-[35%]">
+                      <PremiumBettingCard
+                        tier={mapTipToCardTier(tip.tipo)}
+                        team1={{
+                          name: tip.nomeMandante,
+                          logo: tip.logoMandante || "https://via.placeholder.com/100",
+                        }}
+                        team2={{
+                          name: tip.nomeVisitante,
+                          logo: tip.logoVisitante || "https://via.placeholder.com/100",
+                        }}
+                        market={tip.mercado}
+                        betChoice={tip.entrada}
+                        odds={tip.odd}
+                        confidence={tip.confianca}
+                        insights={tip.insights}
+                        footer={tip.observacao}
+                        onAddTip={() => handleAddTip(String(tip.id))}
+                      />
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+              </Carousel>
+              
+              {/* Scroll Indicator */}
+              <div className="flex justify-center mt-4 gap-1.5">
+                {tips.slice(0, 5).map((_, index) => (
+                  <div
+                    key={index}
+                    className="h-1 w-8 bg-muted/30 rounded-full"
                   />
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-          </Carousel>
-          
-          {/* Scroll Indicator */}
-          <div className="flex justify-center mt-4 gap-1.5">
-            {premiumTips.map((_, index) => (
-              <div
-                key={index}
-                className="h-1 w-8 bg-muted/30 rounded-full"
-              />
-            ))}
-          </div>
+                ))}
+              </div>
+            </>
+          ) : (
+            <div className="text-center py-20">
+              <p className="text-muted-foreground">Nenhuma tip disponível no momento</p>
+            </div>
+          )}
         </section>
 
         {/* Iframe Section */}
