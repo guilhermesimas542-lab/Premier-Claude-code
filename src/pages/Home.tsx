@@ -438,13 +438,13 @@ const Home = () => {
 
                   {/* Bottom Section - Botão Dourado */}
                   <div className="mt-auto p-5 pt-0 space-y-3">
-                    {/* Botão Dourado Metálico com Reflexo Animado */}
+                    {/* Botão Verde Metálico com Reflexo Animado */}
                     {(sport as any).isLocked || (sport as any).isPreSale || sport.isPremium ? (
                       <Button 
                         className={`w-full relative overflow-hidden ${
                           sport.isPremium 
-                            ? 'bg-gradient-to-r from-[#DFAC2A] via-[#FFD85C] to-[#DFAC2A] bg-[length:200%_100%] hover:bg-[length:100%_100%] shadow-2xl shadow-[#DFAC2A]/60 hover:shadow-[#FFD85C]/80 shimmer-effect' 
-                            : 'bg-[#DFAC2A] hover:bg-[#C89824] shadow-lg hover:shadow-xl'
+                            ? 'bg-gradient-to-r from-[#00C853] via-[#00FF87] to-[#00C853] bg-[length:200%_100%] hover:bg-[length:100%_100%] shadow-2xl shadow-[#00FF87]/60 hover:shadow-[#00FF87]/80 shimmer-effect' 
+                            : 'bg-[#00C853] hover:bg-[#00A844] shadow-lg hover:shadow-xl'
                         } text-black font-black py-7 text-base transition-all duration-500 border-0`}
                       >
                         <span className="relative z-10 drop-shadow-md tracking-wide">
@@ -452,7 +452,7 @@ const Home = () => {
                         </span>
                       </Button>
                     ) : sport.route !== "#" ? (
-                      <Button className="w-full bg-[#DFAC2A] hover:bg-[#C89824] text-black font-black py-7 text-base transition-all duration-200 shadow-lg hover:shadow-xl">
+                      <Button className="w-full bg-[#00C853] hover:bg-[#00A844] text-black font-black py-7 text-base transition-all duration-200 shadow-lg hover:shadow-xl">
                         ACESSAR AGORA
                       </Button>
                     ) : null}
