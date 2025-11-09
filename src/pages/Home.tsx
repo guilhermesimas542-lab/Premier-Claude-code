@@ -315,6 +315,22 @@ const Home = () => {
                       : ""
                   } transition-all duration-500 border-0 p-0 h-full ${sport.isPremium ? 'rounded-xl' : 'rounded-lg'}`}
                 >
+                  {/* Badge IA ATIVADA - Flutuante no topo direito */}
+                  {sport.isPremium && (
+                    <div className="absolute -top-3 -right-3 z-20 animate-fade-in">
+                      <div className="relative flex items-center gap-2 bg-gradient-to-r from-[#000636]/95 to-[#0033C6]/95 backdrop-blur-xl border-2 border-[#00FF87] rounded-xl px-4 py-2 shadow-2xl shadow-[#00FF87]/50">
+                        <Sparkles className="w-4 h-4 text-[#00FF87] animate-pulse drop-shadow-[0_0_8px_rgba(0,255,135,1)]" />
+                        <span className="text-xs font-black text-[#00FF87] tracking-widest drop-shadow-[0_0_8px_rgba(0,255,135,0.8)]">IA ATIVADA</span>
+                        {/* Partículas de luz tecnológicas */}
+                        <div className="absolute inset-0 opacity-30 pointer-events-none">
+                          <div className="absolute top-1 left-2 w-1 h-1 bg-[#00FFFF] rounded-full animate-pulse" />
+                          <div className="absolute bottom-1 right-3 w-1 h-1 bg-white rounded-full animate-pulse" style={{ animationDelay: '0.5s' }} />
+                          <div className="absolute top-1/2 right-2 w-1 h-1 bg-[#00FF87] rounded-full animate-pulse" style={{ animationDelay: '1s' }} />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Background Image - Cinematográfico Arena Noturna */}
                   <div className="absolute inset-0 z-0">
                     <div
@@ -413,20 +429,8 @@ const Home = () => {
                           {/* Tagline Poderosa - Tema Azul */}
                           <div className="text-center animate-fade-in">
                             <p className="text-sm font-black text-white drop-shadow-[0_0_20px_rgba(0,212,255,0.7)] leading-relaxed">
-                              {(sport as any).tagline || "⚡ Esporte desbloqueado — Alta taxa de acertos!"}
+                              {(sport as any).tagline || "🔥 Entrada quente — Análise premium disponível agora!"}
                             </p>
-                          </div>
-
-                          {/* Selo IA ATIVADA - Tecnologia Azul com Partículas */}
-                          <div className="relative flex items-center justify-center gap-3 bg-gradient-to-r from-[#000636]/40 to-[#0033C6]/30 backdrop-blur-xl border-2 border-[#00D4FF]/60 rounded-xl p-4 shadow-2xl shadow-[#00D4FF]/40 glass-particles overflow-hidden">
-                            <Sparkles className="w-5 h-5 text-[#00D4FF] animate-pulse drop-shadow-[0_0_12px_rgba(0,212,255,1)]" />
-                            <span className="text-sm font-black text-[#00D4FF] tracking-widest drop-shadow-[0_0_10px_rgba(0,212,255,0.8)]">IA ATIVADA</span>
-                            {/* Partículas de luz tecnológicas */}
-                            <div className="absolute inset-0 opacity-30">
-                              <div className="absolute top-2 left-4 w-1 h-1 bg-[#00FFFF] rounded-full animate-pulse" />
-                              <div className="absolute bottom-3 right-6 w-1 h-1 bg-white rounded-full animate-pulse" style={{ animationDelay: '0.5s' }} />
-                              <div className="absolute top-1/2 right-3 w-1 h-1 bg-[#0099FF] rounded-full animate-pulse" style={{ animationDelay: '1s' }} />
-                            </div>
                           </div>
                         </div>
                       ) : (
