@@ -245,18 +245,24 @@ const Home = () => {
                     : "cursor-not-allowed opacity-60"
                 } transition-all duration-300 bg-gradient-to-br from-[#121826] to-[#0C0F14] group ${
                   sport.isPremium 
-                    ? "border-2 border-success/50 shadow-[0_0_30px_rgba(34,197,94,0.3)] hover:shadow-[0_0_50px_rgba(34,197,94,0.5)] animate-pulse-border" 
+                    ? "border-2 border-success/40" 
                     : "border-border/30 hover:shadow-[0_0_30px_rgba(34,211,238,0.3)]"
                 }`}
               >
-                {/* Animated Glow Effect for Premium */}
+                {/* Rotating Border Effect for Premium */}
                 {sport.isPremium && (
-                  <>
-                    <div className="absolute inset-0 opacity-30 animate-gradient bg-gradient-to-r from-success via-yellow-400 to-success bg-[length:200%_100%] blur-xl" />
-                    <div className="absolute inset-0 opacity-20">
-                      <div className="absolute inset-0 bg-gradient-to-tr from-success/20 via-transparent to-yellow-400/20 animate-spin-slow" />
+                  <div className="absolute inset-0 rounded-xl overflow-hidden pointer-events-none">
+                    <div className="absolute inset-[-2px]">
+                      <div className="w-full h-full bg-gradient-to-r from-success via-yellow-400 to-success bg-[length:200%_100%] animate-gradient opacity-60 blur-sm" />
                     </div>
-                  </>
+                  </div>
+                )}
+
+                {/* Subtle Glow for Premium */}
+                {sport.isPremium && (
+                  <div className="absolute inset-0 opacity-20 pointer-events-none">
+                    <div className="absolute inset-0 bg-gradient-to-tr from-success/30 via-transparent to-yellow-400/30" />
+                  </div>
                 )}
 
                 {/* Background Image */}
@@ -275,26 +281,20 @@ const Home = () => {
                   
                   {/* Badge */}
                   <div className="absolute top-3 right-3">
-                    <Badge className={`${sport.badgeColor} text-[9px] font-bold ${
-                      sport.isPremium ? "animate-pulse shadow-lg shadow-success/50" : ""
-                    }`}>
+                    <Badge className={`${sport.badgeColor} text-[9px] font-bold`}>
                       {sport.badge}
                     </Badge>
                   </div>
 
                   {/* Gradient Overlay */}
                   <div className={`absolute inset-0 bg-gradient-to-br ${sport.gradient} ${
-                    sport.isPremium ? "opacity-40" : "opacity-20"
+                    sport.isPremium ? "opacity-30" : "opacity-20"
                   }`} />
                   
-                  {/* Premium Sparkle Effect */}
+                  {/* Premium Subtle Shine Effect */}
                   {sport.isPremium && (
-                    <div className="absolute inset-0 opacity-20 pointer-events-none">
-                      <img 
-                        src="https://media.giphy.com/media/26tPnAAJxXTvpLwJy/giphy.gif" 
-                        alt="" 
-                        className="w-full h-full object-cover mix-blend-screen"
-                      />
+                    <div className="absolute inset-0 opacity-10 pointer-events-none">
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                     </div>
                   )}
                 </div>
