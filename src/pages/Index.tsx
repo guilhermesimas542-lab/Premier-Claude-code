@@ -185,7 +185,7 @@ const Index = () => {
 
         {/* Iframe Section */}
         <section className="w-full">
-          <div className="w-full h-[500px] bg-gradient-to-br from-muted/40 to-muted/20 rounded-xl overflow-hidden border border-border/30 backdrop-blur-sm">
+          <div className="w-full h-[1000px] bg-gradient-to-br from-muted/40 to-muted/20 rounded-xl overflow-hidden border border-border/30 backdrop-blur-sm">
             <iframe
               src="https://futnacional.bet/"
               title="Futnacional Bet"
