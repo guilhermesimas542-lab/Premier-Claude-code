@@ -113,8 +113,8 @@ const Sport = () => {
     
     console.log('handleUnlock chamado:', { tipProPlan, checkout, proUrl });
     
-    // Se é básico bloqueado (is_pro_plan = 1), abre checkout
-    if (tipProPlan === 1 && checkout) {
+    // Se é básico bloqueado (is_pro_plan = 0 ou 1), abre checkout
+    if ((tipProPlan === 0 || tipProPlan === 1) && checkout) {
       console.log('Abrindo checkout:', checkout);
       window.open(checkout, '_blank');
       return;
