@@ -41,12 +41,13 @@ const Home = () => {
     {
       id: "futebol",
       name: "Futebol",
-      description: "Tips e análises premium",
+      description: "💰 Apostas com as maiores taxas de acerto — 97% de greens comprovados!",
       route: "/futebol",
       gradient: "from-success via-emerald-500 to-success",
       image: "https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=600&h=400&fit=crop",
-      badge: "Novo",
-      badgeColor: "bg-success/20 text-success border-success/30"
+      badge: "🔥 Destaque",
+      badgeColor: "bg-success/20 text-success border-success/30",
+      isPremium: true,
     },
     {
       id: "cassino",
@@ -56,7 +57,8 @@ const Home = () => {
       gradient: "from-primary via-orange-600 to-primary",
       image: "https://images.unsplash.com/photo-1596838132731-3301c3fd4317?w=600&h=400&fit=crop",
       badge: "Em breve",
-      badgeColor: "bg-muted/30 text-muted-foreground border-border/30"
+      badgeColor: "bg-muted/30 text-muted-foreground border-border/30",
+      isPremium: false,
     },
     {
       id: "basquete",
@@ -66,7 +68,8 @@ const Home = () => {
       gradient: "from-accent via-cyan-500 to-accent",
       image: "https://images.unsplash.com/photo-1546519638-68e109498ffc?w=600&h=400&fit=crop",
       badge: "Em breve",
-      badgeColor: "bg-muted/30 text-muted-foreground border-border/30"
+      badgeColor: "bg-muted/30 text-muted-foreground border-border/30",
+      isPremium: false,
     },
     {
       id: "tenis",
@@ -76,7 +79,8 @@ const Home = () => {
       gradient: "from-vip via-purple-600 to-vip",
       image: "https://images.unsplash.com/photo-1622279457486-62dcc4a431d6?w=600&h=400&fit=crop",
       badge: "Em breve",
-      badgeColor: "bg-muted/30 text-muted-foreground border-border/30"
+      badgeColor: "bg-muted/30 text-muted-foreground border-border/30",
+      isPremium: false,
     },
   ];
 
@@ -237,41 +241,86 @@ const Home = () => {
                 onClick={() => sport.route !== "#" && navigate(sport.route)}
                 className={`relative overflow-hidden ${
                   sport.route !== "#"
-                    ? "cursor-pointer hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(34,211,238,0.3)]"
+                    ? "cursor-pointer hover:scale-[1.02]"
                     : "cursor-not-allowed opacity-60"
-                } transition-all duration-300 bg-gradient-to-br from-[#121826] to-[#0C0F14] border-border/30 group`}
+                } transition-all duration-300 bg-gradient-to-br from-[#121826] to-[#0C0F14] group ${
+                  sport.isPremium 
+                    ? "border-2 border-success/50 shadow-[0_0_30px_rgba(34,197,94,0.3)] hover:shadow-[0_0_50px_rgba(34,197,94,0.5)] animate-pulse-border" 
+                    : "border-border/30 hover:shadow-[0_0_30px_rgba(34,211,238,0.3)]"
+                }`}
               >
+                {/* Animated Glow Effect for Premium */}
+                {sport.isPremium && (
+                  <>
+                    <div className="absolute inset-0 opacity-30 animate-gradient bg-gradient-to-r from-success via-yellow-400 to-success bg-[length:200%_100%] blur-xl" />
+                    <div className="absolute inset-0 opacity-20">
+                      <div className="absolute inset-0 bg-gradient-to-tr from-success/20 via-transparent to-yellow-400/20 animate-spin-slow" />
+                    </div>
+                  </>
+                )}
+
                 {/* Background Image */}
                 <div className="relative h-48 overflow-hidden">
                   <div
-                    className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
+                    className={`absolute inset-0 bg-cover bg-center transition-transform duration-500 ${
+                      sport.isPremium ? "group-hover:scale-110 brightness-110" : "group-hover:scale-110"
+                    }`}
                     style={{ backgroundImage: `url('${sport.image}')` }}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0C0F14] via-[#0C0F14]/60 to-transparent" />
+                  <div className={`absolute inset-0 ${
+                    sport.isPremium 
+                      ? "bg-gradient-to-t from-[#0C0F14] via-[#0C0F14]/70 to-success/20" 
+                      : "bg-gradient-to-t from-[#0C0F14] via-[#0C0F14]/60 to-transparent"
+                  }`} />
                   
                   {/* Badge */}
                   <div className="absolute top-3 right-3">
-                    <Badge className={`${sport.badgeColor} text-[9px] font-bold`}>
+                    <Badge className={`${sport.badgeColor} text-[9px] font-bold ${
+                      sport.isPremium ? "animate-pulse shadow-lg shadow-success/50" : ""
+                    }`}>
                       {sport.badge}
                     </Badge>
                   </div>
 
                   {/* Gradient Overlay */}
-                  <div className={`absolute inset-0 bg-gradient-to-br ${sport.gradient} opacity-20`} />
+                  <div className={`absolute inset-0 bg-gradient-to-br ${sport.gradient} ${
+                    sport.isPremium ? "opacity-40" : "opacity-20"
+                  }`} />
+                  
+                  {/* Premium Sparkle Effect */}
+                  {sport.isPremium && (
+                    <div className="absolute inset-0 opacity-20 pointer-events-none">
+                      <img 
+                        src="https://media.giphy.com/media/26tPnAAJxXTvpLwJy/giphy.gif" 
+                        alt="" 
+                        className="w-full h-full object-cover mix-blend-screen"
+                      />
+                    </div>
+                  )}
                 </div>
 
                 {/* Content */}
-                <div className="p-4 space-y-2">
-                  <h3 className="text-lg font-display font-extrabold text-foreground tracking-tight">
+                <div className={`p-4 space-y-2 relative ${sport.isPremium ? "bg-gradient-to-b from-success/5 to-transparent" : ""}`}>
+                  <h3 className={`text-lg font-display font-extrabold tracking-tight ${
+                    sport.isPremium 
+                      ? "text-transparent bg-clip-text bg-gradient-to-r from-success via-yellow-400 to-success bg-[length:200%_100%] animate-gradient" 
+                      : "text-foreground"
+                  }`}>
                     {sport.name}
                   </h3>
-                  <p className="text-xs text-muted-foreground">
+                  <p className={`text-xs leading-relaxed ${
+                    sport.isPremium 
+                      ? "text-success/90 font-semibold" 
+                      : "text-muted-foreground"
+                  }`}>
                     {sport.description}
                   </p>
                   
                   {sport.route !== "#" && (
-                    <div className="flex items-center text-primary text-xs font-bold pt-2">
-                      Acessar
+                    <div className={`flex items-center text-xs font-bold pt-2 ${
+                      sport.isPremium ? "text-success" : "text-primary"
+                    }`}>
+                      Acessar agora
                       <ChevronRight className="w-3 h-3 ml-1 transition-transform group-hover:translate-x-1" />
                     </div>
                   )}

@@ -112,6 +112,20 @@ export default {
           "0%, 100%": { transform: "scale(1)" },
           "50%": { transform: "scale(1.04)" },
         },
+        "pulse-border": {
+          "0%, 100%": { 
+            borderColor: "hsl(var(--success) / 0.5)",
+            boxShadow: "0 0 30px rgba(34, 197, 94, 0.3)"
+          },
+          "50%": { 
+            borderColor: "hsl(var(--success) / 0.8)",
+            boxShadow: "0 0 50px rgba(34, 197, 94, 0.5)"
+          },
+        },
+        "spin-slow": {
+          "0%": { transform: "rotate(0deg)" },
+          "100%": { transform: "rotate(360deg)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -123,6 +137,8 @@ export default {
         "fade-in-scale": "fade-in-scale 250ms ease-out",
         shake: "shake 200ms ease-in-out",
         "bounce-micro": "bounce-micro 250ms ease-out",
+        "pulse-border": "pulse-border 2s ease-in-out infinite",
+        "spin-slow": "spin-slow 20s linear infinite",
       },
     },
   },
