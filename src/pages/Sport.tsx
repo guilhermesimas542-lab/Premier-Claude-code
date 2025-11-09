@@ -111,14 +111,24 @@ const Sport = () => {
     const checkout = localStorage.getItem('checkout');
     const proUrl = localStorage.getItem('proUrl');
     
+    console.log('handleUnlock chamado:', { tipProPlan, checkout, proUrl });
+    
     // Se é básico bloqueado (is_pro_plan = 1), abre checkout
     if (tipProPlan === 1 && checkout) {
+      console.log('Abrindo checkout:', checkout);
       window.open(checkout, '_blank');
+      return;
     }
     // Se é pro bloqueado (is_pro_plan = 2), abre proUrl
-    else if (tipProPlan === 2 && proUrl) {
+    if (tipProPlan === 2 && proUrl) {
+      console.log('Abrindo proUrl:', proUrl);
       window.open(proUrl, '_blank');
+      return;
     }
+    
+    // Se não tem URL configurada
+    console.warn('Nenhuma URL disponível para desbloquear');
+    toast.error('Link de desbloqueio não configurado');
   };
 
   const handleLogout = () => {
