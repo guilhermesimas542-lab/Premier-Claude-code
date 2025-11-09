@@ -141,17 +141,17 @@ const Index = () => {
                         tier={mapTipToCardTier(tip.is_pro_plan)}
                         team1={{
                           name: tip.time1_name,
-                          logo: tip.time1_logo || "https://via.placeholder.com/100",
+                          logo: `https://imagedelivery.net/uGmh4EK74r0qnuu3lZf-oA/${tip.time1_logo}/public`,
                         }}
                         team2={{
                           name: tip.time2_name,
-                          logo: tip.time2_logo || "https://via.placeholder.com/100",
+                          logo: `https://imagedelivery.net/uGmh4EK74r0qnuu3lZf-oA/${tip.time2_logo}/public`,
                         }}
-                        market={tip.odd_market}
+                        market={tip.real_odd_market}
                         betChoice={tip.odd_Name}
                         odds={tip.odd_Value}
                         confidence={tip.is_super_odd ? 95 : 75}
-                        insights={`${tip.real_odd_market}`}
+                        insights={tip.odd_market}
                         footer={`Expira em: ${new Date(tip.expiration_date).toLocaleDateString()}`}
                         onAddTip={() => handleAddTip(String(tip.id))}
                       />
