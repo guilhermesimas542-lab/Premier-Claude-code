@@ -436,7 +436,7 @@ const Home = () => {
                             </div>
                             <div className="flex items-center justify-center gap-2">
                               <div className="h-px w-8 bg-gradient-to-r from-transparent to-[#00FF87]" />
-                              <p className="text-base font-black text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.5)] tracking-wider">
+                              <p className="text-base font-black text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.5)] tracking-wider whitespace-nowrap">
                                 ⚡ APOSTE AGORA ⚡
                               </p>
                               <div className="h-px w-8 bg-gradient-to-l from-transparent to-[#00FF87]" />
