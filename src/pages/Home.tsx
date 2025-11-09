@@ -162,6 +162,7 @@ const Home = () => {
   // Mapear esportes da API para o formato do componente
   const sportEmojiMap: Record<string, string> = {
     "Futebol": "⚽",
+    "Cassino": "🎰",
     "Futsal": "⚽",
     "MMA": "🥊",
     "Baseball": "⚾",
@@ -189,6 +190,14 @@ const Home = () => {
       gradient: "from-[#00C853] via-[#00FF87] to-[#00C853]",
       shadow: "shadow-[#00FF87]/60",
       border: "#00FF87",
+    },
+    "Cassino": {
+      primary: "#C026D3",
+      secondary: "#A21CAF",
+      glow: "rgba(192, 38, 211, 0.9)",
+      gradient: "from-[#A21CAF] via-[#C026D3] to-[#A21CAF]",
+      shadow: "shadow-[#C026D3]/60",
+      border: "#C026D3",
     },
     "MMA": {
       primary: "#DC2626",
