@@ -246,16 +246,17 @@ const Home = () => {
                 } transition-all duration-300 group border-0 p-0`}
               >
                 {/* Background Image - Full Card */}
-                {sport.isPremium ? (
-                  <div className="absolute inset-0 z-0">
-                    <div
-                      className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
-                      style={{ backgroundImage: `url('${sport.image}')` }}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0C0F14] via-[#0C0F14]/90 to-[#0C0F14]/70" />
-                    <div className={`absolute inset-0 bg-gradient-to-br ${sport.gradient} opacity-20`} />
-                  </div>
-                ) : null}
+                <div className="absolute inset-0 z-0">
+                  <div
+                    className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
+                    style={{ backgroundImage: `url('${sport.image}')` }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0C0F14] via-[#0C0F14]/90 to-[#0C0F14]/70" />
+                  <div className={`absolute inset-0 bg-gradient-to-br ${sport.gradient} opacity-20`} />
+                  {!sport.isPremium && (
+                    <div className="absolute inset-0 border border-border/30 rounded-xl" />
+                  )}
+                </div>
 
                 {/* Golden Border Glow Animation for Premium */}
                 {sport.isPremium && (
@@ -306,11 +307,6 @@ const Home = () => {
                     )}
                   </div>
                 </div>
-
-                {/* Non-premium cards - separate background */}
-                {!sport.isPremium && (
-                  <div className="absolute inset-0 z-0 bg-gradient-to-br from-[#121826] to-[#0C0F14] border border-border/30 rounded-xl" />
-                )}
               </Card>
             ))}
           </div>
