@@ -133,7 +133,7 @@ export const PremiumBettingCard = ({
               <img
                 src={team1.logo}
                 alt={team1.name}
-                className="w-7 h-7 object-contain filter brightness-110 saturate-0"
+                className="w-7 h-7 object-contain"
               />
             </div>
           </div>
@@ -145,7 +145,7 @@ export const PremiumBettingCard = ({
               <img
                 src={team2.logo}
                 alt={team2.name}
-                className="w-7 h-7 object-contain filter brightness-110 saturate-0"
+                className="w-7 h-7 object-contain"
               />
             </div>
           </div>
