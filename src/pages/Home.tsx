@@ -66,12 +66,12 @@ const Home = () => {
       name: "Futebol",
       description: "Acesso liberado — dados atualizados em tempo real",
       route: "/futebol",
-      gradient: "from-success via-emerald-500 to-success",
+      gradient: "from-[#00FF87] via-[#00E676] to-[#00C853]",
       image: "https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=600&h=400&fit=crop",
       badge: "🔥 Destaque",
-      badgeColor: "bg-success/20 text-success border-success/40",
+      badgeColor: "bg-[#00FF87]/20 text-[#00FF87] border-[#00FF87]/40",
       isPremium: true,
-      borderColor: "#22C55E",
+      borderColor: "#00FF87",
     },
     {
       id: "cassino",
@@ -301,37 +301,36 @@ const Home = () => {
                     className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
                     style={{ backgroundImage: `url('${sport.image}')` }}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0C0F14] via-[#0C0F14]/95 to-[#0C0F14]/80" />
-                  <div className={`absolute inset-0 bg-gradient-to-br ${sport.gradient} opacity-10`} />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0A0E12] via-[#0A0E12]/96 to-[#0A0E12]/85" />
+                  <div className={`absolute inset-0 bg-gradient-to-br ${sport.gradient} ${sport.isPremium ? 'opacity-20' : 'opacity-10'}`} />
                   {!sport.isPremium && (
                     <div className="absolute inset-0 border border-border/20 rounded-xl" />
                   )}
                 </div>
 
-                {/* Premium Border Glow - Sutil e Elegante */}
+                {/* Premium Border Glow - Impactante */}
                 {sport.isPremium && (
                   <div 
-                    className="absolute inset-0 rounded-xl border pointer-events-none z-30" 
+                    className="absolute inset-0 rounded-xl border-2 pointer-events-none z-30" 
                     style={{
-                      borderWidth: '2px',
-                      borderColor: (sport as any).borderColor || '#22C55E',
-                      boxShadow: `0 0 16px rgba(34, 197, 94, 0.3), 0 0 32px rgba(34, 197, 94, 0.15), inset 0 0 16px rgba(34, 197, 94, 0.08)`,
-                      animation: 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+                      borderColor: (sport as any).borderColor || '#00FF87',
+                      boxShadow: `0 0 30px rgba(0, 255, 135, 0.6), 0 0 60px rgba(0, 255, 135, 0.3), inset 0 0 30px rgba(0, 255, 135, 0.15)`,
+                      animation: 'pulse 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite'
                     }} 
                   />
                 )}
 
                 {/* Content Container */}
                 <div className="relative z-10 flex flex-col h-full min-h-[280px]">
-                  {/* Top Bar - Barra Colorida de Destaque */}
+                  {/* Top Bar - Barra Impactante */}
                   <div className={`${
                     sport.isPremium 
-                      ? 'bg-gradient-to-r from-success via-emerald-500 to-success' 
+                      ? 'bg-gradient-to-r from-[#00FF87] via-[#00E676] to-[#00C853] shadow-lg shadow-[#00FF87]/50' 
                       : 'bg-gradient-to-r from-primary via-orange-600 to-primary'
                   } px-4 py-3`}>
                     <div className="flex items-center gap-3">
                       <span className="text-2xl filter drop-shadow-lg">{sport.isPremium ? '⚽' : sport.id === 'cassino' ? '🎰' : sport.id === 'basquete' ? '🏀' : sport.id === 'tenis' ? '🎾' : sport.id === 'esports' ? '🎮' : '🏐'}</span>
-                      <h3 className="text-xl font-display font-black tracking-tight text-white">
+                      <h3 className="text-xl font-display font-black tracking-tight text-black drop-shadow-md">
                         {sport.name}
                       </h3>
                     </div>
@@ -393,10 +392,10 @@ const Home = () => {
                     ) : sport.isPremium ? (
                       /* Premium - Esporte Desbloqueado */
                       <div className="space-y-3">
-                        {/* Status Badge - Glassmorphism com Ícone Centralizado */}
-                        <div className="flex flex-col items-center justify-center gap-2 bg-success/10 backdrop-blur-md border border-success/30 rounded-lg p-4">
-                          <LockOpen className="w-12 h-12 text-success" />
-                          <p className="text-sm font-black text-success">Desbloqueado</p>
+                        {/* Status Badge - Impactante */}
+                        <div className="flex flex-col items-center justify-center gap-2 bg-[#00FF87]/15 backdrop-blur-md border-2 border-[#00FF87]/50 rounded-lg p-4 shadow-lg shadow-[#00FF87]/20">
+                          <LockOpen className="w-14 h-14 text-[#00FF87] drop-shadow-[0_0_10px_rgba(0,255,135,0.8)]" />
+                          <p className="text-base font-black text-[#00FF87] drop-shadow-lg tracking-wide">DESBLOQUEADO</p>
                         </div>
                       </div>
                     ) : (
@@ -411,9 +410,15 @@ const Home = () => {
 
                   {/* Bottom Section - Botão e Badges */}
                   <div className="mt-auto p-4 pt-0 space-y-3">
-                    {/* Botão de Ação - Dourado */}
+                    {/* Botão de Ação - Verde Neon para Premium */}
                     {(sport as any).isLocked || (sport as any).isPreSale || sport.isPremium ? (
-                      <Button className="w-full bg-[#DFAC2A] hover:bg-[#C89824] active:bg-[#B38820] text-black font-black py-6 text-base transition-all duration-200 shadow-lg hover:shadow-xl">
+                      <Button 
+                        className={`w-full ${
+                          sport.isPremium 
+                            ? 'bg-[#00FF87] hover:bg-[#00E676] active:bg-[#00C853] shadow-lg shadow-[#00FF87]/30 hover:shadow-xl hover:shadow-[#00FF87]/40' 
+                            : 'bg-[#DFAC2A] hover:bg-[#C89824] active:bg-[#B38820] shadow-lg hover:shadow-xl'
+                        } text-black font-black py-6 text-base transition-all duration-200`}
+                      >
                         {(sport as any).isLocked || (sport as any).isPreSale ? "Adquirir" : "Acessar agora"}
                       </Button>
                     ) : sport.route !== "#" ? (
@@ -422,14 +427,14 @@ const Home = () => {
                       </Button>
                     ) : null}
 
-                    {/* Badges - Glassmorphism Premium */}
+                    {/* Badges - Impactantes */}
                     {sport.isPremium && (
                       <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-2 bg-success/15 backdrop-blur-md border border-success/40 rounded-full px-3 py-1.5">
-                          <Sparkles className="w-3.5 h-3.5 text-success animate-pulse" />
-                          <span className="text-[10px] font-black text-success tracking-wide">IA ATIVADA</span>
+                        <div className="flex items-center gap-2 bg-[#00FF87]/20 backdrop-blur-md border-2 border-[#00FF87]/50 rounded-full px-3 py-1.5 shadow-md shadow-[#00FF87]/20">
+                          <Sparkles className="w-4 h-4 text-[#00FF87] animate-pulse drop-shadow-[0_0_6px_rgba(0,255,135,0.8)]" />
+                          <span className="text-[11px] font-black text-[#00FF87] tracking-wide">IA ATIVADA</span>
                         </div>
-                        <Badge className={`${sport.badgeColor} text-[10px] font-bold backdrop-blur-md px-3 py-1`}>
+                        <Badge className={`${sport.badgeColor} text-[10px] font-bold backdrop-blur-md px-3 py-1 border-2`}>
                           {sport.badge}
                         </Badge>
                       </div>
