@@ -127,6 +127,33 @@ export default {
           "0%": { transform: "rotate(0deg)" },
           "100%": { transform: "rotate(360deg)" },
         },
+        "border-spin": {
+          "0%": {
+            top: "0%",
+            left: "0%",
+            transform: "translate(0, 0)"
+          },
+          "25%": {
+            top: "0%",
+            left: "100%",
+            transform: "translate(-100%, 0)"
+          },
+          "50%": {
+            top: "100%",
+            left: "100%",
+            transform: "translate(-100%, -100%)"
+          },
+          "75%": {
+            top: "100%",
+            left: "0%",
+            transform: "translate(0, -100%)"
+          },
+          "100%": {
+            top: "0%",
+            left: "0%",
+            transform: "translate(0, 0)"
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -140,6 +167,7 @@ export default {
         "bounce-micro": "bounce-micro 250ms ease-out",
         "pulse-border": "pulse-border 2s ease-in-out infinite",
         "spin-slow": "spin-slow 20s linear infinite",
+        "border-spin": "border-spin 4s linear infinite",
       },
     },
   },
