@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { normalizePayload, persistConfig } from "@/lib/auth";
 import { LoginResponse } from "@/types/auth";
+import { Smartphone, Trophy, TrendingUp } from "lucide-react";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -59,22 +60,48 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0C0F14] to-[#121826] flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="bg-gradient-to-br from-[#121826] to-[#0C0F14] border border-border/30 rounded-2xl p-8 shadow-2xl backdrop-blur-sm">
+    <div className="min-h-screen bg-gradient-to-b from-[#0C0F14] via-[#121826] to-[#0C0F14] flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Decorative Background Elements */}
+      <div className="absolute inset-0 opacity-30">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-primary/20 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-accent/10 rounded-full blur-3xl"></div>
+      </div>
+
+      <div className="w-full max-w-md relative z-10">
+        {/* Main Card */}
+        <div className="bg-gradient-to-br from-[#121826]/90 to-[#0C0F14]/90 border border-primary/20 rounded-3xl p-8 shadow-2xl backdrop-blur-xl">
           {/* Logo/Header */}
           <div className="text-center mb-8">
-            <img src="/logo.png" alt="Premier FC" className="h-16 w-auto mx-auto mb-2" />
+            <div className="mb-4 relative">
+              <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full"></div>
+              <img src="/logo.png" alt="Premier FC" className="h-20 w-auto mx-auto relative z-10" />
+            </div>
+            <h2 className="text-xl font-bold text-foreground mb-2 flex items-center justify-center gap-2">
+              <Trophy className="w-5 h-5 text-primary" />
+              Tips Profissionais de Apostas
+            </h2>
             <p className="text-muted-foreground text-sm">
-              Acesse sua conta para ver as tips do dia
+              Acesse sua conta e lucre com análises de especialistas
             </p>
           </div>
 
+          {/* Features */}
+          <div className="grid grid-cols-2 gap-3 mb-6">
+            <div className="bg-primary/10 border border-primary/20 rounded-xl p-3 text-center">
+              <TrendingUp className="w-5 h-5 text-primary mx-auto mb-1" />
+              <p className="text-xs font-semibold text-foreground">Alta Taxa de Acerto</p>
+            </div>
+            <div className="bg-accent/10 border border-accent/20 rounded-xl p-3 text-center">
+              <Trophy className="w-5 h-5 text-accent mx-auto mb-1" />
+              <p className="text-xs font-semibold text-foreground">Tips Exclusivas</p>
+            </div>
+          </div>
+
           {/* Form */}
-          <form onSubmit={handleLogin} className="space-y-6">
+          <form onSubmit={handleLogin} className="space-y-5">
             <div className="space-y-2">
-              <label htmlFor="email" className="text-sm font-semibold text-foreground">
-                E-mail
+              <label htmlFor="email" className="text-sm font-semibold text-foreground flex items-center gap-2">
+                📧 E-mail
               </label>
               <Input
                 id="email"
@@ -82,24 +109,43 @@ const Login = () => {
                 placeholder="seu@email.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="bg-muted/20 border-border/50 text-foreground placeholder:text-muted-foreground"
+                className="bg-muted/20 border-primary/30 text-foreground placeholder:text-muted-foreground h-12 text-base focus:border-primary/50 transition-all"
                 disabled={isLoading}
               />
             </div>
 
             <Button
               type="submit"
-              className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-6 text-base shadow-lg shadow-primary/30 transition-all duration-300 hover:scale-[1.02]"
+              className="w-full bg-gradient-to-r from-primary via-primary to-primary/80 hover:from-primary/90 hover:via-primary hover:to-primary text-white font-bold py-6 text-base shadow-xl shadow-primary/40 transition-all duration-300 hover:scale-[1.02] hover:shadow-primary/60"
               disabled={isLoading}
             >
-              {isLoading ? "Entrando..." : "Entrar"}
+              {isLoading ? "Entrando..." : "🚀 Acessar Minhas Tips"}
             </Button>
           </form>
+
+          {/* Download App Button */}
+          <div className="mt-6">
+            <a
+              href="https://play.google.com/store"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block"
+            >
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full border-2 border-foreground/20 bg-foreground/5 hover:bg-foreground/10 hover:border-foreground/30 text-foreground font-semibold py-6 transition-all duration-300 hover:scale-[1.02]"
+              >
+                <Smartphone className="w-5 h-5 mr-2" />
+                Baixar App na Google Play
+              </Button>
+            </a>
+          </div>
 
           {/* Footer */}
           <div className="mt-6 text-center">
             <p className="text-xs text-muted-foreground">
-              Ao entrar, você concorda com nossos termos de uso
+              🔒 Seus dados estão seguros conosco
             </p>
           </div>
         </div>
@@ -110,9 +156,9 @@ const Login = () => {
             href="https://premierfc.app"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm text-accent hover:text-accent/80 transition-colors"
+            className="text-sm font-semibold text-primary hover:text-primary/80 transition-colors inline-flex items-center gap-2"
           >
-            Não tem conta? Cadastre-se aqui
+            ✨ Não tem conta? Cadastre-se aqui
           </a>
         </div>
       </div>
