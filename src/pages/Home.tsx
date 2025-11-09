@@ -401,7 +401,7 @@ const Home = () => {
         ) : (config?.user?.purchasedPlan === 2 || config?.user?.purchasedPlan === 3) && config?.user?.telegran === 0 ? (
           <TelegramAlert telegramUrl={config.telegramUrl} />
         ) : (
-          <NewEntriesAlert />
+          <NewEntriesAlert betSiteUrl={config.betSite} />
         )}
 
         {/* Featured Banners */}
