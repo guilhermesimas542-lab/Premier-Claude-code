@@ -553,17 +553,33 @@ const Home = () => {
 
                   {/* Content Container */}
                   <div className="relative z-10 flex flex-col h-full min-h-[320px]">
-                    {/* Top Bar - Faixa Azul Royal Energética */}
-                    <div className={`${
-                      sport.isPremium 
-                        ? 'liquid-gold-bar' 
-                        : 'bg-gradient-to-r from-primary via-orange-600 to-primary'
-                    } px-5 py-4`}>
+                    {/* Top Bar - Faixa Colorida por Esporte */}
+                    <div 
+                      className="px-5 py-4"
+                      style={sport.isPremium ? {
+                        background: `linear-gradient(90deg, ${(sport as any).colors?.secondary || '#00C853'}, ${(sport as any).colors?.primary || '#00FF87'}, ${(sport as any).colors?.primary || '#00FF87'}, ${(sport as any).colors?.secondary || '#00C853'})`,
+                        backgroundSize: '200% 100%',
+                        animation: 'liquid-gradient 3s ease-in-out infinite',
+                        boxShadow: `0 4px 20px ${(sport as any).colors?.primary || '#00FF87'}40`
+                      } : {
+                        background: 'linear-gradient(to right, hsl(18, 100%, 56%), hsl(27, 96%, 50%), hsl(18, 100%, 56%))'
+                      }}
+                    >
                       <div className="flex items-center gap-3">
-                        <span className="text-3xl filter drop-shadow-[0_0_15px_rgba(0,212,255,0.8)]">
+                        <span 
+                          className="text-3xl filter"
+                          style={{
+                            filter: `drop-shadow(0 0 15px ${(sport as any).colors?.primary || '#00D4FF'})`
+                          }}
+                        >
                           {(sport as any).emoji || '🏆'}
                         </span>
-                        <h3 className="text-xl font-display font-black tracking-wider text-white drop-shadow-[0_0_10px_rgba(0,212,255,0.6)]">
+                        <h3 
+                          className="text-xl font-display font-black tracking-wider text-white"
+                          style={{
+                            textShadow: sport.isPremium ? `0 0 10px ${(sport as any).colors?.glow || 'rgba(0,212,255,0.6)'}` : '0 0 10px rgba(0,212,255,0.6)'
+                          }}
+                        >
                           {sport.name}
                         </h3>
                       </div>
