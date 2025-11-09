@@ -34,7 +34,7 @@ const Login = () => {
 
       const data: LoginResponse = await response.json();
 
-      if (data.response) {
+      if (data.success && data.response) {
         // Se houver redirect, redireciona para checkout
         if (data.response.redirect && data.response.checkout) {
           window.location.href = data.response.checkout;
