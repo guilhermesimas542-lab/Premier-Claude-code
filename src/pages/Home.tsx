@@ -243,20 +243,17 @@ const Home = () => {
                   sport.route !== "#"
                     ? "cursor-pointer hover:scale-[1.02]"
                     : "cursor-not-allowed opacity-60"
-                } transition-all duration-300 bg-gradient-to-br from-[#121826] to-[#0C0F14] group ${
+                } transition-all duration-300 group ${
                   sport.isPremium 
-                    ? "border-2 border-success/40" 
-                    : "border-border/30 hover:shadow-[0_0_30px_rgba(34,211,238,0.3)]"
+                    ? "bg-gradient-to-br from-[#DFAC2A]/20 to-[#DFAC2A]/5" 
+                    : "bg-gradient-to-br from-[#121826] to-[#0C0F14] border-border/30 hover:shadow-[0_0_30px_rgba(34,211,238,0.3)]"
                 }`}
               >
-                {/* Animated Border for Premium */}
+                {/* Golden Border Glow Animation for Premium */}
                 {sport.isPremium && (
-                  <>
-                    <div className="absolute -inset-[1px] rounded-xl bg-gradient-to-r from-[#FFD700] via-[#FFA500] to-[#FFD700] opacity-75 blur-sm" />
-                    <div className="absolute -inset-[1px] rounded-xl bg-gradient-to-r from-[#FFD700] via-[#FFA500] to-[#FFD700] animate-spin-border" style={{
-                      background: 'conic-gradient(from 0deg, transparent 0%, transparent 40%, #FFD700 50%, transparent 60%, transparent 100%)',
-                    }} />
-                  </>
+                  <div className="absolute inset-0 rounded-xl border-2 border-[#DFAC2A] pointer-events-none animate-border-glow" style={{
+                    boxShadow: '0 0 24px rgba(223, 172, 42, 0.487), 0 0 48px rgba(223, 172, 42, 0.244), inset 0 0 24px rgba(223, 172, 42, 0.12)'
+                  }} />
                 )}
 
                 {/* Background Image */}

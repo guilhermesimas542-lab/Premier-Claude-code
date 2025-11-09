@@ -127,9 +127,13 @@ export default {
           "0%": { transform: "rotate(0deg)" },
           "100%": { transform: "rotate(360deg)" },
         },
-        "spin-border": {
-          "0%": { transform: "rotate(0deg)" },
-          "100%": { transform: "rotate(360deg)" },
+        "border-glow": {
+          "0%, 100%": { 
+            boxShadow: "0 0 24px rgba(223, 172, 42, 0.487), 0 0 48px rgba(223, 172, 42, 0.244), inset 0 0 24px rgba(223, 172, 42, 0.12)"
+          },
+          "50%": { 
+            boxShadow: "0 0 32px rgba(223, 172, 42, 0.7), 0 0 64px rgba(223, 172, 42, 0.4), inset 0 0 32px rgba(223, 172, 42, 0.2)"
+          },
         },
       },
       animation: {
@@ -144,7 +148,7 @@ export default {
         "bounce-micro": "bounce-micro 250ms ease-out",
         "pulse-border": "pulse-border 2s ease-in-out infinite",
         "spin-slow": "spin-slow 20s linear infinite",
-        "spin-border": "spin-border 3s linear infinite",
+        "border-glow": "border-glow 2s ease-in-out infinite",
       },
     },
   },
