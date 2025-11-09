@@ -22,8 +22,8 @@ export const NewEntriesAlert = () => {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
+      <div className="relative z-10 flex flex-col md:flex-row items-center justify-center md:justify-between gap-4 text-center md:text-left">
+        <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
           {/* Animated icon */}
           <div className="relative">
             <div className="absolute inset-0 bg-[#00FF85] blur-xl opacity-50 animate-pulse" />
@@ -33,7 +33,7 @@ export const NewEntriesAlert = () => {
           </div>
 
           {/* Text content */}
-          <div>
+          <div className="flex-1">
             <h3 className="text-xl md:text-2xl font-black text-white tracking-tight mb-1">
               ⚡ Novas entradas liberadas
             </h3>
