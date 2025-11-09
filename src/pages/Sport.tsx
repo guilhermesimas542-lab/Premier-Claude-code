@@ -13,8 +13,10 @@ import {
 import { toast } from "sonner";
 import { getStoredConfig, clearAuth, isAuthenticated } from "@/lib/auth";
 import { loadTipsForSport, mapTipToCardTier } from "@/lib/tips";
+import { fetchSportById } from "@/lib/sports";
 import { AppConfig } from "@/types/auth";
 import { Tip } from "@/types/tips";
+import { Sport as SportType } from "@/types/sports";
 
 const Sport = () => {
   const navigate = useNavigate();
@@ -23,7 +25,7 @@ const Sport = () => {
   const [tips, setTips] = useState<Tip[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [iframeUrl, setIframeUrl] = useState<string>("");
-  const [sportName, setSportName] = useState<string>("Esporte");
+  const [sportData, setSportData] = useState<SportType | null>(null);
 
   useEffect(() => {
     // Rola para o topo ao carregar a página
@@ -35,13 +37,24 @@ const Sport = () => {
       return;
     }
 
-    // Define o nome do esporte baseado no ID (pode ser melhorado buscando da API)
-    const sportNames: Record<string, string> = {
-      "1": "Futebol", "2": "MMA", "3": "Baseball", "4": "Rugby",
-      "5": "Tênis", "6": "Basquete", "7": "Futsal", "8": "Hóquei",
-      "9": "Handball", "10": "Vôlei"
+    // Carrega dados do esporte e tips
+    const loadSportData = async () => {
+      try {
+        const numericSportId = sportId ? parseInt(sportId, 10) : 1;
+        const response = await fetchSportById(numericSportId);
+        
+        if (response.success && response.response) {
+          const sport = response.response.find(s => s.id === numericSportId);
+          if (sport) {
+            setSportData(sport);
+          }
+        }
+      } catch (error) {
+        console.error("Erro ao carregar dados do esporte:", error);
+      }
     };
-    setSportName(sportNames[sportId || "1"] || "Esporte");
+
+    loadSportData();
 
     // Carrega configuração salva
     const storedConfig = getStoredConfig();
@@ -105,7 +118,7 @@ const Sport = () => {
               <ArrowLeft className="w-6 h-6 text-foreground" />
             </button>
             <h1 className="text-xl font-display font-extrabold text-foreground tracking-tight">
-              {sportName} - Tips do Dia
+              {sportData?.name || "Esporte"} - Tips do Dia
             </h1>
           </div>
           

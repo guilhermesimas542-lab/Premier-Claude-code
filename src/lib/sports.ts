@@ -8,6 +8,11 @@ export async function fetchSports(): Promise<SportsResponse> {
   return data;
 }
 
+export async function fetchSportById(sportId: number): Promise<SportsResponse> {
+  const data = await fetchSports();
+  return data;
+}
+
 export function getBackgroundImageUrl(backgroundId: string): string {
   if (!backgroundId) return "";
   // Para imagens customizadas locais
