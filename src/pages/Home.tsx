@@ -404,13 +404,13 @@ const Home = () => {
       <main className="container max-w-7xl mx-auto px-4 py-8 space-y-8">
         {/* Conditional Alerts based on user plan - Priority: Free → Basic → Pro → Telegram → Default */}
         {config?.user?.purchasedPlan === 0 || config?.user?.purchasedPlan === -1 ? (
-          <BasicPlanAlert checkoutUrl={config.checkout} />
+          <BasicPlanAlert checkoutUrl={config?.checkout} />
         ) : config?.user?.purchasedPlan === 1 ? (
-          <ProPlanAlert proUrl={config.proUrl} />
+          <ProPlanAlert proUrl={config?.proUrl} />
         ) : (config?.user?.purchasedPlan === 2 || config?.user?.purchasedPlan === 3) && config?.user?.telegran === 0 ? (
-          <TelegramAlert telegramUrl={config.telegramUrl} />
+          <TelegramAlert telegramUrl={config?.telegramUrl} />
         ) : (
-          <NewEntriesAlert betSiteUrl={config.betSite} />
+          <NewEntriesAlert betSiteUrl={config?.betSite} />
         )}
 
         {/* Featured Banners */}
