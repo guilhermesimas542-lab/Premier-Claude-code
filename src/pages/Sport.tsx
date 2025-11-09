@@ -1,5 +1,5 @@
 import { ArrowLeft, LogOut } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { PremiumBettingCard } from "@/components/PremiumBettingCard";
 import { Button } from "@/components/ui/button";
@@ -16,12 +16,14 @@ import { loadTipsForSport, mapTipToCardTier } from "@/lib/tips";
 import { AppConfig } from "@/types/auth";
 import { Tip } from "@/types/tips";
 
-const Index = () => {
+const Sport = () => {
   const navigate = useNavigate();
+  const { sportId } = useParams<{ sportId: string }>();
   const [config, setConfig] = useState<AppConfig | null>(null);
   const [tips, setTips] = useState<Tip[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [iframeUrl, setIframeUrl] = useState<string>("");
+  const [sportName, setSportName] = useState<string>("Esporte");
 
   useEffect(() => {
     // Rola para o topo ao carregar a página
@@ -33,6 +35,14 @@ const Index = () => {
       return;
     }
 
+    // Define o nome do esporte baseado no ID (pode ser melhorado buscando da API)
+    const sportNames: Record<string, string> = {
+      "1": "Futebol", "2": "MMA", "3": "Baseball", "4": "Rugby",
+      "5": "Tênis", "6": "Basquete", "7": "Futsal", "8": "Hóquei",
+      "9": "Handball", "10": "Vôlei"
+    };
+    setSportName(sportNames[sportId || "1"] || "Esporte");
+
     // Carrega configuração salva
     const storedConfig = getStoredConfig();
     if (storedConfig) {
@@ -42,12 +52,13 @@ const Index = () => {
     } else {
       setIsLoading(false);
     }
-  }, [navigate]);
+  }, [navigate, sportId]);
 
   const loadTips = async () => {
     setIsLoading(true);
     try {
-      const response = await loadTipsForSport(1);
+      const numericSportId = sportId ? parseInt(sportId, 10) : 1;
+      const response = await loadTipsForSport(numericSportId);
       if (response.success && response.response?.data) {
         setTips(response.response.data);
         // Atualiza a URL do betSite se vier da resposta
@@ -94,7 +105,7 @@ const Index = () => {
               <ArrowLeft className="w-6 h-6 text-foreground" />
             </button>
             <h1 className="text-xl font-display font-extrabold text-foreground tracking-tight">
-              Tips do Dia
+              {sportName} - Tips do Dia
             </h1>
           </div>
           
@@ -210,4 +221,4 @@ const Index = () => {
   );
 };
 
-export default Index;
+export default Sport;

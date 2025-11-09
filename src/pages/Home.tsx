@@ -306,7 +306,7 @@ const Home = () => {
     return {
       ...sport,
       emoji: sportEmojiMap[sport.id] || "🏆",
-      route: cardType === 'premium' ? `/${sport.name.toLowerCase()}` : "#",
+      route: cardType === 'premium' ? `/sport/${sport.id}` : "#",
       image: getBackgroundImageUrl(sport.background),
       gradient: "from-[#000636] via-[#0026A3] to-[#0033C6]",
       isPremium: cardType === 'premium',
