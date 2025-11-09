@@ -15,6 +15,9 @@ import { toast } from "sonner";
 import { getStoredConfig, clearAuth, isAuthenticated } from "@/lib/auth";
 import { AppConfig } from "@/types/auth";
 import { NewEntriesAlert } from "@/components/NewEntriesAlert";
+import { TelegramAlert } from "@/components/TelegramAlert";
+import { BasicPlanAlert } from "@/components/BasicPlanAlert";
+import { ProPlanAlert } from "@/components/ProPlanAlert";
 import { fetchSports, getBackgroundImageUrl } from "@/lib/sports";
 import { Sport } from "@/types/sports";
 
@@ -390,8 +393,16 @@ const Home = () => {
       </header>
 
       <main className="container max-w-7xl mx-auto px-4 py-8 space-y-8">
-        {/* New Entries Alert */}
-        <NewEntriesAlert />
+        {/* Conditional Alerts based on user plan */}
+        {config?.user?.telegran === 0 ? (
+          <TelegramAlert telegramUrl={config.telegramUrl} />
+        ) : config?.user?.purchasedPlan === 0 || config?.user?.purchasedPlan === -1 ? (
+          <BasicPlanAlert checkoutUrl={config.checkout} />
+        ) : config?.user?.purchasedPlan === 1 ? (
+          <ProPlanAlert proUrl={config.proUrl} />
+        ) : (config?.user?.purchasedPlan === 2 || config?.user?.purchasedPlan === 3) ? (
+          <NewEntriesAlert />
+        ) : null}
 
         {/* Featured Banners */}
         <section className="relative">
