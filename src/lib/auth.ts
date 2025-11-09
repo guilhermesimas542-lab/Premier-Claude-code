@@ -57,10 +57,9 @@ export function updateConfigFromSports(sportsResponse: any): void {
   const updatedConfig: AppConfig = { ...storedConfig };
 
   // Atualizar campos do response do GetSports
-  // affCasa mapeia para betSite
-  if (sportsResponse.affCasa !== undefined) {
-    updatedConfig.betSite = String(sportsResponse.affCasa);
-    localStorage.setItem("betSite", String(sportsResponse.affCasa));
+  if (sportsResponse.betSite !== undefined) {
+    updatedConfig.betSite = sportsResponse.betSite;
+    localStorage.setItem("betSite", sportsResponse.betSite);
   }
   if (sportsResponse.telegramUrl !== undefined) {
     updatedConfig.telegramUrl = sportsResponse.telegramUrl;
