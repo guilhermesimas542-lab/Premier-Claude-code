@@ -12,7 +12,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { toast } from "sonner";
-import { getStoredConfig, clearAuth, isAuthenticated } from "@/lib/auth";
+import { getStoredConfig, clearAuth, isAuthenticated, updateConfigFromSports } from "@/lib/auth";
 import { AppConfig } from "@/types/auth";
 import { NewEntriesAlert } from "@/components/NewEntriesAlert";
 import { TelegramAlert } from "@/components/TelegramAlert";
@@ -117,14 +117,23 @@ const Home = () => {
     const loadSports = async () => {
       try {
         setLoading(true);
-        // Comentado temporariamente até API retornar tipo e expDate
-        // const data = await fetchSports();
-        // if (data.success && data.response) {
-        //   setSports(data.response);
-        // }
+        const data = await fetchSports();
         
-        // Usando dados mockados
-        setSports(mockSports);
+        if (data.success && data.response) {
+          // Atualizar localStorage com dados do GetSports
+          updateConfigFromSports(data);
+          
+          // Atualizar config local
+          const updatedConfig = getStoredConfig();
+          if (updatedConfig) {
+            setConfig(updatedConfig);
+          }
+          
+          setSports(data.response);
+        } else {
+          // Fallback para mock
+          setSports(mockSports);
+        }
       } catch (error) {
         console.error("Erro ao carregar esportes:", error);
         toast.error("Erro ao carregar esportes");
