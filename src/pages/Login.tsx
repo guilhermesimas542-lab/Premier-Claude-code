@@ -64,9 +64,7 @@ const Login = () => {
         <div className="bg-gradient-to-br from-[#121826] to-[#0C0F14] border border-border/30 rounded-2xl p-8 shadow-2xl backdrop-blur-sm">
           {/* Logo/Header */}
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-display font-extrabold text-foreground mb-2 tracking-tight">
-              Premier FC
-            </h1>
+            <img src="/logo.png" alt="Premier FC" className="h-16 w-auto mx-auto mb-2" />
             <p className="text-muted-foreground text-sm">
               Acesse sua conta para ver as tips do dia
             </p>
