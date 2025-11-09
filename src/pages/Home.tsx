@@ -46,7 +46,7 @@ const Home = () => {
       gradient: "from-primary via-orange-600 to-primary",
       image: "https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=600&h=400&fit=crop",
       badge: "🔥 Destaque",
-      badgeColor: "bg-warning text-black border-warning",
+      badgeColor: "bg-primary text-white border-primary",
       isPremium: true,
     },
     {
@@ -249,11 +249,16 @@ const Home = () => {
                     : "border-border/30 hover:shadow-[0_0_30px_rgba(34,211,238,0.3)]"
                 }`}
               >
-                {/* Rotating Border Effect for Premium */}
+                {/* Rotating Golden Dot Effect for Premium */}
                 {sport.isPremium && (
-                  <div className="absolute -inset-[2px] rounded-xl overflow-hidden pointer-events-none">
-                    <div className="absolute inset-0 bg-gradient-to-r from-warning via-primary via-warning to-primary bg-[length:400%_100%] animate-gradient opacity-80" />
-                  </div>
+                  <>
+                    {/* Border */}
+                    <div className="absolute -inset-[1px] rounded-xl border-2 border-[#FFD700]/30 pointer-events-none" />
+                    {/* Rotating Dot */}
+                    <div className="absolute -inset-[1px] rounded-xl pointer-events-none">
+                      <div className="absolute top-0 left-1/2 w-3 h-3 -translate-x-1/2 -translate-y-1/2 bg-[#FFD700] rounded-full shadow-[0_0_20px_#FFD700] animate-spin-slow origin-[50%_12rem]" />
+                    </div>
+                  </>
                 )}
 
                 {/* Background Image */}
@@ -288,7 +293,7 @@ const Home = () => {
                   </h3>
                   
                   {sport.isPremium ? (
-                    <div className="bg-gradient-to-r from-warning/20 via-primary/20 to-warning/20 border border-warning/40 rounded-lg p-3 backdrop-blur-sm">
+                    <div className="bg-primary/10 border border-primary/30 rounded-lg p-3 backdrop-blur-sm">
                       <p className="text-[11px] leading-relaxed text-white font-bold text-center">
                         {sport.description}
                       </p>
@@ -301,7 +306,7 @@ const Home = () => {
                   
                   {sport.route !== "#" && (
                     <div className={`flex items-center text-xs font-bold pt-1 ${
-                      sport.isPremium ? "text-warning" : "text-primary"
+                      sport.isPremium ? "text-primary" : "text-primary"
                     }`}>
                       Acessar agora
                       <ChevronRight className="w-3 h-3 ml-1 transition-transform group-hover:translate-x-1" />
