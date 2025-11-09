@@ -231,12 +231,12 @@ const Home = () => {
       border: "#EA580C",
     },
     "Futsal": {
-      primary: "#A855F7",
-      secondary: "#7E22CE",
-      glow: "rgba(168, 85, 247, 0.9)",
-      gradient: "from-[#7E22CE] via-[#A855F7] to-[#7E22CE]",
-      shadow: "shadow-[#A855F7]/60",
-      border: "#A855F7",
+      primary: "#14B8A6",
+      secondary: "#0D9488",
+      glow: "rgba(20, 184, 166, 0.9)",
+      gradient: "from-[#0D9488] via-[#14B8A6] to-[#0D9488]",
+      shadow: "shadow-[#14B8A6]/60",
+      border: "#14B8A6",
     },
     "Hoquei": {
       primary: "#06B6D4",
