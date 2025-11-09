@@ -134,7 +134,7 @@ const Login = () => {
           {/* Download App Button */}
           <div>
             <a
-              href="https://play.google.com/store"
+              href="https://play.google.com/store/apps/details?id=com.premier.premier"
               target="_blank"
               rel="noopener noreferrer"
               className="block transition-all duration-300 hover:scale-[1.02]"
