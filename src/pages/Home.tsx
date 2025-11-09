@@ -1,4 +1,4 @@
-import { LogOut, ChevronRight, Info, Lock, Clock } from "lucide-react";
+import { LogOut, ChevronRight, Info, Lock, Clock, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -319,8 +319,15 @@ const Home = () => {
                   {/* Top Section - Badge and Title */}
                   <div className="p-3 space-y-2">
                     {/* Badge */}
-                    <div className="flex justify-end">
-                      <Badge className={`${sport.badgeColor} text-[10px] font-bold backdrop-blur-sm`}>
+                    <div className="flex justify-between items-center">
+                      {/* AI Badge for Premium */}
+                      {sport.isPremium && (
+                        <div className="flex items-center gap-1.5 bg-gradient-to-r from-[#DFAC2A]/20 to-[#DFAC2A]/10 border border-[#DFAC2A]/40 rounded-full px-2.5 py-1 backdrop-blur-sm">
+                          <Sparkles className="w-3 h-3 text-[#DFAC2A] animate-pulse" />
+                          <span className="text-[9px] font-bold text-[#DFAC2A]">IA ATIVADA</span>
+                        </div>
+                      )}
+                      <Badge className={`${sport.badgeColor} text-[10px] font-bold backdrop-blur-sm ml-auto`}>
                         {sport.badge}
                       </Badge>
                     </div>
@@ -381,12 +388,19 @@ const Home = () => {
                         </div>
                       </div>
                     ) : sport.isPremium ? (
-                      /* Premium Description Badge */
-                      <div className="bg-primary/10 border border-primary/30 rounded-lg p-2 backdrop-blur-sm">
-                        <p className="text-[11px] leading-relaxed text-white font-bold text-center">
-                          {sport.description}
-                        </p>
-                      </div>
+                      /* Premium Description Badge with AI notification */
+                      <>
+                        <div className="bg-primary/10 border border-primary/30 rounded-lg p-2 backdrop-blur-sm">
+                          <p className="text-[11px] leading-relaxed text-white font-bold text-center">
+                            {sport.description}
+                          </p>
+                        </div>
+                        {/* AI New Entries Badge */}
+                        <div className="flex items-center justify-center gap-2 bg-[#DFAC2A]/10 border border-[#DFAC2A]/30 rounded-lg p-2 backdrop-blur-sm">
+                          <Sparkles className="w-4 h-4 text-[#DFAC2A]" />
+                          <span className="text-[10px] font-bold text-[#DFAC2A]">8 novas entradas via IA disponíveis</span>
+                        </div>
+                      </>
                     ) : (
                       <p className="text-xs leading-relaxed text-muted-foreground">
                         {sport.description}
