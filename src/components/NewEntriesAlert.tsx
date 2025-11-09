@@ -35,10 +35,10 @@ export const NewEntriesAlert = () => {
           {/* Text content */}
           <div className="flex-1">
             <h3 className="text-xl md:text-2xl font-black text-white tracking-tight mb-1">
-              ⚡ Novas entradas liberadas
+              💰 Deposite agora e transforme sua confiança em lucro real!
             </h3>
             <p className="text-sm text-[#00FF85] font-semibold">
-              Aproveite agora — oportunidades quentes disponíveis!
+              Cada aposta é uma chance — e quem entra primeiro, ganha primeiro.
             </p>
           </div>
         </div>
