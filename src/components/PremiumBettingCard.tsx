@@ -79,7 +79,7 @@ export const PremiumBettingCard = ({
 
   return (
     <Card
-      className={`min-w-[360px] max-w-[360px] bg-gradient-to-br from-[#121826] to-[#0C0F14] border ${
+      className={`w-full bg-gradient-to-br from-[#121826] to-[#0C0F14] border ${
         lineAlert 
           ? "border-warning/50 animate-shake" 
           : isHovered 

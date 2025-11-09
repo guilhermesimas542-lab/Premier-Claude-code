@@ -141,17 +141,17 @@ const Index = () => {
       {/* Main Content */}
       <main className="container max-w-7xl mx-auto px-4 py-6 space-y-6">
         {/* Premium Cards Carousel */}
-        <section>
+        <section className="relative">
           <Carousel
             opts={{
               align: "start",
-              loop: true,
+              loop: false,
             }}
             className="w-full"
           >
-            <CarouselContent className="-ml-4">
+            <CarouselContent className="-ml-2">
               {premiumTips.map((tip) => (
-                <CarouselItem key={tip.id} className="pl-4 basis-auto">
+                <CarouselItem key={tip.id} className="pl-2 basis-[90%] min-[480px]:basis-[85%] sm:basis-[75%] md:basis-[60%] lg:basis-[45%] xl:basis-[35%]">
                   <PremiumBettingCard
                     tier={tip.tier}
                     team1={tip.team1}
@@ -171,17 +171,25 @@ const Index = () => {
                 </CarouselItem>
               ))}
             </CarouselContent>
-            <CarouselPrevious className="hidden md:flex" />
-            <CarouselNext className="hidden md:flex" />
           </Carousel>
+          
+          {/* Scroll Indicator */}
+          <div className="flex justify-center mt-4 gap-1.5">
+            {premiumTips.map((_, index) => (
+              <div
+                key={index}
+                className="h-1 w-8 bg-muted/30 rounded-full"
+              />
+            ))}
+          </div>
         </section>
 
         {/* Iframe Section */}
         <section className="w-full">
           <div className="w-full aspect-video bg-gradient-to-br from-muted/40 to-muted/20 rounded-xl overflow-hidden border border-border/30 backdrop-blur-sm">
             <iframe
-              src="https://www.youtube.com/embed/dQw4w9WgXcQ"
-              title="Video Player"
+              src="https://futnacional.bet/"
+              title="Futnacional Bet"
               className="w-full h-full"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
