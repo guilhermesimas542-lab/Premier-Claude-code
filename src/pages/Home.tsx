@@ -1,4 +1,4 @@
-import { LogOut, ChevronRight, Info, Lock, Clock, Sparkles } from "lucide-react";
+import { LogOut, ChevronRight, Info, Lock, Clock, Sparkles, CheckCircle2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -389,17 +389,20 @@ const Home = () => {
                         </div>
                       </div>
                     ) : sport.isPremium ? (
-                      /* Premium Description Badge with AI notification */
+                      /* Premium Description Badge with Unlocked indicator */
                       <>
                         <div className="bg-primary/10 border border-primary/30 rounded-lg p-2 backdrop-blur-sm">
                           <p className="text-[11px] leading-relaxed text-white font-bold text-center">
                             {sport.description}
                           </p>
                         </div>
-                        {/* AI New Entries Badge - Always Golden */}
-                        <div className="flex items-center justify-center gap-2 bg-[#DFAC2A]/10 border border-[#DFAC2A]/30 rounded-lg p-2 backdrop-blur-sm">
-                          <Sparkles className="w-4 h-4 text-[#DFAC2A]" />
-                          <span className="text-[10px] font-bold text-[#DFAC2A]">8 novas entradas via IA disponíveis</span>
+                        {/* Unlocked Badge */}
+                        <div className="flex items-center justify-center gap-2 bg-success/10 border border-success/30 rounded-lg p-2 backdrop-blur-sm">
+                          <CheckCircle2 className="w-5 h-5 text-success" />
+                          <div className="text-center">
+                            <p className="text-xs font-bold text-success">Esporte Desbloqueado</p>
+                            <p className="text-[9px] text-success/80">Acesso total liberado via IA</p>
+                          </div>
                         </div>
                       </>
                     ) : (
