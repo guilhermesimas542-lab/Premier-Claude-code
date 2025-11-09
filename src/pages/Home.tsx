@@ -436,18 +436,18 @@ const Home = () => {
                     }
                   </div>
 
-                  {/* Bottom Section - Botão Azul Metálico */}
+                  {/* Bottom Section - Botão Dourado */}
                   <div className="mt-auto p-5 pt-0 space-y-3">
-                    {/* Botão Azul Metálico com Linha de Luz */}
+                    {/* Botão Dourado Metálico com Reflexo Animado */}
                     {(sport as any).isLocked || (sport as any).isPreSale || sport.isPremium ? (
                       <Button 
                         className={`w-full relative overflow-hidden ${
                           sport.isPremium 
-                            ? 'bg-gradient-to-r from-[#00196B] via-[#0033C6] to-[#00196B] bg-[length:200%_100%] hover:bg-[length:100%_100%] shadow-2xl shadow-[#0033C6]/60 hover:shadow-[#00D4FF]/80 shimmer-effect border border-[#00D4FF]/30' 
+                            ? 'bg-gradient-to-r from-[#DFAC2A] via-[#FFD85C] to-[#DFAC2A] bg-[length:200%_100%] hover:bg-[length:100%_100%] shadow-2xl shadow-[#DFAC2A]/60 hover:shadow-[#FFD85C]/80 shimmer-effect' 
                             : 'bg-[#DFAC2A] hover:bg-[#C89824] shadow-lg hover:shadow-xl'
-                        } text-white font-black py-7 text-base transition-all duration-500`}
+                        } text-black font-black py-7 text-base transition-all duration-500 border-0`}
                       >
-                        <span className="relative z-10 drop-shadow-[0_0_10px_rgba(0,212,255,0.8)] tracking-wide">
+                        <span className="relative z-10 drop-shadow-md tracking-wide">
                           {(sport as any).isLocked || (sport as any).isPreSale ? "ADQUIRIR AGORA" : "ACESSAR AGORA"}
                         </span>
                       </Button>
