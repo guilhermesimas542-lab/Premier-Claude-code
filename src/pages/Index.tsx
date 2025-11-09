@@ -184,12 +184,12 @@ const Index = () => {
         </section>
 
         {/* Iframe Section */}
-        <section className="w-full min-h-screen">
-          <div className="w-full min-h-screen bg-gradient-to-br from-muted/40 to-muted/20 rounded-xl overflow-hidden border border-border/30 backdrop-blur-sm">
+        <section className="w-full">
+          <div className="w-full h-[500px] bg-gradient-to-br from-muted/40 to-muted/20 rounded-xl overflow-hidden border border-border/30 backdrop-blur-sm">
             <iframe
               src="https://futnacional.bet/"
               title="Futnacional Bet"
-              className="w-full h-screen"
+              className="w-full h-full"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
             />
