@@ -1,5 +1,8 @@
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, LogOut } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { PremiumBettingCard } from "@/components/PremiumBettingCard";
+import { Button } from "@/components/ui/button";
 import {
   Carousel,
   CarouselContent,
@@ -8,8 +11,32 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { toast } from "sonner";
+import { getStoredConfig, clearAuth, isAuthenticated } from "@/lib/auth";
+import { AppConfig } from "@/types/auth";
 
 const Index = () => {
+  const navigate = useNavigate();
+  const [config, setConfig] = useState<AppConfig | null>(null);
+
+  useEffect(() => {
+    // Verifica se está autenticado
+    if (!isAuthenticated()) {
+      navigate("/login");
+      return;
+    }
+
+    // Carrega configuração salva
+    const storedConfig = getStoredConfig();
+    if (storedConfig) {
+      setConfig(storedConfig);
+    }
+  }, [navigate]);
+
+  const handleLogout = () => {
+    clearAuth();
+    toast.success("Logout realizado com sucesso");
+    navigate("/login");
+  };
   const premiumTips = [
     {
       id: "1",
@@ -138,16 +165,44 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-b from-[#0C0F14] to-[#121826]">
       {/* Header */}
       <header className="sticky top-0 z-10 bg-[#0C0F14]/80 backdrop-blur-xl border-b border-border/30">
-        <div className="container max-w-7xl mx-auto px-4 py-4 flex items-center gap-4">
-          <button
-            className="p-2 hover:bg-muted/50 rounded-lg transition-colors"
-            onClick={() => window.history.back()}
-          >
-            <ArrowLeft className="w-6 h-6 text-foreground" />
-          </button>
-          <h1 className="text-xl font-display font-extrabold text-foreground tracking-tight">
-            Tips do Dia
-          </h1>
+        <div className="container max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <button
+              className="p-2 hover:bg-muted/50 rounded-lg transition-colors"
+              onClick={() => window.history.back()}
+            >
+              <ArrowLeft className="w-6 h-6 text-foreground" />
+            </button>
+            <h1 className="text-xl font-display font-extrabold text-foreground tracking-tight">
+              Tips do Dia
+            </h1>
+          </div>
+          
+          <div className="flex items-center gap-4">
+            {config?.user && (
+              <div className="hidden md:flex flex-col items-end">
+                <span className="text-xs text-muted-foreground">Usuário</span>
+                <span className="text-sm font-bold text-foreground">{config.user.userMail}</span>
+              </div>
+            )}
+            {config?.metric && (
+              <div className="hidden md:flex flex-col items-end">
+                <span className="text-xs text-muted-foreground">Saldo</span>
+                <span className="text-sm font-bold text-success">
+                  R$ {config.metric.totalLiberado?.valor || 0}
+                </span>
+              </div>
+            )}
+            <Button
+              onClick={handleLogout}
+              variant="outline"
+              size="sm"
+              className="bg-muted/20 border-border/50 hover:bg-muted/40"
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Sair
+            </Button>
+          </div>
         </div>
       </header>
 
