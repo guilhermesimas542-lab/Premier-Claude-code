@@ -380,14 +380,6 @@ const Home = () => {
                 <span className="text-sm font-bold text-foreground">{config.user.userMail}</span>
               </div>
             )}
-            {config?.metric && (
-              <div className="hidden md:flex flex-col items-end">
-                <span className="text-xs text-muted-foreground">Saldo</span>
-                <span className="text-sm font-bold text-success">
-                  R$ {config.metric.totalLiberado?.valor || 0}
-                </span>
-              </div>
-            )}
             <Button
               onClick={handleLogout}
               variant="outline"
