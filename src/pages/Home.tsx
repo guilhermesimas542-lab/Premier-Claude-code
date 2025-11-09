@@ -243,71 +243,74 @@ const Home = () => {
                   sport.route !== "#"
                     ? "cursor-pointer hover:scale-[1.02]"
                     : "cursor-not-allowed opacity-60"
-                } transition-all duration-300 group ${
-                  sport.isPremium 
-                    ? "bg-gradient-to-br from-[#DFAC2A]/20 to-[#DFAC2A]/5" 
-                    : "bg-gradient-to-br from-[#121826] to-[#0C0F14] border-border/30 hover:shadow-[0_0_30px_rgba(34,211,238,0.3)]"
-                }`}
+                } transition-all duration-300 group border-0 p-0`}
               >
+                {/* Background Image - Full Card */}
+                {sport.isPremium ? (
+                  <div className="absolute inset-0 z-0">
+                    <div
+                      className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
+                      style={{ backgroundImage: `url('${sport.image}')` }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#0C0F14] via-[#0C0F14]/90 to-[#0C0F14]/70" />
+                    <div className={`absolute inset-0 bg-gradient-to-br ${sport.gradient} opacity-20`} />
+                  </div>
+                ) : null}
+
                 {/* Golden Border Glow Animation for Premium */}
                 {sport.isPremium && (
-                  <div className="absolute inset-0 rounded-xl border-2 border-[#DFAC2A] pointer-events-none animate-border-glow" style={{
+                  <div className="absolute inset-0 rounded-xl border-2 border-[#DFAC2A] pointer-events-none z-30 animate-border-glow" style={{
                     boxShadow: '0 0 24px rgba(223, 172, 42, 0.487), 0 0 48px rgba(223, 172, 42, 0.244), inset 0 0 24px rgba(223, 172, 42, 0.12)'
                   }} />
                 )}
 
-                {/* Background Image */}
-                <div className="relative h-48 overflow-hidden">
-                  <div
-                    className={`absolute inset-0 bg-cover bg-center transition-transform duration-500 ${
-                      sport.isPremium ? "group-hover:scale-110" : "group-hover:scale-110"
-                    }`}
-                    style={{ backgroundImage: `url('${sport.image}')` }}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0C0F14] via-[#0C0F14]/80 to-[#0C0F14]/40" />
-                  
-                  {/* Badge */}
-                  <div className="absolute top-3 right-3">
-                    <Badge className={`${sport.badgeColor} text-[10px] font-bold backdrop-blur-sm`}>
-                      {sport.badge}
-                    </Badge>
-                  </div>
+                {/* Content Container */}
+                <div className="relative z-10 flex flex-col h-full">
+                  {/* Top Section - Badge and Title */}
+                  <div className="p-4 space-y-3">
+                    {/* Badge */}
+                    <div className="flex justify-end">
+                      <Badge className={`${sport.badgeColor} text-[10px] font-bold backdrop-blur-sm`}>
+                        {sport.badge}
+                      </Badge>
+                    </div>
 
-                  {/* Gradient Overlay */}
-                  <div className={`absolute inset-0 bg-gradient-to-br ${sport.gradient} opacity-20`} />
-                </div>
-
-                {/* Content */}
-                <div className="p-4 space-y-3 relative">
-                  <h3 className={`text-xl font-display font-extrabold tracking-tight ${
-                    sport.isPremium 
-                      ? "text-white" 
-                      : "text-foreground"
-                  }`}>
-                    {sport.name}
-                  </h3>
-                  
-                  {sport.isPremium ? (
-                    <div className="bg-primary/10 border border-primary/30 rounded-lg p-3 backdrop-blur-sm">
-                      <p className="text-[11px] leading-relaxed text-white font-bold text-center">
+                    {/* Title */}
+                    <h3 className="text-2xl font-display font-extrabold tracking-tight text-white drop-shadow-lg">
+                      {sport.name}
+                    </h3>
+                    
+                    {/* Description Badge */}
+                    {sport.isPremium ? (
+                      <div className="bg-primary/10 border border-primary/30 rounded-lg p-3 backdrop-blur-sm">
+                        <p className="text-[11px] leading-relaxed text-white font-bold text-center">
+                          {sport.description}
+                        </p>
+                      </div>
+                    ) : (
+                      <p className="text-xs leading-relaxed text-muted-foreground">
                         {sport.description}
                       </p>
-                    </div>
-                  ) : (
-                    <p className="text-xs leading-relaxed text-muted-foreground">
-                      {sport.description}
-                    </p>
-                  )}
-                  
-                  {sport.route !== "#" && (
-                    <div className={`flex items-center text-xs font-bold pt-1 ${
-                      sport.isPremium ? "text-primary" : "text-primary"
-                    }`}>
-                      Acessar agora
-                      <ChevronRight className="w-3 h-3 ml-1 transition-transform group-hover:translate-x-1" />
-                    </div>
-                  )}
+                    )}
+                  </div>
+
+                  {/* Bottom Section - CTA */}
+                  <div className="mt-auto p-4 pt-0">
+                    {sport.route !== "#" && (
+                      <div className={`flex items-center text-sm font-bold ${
+                        sport.isPremium ? "text-[#DFAC2A]" : "text-primary"
+                      }`}>
+                        Acessar agora
+                        <ChevronRight className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-1" />
+                      </div>
+                    )}
+                  </div>
                 </div>
+
+                {/* Non-premium cards - separate background */}
+                {!sport.isPremium && (
+                  <div className="absolute inset-0 z-0 bg-gradient-to-br from-[#121826] to-[#0C0F14] border border-border/30 rounded-xl" />
+                )}
               </Card>
             ))}
           </div>
