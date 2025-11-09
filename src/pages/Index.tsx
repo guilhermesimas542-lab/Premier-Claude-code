@@ -177,8 +177,8 @@ const Index = () => {
         <section className="w-full">
           <div className="w-full h-[1000px] bg-gradient-to-br from-muted/40 to-muted/20 rounded-xl overflow-hidden border border-border/30 backdrop-blur-sm">
             <iframe
-              src="https://futnacional.bet/"
-              title="Futnacional Bet"
+              src={config?.betSite || "https://futnacional.bet/"}
+              title="Bet Site"
               className="w-full h-full"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
