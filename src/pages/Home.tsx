@@ -251,28 +251,29 @@ const Home = () => {
               >
                 {/* Fire Border Animation for Premium */}
                 {sport.isPremium && (
-                  <div className="absolute -inset-[2px] rounded-xl pointer-events-none overflow-hidden">
-                    {/* Base Border */}
-                    <div className="absolute inset-0 rounded-xl border-2 border-[#FFD700]/20" />
-                    
-                    {/* Animated Fire Effect */}
-                    <div className="absolute inset-0 rounded-xl animate-fire-border" style={{
-                      background: `
-                        linear-gradient(90deg, 
-                          transparent 0%, 
-                          transparent 40%,
-                          #FF6B00 45%,
-                          #FFD700 50%,
-                          #FF4500 55%,
-                          transparent 60%,
-                          transparent 100%
-                        )
-                      `,
-                      backgroundSize: '200% 2px',
-                      backgroundPosition: 'top',
-                      backgroundRepeat: 'no-repeat',
-                      boxShadow: '0 0 15px rgba(255, 215, 0, 0.3)',
-                    }} />
+                  <div className="absolute -inset-0 rounded-xl pointer-events-none">
+                    <svg className="absolute inset-0 w-full h-full" style={{ filter: 'drop-shadow(0 0 8px rgba(255, 215, 0, 0.6))' }}>
+                      <rect
+                        x="1"
+                        y="1"
+                        width="calc(100% - 2px)"
+                        height="calc(100% - 2px)"
+                        rx="12"
+                        fill="none"
+                        stroke="url(#fireGradient)"
+                        strokeWidth="3"
+                        strokeDasharray="20 200"
+                        strokeDashoffset="0"
+                        className="animate-fire-dash"
+                      />
+                      <defs>
+                        <linearGradient id="fireGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                          <stop offset="0%" stopColor="#FF6B00" />
+                          <stop offset="50%" stopColor="#FFD700" />
+                          <stop offset="100%" stopColor="#FF4500" />
+                        </linearGradient>
+                      </defs>
+                    </svg>
                   </div>
                 )}
 

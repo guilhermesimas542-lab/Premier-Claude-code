@@ -64,6 +64,23 @@ All colors MUST be HSL.
   }
 }
 
+@keyframes rotate-border {
+  0% {
+    --angle: 0deg;
+    filter: hue-rotate(0deg);
+  }
+  100% {
+    --angle: 360deg;
+    filter: hue-rotate(360deg);
+  }
+}
+
+@property --angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
 @layer base {
   * {
     @apply border-border;
