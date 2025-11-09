@@ -43,10 +43,10 @@ const Index = () => {
     setIsLoading(true);
     try {
       const response = await loadTipsForSport(1);
-      if (response.success && response.data) {
-        setTips(response.data);
+      if (response.success && response.response?.data) {
+        setTips(response.response.data);
       } else {
-        toast.error(response.message || "Erro ao carregar tips");
+        toast.error(response.message?.[0] || "Erro ao carregar tips");
       }
     } catch (error) {
       console.error("Erro ao carregar tips:", error);
@@ -134,21 +134,21 @@ const Index = () => {
                   {tips.map((tip) => (
                     <CarouselItem key={tip.id} className="pl-2 basis-[90%] min-[480px]:basis-[85%] sm:basis-[75%] md:basis-[60%] lg:basis-[45%] xl:basis-[35%]">
                       <PremiumBettingCard
-                        tier={mapTipToCardTier(tip.tipo)}
+                        tier={mapTipToCardTier(tip.is_pro_plan)}
                         team1={{
-                          name: tip.nomeMandante,
-                          logo: tip.logoMandante || "https://via.placeholder.com/100",
+                          name: tip.time1_name,
+                          logo: tip.time1_logo || "https://via.placeholder.com/100",
                         }}
                         team2={{
-                          name: tip.nomeVisitante,
-                          logo: tip.logoVisitante || "https://via.placeholder.com/100",
+                          name: tip.time2_name,
+                          logo: tip.time2_logo || "https://via.placeholder.com/100",
                         }}
-                        market={tip.mercado}
-                        betChoice={tip.entrada}
-                        odds={tip.odd}
-                        confidence={tip.confianca}
-                        insights={tip.insights}
-                        footer={tip.observacao}
+                        market={tip.odd_market}
+                        betChoice={tip.odd_Name}
+                        odds={tip.odd_Value}
+                        confidence={tip.is_super_odd ? 95 : 75}
+                        insights={`${tip.real_odd_market}`}
+                        footer={`Expira em: ${new Date(tip.expiration_date).toLocaleDateString()}`}
                         onAddTip={() => handleAddTip(String(tip.id))}
                       />
                     </CarouselItem>

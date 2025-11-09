@@ -9,28 +9,21 @@ export async function loadTipsForSport(sportId: number = 1): Promise<TipsRespons
     const data = await fetchAuth(url);
     
     return {
-      success: true,
-      data: data || [],
+      success: data.success ?? true,
+      message: data.message ?? [],
+      response: data.response,
+      metric: data.metric,
+      purchasedPlan: data.purchasedPlan,
     };
   } catch (error) {
     console.error("Erro ao carregar tips:", error);
     return {
       success: false,
-      data: [],
-      message: "Erro ao carregar tips",
+      message: ["Erro ao carregar tips"],
     };
   }
 }
 
-export function mapTipToCardTier(tipo: number): "BÁSICO" | "PRO" | "GRÁTIS" | "MÚLTIPLA" {
-  switch (tipo) {
-    case 1:
-      return "PRO";
-    case 2:
-      return "GRÁTIS";
-    case 3:
-      return "MÚLTIPLA";
-    default:
-      return "BÁSICO";
-  }
+export function mapTipToCardTier(isPro: number): "BÁSICO" | "PRO" | "GRÁTIS" | "MÚLTIPLA" {
+  return isPro === 1 ? "PRO" : "BÁSICO";
 }
