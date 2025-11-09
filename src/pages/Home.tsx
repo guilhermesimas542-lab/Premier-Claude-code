@@ -63,56 +63,62 @@ const Home = () => {
   const sports = [
     {
       id: "futebol",
-      name: "Futebol",
+      name: "FUTEBOL",
+      emoji: "⚽",
+      tagline: "🔥 Esporte desbloqueado — 97% de acertos comprovados!",
       description: "Acesso liberado — dados atualizados em tempo real",
       route: "/futebol",
-      gradient: "from-[#00FF87] via-[#00E676] to-[#00C853]",
-      image: "https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=600&h=400&fit=crop",
+      gradient: "from-[#DFAC2A] via-[#FFD85C] to-[#DFAC2A]",
+      image: "https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=800&h=600&fit=crop&q=80",
       badge: "🔥 Destaque",
-      badgeColor: "bg-[#00FF87]/20 text-[#00FF87] border-[#00FF87]/40",
+      badgeColor: "bg-[#FFD85C]/20 text-[#FFD85C] border-[#FFD85C]/40",
       isPremium: true,
-      borderColor: "#00FF87",
+      borderColor: "#DFAC2A",
     },
     {
       id: "cassino",
-      name: "Cassino",
+      name: "CASSINO",
+      emoji: "🎰",
       description: "Novos jogos em desenvolvimento",
       route: "#",
       gradient: "from-primary via-orange-600 to-primary",
-      image: "https://images.unsplash.com/photo-1596838132731-3301c3fd4317?w=600&h=400&fit=crop",
+      image: "https://images.unsplash.com/photo-1596838132731-3301c3fd4317?w=800&h=600&fit=crop&q=80",
       badge: "Em breve",
       badgeColor: "bg-muted/30 text-muted-foreground border-border/30",
       isPremium: false,
     },
     {
       id: "basquete",
-      name: "Basquete",
+      name: "BASQUETE",
+      emoji: "🏀",
       description: "Análises em preparação",
       route: "#",
       gradient: "from-accent via-cyan-500 to-accent",
-      image: "https://images.unsplash.com/photo-1546519638-68e109498ffc?w=600&h=400&fit=crop",
+      image: "https://images.unsplash.com/photo-1546519638-68e109498ffc?w=800&h=600&fit=crop&q=80",
       badge: "Em breve",
       badgeColor: "bg-muted/30 text-muted-foreground border-border/30",
       isPremium: false,
     },
     {
       id: "tenis",
-      name: "Tênis",
+      name: "TÊNIS",
+      emoji: "🎾",
       description: "Sistema em desenvolvimento",
       route: "#",
       gradient: "from-vip via-purple-600 to-vip",
-      image: "https://images.unsplash.com/photo-1622279457486-62dcc4a431d6?w=600&h=400&fit=crop",
+      image: "https://images.unsplash.com/photo-1622279457486-62dcc4a431d6?w=800&h=600&fit=crop&q=80",
       badge: "Em breve",
       badgeColor: "bg-muted/30 text-muted-foreground border-border/30",
       isPremium: false,
     },
     {
       id: "esports",
-      name: "E-Sports",
+      name: "E-SPORTS",
+      emoji: "🎮",
       description: "Disponível no plano PRO",
       route: "#",
       gradient: "from-vip via-purple-600 to-vip",
-      image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=600&h=400&fit=crop",
+      image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&h=600&fit=crop&q=80",
       badge: "Bloqueado",
       badgeColor: "bg-destructive/20 text-destructive border-destructive/30",
       isPremium: false,
@@ -120,11 +126,12 @@ const Home = () => {
     },
     {
       id: "volei",
-      name: "Vôlei",
+      name: "VÔLEI",
+      emoji: "🏐",
       description: "Garanta com desconto exclusivo!",
       route: "#",
       gradient: "from-accent via-cyan-500 to-accent",
-      image: "https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=600&h=400&fit=crop",
+      image: "https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=800&h=600&fit=crop&q=80",
       badge: "Pré-venda",
       badgeColor: "bg-accent/20 text-accent border-accent/30",
       isPremium: false,
@@ -286,70 +293,71 @@ const Home = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {sports.map((sport) => (
-              <Card
+              <div
                 key={sport.id}
                 onClick={() => sport.route !== "#" && navigate(sport.route)}
-                className={`relative overflow-hidden ${
+                className={`${
+                  sport.isPremium ? 'border-fire-effect' : ''
+                } ${
                   sport.route !== "#"
-                    ? "cursor-pointer hover:scale-[1.02]"
+                    ? "cursor-pointer"
                     : "cursor-not-allowed opacity-60"
-                } transition-all duration-300 group border-0 p-0`}
+                } group`}
               >
-                {/* Background Image - Full Card */}
-                <div className="absolute inset-0 z-0">
-                  <div
-                    className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
-                    style={{ backgroundImage: `url('${sport.image}')` }}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0A0E12] via-[#0A0E12]/96 to-[#0A0E12]/85" />
-                  <div className={`absolute inset-0 bg-gradient-to-br ${sport.gradient} ${sport.isPremium ? 'opacity-20' : 'opacity-10'}`} />
-                  {!sport.isPremium && (
-                    <div className="absolute inset-0 border border-border/20 rounded-xl" />
-                  )}
-                </div>
-
-                {/* Premium Border Glow - Impactante */}
-                {sport.isPremium && (
-                  <div 
-                    className="absolute inset-0 rounded-xl border-2 pointer-events-none z-30" 
-                    style={{
-                      borderColor: (sport as any).borderColor || '#00FF87',
-                      boxShadow: `0 0 30px rgba(0, 255, 135, 0.6), 0 0 60px rgba(0, 255, 135, 0.3), inset 0 0 30px rgba(0, 255, 135, 0.15)`,
-                      animation: 'pulse 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite'
-                    }} 
-                  />
-                )}
-
-                {/* Content Container */}
-                <div className="relative z-10 flex flex-col h-full min-h-[280px]">
-                  {/* Top Bar - Barra Impactante */}
-                  <div className={`${
-                    sport.isPremium 
-                      ? 'bg-gradient-to-r from-[#00FF87] via-[#00E676] to-[#00C853] shadow-lg shadow-[#00FF87]/50' 
-                      : 'bg-gradient-to-r from-primary via-orange-600 to-primary'
-                  } px-4 py-3`}>
-                    <div className="flex items-center gap-3">
-                      <span className="text-2xl filter drop-shadow-lg">{sport.isPremium ? '⚽' : sport.id === 'cassino' ? '🎰' : sport.id === 'basquete' ? '🏀' : sport.id === 'tenis' ? '🎾' : sport.id === 'esports' ? '🎮' : '🏐'}</span>
-                      <h3 className="text-xl font-display font-black tracking-tight text-black drop-shadow-md">
-                        {sport.name}
-                      </h3>
-                    </div>
+                <Card
+                  className={`relative overflow-hidden ${
+                    sport.route !== "#"
+                      ? "hover:scale-[1.02]"
+                      : ""
+                  } transition-all duration-500 border-0 p-0 h-full ${sport.isPremium ? 'rounded-xl' : 'rounded-lg'}`}
+                >
+                  {/* Background Image - Cinematográfico */}
+                  <div className="absolute inset-0 z-0">
+                    <div
+                      className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 group-hover:scale-110"
+                      style={{ 
+                        backgroundImage: `url('${sport.image}')`,
+                        filter: 'brightness(0.9) contrast(1.1)'
+                      }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-black/60" />
+                    {sport.isPremium && (
+                      <div className="absolute inset-0 bg-gradient-to-br from-[#DFAC2A]/20 via-transparent to-[#00FF87]/20" />
+                    )}
                   </div>
 
-                  {/* Main Content - Área de Conteúdo Simples e Direta */}
-                  <div className="p-4 space-y-3 flex-1">
-                    
-                    {/* Card Bloqueado */}
-                    {(sport as any).isLocked ? (
-                      <div className="space-y-3 py-2">
-                        <div className="flex items-center justify-center py-3">
-                          <Lock className="w-10 h-10 text-muted-foreground/60" />
-                        </div>
-                        <p className="text-xs text-center text-muted-foreground leading-relaxed">
-                          {sport.description}
-                        </p>
+                  {/* Content Container */}
+                  <div className="relative z-10 flex flex-col h-full min-h-[320px]">
+                    {/* Top Bar - Faixa Dourada Líquida */}
+                    <div className={`${
+                      sport.isPremium 
+                        ? 'liquid-gold-bar shadow-2xl shadow-[#DFAC2A]/50' 
+                        : 'bg-gradient-to-r from-primary via-orange-600 to-primary'
+                    } px-5 py-4`}>
+                      <div className="flex items-center gap-3">
+                        <span className="text-3xl filter drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]">
+                          {(sport as any).emoji || (sport.isPremium ? '⚽' : sport.id === 'cassino' ? '🎰' : sport.id === 'basquete' ? '🏀' : sport.id === 'tenis' ? '🎾' : sport.id === 'esports' ? '🎮' : '🏐')}
+                        </span>
+                        <h3 className="text-xl font-display font-black tracking-wider text-black drop-shadow-lg">
+                          {sport.name}
+                        </h3>
                       </div>
-                    ) : (sport as any).isPreSale ? (
+                    </div>
+
+                    {/* Main Content - Épico e Cinematográfico */}
+                    <div className="p-5 space-y-4 flex-1 flex flex-col justify-center">
+                      
+                      {/* Card Bloqueado */}
+                      {(sport as any).isLocked ? (
+                        <div className="space-y-4 py-2">
+                          <div className="flex items-center justify-center py-4">
+                            <Lock className="w-12 h-12 text-muted-foreground/60" />
+                          </div>
+                          <p className="text-xs text-center text-muted-foreground leading-relaxed">
+                            {sport.description}
+                          </p>
+                        </div>
+                      ) : (sport as any).isPreSale ? (
                       /* Pre-sale Card */
                       <div className="space-y-3">
                         {/* Countdown */}
@@ -389,59 +397,57 @@ const Home = () => {
                           <p className="text-[10px] text-accent/80 font-semibold mt-1">{sport.description}</p>
                         </div>
                       </div>
-                    ) : sport.isPremium ? (
-                      /* Premium - Esporte Desbloqueado */
-                      <div className="space-y-3">
-                        {/* Status Badge - Impactante */}
-                        <div className="flex flex-col items-center justify-center gap-2 bg-[#00FF87]/15 backdrop-blur-md border-2 border-[#00FF87]/50 rounded-lg p-4 shadow-lg shadow-[#00FF87]/20">
-                          <LockOpen className="w-14 h-14 text-[#00FF87] drop-shadow-[0_0_10px_rgba(0,255,135,0.8)]" />
-                          <p className="text-base font-black text-[#00FF87] drop-shadow-lg tracking-wide">DESBLOQUEADO</p>
+                      ) : sport.isPremium ? (
+                        /* Premium - Card Épico */
+                        <div className="space-y-4">
+                          {/* Tagline Poderosa */}
+                          <div className="text-center animate-fade-in">
+                            <p className="text-sm font-black text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.5)] leading-relaxed">
+                              {(sport as any).tagline || "🔥 Esporte desbloqueado — 97% de acertos comprovados!"}
+                            </p>
+                          </div>
+
+                          {/* Selo IA ATIVADA com Glassmorphism */}
+                          <div className="relative flex items-center justify-center gap-3 bg-gradient-to-r from-[#DFAC2A]/15 to-[#FFD85C]/15 backdrop-blur-xl border-2 border-[#DFAC2A]/50 rounded-xl p-4 shadow-2xl shadow-[#DFAC2A]/30 glass-particles overflow-hidden">
+                            <Sparkles className="w-5 h-5 text-[#DFAC2A] animate-pulse drop-shadow-[0_0_10px_rgba(223,172,42,0.8)]" />
+                            <span className="text-sm font-black text-[#DFAC2A] tracking-widest drop-shadow-lg">IA ATIVADA</span>
+                          </div>
                         </div>
-                      </div>
-                    ) : (
-                      /* Em Breve - Descrição Neutra */
-                      <div className="py-2">
-                        <p className="text-xs leading-relaxed text-center text-muted-foreground">
-                          {sport.description}
-                        </p>
-                      </div>
-                    )}
+                      ) : (
+                        /* Em Breve - Descrição Neutra */
+                        <div className="py-2">
+                          <p className="text-xs leading-relaxed text-center text-muted-foreground">
+                            {sport.description}
+                          </p>
+                        </div>
+                      )
+                    }
                   </div>
 
-                  {/* Bottom Section - Botão e Badges */}
-                  <div className="mt-auto p-4 pt-0 space-y-3">
-                    {/* Botão de Ação - Verde Neon para Premium */}
+                  {/* Bottom Section - Botão Épico */}
+                  <div className="mt-auto p-5 pt-0 space-y-3">
+                    {/* Botão Dourado Metálico com Reflexo Animado */}
                     {(sport as any).isLocked || (sport as any).isPreSale || sport.isPremium ? (
                       <Button 
-                        className={`w-full ${
+                        className={`w-full relative overflow-hidden ${
                           sport.isPremium 
-                            ? 'bg-[#00FF87] hover:bg-[#00E676] active:bg-[#00C853] shadow-lg shadow-[#00FF87]/30 hover:shadow-xl hover:shadow-[#00FF87]/40' 
-                            : 'bg-[#DFAC2A] hover:bg-[#C89824] active:bg-[#B38820] shadow-lg hover:shadow-xl'
-                        } text-black font-black py-6 text-base transition-all duration-200`}
+                            ? 'bg-gradient-to-r from-[#DFAC2A] via-[#FFD85C] to-[#DFAC2A] bg-[length:200%_100%] hover:bg-[length:100%_100%] shadow-2xl shadow-[#DFAC2A]/50 hover:shadow-[#DFAC2A]/70 shimmer-effect' 
+                            : 'bg-[#DFAC2A] hover:bg-[#C89824] shadow-lg hover:shadow-xl'
+                        } text-black font-black py-7 text-base transition-all duration-500 border-0`}
                       >
-                        {(sport as any).isLocked || (sport as any).isPreSale ? "Adquirir" : "Acessar agora"}
+                        <span className="relative z-10 drop-shadow-md tracking-wide">
+                          {(sport as any).isLocked || (sport as any).isPreSale ? "ADQUIRIR AGORA" : "ACESSAR AGORA"}
+                        </span>
                       </Button>
                     ) : sport.route !== "#" ? (
-                      <Button className="w-full bg-[#DFAC2A] hover:bg-[#C89824] active:bg-[#B38820] text-black font-black py-6 text-base transition-all duration-200 shadow-lg hover:shadow-xl">
-                        Acessar agora
+                      <Button className="w-full bg-[#DFAC2A] hover:bg-[#C89824] text-black font-black py-7 text-base transition-all duration-200 shadow-lg hover:shadow-xl">
+                        ACESSAR AGORA
                       </Button>
                     ) : null}
-
-                    {/* Badges - Impactantes */}
-                    {sport.isPremium && (
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-2 bg-[#00FF87]/20 backdrop-blur-md border-2 border-[#00FF87]/50 rounded-full px-3 py-1.5 shadow-md shadow-[#00FF87]/20">
-                          <Sparkles className="w-4 h-4 text-[#00FF87] animate-pulse drop-shadow-[0_0_6px_rgba(0,255,135,0.8)]" />
-                          <span className="text-[11px] font-black text-[#00FF87] tracking-wide">IA ATIVADA</span>
-                        </div>
-                        <Badge className={`${sport.badgeColor} text-[10px] font-bold backdrop-blur-md px-3 py-1 border-2`}>
-                          {sport.badge}
-                        </Badge>
-                      </div>
-                    )}
                   </div>
                 </div>
               </Card>
+            </div>
             ))}
           </div>
         </section>

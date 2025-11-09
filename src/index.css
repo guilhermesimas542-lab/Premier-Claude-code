@@ -73,7 +73,103 @@ All colors MUST be HSL.
     --angle: 360deg;
     filter: hue-rotate(360deg);
   }
-}
+  }
+
+  @keyframes border-fire {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  @keyframes float-particles {
+    0%, 100% {
+      transform: translateY(0) translateX(0);
+      opacity: 0.6;
+    }
+    50% {
+      transform: translateY(-10px) translateX(5px);
+      opacity: 1;
+    }
+  }
+
+  @keyframes liquid-gradient {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
+  .border-fire-effect {
+    position: relative;
+    border-radius: 0.75rem;
+    padding: 2px;
+    background: linear-gradient(
+      90deg,
+      #DFAC2A,
+      #FFD85C,
+      #00FF87,
+      #00E676,
+      #DFAC2A,
+      #FFD85C
+    );
+    background-size: 300% 100%;
+    animation: border-fire 4s linear infinite;
+  }
+
+  .liquid-gold-bar {
+    background: linear-gradient(90deg, #DFAC2A, #FFD85C, #DFAC2A);
+    background-size: 200% 100%;
+    animation: liquid-gradient 3s ease-in-out infinite;
+  }
+  
+  .shimmer-effect {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .shimmer-effect::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    animation: shimmer 3s infinite;
+  }
+
+  .glass-particles::before {
+    content: '✨';
+    position: absolute;
+    animation: float-particles 3s ease-in-out infinite;
+  }
+  
+  .glass-particles::after {
+    content: '✨';
+    position: absolute;
+    right: 10px;
+    animation: float-particles 3s ease-in-out infinite 1.5s;
+  }
 
 @property --angle {
   syntax: '<angle>';
