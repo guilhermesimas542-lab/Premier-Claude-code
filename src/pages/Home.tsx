@@ -173,8 +173,100 @@ const Home = () => {
     "Volei": "🏐",
   };
 
+  // Definir cores únicas para cada esporte
+  const sportColorSchemes: Record<string, {
+    primary: string;
+    secondary: string;
+    glow: string;
+    gradient: string;
+    shadow: string;
+    border: string;
+  }> = {
+    "Futebol": {
+      primary: "#00FF87",
+      secondary: "#00C853",
+      glow: "rgba(0, 255, 135, 0.9)",
+      gradient: "from-[#00C853] via-[#00FF87] to-[#00C853]",
+      shadow: "shadow-[#00FF87]/60",
+      border: "#00FF87",
+    },
+    "MMA": {
+      primary: "#FF3D00",
+      secondary: "#D32F2F",
+      glow: "rgba(255, 61, 0, 0.9)",
+      gradient: "from-[#D32F2F] via-[#FF3D00] to-[#D32F2F]",
+      shadow: "shadow-[#FF3D00]/60",
+      border: "#FF3D00",
+    },
+    "Baseball": {
+      primary: "#2196F3",
+      secondary: "#1565C0",
+      glow: "rgba(33, 150, 243, 0.9)",
+      gradient: "from-[#1565C0] via-[#2196F3] to-[#1565C0]",
+      shadow: "shadow-[#2196F3]/60",
+      border: "#2196F3",
+    },
+    "Rugby": {
+      primary: "#8BC34A",
+      secondary: "#558B2F",
+      glow: "rgba(139, 195, 74, 0.9)",
+      gradient: "from-[#558B2F] via-[#8BC34A] to-[#558B2F]",
+      shadow: "shadow-[#8BC34A]/60",
+      border: "#8BC34A",
+    },
+    "Tenis": {
+      primary: "#FFEB3B",
+      secondary: "#F57F17",
+      glow: "rgba(255, 235, 59, 0.9)",
+      gradient: "from-[#F57F17] via-[#FFEB3B] to-[#F57F17]",
+      shadow: "shadow-[#FFEB3B]/60",
+      border: "#FFEB3B",
+    },
+    "Basquete": {
+      primary: "#FF9800",
+      secondary: "#E65100",
+      glow: "rgba(255, 152, 0, 0.9)",
+      gradient: "from-[#E65100] via-[#FF9800] to-[#E65100]",
+      shadow: "shadow-[#FF9800]/60",
+      border: "#FF9800",
+    },
+    "Futsal": {
+      primary: "#9C27B0",
+      secondary: "#6A1B9A",
+      glow: "rgba(156, 39, 176, 0.9)",
+      gradient: "from-[#6A1B9A] via-[#9C27B0] to-[#6A1B9A]",
+      shadow: "shadow-[#9C27B0]/60",
+      border: "#9C27B0",
+    },
+    "Hoquei": {
+      primary: "#00BCD4",
+      secondary: "#0097A7",
+      glow: "rgba(0, 188, 212, 0.9)",
+      gradient: "from-[#0097A7] via-[#00BCD4] to-[#0097A7]",
+      shadow: "shadow-[#00BCD4]/60",
+      border: "#00BCD4",
+    },
+    "Handball": {
+      primary: "#E91E63",
+      secondary: "#C2185B",
+      glow: "rgba(233, 30, 99, 0.9)",
+      gradient: "from-[#C2185B] via-[#E91E63] to-[#C2185B]",
+      shadow: "shadow-[#E91E63]/60",
+      border: "#E91E63",
+    },
+    "Volei": {
+      primary: "#FFC107",
+      secondary: "#FF8F00",
+      glow: "rgba(255, 193, 7, 0.9)",
+      gradient: "from-[#FF8F00] via-[#FFC107] to-[#FF8F00]",
+      shadow: "shadow-[#FFC107]/60",
+      border: "#FFC107",
+    },
+  };
+
   const mappedSports = sports.map((sport) => {
     const tipo = sport.tipo ?? 0;
+    const colors = sportColorSchemes[sport.name] || sportColorSchemes["Futebol"];
     
     // Tipo 0: Verifica enabled para premium ou bloqueado
     // Tipo 1: Em desenvolvimento
@@ -200,8 +292,9 @@ const Home = () => {
       isLocked: cardType === 'locked',
       isDevelopment: cardType === 'development',
       isPreSale: cardType === 'presale',
+      colors: colors,
       badgeColor: cardType === 'premium'
-        ? "bg-[#00FF87]/20 text-[#00FF87] border-[#00FF87]/40"
+        ? `bg-[${colors.primary}]/20 text-[${colors.primary}] border-[${colors.primary}]/40`
         : "bg-muted/30 text-muted-foreground border-border/30",
       priceFrom: cardType === 'presale' ? "R$ 299,00" : undefined,
       priceTo: cardType === 'presale' ? "R$ 149,00" : undefined,
@@ -384,6 +477,9 @@ const Home = () => {
                     ? "cursor-pointer"
                     : "cursor-not-allowed opacity-60"
                 } group`}
+                style={sport.isPremium ? {
+                  ['--border-color' as any]: (sport as any).colors?.border || '#00FF87'
+                } : undefined}
               >
                 <Card
                   className={`relative overflow-hidden ${
@@ -392,21 +488,47 @@ const Home = () => {
                       : ""
                   } transition-all duration-500 border-0 p-0 h-full ${sport.isPremium ? 'rounded-xl' : 'rounded-lg'}`}
                 >
-                  {/* Badge IA ATIVADA - Flutuante no topo direito */}
-                  {sport.isPremium && (
-                    <div className="absolute -top-2 -right-2 z-20 animate-fade-in">
-                      <div className="relative flex items-center justify-center gap-2 bg-gradient-to-r from-[#000636]/95 to-[#0033C6]/95 backdrop-blur-xl border-2 border-[#00FF87] rounded-xl px-3 py-1.5 shadow-2xl shadow-[#00FF87]/50">
-                        <Sparkles className="w-3.5 h-3.5 text-[#00FF87] animate-pulse drop-shadow-[0_0_8px_rgba(0,255,135,1)]" />
-                        <span className="text-[10px] font-black text-[#00FF87] tracking-widest drop-shadow-[0_0_8px_rgba(0,255,135,0.8)] whitespace-nowrap">IA ATIVADA</span>
-                        {/* Partículas de luz tecnológicas */}
-                        <div className="absolute inset-0 opacity-30 pointer-events-none">
-                          <div className="absolute top-0.5 left-1.5 w-0.5 h-0.5 bg-[#00FFFF] rounded-full animate-pulse" />
-                          <div className="absolute bottom-0.5 right-2 w-0.5 h-0.5 bg-white rounded-full animate-pulse" style={{ animationDelay: '0.5s' }} />
-                          <div className="absolute top-1/2 right-1.5 w-0.5 h-0.5 bg-[#00FF87] rounded-full animate-pulse" style={{ animationDelay: '1s' }} />
+                      {/* Badge IA ATIVADA - Flutuante no topo direito */}
+                      {sport.isPremium && (
+                        <div className="absolute -top-2 -right-2 z-20 animate-fade-in">
+                          <div 
+                            className="relative flex items-center justify-center gap-2 bg-gradient-to-r from-[#000636]/95 to-[#0033C6]/95 backdrop-blur-xl border-2 rounded-xl px-3 py-1.5 shadow-2xl"
+                            style={{
+                              borderColor: (sport as any).colors?.border || '#00FF87',
+                              boxShadow: `0 0 20px ${(sport as any).colors?.primary || '#00FF87'}80`
+                            }}
+                          >
+                            <Sparkles 
+                              className="w-3.5 h-3.5 animate-pulse" 
+                              style={{ 
+                                color: (sport as any).colors?.primary || '#00FF87',
+                                filter: `drop-shadow(0 0 8px ${(sport as any).colors?.primary || '#00FF87'})`
+                              }}
+                            />
+                            <span 
+                              className="text-[10px] font-black tracking-widest whitespace-nowrap"
+                              style={{ 
+                                color: (sport as any).colors?.primary || '#00FF87',
+                                textShadow: `0 0 8px ${(sport as any).colors?.glow || 'rgba(0,255,135,0.8)'}`
+                              }}
+                            >
+                              IA ATIVADA
+                            </span>
+                            {/* Partículas de luz tecnológicas */}
+                            <div className="absolute inset-0 opacity-30 pointer-events-none">
+                              <div className="absolute top-0.5 left-1.5 w-0.5 h-0.5 bg-white rounded-full animate-pulse" />
+                              <div className="absolute bottom-0.5 right-2 w-0.5 h-0.5 bg-white rounded-full animate-pulse" style={{ animationDelay: '0.5s' }} />
+                              <div 
+                                className="absolute top-1/2 right-1.5 w-0.5 h-0.5 rounded-full animate-pulse" 
+                                style={{ 
+                                  backgroundColor: (sport as any).colors?.primary || '#00FF87',
+                                  animationDelay: '1s' 
+                                }}
+                              />
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    </div>
-                  )}
+                      )}
 
                   {/* Background Image - Cinematográfico Arena Noturna */}
                   <div className="absolute inset-0 z-0">
@@ -551,17 +673,36 @@ const Home = () => {
                           {/* Texto Principal Impactante */}
                           <div className="text-center animate-fade-in space-y-2">
                             <div className="relative inline-block">
-                              <div className="absolute inset-0 bg-[#00FF87] blur-xl opacity-30" />
-                              <h4 className="relative text-lg font-black text-[#00FF87] drop-shadow-[0_0_20px_rgba(0,255,135,0.9)] leading-tight tracking-wide">
+                              <div 
+                                className="absolute inset-0 blur-xl opacity-30"
+                                style={{ backgroundColor: (sport as any).colors?.primary || '#00FF87' }}
+                              />
+                              <h4 
+                                className="relative text-lg font-black leading-tight tracking-wide"
+                                style={{ 
+                                  color: (sport as any).colors?.primary || '#00FF87',
+                                  textShadow: `0 0 20px ${(sport as any).colors?.glow || 'rgba(0,255,135,0.9)'}`
+                                }}
+                              >
                                 NOVAS ENTRADAS DISPONÍVEIS
                               </h4>
                             </div>
                             <div className="flex items-center justify-center gap-2">
-                              <div className="h-px w-8 bg-gradient-to-r from-transparent to-[#00FF87]" />
+                              <div 
+                                className="h-px w-8 bg-gradient-to-r from-transparent"
+                                style={{ 
+                                  ['--tw-gradient-to' as any]: (sport as any).colors?.primary || '#00FF87'
+                                }}
+                              />
                               <p className="text-base font-black text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.5)] tracking-wider whitespace-nowrap">
                                 ⚡ APOSTE AGORA ⚡
                               </p>
-                              <div className="h-px w-8 bg-gradient-to-l from-transparent to-[#00FF87]" />
+                              <div 
+                                className="h-px w-8 bg-gradient-to-l from-transparent"
+                                style={{ 
+                                  ['--tw-gradient-to' as any]: (sport as any).colors?.primary || '#00FF87'
+                                }}
+                              />
                             </div>
                           </div>
                         </div>
@@ -589,7 +730,11 @@ const Home = () => {
                       </Button>
                     ) : sport.isPremium ? (
                       <Button 
-                        className="w-full relative overflow-hidden bg-gradient-to-r from-[#00C853] via-[#00FF87] to-[#00C853] bg-[length:200%_100%] hover:bg-[length:100%_100%] shadow-2xl shadow-[#00FF87]/60 hover:shadow-[#00FF87]/80 shimmer-effect text-black font-black py-7 text-base transition-all duration-500 border-0"
+                        className="w-full relative overflow-hidden bg-[length:200%_100%] hover:bg-[length:100%_100%] shadow-2xl hover:shadow-3xl shimmer-effect text-black font-black py-7 text-base transition-all duration-500 border-0"
+                        style={{
+                          backgroundImage: `linear-gradient(to right, ${(sport as any).colors?.secondary || '#00C853'}, ${(sport as any).colors?.primary || '#00FF87'}, ${(sport as any).colors?.secondary || '#00C853'})`,
+                          boxShadow: `0 0 40px ${(sport as any).colors?.primary || '#00FF87'}60, 0 0 60px ${(sport as any).colors?.primary || '#00FF87'}40`
+                        }}
                       >
                         <span className="relative z-10 drop-shadow-md tracking-wide">
                           ACESSAR AGORA
