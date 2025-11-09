@@ -96,7 +96,7 @@ const Home = () => {
         name: "Futsal",
         enabled: true,
         isproplan: false,
-        background: "cyberbet_65a951a1-ea4a-4022-84af-d7c674d51d87",
+        background: "futsal-custom",
         tipo: 0, // Premium ativo
       },
       {

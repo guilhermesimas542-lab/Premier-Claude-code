@@ -10,5 +10,9 @@ export async function fetchSports(): Promise<SportsResponse> {
 
 export function getBackgroundImageUrl(backgroundId: string): string {
   if (!backgroundId) return "";
+  // Para imagens customizadas locais
+  if (backgroundId === "futsal-custom") {
+    return "/images/futsal-arena.jpg";
+  }
   return `https://imagedelivery.net/uGmh4EK74r0qnuu3lZf-oA/${backgroundId}/public`;
 }
