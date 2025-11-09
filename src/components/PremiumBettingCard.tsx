@@ -98,6 +98,17 @@ export const PremiumBettingCard = ({
       {/* Background Texture */}
       <div className="absolute inset-0 opacity-[0.08] bg-[radial-gradient(circle_at_30%_50%,rgba(34,211,238,0.1),transparent_50%)]" />
       
+      {/* Animated GIF Background for Premium Tiers */}
+      {(tier === "PRO" || tier === "MÚLTIPLA") && (
+        <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
+          <img 
+            src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif" 
+            alt="" 
+            className="w-full h-full object-cover mix-blend-screen"
+          />
+        </div>
+      )}
+      
       {/* Tier Badge */}
       <div className="relative overflow-hidden animate-slide-up">
         <div
@@ -106,6 +117,21 @@ export const PremiumBettingCard = ({
           <div className="relative z-10 flex items-center justify-center gap-1.5">
             {config.icon}
             <span className="text-white drop-shadow-lg tracking-tight">{tier}</span>
+            {/* Sparkle GIF for special tiers */}
+            {(tier === "PRO" || tier === "MÚLTIPLA") && (
+              <img 
+                src="https://media.giphy.com/media/26tPnAAJxXTvpLwJy/giphy.gif" 
+                alt="" 
+                className="w-3 h-3 inline-block ml-0.5 opacity-80"
+              />
+            )}
+            {tier === "GRÁTIS" && (
+              <img 
+                src="https://media.giphy.com/media/xUPGcC0R9QjyxkPnS8/giphy.gif" 
+                alt="" 
+                className="w-3 h-3 inline-block ml-0.5 opacity-70"
+              />
+            )}
           </div>
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-shine" />
         </div>
