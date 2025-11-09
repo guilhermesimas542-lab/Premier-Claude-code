@@ -184,7 +184,7 @@ export const PremiumBettingCard = ({
             {team1.name} <span className="text-muted-foreground">×</span> {team2.name}
           </h3>
           <p className="text-[9px] text-muted-foreground font-medium uppercase tracking-wide">
-            {market}
+            {isLocked ? "***************" : market}
           </p>
         </div>
 
