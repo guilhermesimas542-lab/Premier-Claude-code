@@ -43,7 +43,7 @@ const Home = () => {
       setConfig(storedConfig);
     }
 
-    // Dados mockados para desenvolvimento (até servidor retornar tipo e expDate)
+    // Dados mockados para desenvolvimento completo
     const mockSports: Sport[] = [
       {
         id: 1,
@@ -51,15 +51,15 @@ const Home = () => {
         enabled: true,
         isproplan: false,
         background: "cyberbet_3ef04120-9b39-44f5-9e4e-0127a76326bb",
-        tipo: 0, // Premium ativo
+        tipo: 0,
       },
       {
         id: 2,
         name: "MMA",
-        enabled: false,
-        isproplan: true,
+        enabled: true,
+        isproplan: false,
         background: "cyberbet_76a934f8-71c1-41a2-a9fe-93c36359dd7f",
-        tipo: 0, // Bloqueado
+        tipo: 0,
       },
       {
         id: 3,
@@ -67,7 +67,7 @@ const Home = () => {
         enabled: true,
         isproplan: false,
         background: "cyberbet_20d5c209-1849-49d0-9475-4eabf2541b07",
-        tipo: 1, // Em desenvolvimento
+        tipo: 0,
       },
       {
         id: 4,
@@ -75,16 +75,15 @@ const Home = () => {
         enabled: true,
         isproplan: false,
         background: "cyberbet_75203e34-3699-4203-9063-24bb8b805083",
-        tipo: 2, // Pré-venda
-        expDate: "2025-12-31T23:59:59",
+        tipo: 0,
       },
       {
         id: 5,
         name: "Tenis",
-        enabled: false,
+        enabled: true,
         isproplan: false,
         background: "cyberbet_3164bd85-f9f8-4113-b776-fb37acf872a3",
-        tipo: 0, // Bloqueado (enabled false)
+        tipo: 0,
       },
       {
         id: 6,
@@ -92,7 +91,7 @@ const Home = () => {
         enabled: true,
         isproplan: false,
         background: "cyberbet_55e38087-eeb7-4031-9a11-a326b50db79f",
-        tipo: 1, // Em desenvolvimento
+        tipo: 0,
       },
       {
         id: 7,
@@ -100,7 +99,7 @@ const Home = () => {
         enabled: true,
         isproplan: false,
         background: "futsal-custom",
-        tipo: 0, // Premium ativo
+        tipo: 0,
       },
       {
         id: 8,
@@ -108,43 +107,37 @@ const Home = () => {
         enabled: true,
         isproplan: false,
         background: "cyberbet_255695b8-2046-4b5b-b6c5-17e7bb5e3df2",
-        tipo: 2, // Pré-venda
-        expDate: "2025-11-15T23:59:59",
+        tipo: 0,
+      },
+      {
+        id: 9,
+        name: "Handball",
+        enabled: true,
+        isproplan: false,
+        background: "cyberbet_3ef04120-9b39-44f5-9e4e-0127a76326bb",
+        tipo: 0,
+      },
+      {
+        id: 10,
+        name: "Volei",
+        enabled: true,
+        isproplan: false,
+        background: "cyberbet_76a934f8-71c1-41a2-a9fe-93c36359dd7f",
+        tipo: 0,
+      },
+      {
+        id: 11,
+        name: "Cassino",
+        enabled: true,
+        isproplan: false,
+        background: "cyberbet_20d5c209-1849-49d0-9475-4eabf2541b07",
+        tipo: 0,
       },
     ];
 
-    // Buscar esportes da API (ou usar mock)
-    const loadSports = async () => {
-      try {
-        setLoading(true);
-        const data = await fetchSports();
-        
-        if (data.success && data.response) {
-          // Atualizar localStorage com dados do GetSports
-          updateConfigFromSports(data);
-          
-          // Atualizar config local
-          const updatedConfig = getStoredConfig();
-          if (updatedConfig) {
-            setConfig(updatedConfig);
-          }
-          
-          setSports(data.response);
-        } else {
-          // Fallback para mock
-          setSports(mockSports);
-        }
-      } catch (error) {
-        console.error("Erro ao carregar esportes:", error);
-        toast.error("Erro ao carregar esportes");
-        // Fallback para mock em caso de erro
-        setSports(mockSports);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadSports();
+    // Usar apenas mock (não busca API)
+    setSports(mockSports);
+    setLoading(false);
   }, [navigate]);
 
   // Countdown timer
