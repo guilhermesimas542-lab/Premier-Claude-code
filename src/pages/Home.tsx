@@ -249,14 +249,14 @@ const Home = () => {
                     : "border-border/30 hover:shadow-[0_0_30px_rgba(34,211,238,0.3)]"
                 }`}
               >
-                {/* Rotating Golden Dot Following Border for Premium */}
+                {/* Rotating Golden Fire Effect Following Border for Premium */}
                 {sport.isPremium && (
                   <>
                     {/* Border */}
-                    <div className="absolute -inset-[1px] rounded-xl border-2 border-[#FFD700]/30 pointer-events-none" />
-                    {/* Rotating Dot along border */}
-                    <div className="absolute inset-0 pointer-events-none">
-                      <div className="absolute w-2 h-2 bg-[#FFD700] rounded-full shadow-[0_0_15px_#FFD700] animate-border-spin" />
+                    <div className="absolute -inset-[2px] rounded-xl border-2 border-[#FFD700]/30 pointer-events-none" />
+                    {/* Rotating Fire Dot along border */}
+                    <div className="absolute -inset-[2px] rounded-xl pointer-events-none overflow-visible">
+                      <div className="absolute w-8 h-[2px] bg-gradient-to-r from-transparent via-[#FFD700] to-[#FFD700] shadow-[0_0_10px_#FFD700] animate-border-spin" />
                     </div>
                   </>
                 )}
