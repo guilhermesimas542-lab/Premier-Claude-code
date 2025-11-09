@@ -40,17 +40,93 @@ const Home = () => {
       setConfig(storedConfig);
     }
 
-    // Buscar esportes da API
+    // Dados mockados para desenvolvimento (até servidor retornar tipo e expDate)
+    const mockSports: Sport[] = [
+      {
+        id: 1,
+        name: "Futebol",
+        enabled: true,
+        isproplan: false,
+        background: "cyberbet_3ef04120-9b39-44f5-9e4e-0127a76326bb",
+        tipo: 0, // Premium ativo
+      },
+      {
+        id: 2,
+        name: "MMA",
+        enabled: false,
+        isproplan: true,
+        background: "cyberbet_76a934f8-71c1-41a2-a9fe-93c36359dd7f",
+        tipo: 0, // Bloqueado
+      },
+      {
+        id: 3,
+        name: "Baseball",
+        enabled: true,
+        isproplan: false,
+        background: "cyberbet_20d5c209-1849-49d0-9475-4eabf2541b07",
+        tipo: 1, // Em desenvolvimento
+      },
+      {
+        id: 4,
+        name: "Rugby",
+        enabled: true,
+        isproplan: false,
+        background: "cyberbet_75203e34-3699-4203-9063-24bb8b805083",
+        tipo: 2, // Pré-venda
+        expDate: "2025-12-31T23:59:59",
+      },
+      {
+        id: 5,
+        name: "Tenis",
+        enabled: false,
+        isproplan: false,
+        background: "cyberbet_3164bd85-f9f8-4113-b776-fb37acf872a3",
+        tipo: 0, // Bloqueado (enabled false)
+      },
+      {
+        id: 6,
+        name: "Basquete",
+        enabled: true,
+        isproplan: false,
+        background: "cyberbet_55e38087-eeb7-4031-9a11-a326b50db79f",
+        tipo: 1, // Em desenvolvimento
+      },
+      {
+        id: 7,
+        name: "Futsal",
+        enabled: true,
+        isproplan: false,
+        background: "cyberbet_65a951a1-ea4a-4022-84af-d7c674d51d87",
+        tipo: 0, // Premium ativo
+      },
+      {
+        id: 8,
+        name: "Hoquei",
+        enabled: true,
+        isproplan: false,
+        background: "cyberbet_255695b8-2046-4b5b-b6c5-17e7bb5e3df2",
+        tipo: 2, // Pré-venda
+        expDate: "2025-11-15T23:59:59",
+      },
+    ];
+
+    // Buscar esportes da API (ou usar mock)
     const loadSports = async () => {
       try {
         setLoading(true);
-        const data = await fetchSports();
-        if (data.success && data.response) {
-          setSports(data.response);
-        }
+        // Comentado temporariamente até API retornar tipo e expDate
+        // const data = await fetchSports();
+        // if (data.success && data.response) {
+        //   setSports(data.response);
+        // }
+        
+        // Usando dados mockados
+        setSports(mockSports);
       } catch (error) {
         console.error("Erro ao carregar esportes:", error);
         toast.error("Erro ao carregar esportes");
+        // Fallback para mock em caso de erro
+        setSports(mockSports);
       } finally {
         setLoading(false);
       }
@@ -97,18 +173,40 @@ const Home = () => {
     "Volei": "🏐",
   };
 
-  const mappedSports = sports.map((sport) => ({
-    ...sport,
-    emoji: sportEmojiMap[sport.name] || "🏆",
-    route: sport.enabled && !sport.isproplan ? `/${sport.name.toLowerCase()}` : "#",
-    image: getBackgroundImageUrl(sport.background),
-    gradient: "from-[#000636] via-[#0026A3] to-[#0033C6]",
-    isPremium: sport.enabled && !sport.isproplan,
-    isLocked: sport.isproplan && config?.user?.purchasedPlan !== 2,
-    badgeColor: sport.enabled && !sport.isproplan 
-      ? "bg-[#00FF87]/20 text-[#00FF87] border-[#00FF87]/40"
-      : "bg-muted/30 text-muted-foreground border-border/30",
-  }));
+  const mappedSports = sports.map((sport) => {
+    const tipo = sport.tipo ?? 0;
+    
+    // Tipo 0: Verifica enabled para premium ou bloqueado
+    // Tipo 1: Em desenvolvimento
+    // Tipo 2: Pré-venda
+    
+    let cardType: 'premium' | 'locked' | 'development' | 'presale' = 'development';
+    
+    if (tipo === 0) {
+      cardType = sport.enabled ? 'premium' : 'locked';
+    } else if (tipo === 1) {
+      cardType = 'development';
+    } else if (tipo === 2) {
+      cardType = 'presale';
+    }
+
+    return {
+      ...sport,
+      emoji: sportEmojiMap[sport.name] || "🏆",
+      route: cardType === 'premium' ? `/${sport.name.toLowerCase()}` : "#",
+      image: getBackgroundImageUrl(sport.background),
+      gradient: "from-[#000636] via-[#0026A3] to-[#0033C6]",
+      isPremium: cardType === 'premium',
+      isLocked: cardType === 'locked',
+      isDevelopment: cardType === 'development',
+      isPreSale: cardType === 'presale',
+      badgeColor: cardType === 'premium'
+        ? "bg-[#00FF87]/20 text-[#00FF87] border-[#00FF87]/40"
+        : "bg-muted/30 text-muted-foreground border-border/30",
+      priceFrom: cardType === 'presale' ? "R$ 299,00" : undefined,
+      priceTo: cardType === 'presale' ? "R$ 149,00" : undefined,
+    };
+  });
 
   const announcements = [
     {
@@ -349,11 +447,10 @@ const Home = () => {
 
                     {/* Main Content - Épico e Cinematográfico */}
                     <div className="p-5 space-y-4 flex-1 flex flex-col justify-center">
-                      
-                      {/* Card Bloqueado */}
+                      {/* Conteúdo baseado no tipo de card */}
                       {(sport as any).isLocked ? (
+                        /* Card Bloqueado */
                         <div className="space-y-4 py-2">
-                          {/* Texto Principal - Bloqueado */}
                           <div className="text-center animate-fade-in space-y-3">
                             <div className="flex items-center justify-center py-2">
                               <div className="relative w-20 h-20">
@@ -376,7 +473,7 @@ const Home = () => {
                           </div>
                         </div>
                       ) : (sport as any).isPreSale ? (
-                      /* Pre-sale Card */
+                      /* Card Pré-venda */
                       <div className="space-y-4">
                         {/* Título Lançamento */}
                         <div className="text-center animate-fade-in">
@@ -427,6 +524,25 @@ const Home = () => {
                           </div>
                         </div>
                       </div>
+                      ) : (sport as any).isDevelopment ? (
+                        /* Card Em Desenvolvimento */
+                        <div className="space-y-4">
+                          <div className="text-center animate-fade-in space-y-2">
+                            <div className="relative inline-block">
+                              <div className="absolute inset-0 bg-accent blur-xl opacity-20" />
+                              <h4 className="relative text-lg font-black text-accent drop-shadow-[0_0_20px_rgba(0,212,255,0.6)] leading-tight tracking-wide">
+                                EM DESENVOLVIMENTO
+                              </h4>
+                            </div>
+                            <div className="flex items-center justify-center gap-2">
+                              <div className="h-px w-8 bg-gradient-to-r from-transparent to-muted-foreground/30" />
+                              <p className="text-sm font-bold text-muted-foreground drop-shadow-[0_0_10px_rgba(255,255,255,0.3)] tracking-wide whitespace-nowrap">
+                                🚀 EM BREVE 🚀
+                              </p>
+                              <div className="h-px w-8 bg-gradient-to-l from-transparent to-muted-foreground/30" />
+                            </div>
+                          </div>
+                        </div>
                       ) : sport.isPremium ? (
                         /* Premium - Card Épico Arena Azul */
                         <div className="space-y-4">
@@ -447,27 +563,7 @@ const Home = () => {
                             </div>
                           </div>
                         </div>
-                      ) : (
-                        /* Em Breve - Estrutura Bonita */
-                        <div className="space-y-4">
-                          <div className="text-center animate-fade-in space-y-2">
-                            <div className="relative inline-block">
-                              <div className="absolute inset-0 bg-accent blur-xl opacity-20" />
-                              <h4 className="relative text-lg font-black text-accent drop-shadow-[0_0_20px_rgba(0,212,255,0.6)] leading-tight tracking-wide">
-                                EM DESENVOLVIMENTO
-                              </h4>
-                            </div>
-                            <div className="flex items-center justify-center gap-2">
-                              <div className="h-px w-8 bg-gradient-to-r from-transparent to-muted-foreground/30" />
-                              <p className="text-sm font-bold text-muted-foreground drop-shadow-[0_0_10px_rgba(255,255,255,0.3)] tracking-wide whitespace-nowrap">
-                                🚀 EM BREVE 🚀
-                              </p>
-                              <div className="h-px w-8 bg-gradient-to-l from-transparent to-muted-foreground/30" />
-                            </div>
-                          </div>
-                        </div>
-                      )
-                    }
+                      ) : null}
                   </div>
 
                   {/* Bottom Section - Botão Dourado */}

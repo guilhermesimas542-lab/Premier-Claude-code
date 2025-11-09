@@ -4,6 +4,8 @@ export interface Sport {
   enabled: boolean;
   isproplan: boolean;
   background: string;
+  tipo?: number; // 0 = premium/bloqueado, 1 = em desenvolvimento, 2 = pré-venda
+  expDate?: string; // Data de expiração para pré-venda
 }
 
 export interface SportsResponse {
