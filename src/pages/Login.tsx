@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { normalizePayload, persistConfig } from "@/lib/auth";
 import { LoginResponse } from "@/types/auth";
 import { Smartphone, Trophy, TrendingUp } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -116,29 +117,32 @@ const Login = () => {
 
             <Button
               type="submit"
-              className="w-full bg-gradient-to-r from-primary via-primary to-primary/80 hover:from-primary/90 hover:via-primary hover:to-primary text-white font-bold py-6 text-base shadow-xl shadow-primary/40 transition-all duration-300 hover:scale-[1.02] hover:shadow-primary/60"
+              className="w-full bg-gradient-to-r from-emerald-600 via-emerald-500 to-emerald-600 hover:from-emerald-700 hover:via-emerald-600 hover:to-emerald-700 text-white font-bold py-6 text-base shadow-xl shadow-emerald-500/40 transition-all duration-300 hover:scale-[1.02] hover:shadow-emerald-500/60"
               disabled={isLoading}
             >
               {isLoading ? "Entrando..." : "🚀 Acessar Minhas Tips"}
             </Button>
           </form>
 
+          {/* Separator */}
+          <div className="flex items-center gap-4 my-6">
+            <Separator className="flex-1 bg-border/50" />
+            <span className="text-xs text-muted-foreground font-medium">OU</span>
+            <Separator className="flex-1 bg-border/50" />
+          </div>
+
           {/* Download App Button */}
-          <div className="mt-6">
+          <div>
             <a
               href="https://play.google.com/store"
               target="_blank"
               rel="noopener noreferrer"
               className="block"
             >
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full border-2 border-foreground/20 bg-foreground/5 hover:bg-foreground/10 hover:border-foreground/30 text-foreground font-semibold py-6 transition-all duration-300 hover:scale-[1.02]"
-              >
-                <Smartphone className="w-5 h-5 mr-2" />
-                Baixar App na Google Play
-              </Button>
+              <div className="w-full bg-gradient-to-r from-[#01875f] via-[#00a76a] to-[#01875f] hover:from-[#016d4c] hover:via-[#01875f] hover:to-[#016d4c] text-white font-semibold py-4 px-6 rounded-lg transition-all duration-300 hover:scale-[1.02] shadow-lg shadow-[#01875f]/30 hover:shadow-[#01875f]/50 flex items-center justify-center gap-3">
+                <img src="/images/google-play-badge.svg" alt="Google Play" className="h-8 w-auto brightness-0 invert" />
+                <span className="text-base">Disponível na Google Play</span>
+              </div>
             </a>
           </div>
 
