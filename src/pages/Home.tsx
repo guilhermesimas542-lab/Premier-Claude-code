@@ -380,6 +380,8 @@ const Home = () => {
                 } ${
                   sport.route !== "#"
                     ? "cursor-pointer"
+                    : (sport as any).isLocked || (sport as any).isPreSale
+                    ? "cursor-pointer"
                     : "cursor-not-allowed opacity-60"
                 } group`}
               >
