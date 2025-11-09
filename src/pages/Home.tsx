@@ -315,9 +315,9 @@ const Home = () => {
                 )}
 
                 {/* Content Container */}
-                <div className="relative z-10 flex flex-col h-full min-h-[320px]">
+                <div className="relative z-10 flex flex-col h-full min-h-[280px]">
                   {/* Top Section - Badge and Title */}
-                  <div className="p-4 space-y-3">
+                  <div className="p-3 space-y-2">
                     {/* Badge */}
                     <div className="flex justify-end">
                       <Badge className={`${sport.badgeColor} text-[10px] font-bold backdrop-blur-sm`}>
@@ -326,7 +326,7 @@ const Home = () => {
                     </div>
 
                     {/* Title */}
-                    <h3 className="text-2xl font-display font-extrabold tracking-tight text-white drop-shadow-lg">
+                    <h3 className="text-xl font-display font-extrabold tracking-tight text-white drop-shadow-lg">
                       {sport.name}
                     </h3>
                     
@@ -382,7 +382,7 @@ const Home = () => {
                       </div>
                     ) : sport.isPremium ? (
                       /* Premium Description Badge */
-                      <div className="bg-primary/10 border border-primary/30 rounded-lg p-3 backdrop-blur-sm">
+                      <div className="bg-primary/10 border border-primary/30 rounded-lg p-2 backdrop-blur-sm">
                         <p className="text-[11px] leading-relaxed text-white font-bold text-center">
                           {sport.description}
                         </p>
@@ -395,18 +395,15 @@ const Home = () => {
                   </div>
 
                   {/* Bottom Section - CTA */}
-                  <div className="mt-auto p-4 pt-0">
-                    {(sport as any).isLocked || (sport as any).isPreSale ? (
-                      <Button className="w-full bg-primary hover:bg-primary/90 text-white font-bold">
-                        Adquirir
+                  <div className="mt-auto p-3 pt-0">
+                    {(sport as any).isLocked || (sport as any).isPreSale || sport.isPremium ? (
+                      <Button className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-5">
+                        {(sport as any).isLocked || (sport as any).isPreSale ? "Adquirir" : "Acessar agora"}
                       </Button>
                     ) : sport.route !== "#" ? (
-                      <div className={`flex items-center text-sm font-bold ${
-                        sport.isPremium ? "text-[#DFAC2A]" : "text-primary"
-                      }`}>
+                      <Button className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-5">
                         Acessar agora
-                        <ChevronRight className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-1" />
-                      </div>
+                      </Button>
                     ) : null}
                   </div>
                 </div>
