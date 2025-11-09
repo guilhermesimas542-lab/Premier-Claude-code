@@ -251,17 +251,8 @@ const Home = () => {
               >
                 {/* Rotating Border Effect for Premium */}
                 {sport.isPremium && (
-                  <div className="absolute inset-0 rounded-xl overflow-hidden pointer-events-none">
-                    <div className="absolute inset-[-2px]">
-                      <div className="w-full h-full bg-gradient-to-r from-success via-yellow-400 to-success bg-[length:200%_100%] animate-gradient opacity-60 blur-sm" />
-                    </div>
-                  </div>
-                )}
-
-                {/* Subtle Glow for Premium */}
-                {sport.isPremium && (
-                  <div className="absolute inset-0 opacity-20 pointer-events-none">
-                    <div className="absolute inset-0 bg-gradient-to-tr from-success/30 via-transparent to-yellow-400/30" />
+                  <div className="absolute -inset-[2px] rounded-xl overflow-hidden pointer-events-none">
+                    <div className="absolute inset-0 bg-gradient-to-r from-success via-yellow-400 via-success to-yellow-400 bg-[length:400%_100%] animate-gradient opacity-70" />
                   </div>
                 )}
 
