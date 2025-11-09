@@ -444,11 +444,23 @@ const Home = () => {
                           </div>
                         </div>
                       ) : (
-                        /* Em Breve - Descrição Neutra */
-                        <div className="py-2">
-                          <p className="text-xs leading-relaxed text-center text-muted-foreground">
-                            {sport.description}
-                          </p>
+                        /* Em Breve - Estrutura Bonita */
+                        <div className="space-y-4">
+                          <div className="text-center animate-fade-in space-y-2">
+                            <div className="relative inline-block">
+                              <div className="absolute inset-0 bg-accent blur-xl opacity-20" />
+                              <h4 className="relative text-lg font-black text-accent drop-shadow-[0_0_20px_rgba(0,212,255,0.6)] leading-tight tracking-wide">
+                                EM DESENVOLVIMENTO
+                              </h4>
+                            </div>
+                            <div className="flex items-center justify-center gap-2">
+                              <div className="h-px w-8 bg-gradient-to-r from-transparent to-muted-foreground/30" />
+                              <p className="text-sm font-bold text-muted-foreground drop-shadow-[0_0_10px_rgba(255,255,255,0.3)] tracking-wide whitespace-nowrap">
+                                🚀 EM BREVE 🚀
+                              </p>
+                              <div className="h-px w-8 bg-gradient-to-l from-transparent to-muted-foreground/30" />
+                            </div>
+                          </div>
                         </div>
                       )
                     }
