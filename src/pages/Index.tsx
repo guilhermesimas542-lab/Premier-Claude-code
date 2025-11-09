@@ -166,7 +166,6 @@ const Index = () => {
                     lineAlert={tip.lineAlert}
                     onAddTip={() => handleAddTip(tip.id)}
                     onViewAnalysis={() => handleViewAnalysis(tip.id)}
-                    onCopy={() => handleCopy(tip.id)}
                   />
                 </CarouselItem>
               ))}
