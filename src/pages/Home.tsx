@@ -321,30 +321,22 @@ const Home = () => {
 
                 {/* Content Container */}
                 <div className="relative z-10 flex flex-col h-full min-h-[280px]">
-                  {/* Top Section - Badge and Title */}
-                  <div className="p-3 space-y-2">
-                    {/* Badge */}
-                    <div className="flex justify-between items-center">
-                      {/* AI Badge for Premium - Always Golden */}
-                      {sport.isPremium && (
-                        <div className="flex items-center gap-1.5 bg-gradient-to-r from-[#DFAC2A]/20 to-[#DFAC2A]/10 border border-[#DFAC2A]/40 rounded-full px-2.5 py-1 backdrop-blur-sm">
-                          <Sparkles className="w-3 h-3 text-[#DFAC2A] animate-pulse" />
-                          <span className="text-[9px] font-bold text-[#DFAC2A]">IA ATIVADA</span>
-                        </div>
-                      )}
-                      <Badge className={`${sport.badgeColor} text-[10px] font-bold backdrop-blur-sm ml-auto`}>
-                        {sport.badge}
-                      </Badge>
+                  {/* Top Bar with Sport Name */}
+                  <div className={`${
+                    sport.isPremium 
+                      ? 'bg-gradient-to-r from-[#DFAC2A] to-[#DFAC2A]/80' 
+                      : 'bg-gradient-to-r from-primary to-primary/80'
+                  } px-4 py-3 backdrop-blur-sm`}>
+                    <div className="flex items-center gap-2">
+                      <span className="text-2xl">{sport.isPremium ? '⚽' : sport.id === 'cassino' ? '🎰' : sport.id === 'basquete' ? '🏀' : sport.id === 'tenis' ? '🎾' : sport.id === 'esports' ? '🎮' : '🏐'}</span>
+                      <h3 className="text-xl font-display font-extrabold tracking-tight text-black drop-shadow-lg">
+                        {sport.name}
+                      </h3>
                     </div>
+                  </div>
 
-                    {/* Title - Golden for Premium */}
-                    <h3 className={`text-xl font-display font-extrabold tracking-tight drop-shadow-lg ${
-                      sport.isPremium 
-                        ? "text-[#DFAC2A]" 
-                        : "text-white"
-                    }`}>
-                      {sport.name}
-                    </h3>
+                  {/* Main Content */}
+                  <div className="p-3 space-y-2 flex-1">
                     
                     {/* Locked Card */}
                     {(sport as any).isLocked ? (
@@ -417,8 +409,9 @@ const Home = () => {
                     )}
                   </div>
 
-                  {/* Bottom Section - CTA */}
-                  <div className="mt-auto p-3 pt-0">
+                  {/* Bottom Section - CTA and Badges */}
+                  <div className="mt-auto p-3 pt-0 space-y-2">
+                    {/* Button */}
                     {(sport as any).isLocked || (sport as any).isPreSale || sport.isPremium ? (
                       <Button className="w-full bg-[#DFAC2A] hover:bg-[#DFAC2A]/90 text-black font-bold py-5">
                         {(sport as any).isLocked || (sport as any).isPreSale ? "Adquirir" : "Acessar agora"}
@@ -428,6 +421,19 @@ const Home = () => {
                         Acessar agora
                       </Button>
                     ) : null}
+
+                    {/* Badges below button */}
+                    {sport.isPremium && (
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-1.5 bg-gradient-to-r from-[#DFAC2A]/20 to-[#DFAC2A]/10 border border-[#DFAC2A]/40 rounded-full px-2.5 py-1 backdrop-blur-sm">
+                          <Sparkles className="w-3 h-3 text-[#DFAC2A] animate-pulse" />
+                          <span className="text-[9px] font-bold text-[#DFAC2A]">IA ATIVADA</span>
+                        </div>
+                        <Badge className={`${sport.badgeColor} text-[10px] font-bold backdrop-blur-sm`}>
+                          {sport.badge}
+                        </Badge>
+                      </div>
+                    )}
                   </div>
                 </div>
               </Card>
