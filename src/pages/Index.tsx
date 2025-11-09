@@ -21,6 +21,7 @@ const Index = () => {
   const [config, setConfig] = useState<AppConfig | null>(null);
   const [tips, setTips] = useState<Tip[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [iframeUrl, setIframeUrl] = useState<string>("");
 
   useEffect(() => {
     // Verifica se está autenticado
@@ -33,6 +34,7 @@ const Index = () => {
     const storedConfig = getStoredConfig();
     if (storedConfig) {
       setConfig(storedConfig);
+      setIframeUrl(storedConfig.betSite || "");
       loadTips();
     } else {
       setIsLoading(false);
@@ -46,8 +48,11 @@ const Index = () => {
       if (response.success && response.response?.data) {
         setTips(response.response.data);
         // Atualiza a URL do betSite se vier da resposta
-        if (response.response.url && config) {
-          setConfig({ ...config, betSite: response.response.url });
+        if (response.response.url) {
+          setIframeUrl(response.response.url);
+          if (config) {
+            setConfig({ ...config, betSite: response.response.url });
+          }
         }
       } else {
         toast.error(response.message?.[0] || "Erro ao carregar tips");
@@ -66,9 +71,10 @@ const Index = () => {
     navigate("/login");
   };
 
-  const handleAddTip = (tipId: string) => {
+  const handleAddTip = (tipId: string, urlIframe: string) => {
+    setIframeUrl(urlIframe);
     toast.success("Tip adicionada!", {
-      description: `Entrada ID: ${tipId} adicionada ao seu cupom`,
+      description: `Cupom carregado no site de apostas`,
     });
   };
 
@@ -153,7 +159,7 @@ const Index = () => {
                         confidence={tip.is_super_odd ? 95 : 75}
                         insights={tip.odd_market}
                         footer={`Expira em: ${new Date(tip.expiration_date).toLocaleDateString()}`}
-                        onAddTip={() => handleAddTip(String(tip.id))}
+                        onAddTip={() => handleAddTip(String(tip.id), tip.url_iframe)}
                       />
                     </CarouselItem>
                   ))}
@@ -180,13 +186,20 @@ const Index = () => {
         {/* Iframe Section */}
         <section className="w-full">
           <div className="w-full h-[1000px] bg-gradient-to-br from-muted/40 to-muted/20 rounded-xl overflow-hidden border border-border/30 backdrop-blur-sm">
-            <iframe
-              src={config?.betSite || "https://futnacional.bet/"}
-              title="Bet Site"
-              className="w-full h-full"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
+            {iframeUrl ? (
+              <iframe
+                key={iframeUrl}
+                src={iframeUrl}
+                title="Bet Site"
+                className="w-full h-full"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <p className="text-muted-foreground">Carregando...</p>
+              </div>
+            )}
           </div>
         </section>
       </main>
