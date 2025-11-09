@@ -249,16 +249,31 @@ const Home = () => {
                     : "border-border/30 hover:shadow-[0_0_30px_rgba(34,211,238,0.3)]"
                 }`}
               >
-                {/* Rotating Golden Fire Effect Following Border for Premium */}
+                {/* Fire Border Animation for Premium */}
                 {sport.isPremium && (
-                  <>
-                    {/* Border */}
-                    <div className="absolute -inset-[2px] rounded-xl border-2 border-[#FFD700]/30 pointer-events-none" />
-                    {/* Rotating Fire Dot along border */}
-                    <div className="absolute -inset-[2px] rounded-xl pointer-events-none overflow-visible">
-                      <div className="absolute w-8 h-[2px] bg-gradient-to-r from-transparent via-[#FFD700] to-[#FFD700] shadow-[0_0_10px_#FFD700] animate-border-spin" />
-                    </div>
-                  </>
+                  <div className="absolute -inset-[2px] rounded-xl pointer-events-none overflow-hidden">
+                    {/* Base Border */}
+                    <div className="absolute inset-0 rounded-xl border-2 border-[#FFD700]/20" />
+                    
+                    {/* Animated Fire Effect */}
+                    <div className="absolute inset-0 rounded-xl animate-fire-border" style={{
+                      background: `
+                        linear-gradient(90deg, 
+                          transparent 0%, 
+                          transparent 40%,
+                          #FF6B00 45%,
+                          #FFD700 50%,
+                          #FF4500 55%,
+                          transparent 60%,
+                          transparent 100%
+                        )
+                      `,
+                      backgroundSize: '200% 2px',
+                      backgroundPosition: 'top',
+                      backgroundRepeat: 'no-repeat',
+                      boxShadow: '0 0 15px rgba(255, 215, 0, 0.3)',
+                    }} />
+                  </div>
                 )}
 
                 {/* Background Image */}

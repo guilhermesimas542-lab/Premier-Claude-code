@@ -127,31 +127,21 @@ export default {
           "0%": { transform: "rotate(0deg)" },
           "100%": { transform: "rotate(360deg)" },
         },
-        "border-spin": {
+        "fire-border": {
           "0%": {
-            top: "0%",
-            left: "0%",
-            transform: "translate(0, 0)"
+            backgroundPosition: "0% top, right 0%, 100% bottom, left 0%"
           },
           "25%": {
-            top: "0%",
-            left: "100%",
-            transform: "translate(-100%, 0)"
+            backgroundPosition: "100% top, right 0%, 100% bottom, left 0%"
           },
           "50%": {
-            top: "100%",
-            left: "100%",
-            transform: "translate(-100%, -100%)"
+            backgroundPosition: "100% top, right 100%, 100% bottom, left 0%"
           },
           "75%": {
-            top: "100%",
-            left: "0%",
-            transform: "translate(0, -100%)"
+            backgroundPosition: "100% top, right 100%, 0% bottom, left 0%"
           },
           "100%": {
-            top: "0%",
-            left: "0%",
-            transform: "translate(0, 0)"
+            backgroundPosition: "100% top, right 100%, 0% bottom, left 100%"
           },
         },
       },
@@ -167,7 +157,7 @@ export default {
         "bounce-micro": "bounce-micro 250ms ease-out",
         "pulse-border": "pulse-border 2s ease-in-out infinite",
         "spin-slow": "spin-slow 20s linear infinite",
-        "border-spin": "border-spin 4s linear infinite",
+        "fire-border": "fire-border 3s linear infinite",
       },
     },
   },
