@@ -3,8 +3,10 @@ import { TipsResponse } from "@/types/tips";
 
 export async function loadTipsForSport(sportId: number = 1): Promise<TipsResponse> {
   try {
-    const betSiteType = getBetSiteType();
-    const url = `https://apiv1.premierfc.app/api/v1/esportes/GetTipsBySportId?Sportid=${sportId}&betSite=${encodeURIComponent(betSiteType)}`;
+    // Usar affCasa do user (salvo durante GetSports)
+    const storedConfig = getStoredConfig();
+    const betSite = storedConfig?.user?.aff ?? 0;
+    const url = `https://apiv1.premierfc.app/api/v1/esportes/GetTipsBySportId?Sportid=${sportId}&betSite=${betSite}`;
     
     const data = await fetchAuth(url);
     
