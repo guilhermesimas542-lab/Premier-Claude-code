@@ -80,7 +80,7 @@ const Index = () => {
     },
     {
       id: "4",
-      tier: "VIP" as const,
+      tier: "GRÁTIS" as const,
       team1: {
         name: "Palmeiras",
         logo: "https://upload.wikimedia.org/wikipedia/commons/1/10/Palmeiras_logo.svg",
@@ -92,14 +92,27 @@ const Index = () => {
       market: "Resultado Final",
       betChoice: "Casa",
       odds: 1.85,
-      confidence: 88,
-      indicators: [
-        { label: "Forma", value: "WWWWW" },
-        { label: "Janela", value: "-15'" },
-        { label: "H2H", value: "3/5" },
-      ],
-      insights: "Sequência invicta de 12 jogos em casa • Derby com vantagem histórica",
-      footer: "Alta confiança • Janela -15' • Gestão 2%",
+      confidence: 75,
+      insights: "Derby paulista • Palmeiras favorito jogando em casa",
+      footer: "Entrada gratuita • Teste sem risco",
+    },
+    {
+      id: "5",
+      tier: "MÚLTIPLA" as const,
+      team1: {
+        name: "Fluminense",
+        logo: "https://upload.wikimedia.org/wikipedia/commons/a/ad/Fluminense_FC_escudo.svg",
+      },
+      team2: {
+        name: "Botafogo",
+        logo: "https://upload.wikimedia.org/wikipedia/commons/5/52/Botafogo_de_Futebol_e_Regatas_logo.svg",
+      },
+      market: "Múltipla Especial",
+      betChoice: "Over 1.5 + BTTS",
+      odds: 2.35,
+      confidence: 82,
+      insights: "Combinação de mercados com alto valor • Jogos abertos recentes",
+      footer: "Múltipla validada • Gestão 1.5%",
     },
   ];
 

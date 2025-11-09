@@ -10,7 +10,7 @@ interface Indicator {
 }
 
 interface PremiumBettingCardProps {
-  tier: "BÁSICO" | "PRO" | "VIP";
+  tier: "BÁSICO" | "PRO" | "GRÁTIS" | "MÚLTIPLA";
   tierSubtitle?: string;
   team1: {
     name: string;
@@ -52,10 +52,10 @@ export const PremiumBettingCard = ({
 
   const getTierConfig = () => {
     switch (tier) {
-      case "VIP":
+      case "MÚLTIPLA":
         return {
           gradient: "from-vip via-purple-600 to-vip",
-          subtitle: tierSubtitle || "Alta confiança",
+          subtitle: tierSubtitle || "Combinação de entradas",
           icon: <TrendingUp className="w-3 h-3" />,
         };
       case "PRO":
@@ -63,6 +63,12 @@ export const PremiumBettingCard = ({
           gradient: "from-primary via-orange-600 to-primary",
           subtitle: tierSubtitle || "Curadoria avançada",
           icon: <TrendingUp className="w-3 h-3" />,
+        };
+      case "GRÁTIS":
+        return {
+          gradient: "from-accent via-cyan-500 to-accent",
+          subtitle: tierSubtitle || "Entrada gratuita",
+          icon: null,
         };
       default:
         return {
