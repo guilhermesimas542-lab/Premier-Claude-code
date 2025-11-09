@@ -249,32 +249,14 @@ const Home = () => {
                     : "border-border/30 hover:shadow-[0_0_30px_rgba(34,211,238,0.3)]"
                 }`}
               >
-                {/* Fire Border Animation for Premium */}
+                {/* Animated Border for Premium */}
                 {sport.isPremium && (
-                  <div className="absolute -inset-0 rounded-xl pointer-events-none">
-                    <svg className="absolute inset-0 w-full h-full" style={{ filter: 'drop-shadow(0 0 8px rgba(255, 215, 0, 0.6))' }}>
-                      <rect
-                        x="1"
-                        y="1"
-                        width="calc(100% - 2px)"
-                        height="calc(100% - 2px)"
-                        rx="12"
-                        fill="none"
-                        stroke="url(#fireGradient)"
-                        strokeWidth="3"
-                        strokeDasharray="20 200"
-                        strokeDashoffset="0"
-                        className="animate-fire-dash"
-                      />
-                      <defs>
-                        <linearGradient id="fireGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                          <stop offset="0%" stopColor="#FF6B00" />
-                          <stop offset="50%" stopColor="#FFD700" />
-                          <stop offset="100%" stopColor="#FF4500" />
-                        </linearGradient>
-                      </defs>
-                    </svg>
-                  </div>
+                  <>
+                    <div className="absolute -inset-[1px] rounded-xl bg-gradient-to-r from-[#FFD700] via-[#FFA500] to-[#FFD700] opacity-75 blur-sm" />
+                    <div className="absolute -inset-[1px] rounded-xl bg-gradient-to-r from-[#FFD700] via-[#FFA500] to-[#FFD700] animate-spin-border" style={{
+                      background: 'conic-gradient(from 0deg, transparent 0%, transparent 40%, #FFD700 50%, transparent 60%, transparent 100%)',
+                    }} />
+                  </>
                 )}
 
                 {/* Background Image */}

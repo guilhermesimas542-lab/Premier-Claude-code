@@ -127,13 +127,9 @@ export default {
           "0%": { transform: "rotate(0deg)" },
           "100%": { transform: "rotate(360deg)" },
         },
-        "fire-dash": {
-          "0%": {
-            strokeDashoffset: "0"
-          },
-          "100%": {
-            strokeDashoffset: "-220"
-          },
+        "spin-border": {
+          "0%": { transform: "rotate(0deg)" },
+          "100%": { transform: "rotate(360deg)" },
         },
       },
       animation: {
@@ -148,7 +144,7 @@ export default {
         "bounce-micro": "bounce-micro 250ms ease-out",
         "pulse-border": "pulse-border 2s ease-in-out infinite",
         "spin-slow": "spin-slow 20s linear infinite",
-        "fire-dash": "fire-dash 3s linear infinite",
+        "spin-border": "spin-border 3s linear infinite",
       },
     },
   },
