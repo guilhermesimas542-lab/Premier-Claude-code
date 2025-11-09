@@ -400,13 +400,19 @@ const Home = () => {
                         </div>
                       ) : (sport as any).isPreSale ? (
                       /* Pre-sale Card */
-                      <div className="space-y-3">
+                      <div className="space-y-4">
+                        {/* Título Lançamento */}
+                        <div className="text-center animate-fade-in">
+                          <div className="relative inline-block mb-3">
+                            <div className="absolute inset-0 bg-accent blur-xl opacity-30" />
+                            <h4 className="relative text-lg font-black text-accent drop-shadow-[0_0_20px_rgba(0,212,255,0.7)] leading-tight tracking-wide">
+                              LANÇAMENTO EM
+                            </h4>
+                          </div>
+                        </div>
+
                         {/* Countdown */}
                         <div className="bg-accent/10 border border-accent/30 rounded-lg p-3 backdrop-blur-sm">
-                          <div className="flex items-center justify-center gap-2 mb-2">
-                            <Clock className="w-4 h-4 text-accent" />
-                            <span className="text-[10px] text-accent font-bold uppercase">Termina em</span>
-                          </div>
                           <div className="flex justify-center gap-2">
                             <div className="text-center">
                               <div className="bg-accent/20 rounded px-2 py-1 min-w-[40px]">
@@ -435,7 +441,13 @@ const Home = () => {
                         <div className="text-center">
                           <p className="text-xs text-muted-foreground line-through">{(sport as any).priceFrom}</p>
                           <p className="text-2xl font-bold text-accent">{(sport as any).priceTo}</p>
-                          <p className="text-[10px] text-accent/80 font-semibold mt-1">{sport.description}</p>
+                          <div className="flex items-center justify-center gap-2 mt-2">
+                            <div className="h-px w-6 bg-gradient-to-r from-transparent to-accent/30" />
+                            <p className="text-[10px] text-accent/90 font-bold tracking-wide whitespace-nowrap">
+                              💎 OFERTA ESPECIAL 💎
+                            </p>
+                            <div className="h-px w-6 bg-gradient-to-l from-transparent to-accent/30" />
+                          </div>
                         </div>
                       </div>
                       ) : sport.isPremium ? (
