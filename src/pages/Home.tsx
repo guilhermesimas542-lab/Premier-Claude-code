@@ -568,17 +568,29 @@ const Home = () => {
 
                   {/* Bottom Section - Botão Dourado */}
                   <div className="mt-auto p-5 pt-0 space-y-3">
-                    {/* Botão Verde Metálico com Reflexo Animado */}
-                    {(sport as any).isLocked || (sport as any).isPreSale || sport.isPremium ? (
+                    {/* Botões Destacados */}
+                    {(sport as any).isLocked ? (
                       <Button 
-                        className={`w-full relative overflow-hidden ${
-                          sport.isPremium 
-                            ? 'bg-gradient-to-r from-[#00C853] via-[#00FF87] to-[#00C853] bg-[length:200%_100%] hover:bg-[length:100%_100%] shadow-2xl shadow-[#00FF87]/60 hover:shadow-[#00FF87]/80 shimmer-effect' 
-                            : 'bg-[#00C853] hover:bg-[#00A844] shadow-lg hover:shadow-xl'
-                        } text-black font-black py-7 text-base transition-all duration-500 border-0`}
+                        className="w-full relative overflow-hidden bg-gradient-to-r from-destructive via-red-500 to-destructive bg-[length:200%_100%] hover:bg-[length:100%_100%] shadow-2xl shadow-destructive/60 hover:shadow-destructive/80 shimmer-effect text-white font-black py-7 text-base transition-all duration-500 border-0"
                       >
                         <span className="relative z-10 drop-shadow-md tracking-wide">
-                          {(sport as any).isLocked || (sport as any).isPreSale ? "ADQUIRIR AGORA" : "ACESSAR AGORA"}
+                          ADQUIRIR AGORA
+                        </span>
+                      </Button>
+                    ) : (sport as any).isPreSale ? (
+                      <Button 
+                        className="w-full relative overflow-hidden bg-gradient-to-r from-accent via-cyan-400 to-accent bg-[length:200%_100%] hover:bg-[length:100%_100%] shadow-2xl shadow-accent/60 hover:shadow-accent/80 shimmer-effect text-black font-black py-7 text-base transition-all duration-500 border-0"
+                      >
+                        <span className="relative z-10 drop-shadow-md tracking-wide">
+                          ADQUIRIR AGORA
+                        </span>
+                      </Button>
+                    ) : sport.isPremium ? (
+                      <Button 
+                        className="w-full relative overflow-hidden bg-gradient-to-r from-[#00C853] via-[#00FF87] to-[#00C853] bg-[length:200%_100%] hover:bg-[length:100%_100%] shadow-2xl shadow-[#00FF87]/60 hover:shadow-[#00FF87]/80 shimmer-effect text-black font-black py-7 text-base transition-all duration-500 border-0"
+                      >
+                        <span className="relative z-10 drop-shadow-md tracking-wide">
+                          ACESSAR AGORA
                         </span>
                       </Button>
                     ) : sport.route !== "#" ? (
