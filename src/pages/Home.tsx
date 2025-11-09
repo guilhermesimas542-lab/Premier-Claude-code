@@ -455,7 +455,7 @@ const Home = () => {
           ))}
         </section>
 
-        {/* Sports Grid - Esportes Disponíveis */}
+        {/* Sports Grid */}
         <section className="space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-display font-extrabold text-foreground tracking-tight">
@@ -468,12 +468,12 @@ const Home = () => {
               <div className="col-span-full text-center py-12">
                 <p className="text-muted-foreground">Carregando esportes...</p>
               </div>
-            ) : mappedSports.filter(s => s.isPremium).length === 0 ? (
+            ) : mappedSports.length === 0 ? (
               <div className="col-span-full text-center py-12">
                 <p className="text-muted-foreground">Nenhum esporte disponível</p>
               </div>
             ) : (
-              mappedSports.filter(s => s.isPremium).map((sport) => (
+              mappedSports.map((sport) => (
               <div
                 key={sport.id}
                 onClick={() => sport.route !== "#" && navigate(sport.route)}
@@ -499,299 +499,283 @@ const Home = () => {
                 >
                       {/* Badge IA ATIVADA - Flutuante no topo direito */}
                       {sport.isPremium && (
-                        <div className="absolute top-3 right-3 z-20">
-                          <Badge
-                            variant="secondary"
-                            className="bg-gradient-to-r from-[#00FF87]/20 to-[#00C853]/20 text-[#00FF87] border border-[#00FF87]/40 backdrop-blur-sm px-3 py-1 text-xs font-bold shadow-lg shadow-[#00FF87]/30"
+                        <div className="absolute -top-2 -right-2 z-20 animate-fade-in">
+                          <div 
+                            className="relative flex items-center justify-center gap-2 bg-gradient-to-r from-[#000636]/95 to-[#0033C6]/95 backdrop-blur-xl border-2 rounded-xl px-3 py-1.5 shadow-2xl"
+                            style={{
+                              borderColor: (sport as any).colors?.border || '#00FF87',
+                              boxShadow: `0 0 20px ${(sport as any).colors?.primary || '#00FF87'}80`
+                            }}
                           >
-                            <Sparkles className="w-3 h-3 mr-1.5" />
-                            IA ATIVADA
-                          </Badge>
+                            <Sparkles 
+                              className="w-3.5 h-3.5 animate-pulse" 
+                              style={{ 
+                                color: (sport as any).colors?.primary || '#00FF87',
+                                filter: `drop-shadow(0 0 8px ${(sport as any).colors?.primary || '#00FF87'})`
+                              }}
+                            />
+                            <span 
+                              className="text-[10px] font-black tracking-widest whitespace-nowrap"
+                              style={{ 
+                                color: (sport as any).colors?.primary || '#00FF87',
+                                textShadow: `0 0 8px ${(sport as any).colors?.glow || 'rgba(0,255,135,0.8)'}`
+                              }}
+                            >
+                              IA ATIVADA
+                            </span>
+                            {/* Partículas de luz tecnológicas */}
+                            <div className="absolute inset-0 opacity-30 pointer-events-none">
+                              <div className="absolute top-0.5 left-1.5 w-0.5 h-0.5 bg-white rounded-full animate-pulse" />
+                              <div className="absolute bottom-0.5 right-2 w-0.5 h-0.5 bg-white rounded-full animate-pulse" style={{ animationDelay: '0.5s' }} />
+                              <div 
+                                className="absolute top-1/2 right-1.5 w-0.5 h-0.5 rounded-full animate-pulse" 
+                                style={{ 
+                                  backgroundColor: (sport as any).colors?.primary || '#00FF87',
+                                  animationDelay: '1s' 
+                                }}
+                              />
+                            </div>
+                          </div>
                         </div>
                       )}
 
-                      {/* Background Image */}
-                      <div
-                        className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
-                        style={{ backgroundImage: `url('${sport.image}')` }}
-                      />
-                      
-                      {/* Gradient Overlay */}
-                      <div className={`absolute inset-0 bg-gradient-to-t ${sport.gradient}`} />
-                      
-                      {/* Content */}
-                      <div className="relative z-10 p-6 h-full flex flex-col justify-between min-h-[200px]">
-                        {/* Header */}
-                        <div className="flex items-start justify-between">
-                          <div className="space-y-2">
-                            <div className="text-4xl">{sport.emoji}</div>
-                            <h3 className="text-xl font-display font-extrabold text-white tracking-tight">
-                              {sport.name}
-                            </h3>
-                          </div>
-                          
-                          {(sport as any).isLocked && (
-                            <div className="bg-background/10 backdrop-blur-md border border-white/20 rounded-lg p-2">
-                              <Lock className="w-5 h-5 text-white" />
-                            </div>
-                          )}
-                          
-                          {(sport as any).isDevelopment && (
-                            <div className="bg-background/10 backdrop-blur-md border border-white/20 rounded-lg p-2">
-                              <Clock className="w-5 h-5 text-white" />
-                            </div>
-                          )}
-                        </div>
-                        
-                        {/* Footer */}
-                        <div className="space-y-3">
-                          {sport.isPremium && (
-                            <div className="flex items-center gap-2">
-                              <div className="flex-1 h-1 bg-white/20 rounded-full overflow-hidden">
-                                <div 
-                                  className="h-full bg-gradient-to-r from-[#00FF87] to-[#00C853] rounded-full"
-                                  style={{ width: '100%' }}
-                                />
-                              </div>
-                              <CheckCircle2 className="w-4 h-4 text-[#00FF87]" />
-                            </div>
-                          )}
-                          
-                          {(sport as any).isLocked && (
-                            <>
-                              <p className="text-sm text-white/80">
-                                Faça upgrade para acessar este esporte
-                              </p>
-                              <Button
-                                variant="secondary"
-                                size="sm"
-                                className="w-full bg-white/10 hover:bg-white/20 text-white border-white/20"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  window.open(config?.proUrl || "#", "_blank");
-                                }}
-                              >
-                                <Lock className="w-4 h-4 mr-2" />
-                                Assinar PRO
-                              </Button>
-                            </>
-                          )}
-                          
-                          {(sport as any).isDevelopment && (
-                            <>
-                              <p className="text-sm text-white/80">
-                                Em breve com tips premium
-                              </p>
-                              <Button
-                                variant="secondary"
-                                size="sm"
-                                className="w-full bg-white/10 hover:bg-white/20 text-white border-white/20"
-                                disabled
-                              >
-                                <Clock className="w-4 h-4 mr-2" />
-                                Em Desenvolvimento
-                              </Button>
-                            </>
-                          )}
-                          
-                          {(sport as any).isPreSale && (
-                            <>
-                              <div className="bg-background/20 backdrop-blur-md border border-white/30 rounded-lg p-3 space-y-2">
-                                <div className="flex items-center justify-between text-sm">
-                                  <span className="text-white/70">De:</span>
-                                  <span className="text-white/50 line-through">{(sport as any).priceFrom}</span>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                  <span className="text-lg font-bold text-white">Por:</span>
-                                  <span className="text-2xl font-extrabold text-[#00FF87]">{(sport as any).priceTo}</span>
-                                </div>
-                                <div className="pt-2 border-t border-white/20">
-                                  <div className="flex items-center justify-center gap-2 text-xs text-white/80">
-                                    <Clock className="w-3 h-3" />
-                                    <span>Termina em</span>
-                                    <span className="font-mono font-bold text-white">
-                                      {String(countdown.hours).padStart(2, '0')}:{String(countdown.minutes).padStart(2, '0')}:{String(countdown.seconds).padStart(2, '0')}
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-                              <Button
-                                variant="secondary"
-                                size="sm"
-                                className="w-full bg-[#00FF87] hover:bg-[#00C853] text-background border-0 font-bold"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  window.open(config?.checkout || "#", "_blank");
-                                }}
-                              >
-                                <LockOpen className="w-4 h-4 mr-2" />
-                                Garantir Oferta
-                              </Button>
-                            </>
-                          )}
-                          
-                          {sport.isPremium && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="w-full text-white hover:bg-white/10"
-                            >
-                              Ver Tips
-                              <ChevronRight className="w-4 h-4 ml-2" />
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-                    </Card>
+                  {/* Background Image - Cinematográfico Arena Noturna */}
+                  <div className="absolute inset-0 z-0">
+                    <div
+                      className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 group-hover:scale-110"
+                      style={{ 
+                        backgroundImage: `url('${sport.image}')`,
+                        filter: 'brightness(0.7) contrast(1.2) saturate(1.1)'
+                      }}
+                    />
+                    {/* Overlay Azul Escuro para Arena Noturna */}
+                    <div className="absolute inset-0 bg-[#000636]/85" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-[#000636]/70 to-[#000636]/50" />
+                    {sport.isPremium && (
+                      <>
+                        <div className="absolute inset-0 bg-gradient-to-br from-[#00D4FF]/15 via-transparent to-[#0099FF]/15" />
+                        {/* Reflexos de Refletores de Estádio */}
+                        <div className="absolute top-0 left-0 w-full h-1/3 bg-gradient-to-b from-white/5 to-transparent" />
+                      </>
+                    )}
                   </div>
-                ))
-              )}
-            </div>
-          </section>
 
-          {/* Sports Grid - Mais Entradas */}
-          {!loading && mappedSports.filter(s => !s.isPremium).length > 0 && (
-            <section className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-display font-extrabold text-foreground tracking-tight">
-                  Mais Entradas
-                </h2>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {mappedSports.filter(s => !s.isPremium).map((sport) => (
-                  <div
-                    key={sport.id}
-                    onClick={() => sport.route !== "#" && navigate(sport.route)}
-                    className={`${
-                      sport.route !== "#"
-                        ? "cursor-pointer"
-                        : (sport as any).isLocked || (sport as any).isPreSale
-                        ? "cursor-pointer"
-                        : "cursor-not-allowed opacity-60"
-                    } group`}
-                  >
-                    <Card
-                      className={`relative overflow-hidden ${
-                        sport.route !== "#"
-                          ? "hover:scale-[1.02]"
-                          : ""
-                      } transition-all duration-500 border-0 p-0 h-full rounded-lg`}
+                  {/* Content Container */}
+                  <div className="relative z-10 flex flex-col h-full min-h-[320px]">
+                    {/* Top Bar - Faixa Colorida por Esporte */}
+                    <div 
+                      className="px-5 py-4"
+                      style={{
+                        background: `linear-gradient(90deg, ${(sport as any).colors?.secondary || 'hsl(18, 100%, 56%)'}, ${(sport as any).colors?.primary || 'hsl(27, 96%, 50%)'}, ${(sport as any).colors?.primary || 'hsl(27, 96%, 50%)'}, ${(sport as any).colors?.secondary || 'hsl(18, 100%, 56%)'})`,
+                        backgroundSize: '200% 100%',
+                        animation: sport.isPremium ? 'liquid-gradient 3s ease-in-out infinite' : 'none',
+                        boxShadow: `0 4px 20px ${(sport as any).colors?.primary || 'hsl(18, 100%, 56%)'}40`
+                      }}
                     >
-                      {/* Background Image */}
-                      <div
-                        className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
-                        style={{ backgroundImage: `url('${sport.image}')` }}
-                      />
-                      
-                      {/* Gradient Overlay */}
-                      <div className={`absolute inset-0 bg-gradient-to-t ${sport.gradient}`} />
-                      
-                      {/* Content */}
-                      <div className="relative z-10 p-6 h-full flex flex-col justify-between min-h-[200px]">
-                        {/* Header */}
-                        <div className="flex items-start justify-between">
-                          <div className="space-y-2">
-                            <div className="text-4xl">{sport.emoji}</div>
-                            <h3 className="text-xl font-display font-extrabold text-white tracking-tight">
-                              {sport.name}
-                            </h3>
+                      <div className="flex items-center gap-3">
+                        <span 
+                          className="text-3xl filter"
+                          style={{
+                            filter: `drop-shadow(0 0 15px ${(sport as any).colors?.primary || '#FF6B35'})`
+                          }}
+                        >
+                          {(sport as any).emoji || '🏆'}
+                        </span>
+                        <h3 
+                          className="text-xl font-display font-black tracking-wider text-white"
+                          style={{
+                            textShadow: `0 0 10px ${(sport as any).colors?.glow || 'rgba(255,107,53,0.6)'}`
+                          }}
+                        >
+                          {sport.name}
+                        </h3>
+                      </div>
+                    </div>
+
+                    {/* Main Content - Épico e Cinematográfico */}
+                    <div className="p-5 space-y-4 flex-1 flex flex-col justify-center">
+                      {/* Conteúdo baseado no tipo de card */}
+                      {(sport as any).isLocked ? (
+                        /* Card Bloqueado */
+                        <div className="space-y-4 py-2">
+                          <div className="text-center animate-fade-in space-y-3">
+                            <div className="flex items-center justify-center py-2">
+                              <div className="relative w-20 h-20">
+                                <div className="absolute inset-0 bg-destructive blur-2xl opacity-50 animate-pulse" />
+                                <Lock className="relative w-full h-full text-destructive drop-shadow-[0_0_20px_rgba(239,68,68,0.8)]" strokeWidth={2.5} />
+                              </div>
+                            </div>
+                            <div className="relative inline-block">
+                              <h4 className="text-base font-black text-destructive drop-shadow-[0_0_15px_rgba(239,68,68,0.6)] leading-tight tracking-wide">
+                                CONTEÚDO BLOQUEADO
+                              </h4>
+                            </div>
+                            <div className="flex items-center justify-center gap-2">
+                              <div className="h-px w-8 bg-gradient-to-r from-transparent to-destructive/30" />
+                              <p className="text-sm font-bold text-foreground/90 tracking-wide whitespace-nowrap">
+                                🔒 VOCÊ NÃO POSSUI ESSE ITEM 🔒
+                              </p>
+                              <div className="h-px w-8 bg-gradient-to-l from-transparent to-destructive/30" />
+                            </div>
                           </div>
-                          
-                          {(sport as any).isLocked && (
-                            <div className="bg-background/10 backdrop-blur-md border border-white/20 rounded-lg p-2">
-                              <Lock className="w-5 h-5 text-white" />
+                        </div>
+                      ) : (sport as any).isPreSale ? (
+                      /* Card Pré-venda */
+                      <div className="space-y-4">
+                        {/* Título Lançamento */}
+                        <div className="text-center animate-fade-in">
+                          <div className="relative inline-block mb-3">
+                            <div className="absolute inset-0 bg-accent blur-xl opacity-30" />
+                            <h4 className="relative text-lg font-black text-accent drop-shadow-[0_0_20px_rgba(0,212,255,0.7)] leading-tight tracking-wide">
+                              LANÇAMENTO EM
+                            </h4>
+                          </div>
+                        </div>
+
+                        {/* Countdown */}
+                        <div className="bg-accent/10 border border-accent/30 rounded-lg p-3 backdrop-blur-sm">
+                          <div className="flex justify-center gap-2">
+                            <div className="text-center">
+                              <div className="bg-accent/20 rounded px-2 py-1 min-w-[40px]">
+                                <span className="text-lg font-bold text-white">{String(countdown.hours).padStart(2, '0')}</span>
+                              </div>
+                              <span className="text-[8px] text-muted-foreground">horas</span>
                             </div>
-                          )}
-                          
-                          {(sport as any).isDevelopment && (
-                            <div className="bg-background/10 backdrop-blur-md border border-white/20 rounded-lg p-2">
-                              <Clock className="w-5 h-5 text-white" />
+                            <span className="text-lg text-white">:</span>
+                            <div className="text-center">
+                              <div className="bg-accent/20 rounded px-2 py-1 min-w-[40px]">
+                                <span className="text-lg font-bold text-white">{String(countdown.minutes).padStart(2, '0')}</span>
+                              </div>
+                              <span className="text-[8px] text-muted-foreground">min</span>
                             </div>
-                          )}
+                            <span className="text-lg text-white">:</span>
+                            <div className="text-center">
+                              <div className="bg-accent/20 rounded px-2 py-1 min-w-[40px]">
+                                <span className="text-lg font-bold text-white">{String(countdown.seconds).padStart(2, '0')}</span>
+                              </div>
+                              <span className="text-[8px] text-muted-foreground">seg</span>
+                            </div>
+                          </div>
                         </div>
                         
-                        {/* Footer */}
-                        <div className="space-y-3">
-                          {(sport as any).isLocked && (
-                            <>
-                              <p className="text-sm text-white/80">
-                                Faça upgrade para acessar este esporte
-                              </p>
-                              <Button
-                                variant="secondary"
-                                size="sm"
-                                className="w-full bg-white/10 hover:bg-white/20 text-white border-white/20"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  window.open(config?.proUrl || "#", "_blank");
-                                }}
-                              >
-                                <Lock className="w-4 h-4 mr-2" />
-                                Assinar PRO
-                              </Button>
-                            </>
-                          )}
-                          
-                          {(sport as any).isDevelopment && (
-                            <>
-                              <p className="text-sm text-white/80">
-                                Em breve com tips premium
-                              </p>
-                              <Button
-                                variant="secondary"
-                                size="sm"
-                                className="w-full bg-white/10 hover:bg-white/20 text-white border-white/20"
-                                disabled
-                              >
-                                <Clock className="w-4 h-4 mr-2" />
-                                Em Desenvolvimento
-                              </Button>
-                            </>
-                          )}
-                          
-                          {(sport as any).isPreSale && (
-                            <>
-                              <div className="bg-background/20 backdrop-blur-md border border-white/30 rounded-lg p-3 space-y-2">
-                                <div className="flex items-center justify-between text-sm">
-                                  <span className="text-white/70">De:</span>
-                                  <span className="text-white/50 line-through">{(sport as any).priceFrom}</span>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                  <span className="text-lg font-bold text-white">Por:</span>
-                                  <span className="text-2xl font-extrabold text-[#00FF87]">{(sport as any).priceTo}</span>
-                                </div>
-                                <div className="pt-2 border-t border-white/20">
-                                  <div className="flex items-center justify-center gap-2 text-xs text-white/80">
-                                    <Clock className="w-3 h-3" />
-                                    <span className="font-mono font-bold text-white">
-                                      {String(countdown.hours).padStart(2, '0')}:{String(countdown.minutes).padStart(2, '0')}:{String(countdown.seconds).padStart(2, '0')}
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-                              <Button
-                                variant="secondary"
-                                size="sm"
-                                className="w-full bg-[#00FF87] hover:bg-[#00C853] text-background border-0 font-bold"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  window.open(config?.checkout || "#", "_blank");
-                                }}
-                              >
-                                <LockOpen className="w-4 h-4 mr-2" />
-                                Garantir Oferta
-                              </Button>
-                            </>
-                          )}
+                        {/* Price */}
+                        <div className="text-center">
+                          <p className="text-xs text-muted-foreground line-through">{(sport as any).priceFrom}</p>
+                          <p className="text-2xl font-bold text-accent">{(sport as any).priceTo}</p>
+                          <div className="flex items-center justify-center gap-2 mt-2">
+                            <div className="h-px w-6 bg-gradient-to-r from-transparent to-accent/30" />
+                            <p className="text-[10px] text-accent/90 font-bold tracking-wide whitespace-nowrap">
+                              💎 OFERTA ESPECIAL 💎
+                            </p>
+                            <div className="h-px w-6 bg-gradient-to-l from-transparent to-accent/30" />
+                          </div>
                         </div>
                       </div>
-                    </Card>
+                      ) : (sport as any).isDevelopment ? (
+                        /* Card Em Desenvolvimento */
+                        <div className="space-y-4">
+                          <div className="text-center animate-fade-in space-y-2">
+                            <div className="relative inline-block">
+                              <div className="absolute inset-0 bg-accent blur-xl opacity-20" />
+                              <h4 className="relative text-lg font-black text-accent drop-shadow-[0_0_20px_rgba(0,212,255,0.6)] leading-tight tracking-wide">
+                                EM DESENVOLVIMENTO
+                              </h4>
+                            </div>
+                            <div className="flex items-center justify-center gap-2">
+                              <div className="h-px w-8 bg-gradient-to-r from-transparent to-muted-foreground/30" />
+                              <p className="text-sm font-bold text-muted-foreground drop-shadow-[0_0_10px_rgba(255,255,255,0.3)] tracking-wide whitespace-nowrap">
+                                🚀 EM BREVE 🚀
+                              </p>
+                              <div className="h-px w-8 bg-gradient-to-l from-transparent to-muted-foreground/30" />
+                            </div>
+                          </div>
+                        </div>
+                      ) : sport.isPremium ? (
+                        /* Premium - Card Épico Arena Azul */
+                        <div className="space-y-4">
+                          {/* Texto Principal Impactante */}
+                          <div className="text-center animate-fade-in space-y-2">
+                            <div className="relative inline-block">
+                              <div 
+                                className="absolute inset-0 blur-xl opacity-30"
+                                style={{ backgroundColor: (sport as any).colors?.primary || '#00FF87' }}
+                              />
+                              <h4 
+                                className="relative text-lg font-black leading-tight tracking-wide"
+                                style={{ 
+                                  color: (sport as any).colors?.primary || '#00FF87',
+                                  textShadow: `0 0 20px ${(sport as any).colors?.glow || 'rgba(0,255,135,0.9)'}`
+                                }}
+                              >
+                                NOVAS ENTRADAS DISPONÍVEIS
+                              </h4>
+                            </div>
+                            <div className="flex items-center justify-center gap-2">
+                              <div 
+                                className="h-px w-8 bg-gradient-to-r from-transparent"
+                                style={{ 
+                                  ['--tw-gradient-to' as any]: (sport as any).colors?.primary || '#00FF87'
+                                }}
+                              />
+                              <p className="text-base font-black text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.5)] tracking-wider whitespace-nowrap">
+                                ⚡ APOSTE AGORA ⚡
+                              </p>
+                              <div 
+                                className="h-px w-8 bg-gradient-to-l from-transparent"
+                                style={{ 
+                                  ['--tw-gradient-to' as any]: (sport as any).colors?.primary || '#00FF87'
+                                }}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      ) : null}
                   </div>
-                ))}
+
+                  {/* Bottom Section - Botão Dourado */}
+                  <div className="mt-auto p-5 pt-0 space-y-3">
+                    {/* Botões Destacados */}
+                    {(sport as any).isLocked ? (
+                      <Button 
+                        className="w-full relative overflow-hidden bg-gradient-to-r from-destructive via-red-500 to-destructive bg-[length:200%_100%] hover:bg-[length:100%_100%] shadow-2xl shadow-destructive/60 hover:shadow-destructive/80 shimmer-effect text-white font-black py-7 text-base transition-all duration-500 border-0"
+                      >
+                        <span className="relative z-10 drop-shadow-md tracking-wide">
+                          ADQUIRIR AGORA
+                        </span>
+                      </Button>
+                    ) : (sport as any).isPreSale ? (
+                      <Button 
+                        className="w-full relative overflow-hidden bg-gradient-to-r from-accent via-cyan-400 to-accent bg-[length:200%_100%] hover:bg-[length:100%_100%] shadow-2xl shadow-accent/60 hover:shadow-accent/80 shimmer-effect text-black font-black py-7 text-base transition-all duration-500 border-0"
+                      >
+                        <span className="relative z-10 drop-shadow-md tracking-wide">
+                          ADQUIRIR AGORA
+                        </span>
+                      </Button>
+                    ) : sport.isPremium ? (
+                      <Button 
+                        className="w-full relative overflow-hidden bg-[length:200%_100%] hover:bg-[length:100%_100%] shadow-2xl hover:shadow-3xl shimmer-effect text-black font-black py-7 text-base transition-all duration-500 border-0"
+                        style={{
+                          backgroundImage: `linear-gradient(to right, ${(sport as any).colors?.secondary || '#00C853'}, ${(sport as any).colors?.primary || '#00FF87'}, ${(sport as any).colors?.secondary || '#00C853'})`,
+                          boxShadow: `0 0 40px ${(sport as any).colors?.primary || '#00FF87'}60, 0 0 60px ${(sport as any).colors?.primary || '#00FF87'}40`
+                        }}
+                      >
+                        <span className="relative z-10 drop-shadow-md tracking-wide">
+                          ACESSAR AGORA
+                        </span>
+                      </Button>
+                    ) : sport.route !== "#" ? (
+                      <Button className="w-full bg-[#00C853] hover:bg-[#00A844] text-black font-black py-7 text-base transition-all duration-200 shadow-lg hover:shadow-xl">
+                        ACESSAR AGORA
+                      </Button>
+                    ) : null}
+                  </div>
+                </div>
+              </Card>
             </div>
-          </section>
-        )}
+              ))
+            )}
+          </div>
+        </section>
       </main>
     </div>
   );
