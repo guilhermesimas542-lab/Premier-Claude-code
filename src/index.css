@@ -1,6 +1,117 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Hot Entry Alert Animations */
+@keyframes border-pulse {
+  0%, 100% {
+    box-shadow: 
+      0 0 20px rgba(0, 255, 133, 0.6),
+      0 0 40px rgba(0, 92, 255, 0.4),
+      inset 0 0 20px rgba(0, 255, 133, 0.2);
+  }
+  50% {
+    box-shadow: 
+      0 0 30px rgba(0, 255, 133, 0.8),
+      0 0 60px rgba(0, 92, 255, 0.6),
+      inset 0 0 30px rgba(0, 255, 133, 0.3);
+  }
+}
+
+@keyframes particle-rise {
+  0% {
+    transform: translateY(100%) scale(0);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100%) scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes lightning-strike {
+  0%, 100% {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+  10% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  20% {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+.hot-entry-alert {
+  animation: border-pulse 2s ease-in-out infinite;
+}
+
+.border-glow {
+  background: linear-gradient(90deg, 
+    #00FF85 0%, 
+    #005CFF 25%, 
+    #00FF85 50%, 
+    #005CFF 75%, 
+    #00FF85 100%
+  );
+  background-size: 200% 100%;
+  animation: border-fire 3s linear infinite;
+  opacity: 0.3;
+}
+
+.particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: radial-gradient(circle, #00FF85 0%, transparent 70%);
+  border-radius: 50%;
+  animation: particle-rise 3s ease-in-out infinite;
+}
+
+.particle-1 {
+  left: 20%;
+  animation-delay: 0s;
+}
+
+.particle-2 {
+  left: 40%;
+  animation-delay: 0.6s;
+}
+
+.particle-3 {
+  left: 60%;
+  animation-delay: 1.2s;
+}
+
+.particle-4 {
+  left: 80%;
+  animation-delay: 1.8s;
+}
+
+.particle-5 {
+  left: 50%;
+  animation-delay: 2.4s;
+}
+
+.lightning-effect {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, #00FF85 50%, transparent 100%);
+  animation: lightning-strike 4s ease-in-out infinite;
+  filter: blur(1px);
+  box-shadow: 0 0 10px #00FF85;
+}
+
 
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
 All colors MUST be HSL.

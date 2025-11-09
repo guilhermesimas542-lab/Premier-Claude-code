@@ -14,6 +14,7 @@ import {
 import { toast } from "sonner";
 import { getStoredConfig, clearAuth, isAuthenticated } from "@/lib/auth";
 import { AppConfig } from "@/types/auth";
+import { NewEntriesAlert } from "@/components/NewEntriesAlert";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -65,7 +66,7 @@ const Home = () => {
       id: "futebol",
       name: "FUTEBOL",
       emoji: "⚽",
-      tagline: "⚡ Esporte desbloqueado — Alta taxa de acertos!",
+      tagline: "🔥 Entrada quente — Análise premium disponível agora!",
       description: "Resultados com precisão máxima",
       route: "/futebol",
       gradient: "from-[#000636] via-[#0026A3] to-[#0033C6]",
@@ -221,6 +222,9 @@ const Home = () => {
       </header>
 
       <main className="container max-w-7xl mx-auto px-4 py-8 space-y-8">
+        {/* New Entries Alert */}
+        <NewEntriesAlert />
+
         {/* Featured Banners */}
         <section className="relative">
           <Carousel
