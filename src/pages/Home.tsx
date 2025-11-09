@@ -317,15 +317,15 @@ const Home = () => {
                 >
                   {/* Badge IA ATIVADA - Flutuante no topo direito */}
                   {sport.isPremium && (
-                    <div className="absolute -top-3 -right-3 z-20 animate-fade-in">
-                      <div className="relative flex items-center justify-center gap-2 bg-gradient-to-r from-[#000636]/95 to-[#0033C6]/95 backdrop-blur-xl border-2 border-[#00FF87] rounded-xl px-4 py-2 shadow-2xl shadow-[#00FF87]/50">
-                        <Sparkles className="w-4 h-4 text-[#00FF87] animate-pulse drop-shadow-[0_0_8px_rgba(0,255,135,1)]" />
-                        <span className="text-xs font-black text-[#00FF87] tracking-widest drop-shadow-[0_0_8px_rgba(0,255,135,0.8)]">IA ATIVADA</span>
+                    <div className="absolute -top-2 -right-2 z-20 animate-fade-in">
+                      <div className="relative flex items-center justify-center gap-2 bg-gradient-to-r from-[#000636]/95 to-[#0033C6]/95 backdrop-blur-xl border-2 border-[#00FF87] rounded-xl px-3 py-1.5 shadow-2xl shadow-[#00FF87]/50">
+                        <Sparkles className="w-3.5 h-3.5 text-[#00FF87] animate-pulse drop-shadow-[0_0_8px_rgba(0,255,135,1)]" />
+                        <span className="text-[10px] font-black text-[#00FF87] tracking-widest drop-shadow-[0_0_8px_rgba(0,255,135,0.8)] whitespace-nowrap">IA ATIVADA</span>
                         {/* Partículas de luz tecnológicas */}
                         <div className="absolute inset-0 opacity-30 pointer-events-none">
-                          <div className="absolute top-1 left-2 w-1 h-1 bg-[#00FFFF] rounded-full animate-pulse" />
-                          <div className="absolute bottom-1 right-3 w-1 h-1 bg-white rounded-full animate-pulse" style={{ animationDelay: '0.5s' }} />
-                          <div className="absolute top-1/2 right-2 w-1 h-1 bg-[#00FF87] rounded-full animate-pulse" style={{ animationDelay: '1s' }} />
+                          <div className="absolute top-0.5 left-1.5 w-0.5 h-0.5 bg-[#00FFFF] rounded-full animate-pulse" />
+                          <div className="absolute bottom-0.5 right-2 w-0.5 h-0.5 bg-white rounded-full animate-pulse" style={{ animationDelay: '0.5s' }} />
+                          <div className="absolute top-1/2 right-1.5 w-0.5 h-0.5 bg-[#00FF87] rounded-full animate-pulse" style={{ animationDelay: '1s' }} />
                         </div>
                       </div>
                     </div>
