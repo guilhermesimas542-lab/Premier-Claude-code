@@ -45,6 +45,10 @@ const Index = () => {
       const response = await loadTipsForSport(1);
       if (response.success && response.response?.data) {
         setTips(response.response.data);
+        // Atualiza a URL do betSite se vier da resposta
+        if (response.response.url && config) {
+          setConfig({ ...config, betSite: response.response.url });
+        }
       } else {
         toast.error(response.message?.[0] || "Erro ao carregar tips");
       }

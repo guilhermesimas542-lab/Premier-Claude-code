@@ -4,7 +4,7 @@ export function normalizePayload(raw: LoginResponse): AppConfig {
   const base = raw?.response ?? ({} as any);
   return {
     redirect: !!base.redirect,
-    betSite: base.betSite || null,
+    betSite: base.url || base.betSite || null,
     telegramUrl: base.telegramUrl || null,
     checkout: base.checkout || null,
     basicImageBanner: base.basicImageBanner || null,

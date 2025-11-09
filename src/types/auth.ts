@@ -36,6 +36,7 @@ export interface AuthResponse {
   _user: AuthUser;
   jwt: string;
   metric: Metric;
+  url?: string;
 }
 
 export interface LoginResponse {
