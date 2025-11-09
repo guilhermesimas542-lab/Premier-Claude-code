@@ -128,8 +128,25 @@ export const PremiumBettingCard = ({
       {/* Background Texture */}
       <div className="absolute inset-0 opacity-[0.08] bg-[radial-gradient(circle_at_30%_50%,rgba(34,211,238,0.1),transparent_50%)]" />
       
+      {/* Locked Overlay with Police Tape Effect */}
+      {isLocked && (
+        <div className="absolute inset-0 z-20 bg-black/60 backdrop-blur-[2px]">
+          {/* Diagonal stripes pattern */}
+          <div className="absolute inset-0 opacity-40" style={{
+            backgroundImage: 'repeating-linear-gradient(45deg, #fbbf24 0px, #fbbf24 40px, #1f2937 40px, #1f2937 80px)',
+          }} />
+          {/* Lock icon */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="text-center animate-pulse">
+              <div className="text-6xl mb-2">🔒</div>
+              <div className="text-warning font-black text-lg tracking-wider drop-shadow-lg">BLOQUEADO</div>
+            </div>
+          </div>
+        </div>
+      )}
+      
       {/* Animated GIF Background for Premium Tiers */}
-      {(tier === "PRO" || tier === "MÚLTIPLA") && (
+      {(tier === "PRO" || tier === "MÚLTIPLA") && !isLocked && (
         <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
           <img 
             src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif" 
