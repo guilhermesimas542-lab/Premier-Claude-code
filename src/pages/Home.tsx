@@ -356,9 +356,9 @@ const Home = () => {
                           {/* Texto Principal - Bloqueado */}
                           <div className="text-center animate-fade-in space-y-3">
                             <div className="flex items-center justify-center py-2">
-                              <div className="relative">
-                                <div className="absolute inset-0 bg-destructive blur-xl opacity-40" />
-                                <Lock className="relative w-16 h-16 text-destructive drop-shadow-[0_0_20px_rgba(239,68,68,0.8)]" strokeWidth={2.5} />
+                              <div className="relative w-20 h-20">
+                                <div className="absolute inset-0 bg-destructive blur-2xl opacity-50 animate-pulse" />
+                                <Lock className="relative w-full h-full text-destructive drop-shadow-[0_0_20px_rgba(239,68,68,0.8)]" strokeWidth={2.5} />
                               </div>
                             </div>
                             <div className="relative inline-block">
