@@ -89,7 +89,7 @@ const Index = () => {
           <div className="flex items-center gap-4">
             <button
               className="p-2 hover:bg-muted/50 rounded-lg transition-colors"
-              onClick={() => window.history.back()}
+              onClick={() => navigate("/")}
             >
               <ArrowLeft className="w-6 h-6 text-foreground" />
             </button>
