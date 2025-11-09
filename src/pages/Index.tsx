@@ -24,6 +24,9 @@ const Index = () => {
   const [iframeUrl, setIframeUrl] = useState<string>("");
 
   useEffect(() => {
+    // Rola para o topo ao carregar a página
+    window.scrollTo(0, 0);
+
     // Verifica se está autenticado
     if (!isAuthenticated()) {
       navigate("/login");
