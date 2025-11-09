@@ -398,11 +398,11 @@ const Home = () => {
           <BasicPlanAlert checkoutUrl={config.checkout} />
         ) : config?.user?.purchasedPlan === 1 ? (
           <ProPlanAlert proUrl={config.proUrl} />
-        ) : (config?.user?.purchasedPlan === 2 || config?.user?.purchasedPlan === 3) ? (
+        ) : (config?.user?.purchasedPlan === 2 || config?.user?.purchasedPlan === 3) && config?.user?.telegran === 0 ? (
           <TelegramAlert telegramUrl={config.telegramUrl} />
-        ) : config?.user?.telegran !== 0 ? (
+        ) : (
           <NewEntriesAlert />
-        ) : null}
+        )}
 
         {/* Featured Banners */}
         <section className="relative">
