@@ -325,19 +325,11 @@ const Home = () => {
                   <div className="p-3 space-y-2">
                     {/* Badge */}
                     <div className="flex justify-between items-center">
-                      {/* AI Badge for Premium */}
+                      {/* AI Badge for Premium - Always Golden */}
                       {sport.isPremium && (
-                        <div className={`flex items-center gap-1.5 ${
-                          (sport as any).borderColor 
-                            ? 'bg-gradient-to-r from-success/20 to-success/10 border-success/40' 
-                            : 'bg-gradient-to-r from-[#DFAC2A]/20 to-[#DFAC2A]/10 border-[#DFAC2A]/40'
-                        } border rounded-full px-2.5 py-1 backdrop-blur-sm`}>
-                          <Sparkles className={`w-3 h-3 ${
-                            (sport as any).borderColor ? 'text-success' : 'text-[#DFAC2A]'
-                          } animate-pulse`} />
-                          <span className={`text-[9px] font-bold ${
-                            (sport as any).borderColor ? 'text-success' : 'text-[#DFAC2A]'
-                          }`}>IA ATIVADA</span>
+                        <div className="flex items-center gap-1.5 bg-gradient-to-r from-[#DFAC2A]/20 to-[#DFAC2A]/10 border border-[#DFAC2A]/40 rounded-full px-2.5 py-1 backdrop-blur-sm">
+                          <Sparkles className="w-3 h-3 text-[#DFAC2A] animate-pulse" />
+                          <span className="text-[9px] font-bold text-[#DFAC2A]">IA ATIVADA</span>
                         </div>
                       )}
                       <Badge className={`${sport.badgeColor} text-[10px] font-bold backdrop-blur-sm ml-auto`}>
@@ -345,8 +337,12 @@ const Home = () => {
                       </Badge>
                     </div>
 
-                    {/* Title */}
-                    <h3 className="text-xl font-display font-extrabold tracking-tight text-white drop-shadow-lg">
+                    {/* Title - Golden for Premium */}
+                    <h3 className={`text-xl font-display font-extrabold tracking-tight drop-shadow-lg ${
+                      sport.isPremium 
+                        ? "text-[#DFAC2A]" 
+                        : "text-white"
+                    }`}>
                       {sport.name}
                     </h3>
                     
@@ -408,18 +404,10 @@ const Home = () => {
                             {sport.description}
                           </p>
                         </div>
-                        {/* AI New Entries Badge */}
-                        <div className={`flex items-center justify-center gap-2 ${
-                          (sport as any).borderColor 
-                            ? 'bg-success/10 border-success/30' 
-                            : 'bg-[#DFAC2A]/10 border-[#DFAC2A]/30'
-                        } border rounded-lg p-2 backdrop-blur-sm`}>
-                          <Sparkles className={`w-4 h-4 ${
-                            (sport as any).borderColor ? 'text-success' : 'text-[#DFAC2A]'
-                          }`} />
-                          <span className={`text-[10px] font-bold ${
-                            (sport as any).borderColor ? 'text-success' : 'text-[#DFAC2A]'
-                          }`}>8 novas entradas via IA disponíveis</span>
+                        {/* AI New Entries Badge - Always Golden */}
+                        <div className="flex items-center justify-center gap-2 bg-[#DFAC2A]/10 border border-[#DFAC2A]/30 rounded-lg p-2 backdrop-blur-sm">
+                          <Sparkles className="w-4 h-4 text-[#DFAC2A]" />
+                          <span className="text-[10px] font-bold text-[#DFAC2A]">8 novas entradas via IA disponíveis</span>
                         </div>
                       </>
                     ) : (
@@ -432,15 +420,11 @@ const Home = () => {
                   {/* Bottom Section - CTA */}
                   <div className="mt-auto p-3 pt-0">
                     {(sport as any).isLocked || (sport as any).isPreSale || sport.isPremium ? (
-                      <Button className={`w-full font-bold py-5 ${
-                        (sport as any).borderColor 
-                          ? 'bg-success hover:bg-success/90 text-white' 
-                          : 'bg-primary hover:bg-primary/90 text-white'
-                      }`}>
+                      <Button className="w-full bg-[#DFAC2A] hover:bg-[#DFAC2A]/90 text-black font-bold py-5">
                         {(sport as any).isLocked || (sport as any).isPreSale ? "Adquirir" : "Acessar agora"}
                       </Button>
                     ) : sport.route !== "#" ? (
-                      <Button className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-5">
+                      <Button className="w-full bg-[#DFAC2A] hover:bg-[#DFAC2A]/90 text-black font-bold py-5">
                         Acessar agora
                       </Button>
                     ) : null}
