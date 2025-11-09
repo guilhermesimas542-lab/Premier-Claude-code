@@ -466,7 +466,7 @@ const Home = () => {
                             <div className="flex items-center justify-center gap-2">
                               <div className="h-px w-8 bg-gradient-to-r from-transparent to-destructive/30" />
                               <p className="text-sm font-bold text-foreground/90 tracking-wide whitespace-nowrap">
-                                🔒 PLANO PRO NECESSÁRIO 🔒
+                                🔒 VOCÊ NÃO POSSUI ESSE ITEM 🔒
                               </p>
                               <div className="h-px w-8 bg-gradient-to-l from-transparent to-destructive/30" />
                             </div>
