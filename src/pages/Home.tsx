@@ -15,10 +15,14 @@ import { toast } from "sonner";
 import { getStoredConfig, clearAuth, isAuthenticated } from "@/lib/auth";
 import { AppConfig } from "@/types/auth";
 import { NewEntriesAlert } from "@/components/NewEntriesAlert";
+import { fetchSports, getBackgroundImageUrl } from "@/lib/sports";
+import { Sport } from "@/types/sports";
 
 const Home = () => {
   const navigate = useNavigate();
   const [config, setConfig] = useState<AppConfig | null>(null);
+  const [sports, setSports] = useState<Sport[]>([]);
+  const [loading, setLoading] = useState(true);
   const [countdown, setCountdown] = useState({
     hours: 23,
     minutes: 59,
@@ -35,6 +39,24 @@ const Home = () => {
     if (storedConfig) {
       setConfig(storedConfig);
     }
+
+    // Buscar esportes da API
+    const loadSports = async () => {
+      try {
+        setLoading(true);
+        const data = await fetchSports();
+        if (data.success && data.response) {
+          setSports(data.response);
+        }
+      } catch (error) {
+        console.error("Erro ao carregar esportes:", error);
+        toast.error("Erro ao carregar esportes");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadSports();
   }, [navigate]);
 
   // Countdown timer
@@ -61,86 +83,32 @@ const Home = () => {
     navigate("/login");
   };
 
-  const sports = [
-    {
-      id: "futebol",
-      name: "FUTEBOL",
-      emoji: "⚽",
-      tagline: "🔥 Entrada quente — Análise premium disponível agora!",
-      description: "Resultados com precisão máxima",
-      route: "/futebol",
-      gradient: "from-[#000636] via-[#0026A3] to-[#0033C6]",
-      image: "https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=800&h=600&fit=crop&q=80",
-      badge: "🔥 Destaque",
-      badgeColor: "bg-[#00FF87]/20 text-[#00FF87] border-[#00FF87]/40",
-      isPremium: true,
-      borderColor: "#00FF87",
-    },
-    {
-      id: "cassino",
-      name: "CASSINO",
-      emoji: "🎰",
-      description: "Novos jogos em desenvolvimento",
-      route: "#",
-      gradient: "from-primary via-orange-600 to-primary",
-      image: "https://images.unsplash.com/photo-1596838132731-3301c3fd4317?w=800&h=600&fit=crop&q=80",
-      badge: "Em breve",
-      badgeColor: "bg-muted/30 text-muted-foreground border-border/30",
-      isPremium: false,
-    },
-    {
-      id: "basquete",
-      name: "BASQUETE",
-      emoji: "🏀",
-      description: "Análises em preparação",
-      route: "#",
-      gradient: "from-accent via-cyan-500 to-accent",
-      image: "https://images.unsplash.com/photo-1546519638-68e109498ffc?w=800&h=600&fit=crop&q=80",
-      badge: "Em breve",
-      badgeColor: "bg-muted/30 text-muted-foreground border-border/30",
-      isPremium: false,
-    },
-    {
-      id: "tenis",
-      name: "TÊNIS",
-      emoji: "🎾",
-      description: "Sistema em desenvolvimento",
-      route: "#",
-      gradient: "from-vip via-purple-600 to-vip",
-      image: "https://images.unsplash.com/photo-1622279457486-62dcc4a431d6?w=800&h=600&fit=crop&q=80",
-      badge: "Em breve",
-      badgeColor: "bg-muted/30 text-muted-foreground border-border/30",
-      isPremium: false,
-    },
-    {
-      id: "esports",
-      name: "E-SPORTS",
-      emoji: "🎮",
-      description: "Disponível no plano PRO",
-      route: "#",
-      gradient: "from-vip via-purple-600 to-vip",
-      image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&h=600&fit=crop&q=80",
-      badge: "Bloqueado",
-      badgeColor: "bg-destructive/20 text-destructive border-destructive/30",
-      isPremium: false,
-      isLocked: true,
-    },
-    {
-      id: "volei",
-      name: "VÔLEI",
-      emoji: "🏐",
-      description: "Garanta com desconto exclusivo!",
-      route: "#",
-      gradient: "from-accent via-cyan-500 to-accent",
-      image: "https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=800&h=600&fit=crop&q=80",
-      badge: "Pré-venda",
-      badgeColor: "bg-accent/20 text-accent border-accent/30",
-      isPremium: false,
-      isPreSale: true,
-      priceFrom: "R$ 299,00",
-      priceTo: "R$ 149,00",
-    },
-  ];
+  // Mapear esportes da API para o formato do componente
+  const sportEmojiMap: Record<string, string> = {
+    "Futebol": "⚽",
+    "Futsal": "⚽",
+    "MMA": "🥊",
+    "Baseball": "⚾",
+    "Rugby": "🏈",
+    "Tenis": "🎾",
+    "Basquete": "🏀",
+    "Hoquei": "🏒",
+    "Handball": "🤾",
+    "Volei": "🏐",
+  };
+
+  const mappedSports = sports.map((sport) => ({
+    ...sport,
+    emoji: sportEmojiMap[sport.name] || "🏆",
+    route: sport.enabled && !sport.isproplan ? `/${sport.name.toLowerCase()}` : "#",
+    image: getBackgroundImageUrl(sport.background),
+    gradient: "from-[#000636] via-[#0026A3] to-[#0033C6]",
+    isPremium: sport.enabled && !sport.isproplan,
+    isLocked: sport.isproplan && config?.user?.purchasedPlan !== 2,
+    badgeColor: sport.enabled && !sport.isproplan 
+      ? "bg-[#00FF87]/20 text-[#00FF87] border-[#00FF87]/40"
+      : "bg-muted/30 text-muted-foreground border-border/30",
+  }));
 
   const announcements = [
     {
@@ -296,7 +264,16 @@ const Home = () => {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {sports.map((sport) => (
+            {loading ? (
+              <div className="col-span-full text-center py-12">
+                <p className="text-muted-foreground">Carregando esportes...</p>
+              </div>
+            ) : mappedSports.length === 0 ? (
+              <div className="col-span-full text-center py-12">
+                <p className="text-muted-foreground">Nenhum esporte disponível</p>
+              </div>
+            ) : (
+              mappedSports.map((sport) => (
               <div
                 key={sport.id}
                 onClick={() => sport.route !== "#" && navigate(sport.route)}
@@ -362,7 +339,7 @@ const Home = () => {
                     } px-5 py-4`}>
                       <div className="flex items-center gap-3">
                         <span className="text-3xl filter drop-shadow-[0_0_15px_rgba(0,212,255,0.8)]">
-                          {(sport as any).emoji || (sport.isPremium ? '⚽' : sport.id === 'cassino' ? '🎰' : sport.id === 'basquete' ? '🏀' : sport.id === 'tenis' ? '🎾' : sport.id === 'esports' ? '🎮' : '🏐')}
+                          {(sport as any).emoji || '🏆'}
                         </span>
                         <h3 className="text-xl font-display font-black tracking-wider text-white drop-shadow-[0_0_10px_rgba(0,212,255,0.6)]">
                           {sport.name}
@@ -517,7 +494,8 @@ const Home = () => {
                 </div>
               </Card>
             </div>
-            ))}
+              ))
+            )}
           </div>
         </section>
       </main>
