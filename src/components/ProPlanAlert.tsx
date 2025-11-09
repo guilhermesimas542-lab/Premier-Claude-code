@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Zap, ChevronRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 
 interface ProPlanAlertProps {
   proUrl: string | null;
@@ -32,11 +32,15 @@ export const ProPlanAlert = ({ proUrl }: ProPlanAlertProps) => {
 
       <div className="relative z-10 flex flex-col md:flex-row items-center justify-center md:justify-between gap-4 text-center md:text-left">
         <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
-          {/* Icon */}
+          {/* Icon - PRO Badge */}
           <div className="relative">
-            <div className="absolute inset-0 bg-[#9333EA] blur-xl opacity-50 animate-pulse"></div>
-            <div className="relative bg-gradient-to-br from-[#7C3AED] to-[#9333EA] p-3 rounded-xl">
-              <Zap className="w-6 h-6 text-white animate-pulse" fill="white" />
+            <div className="absolute inset-0 bg-[#FFD700] blur-xl opacity-50 animate-pulse"></div>
+            <div className="relative bg-gradient-to-br from-black via-[#1a1a1a] to-black p-4 rounded-xl border-2 border-[#FFD700] min-w-[64px] min-h-[64px] flex items-center justify-center">
+              <span className="text-2xl font-black bg-gradient-to-br from-[#FFD700] via-[#FFA500] to-[#FFD700] bg-clip-text text-transparent animate-pulse" style={{
+                textShadow: '0 0 20px rgba(255, 215, 0, 0.5)'
+              }}>
+                PRO
+              </span>
             </div>
           </div>
 
