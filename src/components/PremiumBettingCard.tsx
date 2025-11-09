@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, Eye, AlertCircle } from "lucide-react";
+import { TrendingUp, AlertCircle } from "lucide-react";
 import { useState } from "react";
 
 interface Indicator {
@@ -201,22 +201,13 @@ export const PremiumBettingCard = ({
         </div>
 
         {/* Action Buttons - Compact */}
-        <div className="flex gap-2 pt-1">
+        <div className="pt-1">
           <Button
             onClick={onAddTip}
-            className="flex-1 bg-primary hover:bg-primary/90 text-white font-bold py-4 text-xs shadow-lg shadow-primary/30 transition-all duration-300 hover:scale-[1.02] relative overflow-hidden group/btn"
+            className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 text-xs shadow-lg shadow-primary/30 transition-all duration-300 hover:scale-[1.02] relative overflow-hidden group/btn"
           >
             <span className="relative">Adicionar</span>
           </Button>
-          {onViewAnalysis && (
-            <Button
-              onClick={onViewAnalysis}
-              variant="outline"
-              className="bg-muted/20 border-border/50 hover:bg-muted/40 text-foreground font-semibold py-4 px-3"
-            >
-              <Eye className="w-3.5 h-3.5" />
-            </Button>
-          )}
         </div>
 
         {/* Footer - Compact */}
