@@ -426,11 +426,21 @@ const Home = () => {
                       ) : sport.isPremium ? (
                         /* Premium - Card Épico Arena Azul */
                         <div className="space-y-4">
-                          {/* Tagline Poderosa - Tema Azul */}
-                          <div className="text-center animate-fade-in">
-                            <p className="text-sm font-black text-white drop-shadow-[0_0_20px_rgba(0,212,255,0.7)] leading-relaxed">
-                              {(sport as any).tagline || "🔥 Entrada quente — Análise premium disponível agora!"}
-                            </p>
+                          {/* Texto Principal Impactante */}
+                          <div className="text-center animate-fade-in space-y-2">
+                            <div className="relative inline-block">
+                              <div className="absolute inset-0 bg-[#00FF87] blur-xl opacity-30" />
+                              <h4 className="relative text-lg font-black text-[#00FF87] drop-shadow-[0_0_20px_rgba(0,255,135,0.9)] leading-tight tracking-wide">
+                                NOVAS ENTRADAS DISPONÍVEIS
+                              </h4>
+                            </div>
+                            <div className="flex items-center justify-center gap-2">
+                              <div className="h-px w-8 bg-gradient-to-r from-transparent to-[#00FF87]" />
+                              <p className="text-base font-black text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.5)] tracking-wider">
+                                ⚡ APOSTE AGORA ⚡
+                              </p>
+                              <div className="h-px w-8 bg-gradient-to-l from-transparent to-[#00FF87]" />
+                            </div>
                           </div>
                         </div>
                       ) : (
