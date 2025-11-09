@@ -376,12 +376,27 @@ const Home = () => {
                       {/* Card Bloqueado */}
                       {(sport as any).isLocked ? (
                         <div className="space-y-4 py-2">
-                          <div className="flex items-center justify-center py-4">
-                            <Lock className="w-12 h-12 text-muted-foreground/60" />
+                          {/* Texto Principal - Bloqueado */}
+                          <div className="text-center animate-fade-in space-y-3">
+                            <div className="flex items-center justify-center py-2">
+                              <div className="relative">
+                                <div className="absolute inset-0 bg-destructive blur-xl opacity-40" />
+                                <Lock className="relative w-16 h-16 text-destructive drop-shadow-[0_0_20px_rgba(239,68,68,0.8)]" strokeWidth={2.5} />
+                              </div>
+                            </div>
+                            <div className="relative inline-block">
+                              <h4 className="text-base font-black text-destructive drop-shadow-[0_0_15px_rgba(239,68,68,0.6)] leading-tight tracking-wide">
+                                CONTEÚDO BLOQUEADO
+                              </h4>
+                            </div>
+                            <div className="flex items-center justify-center gap-2">
+                              <div className="h-px w-8 bg-gradient-to-r from-transparent to-destructive/30" />
+                              <p className="text-sm font-bold text-foreground/90 tracking-wide whitespace-nowrap">
+                                🔒 PLANO PRO NECESSÁRIO 🔒
+                              </p>
+                              <div className="h-px w-8 bg-gradient-to-l from-transparent to-destructive/30" />
+                            </div>
                           </div>
-                          <p className="text-xs text-center text-muted-foreground leading-relaxed">
-                            {sport.description}
-                          </p>
                         </div>
                       ) : (sport as any).isPreSale ? (
                       /* Pre-sale Card */
