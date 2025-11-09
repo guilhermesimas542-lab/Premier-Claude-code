@@ -46,7 +46,7 @@ const Home = () => {
       gradient: "from-success via-emerald-500 to-success",
       image: "https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=600&h=400&fit=crop",
       badge: "🔥 Destaque",
-      badgeColor: "bg-success/20 text-success border-success/30",
+      badgeColor: "bg-success text-white border-success",
       isPremium: true,
     },
     {
@@ -260,48 +260,35 @@ const Home = () => {
                 <div className="relative h-48 overflow-hidden">
                   <div
                     className={`absolute inset-0 bg-cover bg-center transition-transform duration-500 ${
-                      sport.isPremium ? "group-hover:scale-110 brightness-110" : "group-hover:scale-110"
+                      sport.isPremium ? "group-hover:scale-110" : "group-hover:scale-110"
                     }`}
                     style={{ backgroundImage: `url('${sport.image}')` }}
                   />
-                  <div className={`absolute inset-0 ${
-                    sport.isPremium 
-                      ? "bg-gradient-to-t from-[#0C0F14] via-[#0C0F14]/70 to-success/20" 
-                      : "bg-gradient-to-t from-[#0C0F14] via-[#0C0F14]/60 to-transparent"
-                  }`} />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0C0F14] via-[#0C0F14]/80 to-[#0C0F14]/40" />
                   
                   {/* Badge */}
                   <div className="absolute top-3 right-3">
-                    <Badge className={`${sport.badgeColor} text-[9px] font-bold`}>
+                    <Badge className={`${sport.badgeColor} text-[10px] font-bold backdrop-blur-sm`}>
                       {sport.badge}
                     </Badge>
                   </div>
 
                   {/* Gradient Overlay */}
-                  <div className={`absolute inset-0 bg-gradient-to-br ${sport.gradient} ${
-                    sport.isPremium ? "opacity-30" : "opacity-20"
-                  }`} />
-                  
-                  {/* Premium Subtle Shine Effect */}
-                  {sport.isPremium && (
-                    <div className="absolute inset-0 opacity-10 pointer-events-none">
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-                    </div>
-                  )}
+                  <div className={`absolute inset-0 bg-gradient-to-br ${sport.gradient} opacity-20`} />
                 </div>
 
                 {/* Content */}
-                <div className={`p-4 space-y-2 relative ${sport.isPremium ? "bg-gradient-to-b from-success/5 to-transparent" : ""}`}>
-                  <h3 className={`text-lg font-display font-extrabold tracking-tight ${
+                <div className="p-4 space-y-2 relative">
+                  <h3 className={`text-xl font-display font-extrabold tracking-tight ${
                     sport.isPremium 
-                      ? "text-transparent bg-clip-text bg-gradient-to-r from-success via-yellow-400 to-success bg-[length:200%_100%] animate-gradient" 
+                      ? "text-success drop-shadow-[0_0_8px_rgba(34,197,94,0.5)]" 
                       : "text-foreground"
                   }`}>
                     {sport.name}
                   </h3>
                   <p className={`text-xs leading-relaxed ${
                     sport.isPremium 
-                      ? "text-success/90 font-semibold" 
+                      ? "text-foreground font-medium" 
                       : "text-muted-foreground"
                   }`}>
                     {sport.description}
