@@ -7,10 +7,9 @@ interface ProPlanAlertProps {
 
 export const ProPlanAlert = ({ proUrl }: ProPlanAlertProps) => {
   const handleClick = () => {
-    const scrollToBottom = () => {
-      window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
-    };
-    scrollToBottom();
+    if (proUrl) {
+      window.open(proUrl, "_blank");
+    }
   };
 
   return (

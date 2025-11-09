@@ -7,10 +7,9 @@ interface BasicPlanAlertProps {
 
 export const BasicPlanAlert = ({ checkoutUrl }: BasicPlanAlertProps) => {
   const handleClick = () => {
-    const scrollToBottom = () => {
-      window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
-    };
-    scrollToBottom();
+    if (checkoutUrl) {
+      window.open(checkoutUrl, "_blank");
+    }
   };
 
   return (
