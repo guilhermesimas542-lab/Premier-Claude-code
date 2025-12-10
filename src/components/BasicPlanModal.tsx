@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { useState, useEffect, useCallback } from 'react';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Check, Flame, Clock, X } from 'lucide-react';
 import { getStoredConfig } from '@/lib/auth';
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 
 interface BasicPlanModalProps {
   open: boolean;
@@ -14,23 +15,30 @@ const MAX_VIEWS = 5;
 
 const BasicPlanModal = ({ open, onClose }: BasicPlanModalProps) => {
   const [timeLeft, setTimeLeft] = useState({ days: 7, hours: 0, minutes: 0, seconds: 0 });
-  const [shouldShow, setShouldShow] = useState(false);
+  const [canShow, setCanShow] = useState(true);
   const config = getStoredConfig();
 
+  // Check if modal can be shown on mount
   useEffect(() => {
-    if (!open) return;
-
-    // Check view count
     const viewCount = parseInt(localStorage.getItem(MODAL_VIEW_KEY) || '0', 10);
     if (viewCount >= MAX_VIEWS) {
-      setShouldShow(false);
-      onClose();
-      return;
+      setCanShow(false);
     }
+  }, []);
 
-    // Increment view count
-    localStorage.setItem(MODAL_VIEW_KEY, String(viewCount + 1));
-    setShouldShow(true);
+  // Increment view count only when modal actually opens
+  useEffect(() => {
+    if (open && canShow) {
+      const viewCount = parseInt(localStorage.getItem(MODAL_VIEW_KEY) || '0', 10);
+      if (viewCount < MAX_VIEWS) {
+        localStorage.setItem(MODAL_VIEW_KEY, String(viewCount + 1));
+      }
+    }
+  }, [open, canShow]);
+
+  // Countdown timer
+  useEffect(() => {
+    if (!open || !canShow) return;
 
     // Get or set expiration date (1 week from first view)
     const expirationKey = 'basicPlanModalExpiration';
@@ -65,7 +73,7 @@ const BasicPlanModal = ({ open, onClose }: BasicPlanModalProps) => {
     const timer = setInterval(updateCountdown, 1000);
 
     return () => clearInterval(timer);
-  }, [open, onClose]);
+  }, [open, canShow]);
 
   const formatTime = () => {
     const { days, hours, minutes, seconds } = timeLeft;
@@ -82,6 +90,10 @@ const BasicPlanModal = ({ open, onClose }: BasicPlanModalProps) => {
     onClose();
   };
 
+  const handleClose = useCallback(() => {
+    onClose();
+  }, [onClose]);
+
   const benefits = [
     'Sinais ocultos revelados',
     'Entradas exclusivas todos os dias',
@@ -90,17 +102,22 @@ const BasicPlanModal = ({ open, onClose }: BasicPlanModalProps) => {
     'Resultados em até 24h',
   ];
 
-  if (!shouldShow && open) {
+  // Don't render if exceeded max views
+  if (!canShow) {
     return null;
   }
 
   return (
-    <Dialog open={open && shouldShow} onOpenChange={onClose}>
-      <DialogContent className="max-w-md p-0 bg-transparent border-none shadow-none overflow-hidden">
+    <Dialog open={open} onOpenChange={handleClose}>
+      <DialogContent className="max-w-md p-0 bg-transparent border-none shadow-none overflow-hidden" aria-describedby={undefined}>
+        <VisuallyHidden>
+          <DialogTitle>Oferta Plano Basic</DialogTitle>
+        </VisuallyHidden>
+        
         <div className="relative bg-gradient-to-br from-[#0B0B0B] via-[#0D1117] to-[#0B0B0B] rounded-[22px] p-6 md:p-8 border border-white/10 shadow-2xl">
           {/* Close button */}
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="absolute top-4 right-4 text-white/50 hover:text-white transition-colors z-10"
           >
             <X className="w-5 h-5" />
