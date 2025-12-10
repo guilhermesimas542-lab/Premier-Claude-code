@@ -1,11 +1,14 @@
 import { Zap, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 interface NewEntriesAlertProps {
-  betSiteUrl: string | null;
+  betSiteUrl?: string | null;
 }
 
 export const NewEntriesAlert = ({ betSiteUrl }: NewEntriesAlertProps) => {
+  const navigate = useNavigate();
+
   return (
     <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#000636] via-[#001B70] to-[#000636] border-2 border-[#00FF85] p-6 shadow-2xl shadow-[#00FF85]/30 animate-fade-in hot-entry-alert">
       {/* Animated border glow */}
@@ -49,7 +52,7 @@ export const NewEntriesAlert = ({ betSiteUrl }: NewEntriesAlertProps) => {
 
         {/* CTA Button */}
         <Button 
-          onClick={() => betSiteUrl && window.open(betSiteUrl, "_blank")}
+          onClick={() => navigate("/bonus")}
           className="bg-gradient-to-r from-[#005CFF] via-[#0066FF] to-[#005CFF] hover:from-[#0066FF] hover:via-[#0080FF] hover:to-[#0066FF] text-white font-black px-8 py-6 text-base shadow-xl shadow-[#005CFF]/50 hover:shadow-[#0066FF]/70 transition-all duration-300 border-0"
         >
           Dobrar minha banca
