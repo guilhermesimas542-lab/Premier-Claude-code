@@ -19,12 +19,14 @@ import { ProPlanAlert } from "@/components/ProPlanAlert";
 import { getBackgroundImageUrl } from "@/lib/sports";
 import { Sport } from "@/types/sports";
 import { PremiumSportCard } from "@/components/PremiumSportCard";
+import BasicPlanModal from "@/components/BasicPlanModal";
 
 const Home = () => {
   const navigate = useNavigate();
   const [config, setConfig] = useState<AppConfig | null>(null);
   const [sports, setSports] = useState<Sport[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showBasicModal, setShowBasicModal] = useState(false);
   const [countdown, setCountdown] = useState({
     hours: 23,
     minutes: 59,
@@ -139,6 +141,17 @@ const Home = () => {
     }, 1000);
 
     return () => clearInterval(timer);
+  }, []);
+
+  // Show modal for free plan users
+  useEffect(() => {
+    const storedConfig = getStoredConfig();
+    const purchasedPlan = storedConfig?.user?.purchasedPlan ?? 0;
+    const isFreeUser = purchasedPlan === 0 || purchasedPlan === -1;
+    
+    if (isFreeUser) {
+      setShowBasicModal(true);
+    }
   }, []);
 
   const handleLogout = () => {
@@ -497,6 +510,12 @@ const Home = () => {
           </section>
         )}
       </main>
+
+      {/* Basic Plan Conversion Modal for Free Users */}
+      <BasicPlanModal 
+        open={showBasicModal} 
+        onClose={() => setShowBasicModal(false)} 
+      />
     </div>
   );
 };
