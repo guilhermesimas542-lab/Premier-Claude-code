@@ -58,53 +58,47 @@ const Home = () => {
         enabled: true,
         isproplan: false,
         background: "cyberbet_76a934f8-71c1-41a2-a9fe-93c36359dd7f",
-        tipo: 2, // Em breve
-        expDate: "2025-01-15T23:59:59",
+        tipo: 1, // Em breve (bloqueado)
       },
       {
         id: 3,
-        name: "Baseball",
-        enabled: true,
-        isproplan: false,
-        background: "cyberbet_20d5c209-1849-49d0-9475-4eabf2541b07",
-        tipo: 2, // Em breve
-        expDate: "2025-01-20T23:59:59",
-      },
-      {
-        id: 4,
-        name: "Rugby",
-        enabled: true,
-        isproplan: false,
-        background: "cyberbet_75203e34-3699-4203-9063-24bb8b805083",
-        tipo: 2, // Em breve
-        expDate: "2025-02-01T23:59:59",
-      },
-      {
-        id: 5,
-        name: "Tenis",
-        enabled: true,
-        isproplan: false,
-        background: "cyberbet_3164bd85-f9f8-4113-b776-fb37acf872a3",
-        tipo: 2, // Em breve
-        expDate: "2025-01-25T23:59:59",
-      },
-      {
-        id: 6,
         name: "Basquete",
         enabled: true,
         isproplan: false,
-        background: "cyberbet_55e38087-eeb7-4031-9a11-a326b50db79f",
-        tipo: 2, // Em breve
-        expDate: "2025-01-10T23:59:59",
+        background: "cyberbet_20d5c209-1849-49d0-9475-4eabf2541b07",
+        tipo: 1, // Em breve (bloqueado)
       },
       {
-        id: 7,
+        id: 4,
+        name: "Tenis",
+        enabled: true,
+        isproplan: false,
+        background: "cyberbet_75203e34-3699-4203-9063-24bb8b805083",
+        tipo: 1, // Em breve (bloqueado)
+      },
+      {
+        id: 5,
         name: "Futsal",
         enabled: true,
         isproplan: false,
+        background: "cyberbet_3164bd85-f9f8-4113-b776-fb37acf872a3",
+        tipo: 1, // Em breve (bloqueado)
+      },
+      {
+        id: 6,
+        name: "Volei",
+        enabled: true,
+        isproplan: false,
+        background: "cyberbet_55e38087-eeb7-4031-9a11-a326b50db79f",
+        tipo: 1, // Em breve (bloqueado)
+      },
+      {
+        id: 7,
+        name: "Cassino",
+        enabled: true,
+        isproplan: false,
         background: "futsal-custom",
-        tipo: 2, // Em breve
-        expDate: "2025-01-18T23:59:59",
+        tipo: 1, // Em breve (bloqueado)
       },
       {
         id: 8,
@@ -112,35 +106,15 @@ const Home = () => {
         enabled: true,
         isproplan: false,
         background: "cyberbet_255695b8-2046-4b5b-b6c5-17e7bb5e3df2",
-        tipo: 2, // Em breve
-        expDate: "2025-02-10T23:59:59",
+        tipo: 1, // Em breve (bloqueado)
       },
       {
         id: 9,
-        name: "Handball",
+        name: "E-Sports",
         enabled: true,
         isproplan: false,
         background: "cyberbet_3ef04120-9b39-44f5-9e4e-0127a76326bb",
-        tipo: 2, // Em breve
-        expDate: "2025-01-30T23:59:59",
-      },
-      {
-        id: 10,
-        name: "Volei",
-        enabled: true,
-        isproplan: false,
-        background: "cyberbet_76a934f8-71c1-41a2-a9fe-93c36359dd7f",
-        tipo: 2, // Em breve
-        expDate: "2025-02-05T23:59:59",
-      },
-      {
-        id: 11,
-        name: "Cassino",
-        enabled: true,
-        isproplan: false,
-        background: "cyberbet_20d5c209-1849-49d0-9475-4eabf2541b07",
-        tipo: 2, // Em breve
-        expDate: "2025-01-12T23:59:59",
+        tipo: 1, // Em breve (bloqueado)
       },
     ];
 
