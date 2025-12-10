@@ -427,7 +427,7 @@ const Home = () => {
             </h2>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
             {loading ? (
               <div className="col-span-full text-center py-12">
                 <p className="text-muted-foreground">Carregando esportes...</p>
@@ -471,7 +471,7 @@ const Home = () => {
               </h2>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
               {mappedSports.filter(sport => !sport.isPremium).map((sport) => (
                 <PremiumSportCard
                   key={sport.id}
