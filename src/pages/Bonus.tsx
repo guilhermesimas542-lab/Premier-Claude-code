@@ -68,6 +68,81 @@ const Bonus = () => {
           </p>
         </section>
 
+        {/* Active Bonus Section - FIRST */}
+        <section className="space-y-6">
+          <div className="relative">
+            {/* Glow effect */}
+            <div className="absolute -inset-1 bg-gradient-to-r from-[#00FF7F]/30 via-[#00FF7F]/10 to-[#00FF7F]/30 blur-xl rounded-2xl animate-pulse" />
+            
+            {/* Main Card */}
+            <div className="relative bg-gradient-to-br from-[#0D1A0F] via-[#0A0F0A] to-[#0D1A0F] border-2 border-[#00FF7F]/50 rounded-2xl p-6 md:p-8 overflow-hidden">
+              {/* Corner accents */}
+              <div className="absolute top-0 left-0 w-20 h-20 bg-gradient-to-br from-[#00FF7F]/20 to-transparent" />
+              <div className="absolute bottom-0 right-0 w-20 h-20 bg-gradient-to-tl from-[#00FF7F]/20 to-transparent" />
+              
+              {/* Restricted badge */}
+              <div className="absolute top-4 right-4">
+                <div className="flex items-center gap-1.5 bg-black/50 border border-[#00FF7F]/30 rounded-full px-3 py-1">
+                  <Lock className="w-3 h-3 text-[#00FF7F]" />
+                  <span className="text-[10px] font-bold text-[#00FF7F]">ACESSO RESTRITO</span>
+                </div>
+              </div>
+              
+              <div className="relative z-10 space-y-6">
+                {/* Title */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Flame className="w-6 h-6 text-[#FF6B35]" />
+                    <h2 className="text-xl md:text-2xl font-black text-white">
+                      Cupom Oculto: 200% de saldo
+                    </h2>
+                  </div>
+                </div>
+                
+                {/* Description */}
+                <div className="space-y-4">
+                  <p className="text-sm md:text-base text-white/80 leading-relaxed">
+                    Esse cupom não está listado na casa, nossa IA encontrou testando várias combinações até encontrar, 
+                    faça seu depósito enquanto fica online, a casa pode remover ou alterar as regras a qualquer momento.
+                  </p>
+                  <p className="text-sm text-[#00FF7F]/80 leading-relaxed">
+                    Depósitos maiores garantem melhor estabilidade no método e aproveitam o bônus no limite máximo.
+                  </p>
+                  
+                  {/* Micro text */}
+                  <div className="bg-[#00FF7F]/5 border border-[#00FF7F]/20 rounded-lg p-3">
+                    <p className="text-xs text-white/60 italic">
+                      "Quanto maior o valor inicial, mais forte fica o ciclo de consistência do algoritmo."
+                    </p>
+                  </div>
+                </div>
+                
+                {/* Alert tag */}
+                <div className="flex items-center gap-2 text-yellow-500/80">
+                  <Shield className="w-4 h-4" />
+                  <span className="text-xs font-bold">
+                    🔒 Acesso restrito — use antes que detectem.
+                  </span>
+                </div>
+                
+                {/* CTA Button */}
+                <div className="space-y-3 pt-2">
+                  <Button
+                    onClick={handleActivateBonus}
+                    className="w-full h-14 md:h-16 bg-gradient-to-r from-[#00FF7F] via-[#00E070] to-[#00FF7F] hover:from-[#00E070] hover:via-[#00FF7F] hover:to-[#00E070] text-black font-black text-base md:text-lg rounded-xl shadow-lg shadow-[#00FF7F]/30 transition-all duration-300 hover:scale-[1.02] animate-pulse"
+                  >
+                    ATIVAR BÔNUS AGORA
+                  </Button>
+                  
+                  <p className="text-center text-xs text-white/50">
+                    "Recomendado usar o valor máximo para aproveitar o bônus completo."
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Expired Bonuses Section */}
         <section className="space-y-4">
           <h2 className="text-lg font-bold text-white/40 flex items-center gap-2">
@@ -107,81 +182,6 @@ const Bonus = () => {
           <p className="text-center text-sm text-white/40 italic">
             "Os bônus mais fortes nunca ficam ativos por muito tempo…"
           </p>
-        </section>
-
-        {/* Active Bonus Section */}
-        <section className="space-y-6">
-          <div className="relative">
-            {/* Glow effect */}
-            <div className="absolute -inset-1 bg-gradient-to-r from-[#00FF7F]/30 via-[#00FF7F]/10 to-[#00FF7F]/30 blur-xl rounded-2xl animate-pulse" />
-            
-            {/* Main Card */}
-            <div className="relative bg-gradient-to-br from-[#0D1A0F] via-[#0A0F0A] to-[#0D1A0F] border-2 border-[#00FF7F]/50 rounded-2xl p-6 md:p-8 overflow-hidden">
-              {/* Corner accents */}
-              <div className="absolute top-0 left-0 w-20 h-20 bg-gradient-to-br from-[#00FF7F]/20 to-transparent" />
-              <div className="absolute bottom-0 right-0 w-20 h-20 bg-gradient-to-tl from-[#00FF7F]/20 to-transparent" />
-              
-              {/* Restricted badge */}
-              <div className="absolute top-4 right-4">
-                <div className="flex items-center gap-1.5 bg-black/50 border border-[#00FF7F]/30 rounded-full px-3 py-1">
-                  <Lock className="w-3 h-3 text-[#00FF7F]" />
-                  <span className="text-[10px] font-bold text-[#00FF7F]">ACESSO RESTRITO</span>
-                </div>
-              </div>
-              
-              <div className="relative z-10 space-y-6">
-                {/* Title */}
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <Flame className="w-6 h-6 text-[#FF6B35]" />
-                    <h2 className="text-xl md:text-2xl font-black text-white">
-                      Cupom Oculto: 100% ATÉ R$ 200
-                    </h2>
-                  </div>
-                </div>
-                
-                {/* Description */}
-                <div className="space-y-4">
-                  <p className="text-sm md:text-base text-white/80 leading-relaxed">
-                    Este cupom não aparece no site. Ele foi liberado automaticamente pelo teu perfil 
-                    e pode desaparecer se houver muitos acessos.
-                  </p>
-                  <p className="text-sm text-[#00FF7F]/80 leading-relaxed">
-                    Depósitos maiores garantem melhor estabilidade no método e aproveitam o bônus no limite máximo.
-                  </p>
-                  
-                  {/* Micro text */}
-                  <div className="bg-[#00FF7F]/5 border border-[#00FF7F]/20 rounded-lg p-3">
-                    <p className="text-xs text-white/60 italic">
-                      "Quanto maior o valor inicial, mais forte fica o ciclo de consistência do algoritmo."
-                    </p>
-                  </div>
-                </div>
-                
-                {/* Alert tag */}
-                <div className="flex items-center gap-2 text-yellow-500/80">
-                  <Shield className="w-4 h-4" />
-                  <span className="text-xs font-bold">
-                    🔒 Acesso restrito — use antes que detectem.
-                  </span>
-                </div>
-                
-                {/* CTA Button */}
-                <div className="space-y-3 pt-2">
-                  <Button
-                    onClick={handleActivateBonus}
-                    className="w-full h-14 md:h-16 bg-gradient-to-r from-[#00FF7F] via-[#00E070] to-[#00FF7F] hover:from-[#00E070] hover:via-[#00FF7F] hover:to-[#00E070] text-black font-black text-base md:text-lg rounded-xl shadow-lg shadow-[#00FF7F]/30 transition-all duration-300 hover:scale-[1.02] animate-pulse"
-                  >
-                    ATIVAR BÔNUS AGORA
-                  </Button>
-                  
-                  <p className="text-center text-xs text-white/50">
-                    "Recomendado usar o valor máximo para aproveitar o limite de R$ 200."
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
         </section>
 
         {/* Final Alert */}
