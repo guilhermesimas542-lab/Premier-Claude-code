@@ -28,9 +28,10 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [showBasicModal, setShowBasicModal] = useState(false);
   const [countdown, setCountdown] = useState({
-    hours: 23,
-    minutes: 59,
-    seconds: 45,
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
   });
 
   useEffect(() => {
@@ -125,7 +126,7 @@ const Home = () => {
         isproplan: false,
         background: "futsal-custom",
         tipo: 2, // Pré-venda / Lançamento
-        expDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 1 semana
+        expDate: "2024-12-17T20:00:00", // 17 de dezembro às 20:00
         priceFrom: "R$ 87,90",
         priceTo: "R$ 37,90",
       },
@@ -136,20 +137,29 @@ const Home = () => {
     setLoading(false);
   }, [navigate]);
 
-  // Countdown timer
+  // Countdown timer for Aviator launch (Dec 17, 2024 at 20:00)
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev.seconds > 0) {
-          return { ...prev, seconds: prev.seconds - 1 };
-        } else if (prev.minutes > 0) {
-          return { hours: prev.hours, minutes: prev.minutes - 1, seconds: 59 };
-        } else if (prev.hours > 0) {
-          return { hours: prev.hours - 1, minutes: 59, seconds: 59 };
-        }
-        return prev;
-      });
-    }, 1000);
+    const targetDate = new Date("2024-12-17T20:00:00").getTime();
+    
+    const updateCountdown = () => {
+      const now = new Date().getTime();
+      const difference = targetDate - now;
+      
+      if (difference <= 0) {
+        setCountdown({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+        return;
+      }
+      
+      const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+      
+      setCountdown({ days, hours, minutes, seconds });
+    };
+    
+    updateCountdown();
+    const timer = setInterval(updateCountdown, 1000);
 
     return () => clearInterval(timer);
   }, []);

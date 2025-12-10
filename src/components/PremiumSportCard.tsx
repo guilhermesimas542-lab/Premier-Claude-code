@@ -1,4 +1,4 @@
-import { Lock, Sparkles, Clock, Zap } from "lucide-react";
+import { Lock, Sparkles, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface SportColors {
@@ -18,7 +18,7 @@ interface PremiumSportCardProps {
   colors: SportColors;
   priceFrom?: string;
   priceTo?: string;
-  countdown?: { hours: number; minutes: number; seconds: number };
+  countdown?: { days?: number; hours: number; minutes: number; seconds: number };
   onClick?: () => void;
 }
 
@@ -116,23 +116,7 @@ export const PremiumSportCard = ({
 
     if (isPreSale) {
       return (
-        <div className="flex flex-col items-center justify-center flex-1 space-y-4 px-4">
-          <div className="relative">
-            <div className="absolute inset-0 bg-[#00FF7F] blur-2xl opacity-30 animate-pulse" />
-            <div 
-              className="relative w-16 h-16 rounded-full flex items-center justify-center"
-              style={{
-                background: 'linear-gradient(135deg, rgba(0,255,127,0.2) 0%, rgba(0,255,127,0.05) 100%)',
-                boxShadow: '0 0 30px rgba(0,255,127,0.3), inset 0 0 20px rgba(0,255,127,0.1)'
-              }}
-            >
-              <Zap 
-                className="w-8 h-8 text-[#00FF7F]" 
-                style={{ filter: 'drop-shadow(0 0 10px rgba(0,255,127,0.8))' }}
-              />
-            </div>
-          </div>
-          
+        <div className="flex flex-col items-center justify-center flex-1 space-y-3 px-4">
           <div className="text-center space-y-3">
             <h4 className="text-sm font-bold text-[#00FF7F] tracking-wide">
               Lançamento Exclusivo
@@ -141,10 +125,11 @@ export const PremiumSportCard = ({
             {countdown && (
               <div className="flex justify-center gap-1">
                 {[
-                  { value: countdown.hours, label: 'h' },
-                  { value: countdown.minutes, label: 'm' },
-                  { value: countdown.seconds, label: 's' }
-                ].map((item, i) => (
+                  { value: countdown.days, label: 'd', show: countdown.days > 0 },
+                  { value: countdown.hours, label: 'h', show: true },
+                  { value: countdown.minutes, label: 'm', show: true },
+                  { value: countdown.seconds, label: 's', show: true }
+                ].filter(item => item.show).map((item, i, arr) => (
                   <div key={i} className="flex items-center">
                     <div 
                       className="bg-[#0A0A0A] rounded px-2 py-1 border border-[#00FF7F]/20"
@@ -153,7 +138,7 @@ export const PremiumSportCard = ({
                       <span className="text-sm font-bold text-white">{String(item.value).padStart(2, '0')}</span>
                       <span className="text-[10px] text-[#A1A1A1] ml-0.5">{item.label}</span>
                     </div>
-                    {i < 2 && <span className="text-[#00FF7F] mx-0.5">:</span>}
+                    {i < arr.length - 1 && <span className="text-[#00FF7F] mx-0.5">:</span>}
                   </div>
                 ))}
               </div>
