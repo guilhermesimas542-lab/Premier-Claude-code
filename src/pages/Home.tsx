@@ -277,7 +277,13 @@ const Home = () => {
     },
   ];
 
-  const banners = [
+  const purchasedPlan = config?.user?.purchasedPlan ?? 0;
+  
+  // Filtra banners baseado no plano do usuário:
+  // Free (0, -1): só banner básico
+  // Básico (1): banner básico + destaque  
+  // PRO (2, 3): só destaque
+  const allBanners = [
     {
       id: 1,
       image: config?.basicImageBanner || "https://images.unsplash.com/photo-1614632537423-1e6c2e7e0aae?w=1200&h=400&fit=crop",
@@ -285,14 +291,7 @@ const Home = () => {
       description: "Acesse tips exclusivas todos os dias",
       ctaText: "Conhecer",
       ctaUrl: config?.checkout || "#",
-    },
-    {
-      id: 2,
-      image: config?.proImageBanner || "https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=1200&h=400&fit=crop",
-      title: "Plano PRO",
-      description: "Tips premium com análise avançada",
-      ctaText: "Assinar PRO",
-      ctaUrl: config?.proUrl || "#",
+      showFor: [0, -1, 1], // Free e Basic veem
     },
     {
       id: 3,
@@ -301,8 +300,12 @@ const Home = () => {
       description: "Aproveite ofertas exclusivas",
       ctaText: "Ver Oferta",
       ctaUrl: config?.banner1Url || "#",
+      showFor: [1, 2, 3], // Básico e PRO veem (destaque)
     },
   ];
+
+  // Filtra banners que o usuário pode ver
+  const banners = allBanners.filter(banner => banner.showFor.includes(purchasedPlan));
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#0C0F14] to-[#121826]">
