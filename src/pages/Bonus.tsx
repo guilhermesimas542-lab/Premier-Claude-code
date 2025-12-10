@@ -106,7 +106,7 @@ const Bonus = () => {
                     faça seu depósito enquanto fica online, a casa pode remover ou alterar as regras a qualquer momento.
                   </p>
                   <p className="text-sm text-[#00FF7F]/80 leading-relaxed">
-                    Depósitos maiores garantem melhor estabilidade no método e aproveitam o bônus no limite máximo.
+                    Quanto maior seu depósito melhor performará nossa alavancagem, indicamos pelo menos 200 para você já começar com 400.
                   </p>
                   
                   {/* Micro text */}
