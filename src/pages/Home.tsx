@@ -50,15 +50,16 @@ const Home = () => {
         enabled: true,
         isproplan: false,
         background: "cyberbet_3ef04120-9b39-44f5-9e4e-0127a76326bb",
-        tipo: 0, // Premium ativo
+        tipo: 0, // Premium ativo - único liberado
       },
       {
         id: 2,
         name: "MMA",
-        enabled: false,
-        isproplan: true,
+        enabled: true,
+        isproplan: false,
         background: "cyberbet_76a934f8-71c1-41a2-a9fe-93c36359dd7f",
-        tipo: 0, // Bloqueado
+        tipo: 2, // Em breve
+        expDate: "2025-01-15T23:59:59",
       },
       {
         id: 3,
@@ -66,7 +67,8 @@ const Home = () => {
         enabled: true,
         isproplan: false,
         background: "cyberbet_20d5c209-1849-49d0-9475-4eabf2541b07",
-        tipo: 1, // Em desenvolvimento
+        tipo: 2, // Em breve
+        expDate: "2025-01-20T23:59:59",
       },
       {
         id: 4,
@@ -74,16 +76,17 @@ const Home = () => {
         enabled: true,
         isproplan: false,
         background: "cyberbet_75203e34-3699-4203-9063-24bb8b805083",
-        tipo: 2, // Pré-venda
-        expDate: "2025-12-31T23:59:59",
+        tipo: 2, // Em breve
+        expDate: "2025-02-01T23:59:59",
       },
       {
         id: 5,
         name: "Tenis",
-        enabled: false,
+        enabled: true,
         isproplan: false,
         background: "cyberbet_3164bd85-f9f8-4113-b776-fb37acf872a3",
-        tipo: 0, // Bloqueado
+        tipo: 2, // Em breve
+        expDate: "2025-01-25T23:59:59",
       },
       {
         id: 6,
@@ -91,7 +94,8 @@ const Home = () => {
         enabled: true,
         isproplan: false,
         background: "cyberbet_55e38087-eeb7-4031-9a11-a326b50db79f",
-        tipo: 0, // Premium ativo
+        tipo: 2, // Em breve
+        expDate: "2025-01-10T23:59:59",
       },
       {
         id: 7,
@@ -99,7 +103,8 @@ const Home = () => {
         enabled: true,
         isproplan: false,
         background: "futsal-custom",
-        tipo: 0, // Premium ativo
+        tipo: 2, // Em breve
+        expDate: "2025-01-18T23:59:59",
       },
       {
         id: 8,
@@ -107,8 +112,8 @@ const Home = () => {
         enabled: true,
         isproplan: false,
         background: "cyberbet_255695b8-2046-4b5b-b6c5-17e7bb5e3df2",
-        tipo: 2, // Pré-venda
-        expDate: "2025-11-15T23:59:59",
+        tipo: 2, // Em breve
+        expDate: "2025-02-10T23:59:59",
       },
       {
         id: 9,
@@ -116,15 +121,17 @@ const Home = () => {
         enabled: true,
         isproplan: false,
         background: "cyberbet_3ef04120-9b39-44f5-9e4e-0127a76326bb",
-        tipo: 1, // Em desenvolvimento
+        tipo: 2, // Em breve
+        expDate: "2025-01-30T23:59:59",
       },
       {
         id: 10,
         name: "Volei",
-        enabled: false,
+        enabled: true,
         isproplan: false,
         background: "cyberbet_76a934f8-71c1-41a2-a9fe-93c36359dd7f",
-        tipo: 0, // Bloqueado
+        tipo: 2, // Em breve
+        expDate: "2025-02-05T23:59:59",
       },
       {
         id: 11,
@@ -132,7 +139,8 @@ const Home = () => {
         enabled: true,
         isproplan: false,
         background: "cyberbet_20d5c209-1849-49d0-9475-4eabf2541b07",
-        tipo: 0, // Premium ativo
+        tipo: 2, // Em breve
+        expDate: "2025-01-12T23:59:59",
       },
     ];
 
