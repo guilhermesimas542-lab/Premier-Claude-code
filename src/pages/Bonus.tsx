@@ -1,5 +1,6 @@
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Lock, X, Flame, Shield, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Lock, X, Flame, Shield, AlertTriangle, Users, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getStoredConfig } from "@/lib/auth";
 
@@ -30,11 +31,48 @@ const expiredBonuses = [
   },
 ];
 
+const STORAGE_KEY_CLAIMED = "bonus_claimed_count";
+const STORAGE_KEY_ONLINE = "bonus_online_count";
+
 const Bonus = () => {
   const navigate = useNavigate();
   const config = getStoredConfig();
+  
+  const [claimedCount, setClaimedCount] = useState(() => {
+    const stored = localStorage.getItem(STORAGE_KEY_CLAIMED);
+    if (stored) return parseInt(stored, 10);
+    const initial = Math.floor(Math.random() * (170 - 80 + 1)) + 80;
+    localStorage.setItem(STORAGE_KEY_CLAIMED, String(initial));
+    return initial;
+  });
+  
+  const [onlineCount, setOnlineCount] = useState(() => {
+    const stored = localStorage.getItem(STORAGE_KEY_ONLINE);
+    if (stored) return parseInt(stored, 10);
+    const initial = Math.floor(Math.random() * (45 - 15 + 1)) + 15;
+    localStorage.setItem(STORAGE_KEY_ONLINE, String(initial));
+    return initial;
+  });
+
+  // Simular variação de usuários online
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setOnlineCount(prev => {
+        const change = Math.random() > 0.5 ? 1 : -1;
+        const newValue = Math.max(10, Math.min(60, prev + change));
+        localStorage.setItem(STORAGE_KEY_ONLINE, String(newValue));
+        return newValue;
+      });
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleActivateBonus = () => {
+    // Incrementar contador
+    const newCount = claimedCount + 1;
+    setClaimedCount(newCount);
+    localStorage.setItem(STORAGE_KEY_CLAIMED, String(newCount));
+    
     if (config?.betSite) {
       window.open(config.betSite, "_blank");
     }
@@ -70,6 +108,21 @@ const Bonus = () => {
 
         {/* Active Bonus Section - FIRST */}
         <section className="space-y-6">
+          {/* Live Counters */}
+          <div className="flex flex-wrap justify-center gap-4">
+            <div className="flex items-center gap-2 bg-[#00FF7F]/10 border border-[#00FF7F]/30 rounded-full px-4 py-2">
+              <div className="w-2 h-2 bg-[#00FF7F] rounded-full animate-pulse" />
+              <Users className="w-4 h-4 text-[#00FF7F]" />
+              <span className="text-sm font-bold text-[#00FF7F]">{onlineCount}</span>
+              <span className="text-xs text-white/60">online agora</span>
+            </div>
+            <div className="flex items-center gap-2 bg-[#FF6B35]/10 border border-[#FF6B35]/30 rounded-full px-4 py-2">
+              <TrendingUp className="w-4 h-4 text-[#FF6B35]" />
+              <span className="text-sm font-bold text-[#FF6B35]">{claimedCount}</span>
+              <span className="text-xs text-white/60">pegaram hoje</span>
+            </div>
+          </div>
+
           <div className="relative">
             {/* Glow effect */}
             <div className="absolute -inset-1 bg-gradient-to-r from-[#00FF7F]/30 via-[#00FF7F]/10 to-[#00FF7F]/30 blur-xl rounded-2xl animate-pulse" />
@@ -145,8 +198,8 @@ const Bonus = () => {
 
         {/* Expired Bonuses Section */}
         <section className="space-y-4">
-          <h2 className="text-lg font-bold text-white/40 flex items-center gap-2">
-            <X className="w-5 h-5" />
+          <h2 className="text-lg font-bold text-white/60 flex items-center gap-2">
+            <X className="w-5 h-5 text-red-500/70" />
             Bônus Expirados
           </h2>
           
@@ -154,32 +207,32 @@ const Bonus = () => {
             {expiredBonuses.map((bonus) => (
               <div
                 key={bonus.id}
-                className="relative bg-[#111111]/60 border border-white/5 rounded-xl p-4 opacity-50 grayscale"
+                className="relative bg-[#1A1A1A] border border-red-500/20 rounded-xl p-4"
               >
                 {/* Blocked overlay */}
-                <div className="absolute inset-0 bg-black/30 rounded-xl flex items-center justify-center">
-                  <Lock className="w-6 h-6 text-white/20" />
+                <div className="absolute inset-0 bg-black/20 rounded-xl flex items-center justify-center">
+                  <Lock className="w-6 h-6 text-red-500/30" />
                 </div>
                 
                 <div className="flex items-start justify-between gap-3">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <X className="w-4 h-4 text-red-500/50" />
-                      <h3 className="font-bold text-white/40 text-sm">
+                      <X className="w-4 h-4 text-red-500/70" />
+                      <h3 className="font-bold text-white/60 text-sm">
                         {bonus.title}
                       </h3>
                     </div>
-                    <span className="text-[10px] font-bold text-red-500/50 bg-red-500/10 px-2 py-0.5 rounded">
+                    <span className="text-[10px] font-bold text-red-500/80 bg-red-500/20 px-2 py-0.5 rounded">
                       {bonus.status}
                     </span>
                   </div>
                 </div>
-                <p className="text-xs text-white/30 mt-2">"{bonus.reason}"</p>
+                <p className="text-xs text-white/50 mt-2">"{bonus.reason}"</p>
               </div>
             ))}
           </div>
           
-          <p className="text-center text-sm text-white/40 italic">
+          <p className="text-center text-sm text-white/50 italic">
             "Os bônus mais fortes nunca ficam ativos por muito tempo…"
           </p>
         </section>
