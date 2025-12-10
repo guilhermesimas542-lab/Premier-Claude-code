@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Check, Flame, Clock, X } from 'lucide-react';
+import { Check, Flame, Clock } from 'lucide-react';
 import { getStoredConfig } from '@/lib/auth';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 
@@ -117,13 +117,6 @@ const BasicPlanModal = ({ open, onClose }: BasicPlanModalProps) => {
         </VisuallyHidden>
         
         <div className="relative bg-gradient-to-br from-[#0B0B0B] via-[#0D1117] to-[#0B0B0B] rounded-[22px] p-6 md:p-8 border border-white/10 shadow-2xl">
-          {/* Close button */}
-          <button
-            onClick={handleClose}
-            className="absolute top-4 right-4 text-white/50 hover:text-white transition-colors z-10"
-          >
-            <X className="w-5 h-5" />
-          </button>
 
           {/* Premium card */}
           <div className="bg-white rounded-[18px] p-6 md:p-7 shadow-xl">
