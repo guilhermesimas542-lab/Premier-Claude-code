@@ -149,7 +149,12 @@ const Home = () => {
     const purchasedPlan = storedConfig?.user?.purchasedPlan ?? 0;
     const isFreeUser = purchasedPlan === 0 || purchasedPlan === -1;
     
+    console.log('[Home] purchasedPlan:', purchasedPlan, 'isFreeUser:', isFreeUser);
+    
     if (isFreeUser) {
+      // Reset counter for testing (remove this line in production)
+      localStorage.removeItem('basicPlanModalViews');
+      localStorage.removeItem('basicPlanModalExpiration');
       setShowBasicModal(true);
     }
   }, []);
