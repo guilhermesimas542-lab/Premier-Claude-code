@@ -39,10 +39,10 @@ export const NewEntriesAlert = ({ betSiteUrl }: NewEntriesAlertProps) => {
           {/* Text content */}
           <div className="flex-1">
             <h3 className="text-xl md:text-2xl font-black text-white tracking-tight mb-1">
-              💰 Deposite agora e transforme sua confiança em lucro real!
+              🎁 WELCOME10
             </h3>
             <p className="text-sm text-[#00FF85] font-semibold">
-              Cada aposta é uma chance — e quem entra primeiro, ganha primeiro.
+              Cupom disponível que dobra seu depósito, pegue antes que a casa tire do ar
             </p>
           </div>
         </div>
@@ -52,7 +52,7 @@ export const NewEntriesAlert = ({ betSiteUrl }: NewEntriesAlertProps) => {
           onClick={() => betSiteUrl && window.open(betSiteUrl, "_blank")}
           className="bg-gradient-to-r from-[#005CFF] via-[#0066FF] to-[#005CFF] hover:from-[#0066FF] hover:via-[#0080FF] hover:to-[#0066FF] text-white font-black px-8 py-6 text-base shadow-xl shadow-[#005CFF]/50 hover:shadow-[#0066FF]/70 transition-all duration-300 border-0"
         >
-          Ver Entradas
+          Dobrar minha banca
           <ChevronRight className="w-5 h-5 ml-2" />
         </Button>
       </div>
