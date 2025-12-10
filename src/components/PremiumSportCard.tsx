@@ -87,27 +87,27 @@ export const PremiumSportCard = ({
       return (
         <div className="flex flex-col items-center justify-center flex-1 space-y-4 px-4">
           <div className="relative">
-            <div className="absolute inset-0 bg-[#00D4FF] blur-2xl opacity-30 animate-pulse" />
+            <div className="absolute inset-0 bg-[#666666] blur-2xl opacity-30" />
             <div 
               className="relative w-16 h-16 rounded-full flex items-center justify-center"
               style={{
-                background: 'linear-gradient(135deg, rgba(0,212,255,0.2) 0%, rgba(0,212,255,0.05) 100%)',
-                boxShadow: '0 0 30px rgba(0,212,255,0.3), inset 0 0 20px rgba(0,212,255,0.1)'
+                background: 'linear-gradient(135deg, rgba(100,100,100,0.2) 0%, rgba(60,60,60,0.05) 100%)',
+                boxShadow: '0 0 30px rgba(100,100,100,0.2), inset 0 0 20px rgba(0,0,0,0.3)'
               }}
             >
-              <Clock 
-                className="w-8 h-8 text-[#00D4FF]" 
-                style={{ filter: 'drop-shadow(0 0 10px rgba(0,212,255,0.8))' }}
+              <Lock 
+                className="w-8 h-8 text-[#888888]" 
+                style={{ filter: 'drop-shadow(0 0 10px rgba(100,100,100,0.5))' }}
               />
             </div>
           </div>
           
           <div className="text-center space-y-2">
-            <h4 className="text-sm font-bold text-[#00D4FF] tracking-wide">
-              Em Desenvolvimento
+            <h4 className="text-sm font-bold text-[#888888] tracking-wide">
+              Em Breve
             </h4>
-            <p className="text-xs text-[#A1A1A1]">
-              Novidades em breve
+            <p className="text-xs text-[#666666]">
+              Disponível em breve
             </p>
           </div>
         </div>
