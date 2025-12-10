@@ -101,7 +101,10 @@ const Home = () => {
         enabled: true,
         isproplan: false,
         background: "futsal-custom",
-        tipo: 0, // Premium ativo
+        tipo: 2, // Pré-venda
+        expDate: "2025-12-20T20:00:00",
+        priceFrom: "R$ 97,90",
+        priceTo: "R$ 47,90",
       },
       {
         id: 8,
