@@ -21,6 +21,8 @@ const BasicPlanModal = ({ open, onClose }: BasicPlanModalProps) => {
   // Check if modal can be shown on mount
   useEffect(() => {
     const viewCount = parseInt(localStorage.getItem(MODAL_VIEW_KEY) || '0', 10);
+    console.log('[BasicPlanModal] View count:', viewCount, '/ Max:', MAX_VIEWS);
+    console.log('[BasicPlanModal] Can show:', viewCount < MAX_VIEWS);
     if (viewCount >= MAX_VIEWS) {
       setCanShow(false);
     }
