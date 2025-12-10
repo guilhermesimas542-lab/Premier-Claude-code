@@ -6,6 +6,8 @@ export interface Sport {
   background: string;
   tipo?: number; // 0 = premium/bloqueado, 1 = em desenvolvimento, 2 = pré-venda
   expDate?: string; // Data de expiração para pré-venda
+  priceFrom?: string; // Preço original (pré-venda)
+  priceTo?: string; // Preço promocional (pré-venda)
 }
 
 export interface SportsResponse {
