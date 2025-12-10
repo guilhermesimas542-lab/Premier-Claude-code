@@ -126,7 +126,7 @@ const Home = () => {
         isproplan: false,
         background: "futsal-custom",
         tipo: 2, // Pré-venda / Lançamento
-        expDate: "2024-12-17T20:00:00", // 17 de dezembro às 20:00
+        expDate: "2025-12-17T20:00:00", // 17 de dezembro de 2025 às 20:00
         priceFrom: "R$ 87,90",
         priceTo: "R$ 37,90",
       },
@@ -139,7 +139,7 @@ const Home = () => {
 
   // Countdown timer for Aviator launch (Dec 17, 2024 at 20:00)
   useEffect(() => {
-    const targetDate = new Date("2024-12-17T20:00:00").getTime();
+    const targetDate = new Date("2025-12-17T20:00:00").getTime();
     
     const updateCountdown = () => {
       const now = new Date().getTime();
@@ -517,7 +517,12 @@ const Home = () => {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-              {mappedSports.filter(sport => !sport.isPremium).map((sport) => (
+              {mappedSports.filter(sport => !sport.isPremium).sort((a, b) => {
+                // Presale first, then locked, then development
+                if ((a as any).isPreSale && !(b as any).isPreSale) return -1;
+                if (!(a as any).isPreSale && (b as any).isPreSale) return 1;
+                return 0;
+              }).map((sport) => (
                 <PremiumSportCard
                   key={sport.id}
                   id={sport.id}
