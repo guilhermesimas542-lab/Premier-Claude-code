@@ -96,17 +96,6 @@ const Home = () => {
         tipo: 1, // Em breve (bloqueado)
       },
       {
-        id: 7,
-        name: "Cassino",
-        enabled: true,
-        isproplan: false,
-        background: "futsal-custom",
-        tipo: 2, // Pré-venda
-        expDate: "2025-12-20T20:00:00",
-        priceFrom: "R$ 97,90",
-        priceTo: "R$ 47,90",
-      },
-      {
         id: 8,
         name: "Hoquei",
         enabled: true,
@@ -480,12 +469,12 @@ const Home = () => {
               <div className="col-span-full text-center py-12">
                 <p className="text-muted-foreground">Carregando esportes...</p>
               </div>
-            ) : mappedSports.filter(sport => sport.isPremium).length === 0 ? (
+            ) : mappedSports.filter(sport => sport.isPremium || (sport as any).isPreSale).length === 0 ? (
               <div className="col-span-full text-center py-12">
                 <p className="text-muted-foreground">Nenhum esporte disponível</p>
               </div>
             ) : (
-              mappedSports.filter(sport => sport.isPremium).map((sport) => (
+              mappedSports.filter(sport => sport.isPremium || (sport as any).isPreSale).map((sport) => (
                 <PremiumSportCard
                   key={sport.id}
                   id={sport.id}
@@ -511,7 +500,7 @@ const Home = () => {
         </section>
 
         {/* Mais Entradas - Outros esportes */}
-        {!loading && mappedSports.filter(sport => !sport.isPremium).length > 0 && (
+        {!loading && mappedSports.filter(sport => !sport.isPremium && !(sport as any).isPreSale).length > 0 && (
           <section className="space-y-6">
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-display font-extrabold text-foreground tracking-tight">
@@ -520,12 +509,7 @@ const Home = () => {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-              {mappedSports.filter(sport => !sport.isPremium).sort((a, b) => {
-                // Presale first, then locked, then development
-                if ((a as any).isPreSale && !(b as any).isPreSale) return -1;
-                if (!(a as any).isPreSale && (b as any).isPreSale) return 1;
-                return 0;
-              }).map((sport) => (
+              {mappedSports.filter(sport => !sport.isPremium && !(sport as any).isPreSale).map((sport) => (
                 <PremiumSportCard
                   key={sport.id}
                   id={sport.id}
