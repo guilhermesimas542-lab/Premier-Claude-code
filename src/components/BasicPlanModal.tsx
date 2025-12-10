@@ -9,29 +9,70 @@ interface BasicPlanModalProps {
   onClose: () => void;
 }
 
+const MODAL_VIEW_KEY = 'basicPlanModalViews';
+const MAX_VIEWS = 5;
+
 const BasicPlanModal = ({ open, onClose }: BasicPlanModalProps) => {
-  const [timeLeft, setTimeLeft] = useState(15 * 60); // 15 minutes in seconds
+  const [timeLeft, setTimeLeft] = useState({ days: 7, hours: 0, minutes: 0, seconds: 0 });
+  const [shouldShow, setShouldShow] = useState(false);
   const config = getStoredConfig();
 
   useEffect(() => {
     if (!open) return;
+
+    // Check view count
+    const viewCount = parseInt(localStorage.getItem(MODAL_VIEW_KEY) || '0', 10);
+    if (viewCount >= MAX_VIEWS) {
+      setShouldShow(false);
+      onClose();
+      return;
+    }
+
+    // Increment view count
+    localStorage.setItem(MODAL_VIEW_KEY, String(viewCount + 1));
+    setShouldShow(true);
+
+    // Get or set expiration date (1 week from first view)
+    const expirationKey = 'basicPlanModalExpiration';
+    let expirationDate = localStorage.getItem(expirationKey);
     
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 0) {
-          return 15 * 60; // Reset timer
-        }
-        return prev - 1;
-      });
-    }, 1000);
+    if (!expirationDate) {
+      const oneWeekFromNow = new Date();
+      oneWeekFromNow.setDate(oneWeekFromNow.getDate() + 7);
+      expirationDate = oneWeekFromNow.toISOString();
+      localStorage.setItem(expirationKey, expirationDate);
+    }
+
+    const updateCountdown = () => {
+      const now = new Date().getTime();
+      const expiration = new Date(expirationDate!).getTime();
+      const difference = expiration - now;
+
+      if (difference <= 0) {
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+        return;
+      }
+
+      const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+      setTimeLeft({ days, hours, minutes, seconds });
+    };
+
+    updateCountdown();
+    const timer = setInterval(updateCountdown, 1000);
 
     return () => clearInterval(timer);
-  }, [open]);
+  }, [open, onClose]);
 
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  const formatTime = () => {
+    const { days, hours, minutes, seconds } = timeLeft;
+    if (days > 0) {
+      return `${days}d ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   };
 
   const handleActivate = () => {
@@ -49,8 +90,12 @@ const BasicPlanModal = ({ open, onClose }: BasicPlanModalProps) => {
     'Resultados em até 24h',
   ];
 
+  if (!shouldShow && open) {
+    return null;
+  }
+
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog open={open && shouldShow} onOpenChange={onClose}>
       <DialogContent className="max-w-md p-0 bg-transparent border-none shadow-none overflow-hidden">
         <div className="relative bg-gradient-to-br from-[#0B0B0B] via-[#0D1117] to-[#0B0B0B] rounded-[22px] p-6 md:p-8 border border-white/10 shadow-2xl">
           {/* Close button */}
@@ -65,7 +110,7 @@ const BasicPlanModal = ({ open, onClose }: BasicPlanModalProps) => {
           <div className="bg-white rounded-[18px] p-6 md:p-7 shadow-xl">
             {/* Title */}
             <h2 className="text-[#111111] text-xl md:text-2xl font-bold leading-tight mb-3 text-center">
-              DESBLOQUEIE HOJE OS SINAIS OCULTOS DO PREMIER
+              DESBLOQUEIE AGORA SINAIS COM MAIS DE 97% DE ACERTIVIDADE
             </h2>
 
             {/* Subtitle */}
@@ -96,7 +141,7 @@ const BasicPlanModal = ({ open, onClose }: BasicPlanModalProps) => {
             <div className="bg-gradient-to-r from-[#FF3B30]/10 to-[#FF3B30]/5 border border-[#FF3B30]/30 rounded-xl p-4 mb-6">
               <div className="flex items-center justify-center gap-2 mb-2">
                 <Flame className="w-5 h-5 text-[#FF3B30]" />
-                <span className="text-[#FF3B30] font-bold text-base">OFERTA ATIVA: -45%</span>
+                <span className="text-[#FF3B30] font-bold text-base">ÚLTIMA SEMANA: -67%</span>
               </div>
               
               {/* Countdown */}
@@ -104,7 +149,7 @@ const BasicPlanModal = ({ open, onClose }: BasicPlanModalProps) => {
                 <Clock className="w-4 h-4 text-[#FF3B30]" />
                 <span className="text-[#333333] text-sm">Expira em:</span>
                 <span className="text-[#FF3B30] font-mono font-bold text-xl animate-pulse">
-                  {formatTime(timeLeft)}
+                  {formatTime()}
                 </span>
               </div>
               
