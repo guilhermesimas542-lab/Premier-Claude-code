@@ -182,7 +182,7 @@ const Bonus = () => {
                 <div className="space-y-3 pt-2">
                   <Button
                     onClick={handleActivateBonus}
-                    className="w-full h-14 md:h-16 bg-gradient-to-r from-[#00FF7F] via-[#00E070] to-[#00FF7F] hover:from-[#00E070] hover:via-[#00FF7F] hover:to-[#00E070] text-black font-black text-base md:text-lg rounded-xl shadow-lg shadow-[#00FF7F]/30 transition-all duration-300 hover:scale-[1.02] animate-pulse"
+                    className="w-full h-14 md:h-16 bg-gradient-to-r from-[#00FF7F] via-[#00E070] to-[#00FF7F] hover:from-[#00E070] hover:via-[#00FF7F] hover:to-[#00E070] text-black font-black text-base md:text-lg rounded-xl shadow-lg shadow-[#00FF7F]/30 transition-all duration-300 hover:scale-[1.02] animate-[pulse_3s_ease-in-out_infinite]"
                   >
                     DOBRAR BANCA AGORA
                   </Button>
