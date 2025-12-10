@@ -362,6 +362,26 @@ const Home = () => {
       </header>
 
       <main className="container max-w-7xl mx-auto px-4 py-8 space-y-8">
+        {/* Announcements - First items */}
+        <section className="space-y-4">
+          {announcements.map((announcement) => (
+            <div
+              key={announcement.id}
+              className="bg-accent/5 border border-accent/20 rounded-xl p-4 flex items-start gap-3 animate-fade-in"
+            >
+              <Info className="w-5 h-5 text-accent mt-0.5 flex-shrink-0" />
+              <div className="flex-1">
+                <h3 className="font-bold text-foreground text-sm mb-1">
+                  {announcement.title}
+                </h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  {announcement.message}
+                </p>
+              </div>
+            </div>
+          ))}
+        </section>
+
         {/* Conditional Alerts based on user plan - Priority: Free → Basic → Pro → Telegram → Default */}
         {config?.user?.purchasedPlan === 0 || config?.user?.purchasedPlan === -1 ? (
           <BasicPlanAlert checkoutUrl={config?.checkout} />
@@ -415,26 +435,6 @@ const Home = () => {
             <CarouselPrevious className="left-2 md:left-4 h-7 w-7 md:h-8 md:w-8" />
             <CarouselNext className="right-2 md:right-4 h-7 w-7 md:h-8 md:w-8" />
           </Carousel>
-        </section>
-
-        {/* Announcements */}
-        <section className="space-y-4">
-          {announcements.map((announcement) => (
-            <div
-              key={announcement.id}
-              className="bg-accent/5 border border-accent/20 rounded-xl p-4 flex items-start gap-3 animate-fade-in"
-            >
-              <Info className="w-5 h-5 text-accent mt-0.5 flex-shrink-0" />
-              <div className="flex-1">
-                <h3 className="font-bold text-foreground text-sm mb-1">
-                  {announcement.title}
-                </h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  {announcement.message}
-                </p>
-              </div>
-            </div>
-          ))}
         </section>
 
         {/* Esportes Disponíveis - Premium */}
