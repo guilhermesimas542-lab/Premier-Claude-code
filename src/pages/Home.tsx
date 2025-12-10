@@ -118,6 +118,15 @@ const Home = () => {
         background: "cyberbet_3ef04120-9b39-44f5-9e4e-0127a76326bb",
         tipo: 1, // Em breve (bloqueado)
       },
+      {
+        id: 12,
+        name: "Aviator - IA",
+        enabled: true,
+        isproplan: false,
+        background: "futsal-custom",
+        tipo: 2, // Pré-venda / Lançamento
+        expDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 1 semana
+      },
     ];
 
     // Usar apenas mock (não busca API)
