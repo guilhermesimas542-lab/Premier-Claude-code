@@ -126,6 +126,8 @@ const Home = () => {
         background: "futsal-custom",
         tipo: 2, // Pré-venda / Lançamento
         expDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 1 semana
+        priceFrom: "R$ 87,90",
+        priceTo: "R$ 37,90",
       },
     ];
 
@@ -187,6 +189,7 @@ const Home = () => {
     9: "🤾",  // Handball
     10: "🏐", // Volei
     11: "🎰", // Cassino
+    12: "✈️", // Aviator - IA
   };
 
   // Cores premium tecnológicas por esporte (paleta dark + neon sutil)
@@ -250,6 +253,11 @@ const Home = () => {
       secondary: "#8644C5",
       glow: "rgba(168, 85, 247, 0.35)",
     },
+    12: { // Aviator - IA - Vermelho/Laranja vibrante
+      primary: "#FF6B35",
+      secondary: "#E85D2D",
+      glow: "rgba(255, 107, 53, 0.35)",
+    },
   };
 
   const mappedSports = sports.map((sport) => {
@@ -284,8 +292,8 @@ const Home = () => {
       badgeColor: cardType === 'premium'
         ? `bg-[${colors.primary}]/20 text-[${colors.primary}] border-[${colors.primary}]/40`
         : "bg-muted/30 text-muted-foreground border-border/30",
-      priceFrom: cardType === 'presale' ? "R$ 299,00" : undefined,
-      priceTo: cardType === 'presale' ? "R$ 149,00" : undefined,
+      priceFrom: cardType === 'presale' ? (sport.priceFrom || "R$ 299,00") : undefined,
+      priceTo: cardType === 'presale' ? (sport.priceTo || "R$ 149,00") : undefined,
     };
   });
 
