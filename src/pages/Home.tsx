@@ -101,7 +101,7 @@ const Home = () => {
         enabled: true,
         isproplan: false,
         background: "futsal-custom",
-        tipo: 1, // Em breve (bloqueado)
+        tipo: 0, // Premium ativo
       },
       {
         id: 8,
@@ -464,11 +464,11 @@ const Home = () => {
           </Carousel>
         </section>
 
-        {/* Esportes Disponíveis - Premium */}
+        {/* Entradas Disponíveis - Premium */}
         <section className="space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-display font-extrabold text-foreground tracking-tight">
-              Esportes Disponíveis
+              Entradas Disponíveis
             </h2>
           </div>
 
