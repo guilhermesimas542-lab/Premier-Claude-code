@@ -206,6 +206,7 @@ const Sport = () => {
                     return (
                       <CarouselItem key={tip.id} className="pl-2 basis-[90%] min-[480px]:basis-[85%] sm:basis-[75%] md:basis-[60%] lg:basis-[45%] xl:basis-[35%]">
                         <PremiumBettingCard
+                          tipId={tip.id}
                           tier={mapTipToCardTier(tip.is_pro_plan)}
                           team1={{
                             name: tip.time1_name,
@@ -218,7 +219,6 @@ const Sport = () => {
                           market={tip.real_odd_market}
                           betChoice={tip.odd_Name}
                           odds={tip.odd_Value}
-                          confidence={tip.is_super_odd ? 95 : 75}
                           insights={tip.odd_market}
                           footer={`Expira em: ${new Date(tip.expiration_date).toLocaleDateString()}`}
                           isLocked={isLocked}
