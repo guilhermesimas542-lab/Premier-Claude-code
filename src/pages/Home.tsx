@@ -433,11 +433,11 @@ const Home = () => {
             <CarouselContent className="-ml-2 md:-ml-4">
               {banners.map((banner) => (
                 <CarouselItem key={banner.id} className="pl-2 md:pl-4">
-                  <div className="relative rounded-xl md:rounded-2xl overflow-hidden group cursor-pointer">
+                  <div className="relative rounded-xl md:rounded-2xl overflow-hidden group cursor-pointer h-48 sm:h-56 md:h-64 lg:h-72">
                     <img
                       src={banner.image}
                       alt={banner.title}
-                      className="w-full h-auto block object-fill transition-transform duration-700 group-hover:scale-110"
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#0C0F14] via-[#0C0F14]/60 to-transparent" />
                     <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-8 space-y-2 sm:space-y-3 md:space-y-4">
