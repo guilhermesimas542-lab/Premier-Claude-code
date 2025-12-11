@@ -39,7 +39,7 @@ export const InstallAppButton = ({ variant = 'header' }: InstallAppButtonProps) 
   `;
 
   const mobileStyles = variant === 'mobile-menu' 
-    ? 'w-auto justify-center' 
+    ? 'w-full justify-center py-3 text-sm' 
     : '';
 
   return (
