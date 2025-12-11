@@ -10,6 +10,7 @@ interface Indicator {
 }
 
 interface PremiumBettingCardProps {
+  tipId: number;
   tier: "BÁSICO" | "PRO" | "GRÁTIS" | "MÚLTIPLA";
   tierSubtitle?: string;
   team1: {
@@ -23,7 +24,6 @@ interface PremiumBettingCardProps {
   market: string;
   betChoice: string;
   odds: number;
-  confidence: number;
   indicators?: Indicator[];
   insights?: string;
   footer?: string;
@@ -33,7 +33,27 @@ interface PremiumBettingCardProps {
   onViewAnalysis?: () => void;
 }
 
+// Gera valores persistentes por tipId
+const getPersistedValues = (tipId: number) => {
+  const storageKey = `tip_${tipId}_data`;
+  const stored = localStorage.getItem(storageKey);
+  
+  if (stored) {
+    return JSON.parse(stored);
+  }
+  
+  // Gera novos valores apenas uma vez
+  const peopleCount = Math.floor(Math.random() * (5000 - 100 + 1)) + 100;
+  const confidence = Math.floor(Math.random() * (97 - 80 + 1)) + 80; // 80-97%
+  
+  const data = { peopleCount, confidence };
+  localStorage.setItem(storageKey, JSON.stringify(data));
+  
+  return data;
+};
+
 export const PremiumBettingCard = ({
+  tipId,
   tier,
   tierSubtitle,
   team1,
@@ -41,7 +61,6 @@ export const PremiumBettingCard = ({
   market,
   betChoice,
   odds,
-  confidence,
   indicators,
   insights,
   footer = "Gestão 1–2% • Pré-jogo",
@@ -53,13 +72,15 @@ export const PremiumBettingCard = ({
   const [isHovered, setIsHovered] = useState(false);
   const [peopleCount, setPeopleCount] = useState(0);
   
-  // Gera número aleatório final entre 100 e 5000
-  const [finalCount] = useState(() => Math.floor(Math.random() * (5000 - 100 + 1)) + 100);
+  // Obtém valores persistidos por tipId
+  const persistedData = getPersistedValues(tipId);
+  const finalCount = persistedData.peopleCount;
+  const confidence = persistedData.confidence;
   
   // Anima o contador subindo
   useEffect(() => {
-    const startCount = Math.floor(finalCount * 0.3); // Começa com 30% do valor final
-    const duration = 2000; // 2 segundos
+    const startCount = Math.floor(finalCount * 0.3);
+    const duration = 2000;
     const steps = 60;
     const increment = (finalCount - startCount) / steps;
     let current = startCount;
