@@ -13,11 +13,11 @@ interface InstallAppButtonProps {
 }
 
 export const InstallAppButton = ({ variant = 'header' }: InstallAppButtonProps) => {
-  const { canInstall, isInstalled, isIOS, promptInstall } = usePWAInstall();
+  const { isInstalled, isIOS, showFallback, promptInstall } = usePWAInstall();
   const [showIOSModal, setShowIOSModal] = useState(false);
 
   const handleClick = async () => {
-    if (isIOS) {
+    if (showFallback) {
       setShowIOSModal(true);
       return;
     }
@@ -25,16 +25,14 @@ export const InstallAppButton = ({ variant = 'header' }: InstallAppButtonProps) 
     await promptInstall();
   };
 
-  // Don't show if not installable and not installed
-  if (!canInstall && !isInstalled) {
-    return null;
-  }
+  // Always show button - behavior changes based on support
+  const showAsInstalled = isInstalled;
 
   const baseStyles = `
     inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[13px] font-medium
     transition-all duration-200 ease-out
     border border-[#00FF7F]/60
-    ${isInstalled 
+    ${showAsInstalled 
       ? 'bg-[#060606]/60 text-[#00FF7F]/60 cursor-default border-[#00FF7F]/30' 
       : 'bg-[#060606]/80 text-[#00FF7F] hover:scale-[1.02] hover:shadow-[0_0_12px_rgba(0,255,127,0.3)] hover:border-[#00FF7F] cursor-pointer'
     }
@@ -47,11 +45,11 @@ export const InstallAppButton = ({ variant = 'header' }: InstallAppButtonProps) 
   return (
     <>
       <button
-        onClick={isInstalled ? undefined : handleClick}
-        disabled={isInstalled}
+        onClick={showAsInstalled ? undefined : handleClick}
+        disabled={showAsInstalled}
         className={`${baseStyles} ${mobileStyles}`}
       >
-        {isInstalled ? (
+        {showAsInstalled ? (
           <>
             <Check className="w-4 h-4" />
             <span>App instalado</span>

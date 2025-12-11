@@ -69,15 +69,17 @@ export const usePWAInstall = () => {
     return outcome;
   }, [deferredPrompt]);
 
-  const canInstall = installState === 'prompt' || installState === 'ios';
+  const canInstall = installState === 'prompt' || installState === 'ios' || installState === 'unsupported';
   const isInstalled = installState === 'installed';
   const isIOS = installState === 'ios';
+  const showFallback = installState === 'unsupported' || installState === 'ios';
 
   return {
     installState,
     canInstall,
     isInstalled,
     isIOS,
+    showFallback,
     promptInstall,
   };
 };
