@@ -20,6 +20,7 @@ import { getBackgroundImageUrl } from "@/lib/sports";
 import { Sport } from "@/types/sports";
 import { PremiumSportCard } from "@/components/PremiumSportCard";
 import BasicPlanModal from "@/components/BasicPlanModal";
+import { InstallAppButton } from "@/components/InstallAppButton";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -360,13 +361,16 @@ const Home = () => {
         <div className="container max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
           <img src="/logo.png" alt="Premier FC" className="h-10 w-auto" />
           
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             {config?.user && (
               <div className="hidden md:flex flex-col items-end">
                 <span className="text-xs text-muted-foreground">Usuário</span>
                 <span className="text-sm font-bold text-foreground">{config.user.userMail}</span>
               </div>
             )}
+            <div className="hidden sm:block">
+              <InstallAppButton variant="header" />
+            </div>
             <Button
               onClick={handleLogout}
               variant="outline"
@@ -381,6 +385,11 @@ const Home = () => {
       </header>
 
       <main className="container max-w-7xl mx-auto px-4 py-8 space-y-8">
+        {/* Mobile Install App CTA */}
+        <div className="sm:hidden">
+          <InstallAppButton variant="mobile-menu" />
+        </div>
+
         {/* Announcements - First items */}
         <section className="space-y-4">
           {announcements.map((announcement) => (
