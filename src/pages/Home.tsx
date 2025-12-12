@@ -21,6 +21,7 @@ import { Sport } from "@/types/sports";
 import { PremiumSportCard } from "@/components/PremiumSportCard";
 import BasicPlanModal from "@/components/BasicPlanModal";
 import { InstallAppButton } from "@/components/InstallAppButton";
+import logoImg from "@/assets/logo.jpg";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -359,7 +360,7 @@ const Home = () => {
       {/* Header */}
       <header className="sticky top-0 z-50 bg-[#0C0F14]/80 backdrop-blur-xl border-b border-border/30">
         <div className="container max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
-          <img src="/logo.png" alt="Olheiro" className="h-10 w-auto" />
+          <img src={logoImg} alt="Olheiro" className="h-10 w-auto rounded-lg" />
           
           <div className="flex items-center gap-3">
             {config?.user && (
