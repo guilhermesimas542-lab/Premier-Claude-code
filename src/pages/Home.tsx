@@ -119,10 +119,7 @@ const Home = () => {
         enabled: true,
         isproplan: false,
         background: "futsal-custom",
-        tipo: 2, // Pré-venda / Lançamento
-        expDate: "2025-12-17T20:00:00", // 17 de dezembro de 2025 às 20:00
-        priceFrom: "R$ 87,90",
-        priceTo: "R$ 37,90",
+        tipo: 1, // Em breve (bloqueado)
       },
     ];
 
