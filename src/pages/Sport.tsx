@@ -115,23 +115,17 @@ const Sport = () => {
     const checkout = localStorage.getItem('checkout');
     const proUrl = localStorage.getItem('proUrl');
     
-    console.log('handleUnlock chamado:', { tipProPlan, checkout, proUrl });
-    
     // Se é básico bloqueado (is_pro_plan = 0), abre checkout
     if (tipProPlan === 0 && checkout) {
-      console.log('Abrindo checkout:', checkout);
       window.open(checkout, '_blank');
       return;
     }
     // Se é pro bloqueado (is_pro_plan = 1 ou 2), abre proUrl
     if ((tipProPlan === 1 || tipProPlan === 2) && proUrl) {
-      console.log('Abrindo proUrl:', proUrl);
       window.open(proUrl, '_blank');
       return;
     }
     
-    // Se não tem URL configurada
-    console.warn('Nenhuma URL disponível para desbloquear');
     toast.error('Link de desbloqueio não configurado');
   };
 
@@ -206,9 +200,6 @@ const Sport = () => {
                   {tips.map((tip) => {
                     const userPlan = config?.user?.purchasedPlan ?? 0;
                     const isLocked = isTipLocked(tip.is_pro_plan, userPlan);
-                    
-                    // Debug log para verificar planos
-                    console.log(`Tip ${tip.id}: is_pro_plan=${tip.is_pro_plan}, userPlan=${userPlan}, isLocked=${isLocked}`);
                     
                     return (
                       <CarouselItem key={tip.id} className="pl-2 basis-[90%] min-[480px]:basis-[85%] sm:basis-[75%] md:basis-[60%] lg:basis-[45%] xl:basis-[35%]">
