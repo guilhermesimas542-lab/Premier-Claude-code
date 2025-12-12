@@ -100,7 +100,7 @@ const BasicPlanModal = ({ open, onClose }: BasicPlanModalProps) => {
     'Sinais ocultos revelados',
     'Entradas exclusivas todos os dias',
     'Prioridade nas análises',
-    'Suporte Premier',
+    'Suporte Olheiro',
     'Resultados em até 24h',
   ];
 
@@ -186,7 +186,7 @@ const BasicPlanModal = ({ open, onClose }: BasicPlanModalProps) => {
 
           {/* Micro-frame */}
           <p className="text-white/70 text-xs text-center mt-4 px-2 leading-relaxed">
-            Você está literalmente a um clique de sair do "modo gratuito" e ver o que realmente faz o Premier entregar consistência.
+            Você está literalmente a um clique de sair do "modo gratuito" e ver o que realmente faz o Olheiro entregar consistência.
           </p>
         </div>
       </DialogContent>

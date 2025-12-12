@@ -131,7 +131,7 @@ export async function fetchAuth(url: string, options: RequestInit = {}): Promise
   
   if (res.status === 401) {
     clearAuth();
-    window.location.replace("https://premierfc.app");
+    window.location.replace("/login");
     return;
   }
   

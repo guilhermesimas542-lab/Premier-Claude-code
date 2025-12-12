@@ -43,7 +43,7 @@ export const BasicPlanAlert = ({ checkoutUrl }: BasicPlanAlertProps) => {
           {/* Text */}
           <div className="flex-1">
             <h3 className="text-xl md:text-2xl font-black text-white tracking-tight mb-1">
-              Nossos analistas da IA Premier estão enviando entradas exclusivas do Plano Básico!
+              Nossos analistas da IA Olheiro estão enviando entradas exclusivas do Plano Básico!
             </h3>
             <p className="text-sm text-[#FFD700] font-semibold">
               Acesse nossas previsões automáticas e descubra as melhores oportunidades antes dos jogos começarem!
