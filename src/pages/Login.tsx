@@ -8,10 +8,17 @@ import { LoginResponse } from "@/types/auth";
 import { Smartphone, Trophy, TrendingUp } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import logoImg from "@/assets/logo.jpg";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showPlayStoreModal, setShowPlayStoreModal] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -134,18 +141,16 @@ const Login = () => {
 
           {/* Download App Button */}
           <div>
-            <a
-              href="https://play.google.com/store/apps/details?id=com.premier.premier"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block transition-all duration-300 hover:scale-[1.02]"
+            <button
+              onClick={() => setShowPlayStoreModal(true)}
+              className="block transition-all duration-300 hover:scale-[1.02] mx-auto"
             >
               <img 
                 src="/images/google-play-badge.png" 
                 alt="Disponível no Google Play" 
-                className="h-14 w-auto mx-auto"
+                className="h-14 w-auto"
               />
-            </a>
+            </button>
           </div>
 
           {/* Footer */}
@@ -168,6 +173,34 @@ const Login = () => {
           </a>
         </div>
       </div>
+
+      {/* Google Play Coming Soon Modal */}
+      <Dialog open={showPlayStoreModal} onOpenChange={setShowPlayStoreModal}>
+        <DialogContent className="bg-[#0C0F14] border-border/30 max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="text-foreground text-lg font-bold flex items-center gap-2">
+              <Smartphone className="w-5 h-5 text-primary" />
+              Em Breve na Google Play
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-2">
+            <p className="text-sm text-muted-foreground">
+              Em poucos dias o app estará disponível na Google Play! 🚀
+            </p>
+            
+            <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 text-center">
+              <p className="text-foreground text-sm font-medium">
+                Fique atento às nossas atualizações para ser um dos primeiros a baixar!
+              </p>
+            </div>
+
+            <p className="text-xs text-muted-foreground pt-2 border-t border-border/30">
+              Enquanto isso, você pode usar o app direto pelo navegador ou instalar o atalho na tela inicial.
+            </p>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
