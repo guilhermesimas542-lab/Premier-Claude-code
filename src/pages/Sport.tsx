@@ -117,14 +117,14 @@ const Sport = () => {
     
     console.log('handleUnlock chamado:', { tipProPlan, checkout, proUrl });
     
-    // Se é básico bloqueado (is_pro_plan = 0 ou 1), abre checkout
-    if ((tipProPlan === 0 || tipProPlan === 1) && checkout) {
+    // Se é básico bloqueado (is_pro_plan = 0), abre checkout
+    if (tipProPlan === 0 && checkout) {
       console.log('Abrindo checkout:', checkout);
       window.open(checkout, '_blank');
       return;
     }
-    // Se é pro bloqueado (is_pro_plan = 2), abre proUrl
-    if (tipProPlan === 2 && proUrl) {
+    // Se é pro bloqueado (is_pro_plan = 1 ou 2), abre proUrl
+    if ((tipProPlan === 1 || tipProPlan === 2) && proUrl) {
       console.log('Abrindo proUrl:', proUrl);
       window.open(proUrl, '_blank');
       return;
