@@ -114,7 +114,7 @@ const Home = () => {
       },
       {
         id: 12,
-        name: "Aviator - IA",
+        name: "Olheiro - IA",
         enabled: true,
         isproplan: false,
         background: "futsal-custom",
