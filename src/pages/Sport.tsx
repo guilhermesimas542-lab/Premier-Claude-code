@@ -74,12 +74,16 @@ const Sport = () => {
       const response = await loadTipsForSport(numericSportId);
       if (response.success && response.response?.data) {
         setTips(response.response.data);
+        
+        // Recarrega config do localStorage APÓS loadTipsForSport atualizar os valores
+        const updatedConfig = getStoredConfig();
+        if (updatedConfig) {
+          setConfig(updatedConfig);
+        }
+        
         // Atualiza a URL do betSite se vier da resposta
         if (response.response.url) {
           setIframeUrl(response.response.url);
-          if (config) {
-            setConfig({ ...config, betSite: response.response.url });
-          }
         }
       } else {
         toast.error(response.message?.[0] || "Erro ao carregar tips");
@@ -202,6 +206,9 @@ const Sport = () => {
                   {tips.map((tip) => {
                     const userPlan = config?.user?.purchasedPlan ?? 0;
                     const isLocked = isTipLocked(tip.is_pro_plan, userPlan);
+                    
+                    // Debug log para verificar planos
+                    console.log(`Tip ${tip.id}: is_pro_plan=${tip.is_pro_plan}, userPlan=${userPlan}, isLocked=${isLocked}`);
                     
                     return (
                       <CarouselItem key={tip.id} className="pl-2 basis-[90%] min-[480px]:basis-[85%] sm:basis-[75%] md:basis-[60%] lg:basis-[45%] xl:basis-[35%]">
