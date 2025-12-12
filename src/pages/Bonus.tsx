@@ -73,9 +73,7 @@ const Bonus = () => {
     setClaimedCount(newCount);
     localStorage.setItem(STORAGE_KEY_CLAIMED, String(newCount));
     
-    if (config?.betSite) {
-      window.open(config.betSite, "_blank");
-    }
+    window.open("https://futnacional.bet/?d=show&cp=WELCOME10", "_blank");
   };
 
   return (
