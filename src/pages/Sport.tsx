@@ -102,9 +102,9 @@ const Sport = () => {
       return tipProPlan !== -1;
     }
     
-    // Básico user (plan 1): vê is_pro_plan = -1, 0, 1 (2 bloqueado)
+    // Básico user (plan 1): vê is_pro_plan = -1 e 0 (1 e 2 bloqueados)
     if (userPlan === 1) {
-      return tipProPlan === 2;
+      return tipProPlan >= 1; // Bloqueia is_pro_plan = 1 e 2
     }
     
     // Pro user (plan 2+): vê tudo
