@@ -304,7 +304,7 @@ const Home = () => {
     {
       id: 1,
       type: "info",
-      title: "Bem-vindo ao Premier FC!",
+      title: "Bem-vindo ao Olheiro!",
       message: "Acesse as melhores análises e tips para suas apostas esportivas.",
     },
     {
@@ -359,7 +359,7 @@ const Home = () => {
       {/* Header */}
       <header className="sticky top-0 z-50 bg-[#0C0F14]/80 backdrop-blur-xl border-b border-border/30">
         <div className="container max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
-          <img src="/logo.png" alt="Premier FC" className="h-10 w-auto" />
+          <img src="/logo.png" alt="Olheiro" className="h-10 w-auto" />
           
           <div className="flex items-center gap-3">
             {config?.user && (
