@@ -161,17 +161,6 @@ const Login = () => {
           </div>
         </div>
 
-        {/* External Link */}
-        <div className="mt-6 text-center">
-          <a
-            href="https://premierfc.app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm font-semibold text-primary hover:text-primary/80 transition-colors inline-flex items-center gap-2"
-          >
-            ✨ Não tem conta? Cadastre-se aqui
-          </a>
-        </div>
       </div>
 
       {/* Google Play Coming Soon Modal */}
