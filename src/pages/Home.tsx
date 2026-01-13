@@ -1,6 +1,6 @@
-import { LogOut } from "lucide-react";
+import { LogOut, Menu, Headphones, Crown, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { getStoredConfig, clearAuth, isAuthenticated } from "@/lib/auth";
@@ -9,8 +9,7 @@ import { getBackgroundImageUrl } from "@/lib/sports";
 import { Sport } from "@/types/sports";
 import { PremiumSportCard } from "@/components/PremiumSportCard";
 import BasicPlanModal from "@/components/BasicPlanModal";
-import { InstallAppButton } from "@/components/InstallAppButton";
-import logoImg from "@/assets/logo.jpg";
+import logoImg from "@/assets/premier-logo.png";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -18,12 +17,28 @@ const Home = () => {
   const [sports, setSports] = useState<Sport[]>([]);
   const [loading, setLoading] = useState(true);
   const [showBasicModal, setShowBasicModal] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
   const [countdown, setCountdown] = useState({
     days: 0,
     hours: 0,
     minutes: 0,
     seconds: 0,
   });
+
+  // Boolean para acesso vitalício (trocar depois pela lógica real)
+  const hasLifetimeAccess = false;
+
+  // Fecha menu ao clicar fora
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   useEffect(() => {
     if (!isAuthenticated()) {
@@ -174,6 +189,16 @@ const Home = () => {
     navigate("/login");
   };
 
+  const handleSupport = () => {
+    toast.info("Em breve");
+    setMenuOpen(false);
+  };
+
+  const handleAcquireAccess = () => {
+    toast.info("Em breve: redirecionamento para checkout");
+    setMenuOpen(false);
+  };
+
   // Mapear esportes da API para o formato do componente (por ID)
   const sportEmojiMap: Record<number, string> = {
     1: "⚽",  // Futebol
@@ -302,48 +327,96 @@ const Home = () => {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0C0F14] to-[#121826]">
+    <div className="min-h-screen bg-gradient-to-br from-[#0D0A1A] via-[#1A1030] to-[#0D0A1A] relative overflow-hidden">
+      {/* Purple glow effects */}
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-600/20 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-1/3 right-1/4 w-80 h-80 bg-purple-500/15 rounded-full blur-[100px] pointer-events-none" />
+
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-[#0C0F14]/80 backdrop-blur-xl border-b border-border/30">
+      <header className="sticky top-0 z-50 bg-[#0D0A1A]/80 backdrop-blur-xl border-b border-purple-500/20">
         <div className="container max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <img src={logoImg} alt="Premier Ultra" className="h-10 w-auto rounded-lg" />
-            <span className="text-lg font-bold text-foreground">Premier Ultra</span>
+          <div className="flex items-center gap-3">
+            <img src={logoImg} alt="Premier Ultra" className="h-10 w-auto" />
+            <span className="text-lg font-bold text-white">Premier Ultra</span>
           </div>
           
           <div className="flex items-center gap-3">
             {config?.user && (
               <div className="hidden md:flex flex-col items-end">
-                <span className="text-xs text-muted-foreground">Usuário</span>
-                <span className="text-sm font-bold text-foreground">{config.user.userMail}</span>
+                <span className="text-xs text-purple-300/60">Usuário</span>
+                <span className="text-sm font-bold text-white">{config.user.userMail}</span>
               </div>
             )}
-            <div className="hidden sm:block">
-              <InstallAppButton variant="header" />
+            
+            {/* Menu Hamburger */}
+            <div className="relative" ref={menuRef}>
+              <button
+                onClick={() => setMenuOpen(!menuOpen)}
+                className="p-2 rounded-lg bg-purple-500/10 border border-purple-500/30 hover:bg-purple-500/20 transition-colors"
+              >
+                {menuOpen ? (
+                  <X className="w-5 h-5 text-purple-300" />
+                ) : (
+                  <Menu className="w-5 h-5 text-purple-300" />
+                )}
+              </button>
+
+              {/* Dropdown Menu */}
+              {menuOpen && (
+                <div className="absolute right-0 top-full mt-2 w-56 bg-[#0D0A1A]/95 backdrop-blur-xl border border-purple-500/30 rounded-xl shadow-xl shadow-purple-900/30 overflow-hidden z-50">
+                  <div className="py-2">
+                    {/* Suporte */}
+                    <button
+                      onClick={handleSupport}
+                      className="w-full px-4 py-3 flex items-center gap-3 text-left text-purple-200 hover:bg-purple-500/15 transition-colors"
+                    >
+                      <Headphones className="w-4 h-4 text-purple-400" />
+                      <span className="text-sm font-medium">Suporte</span>
+                    </button>
+
+                    {/* Acesso condicional */}
+                    {hasLifetimeAccess ? (
+                      <div className="px-4 py-3 flex items-center gap-3 text-purple-400/60">
+                        <Crown className="w-4 h-4" />
+                        <span className="text-sm">Cliente com acesso vitalício</span>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={handleAcquireAccess}
+                        className="w-full px-4 py-3 flex items-center gap-3 text-left text-purple-200 hover:bg-purple-500/15 transition-colors"
+                      >
+                        <Crown className="w-4 h-4 text-purple-400" />
+                        <span className="text-sm font-medium">Adquirir acesso</span>
+                      </button>
+                    )}
+
+                    {/* Divider */}
+                    <div className="my-2 border-t border-purple-500/20" />
+
+                    {/* Sair */}
+                    <button
+                      onClick={() => {
+                        setMenuOpen(false);
+                        handleLogout();
+                      }}
+                      className="w-full px-4 py-3 flex items-center gap-3 text-left text-red-400 hover:bg-red-500/10 transition-colors"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      <span className="text-sm font-medium">Sair</span>
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
-            <Button
-              onClick={handleLogout}
-              variant="outline"
-              size="sm"
-              className="bg-muted/20 border-border/50 hover:bg-muted/40"
-            >
-              <LogOut className="w-4 h-4 mr-2" />
-              Sair
-            </Button>
           </div>
         </div>
       </header>
 
-      <main className="container max-w-7xl mx-auto px-4 py-6 space-y-6">
-        {/* Mobile Install App CTA */}
-        <div className="sm:hidden">
-          <InstallAppButton variant="mobile-menu" />
-        </div>
-
+      <main className="container max-w-7xl mx-auto px-4 py-6 space-y-6 relative z-10">
         {/* Entradas Disponíveis - Premium */}
         <section className="space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-display font-extrabold text-foreground tracking-tight">
+            <h2 className="text-2xl font-display font-extrabold text-white tracking-tight">
               Entradas Disponíveis
             </h2>
           </div>
@@ -351,11 +424,11 @@ const Home = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
             {loading ? (
               <div className="col-span-full text-center py-12">
-                <p className="text-muted-foreground">Carregando esportes...</p>
+                <p className="text-purple-300/60">Carregando esportes...</p>
               </div>
             ) : mappedSports.filter(sport => sport.isPremium || (sport as any).isPreSale).length === 0 ? (
               <div className="col-span-full text-center py-12">
-                <p className="text-muted-foreground">Nenhum esporte disponível</p>
+                <p className="text-purple-300/60">Nenhum esporte disponível</p>
               </div>
             ) : (
               mappedSports.filter(sport => sport.isPremium || (sport as any).isPreSale).map((sport) => (
@@ -372,6 +445,9 @@ const Home = () => {
                   priceFrom={(sport as any).priceFrom}
                   priceTo={(sport as any).priceTo}
                   countdown={(sport as any).isPreSale ? countdown : undefined}
+                  sportSubheadline={sport.id === 1 ? "Entradas Ativas no Premier Ultra" : undefined}
+                  casinoTitle={sport.id === 11 ? "Painel IA em Execução" : undefined}
+                  casinoSubheadline={sport.id === 11 ? "Dados processados continuamente para decisões rápidas" : undefined}
                   onClick={() => {
                     if (sport.isPremium && sport.route !== "#") {
                       navigate(sport.route);
@@ -383,6 +459,16 @@ const Home = () => {
           </div>
         </section>
       </main>
+
+      {/* Footer */}
+      <footer className="mt-12 pb-8">
+        <div className="container max-w-7xl mx-auto px-4">
+          <div className="border-t border-purple-500/20 pt-6 text-center">
+            <p className="text-sm text-purple-300/50 font-medium">Premier Ultra ©</p>
+            <p className="text-xs text-purple-300/40 mt-1">Análises processadas continuamente</p>
+          </div>
+        </div>
+      </footer>
 
       {/* Basic Plan Conversion Modal for Free Users */}
       <BasicPlanModal 
