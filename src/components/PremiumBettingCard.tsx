@@ -93,6 +93,8 @@ const getTierConfig = (tier: string) => {
         textColor: "text-white",
         glowColor: "shadow-[0_0_30px_rgba(147,51,234,0.6)]",
         borderColor: "border-purple-500/60",
+        iconColor: "text-purple-400",
+        iconBorderColor: "border-purple-500/50",
       };
     case "PRO":
       return {
@@ -100,6 +102,8 @@ const getTierConfig = (tier: string) => {
         textColor: "text-white",
         glowColor: "shadow-[0_0_20px_rgba(249,115,22,0.5)]",
         borderColor: "border-orange-500/50",
+        iconColor: "text-orange-400",
+        iconBorderColor: "border-orange-500/50",
       };
     case "GRÁTIS":
       return {
@@ -107,6 +111,8 @@ const getTierConfig = (tier: string) => {
         textColor: "text-white",
         glowColor: "shadow-[0_0_20px_rgba(34,211,238,0.4)]",
         borderColor: "border-cyan-500/40",
+        iconColor: "text-cyan-400",
+        iconBorderColor: "border-cyan-500/50",
       };
     case "MÚLTIPLA":
       return {
@@ -114,6 +120,8 @@ const getTierConfig = (tier: string) => {
         textColor: "text-white",
         glowColor: "shadow-[0_0_20px_rgba(147,51,234,0.5)]",
         borderColor: "border-purple-500/50",
+        iconColor: "text-purple-400",
+        iconBorderColor: "border-purple-500/50",
       };
     default: // BÁSICO
       return {
@@ -121,6 +129,8 @@ const getTierConfig = (tier: string) => {
         textColor: "text-white",
         glowColor: "shadow-[0_0_20px_rgba(16,185,129,0.5)]",
         borderColor: "border-emerald-500/50",
+        iconColor: "text-emerald-400",
+        iconBorderColor: "border-emerald-500/50",
       };
   }
 };
@@ -189,19 +199,19 @@ export const PremiumBettingCard = ({
           {tier}
         </div>
 
-        {/* Market Help Button - Top Right */}
+        {/* Market Help Button - Top Right (colored by tier) */}
         <div className="absolute top-3 right-3" ref={marketHelpRef}>
           <button
             onClick={() => setShowMarketHelp(!showMarketHelp)}
-            className="w-6 h-6 rounded-full bg-black/40 backdrop-blur-sm border border-white/20 flex items-center justify-center hover:bg-black/60 transition-colors"
+            className={`w-7 h-7 rounded-full bg-black/40 backdrop-blur-sm border ${config.iconBorderColor} flex items-center justify-center hover:bg-black/60 transition-colors`}
             aria-label="Ajuda do mercado"
           >
-            <Info className="w-3.5 h-3.5 text-white/80" />
+            <Info className={`w-4 h-4 ${config.iconColor}`} />
           </button>
           
           {/* Market Help Tooltip */}
           {showMarketHelp && (
-            <div className="absolute right-0 top-8 w-48 bg-black/90 backdrop-blur-md border border-white/20 rounded-lg p-2.5 shadow-xl z-50">
+            <div className="absolute right-0 top-9 w-48 bg-black/90 backdrop-blur-md border border-white/20 rounded-lg p-2.5 shadow-xl z-50">
               <p className="text-xs text-white/90 leading-relaxed">
                 {marketExplanation}
               </p>
@@ -266,8 +276,8 @@ export const PremiumBettingCard = ({
         </div>
 
         {/* Action Buttons Row */}
-        <div className="flex items-center gap-2 w-full">
-          {/* Add Button - Primary */}
+        <div className="flex items-center gap-3 w-full">
+          {/* Add Button - Primary (dominates on mobile) */}
           <Button
             onClick={onAddTip}
             className={`flex-1 font-bold py-5 text-sm shadow-lg transition-all duration-300 hover:scale-[1.03] ${
@@ -281,21 +291,21 @@ export const PremiumBettingCard = ({
             </span>
           </Button>
 
-          {/* "Como bater?" Help Button */}
+          {/* "Como bater?" Help Button - Icon only on mobile, text on desktop */}
           <div className="relative" ref={betHelpRef}>
             <button
               onClick={() => setShowBetHelp(!showBetHelp)}
-              className="h-[42px] px-3 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 flex items-center gap-1.5 hover:bg-white/20 transition-colors"
+              className="h-11 w-11 md:w-auto md:px-3 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center md:gap-1.5 hover:bg-white/20 transition-colors"
             >
-              <HelpCircle className="w-4 h-4 text-white/80" />
-              <span className="text-white/90 text-xs font-medium whitespace-nowrap">
+              <HelpCircle className="w-5 h-5 md:w-4 md:h-4 text-white/80" />
+              <span className="hidden md:inline text-white/90 text-xs font-medium whitespace-nowrap">
                 Como bater?
               </span>
             </button>
             
             {/* Bet Help Tooltip */}
             {showBetHelp && (
-              <div className="absolute right-0 bottom-12 w-52 bg-black/90 backdrop-blur-md border border-white/20 rounded-lg p-2.5 shadow-xl z-50">
+              <div className="absolute right-0 bottom-14 w-52 bg-black/90 backdrop-blur-md border border-white/20 rounded-lg p-2.5 shadow-xl z-50">
                 <p className="text-xs text-white/90 leading-relaxed">
                   <strong className="text-emerald-400">{betChoice}:</strong>{" "}
                   {betExplanation}
