@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { HelpCircle, Info, Link2 } from "lucide-react";
+import { HelpCircle, Info, Link2, Clock, Layers } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 
 interface PremiumBettingCardProps {
@@ -19,6 +19,8 @@ interface PremiumBettingCardProps {
   betChoice: string;
   odds: number;
   matchDate?: string;
+  expirationDate?: string; // ISO date string for countdown
+  selectionsCount?: number; // Number of selections for multiple bets
   insights?: string;
   footer?: string;
   lineAlert?: boolean;
@@ -85,6 +87,18 @@ const getBetExplanation = (betChoice: string): string => {
   return "O jogo precisa seguir exatamente essa condição.";
 };
 
+// Helper function to format countdown
+const formatCountdown = (totalSeconds: number): string => {
+  if (totalSeconds <= 0) return "00:00:00";
+  
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  
+  const pad = (n: number) => n.toString().padStart(2, "0");
+  return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+};
+
 // Get tier styling configuration
 const getTierConfig = (tier: string) => {
   switch (tier) {
@@ -145,18 +159,63 @@ export const PremiumBettingCard = ({
   betChoice,
   odds,
   matchDate,
+  expirationDate,
+  selectionsCount,
   isLocked = false,
-  isExpired = false,
+  isExpired: isExpiredProp = false,
   onAddTip,
 }: PremiumBettingCardProps) => {
   const [showMarketHelp, setShowMarketHelp] = useState(false);
   const [showBetHelp, setShowBetHelp] = useState(false);
+  const [countdown, setCountdown] = useState<string>("");
+  const [isExpiredLocal, setIsExpiredLocal] = useState(false);
   const marketHelpRef = useRef<HTMLDivElement>(null);
   const betHelpRef = useRef<HTMLDivElement>(null);
 
   const config = getTierConfig(tier);
   const marketExplanation = getMarketExplanation(market);
   const betExplanation = getBetExplanation(betChoice);
+  
+  // Combine prop expired with local expired state
+  const isExpired = isExpiredProp || isExpiredLocal;
+  
+  // Detect if it's a multiple bet
+  const isMultiple = tier === "MÚLTIPLA" || (selectionsCount && selectionsCount > 1);
+
+  // Countdown timer effect
+  useEffect(() => {
+    if (!expirationDate || isExpiredProp) return;
+
+    const calculateRemaining = () => {
+      const now = new Date().getTime();
+      const expireAt = new Date(expirationDate).getTime();
+      const diff = Math.floor((expireAt - now) / 1000);
+      return diff;
+    };
+
+    // Initial calculation
+    const initialRemaining = calculateRemaining();
+    if (initialRemaining <= 0) {
+      setIsExpiredLocal(true);
+      setCountdown("00:00:00");
+      return;
+    }
+    setCountdown(formatCountdown(initialRemaining));
+
+    // Update every second
+    const interval = setInterval(() => {
+      const remaining = calculateRemaining();
+      if (remaining <= 0) {
+        setIsExpiredLocal(true);
+        setCountdown("00:00:00");
+        clearInterval(interval);
+      } else {
+        setCountdown(formatCountdown(remaining));
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [expirationDate, isExpiredProp]);
 
   // Close tooltips when clicking outside
   useEffect(() => {
@@ -211,6 +270,16 @@ export const PremiumBettingCard = ({
       {/* Content */}
       <div className="relative z-10 p-4 flex flex-col items-center">
         
+        {/* Timer - Top Left Corner */}
+        {!isExpired && countdown && (
+          <div className="absolute top-3 left-3 flex items-center gap-1 bg-black/60 backdrop-blur-sm px-2 py-1 rounded-md">
+            <Clock className="w-3 h-3 text-white/70" />
+            <span className="text-[11px] text-white/90 font-medium tabular-nums">
+              {countdown}
+            </span>
+          </div>
+        )}
+
         {/* Tier Badge or Expired Badge - Centered Top */}
         {isExpired ? (
           <div className="bg-gray-600 text-gray-300 px-6 py-1.5 rounded-full font-bold text-sm tracking-wide shadow-lg mb-2">
@@ -303,6 +372,16 @@ export const PremiumBettingCard = ({
             {market}
           </p>
         </div>
+
+        {/* Multiple Bet Label */}
+        {isMultiple && !isExpired && (
+          <div className="flex items-center gap-1.5 bg-purple-500/20 backdrop-blur-sm px-3 py-1 rounded-lg border border-purple-500/30 mb-3">
+            <Layers className="w-3 h-3 text-purple-400" />
+            <span className="text-[11px] text-purple-300 font-medium">
+              Bilhete pronto ({selectionsCount || 2} seleções)
+            </span>
+          </div>
+        )}
 
         {/* Bet Details Row */}
         <div className={`w-full backdrop-blur-sm rounded-xl px-4 py-3 flex items-center justify-between mb-4 ${
