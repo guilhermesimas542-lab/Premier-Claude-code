@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { HelpCircle, Info } from "lucide-react";
+import { HelpCircle, Info, Link2 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 
 interface PremiumBettingCardProps {
@@ -23,6 +23,7 @@ interface PremiumBettingCardProps {
   footer?: string;
   lineAlert?: boolean;
   isLocked?: boolean;
+  isExpired?: boolean;
   onAddTip?: () => void;
   onViewAnalysis?: () => void;
 }
@@ -145,6 +146,7 @@ export const PremiumBettingCard = ({
   odds,
   matchDate,
   isLocked = false,
+  isExpired = false,
   onAddTip,
 }: PremiumBettingCardProps) => {
   const [showMarketHelp, setShowMarketHelp] = useState(false);
@@ -173,7 +175,11 @@ export const PremiumBettingCard = ({
 
   return (
     <Card
-      className={`w-full overflow-hidden select-none relative rounded-2xl ${config.borderColor} border-2 ${config.glowColor} transition-all duration-300 hover:scale-[1.02]`}
+      className={`w-full overflow-hidden select-none relative rounded-2xl border-2 transition-all duration-300 ${
+        isExpired 
+          ? "border-gray-600/50 shadow-none grayscale-[60%]" 
+          : `${config.borderColor} ${config.glowColor} hover:scale-[1.02]`
+      }`}
     >
       {/* Stadium Background Image */}
       <div 
@@ -184,29 +190,48 @@ export const PremiumBettingCard = ({
       />
       
       {/* Dark Overlay for readability */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-black/80" />
+      <div className={`absolute inset-0 ${
+        isExpired 
+          ? "bg-gradient-to-b from-gray-900/70 via-gray-900/80 to-gray-900/90" 
+          : "bg-gradient-to-b from-black/40 via-black/50 to-black/80"
+      }`} />
+      
+      {/* Expired Chain Pattern Overlay */}
+      {isExpired && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
+          <Link2 className="w-20 h-20 text-gray-500/20 rotate-45" />
+        </div>
+      )}
       
       {/* Locked Overlay */}
-      {isLocked && (
+      {isLocked && !isExpired && (
         <div className="absolute inset-0 z-20 bg-black/50 backdrop-blur-sm" />
       )}
 
       {/* Content */}
       <div className="relative z-10 p-4 flex flex-col items-center">
         
-        {/* Tier Badge - Centered Top */}
-        <div className={`${config.bgColor} ${config.textColor} px-6 py-1.5 rounded-full font-bold text-sm tracking-wide shadow-lg mb-2`}>
-          {tier}
-        </div>
+        {/* Tier Badge or Expired Badge - Centered Top */}
+        {isExpired ? (
+          <div className="bg-gray-600 text-gray-300 px-6 py-1.5 rounded-full font-bold text-sm tracking-wide shadow-lg mb-2">
+            EXPIRADA
+          </div>
+        ) : (
+          <div className={`${config.bgColor} ${config.textColor} px-6 py-1.5 rounded-full font-bold text-sm tracking-wide shadow-lg mb-2`}>
+            {tier}
+          </div>
+        )}
 
         {/* Market Help Button - Top Right (colored by tier) */}
         <div className="absolute top-3 right-3" ref={marketHelpRef}>
           <button
             onClick={() => setShowMarketHelp(!showMarketHelp)}
-            className={`w-7 h-7 rounded-full bg-black/40 backdrop-blur-sm border ${config.iconBorderColor} flex items-center justify-center hover:bg-black/60 transition-colors`}
+            className={`w-7 h-7 rounded-full bg-black/40 backdrop-blur-sm border ${
+              isExpired ? "border-gray-500/50" : config.iconBorderColor
+            } flex items-center justify-center hover:bg-black/60 transition-colors`}
             aria-label="Ajuda do mercado"
           >
-            <Info className={`w-4 h-4 ${config.iconColor}`} />
+            <Info className={`w-4 h-4 ${isExpired ? "text-gray-400" : config.iconColor}`} />
           </button>
           
           {/* Market Help Tooltip */}
@@ -221,7 +246,7 @@ export const PremiumBettingCard = ({
 
         {/* Match Date */}
         {matchDate && (
-          <p className="text-white/80 text-xs font-medium mb-3">
+          <p className={`text-xs font-medium mb-3 ${isExpired ? "text-gray-400" : "text-white/80"}`}>
             {matchDate}
           </p>
         )}
@@ -230,14 +255,18 @@ export const PremiumBettingCard = ({
         <div className="flex items-center justify-center gap-6 w-full mb-3">
           {/* Team 1 */}
           <div className="flex flex-col items-center gap-1.5">
-            <div className="w-14 h-14 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center ring-2 ring-white/20 shadow-lg">
+            <div className={`w-14 h-14 rounded-full backdrop-blur-sm flex items-center justify-center ring-2 shadow-lg ${
+              isExpired ? "bg-gray-800/50 ring-gray-600/30" : "bg-white/10 ring-white/20"
+            }`}>
               <img
                 src={team1.logo}
                 alt={team1.name}
-                className="w-10 h-10 object-contain"
+                className={`w-10 h-10 object-contain ${isExpired ? "opacity-50" : ""}`}
               />
             </div>
-            <span className="text-white text-[11px] font-semibold text-center max-w-[80px] leading-tight truncate">
+            <span className={`text-[11px] font-semibold text-center max-w-[80px] leading-tight truncate ${
+              isExpired ? "text-gray-400" : "text-white"
+            }`}>
               {team1.name}
             </span>
           </div>
@@ -247,30 +276,44 @@ export const PremiumBettingCard = ({
 
           {/* Team 2 */}
           <div className="flex flex-col items-center gap-1.5">
-            <div className="w-14 h-14 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center ring-2 ring-white/20 shadow-lg">
+            <div className={`w-14 h-14 rounded-full backdrop-blur-sm flex items-center justify-center ring-2 shadow-lg ${
+              isExpired ? "bg-gray-800/50 ring-gray-600/30" : "bg-white/10 ring-white/20"
+            }`}>
               <img
                 src={team2.logo}
                 alt={team2.name}
-                className="w-10 h-10 object-contain"
+                className={`w-10 h-10 object-contain ${isExpired ? "opacity-50" : ""}`}
               />
             </div>
-            <span className="text-white text-[11px] font-semibold text-center max-w-[80px] leading-tight truncate">
+            <span className={`text-[11px] font-semibold text-center max-w-[80px] leading-tight truncate ${
+              isExpired ? "text-gray-400" : "text-white"
+            }`}>
               {team2.name}
             </span>
           </div>
         </div>
 
-        {/* Market Name - Centered */}
-        <p className="text-white/90 text-sm font-medium mb-3">
-          {market}
-        </p>
+        {/* Market Name - Centered in Pill */}
+        <div className={`px-4 py-2 rounded-xl backdrop-blur-sm border mb-3 ${
+          isExpired 
+            ? "bg-gray-800/60 border-gray-600/30" 
+            : "bg-black/60 border-white/10"
+        }`}>
+          <p className={`text-sm font-semibold ${isExpired ? "text-gray-400" : "text-white"}`}>
+            {market}
+          </p>
+        </div>
 
         {/* Bet Details Row */}
-        <div className="w-full bg-black/50 backdrop-blur-sm rounded-xl px-4 py-3 flex items-center justify-between mb-4">
-          <span className="text-emerald-400 font-bold text-base">
+        <div className={`w-full backdrop-blur-sm rounded-xl px-4 py-3 flex items-center justify-between mb-4 ${
+          isExpired 
+            ? "bg-gray-800/50" 
+            : "bg-black/50"
+        }`}>
+          <span className={`font-bold text-base ${isExpired ? "text-gray-500" : "text-emerald-400"}`}>
             {betChoice}
           </span>
-          <span className="text-white font-black text-xl">
+          <span className={`font-black text-xl ${isExpired ? "text-gray-500" : "text-white"}`}>
             {odds.toFixed(1)}
           </span>
         </div>
@@ -279,15 +322,18 @@ export const PremiumBettingCard = ({
         <div className="flex items-center gap-3 w-full">
           {/* Add Button - Primary (dominates on mobile) */}
           <Button
-            onClick={onAddTip}
-            className={`flex-1 font-bold py-5 text-sm shadow-lg transition-all duration-300 hover:scale-[1.03] ${
-              isLocked 
-                ? "bg-yellow-500 hover:bg-yellow-400 text-black shadow-yellow-500/40" 
-                : "bg-emerald-500 hover:bg-emerald-400 text-white shadow-emerald-500/40"
+            onClick={isExpired ? undefined : onAddTip}
+            disabled={isExpired}
+            className={`flex-1 font-bold py-5 text-sm shadow-lg transition-all duration-300 ${
+              isExpired 
+                ? "bg-gray-600 text-gray-400 cursor-not-allowed shadow-none" 
+                : isLocked 
+                  ? "bg-yellow-500 hover:bg-yellow-400 text-black shadow-yellow-500/40 hover:scale-[1.03]" 
+                  : "bg-emerald-500 hover:bg-emerald-400 text-white shadow-emerald-500/40 hover:scale-[1.03]"
             }`}
           >
             <span className="font-extrabold">
-              {isLocked ? "🔒 Desbloquear" : "Adicionar"}
+              {isExpired ? "Expirada" : isLocked ? "🔒 Desbloquear" : "Adicionar"}
             </span>
           </Button>
 
@@ -295,10 +341,16 @@ export const PremiumBettingCard = ({
           <div className="relative" ref={betHelpRef}>
             <button
               onClick={() => setShowBetHelp(!showBetHelp)}
-              className="h-11 w-11 md:w-auto md:px-3 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center md:gap-1.5 hover:bg-white/20 transition-colors"
+              className={`h-11 w-11 md:w-auto md:px-3 rounded-lg backdrop-blur-sm border flex items-center justify-center md:gap-1.5 transition-colors ${
+                isExpired 
+                  ? "bg-gray-700/50 border-gray-600/30 hover:bg-gray-700/70" 
+                  : "bg-white/10 border-white/20 hover:bg-white/20"
+              }`}
             >
-              <HelpCircle className="w-5 h-5 md:w-4 md:h-4 text-white/80" />
-              <span className="hidden md:inline text-white/90 text-xs font-medium whitespace-nowrap">
+              <HelpCircle className={`w-5 h-5 md:w-4 md:h-4 ${isExpired ? "text-gray-500" : "text-white/80"}`} />
+              <span className={`hidden md:inline text-xs font-medium whitespace-nowrap ${
+                isExpired ? "text-gray-500" : "text-white/90"
+              }`}>
                 Como bater?
               </span>
             </button>
