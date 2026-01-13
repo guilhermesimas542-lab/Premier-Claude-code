@@ -7,25 +7,32 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
 } from "@/components/ui/carousel";
 import { toast } from "sonner";
 import { getStoredConfig, clearAuth, isAuthenticated } from "@/lib/auth";
-import { loadTipsForSport, mapTipToCardTier } from "@/lib/tips";
 import { fetchSportById } from "@/lib/sports";
 import { AppConfig } from "@/types/auth";
-import { Tip } from "@/types/tips";
 import { Sport as SportType } from "@/types/sports";
 
-// ============ MOCK TIPS PARA TESTE DE UI ============
-const SHOW_MOCK_TIPS = true;
+// ============ MOCK TIPS (ÚNICA FONTE DE DADOS) ============
+interface MockTip {
+  id: number;
+  time1_name: string;
+  time2_name: string;
+  time1_logo: string;
+  time2_logo: string;
+  real_odd_market: string;
+  odd_Name: string;
+  odd_Value: number;
+  odd_market: string;
+  is_pro_plan: number;
+  expiration_date: string;
+  url_iframe: string;
+}
 
-const MOCK_TIPS: Tip[] = [
+const MOCK_TIPS: MockTip[] = [
   {
     id: 99901,
-    esporte_id: 1,
-    created_date: new Date().toISOString(),
     time1_name: "Time 1",
     time2_name: "Time 2",
     time1_logo: "",
@@ -35,15 +42,11 @@ const MOCK_TIPS: Tip[] = [
     odd_Value: 1.41,
     odd_market: "Tip gratuita de demonstração",
     is_pro_plan: -1, // GRÁTIS
-    is_super_odd: false,
-    aff: 0,
-    expiration_date: new Date(Date.now() + 86400000).toISOString(),
+    expiration_date: "2026-01-14T23:59:59.000Z",
     url_iframe: "https://example.com/gratis",
   },
   {
     id: 99902,
-    esporte_id: 1,
-    created_date: new Date().toISOString(),
     time1_name: "Time 1",
     time2_name: "Time 2",
     time1_logo: "",
@@ -53,15 +56,11 @@ const MOCK_TIPS: Tip[] = [
     odd_Value: 1.55,
     odd_market: "Tip básica de demonstração",
     is_pro_plan: 0, // BÁSICO
-    is_super_odd: false,
-    aff: 0,
-    expiration_date: new Date(Date.now() + 86400000).toISOString(),
+    expiration_date: "2026-01-14T23:59:59.000Z",
     url_iframe: "https://example.com/basico",
   },
   {
     id: 99903,
-    esporte_id: 1,
-    created_date: new Date().toISOString(),
     time1_name: "Time 1",
     time2_name: "Time 2",
     time1_logo: "",
@@ -71,15 +70,11 @@ const MOCK_TIPS: Tip[] = [
     odd_Value: 1.85,
     odd_market: "Tip PRO de demonstração",
     is_pro_plan: 1, // PRO
-    is_super_odd: false,
-    aff: 0,
-    expiration_date: new Date(Date.now() + 86400000).toISOString(),
+    expiration_date: "2026-01-14T23:59:59.000Z",
     url_iframe: "https://example.com/pro",
   },
   {
     id: 99904,
-    esporte_id: 1,
-    created_date: new Date().toISOString(),
     time1_name: "Time 1",
     time2_name: "Time 2",
     time1_logo: "",
@@ -88,10 +83,8 @@ const MOCK_TIPS: Tip[] = [
     odd_Name: "Mais de 1.5",
     odd_Value: 2.45,
     odd_market: "Tip ULTRA de demonstração",
-    is_pro_plan: 3, // ULTRA (novo tier)
-    is_super_odd: false,
-    aff: 0,
-    expiration_date: new Date(Date.now() + 86400000).toISOString(),
+    is_pro_plan: 3, // ULTRA
+    expiration_date: "2026-01-14T23:59:59.000Z",
     url_iframe: "https://example.com/ultra",
   },
 ];
@@ -110,8 +103,6 @@ const Sport = () => {
   const navigate = useNavigate();
   const { sportId } = useParams<{ sportId: string }>();
   const [config, setConfig] = useState<AppConfig | null>(null);
-  const [tips, setTips] = useState<Tip[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [iframeUrl, setIframeUrl] = useState<string>("");
   const [sportData, setSportData] = useState<SportType | null>(null);
 
@@ -125,7 +116,7 @@ const Sport = () => {
       return;
     }
 
-    // Carrega dados do esporte e tips
+    // Carrega dados do esporte (apenas nome/info)
     const loadSportData = async () => {
       try {
         const numericSportId = sportId ? parseInt(sportId, 10) : 1;
@@ -144,78 +135,13 @@ const Sport = () => {
 
     loadSportData();
 
-    // Carrega configuração salva
+    // Carrega configuração salva (para betSite inicial e user info)
     const storedConfig = getStoredConfig();
     if (storedConfig) {
       setConfig(storedConfig);
-      setIframeUrl(storedConfig.betSite || "");
-      loadTips();
-    } else {
-      setIsLoading(false);
+      setIframeUrl(storedConfig.betSite || "https://example.com");
     }
   }, [navigate, sportId]);
-
-  const loadTips = async () => {
-    setIsLoading(true);
-    try {
-      const numericSportId = sportId ? parseInt(sportId, 10) : 1;
-      const response = await loadTipsForSport(numericSportId);
-      if (response.success && response.response?.data) {
-        setTips(response.response.data);
-        
-        // Recarrega config do localStorage APÓS loadTipsForSport atualizar os valores
-        const updatedConfig = getStoredConfig();
-        if (updatedConfig) {
-          setConfig(updatedConfig);
-        }
-        
-        // Atualiza a URL do betSite se vier da resposta
-        if (response.response.url) {
-          setIframeUrl(response.response.url);
-        }
-      } else {
-        toast.error(response.message?.[0] || "Erro ao carregar tips");
-      }
-    } catch (error) {
-      console.error("Erro ao carregar tips:", error);
-      toast.error("Erro ao carregar tips");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const isTipLocked = (tipProPlan: number, userPlan: number): boolean => {
-    // Free user (plan -1, 0): vê apenas is_pro_plan = -1
-    if (userPlan <= 0) {
-      return tipProPlan !== -1;
-    }
-    
-    // Básico user (plan 1): vê is_pro_plan = -1 e 0 (1 e 2 bloqueados)
-    if (userPlan === 1) {
-      return tipProPlan >= 1; // Bloqueia is_pro_plan = 1 e 2
-    }
-    
-    // Pro user (plan 2+): vê tudo
-    return false;
-  };
-
-  const handleUnlock = (tipProPlan: number) => {
-    const checkout = localStorage.getItem('checkout');
-    const proUrl = localStorage.getItem('proUrl');
-    
-    // Se é básico bloqueado (is_pro_plan = 0), abre checkout
-    if (tipProPlan === 0 && checkout) {
-      window.open(checkout, '_blank');
-      return;
-    }
-    // Se é pro bloqueado (is_pro_plan = 1 ou 2), abre proUrl
-    if ((tipProPlan === 1 || tipProPlan === 2) && proUrl) {
-      window.open(proUrl, '_blank');
-      return;
-    }
-    
-    toast.error('Link de desbloqueio não configurado');
-  };
 
   const handleLogout = () => {
     clearAuth();
@@ -223,7 +149,7 @@ const Sport = () => {
     navigate("/login");
   };
 
-  const handleAddTip = (tipId: string, urlIframe: string) => {
+  const handleAddTip = (tipId: number, urlIframe: string) => {
     setIframeUrl(urlIframe);
     toast.success("Tip adicionada!", {
       description: `Cupom carregado no site de apostas`,
@@ -269,100 +195,51 @@ const Sport = () => {
 
       {/* Main Content */}
       <main className="container max-w-7xl mx-auto px-4 py-6 space-y-6">
-        {/* Premium Cards Carousel */}
+        {/* Cards de Teste - SOMENTE MOCKS */}
         <section className="relative">
-          {isLoading ? (
-            <div className="flex items-center justify-center py-20">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-            </div>
-          ) : (SHOW_MOCK_TIPS || tips.length > 0) ? (
-            <>
-              <Carousel
-                opts={{
-                  align: "start",
-                  loop: false,
-                }}
-                className="w-full"
-              >
-                <CarouselContent className="-ml-2">
-                  {/* Mock tips primeiro (se SHOW_MOCK_TIPS = true) */}
-                  {SHOW_MOCK_TIPS && MOCK_TIPS.map((tip) => {
-                    const userPlan = config?.user?.purchasedPlan ?? 0;
-                    // Para mocks, não bloquear - deixar tudo visível
-                    const isLocked = false;
-                    
-                    return (
-                      <CarouselItem key={`mock-${tip.id}`} className="pl-2 basis-[90%] min-[480px]:basis-[85%] sm:basis-[75%] md:basis-[60%] lg:basis-[45%] xl:basis-[35%]">
-                        <PremiumBettingCard
-                          tipId={tip.id}
-                          tier={mapMockTipToTier(tip.is_pro_plan)}
-                          team1={{
-                            name: tip.time1_name,
-                            logo: tip.time1_logo || "/placeholder.svg",
-                          }}
-                          team2={{
-                            name: tip.time2_name,
-                            logo: tip.time2_logo || "/placeholder.svg",
-                          }}
-                          market={tip.real_odd_market}
-                          betChoice={tip.odd_Name}
-                          odds={tip.odd_Value}
-                          insights={tip.odd_market}
-                          footer={`Expira em: ${new Date(tip.expiration_date).toLocaleDateString()}`}
-                          isLocked={isLocked}
-                          onAddTip={() => handleAddTip(String(tip.id), tip.url_iframe)}
-                        />
-                      </CarouselItem>
-                    );
-                  })}
-                  
-                  {/* Tips reais do backend */}
-                  {tips.map((tip) => {
-                    const userPlan = config?.user?.purchasedPlan ?? 0;
-                    const isLocked = isTipLocked(tip.is_pro_plan, userPlan);
-                    
-                    return (
-                      <CarouselItem key={tip.id} className="pl-2 basis-[90%] min-[480px]:basis-[85%] sm:basis-[75%] md:basis-[60%] lg:basis-[45%] xl:basis-[35%]">
-                        <PremiumBettingCard
-                          tipId={tip.id}
-                          tier={mapTipToCardTier(tip.is_pro_plan)}
-                          team1={{
-                            name: tip.time1_name,
-                            logo: `https://imagedelivery.net/uGmh4EK74r0qnuu3lZf-oA/${tip.time1_logo}/public`,
-                          }}
-                          team2={{
-                            name: tip.time2_name,
-                            logo: `https://imagedelivery.net/uGmh4EK74r0qnuu3lZf-oA/${tip.time2_logo}/public`,
-                          }}
-                          market={tip.real_odd_market}
-                          betChoice={tip.odd_Name}
-                          odds={tip.odd_Value}
-                          insights={tip.odd_market}
-                          footer={`Expira em: ${new Date(tip.expiration_date).toLocaleDateString()}`}
-                          isLocked={isLocked}
-                          onAddTip={() => isLocked ? handleUnlock(tip.is_pro_plan) : handleAddTip(String(tip.id), tip.url_iframe)}
-                        />
-                      </CarouselItem>
-                    );
-                  })}
-                </CarouselContent>
-              </Carousel>
-              
-              {/* Scroll Indicator */}
-              <div className="flex justify-center mt-4 gap-1.5">
-                {tips.slice(0, 5).map((_, index) => (
-                  <div
-                    key={index}
-                    className="h-1 w-8 bg-muted/30 rounded-full"
+          <Carousel
+            opts={{
+              align: "start",
+              loop: false,
+            }}
+            className="w-full"
+          >
+            <CarouselContent className="-ml-2">
+              {MOCK_TIPS.map((tip) => (
+                <CarouselItem key={tip.id} className="pl-2 basis-[90%] min-[480px]:basis-[85%] sm:basis-[75%] md:basis-[60%] lg:basis-[45%] xl:basis-[35%]">
+                  <PremiumBettingCard
+                    tipId={tip.id}
+                    tier={mapMockTipToTier(tip.is_pro_plan)}
+                    team1={{
+                      name: tip.time1_name,
+                      logo: tip.time1_logo || "/placeholder.svg",
+                    }}
+                    team2={{
+                      name: tip.time2_name,
+                      logo: tip.time2_logo || "/placeholder.svg",
+                    }}
+                    market={tip.real_odd_market}
+                    betChoice={tip.odd_Name}
+                    odds={tip.odd_Value}
+                    insights={tip.odd_market}
+                    footer={`Expira em: ${new Date(tip.expiration_date).toLocaleDateString()}`}
+                    isLocked={false}
+                    onAddTip={() => handleAddTip(tip.id, tip.url_iframe)}
                   />
-                ))}
-              </div>
-            </>
-          ) : (
-            <div className="text-center py-20">
-              <p className="text-muted-foreground">Nenhuma tip disponível no momento</p>
-            </div>
-          )}
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+          </Carousel>
+          
+          {/* Scroll Indicator */}
+          <div className="flex justify-center mt-4 gap-1.5">
+            {MOCK_TIPS.map((_, index) => (
+              <div
+                key={index}
+                className="h-1 w-8 bg-muted/30 rounded-full"
+              />
+            ))}
+          </div>
         </section>
 
         {/* Iframe Section */}
