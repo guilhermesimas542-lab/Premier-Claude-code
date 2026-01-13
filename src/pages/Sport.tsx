@@ -1,7 +1,8 @@
 import { ArrowLeft, LogOut } from "lucide-react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
 import { PremiumBettingCard } from "@/components/PremiumBettingCard";
+import { SpecialBettingCard } from "@/components/SpecialBettingCard";
 import { Button } from "@/components/ui/button";
 import {
   Carousel,
@@ -14,6 +15,9 @@ import { fetchSportById } from "@/lib/sports";
 import { AppConfig } from "@/types/auth";
 import { Sport as SportType } from "@/types/sports";
 import { useIsMobile } from "@/hooks/use-mobile";
+
+// ============ TIPOS DE TIER (incluindo novas categorias) ============
+type TierType = "GRÁTIS" | "ALAVANCAGEM" | "ODDS_ALTAS" | "BÁSICO" | "PRO" | "ULTRA" | "MÚLTIPLA";
 
 // ============ MOCK TIPS (ÚNICA FONTE DE DADOS) ============
 interface MockTip {
@@ -29,7 +33,9 @@ interface MockTip {
   is_pro_plan: number;
   expiration_date: string;
   url_iframe: string;
-  selections_count?: number; // Para múltiplas
+  selections_count?: number;
+  // Nova propriedade para categorias especiais
+  special_type?: "ALAVANCAGEM" | "ODDS_ALTAS";
 }
 
 // Para teste de expiração, ajuste o horário de uma tip para já ter passado
@@ -47,6 +53,38 @@ const MOCK_TIPS: MockTip[] = [
     is_pro_plan: -1, // GRÁTIS
     expiration_date: "2026-01-14T23:59:59.000Z",
     url_iframe: "https://example.com/gratis",
+  },
+  // Mock ALAVANCAGEM
+  {
+    id: 99910,
+    time1_name: "",
+    time2_name: "",
+    time1_logo: "",
+    time2_logo: "",
+    real_odd_market: "Sequência Especial",
+    odd_Name: "Entrada 1/3",
+    odd_Value: 1.65,
+    odd_market: "Alavancagem do dia",
+    is_pro_plan: 10, // Custom code for ALAVANCAGEM
+    expiration_date: "2026-01-14T23:59:59.000Z",
+    url_iframe: "https://example.com/alavancagem",
+    special_type: "ALAVANCAGEM",
+  },
+  // Mock ODDS ALTAS
+  {
+    id: 99911,
+    time1_name: "",
+    time2_name: "",
+    time1_logo: "",
+    time2_logo: "",
+    real_odd_market: "Alta Cotação",
+    odd_Name: "Seleção Premium",
+    odd_Value: 4.50,
+    odd_market: "Odds altas do dia",
+    is_pro_plan: 11, // Custom code for ODDS_ALTAS
+    expiration_date: "2026-01-14T23:59:59.000Z",
+    url_iframe: "https://example.com/odds-altas",
+    special_type: "ODDS_ALTAS",
   },
   {
     id: 99902,
@@ -107,10 +145,15 @@ const MOCK_TIPS: MockTip[] = [
   },
 ];
 
-// Mapeia is_pro_plan para tier incluindo ULTRA
-type TierType = "BÁSICO" | "PRO" | "GRÁTIS" | "MÚLTIPLA" | "ULTRA";
-
-const mapMockTipToTier = (isPro: number): TierType => {
+// Mapeia is_pro_plan para tier incluindo novas categorias
+const mapMockTipToTier = (tip: MockTip): TierType => {
+  // Priorizar special_type se existir
+  if (tip.special_type === "ALAVANCAGEM") return "ALAVANCAGEM";
+  if (tip.special_type === "ODDS_ALTAS") return "ODDS_ALTAS";
+  
+  const isPro = tip.is_pro_plan;
+  if (isPro === 10) return "ALAVANCAGEM";
+  if (isPro === 11) return "ODDS_ALTAS";
   if (isPro === 3) return "ULTRA";
   if (isPro === 2) return "MÚLTIPLA";
   if (isPro === 1) return "PRO";
@@ -139,13 +182,14 @@ const isSameDayAsToday = (expirationDate: string): boolean => {
 const shouldShowTip = (tip: MockTip): boolean => {
   const expired = isExpiredTip(tip.expiration_date);
   if (!expired) return true;
-  // Se expirou, mostrar apenas se for do mesmo dia
   return isSameDayAsToday(tip.expiration_date);
 };
 
-// Tabs de navegação por tier
+// Tabs de navegação por tier - NOVA ORDEM: Grátis → Alavancagem → Odds Altas → Básico → Pro → Ultra
 const TIER_TABS: { tier: TierType; label: string; color: string }[] = [
   { tier: "GRÁTIS", label: "Grátis", color: "bg-cyan-500" },
+  { tier: "ALAVANCAGEM", label: "Alavancagem", color: "bg-teal-600" },
+  { tier: "ODDS_ALTAS", label: "Odds Altas", color: "bg-amber-600" },
   { tier: "BÁSICO", label: "Básico", color: "bg-emerald-500" },
   { tier: "PRO", label: "Pro", color: "bg-orange-500" },
   { tier: "ULTRA", label: "Ultra", color: "bg-purple-500" },
@@ -158,11 +202,19 @@ const Sport = () => {
   const [config, setConfig] = useState<AppConfig | null>(null);
   const [iframeUrl, setIframeUrl] = useState<string>("");
   const [sportData, setSportData] = useState<SportType | null>(null);
+  const [activeFilter, setActiveFilter] = useState<TierType | null>(null);
   const isMobile = useIsMobile();
+  
+  // Detectar rota especial para filtrar automaticamente
+  const pathname = window.location.pathname;
+  const isAlavancagemRoute = pathname === "/alavancagem";
+  const isOddsAltasRoute = pathname === "/odds-altas";
   
   // Refs para scroll para cada tier
   const tierRefs = useRef<Record<TierType, HTMLDivElement | null>>({
     "GRÁTIS": null,
+    "ALAVANCAGEM": null,
+    "ODDS_ALTAS": null,
     "BÁSICO": null,
     "PRO": null,
     "MÚLTIPLA": null,
@@ -172,20 +224,22 @@ const Sport = () => {
   // Ordenar tips por tier para navegação
   const visibleTips = MOCK_TIPS.filter(shouldShowTip);
   
+  // Filtrar tips baseado no filtro ativo
+  const filteredTips = activeFilter 
+    ? visibleTips.filter(tip => mapMockTipToTier(tip) === activeFilter)
+    : visibleTips;
+  
   // Agrupar tips por tier para saber onde colocar os anchors
   const tipsByTier = visibleTips.reduce((acc, tip) => {
-    const tier = mapMockTipToTier(tip.is_pro_plan);
+    const tier = mapMockTipToTier(tip);
     if (!acc[tier]) acc[tier] = [];
     acc[tier].push(tip);
     return acc;
   }, {} as Record<TierType, MockTip[]>);
 
-  // Scroll para tier
+  // Scroll para tier e ativar filtro
   const scrollToTier = (tier: TierType) => {
-    const ref = tierRefs.current[tier];
-    if (ref) {
-      ref.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
+    setActiveFilter(activeFilter === tier ? null : tier);
   };
 
   useEffect(() => {
@@ -196,6 +250,13 @@ const Sport = () => {
     if (!isAuthenticated()) {
       navigate("/login");
       return;
+    }
+    
+    // Define filtro baseado na rota especial
+    if (isAlavancagemRoute) {
+      setActiveFilter("ALAVANCAGEM");
+    } else if (isOddsAltasRoute) {
+      setActiveFilter("ODDS_ALTAS");
     }
 
     // Carrega dados do esporte (apenas nome/info)
@@ -223,7 +284,7 @@ const Sport = () => {
       setConfig(storedConfig);
       setIframeUrl(storedConfig.betSite || "https://example.com");
     }
-  }, [navigate, sportId]);
+  }, [navigate, sportId, isAlavancagemRoute, isOddsAltasRoute]);
 
   const handleLogout = () => {
     clearAuth();
@@ -243,10 +304,15 @@ const Sport = () => {
 
   // Marca o primeiro card de cada tier para colocar o anchor
   const getAnchorForTip = (tip: MockTip, index: number): TierType | null => {
-    const tier = mapMockTipToTier(tip.is_pro_plan);
-    const tipsOfSameTier = visibleTips.filter(t => mapMockTipToTier(t.is_pro_plan) === tier);
+    const tier = mapMockTipToTier(tip);
+    const tipsOfSameTier = visibleTips.filter(t => mapMockTipToTier(t) === tier);
     const firstOfTier = tipsOfSameTier[0];
     return tip.id === firstOfTier?.id ? tier : null;
+  };
+
+  // Verifica se é um card especial
+  const isSpecialTip = (tip: MockTip): boolean => {
+    return tip.special_type === "ALAVANCAGEM" || tip.special_type === "ODDS_ALTAS";
   };
 
   return (
@@ -289,18 +355,29 @@ const Sport = () => {
       {/* Main Content */}
       <main className="container max-w-7xl mx-auto px-4 py-6 space-y-6">
         
-        {/* Mobile Tier Tabs */}
-        {isMobile && availableTiers.length > 0 && (
+        {/* Mobile Tier Tabs - Todas as abas com scroll horizontal */}
+        {isMobile && (
           <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide">
-            {availableTiers.map((tab) => (
-              <button
-                key={tab.tier}
-                onClick={() => scrollToTier(tab.tier)}
-                className={`${tab.color} text-white px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap shadow-lg transition-transform active:scale-95`}
-              >
-                {tab.label}
-              </button>
-            ))}
+            {TIER_TABS.map((tab) => {
+              const isActive = activeFilter === tab.tier;
+              const hasContent = tipsByTier[tab.tier]?.length > 0;
+              
+              return (
+                <button
+                  key={tab.tier}
+                  onClick={() => scrollToTier(tab.tier)}
+                  className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap shadow-lg transition-all active:scale-95 ${
+                    isActive 
+                      ? `${tab.color} text-white ring-2 ring-white/50` 
+                      : hasContent
+                        ? `${tab.color} text-white opacity-70 hover:opacity-100`
+                        : `bg-gray-600 text-gray-400 opacity-50`
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              );
+            })}
           </div>
         )}
 
@@ -314,9 +391,10 @@ const Sport = () => {
             className="w-full"
           >
             <CarouselContent className="-ml-2">
-              {visibleTips.map((tip, index) => {
+              {filteredTips.map((tip, index) => {
                 const anchorTier = getAnchorForTip(tip, index);
                 const expired = isExpiredTip(tip.expiration_date);
+                const isSpecial = isSpecialTip(tip);
                 
                 return (
                   <CarouselItem 
@@ -332,27 +410,42 @@ const Sport = () => {
                       />
                     )}
                     
-                    <PremiumBettingCard
-                      tipId={tip.id}
-                      tier={mapMockTipToTier(tip.is_pro_plan)}
-                      team1={{
-                        name: tip.time1_name,
-                        logo: tip.time1_logo || "/placeholder.svg",
-                      }}
-                      team2={{
-                        name: tip.time2_name,
-                        logo: tip.time2_logo || "/placeholder.svg",
-                      }}
-                      market={tip.real_odd_market}
-                      betChoice={tip.odd_Name}
-                      odds={tip.odd_Value}
-                      matchDate="14/01/2026 18:00"
-                      expirationDate={tip.expiration_date}
-                      selectionsCount={tip.selections_count}
-                      isLocked={false}
-                      isExpired={expired}
-                      onAddTip={() => handleAddTip(tip.id, tip.url_iframe)}
-                    />
+                    {isSpecial ? (
+                      <SpecialBettingCard
+                        tipId={tip.id}
+                        type={tip.special_type!}
+                        market={tip.real_odd_market}
+                        betChoice={tip.odd_Name}
+                        odds={tip.odd_Value}
+                        matchDate="14/01/2026 18:00"
+                        expirationDate={tip.expiration_date}
+                        isLocked={false}
+                        isExpired={expired}
+                        onAddTip={() => handleAddTip(tip.id, tip.url_iframe)}
+                      />
+                    ) : (
+                      <PremiumBettingCard
+                        tipId={tip.id}
+                        tier={mapMockTipToTier(tip) as "BÁSICO" | "PRO" | "GRÁTIS" | "MÚLTIPLA" | "ULTRA"}
+                        team1={{
+                          name: tip.time1_name,
+                          logo: tip.time1_logo || "/placeholder.svg",
+                        }}
+                        team2={{
+                          name: tip.time2_name,
+                          logo: tip.time2_logo || "/placeholder.svg",
+                        }}
+                        market={tip.real_odd_market}
+                        betChoice={tip.odd_Name}
+                        odds={tip.odd_Value}
+                        matchDate="14/01/2026 18:00"
+                        expirationDate={tip.expiration_date}
+                        selectionsCount={tip.selections_count}
+                        isLocked={false}
+                        isExpired={expired}
+                        onAddTip={() => handleAddTip(tip.id, tip.url_iframe)}
+                      />
+                    )}
                   </CarouselItem>
                 );
               })}
@@ -361,7 +454,7 @@ const Sport = () => {
           
           {/* Scroll Indicator */}
           <div className="flex justify-center mt-4 gap-1.5">
-            {visibleTips.map((_, index) => (
+            {filteredTips.map((_, index) => (
               <div
                 key={index}
                 className="h-1 w-8 bg-muted/30 rounded-full"

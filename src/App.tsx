@@ -32,6 +32,9 @@ const App = () => (
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<Home />} />
           <Route path="/sport/:sportId" element={<Sport />} />
+          {/* Rotas especiais - redirecionam para sport com filtro */}
+          <Route path="/alavancagem" element={<Sport />} />
+          <Route path="/odds-altas" element={<Sport />} />
           <Route path="/bonus" element={<Bonus />} />
           <Route path="/cassino" element={<Casino />} />
           {/* Nova rota de sinais IA */}
