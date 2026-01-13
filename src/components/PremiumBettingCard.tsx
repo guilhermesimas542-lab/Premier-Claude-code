@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { HelpCircle, Info, Link2, Clock, Layers } from "lucide-react";
+import { HelpCircle, Info, Link2, Clock, Layers, BarChart3 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 
 interface PremiumBettingCardProps {
@@ -166,10 +166,12 @@ export const PremiumBettingCard = ({
 }: PremiumBettingCardProps) => {
   const [showMarketHelp, setShowMarketHelp] = useState(false);
   const [showBetHelp, setShowBetHelp] = useState(false);
+  const [showDataHelp, setShowDataHelp] = useState(false);
   const [countdown, setCountdown] = useState<string>("");
   const [isExpiredLocal, setIsExpiredLocal] = useState(false);
   const marketHelpRef = useRef<HTMLDivElement>(null);
   const betHelpRef = useRef<HTMLDivElement>(null);
+  const dataHelpRef = useRef<HTMLDivElement>(null);
 
   // Get display tier (never MÚLTIPLA)
   const displayTier = getDisplayTier(tier);
@@ -227,6 +229,9 @@ export const PremiumBettingCard = ({
       }
       if (betHelpRef.current && !betHelpRef.current.contains(event.target as Node)) {
         setShowBetHelp(false);
+      }
+      if (dataHelpRef.current && !dataHelpRef.current.contains(event.target as Node)) {
+        setShowDataHelp(false);
       }
     };
 
@@ -412,6 +417,7 @@ export const PremiumBettingCard = ({
 
         {/* Action Buttons Row - Always at bottom */}
         <div className="flex items-center gap-2 w-full mt-auto">
+          {/* Main Add Button */}
           <Button
             onClick={isExpired ? undefined : onAddTip}
             disabled={isExpired}
@@ -428,31 +434,55 @@ export const PremiumBettingCard = ({
             </span>
           </Button>
 
-          <div className="relative" ref={betHelpRef}>
-            <button
-              onClick={() => setShowBetHelp(!showBetHelp)}
-              className={`h-10 w-10 md:w-auto md:px-2 rounded-lg backdrop-blur-sm border flex items-center justify-center md:gap-1 transition-colors ${
-                isExpired 
-                  ? "bg-gray-700/50 border-gray-600/30 hover:bg-gray-700/70" 
-                  : "bg-white/10 border-white/20 hover:bg-white/20"
-              }`}
-            >
-              <HelpCircle className={`w-4 h-4 ${isExpired ? "text-gray-500" : "text-white/80"}`} />
-              <span className={`hidden md:inline text-[10px] font-medium whitespace-nowrap ${
-                isExpired ? "text-gray-500" : "text-white/90"
-              }`}>
-                Como bater?
-              </span>
-            </button>
-            
-            {showBetHelp && (
-              <div className="absolute right-0 bottom-12 w-48 bg-black/90 backdrop-blur-md border border-white/20 rounded-lg p-2 shadow-xl z-50">
-                <p className="text-[11px] text-white/90 leading-relaxed">
-                  <strong className="text-emerald-400">{betChoice}:</strong>{" "}
-                  {betExplanation}
-                </p>
-              </div>
-            )}
+          {/* Icon Buttons Group */}
+          <div className="flex items-center gap-2">
+            {/* "Como bater?" Icon Button */}
+            <div className="relative" ref={betHelpRef}>
+              <button
+                onClick={() => setShowBetHelp(!showBetHelp)}
+                className={`w-12 h-12 rounded-xl backdrop-blur-sm border flex items-center justify-center transition-colors ${
+                  isExpired 
+                    ? "bg-gray-700/50 border-gray-600/30 hover:bg-gray-700/70" 
+                    : "bg-white/10 border-white/20 hover:bg-white/20"
+                }`}
+                aria-label="Como bater?"
+              >
+                <HelpCircle className={`w-5 h-5 ${isExpired ? "text-gray-500" : "text-white/80"}`} />
+              </button>
+              
+              {showBetHelp && (
+                <div className="absolute right-0 bottom-14 w-48 bg-black/90 backdrop-blur-md border border-white/20 rounded-lg p-2 shadow-xl z-50">
+                  <p className="text-[11px] text-white/90 leading-relaxed">
+                    <strong className="text-emerald-400">{betChoice}:</strong>{" "}
+                    {betExplanation}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* "Dados/Justificativa" Icon Button */}
+            <div className="relative" ref={dataHelpRef}>
+              <button
+                onClick={() => setShowDataHelp(!showDataHelp)}
+                className={`w-12 h-12 rounded-xl backdrop-blur-sm border flex items-center justify-center transition-colors ${
+                  isExpired 
+                    ? "bg-gray-700/50 border-gray-600/30 hover:bg-gray-700/70" 
+                    : "bg-white/10 border-white/20 hover:bg-white/20"
+                }`}
+                aria-label="Justificativa da entrada"
+              >
+                <BarChart3 className={`w-5 h-5 ${isExpired ? "text-gray-500" : "text-white/80"}`} />
+              </button>
+              
+              {showDataHelp && (
+                <div className="absolute right-0 bottom-14 w-52 bg-black/90 backdrop-blur-md border border-white/20 rounded-lg p-3 shadow-xl z-50">
+                  <p className="text-xs font-semibold text-white mb-1">Justificativa da entrada</p>
+                  <p className="text-[11px] text-white/70 leading-relaxed">
+                    Em breve: aqui vamos mostrar os dados e percentuais do confronto.
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
