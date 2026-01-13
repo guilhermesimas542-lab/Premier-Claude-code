@@ -197,32 +197,22 @@ const Sport = () => {
   const [config, setConfig] = useState<AppConfig | null>(null);
   const [iframeUrl, setIframeUrl] = useState<string>("");
   const [sportData, setSportData] = useState<SportType | null>(null);
-  const [activeFilter, setActiveFilter] = useState<TierType | null>(null);
+  const [activeTierHighlight, setActiveTierHighlight] = useState<TierType | null>(null);
   const isMobile = useIsMobile();
   
-  // Detectar rota especial para filtrar automaticamente
+  // Ref para o container do carrossel (scroll)
+  const carouselContainerRef = useRef<HTMLDivElement>(null);
+  
+  // Refs para cada card (por índice)
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  
+  // Detectar rota especial para scroll automático
   const pathname = window.location.pathname;
   const isAlavancagemRoute = pathname === "/alavancagem";
   const isOddsAltasRoute = pathname === "/odds-altas";
-  
-  // Refs para scroll para cada tier
-  const tierRefs = useRef<Record<TierType, HTMLDivElement | null>>({
-    "GRÁTIS": null,
-    "ALAVANCAGEM": null,
-    "ODDS_ALTAS": null,
-    "BÁSICO": null,
-    "PRO": null,
-    "MÚLTIPLA": null,
-    "ULTRA": null,
-  });
 
-  // Ordenar tips por tier para navegação
+  // Ordenar tips por tier para navegação - SEMPRE TODAS AS TIPS (sem filtro)
   const visibleTips = MOCK_TIPS.filter(shouldShowTip);
-  
-  // Filtrar tips baseado no filtro ativo
-  const filteredTips = activeFilter 
-    ? visibleTips.filter(tip => mapMockTipToTier(tip) === activeFilter)
-    : visibleTips;
   
   // Agrupar tips por tier para saber onde colocar os anchors
   const tipsByTier = visibleTips.reduce((acc, tip) => {
@@ -232,9 +222,36 @@ const Sport = () => {
     return acc;
   }, {} as Record<TierType, MockTip[]>);
 
-  // Scroll para tier e ativar filtro
+  // Encontrar o índice do primeiro card de cada tier
+  const getFirstIndexOfTier = (tier: TierType): number => {
+    return visibleTips.findIndex(tip => mapMockTipToTier(tip) === tier);
+  };
+
+  // Scroll para o primeiro card de uma categoria (SEM FILTRAR)
   const scrollToTier = (tier: TierType) => {
-    setActiveFilter(activeFilter === tier ? null : tier);
+    const firstIndex = getFirstIndexOfTier(tier);
+    
+    if (firstIndex === -1) {
+      toast.info(`Sem entradas de ${tier} hoje`);
+      return;
+    }
+    
+    const targetCard = cardRefs.current[firstIndex];
+    const container = carouselContainerRef.current;
+    
+    if (targetCard && container) {
+      const containerRect = container.getBoundingClientRect();
+      const cardRect = targetCard.getBoundingClientRect();
+      const scrollLeft = container.scrollLeft + (cardRect.left - containerRect.left) - 16; // 16px padding
+      
+      container.scrollTo({
+        left: scrollLeft,
+        behavior: 'smooth'
+      });
+      
+      // Highlight temporário na tab
+      setActiveTierHighlight(tier);
+    }
   };
 
   useEffect(() => {
@@ -247,12 +264,14 @@ const Sport = () => {
       return;
     }
     
-    // Define filtro baseado na rota especial
-    if (isAlavancagemRoute) {
-      setActiveFilter("ALAVANCAGEM");
-    } else if (isOddsAltasRoute) {
-      setActiveFilter("ODDS_ALTAS");
-    }
+    // Scroll automático baseado na rota especial (após montagem)
+    const scrollTimeout = setTimeout(() => {
+      if (isAlavancagemRoute) {
+        scrollToTier("ALAVANCAGEM");
+      } else if (isOddsAltasRoute) {
+        scrollToTier("ODDS_ALTAS");
+      }
+    }, 300); // Pequeno delay para garantir que os refs estão prontos
 
     // Carrega dados do esporte (apenas nome/info)
     const loadSportData = async () => {
@@ -279,6 +298,8 @@ const Sport = () => {
       setConfig(storedConfig);
       setIframeUrl(storedConfig.betSite || "https://example.com");
     }
+    
+    return () => clearTimeout(scrollTimeout);
   }, [navigate, sportId, isAlavancagemRoute, isOddsAltasRoute]);
 
   const handleLogout = () => {
@@ -292,17 +313,6 @@ const Sport = () => {
     toast.success("Tip adicionada!", {
       description: `Cupom carregado no site de apostas`,
     });
-  };
-
-  // Verifica quais tiers existem nas tips visíveis
-  const availableTiers = TIER_TABS.filter(tab => tipsByTier[tab.tier]?.length > 0);
-
-  // Marca o primeiro card de cada tier para colocar o anchor
-  const getAnchorForTip = (tip: MockTip, index: number): TierType | null => {
-    const tier = mapMockTipToTier(tip);
-    const tipsOfSameTier = visibleTips.filter(t => mapMockTipToTier(t) === tier);
-    const firstOfTier = tipsOfSameTier[0];
-    return tip.id === firstOfTier?.id ? tier : null;
   };
 
   // Verifica se é um card especial
@@ -354,19 +364,20 @@ const Sport = () => {
         {isMobile && (
           <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide">
             {TIER_TABS.map((tab) => {
-              const isActive = activeFilter === tab.tier;
+              const isActive = activeTierHighlight === tab.tier;
               const hasContent = tipsByTier[tab.tier]?.length > 0;
               
               return (
                 <button
                   key={tab.tier}
                   onClick={() => scrollToTier(tab.tier)}
+                  disabled={!hasContent}
                   className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap shadow-lg transition-all active:scale-95 ${
                     isActive 
                       ? `${tab.color} text-white ring-2 ring-white/50` 
                       : hasContent
                         ? `${tab.color} text-white opacity-70 hover:opacity-100`
-                        : `bg-gray-600 text-gray-400 opacity-50`
+                        : `bg-gray-600 text-gray-400 opacity-50 cursor-not-allowed`
                   }`}
                 >
                   {tab.label}
@@ -376,30 +387,24 @@ const Sport = () => {
           </div>
         )}
 
-        {/* Cards de Teste - SOMENTE MOCKS */}
+        {/* Cards de Teste - SOMENTE MOCKS (sempre todas as tips, sem filtro) */}
         <section className="relative w-full overflow-hidden">
-          <div className="w-full overflow-x-auto scrollbar-hide snap-x snap-mandatory scroll-smooth px-4 -mx-4">
+          <div 
+            ref={carouselContainerRef}
+            className="w-full overflow-x-auto scrollbar-hide snap-x snap-mandatory scroll-smooth px-4 -mx-4"
+          >
             <div className="flex gap-3 md:gap-4 py-2" style={{ paddingLeft: '16px', paddingRight: '16px' }}>
-              {filteredTips.map((tip, index) => {
-                const anchorTier = getAnchorForTip(tip, index);
+              {visibleTips.map((tip, index) => {
                 const expired = isExpiredTip(tip.expiration_date);
                 const isSpecial = isSpecialTip(tip);
                 
                 return (
                   <div 
-                    key={tip.id} 
+                    key={tip.id}
+                    ref={(el) => { cardRefs.current[index] = el; }}
                     className="flex-shrink-0 snap-center"
                     style={{ width: 'min(85vw, 360px)' }}
                   >
-                    {/* Anchor invisível para scroll */}
-                    {anchorTier && (
-                      <div 
-                        ref={(el) => { tierRefs.current[anchorTier] = el; }}
-                        className="absolute -top-20"
-                        aria-hidden="true"
-                      />
-                    )}
-                    
                     {isSpecial ? (
                       <SpecialBettingCard
                         tipId={tip.id}
@@ -444,7 +449,7 @@ const Sport = () => {
           
           {/* Scroll Indicator */}
           <div className="flex justify-center mt-4 gap-1.5">
-            {filteredTips.map((_, index) => (
+            {visibleTips.map((_, index) => (
               <div
                 key={index}
                 className="h-1 w-8 bg-muted/30 rounded-full"
