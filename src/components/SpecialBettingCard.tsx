@@ -131,7 +131,7 @@ export const SpecialBettingCard = ({
 
   return (
     <Card
-      className={`w-full overflow-hidden select-none relative rounded-xl border-2 transition-all duration-300 flex flex-col ${
+      className={`w-full select-none relative rounded-xl border-2 transition-all duration-300 flex flex-col ${
         isExpired 
           ? "border-gray-600/50 shadow-none grayscale-[60%]" 
           : `${config.borderColor} hover:scale-[1.02]`
@@ -139,18 +139,61 @@ export const SpecialBettingCard = ({
       style={{
         aspectRatio: '332 / 213',
         minHeight: 0,
+        overflow: 'visible',
       }}
     >
+      {/* Floating Type Badge - Outside card */}
+      <div 
+        className="absolute z-50 pointer-events-none"
+        style={{
+          top: '-14px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+        }}
+      >
+        {isExpired ? (
+          <div 
+            className="bg-gray-600 text-gray-300 font-extrabold tracking-wide shadow-lg uppercase"
+            style={{
+              height: '30px',
+              padding: '0 14px',
+              fontSize: '13px',
+              borderRadius: '999px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            EXPIRADA
+          </div>
+        ) : (
+          <div 
+            className={`${config.bgColor} ${config.textColor} font-extrabold tracking-wide shadow-lg uppercase`}
+            style={{
+              height: '30px',
+              padding: '0 14px',
+              fontSize: '13px',
+              borderRadius: '999px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            {type === "ALAVANCAGEM" ? "ALAVANCAGEM" : "ODDS ALTAS"}
+          </div>
+        )}
+      </div>
+
       {/* Stadium Background Image */}
       <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat pointer-events-none"
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat pointer-events-none rounded-xl overflow-hidden"
         style={{
           backgroundImage: `url('/images/futsal-arena.jpg')`,
         }}
       />
       
       {/* Dark Overlay with gradient based on type */}
-      <div className={`absolute inset-0 pointer-events-none ${
+      <div className={`absolute inset-0 pointer-events-none rounded-xl overflow-hidden ${
         isExpired 
           ? "bg-gradient-to-b from-gray-900/70 via-gray-900/80 to-gray-900/90" 
           : type === "ALAVANCAGEM"
@@ -160,101 +203,133 @@ export const SpecialBettingCard = ({
       
       {/* Locked Overlay */}
       {isLocked && !isExpired && (
-        <div className="absolute inset-0 z-20 bg-black/50 backdrop-blur-sm pointer-events-none" />
+        <div className="absolute inset-0 z-20 bg-black/50 backdrop-blur-sm pointer-events-none rounded-xl overflow-hidden" />
       )}
 
-      {/* Info Button - Top Right Corner (like other cards) */}
+      {/* Countdown Timer - Top Left Corner (smaller) */}
+      {!isExpired && countdown && (
+        <div 
+          className="absolute z-40 flex items-center gap-1 bg-black/70 backdrop-blur-sm rounded-full"
+          style={{
+            top: '10px',
+            left: '12px',
+            height: '28px',
+            padding: '0 10px',
+          }}
+        >
+          <Clock className="w-3.5 h-3.5 text-white/80" />
+          <span 
+            className="text-white/95 font-bold tabular-nums"
+            style={{ fontSize: '13px' }}
+          >
+            {countdown}
+          </span>
+        </div>
+      )}
+
+      {/* Info Button - Top Right Corner */}
       <button
         onClick={handleOpenJustificativaClick}
-        className={`absolute top-3 right-3 z-30 w-7 h-7 rounded-full backdrop-blur-sm border flex items-center justify-center transition-colors pointer-events-auto ${
+        className={`absolute z-30 rounded-full backdrop-blur-sm border flex items-center justify-center transition-colors pointer-events-auto ${
           isExpired 
             ? "bg-gray-700/70 border-gray-600/50 hover:bg-gray-700/90" 
             : "bg-black/50 border-white/30 hover:bg-black/70 hover:border-white/50"
         }`}
+        style={{
+          top: '10px',
+          right: '12px',
+          width: '32px',
+          height: '32px',
+        }}
         aria-label="Informações"
       >
         <Info className={`w-4 h-4 ${isExpired ? "text-gray-500" : "text-white/90"}`} />
       </button>
 
-      {/* Content - Compact */}
+      {/* Content */}
       <div className="relative z-10 p-2 flex flex-col flex-1 min-h-0 overflow-hidden">
         
-        {/* Header Section - Compact */}
-        <div className="h-6 flex items-center justify-center relative mb-0.5">
-          {/* Timer - Top Left Corner */}
-          {!isExpired && countdown && (
-            <div className="absolute top-0 left-0 flex items-center gap-0.5 bg-black/60 backdrop-blur-sm px-1.5 py-0.5 rounded">
-              <Clock className="w-2.5 h-2.5 text-white/70" />
-              <span className="text-[8px] text-white/90 font-medium tabular-nums">
-                {countdown}
-              </span>
-            </div>
-          )}
+        {/* Spacer for floating badge */}
+        <div style={{ height: '16px' }} />
 
-          {/* Type Badge - Centered */}
-          {isExpired ? (
-            <div className="bg-gray-600 text-gray-300 px-3 py-0.5 rounded-full font-bold text-[9px] tracking-wide shadow-lg">
-              EXPIRADA
-            </div>
-          ) : (
-            <div className={`${config.bgColor} ${config.textColor} px-3 py-0.5 rounded-full font-bold text-[9px] tracking-wide shadow-lg`}>
-              {type === "ALAVANCAGEM" ? "ALAVANCAGEM" : "ODDS ALTAS"}
-            </div>
-          )}
-        </div>
-
-        {/* Match Date - Compact */}
-        <div className="h-3 flex items-center justify-center">
+        {/* Match Date - Below floating badge */}
+        <div className="flex items-center justify-center" style={{ height: '18px' }}>
           {matchDate && (
-            <p className={`text-[8px] font-medium ${isExpired ? "text-gray-400" : "text-white/80"}`}>
+            <p 
+              className={`font-bold ${isExpired ? "text-gray-400" : "text-white/90"}`}
+              style={{ fontSize: '12px' }}
+            >
               {matchDate}
             </p>
           )}
         </div>
 
-        {/* Special Icon Section (replaces teams) - Compact */}
-        <div className="h-14 flex flex-col items-center justify-center gap-1 w-full">
-          <div className={`w-10 h-10 rounded-full ${config.iconBg} backdrop-blur-sm flex items-center justify-center ring-1 shadow-lg ${
+        {/* Special Icon Section (replaces teams) */}
+        <div className="flex flex-col items-center justify-center gap-1 w-full" style={{ height: '60px' }}>
+          <div className={`w-11 h-11 rounded-full ${config.iconBg} backdrop-blur-sm flex items-center justify-center ring-1 shadow-lg ${
             isExpired ? "ring-gray-600/30" : "ring-white/20"
           }`}>
-            <IconComponent className={`w-5 h-5 ${isExpired ? "text-gray-500" : config.iconColor}`} />
+            <IconComponent className={`w-6 h-6 ${isExpired ? "text-gray-500" : config.iconColor}`} />
           </div>
           <div className="text-center">
-            <h3 className={`text-sm font-bold ${isExpired ? "text-gray-400" : "text-white"}`}>
+            <h3 
+              className={`font-bold ${isExpired ? "text-gray-400" : "text-white"}`}
+              style={{ fontSize: '14px' }}
+            >
               {config.title}
             </h3>
-            <p className={`text-[7px] ${isExpired ? "text-gray-500" : "text-white/60"}`}>
+            <p 
+              className={`${isExpired ? "text-gray-500" : "text-white/60"}`}
+              style={{ fontSize: '9px' }}
+            >
               {config.subtitle}
             </p>
           </div>
         </div>
 
-        {/* Market Name - Compact */}
-        <div className="h-6 flex items-center justify-center">
-          <div className={`px-2 py-0.5 rounded backdrop-blur-sm border ${
-            isExpired 
-              ? "bg-gray-800/60 border-gray-600/30" 
-              : "bg-black/60 border-white/10"
-          }`}>
-            <p className={`text-[9px] font-semibold line-clamp-1 ${isExpired ? "text-gray-400" : "text-white"}`}>
+        {/* Market Name - Smaller */}
+        <div className="flex items-center justify-center" style={{ height: '24px' }}>
+          <div 
+            className={`rounded-full backdrop-blur-sm border ${
+              isExpired 
+                ? "bg-gray-800/60 border-gray-600/30" 
+                : "bg-black/60 border-white/10"
+            }`}
+            style={{
+              padding: '5px 12px',
+            }}
+          >
+            <p 
+              className={`font-extrabold line-clamp-1 ${isExpired ? "text-gray-400" : "text-white"}`}
+              style={{ fontSize: '12px' }}
+            >
               {market}
             </p>
           </div>
         </div>
 
         {/* Spacer */}
-        <div className="h-2" />
+        <div className="h-1" />
 
-        {/* Bet Details Row - Compact */}
-        <div className={`h-8 w-full backdrop-blur-sm rounded-lg px-2 flex items-center justify-between ${
-          isExpired 
-            ? "bg-gray-800/50" 
-            : "bg-black/50"
-        }`}>
-          <span className={`font-bold text-[10px] line-clamp-1 ${isExpired ? "text-gray-500" : "text-emerald-400"}`}>
+        {/* Bet Details Row */}
+        <div 
+          className={`w-full backdrop-blur-sm rounded-lg px-3 flex items-center justify-between ${
+            isExpired 
+              ? "bg-gray-800/50" 
+              : "bg-black/50"
+          }`}
+          style={{ height: '36px' }}
+        >
+          <span 
+            className={`font-extrabold line-clamp-1 ${isExpired ? "text-gray-500" : "text-emerald-400"}`}
+            style={{ fontSize: '14px' }}
+          >
             {betChoice}
           </span>
-          <span className={`font-black text-sm ${isExpired ? "text-gray-500" : "text-white"}`}>
+          <span 
+            className={`font-black ${isExpired ? "text-gray-500" : "text-white"}`}
+            style={{ fontSize: '18px' }}
+          >
             {odds.toFixed(1)}
           </span>
         </div>
@@ -262,50 +337,60 @@ export const SpecialBettingCard = ({
         {/* Spacer to push buttons to bottom */}
         <div className="flex-1 min-h-1" />
 
-        {/* Action Buttons Row - Compact */}
+        {/* Action Buttons Row */}
         <div className="flex items-center gap-1.5 w-full mt-auto">
           {/* Main Add Button */}
           <Button
             onClick={isExpired ? undefined : onAddTip}
             disabled={isExpired}
             size="sm"
-            className={`flex-1 font-bold py-1.5 h-8 text-[10px] shadow-lg transition-all duration-300 ${
+            className={`flex-1 font-extrabold shadow-lg transition-all duration-300 ${
               isExpired 
                 ? "bg-gray-600 text-gray-400 cursor-not-allowed shadow-none" 
                 : isLocked 
                   ? "bg-yellow-500 hover:bg-yellow-400 text-black shadow-yellow-500/40 hover:scale-[1.03]" 
                   : "bg-emerald-500 hover:bg-emerald-400 text-white shadow-emerald-500/40 hover:scale-[1.03]"
             }`}
+            style={{
+              height: '40px',
+              fontSize: '14px',
+            }}
           >
-            <span className="font-extrabold">
-              {isExpired ? "Expirada" : isLocked ? "🔒 Desbloquear" : "Adicionar"}
-            </span>
+            {isExpired ? "Expirada" : isLocked ? "🔒 Desbloquear" : "Adicionar"}
           </Button>
 
-          {/* Help Icon Button - Also opens justificativa modal */}
+          {/* Help Icon Button */}
           <button
             onClick={handleOpenJustificativaClick}
-            className={`w-8 h-8 rounded-lg backdrop-blur-sm border flex items-center justify-center transition-colors pointer-events-auto z-20 ${
+            className={`rounded-lg backdrop-blur-sm border flex items-center justify-center transition-colors pointer-events-auto z-20 ${
               isExpired 
                 ? "bg-gray-700/50 border-gray-600/30 hover:bg-gray-700/70" 
                 : "bg-white/10 border-white/20 hover:bg-white/20"
             }`}
+            style={{
+              width: '40px',
+              height: '40px',
+            }}
             aria-label="Ajuda"
           >
-            <HelpCircle className={`w-3.5 h-3.5 ${isExpired ? "text-gray-500" : "text-white/80"}`} />
+            <HelpCircle className={`w-5 h-5 ${isExpired ? "text-gray-500" : "text-white/80"}`} />
           </button>
 
           {/* Stats/Justificativa Icon Button */}
           <button
             onClick={handleOpenJustificativaClick}
-            className={`w-8 h-8 rounded-lg backdrop-blur-sm border flex items-center justify-center transition-colors pointer-events-auto z-20 ${
+            className={`rounded-lg backdrop-blur-sm border flex items-center justify-center transition-colors pointer-events-auto z-20 ${
               isExpired 
                 ? "bg-gray-700/50 border-gray-600/30 hover:bg-gray-700/70" 
                 : "bg-white/10 border-white/20 hover:bg-white/20"
             }`}
+            style={{
+              width: '40px',
+              height: '40px',
+            }}
             aria-label="Dados / Justificativa"
           >
-            <BarChart3 className={`w-3.5 h-3.5 ${isExpired ? "text-gray-500" : "text-white/80"}`} />
+            <BarChart3 className={`w-5 h-5 ${isExpired ? "text-gray-500" : "text-white/80"}`} />
           </button>
         </div>
       </div>
