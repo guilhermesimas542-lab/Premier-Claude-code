@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Anchor, Gift, Clock, HelpCircle, BarChart3 } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { Anchor, Gift, Clock, HelpCircle, BarChart3, Info } from "lucide-react";
+import { useState, useEffect } from "react";
 
 type SpecialCardType = "ALAVANCAGEM" | "ODDS_ALTAS";
 
@@ -75,14 +75,24 @@ export const SpecialBettingCard = ({
   onAddTip,
   onOpenJustificativa,
 }: SpecialBettingCardProps) => {
-  const [showHelp, setShowHelp] = useState(false);
   const [countdown, setCountdown] = useState<string>("");
   const [isExpiredLocal, setIsExpiredLocal] = useState(false);
-  const helpRef = useRef<HTMLDivElement>(null);
 
   const config = getCardConfig(type);
   const IconComponent = config.icon;
   const isExpired = isExpiredProp || isExpiredLocal;
+
+  // Textos fixos de justificativa por categoria
+  const getFixedJustificativaTexto = () => {
+    if (type === "ALAVANCAGEM") {
+      return "Alavancagem é uma sequência progressiva de entradas, feita em etapas.\n\nVocê segue a ordem do dia e avança etapa por etapa, sem pular.\n\nO foco é progressão controlada: consistência, disciplina e crescimento gradual da banca.";
+    }
+    return "Odds Altas são seleções com cotação acima do padrão, escolhidas por oportunidade.\n\nA ideia é aproveitar odds valorizadas quando existe lógica e critério por trás da entrada.\n\nVocê recebe a seleção pronta e entra somente quando a oportunidade estiver disponível.";
+  };
+
+  const handleOpenJustificativaClick = () => {
+    onOpenJustificativa?.(getFixedJustificativaTexto());
+  };
 
   // Countdown timer effect
   useEffect(() => {
@@ -117,17 +127,6 @@ export const SpecialBettingCard = ({
     return () => clearInterval(interval);
   }, [expirationDate, isExpiredProp]);
 
-  // Close tooltip when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (helpRef.current && !helpRef.current.contains(event.target as Node)) {
-        setShowHelp(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   return (
     <Card
@@ -143,14 +142,14 @@ export const SpecialBettingCard = ({
     >
       {/* Stadium Background Image */}
       <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat pointer-events-none"
         style={{
           backgroundImage: `url('/images/futsal-arena.jpg')`,
         }}
       />
       
       {/* Dark Overlay with gradient based on type */}
-      <div className={`absolute inset-0 ${
+      <div className={`absolute inset-0 pointer-events-none ${
         isExpired 
           ? "bg-gradient-to-b from-gray-900/70 via-gray-900/80 to-gray-900/90" 
           : type === "ALAVANCAGEM"
@@ -160,8 +159,21 @@ export const SpecialBettingCard = ({
       
       {/* Locked Overlay */}
       {isLocked && !isExpired && (
-        <div className="absolute inset-0 z-20 bg-black/50 backdrop-blur-sm" />
+        <div className="absolute inset-0 z-20 bg-black/50 backdrop-blur-sm pointer-events-none" />
       )}
+
+      {/* Info Button - Top Right Corner (like other cards) */}
+      <button
+        onClick={handleOpenJustificativaClick}
+        className={`absolute top-3 right-3 z-30 w-7 h-7 rounded-full backdrop-blur-sm border flex items-center justify-center transition-colors pointer-events-auto ${
+          isExpired 
+            ? "bg-gray-700/70 border-gray-600/50 hover:bg-gray-700/90" 
+            : "bg-black/50 border-white/30 hover:bg-black/70 hover:border-white/50"
+        }`}
+        aria-label="Informações"
+      >
+        <Info className={`w-4 h-4 ${isExpired ? "text-gray-500" : "text-white/90"}`} />
+      </button>
 
       {/* Content - Compact */}
       <div className="relative z-10 p-2 flex flex-col flex-1 min-h-0 overflow-hidden">
@@ -269,41 +281,22 @@ export const SpecialBettingCard = ({
             </span>
           </Button>
 
-          {/* Help Icon Button */}
-          <div className="relative" ref={helpRef}>
-            <button
-              onClick={() => setShowHelp(!showHelp)}
-              className={`w-8 h-8 rounded-lg backdrop-blur-sm border flex items-center justify-center transition-colors ${
-                isExpired 
-                  ? "bg-gray-700/50 border-gray-600/30 hover:bg-gray-700/70" 
-                  : "bg-white/10 border-white/20 hover:bg-white/20"
-              }`}
-              aria-label="Ajuda"
-            >
-              <HelpCircle className={`w-3.5 h-3.5 ${isExpired ? "text-gray-500" : "text-white/80"}`} />
-            </button>
-            
-            {showHelp && (
-              <div className="absolute right-0 bottom-10 w-40 bg-black/90 backdrop-blur-md border border-white/20 rounded-lg p-1.5 shadow-xl z-50">
-                <p className="text-[9px] text-white/90 leading-relaxed">
-                  {type === "ALAVANCAGEM" 
-                    ? "Sequência especial para alavancar sua banca."
-                    : "Seleções com odds elevadas para maior retorno."
-                  }
-                </p>
-              </div>
-            )}
-          </div>
+          {/* Help Icon Button - Also opens justificativa modal */}
+          <button
+            onClick={handleOpenJustificativaClick}
+            className={`w-8 h-8 rounded-lg backdrop-blur-sm border flex items-center justify-center transition-colors pointer-events-auto z-20 ${
+              isExpired 
+                ? "bg-gray-700/50 border-gray-600/30 hover:bg-gray-700/70" 
+                : "bg-white/10 border-white/20 hover:bg-white/20"
+            }`}
+            aria-label="Ajuda"
+          >
+            <HelpCircle className={`w-3.5 h-3.5 ${isExpired ? "text-gray-500" : "text-white/80"}`} />
+          </button>
 
           {/* Stats/Justificativa Icon Button */}
           <button
-            onClick={() => {
-              const texto = justificativa ?? (type === "ALAVANCAGEM" 
-                ? "Sequência especial para alavancar sua banca. Em breve: dados e percentuais do confronto."
-                : "Seleções com odds elevadas para maior retorno. Em breve: dados e percentuais do confronto."
-              );
-              onOpenJustificativa?.(texto);
-            }}
+            onClick={handleOpenJustificativaClick}
             className={`w-8 h-8 rounded-lg backdrop-blur-sm border flex items-center justify-center transition-colors pointer-events-auto z-20 ${
               isExpired 
                 ? "bg-gray-700/50 border-gray-600/30 hover:bg-gray-700/70" 
