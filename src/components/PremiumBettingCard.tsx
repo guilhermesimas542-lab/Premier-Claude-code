@@ -11,7 +11,7 @@ interface Indicator {
 
 interface PremiumBettingCardProps {
   tipId: number;
-  tier: "BÁSICO" | "PRO" | "GRÁTIS" | "MÚLTIPLA";
+  tier: "BÁSICO" | "PRO" | "GRÁTIS" | "MÚLTIPLA" | "ULTRA";
   tierSubtitle?: string;
   team1: {
     name: string;
@@ -103,6 +103,12 @@ export const PremiumBettingCard = ({
 
   const getTierConfig = () => {
     switch (tier) {
+      case "ULTRA":
+        return {
+          gradient: "from-ultra via-purple-500 to-ultra",
+          subtitle: tierSubtitle || "Entrada Ultra Premium",
+          icon: <TrendingUp className="w-3 h-3" />,
+        };
       case "MÚLTIPLA":
         return {
           gradient: "from-vip via-purple-600 to-vip",

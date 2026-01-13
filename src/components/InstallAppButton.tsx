@@ -68,7 +68,7 @@ export const InstallAppButton = ({ variant = 'header' }: InstallAppButtonProps) 
           <DialogHeader>
             <DialogTitle className="text-foreground text-lg font-bold flex items-center gap-2">
               <Smartphone className="w-5 h-5 text-[#00FF7F]" />
-              Instalar Olheiro
+              Instalar Premier Ultra
             </DialogTitle>
           </DialogHeader>
           
@@ -105,7 +105,7 @@ export const InstallAppButton = ({ variant = 'header' }: InstallAppButtonProps) 
             </ol>
 
             <p className="text-xs text-muted-foreground pt-2 border-t border-border/30">
-              Instale o atalho do Olheiro na tela inicial e volte pro app em 1 toque.
+              Instale o atalho do Premier Ultra na tela inicial e volte pro app em 1 toque.
             </p>
           </div>
         </DialogContent>

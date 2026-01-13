@@ -60,6 +60,9 @@ export default {
         vip: {
           DEFAULT: "hsl(var(--vip))",
         },
+        ultra: {
+          DEFAULT: "hsl(var(--ultra))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",

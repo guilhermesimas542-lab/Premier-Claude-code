@@ -83,7 +83,7 @@ const Login = () => {
           <div className="text-center mb-8">
             <div className="mb-4 relative">
               <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full"></div>
-              <img src={logoImg} alt="Olheiro" className="h-20 w-auto mx-auto relative z-10 rounded-xl" />
+              <img src={logoImg} alt="Premier Ultra" className="h-20 w-auto mx-auto relative z-10 rounded-xl" />
             </div>
             <h2 className="text-xl font-bold text-foreground mb-2 flex items-center justify-center gap-2">
               <Trophy className="w-5 h-5 text-primary" />

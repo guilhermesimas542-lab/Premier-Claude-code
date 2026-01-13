@@ -114,8 +114,16 @@ const Home = () => {
         tipo: 1, // Em breve (bloqueado)
       },
       {
+        id: 11,
+        name: "Cassino",
+        enabled: true,
+        isproplan: false,
+        background: "casino-custom",
+        tipo: 0, // Premium ativo
+      },
+      {
         id: 12,
-        name: "Olheiro - IA",
+        name: "Premier Ultra - IA",
         enabled: true,
         isproplan: false,
         background: "futsal-custom",
@@ -190,7 +198,7 @@ const Home = () => {
     9: "🤾",  // Handball
     10: "🏐", // Volei
     11: "🎰", // Cassino
-    12: "✈️", // Aviator - IA
+    12: "✈️", // Premier Ultra - IA
   };
 
   // Cores premium tecnológicas por esporte (paleta dark + neon sutil)
@@ -254,7 +262,7 @@ const Home = () => {
       secondary: "#8644C5",
       glow: "rgba(168, 85, 247, 0.35)",
     },
-    12: { // Aviator - IA - Vermelho/Laranja vibrante
+    12: { // Premier Ultra - IA - Vermelho/Laranja vibrante
       primary: "#FF6B35",
       secondary: "#E85D2D",
       glow: "rgba(255, 107, 53, 0.35)",
@@ -279,10 +287,16 @@ const Home = () => {
       cardType = 'presale';
     }
 
+    // Rota especial para Cassino
+    let route = "#";
+    if (cardType === 'premium') {
+      route = sport.id === 11 ? '/cassino' : `/sport/${sport.id}`;
+    }
+
     return {
       ...sport,
       emoji: sportEmojiMap[sport.id] || "🏆",
-      route: cardType === 'premium' ? `/sport/${sport.id}` : "#",
+      route: route,
       image: getBackgroundImageUrl(sport.background),
       gradient: "from-[#000636] via-[#0026A3] to-[#0033C6]",
       isPremium: cardType === 'premium',
@@ -302,7 +316,7 @@ const Home = () => {
     {
       id: 1,
       type: "info",
-      title: "Bem-vindo ao Olheiro!",
+      title: "Bem-vindo ao Premier Ultra!",
       message: "Acesse as melhores análises e tips para suas apostas esportivas.",
     },
     {
@@ -358,8 +372,8 @@ const Home = () => {
       <header className="sticky top-0 z-50 bg-[#0C0F14]/80 backdrop-blur-xl border-b border-border/30">
         <div className="container max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <img src={logoImg} alt="Olheiro" className="h-10 w-auto rounded-lg" />
-            <span className="text-lg font-bold text-foreground">Olheiro - IA</span>
+            <img src={logoImg} alt="Premier Ultra" className="h-10 w-auto rounded-lg" />
+            <span className="text-lg font-bold text-foreground">Premier Ultra</span>
           </div>
           
           <div className="flex items-center gap-3">
