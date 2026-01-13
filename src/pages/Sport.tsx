@@ -199,14 +199,14 @@ const shouldShowTip = (tip: MockTip): boolean => {
   return isSameDayAsToday(tip.expiration_date);
 };
 
-// Tabs de navegação por tier
-const TIER_TABS: { tier: TierType; label: string }[] = [
-  { tier: "GRÁTIS", label: "Grátis" },
-  { tier: "ALAVANCAGEM", label: "Alavancagem" },
-  { tier: "ODDS_ALTAS", label: "Odds Altas" },
-  { tier: "BÁSICO", label: "Básico" },
-  { tier: "PRO", label: "Pro" },
-  { tier: "ULTRA", label: "Ultra" },
+// Tabs de navegação por tier (label completo + label curto para mobile)
+const TIER_TABS: { tier: TierType; label: string; labelShort: string }[] = [
+  { tier: "GRÁTIS", label: "Grátis", labelShort: "Grátis" },
+  { tier: "ALAVANCAGEM", label: "Alavancagem", labelShort: "Alav." },
+  { tier: "ODDS_ALTAS", label: "Odds Altas", labelShort: "Odds Alt." },
+  { tier: "BÁSICO", label: "Básico", labelShort: "Basic" },
+  { tier: "PRO", label: "Pro", labelShort: "Pro" },
+  { tier: "ULTRA", label: "Ultra", labelShort: "Ultra" },
 ];
 // ============ FIM MOCK TIPS ============
 
@@ -478,8 +478,20 @@ const Sport = () => {
       {/* Main Content */}
       <main className="w-full max-w-7xl mx-auto px-4 py-6 space-y-6 overflow-x-hidden">
         
-        {/* Tier Tabs - Preto e Branco */}
-        <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide justify-center flex-wrap md:flex-nowrap">
+        {/* Tier Tabs - 1 linha, scroll horizontal no mobile */}
+        <div 
+          className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-2 px-1 sm:justify-center"
+          style={{ 
+            scrollbarWidth: 'none', 
+            msOverflowStyle: 'none',
+            WebkitOverflowScrolling: 'touch',
+          }}
+        >
+          <style>{`
+            .tier-tabs-container::-webkit-scrollbar {
+              display: none;
+            }
+          `}</style>
           {TIER_TABS.map((tab) => {
             const isActive = activeTierHighlight === tab.tier;
             const hasContent = tipsByTier[tab.tier]?.length > 0;
@@ -489,7 +501,7 @@ const Sport = () => {
                 key={tab.tier}
                 onClick={() => scrollToTier(tab.tier)}
                 disabled={!hasContent}
-                className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all duration-200 active:scale-95 border focus:outline-none focus:ring-2 focus:ring-white/20 ${
+                className={`px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-xs font-bold whitespace-nowrap transition-all duration-200 active:scale-95 border focus:outline-none focus:ring-2 focus:ring-white/20 flex-shrink-0 min-h-[32px] sm:min-h-[36px] ${
                   !hasContent
                     ? 'bg-transparent text-white/30 border-white/10 cursor-not-allowed'
                     : isActive 
@@ -497,7 +509,9 @@ const Sport = () => {
                       : 'bg-transparent text-white/80 border-white/20 hover:bg-white/5 hover:border-white/40 hover:text-white'
                 }`}
               >
-                {tab.label}
+                {/* Label curto no mobile, completo em telas maiores */}
+                <span className="sm:hidden">{tab.labelShort}</span>
+                <span className="hidden sm:inline">{tab.label}</span>
               </button>
             );
           })}
