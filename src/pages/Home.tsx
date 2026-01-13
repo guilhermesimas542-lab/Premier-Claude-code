@@ -495,9 +495,32 @@ const Home = () => {
       {/* Footer */}
       <footer className="mt-12 pb-8">
         <div className="container max-w-7xl mx-auto px-4">
-          <div className="border-t border-purple-500/20 pt-6 text-center">
-            <p className="text-sm text-purple-300/50 font-medium">Premier Ultra ©</p>
-            <p className="text-xs text-purple-300/40 mt-1">Análises processadas continuamente</p>
+          <div className="border-t border-purple-500/20 pt-6 text-center space-y-2">
+            {/* Identidade */}
+            <p className="text-sm text-purple-300/60 font-medium">Premier Ultra ©</p>
+            <p className="text-xs text-purple-300/50">Análises processadas continuamente</p>
+            
+            {/* Compliance */}
+            <p className="text-[11px] text-purple-300/40 pt-2">
+              Dados protegidos • 18+ • Jogue com responsabilidade
+            </p>
+            
+            {/* Links */}
+            <div className="flex items-center justify-center gap-2 text-[11px] text-purple-300/50">
+              <a 
+                href="/termos" 
+                className="hover:text-purple-400 transition-colors"
+              >
+                Termos & Privacidade
+              </a>
+              <span className="text-purple-500/30">|</span>
+              <a 
+                href="/suporte" 
+                className="hover:text-purple-400 transition-colors"
+              >
+                Suporte
+              </a>
+            </div>
           </div>
         </div>
       </footer>
