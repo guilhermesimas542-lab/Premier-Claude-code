@@ -19,8 +19,8 @@ interface PremiumBettingCardProps {
   betChoice: string;
   odds: number;
   matchDate?: string;
-  expirationDate?: string; // ISO date string for countdown
-  selectionsCount?: number; // Number of selections for multiple bets
+  expirationDate?: string;
+  selectionsCount?: number;
   insights?: string;
   footer?: string;
   lineAlert?: boolean;
@@ -60,7 +60,6 @@ const getMarketExplanation = (market: string): string => {
 const getBetExplanation = (betChoice: string): string => {
   const betLower = betChoice.toLowerCase();
   
-  // Match "Mais de X.X" pattern
   const maisDeMatch = betLower.match(/mais de\s*(\d+[.,]?\d*)/);
   if (maisDeMatch) {
     const value = parseFloat(maisDeMatch[1].replace(",", "."));
@@ -68,7 +67,6 @@ const getBetExplanation = (betChoice: string): string => {
     return `Precisa sair ${needed} ou mais para bater.`;
   }
   
-  // Match "Menos de X.X" pattern  
   const menosDeMatch = betLower.match(/menos de\s*(\d+[.,]?\d*)/);
   if (menosDeMatch) {
     const value = parseFloat(menosDeMatch[1].replace(",", "."));
@@ -76,7 +74,6 @@ const getBetExplanation = (betChoice: string): string => {
     return `Precisa ter no máximo ${max} para bater.`;
   }
   
-  // Match "Sim" or "Não"
   if (betLower === "sim") {
     return "A condição do mercado precisa acontecer.";
   }
@@ -99,9 +96,20 @@ const formatCountdown = (totalSeconds: number): string => {
   return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
 };
 
-// Get tier styling configuration
+// Get display tier - MÚLTIPLA maps to PRO (never show MÚLTIPLA as badge)
+const getDisplayTier = (tier: string): "GRÁTIS" | "BÁSICO" | "PRO" | "ULTRA" => {
+  if (tier === "MÚLTIPLA") return "PRO"; // Múltipla uses PRO styling
+  if (tier === "ULTRA") return "ULTRA";
+  if (tier === "PRO") return "PRO";
+  if (tier === "GRÁTIS") return "GRÁTIS";
+  return "BÁSICO";
+};
+
+// Get tier styling configuration (only 4 tiers now)
 const getTierConfig = (tier: string) => {
-  switch (tier) {
+  const displayTier = getDisplayTier(tier);
+  
+  switch (displayTier) {
     case "ULTRA":
       return {
         bgColor: "bg-[#9333EA]",
@@ -128,15 +136,6 @@ const getTierConfig = (tier: string) => {
         borderColor: "border-cyan-500/40",
         iconColor: "text-cyan-400",
         iconBorderColor: "border-cyan-500/50",
-      };
-    case "MÚLTIPLA":
-      return {
-        bgColor: "bg-gradient-to-r from-purple-600 to-purple-700",
-        textColor: "text-white",
-        glowColor: "shadow-[0_0_20px_rgba(147,51,234,0.5)]",
-        borderColor: "border-purple-500/50",
-        iconColor: "text-purple-400",
-        iconBorderColor: "border-purple-500/50",
       };
     default: // BÁSICO
       return {
@@ -172,6 +171,8 @@ export const PremiumBettingCard = ({
   const marketHelpRef = useRef<HTMLDivElement>(null);
   const betHelpRef = useRef<HTMLDivElement>(null);
 
+  // Get display tier (never MÚLTIPLA)
+  const displayTier = getDisplayTier(tier);
   const config = getTierConfig(tier);
   const marketExplanation = getMarketExplanation(market);
   const betExplanation = getBetExplanation(betChoice);
@@ -179,8 +180,11 @@ export const PremiumBettingCard = ({
   // Combine prop expired with local expired state
   const isExpired = isExpiredProp || isExpiredLocal;
   
-  // Detect if it's a multiple bet
-  const isMultiple = tier === "MÚLTIPLA" || (selectionsCount && selectionsCount > 1);
+  // Detect if it's a multiple bet (by selectionsCount or MÚLTIPLA tier or ULTRA tier)
+  const isMultiple = tier === "MÚLTIPLA" || tier === "ULTRA" || (selectionsCount && selectionsCount > 1);
+  
+  // For ULTRA, always show at least 3 selections as fallback
+  const displaySelectionsCount = selectionsCount || (tier === "ULTRA" ? 3 : 2);
 
   // Countdown timer effect
   useEffect(() => {
@@ -193,7 +197,6 @@ export const PremiumBettingCard = ({
       return diff;
     };
 
-    // Initial calculation
     const initialRemaining = calculateRemaining();
     if (initialRemaining <= 0) {
       setIsExpiredLocal(true);
@@ -202,7 +205,6 @@ export const PremiumBettingCard = ({
     }
     setCountdown(formatCountdown(initialRemaining));
 
-    // Update every second
     const interval = setInterval(() => {
       const remaining = calculateRemaining();
       if (remaining <= 0) {
@@ -234,7 +236,7 @@ export const PremiumBettingCard = ({
 
   return (
     <Card
-      className={`w-full overflow-hidden select-none relative rounded-2xl border-2 transition-all duration-300 ${
+      className={`w-full h-full overflow-hidden select-none relative rounded-2xl border-2 transition-all duration-300 flex flex-col ${
         isExpired 
           ? "border-gray-600/50 shadow-none grayscale-[60%]" 
           : `${config.borderColor} ${config.glowColor} hover:scale-[1.02]`
@@ -267,94 +269,98 @@ export const PremiumBettingCard = ({
         <div className="absolute inset-0 z-20 bg-black/50 backdrop-blur-sm" />
       )}
 
-      {/* Content */}
-      <div className="relative z-10 p-4 flex flex-col items-center">
+      {/* Content - Fixed height sections */}
+      <div className="relative z-10 p-4 flex flex-col flex-1">
         
-        {/* Timer - Top Left Corner */}
-        {!isExpired && countdown && (
-          <div className="absolute top-3 left-3 flex items-center gap-1 bg-black/60 backdrop-blur-sm px-2 py-1 rounded-md">
-            <Clock className="w-3 h-3 text-white/70" />
-            <span className="text-[11px] text-white/90 font-medium tabular-nums">
-              {countdown}
-            </span>
-          </div>
-        )}
-
-        {/* Tier Badge or Expired Badge - Centered Top */}
-        {isExpired ? (
-          <div className="bg-gray-600 text-gray-300 px-6 py-1.5 rounded-full font-bold text-sm tracking-wide shadow-lg mb-2">
-            EXPIRADA
-          </div>
-        ) : (
-          <div className={`${config.bgColor} ${config.textColor} px-6 py-1.5 rounded-full font-bold text-sm tracking-wide shadow-lg mb-2`}>
-            {tier}
-          </div>
-        )}
-
-        {/* Market Help Button - Top Right (colored by tier) */}
-        <div className="absolute top-3 right-3" ref={marketHelpRef}>
-          <button
-            onClick={() => setShowMarketHelp(!showMarketHelp)}
-            className={`w-7 h-7 rounded-full bg-black/40 backdrop-blur-sm border ${
-              isExpired ? "border-gray-500/50" : config.iconBorderColor
-            } flex items-center justify-center hover:bg-black/60 transition-colors`}
-            aria-label="Ajuda do mercado"
-          >
-            <Info className={`w-4 h-4 ${isExpired ? "text-gray-400" : config.iconColor}`} />
-          </button>
-          
-          {/* Market Help Tooltip */}
-          {showMarketHelp && (
-            <div className="absolute right-0 top-9 w-48 bg-black/90 backdrop-blur-md border border-white/20 rounded-lg p-2.5 shadow-xl z-50">
-              <p className="text-xs text-white/90 leading-relaxed">
-                {marketExplanation}
-              </p>
+        {/* Header Section - Fixed height */}
+        <div className="h-12 flex items-center justify-center relative mb-1">
+          {/* Timer - Top Left Corner */}
+          {!isExpired && countdown && (
+            <div className="absolute top-0 left-0 flex items-center gap-1 bg-black/60 backdrop-blur-sm px-2 py-1 rounded-md">
+              <Clock className="w-3 h-3 text-white/70" />
+              <span className="text-[10px] text-white/90 font-medium tabular-nums">
+                {countdown}
+              </span>
             </div>
+          )}
+
+          {/* Tier Badge or Expired Badge - Centered */}
+          {isExpired ? (
+            <div className="bg-gray-600 text-gray-300 px-5 py-1 rounded-full font-bold text-xs tracking-wide shadow-lg">
+              EXPIRADA
+            </div>
+          ) : (
+            <div className={`${config.bgColor} ${config.textColor} px-5 py-1 rounded-full font-bold text-xs tracking-wide shadow-lg`}>
+              {displayTier}
+            </div>
+          )}
+
+          {/* Market Help Button - Top Right */}
+          <div className="absolute top-0 right-0" ref={marketHelpRef}>
+            <button
+              onClick={() => setShowMarketHelp(!showMarketHelp)}
+              className={`w-6 h-6 rounded-full bg-black/40 backdrop-blur-sm border ${
+                isExpired ? "border-gray-500/50" : config.iconBorderColor
+              } flex items-center justify-center hover:bg-black/60 transition-colors`}
+              aria-label="Ajuda do mercado"
+            >
+              <Info className={`w-3.5 h-3.5 ${isExpired ? "text-gray-400" : config.iconColor}`} />
+            </button>
+            
+            {/* Market Help Tooltip */}
+            {showMarketHelp && (
+              <div className="absolute right-0 top-8 w-44 bg-black/90 backdrop-blur-md border border-white/20 rounded-lg p-2 shadow-xl z-50">
+                <p className="text-[11px] text-white/90 leading-relaxed">
+                  {marketExplanation}
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Match Date - Fixed height */}
+        <div className="h-5 flex items-center justify-center">
+          {matchDate && (
+            <p className={`text-[11px] font-medium ${isExpired ? "text-gray-400" : "text-white/80"}`}>
+              {matchDate}
+            </p>
           )}
         </div>
 
-        {/* Match Date */}
-        {matchDate && (
-          <p className={`text-xs font-medium mb-3 ${isExpired ? "text-gray-400" : "text-white/80"}`}>
-            {matchDate}
-          </p>
-        )}
-
-        {/* Teams Section */}
-        <div className="flex items-center justify-center gap-6 w-full mb-3">
+        {/* Teams Section - Fixed height */}
+        <div className="h-24 flex items-center justify-center gap-6 w-full">
           {/* Team 1 */}
-          <div className="flex flex-col items-center gap-1.5">
-            <div className={`w-14 h-14 rounded-full backdrop-blur-sm flex items-center justify-center ring-2 shadow-lg ${
+          <div className="flex flex-col items-center gap-1">
+            <div className={`w-12 h-12 rounded-full backdrop-blur-sm flex items-center justify-center ring-2 shadow-lg ${
               isExpired ? "bg-gray-800/50 ring-gray-600/30" : "bg-white/10 ring-white/20"
             }`}>
               <img
                 src={team1.logo}
                 alt={team1.name}
-                className={`w-10 h-10 object-contain ${isExpired ? "opacity-50" : ""}`}
+                className={`w-8 h-8 object-contain ${isExpired ? "opacity-50" : ""}`}
               />
             </div>
-            <span className={`text-[11px] font-semibold text-center max-w-[80px] leading-tight truncate ${
+            <span className={`text-[10px] font-semibold text-center max-w-[70px] leading-tight line-clamp-1 ${
               isExpired ? "text-gray-400" : "text-white"
             }`}>
               {team1.name}
             </span>
           </div>
 
-          {/* VS Separator - Hidden, implicit */}
           <div className="text-white/30 text-xs font-bold"></div>
 
           {/* Team 2 */}
-          <div className="flex flex-col items-center gap-1.5">
-            <div className={`w-14 h-14 rounded-full backdrop-blur-sm flex items-center justify-center ring-2 shadow-lg ${
+          <div className="flex flex-col items-center gap-1">
+            <div className={`w-12 h-12 rounded-full backdrop-blur-sm flex items-center justify-center ring-2 shadow-lg ${
               isExpired ? "bg-gray-800/50 ring-gray-600/30" : "bg-white/10 ring-white/20"
             }`}>
               <img
                 src={team2.logo}
                 alt={team2.name}
-                className={`w-10 h-10 object-contain ${isExpired ? "opacity-50" : ""}`}
+                className={`w-8 h-8 object-contain ${isExpired ? "opacity-50" : ""}`}
               />
             </div>
-            <span className={`text-[11px] font-semibold text-center max-w-[80px] leading-tight truncate ${
+            <span className={`text-[10px] font-semibold text-center max-w-[70px] leading-tight line-clamp-1 ${
               isExpired ? "text-gray-400" : "text-white"
             }`}>
               {team2.name}
@@ -362,48 +368,54 @@ export const PremiumBettingCard = ({
           </div>
         </div>
 
-        {/* Market Name - Centered in Pill */}
-        <div className={`px-4 py-2 rounded-xl backdrop-blur-sm border mb-3 ${
-          isExpired 
-            ? "bg-gray-800/60 border-gray-600/30" 
-            : "bg-black/60 border-white/10"
-        }`}>
-          <p className={`text-sm font-semibold ${isExpired ? "text-gray-400" : "text-white"}`}>
-            {market}
-          </p>
+        {/* Market Name - Fixed height */}
+        <div className="h-10 flex items-center justify-center">
+          <div className={`px-3 py-1.5 rounded-lg backdrop-blur-sm border ${
+            isExpired 
+              ? "bg-gray-800/60 border-gray-600/30" 
+              : "bg-black/60 border-white/10"
+          }`}>
+            <p className={`text-xs font-semibold line-clamp-1 ${isExpired ? "text-gray-400" : "text-white"}`}>
+              {market}
+            </p>
+          </div>
         </div>
 
-        {/* Multiple Bet Label */}
-        {isMultiple && !isExpired && (
-          <div className="flex items-center gap-1.5 bg-purple-500/20 backdrop-blur-sm px-3 py-1 rounded-lg border border-purple-500/30 mb-3">
-            <Layers className="w-3 h-3 text-purple-400" />
-            <span className="text-[11px] text-purple-300 font-medium">
-              Bilhete pronto ({selectionsCount || 2} seleções)
-            </span>
-          </div>
-        )}
+        {/* Multiple Bet Label - Fixed height (always reserve space) */}
+        <div className="h-7 flex items-center justify-center">
+          {isMultiple && !isExpired && (
+            <div className="flex items-center gap-1 bg-purple-500/20 backdrop-blur-sm px-2 py-0.5 rounded-md border border-purple-500/30">
+              <Layers className="w-3 h-3 text-purple-400" />
+              <span className="text-[10px] text-purple-300 font-medium">
+                Bilhete pronto ({displaySelectionsCount})
+              </span>
+            </div>
+          )}
+        </div>
 
-        {/* Bet Details Row */}
-        <div className={`w-full backdrop-blur-sm rounded-xl px-4 py-3 flex items-center justify-between mb-4 ${
+        {/* Bet Details Row - Fixed height */}
+        <div className={`h-14 w-full backdrop-blur-sm rounded-xl px-4 flex items-center justify-between ${
           isExpired 
             ? "bg-gray-800/50" 
             : "bg-black/50"
         }`}>
-          <span className={`font-bold text-base ${isExpired ? "text-gray-500" : "text-emerald-400"}`}>
+          <span className={`font-bold text-sm line-clamp-1 ${isExpired ? "text-gray-500" : "text-emerald-400"}`}>
             {betChoice}
           </span>
-          <span className={`font-black text-xl ${isExpired ? "text-gray-500" : "text-white"}`}>
+          <span className={`font-black text-lg ${isExpired ? "text-gray-500" : "text-white"}`}>
             {odds.toFixed(1)}
           </span>
         </div>
 
-        {/* Action Buttons Row */}
-        <div className="flex items-center gap-3 w-full">
-          {/* Add Button - Primary (dominates on mobile) */}
+        {/* Spacer to push buttons to bottom */}
+        <div className="flex-1 min-h-3" />
+
+        {/* Action Buttons Row - Always at bottom */}
+        <div className="flex items-center gap-2 w-full mt-auto">
           <Button
             onClick={isExpired ? undefined : onAddTip}
             disabled={isExpired}
-            className={`flex-1 font-bold py-5 text-sm shadow-lg transition-all duration-300 ${
+            className={`flex-1 font-bold py-4 text-sm shadow-lg transition-all duration-300 ${
               isExpired 
                 ? "bg-gray-600 text-gray-400 cursor-not-allowed shadow-none" 
                 : isLocked 
@@ -411,33 +423,31 @@ export const PremiumBettingCard = ({
                   : "bg-emerald-500 hover:bg-emerald-400 text-white shadow-emerald-500/40 hover:scale-[1.03]"
             }`}
           >
-            <span className="font-extrabold">
+            <span className="font-extrabold text-xs">
               {isExpired ? "Expirada" : isLocked ? "🔒 Desbloquear" : "Adicionar"}
             </span>
           </Button>
 
-          {/* "Como bater?" Help Button - Icon only on mobile, text on desktop */}
           <div className="relative" ref={betHelpRef}>
             <button
               onClick={() => setShowBetHelp(!showBetHelp)}
-              className={`h-11 w-11 md:w-auto md:px-3 rounded-lg backdrop-blur-sm border flex items-center justify-center md:gap-1.5 transition-colors ${
+              className={`h-10 w-10 md:w-auto md:px-2 rounded-lg backdrop-blur-sm border flex items-center justify-center md:gap-1 transition-colors ${
                 isExpired 
                   ? "bg-gray-700/50 border-gray-600/30 hover:bg-gray-700/70" 
                   : "bg-white/10 border-white/20 hover:bg-white/20"
               }`}
             >
-              <HelpCircle className={`w-5 h-5 md:w-4 md:h-4 ${isExpired ? "text-gray-500" : "text-white/80"}`} />
-              <span className={`hidden md:inline text-xs font-medium whitespace-nowrap ${
+              <HelpCircle className={`w-4 h-4 ${isExpired ? "text-gray-500" : "text-white/80"}`} />
+              <span className={`hidden md:inline text-[10px] font-medium whitespace-nowrap ${
                 isExpired ? "text-gray-500" : "text-white/90"
               }`}>
                 Como bater?
               </span>
             </button>
             
-            {/* Bet Help Tooltip */}
             {showBetHelp && (
-              <div className="absolute right-0 bottom-14 w-52 bg-black/90 backdrop-blur-md border border-white/20 rounded-lg p-2.5 shadow-xl z-50">
-                <p className="text-xs text-white/90 leading-relaxed">
+              <div className="absolute right-0 bottom-12 w-48 bg-black/90 backdrop-blur-md border border-white/20 rounded-lg p-2 shadow-xl z-50">
+                <p className="text-[11px] text-white/90 leading-relaxed">
                   <strong className="text-emerald-400">{betChoice}:</strong>{" "}
                   {betExplanation}
                 </p>
