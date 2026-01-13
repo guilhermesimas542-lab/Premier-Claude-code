@@ -127,7 +127,7 @@ export const SpecialBettingCard = ({
 
   return (
     <Card
-      className={`w-full h-full overflow-hidden select-none relative rounded-2xl border-2 transition-all duration-300 flex flex-col ${
+      className={`w-full overflow-hidden select-none relative rounded-2xl border-2 transition-all duration-300 flex flex-col aspect-[3/4] max-h-[480px] ${
         isExpired 
           ? "border-gray-600/50 shadow-none grayscale-[60%]" 
           : `${config.borderColor} ${config.glowColor} hover:scale-[1.02]`
