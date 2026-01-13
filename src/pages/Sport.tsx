@@ -18,6 +18,94 @@ import { AppConfig } from "@/types/auth";
 import { Tip } from "@/types/tips";
 import { Sport as SportType } from "@/types/sports";
 
+// ============ MOCK TIPS PARA TESTE DE UI ============
+const SHOW_MOCK_TIPS = true;
+
+const MOCK_TIPS: Tip[] = [
+  {
+    id: 99901,
+    esporte_id: 1,
+    created_date: new Date().toISOString(),
+    time1_name: "Time 1",
+    time2_name: "Time 2",
+    time1_logo: "",
+    time2_logo: "",
+    real_odd_market: "Total de gols",
+    odd_Name: "Mais de 1.5",
+    odd_Value: 1.41,
+    odd_market: "Tip gratuita de demonstração",
+    is_pro_plan: -1, // GRÁTIS
+    is_super_odd: false,
+    aff: 0,
+    expiration_date: new Date(Date.now() + 86400000).toISOString(),
+    url_iframe: "https://example.com/gratis",
+  },
+  {
+    id: 99902,
+    esporte_id: 1,
+    created_date: new Date().toISOString(),
+    time1_name: "Time 1",
+    time2_name: "Time 2",
+    time1_logo: "",
+    time2_logo: "",
+    real_odd_market: "Total de gols",
+    odd_Name: "Mais de 1.5",
+    odd_Value: 1.55,
+    odd_market: "Tip básica de demonstração",
+    is_pro_plan: 0, // BÁSICO
+    is_super_odd: false,
+    aff: 0,
+    expiration_date: new Date(Date.now() + 86400000).toISOString(),
+    url_iframe: "https://example.com/basico",
+  },
+  {
+    id: 99903,
+    esporte_id: 1,
+    created_date: new Date().toISOString(),
+    time1_name: "Time 1",
+    time2_name: "Time 2",
+    time1_logo: "",
+    time2_logo: "",
+    real_odd_market: "Total de gols",
+    odd_Name: "Mais de 1.5",
+    odd_Value: 1.85,
+    odd_market: "Tip PRO de demonstração",
+    is_pro_plan: 1, // PRO
+    is_super_odd: false,
+    aff: 0,
+    expiration_date: new Date(Date.now() + 86400000).toISOString(),
+    url_iframe: "https://example.com/pro",
+  },
+  {
+    id: 99904,
+    esporte_id: 1,
+    created_date: new Date().toISOString(),
+    time1_name: "Time 1",
+    time2_name: "Time 2",
+    time1_logo: "",
+    time2_logo: "",
+    real_odd_market: "Total de gols",
+    odd_Name: "Mais de 1.5",
+    odd_Value: 2.45,
+    odd_market: "Tip ULTRA de demonstração",
+    is_pro_plan: 3, // ULTRA (novo tier)
+    is_super_odd: false,
+    aff: 0,
+    expiration_date: new Date(Date.now() + 86400000).toISOString(),
+    url_iframe: "https://example.com/ultra",
+  },
+];
+
+// Mapeia is_pro_plan para tier incluindo ULTRA
+const mapMockTipToTier = (isPro: number): "BÁSICO" | "PRO" | "GRÁTIS" | "MÚLTIPLA" | "ULTRA" => {
+  if (isPro === 3) return "ULTRA";
+  if (isPro === 2) return "MÚLTIPLA";
+  if (isPro === 1) return "PRO";
+  if (isPro === 0) return "BÁSICO";
+  return "GRÁTIS";
+};
+// ============ FIM MOCK TIPS ============
+
 const Sport = () => {
   const navigate = useNavigate();
   const { sportId } = useParams<{ sportId: string }>();
@@ -187,7 +275,7 @@ const Sport = () => {
             <div className="flex items-center justify-center py-20">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
             </div>
-          ) : tips.length > 0 ? (
+          ) : (SHOW_MOCK_TIPS || tips.length > 0) ? (
             <>
               <Carousel
                 opts={{
@@ -197,6 +285,38 @@ const Sport = () => {
                 className="w-full"
               >
                 <CarouselContent className="-ml-2">
+                  {/* Mock tips primeiro (se SHOW_MOCK_TIPS = true) */}
+                  {SHOW_MOCK_TIPS && MOCK_TIPS.map((tip) => {
+                    const userPlan = config?.user?.purchasedPlan ?? 0;
+                    // Para mocks, não bloquear - deixar tudo visível
+                    const isLocked = false;
+                    
+                    return (
+                      <CarouselItem key={`mock-${tip.id}`} className="pl-2 basis-[90%] min-[480px]:basis-[85%] sm:basis-[75%] md:basis-[60%] lg:basis-[45%] xl:basis-[35%]">
+                        <PremiumBettingCard
+                          tipId={tip.id}
+                          tier={mapMockTipToTier(tip.is_pro_plan)}
+                          team1={{
+                            name: tip.time1_name,
+                            logo: tip.time1_logo || "/placeholder.svg",
+                          }}
+                          team2={{
+                            name: tip.time2_name,
+                            logo: tip.time2_logo || "/placeholder.svg",
+                          }}
+                          market={tip.real_odd_market}
+                          betChoice={tip.odd_Name}
+                          odds={tip.odd_Value}
+                          insights={tip.odd_market}
+                          footer={`Expira em: ${new Date(tip.expiration_date).toLocaleDateString()}`}
+                          isLocked={isLocked}
+                          onAddTip={() => handleAddTip(String(tip.id), tip.url_iframe)}
+                        />
+                      </CarouselItem>
+                    );
+                  })}
+                  
+                  {/* Tips reais do backend */}
                   {tips.map((tip) => {
                     const userPlan = config?.user?.purchasedPlan ?? 0;
                     const isLocked = isTipLocked(tip.is_pro_plan, userPlan);
