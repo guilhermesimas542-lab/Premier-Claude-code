@@ -1,6 +1,6 @@
-import { ArrowLeft, LogOut } from "lucide-react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { useEffect, useState, useRef } from "react";
+import { ArrowLeft, LogOut, ChevronLeft, ChevronRight } from "lucide-react";
+import { useNavigate, useParams } from "react-router-dom";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { PremiumBettingCard } from "@/components/PremiumBettingCard";
 import { SpecialBettingCard } from "@/components/SpecialBettingCard";
 import { Button } from "@/components/ui/button";
@@ -180,14 +180,14 @@ const shouldShowTip = (tip: MockTip): boolean => {
   return isSameDayAsToday(tip.expiration_date);
 };
 
-// Tabs de navegação por tier - NOVA ORDEM: Grátis → Alavancagem → Odds Altas → Básico → Pro → Ultra
-const TIER_TABS: { tier: TierType; label: string; color: string }[] = [
-  { tier: "GRÁTIS", label: "Grátis", color: "bg-cyan-500" },
-  { tier: "ALAVANCAGEM", label: "Alavancagem", color: "bg-teal-600" },
-  { tier: "ODDS_ALTAS", label: "Odds Altas", color: "bg-amber-600" },
-  { tier: "BÁSICO", label: "Básico", color: "bg-emerald-500" },
-  { tier: "PRO", label: "Pro", color: "bg-orange-500" },
-  { tier: "ULTRA", label: "Ultra", color: "bg-purple-500" },
+// Tabs de navegação por tier - P&B (preto e branco) para todos os breakpoints
+const TIER_TABS: { tier: TierType; label: string }[] = [
+  { tier: "GRÁTIS", label: "Grátis" },
+  { tier: "ALAVANCAGEM", label: "Alavancagem" },
+  { tier: "ODDS_ALTAS", label: "Odds Altas" },
+  { tier: "BÁSICO", label: "Básico" },
+  { tier: "PRO", label: "Pro" },
+  { tier: "ULTRA", label: "Ultra" },
 ];
 // ============ FIM MOCK TIPS ============
 
@@ -198,6 +198,11 @@ const Sport = () => {
   const [iframeUrl, setIframeUrl] = useState<string>("");
   const [sportData, setSportData] = useState<SportType | null>(null);
   const [activeTierHighlight, setActiveTierHighlight] = useState<TierType | null>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeftStart, setScrollLeftStart] = useState(0);
   const isMobile = useIsMobile();
   
   // Ref para o container do carrossel (scroll)
@@ -254,6 +259,71 @@ const Sport = () => {
     }
   };
 
+  // Atualizar estado das setas baseado no scroll
+  const updateScrollButtons = useCallback(() => {
+    const container = carouselContainerRef.current;
+    if (!container) return;
+    
+    setCanScrollLeft(container.scrollLeft > 10);
+    setCanScrollRight(
+      container.scrollLeft < container.scrollWidth - container.clientWidth - 10
+    );
+  }, []);
+
+  // Scroll por setas (avança 1 card)
+  const scrollByArrow = (direction: 'left' | 'right') => {
+    const container = carouselContainerRef.current;
+    if (!container) return;
+    
+    const cardWidth = Math.min(window.innerWidth * 0.85, 360) + 16; // card width + gap
+    const scrollAmount = direction === 'left' ? -cardWidth : cardWidth;
+    
+    container.scrollBy({
+      left: scrollAmount,
+      behavior: 'smooth'
+    });
+  };
+
+  // Drag handlers para desktop
+  const handleMouseDown = (e: React.MouseEvent) => {
+    const container = carouselContainerRef.current;
+    if (!container) return;
+    
+    setIsDragging(true);
+    setStartX(e.pageX - container.offsetLeft);
+    setScrollLeftStart(container.scrollLeft);
+    container.style.cursor = 'grabbing';
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging) return;
+    const container = carouselContainerRef.current;
+    if (!container) return;
+    
+    e.preventDefault();
+    const x = e.pageX - container.offsetLeft;
+    const walk = (x - startX) * 1.5; // Multiplier for faster drag
+    container.scrollLeft = scrollLeftStart - walk;
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+    const container = carouselContainerRef.current;
+    if (container) {
+      container.style.cursor = 'grab';
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (isDragging) {
+      setIsDragging(false);
+      const container = carouselContainerRef.current;
+      if (container) {
+        container.style.cursor = 'grab';
+      }
+    }
+  };
+
   useEffect(() => {
     // Rola para o topo ao carregar a página
     window.scrollTo(0, 0);
@@ -301,6 +371,21 @@ const Sport = () => {
     
     return () => clearTimeout(scrollTimeout);
   }, [navigate, sportId, isAlavancagemRoute, isOddsAltasRoute]);
+
+  // Listener para atualizar botões de scroll
+  useEffect(() => {
+    const container = carouselContainerRef.current;
+    if (!container) return;
+    
+    updateScrollButtons();
+    container.addEventListener('scroll', updateScrollButtons);
+    window.addEventListener('resize', updateScrollButtons);
+    
+    return () => {
+      container.removeEventListener('scroll', updateScrollButtons);
+      window.removeEventListener('resize', updateScrollButtons);
+    };
+  }, [updateScrollButtons, visibleTips]);
 
   const handleLogout = () => {
     clearAuth();
@@ -360,40 +445,75 @@ const Sport = () => {
       {/* Main Content */}
       <main className="w-full max-w-7xl mx-auto px-4 py-6 space-y-6 overflow-x-hidden">
         
-        {/* Mobile Tier Tabs - Todas as abas com scroll horizontal */}
-        {isMobile && (
-          <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide">
-            {TIER_TABS.map((tab) => {
-              const isActive = activeTierHighlight === tab.tier;
-              const hasContent = tipsByTier[tab.tier]?.length > 0;
-              
-              return (
-                <button
-                  key={tab.tier}
-                  onClick={() => scrollToTier(tab.tier)}
-                  disabled={!hasContent}
-                  className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap shadow-lg transition-all active:scale-95 ${
-                    isActive 
-                      ? `${tab.color} text-white ring-2 ring-white/50` 
-                      : hasContent
-                        ? `${tab.color} text-white opacity-70 hover:opacity-100`
-                        : `bg-gray-600 text-gray-400 opacity-50 cursor-not-allowed`
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              );
-            })}
-          </div>
-        )}
+        {/* Tier Tabs - P&B para TODOS os breakpoints (mobile, tablet, PC) */}
+        <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide justify-center flex-wrap md:flex-nowrap">
+          {TIER_TABS.map((tab) => {
+            const isActive = activeTierHighlight === tab.tier;
+            const hasContent = tipsByTier[tab.tier]?.length > 0;
+            
+            return (
+              <button
+                key={tab.tier}
+                onClick={() => scrollToTier(tab.tier)}
+                disabled={!hasContent}
+                className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all active:scale-95 border ${
+                  isActive 
+                    ? 'bg-white text-black border-white shadow-[0_0_12px_rgba(255,255,255,0.4)]' 
+                    : hasContent
+                      ? 'bg-transparent text-white/80 border-white/30 hover:border-white/60 hover:text-white'
+                      : 'bg-transparent text-white/30 border-white/10 cursor-not-allowed'
+                }`}
+              >
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
 
         {/* Cards de Teste - SOMENTE MOCKS (sempre todas as tips, sem filtro) */}
-        <section className="relative w-full overflow-hidden">
+        <section className="relative w-full">
+          {/* Seta Esquerda */}
+          {canScrollLeft && (
+            <button
+              onClick={() => scrollByArrow('left')}
+              className="absolute left-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#FF1F5A] hover:bg-[#FF3369] text-white flex items-center justify-center shadow-lg transition-all hover:scale-105 -ml-2 md:-ml-4"
+              aria-label="Anterior"
+            >
+              <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
+            </button>
+          )}
+
+          {/* Seta Direita */}
+          {canScrollRight && (
+            <button
+              onClick={() => scrollByArrow('right')}
+              className="absolute right-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#FF1F5A] hover:bg-[#FF3369] text-white flex items-center justify-center shadow-lg transition-all hover:scale-105 -mr-2 md:-mr-4"
+              aria-label="Próximo"
+            >
+              <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
+            </button>
+          )}
+
+          {/* Carousel Container com drag */}
           <div 
             ref={carouselContainerRef}
-            className="w-full overflow-x-auto scrollbar-hide snap-x snap-mandatory scroll-smooth px-4 -mx-4"
+            className="w-full overflow-x-auto snap-x snap-mandatory scroll-smooth px-6 md:px-8 select-none"
+            style={{ 
+              scrollbarWidth: 'none', 
+              msOverflowStyle: 'none',
+              cursor: isDragging ? 'grabbing' : 'grab'
+            }}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseLeave}
           >
-            <div className="flex gap-3 md:gap-4 py-2" style={{ paddingLeft: '16px', paddingRight: '16px' }}>
+            <style>{`
+              div::-webkit-scrollbar {
+                display: none;
+              }
+            `}</style>
+            <div className="flex gap-4 md:gap-5 py-2">
               {visibleTips.map((tip, index) => {
                 const expired = isExpiredTip(tip.expiration_date);
                 const isSpecial = isSpecialTip(tip);
@@ -403,7 +523,10 @@ const Sport = () => {
                     key={tip.id}
                     ref={(el) => { cardRefs.current[index] = el; }}
                     className="flex-shrink-0 snap-center"
-                    style={{ width: 'min(85vw, 360px)' }}
+                    style={{ 
+                      width: 'min(80vw, 340px)',
+                      minWidth: '280px'
+                    }}
                   >
                     {isSpecial ? (
                       <SpecialBettingCard
@@ -445,16 +568,6 @@ const Sport = () => {
                 );
               })}
             </div>
-          </div>
-          
-          {/* Scroll Indicator */}
-          <div className="flex justify-center mt-4 gap-1.5">
-            {visibleTips.map((_, index) => (
-              <div
-                key={index}
-                className="h-1 w-8 bg-muted/30 rounded-full"
-              />
-            ))}
           </div>
         </section>
 
