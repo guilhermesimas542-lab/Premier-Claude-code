@@ -1,7 +1,6 @@
-import { LogOut, Menu, Headphones, Crown, X } from "lucide-react";
+import { LogOut, Menu, Headphones, X, Gift, ChevronRight, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
-import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { getStoredConfig, clearAuth, isAuthenticated } from "@/lib/auth";
 import { AppConfig } from "@/types/auth";
@@ -25,6 +24,7 @@ const Home = () => {
     minutes: 0,
     seconds: 0,
   });
+  const [showPromotionsModal, setShowPromotionsModal] = useState(false);
 
   // Boolean para acesso vitalício (trocar depois pela lógica real)
   const hasLifetimeAccess = false;
@@ -194,8 +194,8 @@ const Home = () => {
     setMenuOpen(false);
   };
 
-  const handleAcquireAccess = () => {
-    toast.info("Em breve: redirecionamento para checkout");
+  const handlePromotions = () => {
+    setShowPromotionsModal(true);
     setMenuOpen(false);
   };
 
@@ -334,89 +334,131 @@ const Home = () => {
 
       {/* Header */}
       <header className="sticky top-0 z-50 bg-[#0D0A1A]/80 backdrop-blur-xl border-b border-purple-500/20">
-        <div className="container max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <img src={logoImg} alt="Premier Ultra" className="h-10 w-auto" />
-            <span className="text-lg font-bold text-white">Premier Ultra</span>
-          </div>
-          
-          <div className="flex items-center gap-3">
-            {config?.user && (
-              <div className="hidden md:flex flex-col items-end">
-                <span className="text-xs text-purple-300/60">Usuário</span>
-                <span className="text-sm font-bold text-white">{config.user.userMail}</span>
-              </div>
-            )}
+        <div className="container max-w-7xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
+          <div className="flex items-center justify-between gap-2 sm:gap-4">
+            {/* Logo */}
+            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+              <img src={logoImg} alt="Premier Ultra" className="h-8 sm:h-10 w-auto" />
+              <span className="text-base sm:text-lg font-bold text-white hidden xs:inline">Premier Ultra</span>
+            </div>
             
-            {/* Menu Hamburger */}
-            <div className="relative" ref={menuRef}>
-              <button
-                onClick={() => setMenuOpen(!menuOpen)}
-                className="p-2 rounded-lg bg-purple-500/10 border border-purple-500/30 hover:bg-purple-500/20 transition-colors"
-              >
-                {menuOpen ? (
-                  <X className="w-5 h-5 text-purple-300" />
-                ) : (
-                  <Menu className="w-5 h-5 text-purple-300" />
-                )}
-              </button>
-
-              {/* Dropdown Menu */}
-              {menuOpen && (
-                <div className="absolute right-0 top-full mt-2 w-56 bg-[#0D0A1A]/95 backdrop-blur-xl border border-purple-500/30 rounded-xl shadow-xl shadow-purple-900/30 overflow-hidden z-50">
-                  <div className="py-2">
-                    {/* Suporte */}
-                    <button
-                      onClick={handleSupport}
-                      className="w-full px-4 py-3 flex items-center gap-3 text-left text-purple-200 hover:bg-purple-500/15 transition-colors"
-                    >
-                      <Headphones className="w-4 h-4 text-purple-400" />
-                      <span className="text-sm font-medium">Suporte</span>
-                    </button>
-
-                    {/* Acesso condicional */}
-                    {hasLifetimeAccess ? (
-                      <div className="px-4 py-3 flex items-center gap-3 text-purple-400/60">
-                        <Crown className="w-4 h-4" />
-                        <span className="text-sm">Cliente com acesso vitalício</span>
-                      </div>
-                    ) : (
-                      <button
-                        onClick={handleAcquireAccess}
-                        className="w-full px-4 py-3 flex items-center gap-3 text-left text-purple-200 hover:bg-purple-500/15 transition-colors"
-                      >
-                        <Crown className="w-4 h-4 text-purple-400" />
-                        <span className="text-sm font-medium">Adquirir acesso</span>
-                      </button>
-                    )}
-
-                    {/* Divider */}
-                    <div className="my-2 border-t border-purple-500/20" />
-
-                    {/* Sair */}
-                    <button
-                      onClick={() => {
-                        setMenuOpen(false);
-                        handleLogout();
-                      }}
-                      className="w-full px-4 py-3 flex items-center gap-3 text-left text-red-400 hover:bg-red-500/10 transition-colors"
-                    >
-                      <LogOut className="w-4 h-4" />
-                      <span className="text-sm font-medium">Sair</span>
-                    </button>
-                  </div>
+            {/* User Info + Status + Menu */}
+            <div className="flex items-center gap-2 sm:gap-3">
+              {/* User email + Status de acesso */}
+              {config?.user && (
+                <div className="flex flex-col items-end gap-0.5">
+                  <span className="text-xs sm:text-sm font-medium text-white truncate max-w-[120px] sm:max-w-[200px]">
+                    {config.user.userMail}
+                  </span>
+                  {/* Status chip */}
+                  {hasLifetimeAccess ? (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-medium bg-purple-500/20 text-purple-300 border border-purple-500/40">
+                      <Sparkles className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                      Acesso Vitalício
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-medium bg-gray-500/20 text-gray-400 border border-gray-500/30">
+                      Acesso Limitado
+                    </span>
+                  )}
                 </div>
               )}
+              
+              {/* Menu Hamburger */}
+              <div className="relative" ref={menuRef}>
+                <button
+                  onClick={() => setMenuOpen(!menuOpen)}
+                  className="p-2 rounded-lg bg-purple-500/10 border border-purple-500/30 hover:bg-purple-500/20 transition-colors"
+                >
+                  {menuOpen ? (
+                    <X className="w-5 h-5 text-purple-300" />
+                  ) : (
+                    <Menu className="w-5 h-5 text-purple-300" />
+                  )}
+                </button>
+
+                {/* Dropdown Menu */}
+                {menuOpen && (
+                  <div className="absolute right-0 top-full mt-2 w-52 sm:w-56 bg-[#0D0A1A]/95 backdrop-blur-xl border border-purple-500/30 rounded-xl shadow-xl shadow-purple-900/30 overflow-hidden z-50">
+                    <div className="py-2">
+                      {/* Promoções */}
+                      <button
+                        onClick={handlePromotions}
+                        className="w-full px-4 py-3 flex items-center gap-3 text-left text-purple-200 hover:bg-purple-500/15 transition-colors"
+                      >
+                        <Gift className="w-4 h-4 text-purple-400" />
+                        <span className="text-sm font-medium">Promoções</span>
+                      </button>
+
+                      {/* Suporte */}
+                      <button
+                        onClick={handleSupport}
+                        className="w-full px-4 py-3 flex items-center gap-3 text-left text-purple-200 hover:bg-purple-500/15 transition-colors"
+                      >
+                        <Headphones className="w-4 h-4 text-purple-400" />
+                        <span className="text-sm font-medium">Suporte</span>
+                      </button>
+
+                      {/* Divider */}
+                      <div className="my-2 border-t border-purple-500/20" />
+
+                      {/* Sair */}
+                      <button
+                        onClick={() => {
+                          setMenuOpen(false);
+                          handleLogout();
+                        }}
+                        className="w-full px-4 py-3 flex items-center gap-3 text-left text-red-400 hover:bg-red-500/10 transition-colors"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        <span className="text-sm font-medium">Sair</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
       </header>
 
-      <main className="container max-w-7xl mx-auto px-4 py-6 space-y-6 relative z-10">
+      <main className="container max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6 relative z-10">
+        {/* Banner Promocional */}
+        <section 
+          onClick={handlePromotions}
+          className="relative cursor-pointer group overflow-hidden rounded-xl sm:rounded-2xl"
+        >
+          {/* Background gradient */}
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-900/90 via-purple-800/80 to-purple-900/90" />
+          
+          {/* Decorative elements */}
+          <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/30 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 left-1/4 w-24 h-24 bg-purple-400/20 rounded-full blur-2xl" />
+          
+          {/* Content */}
+          <div className="relative px-4 sm:px-6 py-5 sm:py-6 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-purple-500/30 border border-purple-400/40 flex items-center justify-center">
+                <Gift className="w-5 h-5 sm:w-6 sm:h-6 text-purple-300" />
+              </div>
+              <div>
+                <h3 className="text-sm sm:text-base font-bold text-white">Promoções Exclusivas</h3>
+                <p className="text-xs sm:text-sm text-purple-300/80">Bônus e condições especiais</p>
+              </div>
+            </div>
+            
+            {/* CTA Popup */}
+            <div className="shrink-0 flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 rounded-lg bg-purple-500/30 border border-purple-400/50 group-hover:bg-purple-500/40 transition-colors">
+              <span className="text-xs sm:text-sm font-semibold text-white">Acesse aqui</span>
+              <ChevronRight className="w-4 h-4 text-purple-300 group-hover:translate-x-0.5 transition-transform" />
+            </div>
+          </div>
+        </section>
+
         {/* Entradas Disponíveis - Premium */}
-        <section className="space-y-6">
+        <section className="space-y-4 sm:space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-display font-extrabold text-white tracking-tight">
+            <h2 className="text-xl sm:text-2xl font-display font-extrabold text-white tracking-tight">
               Entradas Disponíveis
             </h2>
           </div>
@@ -475,6 +517,56 @@ const Home = () => {
         open={showBasicModal} 
         onClose={() => setShowBasicModal(false)} 
       />
+
+      {/* Modal Promoções */}
+      {showPromotionsModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onClick={() => setShowPromotionsModal(false)}>
+          <div 
+            className="w-full max-w-md bg-gradient-to-br from-[#0D0A1A] via-[#1A1030] to-[#0D0A1A] border border-purple-500/30 rounded-2xl shadow-2xl shadow-purple-900/40 overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="relative px-6 py-5 border-b border-purple-500/20">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-purple-500/20 rounded-full blur-3xl" />
+              <div className="relative flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-purple-500/30 border border-purple-400/40 flex items-center justify-center">
+                  <Gift className="w-5 h-5 text-purple-300" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold text-white">Promoções do Premier Ultra</h2>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowPromotionsModal(false)}
+                className="absolute top-4 right-4 p-1.5 rounded-lg hover:bg-purple-500/20 transition-colors"
+              >
+                <X className="w-5 h-5 text-purple-300" />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="px-6 py-8 text-center">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center">
+                <Sparkles className="w-8 h-8 text-purple-400" />
+              </div>
+              <h3 className="text-lg font-semibold text-white mb-2">Em breve!</h3>
+              <p className="text-sm text-purple-300/70 leading-relaxed">
+                Bônus, condições especiais e liberações exclusivas para membros do Premier Ultra.
+              </p>
+            </div>
+
+            {/* Footer */}
+            <div className="px-6 pb-6">
+              <button
+                onClick={() => setShowPromotionsModal(false)}
+                className="w-full py-3 rounded-xl bg-purple-500/20 border border-purple-500/40 text-purple-200 font-medium hover:bg-purple-500/30 transition-colors"
+              >
+                Entendi
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
