@@ -241,11 +241,15 @@ export const PremiumBettingCard = ({
 
   return (
     <Card
-      className={`w-full overflow-hidden select-none relative rounded-2xl border-2 transition-all duration-300 flex flex-col aspect-[3/4] max-h-[480px] ${
+      className={`w-full overflow-hidden select-none relative rounded-xl border transition-all duration-300 flex flex-col ${
         isExpired 
           ? "border-gray-600/50 shadow-none grayscale-[60%]" 
           : `${config.borderColor} ${config.glowColor} hover:scale-[1.02]`
       }`}
+      style={{
+        aspectRatio: '332 / 213',
+        minHeight: 0,
+      }}
     >
       {/* Stadium Background Image */}
       <div 
@@ -274,16 +278,16 @@ export const PremiumBettingCard = ({
         <div className="absolute inset-0 z-20 bg-black/50 backdrop-blur-sm" />
       )}
 
-      {/* Content - Fixed height sections */}
-      <div className="relative z-10 p-4 flex flex-col flex-1">
+      {/* Content - Compact layout */}
+      <div className="relative z-10 p-2 flex flex-col flex-1 min-h-0 overflow-hidden">
         
-        {/* Header Section - Fixed height */}
-        <div className="h-12 flex items-center justify-center relative mb-1">
+        {/* Header Section - Compact */}
+        <div className="h-6 flex items-center justify-center relative mb-0.5">
           {/* Timer - Top Left Corner */}
           {!isExpired && countdown && (
-            <div className="absolute top-0 left-0 flex items-center gap-1 bg-black/60 backdrop-blur-sm px-2 py-1 rounded-md">
-              <Clock className="w-3 h-3 text-white/70" />
-              <span className="text-[10px] text-white/90 font-medium tabular-nums">
+            <div className="absolute top-0 left-0 flex items-center gap-0.5 bg-black/60 backdrop-blur-sm px-1.5 py-0.5 rounded">
+              <Clock className="w-2.5 h-2.5 text-white/70" />
+              <span className="text-[8px] text-white/90 font-medium tabular-nums">
                 {countdown}
               </span>
             </div>
@@ -291,11 +295,11 @@ export const PremiumBettingCard = ({
 
           {/* Tier Badge or Expired Badge - Centered */}
           {isExpired ? (
-            <div className="bg-gray-600 text-gray-300 px-5 py-1 rounded-full font-bold text-xs tracking-wide shadow-lg">
+            <div className="bg-gray-600 text-gray-300 px-3 py-0.5 rounded-full font-bold text-[9px] tracking-wide shadow-lg">
               EXPIRADA
             </div>
           ) : (
-            <div className={`${config.bgColor} ${config.textColor} px-5 py-1 rounded-full font-bold text-xs tracking-wide shadow-lg`}>
+            <div className={`${config.bgColor} ${config.textColor} px-3 py-0.5 rounded-full font-bold text-[9px] tracking-wide shadow-lg`}>
               {displayTier}
             </div>
           )}
@@ -304,18 +308,18 @@ export const PremiumBettingCard = ({
           <div className="absolute top-0 right-0" ref={marketHelpRef}>
             <button
               onClick={() => setShowMarketHelp(!showMarketHelp)}
-              className={`w-6 h-6 rounded-full bg-black/40 backdrop-blur-sm border ${
+              className={`w-5 h-5 rounded-full bg-black/40 backdrop-blur-sm border ${
                 isExpired ? "border-gray-500/50" : config.iconBorderColor
               } flex items-center justify-center hover:bg-black/60 transition-colors`}
               aria-label="Ajuda do mercado"
             >
-              <Info className={`w-3.5 h-3.5 ${isExpired ? "text-gray-400" : config.iconColor}`} />
+              <Info className={`w-2.5 h-2.5 ${isExpired ? "text-gray-400" : config.iconColor}`} />
             </button>
             
             {/* Market Help Tooltip */}
             {showMarketHelp && (
-              <div className="absolute right-0 top-8 w-44 bg-black/90 backdrop-blur-md border border-white/20 rounded-lg p-2 shadow-xl z-50">
-                <p className="text-[11px] text-white/90 leading-relaxed">
+              <div className="absolute right-0 top-6 w-36 bg-black/90 backdrop-blur-md border border-white/20 rounded-lg p-1.5 shadow-xl z-50">
+                <p className="text-[9px] text-white/90 leading-relaxed">
                   {marketExplanation}
                 </p>
               </div>
@@ -323,49 +327,49 @@ export const PremiumBettingCard = ({
           </div>
         </div>
 
-        {/* Match Date - Fixed height */}
-        <div className="h-5 flex items-center justify-center">
+        {/* Match Date - Compact */}
+        <div className="h-3 flex items-center justify-center">
           {matchDate && (
-            <p className={`text-[11px] font-medium ${isExpired ? "text-gray-400" : "text-white/80"}`}>
+            <p className={`text-[8px] font-medium ${isExpired ? "text-gray-400" : "text-white/80"}`}>
               {matchDate}
             </p>
           )}
         </div>
 
-        {/* Teams Section - Fixed height */}
-        <div className="h-24 flex items-center justify-center gap-6 w-full">
+        {/* Teams Section - Compact */}
+        <div className="h-12 flex items-center justify-center gap-4 w-full">
           {/* Team 1 */}
-          <div className="flex flex-col items-center gap-1">
-            <div className={`w-12 h-12 rounded-full backdrop-blur-sm flex items-center justify-center ring-2 shadow-lg ${
+          <div className="flex flex-col items-center gap-0.5">
+            <div className={`w-8 h-8 rounded-full backdrop-blur-sm flex items-center justify-center ring-1 shadow-lg ${
               isExpired ? "bg-gray-800/50 ring-gray-600/30" : "bg-white/10 ring-white/20"
             }`}>
               <img
                 src={team1.logo}
                 alt={team1.name}
-                className={`w-8 h-8 object-contain ${isExpired ? "opacity-50" : ""}`}
+                className={`w-5 h-5 object-contain ${isExpired ? "opacity-50" : ""}`}
               />
             </div>
-            <span className={`text-[10px] font-semibold text-center max-w-[70px] leading-tight line-clamp-1 ${
+            <span className={`text-[7px] font-semibold text-center max-w-[50px] leading-tight line-clamp-1 ${
               isExpired ? "text-gray-400" : "text-white"
             }`}>
               {team1.name}
             </span>
           </div>
 
-          <div className="text-white/30 text-xs font-bold"></div>
+          <div className="text-white/30 text-[8px] font-bold">VS</div>
 
           {/* Team 2 */}
-          <div className="flex flex-col items-center gap-1">
-            <div className={`w-12 h-12 rounded-full backdrop-blur-sm flex items-center justify-center ring-2 shadow-lg ${
+          <div className="flex flex-col items-center gap-0.5">
+            <div className={`w-8 h-8 rounded-full backdrop-blur-sm flex items-center justify-center ring-1 shadow-lg ${
               isExpired ? "bg-gray-800/50 ring-gray-600/30" : "bg-white/10 ring-white/20"
             }`}>
               <img
                 src={team2.logo}
                 alt={team2.name}
-                className={`w-8 h-8 object-contain ${isExpired ? "opacity-50" : ""}`}
+                className={`w-5 h-5 object-contain ${isExpired ? "opacity-50" : ""}`}
               />
             </div>
-            <span className={`text-[10px] font-semibold text-center max-w-[70px] leading-tight line-clamp-1 ${
+            <span className={`text-[7px] font-semibold text-center max-w-[50px] leading-tight line-clamp-1 ${
               isExpired ? "text-gray-400" : "text-white"
             }`}>
               {team2.name}
@@ -373,55 +377,56 @@ export const PremiumBettingCard = ({
           </div>
         </div>
 
-        {/* Market Name - Fixed height */}
-        <div className="h-10 flex items-center justify-center">
-          <div className={`px-3 py-1.5 rounded-lg backdrop-blur-sm border ${
+        {/* Market Name - Compact */}
+        <div className="h-6 flex items-center justify-center">
+          <div className={`px-2 py-0.5 rounded backdrop-blur-sm border ${
             isExpired 
               ? "bg-gray-800/60 border-gray-600/30" 
               : "bg-black/60 border-white/10"
           }`}>
-            <p className={`text-xs font-semibold line-clamp-1 ${isExpired ? "text-gray-400" : "text-white"}`}>
+            <p className={`text-[9px] font-semibold line-clamp-1 ${isExpired ? "text-gray-400" : "text-white"}`}>
               {market}
             </p>
           </div>
         </div>
 
-        {/* Multiple Bet Label - Fixed height (always reserve space) */}
-        <div className="h-7 flex items-center justify-center">
+        {/* Multiple Bet Label - Compact (always reserve space) */}
+        <div className="h-4 flex items-center justify-center">
           {isMultiple && !isExpired && (
-            <div className="flex items-center gap-1 bg-purple-500/20 backdrop-blur-sm px-2 py-0.5 rounded-md border border-purple-500/30">
-              <Layers className="w-3 h-3 text-purple-400" />
-              <span className="text-[10px] text-purple-300 font-medium">
-                Bilhete pronto ({displaySelectionsCount})
+            <div className="flex items-center gap-0.5 bg-purple-500/20 backdrop-blur-sm px-1.5 py-0.5 rounded border border-purple-500/30">
+              <Layers className="w-2 h-2 text-purple-400" />
+              <span className="text-[7px] text-purple-300 font-medium">
+                Bilhete ({displaySelectionsCount})
               </span>
             </div>
           )}
         </div>
 
-        {/* Bet Details Row - Fixed height */}
-        <div className={`h-14 w-full backdrop-blur-sm rounded-xl px-4 flex items-center justify-between ${
+        {/* Bet Details Row - Compact */}
+        <div className={`h-8 w-full backdrop-blur-sm rounded-lg px-2 flex items-center justify-between ${
           isExpired 
             ? "bg-gray-800/50" 
             : "bg-black/50"
         }`}>
-          <span className={`font-bold text-sm line-clamp-1 ${isExpired ? "text-gray-500" : "text-emerald-400"}`}>
+          <span className={`font-bold text-[10px] line-clamp-1 ${isExpired ? "text-gray-500" : "text-emerald-400"}`}>
             {betChoice}
           </span>
-          <span className={`font-black text-lg ${isExpired ? "text-gray-500" : "text-white"}`}>
+          <span className={`font-black text-sm ${isExpired ? "text-gray-500" : "text-white"}`}>
             {odds.toFixed(1)}
           </span>
         </div>
 
         {/* Spacer to push buttons to bottom */}
-        <div className="flex-1 min-h-3" />
+        <div className="flex-1 min-h-1" />
 
-        {/* Action Buttons Row - Always at bottom */}
-        <div className="flex items-center gap-2 w-full mt-auto">
+        {/* Action Buttons Row - Compact */}
+        <div className="flex items-center gap-1.5 w-full mt-auto">
           {/* Main Add Button */}
           <Button
             onClick={isExpired ? undefined : onAddTip}
             disabled={isExpired}
-            className={`flex-1 font-bold py-4 text-sm shadow-lg transition-all duration-300 ${
+            size="sm"
+            className={`flex-1 font-bold py-1.5 h-8 text-[10px] shadow-lg transition-all duration-300 ${
               isExpired 
                 ? "bg-gray-600 text-gray-400 cursor-not-allowed shadow-none" 
                 : isLocked 
@@ -429,30 +434,30 @@ export const PremiumBettingCard = ({
                   : "bg-emerald-500 hover:bg-emerald-400 text-white shadow-emerald-500/40 hover:scale-[1.03]"
             }`}
           >
-            <span className="font-extrabold text-xs">
+            <span className="font-extrabold">
               {isExpired ? "Expirada" : isLocked ? "🔒 Desbloquear" : "Adicionar"}
             </span>
           </Button>
 
-          {/* Icon Buttons Group */}
-          <div className="flex items-center gap-2">
+          {/* Icon Buttons Group - Compact */}
+          <div className="flex items-center gap-1">
             {/* "Como bater?" Icon Button */}
             <div className="relative" ref={betHelpRef}>
               <button
                 onClick={() => setShowBetHelp(!showBetHelp)}
-                className={`w-12 h-12 rounded-xl backdrop-blur-sm border flex items-center justify-center transition-colors ${
+                className={`w-8 h-8 rounded-lg backdrop-blur-sm border flex items-center justify-center transition-colors ${
                   isExpired 
                     ? "bg-gray-700/50 border-gray-600/30 hover:bg-gray-700/70" 
                     : "bg-white/10 border-white/20 hover:bg-white/20"
                 }`}
                 aria-label="Como bater?"
               >
-                <HelpCircle className={`w-5 h-5 ${isExpired ? "text-gray-500" : "text-white/80"}`} />
+                <HelpCircle className={`w-3.5 h-3.5 ${isExpired ? "text-gray-500" : "text-white/80"}`} />
               </button>
               
               {showBetHelp && (
-                <div className="absolute right-0 bottom-14 w-48 bg-black/90 backdrop-blur-md border border-white/20 rounded-lg p-2 shadow-xl z-50">
-                  <p className="text-[11px] text-white/90 leading-relaxed">
+                <div className="absolute right-0 bottom-10 w-40 bg-black/90 backdrop-blur-md border border-white/20 rounded-lg p-1.5 shadow-xl z-50">
+                  <p className="text-[9px] text-white/90 leading-relaxed">
                     <strong className="text-emerald-400">{betChoice}:</strong>{" "}
                     {betExplanation}
                   </p>
@@ -464,21 +469,21 @@ export const PremiumBettingCard = ({
             <div className="relative" ref={dataHelpRef}>
               <button
                 onClick={() => setShowDataHelp(!showDataHelp)}
-                className={`w-12 h-12 rounded-xl backdrop-blur-sm border flex items-center justify-center transition-colors ${
+                className={`w-8 h-8 rounded-lg backdrop-blur-sm border flex items-center justify-center transition-colors ${
                   isExpired 
                     ? "bg-gray-700/50 border-gray-600/30 hover:bg-gray-700/70" 
                     : "bg-white/10 border-white/20 hover:bg-white/20"
                 }`}
                 aria-label="Justificativa da entrada"
               >
-                <BarChart3 className={`w-5 h-5 ${isExpired ? "text-gray-500" : "text-white/80"}`} />
+                <BarChart3 className={`w-3.5 h-3.5 ${isExpired ? "text-gray-500" : "text-white/80"}`} />
               </button>
               
               {showDataHelp && (
-                <div className="absolute right-0 bottom-14 w-52 bg-black/90 backdrop-blur-md border border-white/20 rounded-lg p-3 shadow-xl z-50">
-                  <p className="text-xs font-semibold text-white mb-1">Justificativa da entrada</p>
-                  <p className="text-[11px] text-white/70 leading-relaxed">
-                    Em breve: aqui vamos mostrar os dados e percentuais do confronto.
+                <div className="absolute right-0 bottom-10 w-44 bg-black/90 backdrop-blur-md border border-white/20 rounded-lg p-2 shadow-xl z-50">
+                  <p className="text-[10px] font-semibold text-white mb-0.5">Justificativa</p>
+                  <p className="text-[9px] text-white/70 leading-relaxed">
+                    Em breve: dados e percentuais do confronto.
                   </p>
                 </div>
               )}

@@ -127,11 +127,15 @@ export const SpecialBettingCard = ({
 
   return (
     <Card
-      className={`w-full overflow-hidden select-none relative rounded-2xl border-2 transition-all duration-300 flex flex-col aspect-[3/4] max-h-[480px] ${
+      className={`w-full overflow-hidden select-none relative rounded-xl border transition-all duration-300 flex flex-col ${
         isExpired 
           ? "border-gray-600/50 shadow-none grayscale-[60%]" 
           : `${config.borderColor} ${config.glowColor} hover:scale-[1.02]`
       }`}
+      style={{
+        aspectRatio: '332 / 213',
+        minHeight: 0,
+      }}
     >
       {/* Stadium Background Image */}
       <div 
@@ -155,16 +159,16 @@ export const SpecialBettingCard = ({
         <div className="absolute inset-0 z-20 bg-black/50 backdrop-blur-sm" />
       )}
 
-      {/* Content */}
-      <div className="relative z-10 p-4 flex flex-col flex-1">
+      {/* Content - Compact */}
+      <div className="relative z-10 p-2 flex flex-col flex-1 min-h-0 overflow-hidden">
         
-        {/* Header Section */}
-        <div className="h-12 flex items-center justify-center relative mb-1">
+        {/* Header Section - Compact */}
+        <div className="h-6 flex items-center justify-center relative mb-0.5">
           {/* Timer - Top Left Corner */}
           {!isExpired && countdown && (
-            <div className="absolute top-0 left-0 flex items-center gap-1 bg-black/60 backdrop-blur-sm px-2 py-1 rounded-md">
-              <Clock className="w-3 h-3 text-white/70" />
-              <span className="text-[10px] text-white/90 font-medium tabular-nums">
+            <div className="absolute top-0 left-0 flex items-center gap-0.5 bg-black/60 backdrop-blur-sm px-1.5 py-0.5 rounded">
+              <Clock className="w-2.5 h-2.5 text-white/70" />
+              <span className="text-[8px] text-white/90 font-medium tabular-nums">
                 {countdown}
               </span>
             </div>
@@ -172,82 +176,83 @@ export const SpecialBettingCard = ({
 
           {/* Type Badge - Centered */}
           {isExpired ? (
-            <div className="bg-gray-600 text-gray-300 px-5 py-1 rounded-full font-bold text-xs tracking-wide shadow-lg">
+            <div className="bg-gray-600 text-gray-300 px-3 py-0.5 rounded-full font-bold text-[9px] tracking-wide shadow-lg">
               EXPIRADA
             </div>
           ) : (
-            <div className={`${config.bgColor} ${config.textColor} px-5 py-1 rounded-full font-bold text-xs tracking-wide shadow-lg`}>
+            <div className={`${config.bgColor} ${config.textColor} px-3 py-0.5 rounded-full font-bold text-[9px] tracking-wide shadow-lg`}>
               {type === "ALAVANCAGEM" ? "ALAVANCAGEM" : "ODDS ALTAS"}
             </div>
           )}
         </div>
 
-        {/* Match Date */}
-        <div className="h-5 flex items-center justify-center">
+        {/* Match Date - Compact */}
+        <div className="h-3 flex items-center justify-center">
           {matchDate && (
-            <p className={`text-[11px] font-medium ${isExpired ? "text-gray-400" : "text-white/80"}`}>
+            <p className={`text-[8px] font-medium ${isExpired ? "text-gray-400" : "text-white/80"}`}>
               {matchDate}
             </p>
           )}
         </div>
 
-        {/* Special Icon Section (replaces teams) */}
-        <div className="h-24 flex flex-col items-center justify-center gap-2 w-full">
-          <div className={`w-16 h-16 rounded-full ${config.iconBg} backdrop-blur-sm flex items-center justify-center ring-2 shadow-lg ${
+        {/* Special Icon Section (replaces teams) - Compact */}
+        <div className="h-14 flex flex-col items-center justify-center gap-1 w-full">
+          <div className={`w-10 h-10 rounded-full ${config.iconBg} backdrop-blur-sm flex items-center justify-center ring-1 shadow-lg ${
             isExpired ? "ring-gray-600/30" : "ring-white/20"
           }`}>
-            <IconComponent className={`w-8 h-8 ${isExpired ? "text-gray-500" : config.iconColor}`} />
+            <IconComponent className={`w-5 h-5 ${isExpired ? "text-gray-500" : config.iconColor}`} />
           </div>
           <div className="text-center">
-            <h3 className={`text-lg font-bold ${isExpired ? "text-gray-400" : "text-white"}`}>
+            <h3 className={`text-sm font-bold ${isExpired ? "text-gray-400" : "text-white"}`}>
               {config.title}
             </h3>
-            <p className={`text-[10px] ${isExpired ? "text-gray-500" : "text-white/60"}`}>
+            <p className={`text-[7px] ${isExpired ? "text-gray-500" : "text-white/60"}`}>
               {config.subtitle}
             </p>
           </div>
         </div>
 
-        {/* Market Name */}
-        <div className="h-10 flex items-center justify-center">
-          <div className={`px-3 py-1.5 rounded-lg backdrop-blur-sm border ${
+        {/* Market Name - Compact */}
+        <div className="h-6 flex items-center justify-center">
+          <div className={`px-2 py-0.5 rounded backdrop-blur-sm border ${
             isExpired 
               ? "bg-gray-800/60 border-gray-600/30" 
               : "bg-black/60 border-white/10"
           }`}>
-            <p className={`text-xs font-semibold line-clamp-1 ${isExpired ? "text-gray-400" : "text-white"}`}>
+            <p className={`text-[9px] font-semibold line-clamp-1 ${isExpired ? "text-gray-400" : "text-white"}`}>
               {market}
             </p>
           </div>
         </div>
 
         {/* Spacer */}
-        <div className="h-7" />
+        <div className="h-2" />
 
-        {/* Bet Details Row */}
-        <div className={`h-14 w-full backdrop-blur-sm rounded-xl px-4 flex items-center justify-between ${
+        {/* Bet Details Row - Compact */}
+        <div className={`h-8 w-full backdrop-blur-sm rounded-lg px-2 flex items-center justify-between ${
           isExpired 
             ? "bg-gray-800/50" 
             : "bg-black/50"
         }`}>
-          <span className={`font-bold text-sm line-clamp-1 ${isExpired ? "text-gray-500" : "text-emerald-400"}`}>
+          <span className={`font-bold text-[10px] line-clamp-1 ${isExpired ? "text-gray-500" : "text-emerald-400"}`}>
             {betChoice}
           </span>
-          <span className={`font-black text-lg ${isExpired ? "text-gray-500" : "text-white"}`}>
+          <span className={`font-black text-sm ${isExpired ? "text-gray-500" : "text-white"}`}>
             {odds.toFixed(1)}
           </span>
         </div>
 
         {/* Spacer to push buttons to bottom */}
-        <div className="flex-1 min-h-3" />
+        <div className="flex-1 min-h-1" />
 
-        {/* Action Buttons Row */}
-        <div className="flex items-center gap-2 w-full mt-auto">
+        {/* Action Buttons Row - Compact */}
+        <div className="flex items-center gap-1.5 w-full mt-auto">
           {/* Main Add Button */}
           <Button
             onClick={isExpired ? undefined : onAddTip}
             disabled={isExpired}
-            className={`flex-1 font-bold py-4 text-sm shadow-lg transition-all duration-300 ${
+            size="sm"
+            className={`flex-1 font-bold py-1.5 h-8 text-[10px] shadow-lg transition-all duration-300 ${
               isExpired 
                 ? "bg-gray-600 text-gray-400 cursor-not-allowed shadow-none" 
                 : isLocked 
@@ -255,7 +260,7 @@ export const SpecialBettingCard = ({
                   : "bg-emerald-500 hover:bg-emerald-400 text-white shadow-emerald-500/40 hover:scale-[1.03]"
             }`}
           >
-            <span className="font-extrabold text-xs">
+            <span className="font-extrabold">
               {isExpired ? "Expirada" : isLocked ? "🔒 Desbloquear" : "Adicionar"}
             </span>
           </Button>
@@ -264,22 +269,22 @@ export const SpecialBettingCard = ({
           <div className="relative" ref={helpRef}>
             <button
               onClick={() => setShowHelp(!showHelp)}
-              className={`w-12 h-12 rounded-xl backdrop-blur-sm border flex items-center justify-center transition-colors ${
+              className={`w-8 h-8 rounded-lg backdrop-blur-sm border flex items-center justify-center transition-colors ${
                 isExpired 
                   ? "bg-gray-700/50 border-gray-600/30 hover:bg-gray-700/70" 
                   : "bg-white/10 border-white/20 hover:bg-white/20"
               }`}
               aria-label="Ajuda"
             >
-              <HelpCircle className={`w-5 h-5 ${isExpired ? "text-gray-500" : "text-white/80"}`} />
+              <HelpCircle className={`w-3.5 h-3.5 ${isExpired ? "text-gray-500" : "text-white/80"}`} />
             </button>
             
             {showHelp && (
-              <div className="absolute right-0 bottom-14 w-48 bg-black/90 backdrop-blur-md border border-white/20 rounded-lg p-2 shadow-xl z-50">
-                <p className="text-[11px] text-white/90 leading-relaxed">
+              <div className="absolute right-0 bottom-10 w-40 bg-black/90 backdrop-blur-md border border-white/20 rounded-lg p-1.5 shadow-xl z-50">
+                <p className="text-[9px] text-white/90 leading-relaxed">
                   {type === "ALAVANCAGEM" 
-                    ? "Sequência especial para alavancar sua banca. Siga todas as entradas na ordem."
-                    : "Seleções com odds elevadas para maior retorno. Maior risco, maior recompensa."
+                    ? "Sequência especial para alavancar sua banca."
+                    : "Seleções com odds elevadas para maior retorno."
                   }
                 </p>
               </div>
@@ -288,14 +293,14 @@ export const SpecialBettingCard = ({
 
           {/* Stats Icon Button */}
           <button
-            className={`w-12 h-12 rounded-xl backdrop-blur-sm border flex items-center justify-center transition-colors ${
+            className={`w-8 h-8 rounded-lg backdrop-blur-sm border flex items-center justify-center transition-colors ${
               isExpired 
                 ? "bg-gray-700/50 border-gray-600/30 hover:bg-gray-700/70" 
                 : "bg-white/10 border-white/20 hover:bg-white/20"
             }`}
             aria-label="Estatísticas"
           >
-            <BarChart3 className={`w-5 h-5 ${isExpired ? "text-gray-500" : "text-white/80"}`} />
+            <BarChart3 className={`w-3.5 h-3.5 ${isExpired ? "text-gray-500" : "text-white/80"}`} />
           </button>
         </div>
       </div>
