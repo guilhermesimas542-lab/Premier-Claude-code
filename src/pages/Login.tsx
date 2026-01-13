@@ -5,46 +5,30 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { normalizePayload, persistConfig } from "@/lib/auth";
 import { LoginResponse } from "@/types/auth";
-import { Smartphone, Users, Zap, RefreshCw, Target, Brain, ShoppingCart } from "lucide-react";
-import logoImg from "@/assets/premier-logo.png";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-
+import { Smartphone, Trophy, TrendingUp } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import logoImg from "@/assets/logo.jpg";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 const Login = () => {
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showPlayStoreModal, setShowPlayStoreModal] = useState(false);
-  const [showAcquireModal, setShowAcquireModal] = useState(false);
-  const [showTermsModal, setShowTermsModal] = useState(false);
   const navigate = useNavigate();
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!email) {
       toast.error("Digite seu e-mail");
       return;
     }
-
     setIsLoading(true);
-
     try {
-      const response = await fetch(
-        `https://apiv1.premierfc.app/api/v2/auth/Login?email=${encodeURIComponent(email)}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
+      const response = await fetch(`https://apiv1.premierfc.app/api/v2/auth/Login?email=${encodeURIComponent(email)}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json"
         }
-      );
-
+      });
       const data: LoginResponse = await response.json();
-
       if (data.success && data.response) {
         // Se houver redirect, redireciona para checkout
         if (data.response.redirect && data.response.checkout) {
@@ -55,7 +39,6 @@ const Login = () => {
         // Normaliza e persiste configuração
         const cfg = normalizePayload(data);
         persistConfig(cfg);
-
         toast.success("Login realizado com sucesso!");
         navigate("/");
       } else {
@@ -68,225 +51,108 @@ const Login = () => {
       setIsLoading(false);
     }
   };
-
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0C0F14] via-[#121826] to-[#0C0F14] flex items-center justify-center p-4 relative overflow-hidden">
+  return <div className="min-h-screen bg-gradient-to-b from-[#0C0F14] via-[#121826] to-[#0C0F14] flex items-center justify-center p-4 relative overflow-hidden">
       {/* Decorative Background Elements */}
       <div className="absolute inset-0 opacity-30">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-purple-600/20 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"></div>
+        <div className="absolute top-20 left-10 w-72 h-72 bg-primary/20 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-accent/10 rounded-full blur-3xl"></div>
       </div>
 
       <div className="w-full max-w-md relative z-10">
         {/* Main Card */}
-        <div className="bg-gradient-to-br from-[#121826]/90 to-[#0C0F14]/90 border border-purple-500/20 rounded-3xl p-8 shadow-2xl backdrop-blur-xl">
-          
+        <div className="bg-gradient-to-br from-[#121826]/90 to-[#0C0F14]/90 border border-primary/20 rounded-3xl p-8 shadow-2xl backdrop-blur-xl">
           {/* Logo/Header */}
-          <div className="text-center mb-6">
+          <div className="text-center mb-8">
             <div className="mb-4 relative">
-              <div className="absolute inset-0 bg-purple-600/30 blur-2xl rounded-full"></div>
-              <img src={logoImg} alt="Premier Ultra" className="h-20 w-auto mx-auto relative z-10 rounded-xl ring-2 ring-purple-500/30" />
+              <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full"></div>
+              <img src={logoImg} alt="Olheiro" className="h-20 w-auto mx-auto relative z-10 rounded-xl" />
             </div>
-            <h1 className="text-2xl font-extrabold text-white mb-2 tracking-tight">
-              Premier Ultra
-            </h1>
-            <p className="text-white/70 text-sm flex items-center justify-center gap-1.5">
-              <Brain className="w-4 h-4 text-purple-400" />
-              Análise de futebol feita por Inteligência Artificial.
+            <h2 className="text-xl font-bold text-foreground mb-2 flex items-center justify-center gap-2 border-0 border-dotted rounded-3xl">
+              <Trophy className="w-5 h-5 text-primary" />
+              Tips Profissionais de Apostas
+            </h2>
+            <p className="text-muted-foreground text-sm">
+              Acesse sua conta e lucre com análises de especialistas
             </p>
           </div>
 
-          {/* Benefit Chips */}
-          <div className="flex flex-wrap justify-center gap-2 mb-6">
-            <span className="bg-purple-500/10 border border-purple-500/20 text-white/80 text-xs font-medium px-3 py-1.5 rounded-full flex items-center gap-1.5">
-              <Zap className="w-3 h-3 text-purple-400" />
-              Entradas prontas
-            </span>
-            <span className="bg-purple-500/10 border border-purple-500/20 text-white/80 text-xs font-medium px-3 py-1.5 rounded-full flex items-center gap-1.5">
-              <RefreshCw className="w-3 h-3 text-purple-400" />
-              Atualizados diariamente
-            </span>
-            <span className="bg-purple-500/10 border border-purple-500/20 text-white/80 text-xs font-medium px-3 py-1.5 rounded-full flex items-center gap-1.5">
-              <Target className="w-3 h-3 text-purple-400" />
-              Alto índice de assertividade
-            </span>
+          {/* Features */}
+          <div className="grid grid-cols-2 gap-3 mb-6">
+            <div className="bg-primary/10 border border-primary/20 rounded-xl p-3 text-center">
+              <TrendingUp className="w-5 h-5 text-primary mx-auto mb-1" />
+              <p className="text-xs font-semibold text-foreground">Alta Taxa de Acerto</p>
+            </div>
+            <div className="bg-accent/10 border border-accent/20 rounded-xl p-3 text-center">
+              <Trophy className="w-5 h-5 text-accent mx-auto mb-1" />
+              <p className="text-xs font-semibold text-foreground">Tips Exclusivas</p>
+            </div>
           </div>
 
           {/* Form */}
-          <form onSubmit={handleLogin} className="space-y-4">
+          <form onSubmit={handleLogin} className="space-y-5">
             <div className="space-y-2">
-              <label htmlFor="email" className="text-sm font-semibold text-white/90">
-                E-mail
+              <label htmlFor="email" className="text-sm font-semibold text-foreground flex items-center gap-2">
+                📧 E-mail
               </label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="seu@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="bg-white/5 border-purple-500/30 text-white placeholder:text-white/40 h-12 text-base focus:border-purple-500/50 focus:ring-purple-500/20 transition-all"
-                disabled={isLoading}
-              />
+              <Input id="email" type="email" placeholder="seu@email.com" value={email} onChange={e => setEmail(e.target.value)} className="bg-muted/20 border-primary/30 text-foreground placeholder:text-muted-foreground h-12 text-base focus:border-primary/50 transition-all" disabled={isLoading} />
             </div>
 
-            {/* CTA Principal - VERDE */}
-            <Button
-              type="submit"
-              className="w-full bg-gradient-to-r from-emerald-600 via-emerald-500 to-emerald-600 hover:from-emerald-700 hover:via-emerald-600 hover:to-emerald-700 text-white font-bold py-6 text-base shadow-xl shadow-emerald-500/30 transition-all duration-300 hover:scale-[1.02] hover:shadow-emerald-500/50"
-              disabled={isLoading}
-            >
-              {isLoading ? "Entrando..." : "Acessar aplicativo"}
+            <Button type="submit" className="w-full bg-gradient-to-r from-emerald-600 via-emerald-500 to-emerald-600 hover:from-emerald-700 hover:via-emerald-600 hover:to-emerald-700 text-white font-bold py-6 text-base shadow-xl shadow-emerald-500/40 transition-all duration-300 hover:scale-[1.02] hover:shadow-emerald-500/60" disabled={isLoading}>
+              {isLoading ? "Entrando..." : "🚀 Acessar Minhas Tips"}
             </Button>
-
-            {/* Separador */}
-            <div className="border-t border-white/10 my-4"></div>
-
-            {/* Botão Secundário - ROXO OUTLINE */}
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setShowAcquireModal(true)}
-              className="w-full border-purple-500/50 bg-purple-500/5 hover:bg-purple-500/15 text-purple-300 hover:text-purple-200 font-semibold py-5 text-sm transition-all duration-300"
-            >
-              <ShoppingCart className="w-4 h-4 mr-2 text-purple-400" />
-              Adquirir acesso
-            </Button>
-
-            <p className="text-center text-white/40 text-xs">
-              Acesso rápido • Sem complicação
-            </p>
           </form>
 
-          {/* Download App + Social Proof */}
-          <div className="mt-6 flex flex-col items-center gap-3">
-            {/* Social Proof Badge - Reposicionado */}
-            <div className="bg-purple-600/20 border border-purple-500/30 text-purple-300 px-3 py-1.5 rounded-full font-semibold text-xs flex items-center gap-1.5">
-              <Users className="w-3.5 h-3.5 text-purple-400" />
-              +50.000 clientes ativos
-            </div>
-            
-            <button
-              onClick={() => setShowPlayStoreModal(true)}
-              className="block transition-all duration-300 hover:scale-[1.02] opacity-80 hover:opacity-100"
-            >
-              <img 
-                src="/images/google-play-badge.png" 
-                alt="Disponível no Google Play" 
-                className="h-11 w-auto"
-              />
+          {/* Separator */}
+          <div className="flex items-center gap-4 my-6">
+            <Separator className="flex-1 bg-border/50" />
+            <span className="text-xs text-muted-foreground font-medium">OU</span>
+            <Separator className="flex-1 bg-border/50" />
+          </div>
+
+          {/* Download App Button */}
+          <div>
+            <button onClick={() => setShowPlayStoreModal(true)} className="block transition-all duration-300 hover:scale-[1.02] mx-auto">
+              <img src="/images/google-play-badge.png" alt="Disponível no Google Play" className="h-14 w-auto" />
             </button>
           </div>
 
-          {/* Footer Legal */}
-          <div className="mt-6 pt-4 border-t border-white/10 text-center space-y-3">
-            <p className="text-[11px] text-white/50 leading-relaxed">
-              Ao continuar, você concorda com nossos{" "}
-              <button 
-                onClick={() => setShowTermsModal(true)}
-                className="text-purple-400 underline underline-offset-2 hover:text-purple-300 transition-colors"
-              >
-                Termos e Privacidade
-              </button>.
-            </p>
-            
-            <div className="flex items-center justify-center gap-3 text-[11px]">
-              <button 
-                onClick={() => setShowTermsModal(true)}
-                className="text-purple-400/70 hover:text-purple-300 transition-colors"
-              >
-                Termos e Privacidade
-              </button>
-              <span className="text-white/30">|</span>
-              <a href="#" className="text-purple-400/70 hover:text-purple-300 transition-colors">
-                Suporte
-              </a>
-            </div>
-
-            <p className="text-[10px] text-white/40 font-medium">
-              18+ • Jogue com responsabilidade.
+          {/* Footer */}
+          <div className="mt-6 text-center">
+            <p className="text-xs text-muted-foreground">
+              🔒 Seus dados estão seguros conosco
             </p>
           </div>
         </div>
+
       </div>
 
       {/* Google Play Coming Soon Modal */}
       <Dialog open={showPlayStoreModal} onOpenChange={setShowPlayStoreModal}>
-        <DialogContent className="bg-[#0C0F14] border-purple-500/20 max-w-sm">
+        <DialogContent className="bg-[#0C0F14] border-border/30 max-w-sm">
           <DialogHeader>
-            <DialogTitle className="text-white text-lg font-bold flex items-center gap-2">
-              <Smartphone className="w-5 h-5 text-purple-400" />
+            <DialogTitle className="text-foreground text-lg font-bold flex items-center gap-2">
+              <Smartphone className="w-5 h-5 text-primary" />
               Em Breve na Google Play
             </DialogTitle>
           </DialogHeader>
           
           <div className="space-y-4 py-2">
-            <p className="text-sm text-white/70">
+            <p className="text-sm text-muted-foreground">
               Em poucos dias o app estará disponível na Google Play! 🚀
             </p>
             
-            <div className="bg-purple-600/10 border border-purple-500/20 rounded-xl p-4 text-center">
-              <p className="text-white text-sm font-medium">
+            <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 text-center">
+              <p className="text-foreground text-sm font-medium">
                 Fique atento às nossas atualizações para ser um dos primeiros a baixar!
               </p>
             </div>
 
-            <p className="text-xs text-white/50 pt-2 border-t border-white/10">
+            <p className="text-xs text-muted-foreground pt-2 border-t border-border/30">
               Enquanto isso, você pode usar o app direto pelo navegador ou instalar o atalho na tela inicial.
             </p>
           </div>
         </DialogContent>
       </Dialog>
-
-      {/* Acquire Access Modal */}
-      <Dialog open={showAcquireModal} onOpenChange={setShowAcquireModal}>
-        <DialogContent className="bg-[#0C0F14] border-purple-500/20 max-w-sm">
-          <DialogHeader>
-            <DialogTitle className="text-white text-lg font-bold flex items-center gap-2">
-              <ShoppingCart className="w-5 h-5 text-purple-400" />
-              Adquirir acesso
-            </DialogTitle>
-          </DialogHeader>
-          
-          <div className="space-y-4 py-2">
-            <p className="text-sm text-white/70">
-              Em breve: aqui vamos direcionar para o checkout/compra.
-            </p>
-            
-            <Button
-              onClick={() => setShowAcquireModal(false)}
-              className="w-full bg-purple-500/20 hover:bg-purple-500/30 text-purple-200 border border-purple-500/30"
-            >
-              Fechar
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Terms and Privacy Modal */}
-      <Dialog open={showTermsModal} onOpenChange={setShowTermsModal}>
-        <DialogContent className="bg-[#0C0F14] border-purple-500/20 max-w-sm">
-          <DialogHeader>
-            <DialogTitle className="text-white text-lg font-bold">
-              Termos e Privacidade
-            </DialogTitle>
-          </DialogHeader>
-          
-          <div className="space-y-4 py-2">
-            <p className="text-sm text-white/70">
-              Conteúdo em breve.
-            </p>
-            
-            <Button
-              onClick={() => setShowTermsModal(false)}
-              className="w-full bg-purple-500/20 hover:bg-purple-500/30 text-purple-200 border border-purple-500/30"
-            >
-              Fechar
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-    </div>
-  );
+    </div>;
 };
-
 export default Login;
