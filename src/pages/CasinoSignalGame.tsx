@@ -1,6 +1,6 @@
 import { ArrowLeft, Wifi } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { isAuthenticated } from "@/lib/auth";
 
@@ -19,6 +19,14 @@ const GAME_CONFIGS: Record<string, GameConfig> = {
   roleta: { name: "Roleta", buttonColor: "#DC2626", buttonGlow: "rgba(220, 38, 38, 0.5)" },
   mines: { name: "Mines", buttonColor: "#8B5CF6", buttonGlow: "rgba(139, 92, 246, 0.5)" },
   "fortune-tiger": { name: "Fortune Tiger", buttonColor: "#FF4500", buttonGlow: "rgba(255, 69, 0, 0.5)" },
+};
+
+// Mapa de iFrames por jogo (URLs editáveis)
+const CASINO_IFRAMES: Record<string, { name: string; url: string }> = {
+  aviator: { name: "Aviator", url: "https://example.com/aviator" },
+  roleta: { name: "Roleta", url: "https://example.com/roleta" },
+  mines: { name: "Mines", url: "https://example.com/mines" },
+  "fortune-tiger": { name: "Fortune Tiger", url: "https://example.com/fortune-tiger" },
 };
 
 // Loading steps
@@ -232,12 +240,21 @@ const CasinoSignalGame = () => {
 
   const gameConfig = slug ? GAME_CONFIGS[slug] : null;
 
+  // Refs para cleanup de timers
+  const timersRef = useRef<NodeJS.Timeout[]>([]);
+
   useEffect(() => {
     window.scrollTo(0, 0);
     if (!isAuthenticated()) {
       navigate("/login");
     }
-  }, [navigate]);
+    
+    // Cleanup ao trocar de slug ou desmontar
+    return () => {
+      timersRef.current.forEach(timer => clearTimeout(timer));
+      timersRef.current = [];
+    };
+  }, [navigate, slug]);
 
   // Cooldown timer
   useEffect(() => {
@@ -296,6 +313,10 @@ const CasinoSignalGame = () => {
   const handleIdentifySignal = useCallback(() => {
     if (cooldown > 0 || phase === 'loading') return;
 
+    // Limpa timers anteriores
+    timersRef.current.forEach(timer => clearTimeout(timer));
+    timersRef.current = [];
+
     setPhase('loading');
     setStepIndex(0);
     setResult(null);
@@ -307,17 +328,20 @@ const CasinoSignalGame = () => {
     const step3 = totalMs * 0.50;
 
     // Step 1
-    setTimeout(() => setStepIndex(1), step1);
+    const t1 = setTimeout(() => setStepIndex(1), step1);
+    timersRef.current.push(t1);
     
     // Step 2
-    setTimeout(() => setStepIndex(2), step1 + step2);
+    const t2 = setTimeout(() => setStepIndex(2), step1 + step2);
+    timersRef.current.push(t2);
     
     // Final result
-    setTimeout(() => {
+    const t3 = setTimeout(() => {
       setPhase('result');
       setResult(generateResult());
       setCooldown(30);
     }, step1 + step2 + step3);
+    timersRef.current.push(t3);
   }, [cooldown, phase, generateResult]);
 
   // Jogo não encontrado
@@ -393,6 +417,22 @@ const CasinoSignalGame = () => {
             </span>
           ) : buttonText}
         </Button>
+
+        {/* iFrame Section - Mesmo padrão do Sport.tsx */}
+        {slug && CASINO_IFRAMES[slug] && (
+          <section className="w-full">
+            <div className="w-full h-[1000px] bg-gradient-to-br from-muted/40 to-muted/20 rounded-xl overflow-hidden border border-border/30 backdrop-blur-sm">
+              <iframe
+                key={slug}
+                src={CASINO_IFRAMES[slug].url}
+                title={CASINO_IFRAMES[slug].name}
+                className="w-full h-full"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+          </section>
+        )}
       </main>
     </div>
   );
