@@ -1,7 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { HelpCircle, Info, Link2, Clock, Layers, BarChart3 } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { Badge } from "@/components/ui/badge";
+import { TrendingUp, AlertCircle } from "lucide-react";
+import { useState, useEffect } from "react";
+
+interface Indicator {
+  label: string;
+  value: string;
+}
 
 interface PremiumBettingCardProps {
   tipId: number;
@@ -18,472 +24,309 @@ interface PremiumBettingCardProps {
   market: string;
   betChoice: string;
   odds: number;
-  matchDate?: string;
-  expirationDate?: string;
-  selectionsCount?: number;
+  indicators?: Indicator[];
   insights?: string;
   footer?: string;
   lineAlert?: boolean;
   isLocked?: boolean;
-  isExpired?: boolean;
   onAddTip?: () => void;
   onViewAnalysis?: () => void;
 }
 
-// Helper function to generate market explanation
-const getMarketExplanation = (market: string): string => {
-  const marketLower = market.toLowerCase();
+// Gera valores persistentes por tipId
+const getPersistedValues = (tipId: number) => {
+  const storageKey = `tip_${tipId}_data`;
+  const stored = localStorage.getItem(storageKey);
   
-  if (marketLower.includes("total de gols")) {
-    return "Total de gols = soma dos gols dos dois times.";
-  }
-  if (marketLower.includes("escanteios")) {
-    return "Escanteios = total de escanteios dos dois times.";
-  }
-  if (marketLower.includes("ambas marcam")) {
-    return "Ambas marcam = os dois times precisam fazer gol.";
-  }
-  if (marketLower.includes("resultado final")) {
-    return "Resultado final = quem vence ou se empata.";
-  }
-  if (marketLower.includes("handicap")) {
-    return "Handicap = vantagem/desvantagem aplicada ao placar.";
-  }
-  if (marketLower.includes("cartões")) {
-    return "Cartões = total de cartões mostrados no jogo.";
+  if (stored) {
+    return JSON.parse(stored);
   }
   
-  return "Esse é o tipo de mercado da aposta.";
-};
-
-// Helper function to generate bet explanation
-const getBetExplanation = (betChoice: string): string => {
-  const betLower = betChoice.toLowerCase();
+  // Gera novos valores apenas uma vez
+  const peopleCount = Math.floor(Math.random() * (5000 - 100 + 1)) + 100;
+  const confidence = Math.floor(Math.random() * (97 - 80 + 1)) + 80; // 80-97%
   
-  const maisDeMatch = betLower.match(/mais de\s*(\d+[.,]?\d*)/);
-  if (maisDeMatch) {
-    const value = parseFloat(maisDeMatch[1].replace(",", "."));
-    const needed = Math.ceil(value);
-    return `Precisa sair ${needed} ou mais para bater.`;
-  }
+  const data = { peopleCount, confidence };
+  localStorage.setItem(storageKey, JSON.stringify(data));
   
-  const menosDeMatch = betLower.match(/menos de\s*(\d+[.,]?\d*)/);
-  if (menosDeMatch) {
-    const value = parseFloat(menosDeMatch[1].replace(",", "."));
-    const max = Math.floor(value);
-    return `Precisa ter no máximo ${max} para bater.`;
-  }
-  
-  if (betLower === "sim") {
-    return "A condição do mercado precisa acontecer.";
-  }
-  if (betLower === "não") {
-    return "A condição do mercado NÃO pode acontecer.";
-  }
-  
-  return "O jogo precisa seguir exatamente essa condição.";
-};
-
-// Helper function to format countdown
-const formatCountdown = (totalSeconds: number): string => {
-  if (totalSeconds <= 0) return "00:00:00";
-  
-  const hours = Math.floor(totalSeconds / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = totalSeconds % 60;
-  
-  const pad = (n: number) => n.toString().padStart(2, "0");
-  return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
-};
-
-// Get display tier - MÚLTIPLA maps to PRO (never show MÚLTIPLA as badge)
-const getDisplayTier = (tier: string): "GRÁTIS" | "BÁSICO" | "PRO" | "ULTRA" => {
-  if (tier === "MÚLTIPLA") return "PRO"; // Múltipla uses PRO styling
-  if (tier === "ULTRA") return "ULTRA";
-  if (tier === "PRO") return "PRO";
-  if (tier === "GRÁTIS") return "GRÁTIS";
-  return "BÁSICO";
-};
-
-// Get tier styling configuration (only 4 tiers now)
-const getTierConfig = (tier: string) => {
-  const displayTier = getDisplayTier(tier);
-  
-  switch (displayTier) {
-    case "ULTRA":
-      return {
-        bgColor: "bg-[#9333EA]",
-        textColor: "text-white",
-        glowColor: "shadow-[0_0_30px_rgba(147,51,234,0.6)]",
-        borderColor: "border-purple-500/60",
-        iconColor: "text-purple-400",
-        iconBorderColor: "border-purple-500/50",
-      };
-    case "PRO":
-      return {
-        bgColor: "bg-gradient-to-r from-orange-500 to-orange-600",
-        textColor: "text-white",
-        glowColor: "shadow-[0_0_20px_rgba(249,115,22,0.5)]",
-        borderColor: "border-orange-500/50",
-        iconColor: "text-orange-400",
-        iconBorderColor: "border-orange-500/50",
-      };
-    case "GRÁTIS":
-      return {
-        bgColor: "bg-gradient-to-r from-cyan-500 to-cyan-600",
-        textColor: "text-white",
-        glowColor: "shadow-[0_0_20px_rgba(34,211,238,0.4)]",
-        borderColor: "border-cyan-500/40",
-        iconColor: "text-cyan-400",
-        iconBorderColor: "border-cyan-500/50",
-      };
-    default: // BÁSICO
-      return {
-        bgColor: "bg-gradient-to-r from-emerald-500 to-emerald-600",
-        textColor: "text-white",
-        glowColor: "shadow-[0_0_20px_rgba(16,185,129,0.5)]",
-        borderColor: "border-emerald-500/50",
-        iconColor: "text-emerald-400",
-        iconBorderColor: "border-emerald-500/50",
-      };
-  }
+  return data;
 };
 
 export const PremiumBettingCard = ({
   tipId,
   tier,
+  tierSubtitle,
   team1,
   team2,
   market,
   betChoice,
   odds,
-  matchDate,
-  expirationDate,
-  selectionsCount,
+  indicators,
+  insights,
+  footer = "Gestão 1–2% • Pré-jogo",
+  lineAlert = false,
   isLocked = false,
-  isExpired: isExpiredProp = false,
   onAddTip,
+  onViewAnalysis,
 }: PremiumBettingCardProps) => {
-  const [showMarketHelp, setShowMarketHelp] = useState(false);
-  const [showBetHelp, setShowBetHelp] = useState(false);
-  const [showDataHelp, setShowDataHelp] = useState(false);
-  const [countdown, setCountdown] = useState<string>("");
-  const [isExpiredLocal, setIsExpiredLocal] = useState(false);
-  const marketHelpRef = useRef<HTMLDivElement>(null);
-  const betHelpRef = useRef<HTMLDivElement>(null);
-  const dataHelpRef = useRef<HTMLDivElement>(null);
-
-  // Get display tier (never MÚLTIPLA)
-  const displayTier = getDisplayTier(tier);
-  const config = getTierConfig(tier);
-  const marketExplanation = getMarketExplanation(market);
-  const betExplanation = getBetExplanation(betChoice);
+  const [isHovered, setIsHovered] = useState(false);
+  const [peopleCount, setPeopleCount] = useState(0);
   
-  // Combine prop expired with local expired state
-  const isExpired = isExpiredProp || isExpiredLocal;
+  // Obtém valores persistidos por tipId
+  const persistedData = getPersistedValues(tipId);
+  const finalCount = persistedData.peopleCount;
+  const confidence = persistedData.confidence;
   
-  // Detect if it's a multiple bet (by selectionsCount or MÚLTIPLA tier or ULTRA tier)
-  const isMultiple = tier === "MÚLTIPLA" || tier === "ULTRA" || (selectionsCount && selectionsCount > 1);
-  
-  // For ULTRA, always show at least 3 selections as fallback
-  const displaySelectionsCount = selectionsCount || (tier === "ULTRA" ? 3 : 2);
-
-  // Countdown timer effect
+  // Anima o contador subindo
   useEffect(() => {
-    if (!expirationDate || isExpiredProp) return;
-
-    const calculateRemaining = () => {
-      const now = new Date().getTime();
-      const expireAt = new Date(expirationDate).getTime();
-      const diff = Math.floor((expireAt - now) / 1000);
-      return diff;
-    };
-
-    const initialRemaining = calculateRemaining();
-    if (initialRemaining <= 0) {
-      setIsExpiredLocal(true);
-      setCountdown("00:00:00");
-      return;
-    }
-    setCountdown(formatCountdown(initialRemaining));
-
-    const interval = setInterval(() => {
-      const remaining = calculateRemaining();
-      if (remaining <= 0) {
-        setIsExpiredLocal(true);
-        setCountdown("00:00:00");
-        clearInterval(interval);
+    const startCount = Math.floor(finalCount * 0.3);
+    const duration = 2000;
+    const steps = 60;
+    const increment = (finalCount - startCount) / steps;
+    let current = startCount;
+    let step = 0;
+    
+    const timer = setInterval(() => {
+      step++;
+      current += increment;
+      
+      if (step >= steps) {
+        setPeopleCount(finalCount);
+        clearInterval(timer);
       } else {
-        setCountdown(formatCountdown(remaining));
+        setPeopleCount(Math.floor(current));
       }
-    }, 1000);
+    }, duration / steps);
+    
+    return () => clearInterval(timer);
+  }, [finalCount]);
 
-    return () => clearInterval(interval);
-  }, [expirationDate, isExpiredProp]);
+  const getTierConfig = () => {
+    switch (tier) {
+      case "ULTRA":
+        return {
+          gradient: "from-ultra via-purple-500 to-ultra",
+          subtitle: tierSubtitle || "Entrada Ultra Premium",
+          icon: <TrendingUp className="w-3 h-3" />,
+        };
+      case "MÚLTIPLA":
+        return {
+          gradient: "from-vip via-purple-600 to-vip",
+          subtitle: tierSubtitle || "Combinação de entradas",
+          icon: <TrendingUp className="w-3 h-3" />,
+        };
+      case "PRO":
+        return {
+          gradient: "from-primary via-orange-600 to-primary",
+          subtitle: tierSubtitle || "Curadoria avançada",
+          icon: <TrendingUp className="w-3 h-3" />,
+        };
+      case "GRÁTIS":
+        return {
+          gradient: "from-accent via-cyan-500 to-accent",
+          subtitle: tierSubtitle || "Entrada gratuita",
+          icon: null,
+        };
+      default:
+        return {
+          gradient: "from-success via-emerald-500 to-success",
+          subtitle: tierSubtitle || "Sinal validado",
+          icon: null,
+        };
+    }
+  };
 
-  // Close tooltips when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (marketHelpRef.current && !marketHelpRef.current.contains(event.target as Node)) {
-        setShowMarketHelp(false);
-      }
-      if (betHelpRef.current && !betHelpRef.current.contains(event.target as Node)) {
-        setShowBetHelp(false);
-      }
-      if (dataHelpRef.current && !dataHelpRef.current.contains(event.target as Node)) {
-        setShowDataHelp(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  const config = getTierConfig();
 
   return (
     <Card
-      className={`w-full h-full overflow-hidden select-none relative rounded-2xl border-2 transition-all duration-300 flex flex-col ${
-        isExpired 
-          ? "border-gray-600/50 shadow-none grayscale-[60%]" 
-          : `${config.borderColor} ${config.glowColor} hover:scale-[1.02]`
-      }`}
+      className={`w-full bg-gradient-to-br from-[#121826] to-[#0C0F14] border ${
+        lineAlert 
+          ? "border-warning/50 animate-shake" 
+          : isHovered 
+          ? "border-accent/50 shadow-[0_0_20px_rgba(34,211,238,0.3)]" 
+          : "border-border/30"
+      } overflow-hidden select-none transition-all duration-300 ${
+        isHovered ? "-translate-y-1" : ""
+      } ${isLocked ? "opacity-70" : ""} backdrop-blur-sm relative group`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Stadium Background Image */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{
-          backgroundImage: `url('/images/futsal-arena.jpg')`,
-        }}
-      />
+      {/* Background Texture */}
+      <div className="absolute inset-0 opacity-[0.08] bg-[radial-gradient(circle_at_30%_50%,rgba(34,211,238,0.1),transparent_50%)]" />
       
-      {/* Dark Overlay for readability */}
-      <div className={`absolute inset-0 ${
-        isExpired 
-          ? "bg-gradient-to-b from-gray-900/70 via-gray-900/80 to-gray-900/90" 
-          : "bg-gradient-to-b from-black/40 via-black/50 to-black/80"
-      }`} />
+      {/* Locked Overlay - Discreto */}
+      {isLocked && (
+        <div className="absolute inset-0 z-20 bg-black/20 backdrop-blur-[1px]" />
+      )}
       
-      {/* Expired Chain Pattern Overlay */}
-      {isExpired && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
-          <Link2 className="w-20 h-20 text-gray-500/20 rotate-45" />
+      {/* Animated GIF Background for Premium Tiers */}
+      {(tier === "PRO" || tier === "MÚLTIPLA") && !isLocked && (
+        <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
+          <img 
+            src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif" 
+            alt="" 
+            className="w-full h-full object-cover mix-blend-screen"
+          />
         </div>
       )}
       
-      {/* Locked Overlay */}
-      {isLocked && !isExpired && (
-        <div className="absolute inset-0 z-20 bg-black/50 backdrop-blur-sm" />
-      )}
-
-      {/* Content - Fixed height sections */}
-      <div className="relative z-10 p-4 flex flex-col flex-1">
-        
-        {/* Header Section - Fixed height */}
-        <div className="h-12 flex items-center justify-center relative mb-1">
-          {/* Timer - Top Left Corner */}
-          {!isExpired && countdown && (
-            <div className="absolute top-0 left-0 flex items-center gap-1 bg-black/60 backdrop-blur-sm px-2 py-1 rounded-md">
-              <Clock className="w-3 h-3 text-white/70" />
-              <span className="text-[10px] text-white/90 font-medium tabular-nums">
-                {countdown}
-              </span>
-            </div>
-          )}
-
-          {/* Tier Badge or Expired Badge - Centered */}
-          {isExpired ? (
-            <div className="bg-gray-600 text-gray-300 px-5 py-1 rounded-full font-bold text-xs tracking-wide shadow-lg">
-              EXPIRADA
-            </div>
-          ) : (
-            <div className={`${config.bgColor} ${config.textColor} px-5 py-1 rounded-full font-bold text-xs tracking-wide shadow-lg`}>
-              {displayTier}
-            </div>
-          )}
-
-          {/* Market Help Button - Top Right */}
-          <div className="absolute top-0 right-0" ref={marketHelpRef}>
-            <button
-              onClick={() => setShowMarketHelp(!showMarketHelp)}
-              className={`w-6 h-6 rounded-full bg-black/40 backdrop-blur-sm border ${
-                isExpired ? "border-gray-500/50" : config.iconBorderColor
-              } flex items-center justify-center hover:bg-black/60 transition-colors`}
-              aria-label="Ajuda do mercado"
-            >
-              <Info className={`w-3.5 h-3.5 ${isExpired ? "text-gray-400" : config.iconColor}`} />
-            </button>
-            
-            {/* Market Help Tooltip */}
-            {showMarketHelp && (
-              <div className="absolute right-0 top-8 w-44 bg-black/90 backdrop-blur-md border border-white/20 rounded-lg p-2 shadow-xl z-50">
-                <p className="text-[11px] text-white/90 leading-relaxed">
-                  {marketExplanation}
-                </p>
-              </div>
+      {/* Tier Badge */}
+      <div className="relative overflow-hidden animate-slide-up">
+        <div
+          className={`text-center py-2 px-3 font-display font-extrabold text-[10px] tracking-wider uppercase relative bg-gradient-to-r ${config.gradient} bg-[length:200%_100%] animate-gradient`}
+        >
+          <div className="relative z-10 flex items-center justify-center gap-1.5">
+            {config.icon}
+            <span className="text-white drop-shadow-lg tracking-tight">{tier}</span>
+            {/* Sparkle GIF for special tiers */}
+            {(tier === "PRO" || tier === "MÚLTIPLA") && (
+              <img 
+                src="https://media.giphy.com/media/26tPnAAJxXTvpLwJy/giphy.gif" 
+                alt="" 
+                className="w-3 h-3 inline-block ml-0.5 opacity-80"
+              />
+            )}
+            {tier === "GRÁTIS" && (
+              <img 
+                src="https://media.giphy.com/media/xUPGcC0R9QjyxkPnS8/giphy.gif" 
+                alt="" 
+                className="w-3 h-3 inline-block ml-0.5 opacity-70"
+              />
             )}
           </div>
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-shine" />
+        </div>
+      </div>
+
+      {/* Line Alert */}
+      {lineAlert && (
+        <div className="mx-3 mt-2 mb-1">
+          <Badge className="bg-warning/20 text-warning border-warning/30 text-[9px] font-bold animate-bounce-micro">
+            <AlertCircle className="w-2.5 h-2.5 mr-1" />
+            Linha mudou
+          </Badge>
+        </div>
+      )}
+
+      <div className="p-3 space-y-2.5 relative">
+        {/* Match Header */}
+        <div className="space-y-1">
+          <h3 className="text-sm font-display font-extrabold text-foreground tracking-tight leading-tight">
+            {team1.name} <span className="text-muted-foreground">×</span> {team2.name}
+          </h3>
+          <p className="text-[9px] text-muted-foreground font-medium uppercase tracking-wide">
+            {isLocked ? "***************" : market}
+          </p>
         </div>
 
-        {/* Match Date - Fixed height */}
-        <div className="h-5 flex items-center justify-center">
-          {matchDate && (
-            <p className={`text-[11px] font-medium ${isExpired ? "text-gray-400" : "text-white/80"}`}>
-              {matchDate}
-            </p>
-          )}
-        </div>
-
-        {/* Teams Section - Fixed height */}
-        <div className="h-24 flex items-center justify-center gap-6 w-full">
-          {/* Team 1 */}
-          <div className="flex flex-col items-center gap-1">
-            <div className={`w-12 h-12 rounded-full backdrop-blur-sm flex items-center justify-center ring-2 shadow-lg ${
-              isExpired ? "bg-gray-800/50 ring-gray-600/30" : "bg-white/10 ring-white/20"
-            }`}>
+        {/* Teams Logos - Compact */}
+        <div className="flex items-center justify-center gap-4">
+          <div className="relative">
+            <div className="w-10 h-10 rounded-full bg-muted/30 backdrop-blur-sm flex items-center justify-center overflow-hidden ring-1 ring-border/30">
               <img
                 src={team1.logo}
                 alt={team1.name}
-                className={`w-8 h-8 object-contain ${isExpired ? "opacity-50" : ""}`}
+                className="w-7 h-7 object-contain"
               />
             </div>
-            <span className={`text-[10px] font-semibold text-center max-w-[70px] leading-tight line-clamp-1 ${
-              isExpired ? "text-gray-400" : "text-white"
-            }`}>
-              {team1.name}
-            </span>
           </div>
 
-          <div className="text-white/30 text-xs font-bold"></div>
+          <div className="text-muted-foreground/50 text-[9px] font-bold">VS</div>
 
-          {/* Team 2 */}
-          <div className="flex flex-col items-center gap-1">
-            <div className={`w-12 h-12 rounded-full backdrop-blur-sm flex items-center justify-center ring-2 shadow-lg ${
-              isExpired ? "bg-gray-800/50 ring-gray-600/30" : "bg-white/10 ring-white/20"
-            }`}>
+          <div className="relative">
+            <div className="w-10 h-10 rounded-full bg-muted/30 backdrop-blur-sm flex items-center justify-center overflow-hidden ring-1 ring-border/30">
               <img
                 src={team2.logo}
                 alt={team2.name}
-                className={`w-8 h-8 object-contain ${isExpired ? "opacity-50" : ""}`}
+                className="w-7 h-7 object-contain"
               />
             </div>
-            <span className={`text-[10px] font-semibold text-center max-w-[70px] leading-tight line-clamp-1 ${
-              isExpired ? "text-gray-400" : "text-white"
-            }`}>
-              {team2.name}
-            </span>
           </div>
         </div>
 
-        {/* Market Name - Fixed height */}
-        <div className="h-10 flex items-center justify-center">
-          <div className={`px-3 py-1.5 rounded-lg backdrop-blur-sm border ${
-            isExpired 
-              ? "bg-gray-800/60 border-gray-600/30" 
-              : "bg-black/60 border-white/10"
-          }`}>
-            <p className={`text-xs font-semibold line-clamp-1 ${isExpired ? "text-gray-400" : "text-white"}`}>
-              {market}
+        {/* People Counter with Fire Animation */}
+        <div className="bg-gradient-to-r from-warning/10 via-warning/5 to-transparent border border-warning/20 rounded-lg p-2 flex items-center gap-2 animate-fade-in">
+          <div className="relative">
+            <img 
+              src="https://media.giphy.com/media/l0HlR3kHtkgFbYfgQ/giphy.gif" 
+              alt="" 
+              className="w-5 h-5 object-contain opacity-90 animate-pulse"
+            />
+          </div>
+          <p className="text-[10px] text-foreground font-bold leading-tight">
+            Já são <span className="text-warning font-extrabold text-xs">{peopleCount.toLocaleString('pt-BR')}</span> pessoas nessa aposta!
+          </p>
+        </div>
+
+        {/* Insights - Moved below people counter */}
+        {insights && (
+          <div className="bg-accent/5 border border-accent/20 rounded-lg p-2">
+            <p className="text-[10px] text-foreground/90 leading-snug font-medium line-clamp-2">
+              {insights}
             </p>
           </div>
-        </div>
+        )}
 
-        {/* Multiple Bet Label - Fixed height (always reserve space) */}
-        <div className="h-7 flex items-center justify-center">
-          {isMultiple && !isExpired && (
-            <div className="flex items-center gap-1 bg-purple-500/20 backdrop-blur-sm px-2 py-0.5 rounded-md border border-purple-500/30">
-              <Layers className="w-3 h-3 text-purple-400" />
-              <span className="text-[10px] text-purple-300 font-medium">
-                Bilhete pronto ({displaySelectionsCount})
+        {/* Bet Details & Odds - Compact */}
+        <div className="bg-gradient-to-br from-muted/40 to-muted/20 backdrop-blur-sm rounded-lg p-2.5 border border-border/20">
+          <div className="flex items-center justify-between mb-2">
+            <div>
+              <span className="text-[9px] text-muted-foreground font-semibold uppercase block mb-0.5">
+                Entrada
+              </span>
+              <span className="text-foreground font-bold text-xs leading-tight">
+                {betChoice}
               </span>
             </div>
-          )}
-        </div>
-
-        {/* Bet Details Row - Fixed height */}
-        <div className={`h-14 w-full backdrop-blur-sm rounded-xl px-4 flex items-center justify-between ${
-          isExpired 
-            ? "bg-gray-800/50" 
-            : "bg-black/50"
-        }`}>
-          <span className={`font-bold text-sm line-clamp-1 ${isExpired ? "text-gray-500" : "text-emerald-400"}`}>
-            {betChoice}
-          </span>
-          <span className={`font-black text-lg ${isExpired ? "text-gray-500" : "text-white"}`}>
-            {odds.toFixed(1)}
-          </span>
-        </div>
-
-        {/* Spacer to push buttons to bottom */}
-        <div className="flex-1 min-h-3" />
-
-        {/* Action Buttons Row - Always at bottom */}
-        <div className="flex items-center gap-2 w-full mt-auto">
-          {/* Main Add Button */}
-          <Button
-            onClick={isExpired ? undefined : onAddTip}
-            disabled={isExpired}
-            className={`flex-1 font-bold py-4 text-sm shadow-lg transition-all duration-300 ${
-              isExpired 
-                ? "bg-gray-600 text-gray-400 cursor-not-allowed shadow-none" 
-                : isLocked 
-                  ? "bg-yellow-500 hover:bg-yellow-400 text-black shadow-yellow-500/40 hover:scale-[1.03]" 
-                  : "bg-emerald-500 hover:bg-emerald-400 text-white shadow-emerald-500/40 hover:scale-[1.03]"
-            }`}
-          >
-            <span className="font-extrabold text-xs">
-              {isExpired ? "Expirada" : isLocked ? "🔒 Desbloquear" : "Adicionar"}
-            </span>
-          </Button>
-
-          {/* Icon Buttons Group */}
-          <div className="flex items-center gap-2">
-            {/* "Como bater?" Icon Button */}
-            <div className="relative" ref={betHelpRef}>
-              <button
-                onClick={() => setShowBetHelp(!showBetHelp)}
-                className={`w-12 h-12 rounded-xl backdrop-blur-sm border flex items-center justify-center transition-colors ${
-                  isExpired 
-                    ? "bg-gray-700/50 border-gray-600/30 hover:bg-gray-700/70" 
-                    : "bg-white/10 border-white/20 hover:bg-white/20"
-                }`}
-                aria-label="Como bater?"
-              >
-                <HelpCircle className={`w-5 h-5 ${isExpired ? "text-gray-500" : "text-white/80"}`} />
-              </button>
-              
-              {showBetHelp && (
-                <div className="absolute right-0 bottom-14 w-48 bg-black/90 backdrop-blur-md border border-white/20 rounded-lg p-2 shadow-xl z-50">
-                  <p className="text-[11px] text-white/90 leading-relaxed">
-                    <strong className="text-emerald-400">{betChoice}:</strong>{" "}
-                    {betExplanation}
-                  </p>
-                </div>
-              )}
-            </div>
-
-            {/* "Dados/Justificativa" Icon Button */}
-            <div className="relative" ref={dataHelpRef}>
-              <button
-                onClick={() => setShowDataHelp(!showDataHelp)}
-                className={`w-12 h-12 rounded-xl backdrop-blur-sm border flex items-center justify-center transition-colors ${
-                  isExpired 
-                    ? "bg-gray-700/50 border-gray-600/30 hover:bg-gray-700/70" 
-                    : "bg-white/10 border-white/20 hover:bg-white/20"
-                }`}
-                aria-label="Justificativa da entrada"
-              >
-                <BarChart3 className={`w-5 h-5 ${isExpired ? "text-gray-500" : "text-white/80"}`} />
-              </button>
-              
-              {showDataHelp && (
-                <div className="absolute right-0 bottom-14 w-52 bg-black/90 backdrop-blur-md border border-white/20 rounded-lg p-3 shadow-xl z-50">
-                  <p className="text-xs font-semibold text-white mb-1">Justificativa da entrada</p>
-                  <p className="text-[11px] text-white/70 leading-relaxed">
-                    Em breve: aqui vamos mostrar os dados e percentuais do confronto.
-                  </p>
-                </div>
-              )}
+            <div className="text-right">
+              <span className="text-[9px] text-muted-foreground font-semibold uppercase block mb-0.5">
+                Odd
+              </span>
+              <span className="text-success font-black text-xl text-tabular leading-none">
+                {odds.toFixed(2)}
+              </span>
             </div>
           </div>
+
+          {/* Confidence Bar - Compact */}
+          <div className="space-y-1">
+            <div className="flex items-center justify-between text-[9px]">
+              <span className="text-muted-foreground font-semibold">Confiança</span>
+              <span className="text-foreground font-bold">{confidence}%</span>
+            </div>
+            <div className="h-1 bg-muted/50 rounded-full overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all duration-500 ${
+                  confidence >= 80
+                    ? "bg-gradient-to-r from-success to-emerald-400"
+                    : "bg-gradient-to-r from-warning to-yellow-400"
+                }`}
+                style={{ width: `${confidence}%` }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Action Buttons - Compact */}
+        <div className="pt-1 relative z-30">
+          <Button
+            onClick={onAddTip}
+            className={`w-full font-bold py-4 text-xs shadow-lg transition-all duration-300 hover:scale-[1.02] relative overflow-hidden group/btn ${
+              isLocked 
+                ? "bg-warning hover:bg-warning/90 text-black shadow-warning/50 border-2 border-warning" 
+                : "bg-primary hover:bg-primary/90 text-white shadow-primary/30"
+            }`}
+          >
+            <span className="relative font-extrabold text-sm">{isLocked ? "🔒 Desbloquear" : "Adicionar"}</span>
+          </Button>
+        </div>
+
+        {/* Footer - Compact */}
+        <div className="pt-1.5 border-t border-border/20">
+          <p className="text-[9px] text-muted-foreground text-center leading-relaxed font-medium">
+            {footer}
+          </p>
         </div>
       </div>
     </Card>

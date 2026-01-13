@@ -8,27 +8,42 @@ import { LoginResponse } from "@/types/auth";
 import { Smartphone, Trophy, TrendingUp } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import logoImg from "@/assets/logo.jpg";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+
 const Login = () => {
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showPlayStoreModal, setShowPlayStoreModal] = useState(false);
   const navigate = useNavigate();
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!email) {
       toast.error("Digite seu e-mail");
       return;
     }
+
     setIsLoading(true);
+
     try {
-      const response = await fetch(`https://apiv1.premierfc.app/api/v2/auth/Login?email=${encodeURIComponent(email)}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json"
+      const response = await fetch(
+        `https://apiv1.premierfc.app/api/v2/auth/Login?email=${encodeURIComponent(email)}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
-      });
+      );
+
       const data: LoginResponse = await response.json();
+
       if (data.success && data.response) {
         // Se houver redirect, redireciona para checkout
         if (data.response.redirect && data.response.checkout) {
@@ -39,6 +54,7 @@ const Login = () => {
         // Normaliza e persiste configuração
         const cfg = normalizePayload(data);
         persistConfig(cfg);
+
         toast.success("Login realizado com sucesso!");
         navigate("/");
       } else {
@@ -51,7 +67,9 @@ const Login = () => {
       setIsLoading(false);
     }
   };
-  return <div className="min-h-screen bg-gradient-to-b from-[#0C0F14] via-[#121826] to-[#0C0F14] flex items-center justify-center p-4 relative overflow-hidden">
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-[#0C0F14] via-[#121826] to-[#0C0F14] flex items-center justify-center p-4 relative overflow-hidden">
       {/* Decorative Background Elements */}
       <div className="absolute inset-0 opacity-30">
         <div className="absolute top-20 left-10 w-72 h-72 bg-primary/20 rounded-full blur-3xl"></div>
@@ -65,9 +83,9 @@ const Login = () => {
           <div className="text-center mb-8">
             <div className="mb-4 relative">
               <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full"></div>
-              <img src={logoImg} alt="Olheiro" className="h-20 w-auto mx-auto relative z-10 rounded-xl" />
+              <img src={logoImg} alt="Premier Ultra" className="h-20 w-auto mx-auto relative z-10 rounded-xl" />
             </div>
-            <h2 className="text-xl font-bold text-foreground mb-2 flex items-center justify-center gap-2 border-0 border-dotted rounded-3xl">
+            <h2 className="text-xl font-bold text-foreground mb-2 flex items-center justify-center gap-2">
               <Trophy className="w-5 h-5 text-primary" />
               Tips Profissionais de Apostas
             </h2>
@@ -94,10 +112,22 @@ const Login = () => {
               <label htmlFor="email" className="text-sm font-semibold text-foreground flex items-center gap-2">
                 📧 E-mail
               </label>
-              <Input id="email" type="email" placeholder="seu@email.com" value={email} onChange={e => setEmail(e.target.value)} className="bg-muted/20 border-primary/30 text-foreground placeholder:text-muted-foreground h-12 text-base focus:border-primary/50 transition-all" disabled={isLoading} />
+              <Input
+                id="email"
+                type="email"
+                placeholder="seu@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="bg-muted/20 border-primary/30 text-foreground placeholder:text-muted-foreground h-12 text-base focus:border-primary/50 transition-all"
+                disabled={isLoading}
+              />
             </div>
 
-            <Button type="submit" className="w-full bg-gradient-to-r from-emerald-600 via-emerald-500 to-emerald-600 hover:from-emerald-700 hover:via-emerald-600 hover:to-emerald-700 text-white font-bold py-6 text-base shadow-xl shadow-emerald-500/40 transition-all duration-300 hover:scale-[1.02] hover:shadow-emerald-500/60" disabled={isLoading}>
+            <Button
+              type="submit"
+              className="w-full bg-gradient-to-r from-emerald-600 via-emerald-500 to-emerald-600 hover:from-emerald-700 hover:via-emerald-600 hover:to-emerald-700 text-white font-bold py-6 text-base shadow-xl shadow-emerald-500/40 transition-all duration-300 hover:scale-[1.02] hover:shadow-emerald-500/60"
+              disabled={isLoading}
+            >
               {isLoading ? "Entrando..." : "🚀 Acessar Minhas Tips"}
             </Button>
           </form>
@@ -111,8 +141,15 @@ const Login = () => {
 
           {/* Download App Button */}
           <div>
-            <button onClick={() => setShowPlayStoreModal(true)} className="block transition-all duration-300 hover:scale-[1.02] mx-auto">
-              <img src="/images/google-play-badge.png" alt="Disponível no Google Play" className="h-14 w-auto" />
+            <button
+              onClick={() => setShowPlayStoreModal(true)}
+              className="block transition-all duration-300 hover:scale-[1.02] mx-auto"
+            >
+              <img 
+                src="/images/google-play-badge.png" 
+                alt="Disponível no Google Play" 
+                className="h-14 w-auto"
+              />
             </button>
           </div>
 
@@ -153,6 +190,8 @@ const Login = () => {
           </div>
         </DialogContent>
       </Dialog>
-    </div>;
+    </div>
+  );
 };
+
 export default Login;
