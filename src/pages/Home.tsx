@@ -10,6 +10,7 @@ import { PremiumSportCard } from "@/components/PremiumSportCard";
 import BasicPlanModal from "@/components/BasicPlanModal";
 import { PromoCarousel } from "@/components/PromoCarousel";
 import { QuickAccessCards } from "@/components/QuickAccessCards";
+import { BottomNav } from "@/components/BottomNav";
 import logoImg from "@/assets/premier-logo.png";
 
 // URL de checkout do vitalício (placeholder - trocar pela URL real depois)
@@ -339,7 +340,7 @@ const Home = () => {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0D0A1A] via-[#1A1030] to-[#0D0A1A] relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-[#0D0A1A] via-[#1A1030] to-[#0D0A1A] relative overflow-hidden pb-20 md:pb-0">
       {/* Purple glow effects */}
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-600/20 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-1/3 right-1/4 w-80 h-80 bg-purple-500/15 rounded-full blur-[100px] pointer-events-none" />
@@ -632,6 +633,9 @@ const Home = () => {
           </div>
         </div>
       )}
+
+      {/* Bottom Nav - Mobile only */}
+      <BottomNav />
     </div>
   );
 };

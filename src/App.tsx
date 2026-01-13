@@ -11,6 +11,7 @@ import Casino from "./pages/Casino";
 import CasinoGame from "./pages/CasinoGame";
 import CasinoSignalGame from "./pages/CasinoSignalGame";
 import UltimosGreens from "./pages/UltimosGreens";
+import Support from "./pages/Support";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -39,6 +40,8 @@ const App = () => (
           <Route path="/bonus" element={<Bonus />} />
           <Route path="/ultimos-greens" element={<UltimosGreens />} />
           <Route path="/cassino" element={<Casino />} />
+          {/* Rota de Suporte/Configurações */}
+          <Route path="/support" element={<Support />} />
           {/* Nova rota de sinais IA */}
           <Route path="/cassino/jogo/:slug" element={<CasinoSignalGame />} />
           {/* Rota legado para compatibilidade - redireciona para nova estrutura */}

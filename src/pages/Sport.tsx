@@ -11,6 +11,7 @@ import { fetchSportById } from "@/lib/sports";
 import { AppConfig } from "@/types/auth";
 import { Sport as SportType } from "@/types/sports";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { BottomNav } from "@/components/BottomNav";
 
 // ============ TIPOS DE TIER (incluindo novas categorias) ============
 type TierType = "GRÁTIS" | "ALAVANCAGEM" | "ODDS_ALTAS" | "BÁSICO" | "PRO" | "ULTRA" | "MÚLTIPLA";
@@ -439,7 +440,7 @@ const Sport = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0C0F14] to-[#121826] overflow-x-hidden w-full max-w-full">
+    <div className="min-h-screen bg-gradient-to-b from-[#0C0F14] to-[#121826] overflow-x-hidden w-full max-w-full pb-20 md:pb-0">
       {/* Header */}
       <header className="sticky top-0 z-10 bg-[#0C0F14]/80 backdrop-blur-xl border-b border-border/30">
         <div className="container max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
@@ -653,6 +654,9 @@ const Sport = () => {
         onClose={handleCloseJustificativa}
         texto={justificativaTexto}
       />
+
+      {/* Bottom Nav - Mobile only */}
+      <BottomNav />
     </div>
   );
 };
