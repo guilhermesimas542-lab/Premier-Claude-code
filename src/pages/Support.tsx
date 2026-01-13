@@ -59,73 +59,6 @@ const Support = () => {
       {/* Main Content */}
       <main className="container max-w-2xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 relative z-10">
         
-        {/* Card: Informações Pessoais */}
-        <section className="bg-[#1A1030]/60 backdrop-blur-sm border border-purple-500/20 rounded-2xl p-4 sm:p-5 space-y-4">
-          <h2 className="text-base sm:text-lg font-semibold text-white">
-            Informações Pessoais
-          </h2>
-          
-          <div className="space-y-3">
-            {/* Nome */}
-            <div className="flex items-center gap-3 p-3 bg-purple-500/5 rounded-xl border border-purple-500/10">
-              <div className="w-9 h-9 rounded-lg bg-purple-500/15 flex items-center justify-center">
-                <User className="w-4 h-4 text-purple-400" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs text-purple-300/70">Nome</p>
-                <p className="text-sm font-medium text-white truncate">
-                  {userData?.name || "—"}
-                </p>
-              </div>
-            </div>
-            
-            {/* E-mail */}
-            <div className="flex items-center gap-3 p-3 bg-purple-500/5 rounded-xl border border-purple-500/10">
-              <div className="w-9 h-9 rounded-lg bg-purple-500/15 flex items-center justify-center">
-                <Mail className="w-4 h-4 text-purple-400" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs text-purple-300/70">E-mail</p>
-                <p className="text-sm font-medium text-white truncate">
-                  {userData?.email || "—"}
-                </p>
-              </div>
-            </div>
-            
-            {/* Telefone */}
-            <div className="flex items-center gap-3 p-3 bg-purple-500/5 rounded-xl border border-purple-500/10">
-              <div className="w-9 h-9 rounded-lg bg-purple-500/15 flex items-center justify-center">
-                <Phone className="w-4 h-4 text-purple-400" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs text-purple-300/70">Telefone</p>
-                <p className="text-sm font-medium text-white truncate">
-                  {userData?.phone || "—"}
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Card: Sessão */}
-        <section className="bg-[#1A1030]/60 backdrop-blur-sm border border-purple-500/20 rounded-2xl p-4 sm:p-5 space-y-4">
-          <h2 className="text-base sm:text-lg font-semibold text-white">
-            Sessão
-          </h2>
-          
-          <p className="text-sm text-purple-300/70">
-            Deseja sair da sua conta? Você precisará fazer login novamente para acessar o aplicativo.
-          </p>
-          
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-red-500/50 text-red-400 hover:bg-red-500/10 transition-colors font-medium"
-          >
-            <LogOut className="w-4 h-4" />
-            Sair da Conta
-          </button>
-        </section>
-
         {/* Card: Status do Plano */}
         <section className="bg-[#1A1030]/60 backdrop-blur-sm border border-purple-500/20 rounded-2xl p-4 sm:p-5 space-y-4">
           <div className="flex items-center justify-between">
@@ -185,6 +118,25 @@ const Support = () => {
           >
             <Headphones className="w-4 h-4" />
             Abrir Chat de Suporte
+          </button>
+        </section>
+
+        {/* Card: Sessão */}
+        <section className="bg-[#1A1030]/60 backdrop-blur-sm border border-purple-500/20 rounded-2xl p-4 sm:p-5 space-y-4">
+          <h2 className="text-base sm:text-lg font-semibold text-white">
+            Sessão
+          </h2>
+          
+          <p className="text-sm text-purple-300/70">
+            Deseja sair da sua conta? Você precisará fazer login novamente para acessar o aplicativo.
+          </p>
+          
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-red-500/50 text-red-400 hover:bg-red-500/10 transition-colors font-medium"
+          >
+            <LogOut className="w-4 h-4" />
+            Sair da Conta
           </button>
         </section>
       </main>
