@@ -1,4 +1,4 @@
-import { LogOut, Menu, Headphones, X, Gift, ChevronRight, Sparkles } from "lucide-react";
+import { LogOut, Menu, Headphones, X, Gift, ChevronLeft, ChevronRight, Sparkles, ShoppingCart, Crown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
 import { toast } from "sonner";
@@ -9,6 +9,9 @@ import { Sport } from "@/types/sports";
 import { PremiumSportCard } from "@/components/PremiumSportCard";
 import BasicPlanModal from "@/components/BasicPlanModal";
 import logoImg from "@/assets/premier-logo.png";
+
+// URL de checkout do vitalício (placeholder - trocar pela URL real depois)
+const LIFETIME_CHECKOUT_URL = "/checkout/vitalicio";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -25,6 +28,7 @@ const Home = () => {
     seconds: 0,
   });
   const [showPromotionsModal, setShowPromotionsModal] = useState(false);
+  const [showLifetimeModal, setShowLifetimeModal] = useState(false);
 
   // Boolean para acesso vitalício (trocar depois pela lógica real)
   const hasLifetimeAccess = false;
@@ -199,6 +203,12 @@ const Home = () => {
     setMenuOpen(false);
   };
 
+  const handleBuyLifetime = () => {
+    // Placeholder: redireciona para URL de checkout
+    navigate(LIFETIME_CHECKOUT_URL);
+    setShowLifetimeModal(false);
+  };
+
   // Mapear esportes da API para o formato do componente (por ID)
   const sportEmojiMap: Record<number, string> = {
     1: "⚽",  // Futebol
@@ -336,31 +346,40 @@ const Home = () => {
       <header className="sticky top-0 z-50 bg-[#0D0A1A]/80 backdrop-blur-xl border-b border-purple-500/20">
         <div className="container max-w-7xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
           <div className="flex items-center justify-between gap-2 sm:gap-4">
-            {/* Logo */}
+            {/* Logo + Nome */}
             <div className="flex items-center gap-2 sm:gap-3 shrink-0">
               <img src={logoImg} alt="Premier Ultra" className="h-8 sm:h-10 w-auto" />
-              <span className="text-base sm:text-lg font-bold text-white hidden xs:inline">Premier Ultra</span>
+              <span className="text-base sm:text-lg font-bold text-white">Premier Ultra</span>
             </div>
             
-            {/* User Info + Status + Menu */}
+            {/* Right side: Email (desktop only) + Badge + Cart + Menu */}
             <div className="flex items-center gap-2 sm:gap-3">
-              {/* User email + Status de acesso */}
+              {/* Email - HIDDEN no mobile, visível no md+ */}
               {config?.user && (
-                <div className="flex flex-col items-end gap-0.5">
-                  <span className="text-xs sm:text-sm font-medium text-white truncate max-w-[120px] sm:max-w-[200px]">
-                    {config.user.userMail}
+                <span className="hidden md:block text-xs sm:text-sm font-medium text-white/80 truncate max-w-[180px]">
+                  {config.user.userMail}
+                </span>
+              )}
+              
+              {/* Status Badge */}
+              {hasLifetimeAccess ? (
+                <span className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-semibold bg-gradient-to-r from-amber-500/30 to-yellow-500/30 text-amber-300 border border-amber-500/50 shadow-[0_0_12px_rgba(245,158,11,0.25)]">
+                  <Crown className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                  <span className="hidden xs:inline">Acesso</span> vitalício
+                </span>
+              ) : (
+                <div className="flex items-center gap-1.5">
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-medium bg-purple-500/15 text-purple-300/80 border border-purple-500/30">
+                    <span className="hidden xs:inline">Conta</span> sem vitalício
                   </span>
-                  {/* Status chip */}
-                  {hasLifetimeAccess ? (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-medium bg-purple-500/20 text-purple-300 border border-purple-500/40">
-                      <Sparkles className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-                      Acesso Vitalício
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-medium bg-gray-500/20 text-gray-400 border border-gray-500/30">
-                      Acesso Limitado
-                    </span>
-                  )}
+                  {/* Carrinho - abre modal */}
+                  <button
+                    onClick={() => setShowLifetimeModal(true)}
+                    className="p-1.5 sm:p-2 rounded-lg bg-purple-500/20 border border-purple-500/40 hover:bg-purple-500/30 transition-colors"
+                    title="Adquirir acesso vitalício"
+                  >
+                    <ShoppingCart className="w-4 h-4 text-purple-300" />
+                  </button>
                 </div>
               )}
               
@@ -423,35 +442,50 @@ const Home = () => {
       </header>
 
       <main className="container max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6 relative z-10">
-        {/* Banner Promocional */}
+        {/* Banner Promocional - Estilo Antigo */}
         <section 
           onClick={handlePromotions}
-          className="relative cursor-pointer group overflow-hidden rounded-xl sm:rounded-2xl"
+          className="relative cursor-pointer group overflow-hidden rounded-xl sm:rounded-2xl border border-purple-500/30 shadow-lg shadow-purple-900/20"
         >
-          {/* Background gradient */}
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-900/90 via-purple-800/80 to-purple-900/90" />
+          {/* Background Image placeholder + overlay */}
+          <div 
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ 
+              backgroundImage: `url('https://images.unsplash.com/photo-1614850523459-c2f4c699c52e?w=1200&h=400&fit=crop')`,
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0D0A1A]/95 via-[#1A1030]/85 to-transparent" />
           
-          {/* Decorative elements */}
-          <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/30 rounded-full blur-3xl" />
-          <div className="absolute bottom-0 left-1/4 w-24 h-24 bg-purple-400/20 rounded-full blur-2xl" />
+          {/* Glow effect */}
+          <div className="absolute top-0 right-1/4 w-40 h-40 bg-purple-500/20 rounded-full blur-3xl pointer-events-none" />
           
           {/* Content */}
-          <div className="relative px-4 sm:px-6 py-5 sm:py-6 flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3 sm:gap-4">
-              <div className="shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-purple-500/30 border border-purple-400/40 flex items-center justify-center">
-                <Gift className="w-5 h-5 sm:w-6 sm:h-6 text-purple-300" />
-              </div>
-              <div>
-                <h3 className="text-sm sm:text-base font-bold text-white">Promoções Exclusivas</h3>
-                <p className="text-xs sm:text-sm text-purple-300/80">Bônus e condições especiais</p>
-              </div>
+          <div className="relative px-4 sm:px-8 py-6 sm:py-10 flex items-center justify-between min-h-[120px] sm:min-h-[160px]">
+            {/* Left arrow */}
+            <button 
+              disabled
+              className="shrink-0 p-1.5 sm:p-2 rounded-full bg-white/5 border border-white/10 opacity-40 cursor-not-allowed"
+            >
+              <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 text-white/50" />
+            </button>
+            
+            {/* Center content */}
+            <div className="flex-1 px-3 sm:px-6">
+              <h3 className="text-lg sm:text-2xl font-bold text-white mb-1 sm:mb-2">Promoções Exclusivas</h3>
+              <p className="text-xs sm:text-sm text-purple-200/70 mb-3 sm:mb-4">Bônus e condições especiais</p>
+              <button className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-xs sm:text-sm font-semibold transition-colors shadow-lg shadow-purple-900/40">
+                Acesse aqui
+                <ChevronRight className="w-4 h-4" />
+              </button>
             </div>
             
-            {/* CTA Popup */}
-            <div className="shrink-0 flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 rounded-lg bg-purple-500/30 border border-purple-400/50 group-hover:bg-purple-500/40 transition-colors">
-              <span className="text-xs sm:text-sm font-semibold text-white">Acesse aqui</span>
-              <ChevronRight className="w-4 h-4 text-purple-300 group-hover:translate-x-0.5 transition-transform" />
-            </div>
+            {/* Right arrow */}
+            <button 
+              disabled
+              className="shrink-0 p-1.5 sm:p-2 rounded-full bg-white/5 border border-white/10 opacity-40 cursor-not-allowed"
+            >
+              <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 text-white/50" />
+            </button>
           </div>
         </section>
 
@@ -562,6 +596,58 @@ const Home = () => {
                 className="w-full py-3 rounded-xl bg-purple-500/20 border border-purple-500/40 text-purple-200 font-medium hover:bg-purple-500/30 transition-colors"
               >
                 Entendi
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Compra Vitalício (Carrinho) */}
+      {showLifetimeModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onClick={() => setShowLifetimeModal(false)}>
+          <div 
+            className="w-full max-w-sm bg-gradient-to-br from-[#0D0A1A] via-[#1A1030] to-[#0D0A1A] border border-purple-500/30 rounded-2xl shadow-2xl shadow-purple-900/40 overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="relative px-6 py-5 border-b border-purple-500/20">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/10 rounded-full blur-3xl" />
+              <div className="relative flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/30 to-yellow-500/30 border border-amber-500/50 flex items-center justify-center">
+                  <Crown className="w-5 h-5 text-amber-300" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold text-white">Acesso vitalício</h2>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowLifetimeModal(false)}
+                className="absolute top-4 right-4 p-1.5 rounded-lg hover:bg-purple-500/20 transition-colors"
+              >
+                <X className="w-5 h-5 text-purple-300" />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="px-6 py-6 text-center">
+              <p className="text-sm text-purple-200/80 leading-relaxed">
+                Desbloqueie acesso total e continue usando sem limitações.
+              </p>
+            </div>
+
+            {/* Footer */}
+            <div className="px-6 pb-6 space-y-3">
+              <button
+                onClick={handleBuyLifetime}
+                className="w-full py-3 rounded-xl bg-gradient-to-r from-purple-600 to-purple-500 text-white font-semibold hover:from-purple-500 hover:to-purple-400 transition-all shadow-lg shadow-purple-900/40"
+              >
+                Adquirir vitalício
+              </button>
+              <button
+                onClick={() => setShowLifetimeModal(false)}
+                className="w-full py-2.5 rounded-xl bg-transparent border border-purple-500/30 text-purple-300 font-medium hover:bg-purple-500/10 transition-colors"
+              >
+                Fechar
               </button>
             </div>
           </div>
