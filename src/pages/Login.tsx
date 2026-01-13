@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { normalizePayload, persistConfig } from "@/lib/auth";
 import { LoginResponse } from "@/types/auth";
 import { Smartphone, Users, Zap, RefreshCw, Target, Brain, ShoppingCart } from "lucide-react";
-import logoImg from "@/assets/logo.jpg";
+import logoImg from "@/assets/premier-logo.png";
 import {
   Dialog,
   DialogContent,
