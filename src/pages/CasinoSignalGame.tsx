@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { isAuthenticated } from "@/lib/auth";
+import { BottomNav } from "@/components/BottomNav";
 
 // Tipos
 type Phase = 'idle' | 'loading' | 'result';
@@ -599,7 +600,7 @@ const CasinoSignalGame = () => {
   const isButtonDisabled = phase === 'loading' || cooldown > 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0C0F14] to-[#121826]">
+    <div className="min-h-screen bg-gradient-to-b from-[#0C0F14] to-[#121826] pb-20 md:pb-0">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-[#0C0F14]/80 backdrop-blur-xl border-b border-border/30">
         <div className="container max-w-lg mx-auto px-4 py-4 flex items-center gap-4">
@@ -676,6 +677,9 @@ const CasinoSignalGame = () => {
           </section>
         )}
       </main>
+
+      {/* Bottom Nav - Mobile only */}
+      <BottomNav />
     </div>
   );
 };
