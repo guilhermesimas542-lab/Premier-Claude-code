@@ -29,6 +29,7 @@ interface MockTip {
   expiration_date: string;
   url_iframe: string;
   selections_count?: number;
+  justificativa?: string;
   // Nova propriedade para categorias especiais
   special_type?: "ALAVANCAGEM" | "ODDS_ALTAS";
 }
@@ -94,6 +95,23 @@ const MOCK_TIPS: MockTip[] = [
     is_pro_plan: 0, // BÁSICO
     expiration_date: "2026-01-13T18:00:00.000Z", // EXPIRADA - 13/01/2026 18:00
     url_iframe: "https://example.com/basico",
+    justificativa: "Esta entrada foi selecionada com base na média de gols dos últimos 10 jogos entre esses times.",
+  },
+  // Nova entrada BÁSICO NÃO EXPIRADA para testes
+  {
+    id: 99906,
+    time1_name: "Flamengo",
+    time2_name: "Palmeiras",
+    time1_logo: "",
+    time2_logo: "",
+    real_odd_market: "Escanteios",
+    odd_Name: "Mais de 8.5",
+    odd_Value: 1.40,
+    odd_market: "Tip básica ativa",
+    is_pro_plan: 0, // BÁSICO
+    expiration_date: "2026-01-15T22:00:00.000Z", // NÃO EXPIRADA
+    url_iframe: "https://example.com/basico-ativo",
+    justificativa: "Nos últimos 5 confrontos diretos entre Flamengo e Palmeiras, a média de escanteios foi de 11.2 por jogo. Ambos os times têm alto volume de finalizações de fora da área, gerando cobranças de canto. Além disso, o histórico recente em jogos de grande rivalidade indica tendência de mais de 9 escanteios em 80% das partidas.",
   },
   {
     id: 99903,
@@ -560,6 +578,7 @@ const Sport = () => {
                         matchDate="14/01/2026 18:00"
                         expirationDate={tip.expiration_date}
                         selectionsCount={tip.selections_count}
+                        justificativa={tip.justificativa}
                         isLocked={false}
                         isExpired={expired}
                         onAddTip={() => handleAddTip(tip.id, tip.url_iframe)}
