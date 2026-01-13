@@ -1,4 +1,4 @@
-import { ArrowLeft, LogOut, Plane, CircleDot, Gem, Cat } from "lucide-react";
+import { ArrowLeft, LogOut, Plane, CircleDot, Gem, Cat, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { getStoredConfig, clearAuth, isAuthenticated } from "@/lib/auth";
 import { useEffect, useState } from "react";
@@ -12,35 +12,31 @@ const CASINO_BANNER = {
   target: "https://example.com/promo", // URL ou rota interna
 };
 
-// Configuração dos tiles
+// Configuração dos tiles - estilo Acesso Rápido
 const CASINO_TILES = [
   {
     slug: "aviator",
     name: "Aviator",
+    subtitle: "Entrar no jogo",
     icon: Plane,
-    glowColor: "#FF8C42", // Laranja
-    borderColor: "rgba(255, 140, 66, 0.4)",
   },
   {
     slug: "roleta",
     name: "Roleta",
+    subtitle: "Jogar agora",
     icon: CircleDot,
-    glowColor: "#FFD700", // Amarelo
-    borderColor: "rgba(255, 215, 0, 0.4)",
   },
   {
     slug: "mines",
     name: "Mines",
+    subtitle: "Jogar agora",
     icon: Gem,
-    glowColor: "#00D4FF", // Ciano
-    borderColor: "rgba(0, 212, 255, 0.4)",
   },
   {
     slug: "fortune-tiger",
     name: "Fortune Tiger",
+    subtitle: "Jogar agora",
     icon: Cat,
-    glowColor: "#FF4500", // Laranja/vermelho
-    borderColor: "rgba(255, 69, 0, 0.4)",
   },
 ];
 
@@ -140,55 +136,40 @@ const Casino = () => {
             Jogos Disponíveis
           </h2>
 
-          {/* Grid de tiles - estilo padronizado */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4">
+          {/* Lista vertical de jogos - estilo Acesso Rápido */}
+          <div className="grid grid-cols-1 gap-3">
             {CASINO_TILES.map((tile) => {
               const IconComponent = tile.icon;
               return (
                 <button
                   key={tile.slug}
                   onClick={() => navigate(`/cassino/jogo/${tile.slug}`)}
-                  className="relative flex flex-col items-center justify-center gap-3 p-5 sm:p-6 rounded-2xl transition-all duration-200 ease-out active:scale-[0.98] hover:scale-[1.02] group overflow-hidden"
-                  style={{
-                    background: 'linear-gradient(145deg, rgba(13, 10, 26, 0.9) 0%, rgba(26, 16, 48, 0.9) 100%)',
-                    border: `1px solid ${tile.borderColor}`,
-                    boxShadow: `0 4px 20px ${tile.glowColor}20, inset 0 1px 0 rgba(255,255,255,0.05)`,
-                  }}
+                  className="group relative overflow-hidden rounded-xl border border-gray-300/20 bg-white/90 backdrop-blur-sm p-4 sm:p-5 text-left transition-all hover:scale-[1.02] hover:shadow-lg hover:shadow-gray-900/10"
                 >
-                  {/* Glow background */}
-                  <div 
-                    className="absolute inset-0 rounded-2xl opacity-20 group-hover:opacity-30 transition-opacity pointer-events-none"
-                    style={{
-                      background: `radial-gradient(circle at center, ${tile.glowColor}40 0%, transparent 70%)`,
-                    }}
-                  />
+                  {/* Subtle hover glow */}
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-gray-400/5 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
                   
-                  {/* Ícone */}
-                  <div 
-                    className="relative z-10 flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-2xl"
-                    style={{
-                      background: `linear-gradient(145deg, ${tile.glowColor}15 0%, transparent 100%)`,
-                      boxShadow: `0 0 20px ${tile.glowColor}30`,
-                    }}
-                  >
-                    <IconComponent 
-                      className="w-8 h-8 sm:w-9 sm:h-9"
-                      style={{ 
-                        color: tile.glowColor,
-                        filter: `drop-shadow(0 0 8px ${tile.glowColor}80)`,
-                      }}
-                    />
+                  <div className="relative flex items-center gap-3">
+                    {/* Icon container */}
+                    <div className="shrink-0 w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-gray-100 border border-gray-200/60 flex items-center justify-center text-gray-600">
+                      <IconComponent className="w-5 h-5 sm:w-6 sm:h-6" />
+                    </div>
+                    
+                    {/* Content */}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-sm sm:text-base font-semibold text-gray-800 mb-0.5 truncate">
+                        {tile.name}
+                      </h3>
+                      <p className="text-xs text-gray-500">
+                        {tile.subtitle}
+                      </p>
+                    </div>
+                    
+                    {/* Chevron */}
+                    <div className="shrink-0 text-gray-400 opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all">
+                      <ChevronRight className="w-4 h-4" />
+                    </div>
                   </div>
-
-                  {/* Nome */}
-                  <span 
-                    className="relative z-10 text-base sm:text-lg font-bold text-white text-center leading-tight"
-                    style={{
-                      textShadow: `0 0 12px ${tile.glowColor}50`,
-                    }}
-                  >
-                    {tile.name}
-                  </span>
                 </button>
               );
             })}
