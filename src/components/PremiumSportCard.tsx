@@ -19,6 +19,9 @@ interface PremiumSportCardProps {
   priceFrom?: string;
   priceTo?: string;
   countdown?: { days?: number; hours: number; minutes: number; seconds: number };
+  sportSubheadline?: string;
+  casinoTitle?: string;
+  casinoSubheadline?: string;
   onClick?: () => void;
 }
 
@@ -45,6 +48,9 @@ export const PremiumSportCard = ({
   priceFrom,
   priceTo,
   countdown,
+  sportSubheadline,
+  casinoTitle,
+  casinoSubheadline,
   onClick
 }: PremiumSportCardProps) => {
   // Seleciona texto aleatório baseado no ID para consistência
@@ -156,6 +162,20 @@ export const PremiumSportCard = ({
     }
 
     // Premium Active Card
+    // Use custom copy for specific sports (Futebol or Cassino)
+    const isCasino = id === 11;
+    const isFutebol = id === 1;
+
+    const displayTitle = isCasino && casinoTitle 
+      ? casinoTitle 
+      : premiumTexts.titles[textIndex];
+    
+    const displaySubtitle = isCasino && casinoSubheadline 
+      ? casinoSubheadline 
+      : isFutebol && sportSubheadline 
+        ? sportSubheadline 
+        : premiumTexts.subtitles[textIndex];
+
     return (
       <div className="flex flex-col items-center justify-center flex-1 space-y-3 px-4">
         <div className="text-center space-y-2">
@@ -166,10 +186,10 @@ export const PremiumSportCard = ({
               textShadow: `0 0 20px ${colors.glow}`
             }}
           >
-            {premiumTexts.titles[textIndex]}
+            {displayTitle}
           </h4>
           <p className="text-xs text-[#A1A1A1] leading-relaxed">
-            {premiumTexts.subtitles[textIndex]}
+            {displaySubtitle}
           </p>
         </div>
       </div>
