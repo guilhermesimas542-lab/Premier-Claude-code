@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { normalizePayload, persistConfig } from "@/lib/auth";
 import { LoginResponse } from "@/types/auth";
-import { Smartphone, Users, Zap, RefreshCw, ShieldCheck, Brain } from "lucide-react";
+import { Smartphone, Users, Zap, RefreshCw, Target, Brain, ShoppingCart } from "lucide-react";
 import logoImg from "@/assets/logo.jpg";
 import {
   Dialog,
@@ -18,6 +18,8 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showPlayStoreModal, setShowPlayStoreModal] = useState(false);
+  const [showAcquireModal, setShowAcquireModal] = useState(false);
+  const [showTermsModal, setShowTermsModal] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -116,8 +118,8 @@ const Login = () => {
               Atualizadas todo dia
             </span>
             <span className="bg-white/5 border border-white/10 text-white/80 text-xs font-medium px-3 py-1.5 rounded-full flex items-center gap-1.5">
-              <ShieldCheck className="w-3 h-3 text-emerald-400" />
-              Área segura
+              <Target className="w-3 h-3 text-emerald-400" />
+              Alto índice de assertividade
             </span>
           </div>
 
@@ -143,7 +145,17 @@ const Login = () => {
               className="w-full bg-gradient-to-r from-emerald-600 via-emerald-500 to-emerald-600 hover:from-emerald-700 hover:via-emerald-600 hover:to-emerald-700 text-white font-bold py-6 text-base shadow-xl shadow-emerald-500/30 transition-all duration-300 hover:scale-[1.02] hover:shadow-emerald-500/50"
               disabled={isLoading}
             >
-              {isLoading ? "Entrando..." : "Liberar meu acesso"}
+              {isLoading ? "Entrando..." : "Acessar aplicativo"}
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setShowAcquireModal(true)}
+              className="w-full border-white/20 bg-white/5 hover:bg-white/10 text-white/90 font-semibold py-5 text-sm transition-all duration-300"
+            >
+              <ShoppingCart className="w-4 h-4 mr-2" />
+              Adquirir acesso
             </Button>
 
             <p className="text-center text-white/40 text-xs">
@@ -168,24 +180,22 @@ const Login = () => {
           {/* Footer Legal */}
           <div className="mt-6 pt-4 border-t border-white/10 text-center space-y-3">
             <p className="text-[11px] text-white/50 leading-relaxed">
-              Ao continuar, você concorda com os{" "}
-              <a href="#" className="text-white/70 underline underline-offset-2 hover:text-white transition-colors">
-                Termos
-              </a>{" "}
-              e a{" "}
-              <a href="#" className="text-white/70 underline underline-offset-2 hover:text-white transition-colors">
-                Política de Privacidade
-              </a>.
+              Ao continuar, você concorda com nossos{" "}
+              <button 
+                onClick={() => setShowTermsModal(true)}
+                className="text-white/70 underline underline-offset-2 hover:text-white transition-colors"
+              >
+                Termos e Privacidade
+              </button>.
             </p>
             
             <div className="flex items-center justify-center gap-3 text-[11px]">
-              <a href="#" className="text-white/50 hover:text-white/80 transition-colors">
-                Termos
-              </a>
-              <span className="text-white/30">|</span>
-              <a href="#" className="text-white/50 hover:text-white/80 transition-colors">
-                Privacidade
-              </a>
+              <button 
+                onClick={() => setShowTermsModal(true)}
+                className="text-white/50 hover:text-white/80 transition-colors"
+              >
+                Termos e Privacidade
+              </button>
               <span className="text-white/30">|</span>
               <a href="#" className="text-white/50 hover:text-white/80 transition-colors">
                 Suporte
@@ -223,6 +233,55 @@ const Login = () => {
             <p className="text-xs text-white/50 pt-2 border-t border-white/10">
               Enquanto isso, você pode usar o app direto pelo navegador ou instalar o atalho na tela inicial.
             </p>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Acquire Access Modal */}
+      <Dialog open={showAcquireModal} onOpenChange={setShowAcquireModal}>
+        <DialogContent className="bg-[#0C0F14] border-white/10 max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="text-white text-lg font-bold flex items-center gap-2">
+              <ShoppingCart className="w-5 h-5 text-emerald-400" />
+              Adquirir acesso
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-2">
+            <p className="text-sm text-white/70">
+              Em breve: aqui vamos direcionar para o checkout/compra.
+            </p>
+            
+            <Button
+              onClick={() => setShowAcquireModal(false)}
+              className="w-full bg-white/10 hover:bg-white/20 text-white"
+            >
+              Fechar
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Terms and Privacy Modal */}
+      <Dialog open={showTermsModal} onOpenChange={setShowTermsModal}>
+        <DialogContent className="bg-[#0C0F14] border-white/10 max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="text-white text-lg font-bold">
+              Termos e Privacidade
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-2">
+            <p className="text-sm text-white/70">
+              Conteúdo em breve.
+            </p>
+            
+            <Button
+              onClick={() => setShowTermsModal(false)}
+              className="w-full bg-white/10 hover:bg-white/20 text-white"
+            >
+              Fechar
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
