@@ -1,4 +1,4 @@
-import { LogOut, Menu, Headphones, X, Gift, ChevronLeft, ChevronRight, Sparkles, ShoppingCart, Crown } from "lucide-react";
+import { LogOut, Menu, Headphones, X, Gift, Sparkles, ShoppingCart, Crown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
 import { toast } from "sonner";
@@ -8,6 +8,8 @@ import { getBackgroundImageUrl } from "@/lib/sports";
 import { Sport } from "@/types/sports";
 import { PremiumSportCard } from "@/components/PremiumSportCard";
 import BasicPlanModal from "@/components/BasicPlanModal";
+import { PromoCarousel } from "@/components/PromoCarousel";
+import { QuickAccessCards } from "@/components/QuickAccessCards";
 import logoImg from "@/assets/premier-logo.png";
 
 // URL de checkout do vitalício (placeholder - trocar pela URL real depois)
@@ -365,22 +367,17 @@ const Home = () => {
               {hasLifetimeAccess ? (
                 <span className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-semibold bg-gradient-to-r from-amber-500/30 to-yellow-500/30 text-amber-300 border border-amber-500/50 shadow-[0_0_12px_rgba(245,158,11,0.25)]">
                   <Crown className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-                  <span className="hidden xs:inline">Acesso</span> vitalício
+                  <span className="hidden sm:inline">Acesso</span> vitalício
                 </span>
               ) : (
-                <div className="flex items-center gap-1.5">
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-medium bg-purple-500/15 text-purple-300/80 border border-purple-500/30">
-                    <span className="hidden xs:inline">Conta</span> sem vitalício
-                  </span>
-                  {/* Carrinho - abre modal */}
-                  <button
-                    onClick={() => setShowLifetimeModal(true)}
-                    className="p-1.5 sm:p-2 rounded-lg bg-purple-500/20 border border-purple-500/40 hover:bg-purple-500/30 transition-colors"
-                    title="Adquirir acesso vitalício"
-                  >
-                    <ShoppingCart className="w-4 h-4 text-purple-300" />
-                  </button>
-                </div>
+                <button
+                  onClick={() => setShowLifetimeModal(true)}
+                  className="inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-semibold bg-red-500/20 text-red-300 border border-red-500/40 hover:bg-red-500/30 transition-colors cursor-pointer"
+                  title="Adquirir acesso vitalício"
+                >
+                  <span className="hidden sm:inline">Sem</span> vitalício
+                  <ShoppingCart className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                </button>
               )}
               
               {/* Menu Hamburger */}
@@ -442,52 +439,8 @@ const Home = () => {
       </header>
 
       <main className="container max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6 relative z-10">
-        {/* Banner Promocional - Estilo Antigo */}
-        <section 
-          onClick={handlePromotions}
-          className="relative cursor-pointer group overflow-hidden rounded-xl sm:rounded-2xl border border-purple-500/30 shadow-lg shadow-purple-900/20"
-        >
-          {/* Background Image placeholder + overlay */}
-          <div 
-            className="absolute inset-0 bg-cover bg-center"
-            style={{ 
-              backgroundImage: `url('https://images.unsplash.com/photo-1614850523459-c2f4c699c52e?w=1200&h=400&fit=crop')`,
-            }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0D0A1A]/95 via-[#1A1030]/85 to-transparent" />
-          
-          {/* Glow effect */}
-          <div className="absolute top-0 right-1/4 w-40 h-40 bg-purple-500/20 rounded-full blur-3xl pointer-events-none" />
-          
-          {/* Content */}
-          <div className="relative px-4 sm:px-8 py-6 sm:py-10 flex items-center justify-between min-h-[120px] sm:min-h-[160px]">
-            {/* Left arrow */}
-            <button 
-              disabled
-              className="shrink-0 p-1.5 sm:p-2 rounded-full bg-white/5 border border-white/10 opacity-40 cursor-not-allowed"
-            >
-              <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 text-white/50" />
-            </button>
-            
-            {/* Center content */}
-            <div className="flex-1 px-3 sm:px-6">
-              <h3 className="text-lg sm:text-2xl font-bold text-white mb-1 sm:mb-2">Promoções Exclusivas</h3>
-              <p className="text-xs sm:text-sm text-purple-200/70 mb-3 sm:mb-4">Bônus e condições especiais</p>
-              <button className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-xs sm:text-sm font-semibold transition-colors shadow-lg shadow-purple-900/40">
-                Acesse aqui
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-            
-            {/* Right arrow */}
-            <button 
-              disabled
-              className="shrink-0 p-1.5 sm:p-2 rounded-full bg-white/5 border border-white/10 opacity-40 cursor-not-allowed"
-            >
-              <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 text-white/50" />
-            </button>
-          </div>
-        </section>
+        {/* Carrossel de Promoções */}
+        <PromoCarousel />
 
         {/* Entradas Disponíveis - Premium */}
         <section className="space-y-4 sm:space-y-6">
@@ -534,6 +487,9 @@ const Home = () => {
             )}
           </div>
         </section>
+
+        {/* Quick Access Cards - Bilhetes, Alavancagem, Odds Altas */}
+        <QuickAccessCards />
       </main>
 
       {/* Footer */}
