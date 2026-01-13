@@ -7,27 +7,16 @@ interface QuickCard {
   subtitle: string;
   route: string;
   icon: React.ReactNode;
-  color: {
-    bg: string;
-    border: string;
-    text: string;
-    glow: string;
-  };
 }
 
+// Ordem: Odds Altas, Alavancagem, Últimos Bilhetes
 const cards: QuickCard[] = [
   {
-    id: "bilhetes",
-    title: "Últimos Bilhetes",
-    subtitle: "Veja seus bilhetes recentes",
-    route: "/bilhetes",
-    icon: <FileText className="w-5 h-5" />,
-    color: {
-      bg: "bg-purple-500/10",
-      border: "border-purple-500/30",
-      text: "text-purple-300",
-      glow: "group-hover:shadow-purple-500/20",
-    },
+    id: "odds-altas",
+    title: "Odds Altas",
+    subtitle: "Seleções com odds maiores",
+    route: "/odds-altas",
+    icon: <Target className="w-5 h-5" />,
   },
   {
     id: "alavancagem",
@@ -35,25 +24,13 @@ const cards: QuickCard[] = [
     subtitle: "Sequências e progresso",
     route: "/alavancagem",
     icon: <TrendingUp className="w-5 h-5" />,
-    color: {
-      bg: "bg-emerald-500/10",
-      border: "border-emerald-500/30",
-      text: "text-emerald-300",
-      glow: "group-hover:shadow-emerald-500/20",
-    },
   },
   {
-    id: "odds-altas",
-    title: "Odds Altas",
-    subtitle: "Seleções com odds maiores",
-    route: "/odds-altas",
-    icon: <Target className="w-5 h-5" />,
-    color: {
-      bg: "bg-amber-500/10",
-      border: "border-amber-500/30",
-      text: "text-amber-300",
-      glow: "group-hover:shadow-amber-500/20",
-    },
+    id: "bilhetes",
+    title: "Últimos Bilhetes",
+    subtitle: "Veja seus bilhetes recentes",
+    route: "/bilhetes",
+    icon: <FileText className="w-5 h-5" />,
   },
 ];
 
@@ -71,29 +48,29 @@ export const QuickAccessCards = () => {
           <button
             key={card.id}
             onClick={() => navigate(card.route)}
-            className={`group relative overflow-hidden rounded-xl border ${card.color.border} ${card.color.bg} p-4 sm:p-5 text-left transition-all hover:scale-[1.02] hover:shadow-lg ${card.color.glow}`}
+            className="group relative overflow-hidden rounded-xl border border-gray-300/20 bg-white/90 backdrop-blur-sm p-4 sm:p-5 text-left transition-all hover:scale-[1.02] hover:shadow-lg hover:shadow-gray-900/10"
           >
-            {/* Background glow */}
-            <div className="absolute top-0 right-0 w-20 h-20 bg-purple-500/10 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
+            {/* Subtle hover glow */}
+            <div className="absolute top-0 right-0 w-20 h-20 bg-gray-400/5 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
             
             <div className="relative flex items-start gap-3">
               {/* Icon */}
-              <div className={`shrink-0 w-10 h-10 rounded-lg ${card.color.bg} border ${card.color.border} flex items-center justify-center ${card.color.text}`}>
+              <div className="shrink-0 w-10 h-10 rounded-lg bg-gray-100 border border-gray-200/60 flex items-center justify-center text-gray-600">
                 {card.icon}
               </div>
               
               {/* Content */}
               <div className="flex-1 min-w-0">
-                <h3 className="text-sm sm:text-base font-semibold text-white mb-0.5 truncate">
+                <h3 className="text-sm sm:text-base font-semibold text-gray-800 mb-0.5 truncate">
                   {card.title}
                 </h3>
-                <p className={`text-xs ${card.color.text} opacity-70`}>
+                <p className="text-xs text-gray-500">
                   {card.subtitle}
                 </p>
               </div>
               
               {/* Arrow */}
-              <div className={`shrink-0 ${card.color.text} opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all`}>
+              <div className="shrink-0 text-gray-400 opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all">
                 <ChevronRight className="w-4 h-4" />
               </div>
             </div>
