@@ -1,4 +1,4 @@
-import { ArrowLeft, Wifi } from "lucide-react";
+import { ArrowLeft, Wifi, Lightbulb } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
@@ -134,51 +134,126 @@ const AviatorGame = ({ phase, stepIndex, result }: { phase: Phase; stepIndex: nu
 
 // ===== ROLETA =====
 const RouletteStrategies = [
-  { type: 'par_impar', signal: () => Math.random() > 0.5 ? 'Par (Even)' : 'Ímpar (Odd)', tip: 'Aposte em Par (Even) ou Ímpar (Odd) por 3 rodadas. Proteção até 02.' },
-  { type: 'metade', signal: () => Math.random() > 0.5 ? '1–18' : '19–36', tip: 'Aposte na metade indicada (1–18 = baixos, 19–36 = altos) por 3 rodadas. Proteção até 02.' },
-  { type: 'cor', signal: () => Math.random() > 0.5 ? '🔴 Vermelho' : '⚫ Preto', tip: 'Aposte na cor indicada por 3 rodadas. Proteção até 02.' },
-  { type: 'colunas', signal: () => { const cols = ['1ª', '2ª', '3ª']; const c1 = cols[Math.floor(Math.random() * 3)]; let c2 = cols[Math.floor(Math.random() * 3)]; while(c2 === c1) c2 = cols[Math.floor(Math.random() * 3)]; return `${c1} + ${c2} coluna`; }, tip: 'Colunas são as verticais: 1ª coluna começa no 1 (1,4,7,10...), 2ª começa no 2 (2,5,8,11...), 3ª começa no 3 (3,6,9,12...). Selecione 2 colunas. Proteção até 02.' },
-  { type: 'quadrantes', signal: () => { const quads = ['1º', '2º', '3º']; const q1 = quads[Math.floor(Math.random() * 3)]; let q2 = quads[Math.floor(Math.random() * 3)]; while(q2 === q1) q2 = quads[Math.floor(Math.random() * 3)]; return `${q1} + ${q2} quadrante`; }, tip: 'Quadrantes são blocos de 12: 1º (1-12), 2º (13-24), 3º (25-36). Escolha 2 quadrantes. Proteção até 02.' },
+  { type: 'colunas', strategyLabel: 'Colunas (1ª/2ª/3ª)', signal: () => { const cols = ['1ª', '2ª', '3ª']; const c1 = cols[Math.floor(Math.random() * 3)]; let c2 = cols[Math.floor(Math.random() * 3)]; while(c2 === c1) c2 = cols[Math.floor(Math.random() * 3)]; return `${c1} + ${c2} coluna`; }, tip: 'Colunas são as 3 colunas verticais. A 1ª começa no 1, a 2ª no 2 e a 3ª no 3. Selecione 2 colunas (ex: 1ª + 3ª). Proteção até 02.' },
+  { type: 'quadrantes', strategyLabel: 'Quadrantes (1º/2º/3º)', signal: () => { const quads = ['1º', '2º', '3º']; const q1 = quads[Math.floor(Math.random() * 3)]; let q2 = quads[Math.floor(Math.random() * 3)]; while(q2 === q1) q2 = quads[Math.floor(Math.random() * 3)]; return `${q1} + ${q2} quadrante`; }, tip: 'Quadrantes são blocos de 12: 1º (1-12), 2º (13-24), 3º (25-36). Escolha 2 quadrantes. Proteção até 02.' },
+  { type: 'par_impar', strategyLabel: 'Par/Ímpar', signal: () => Math.random() > 0.5 ? 'Par (Even)' : 'Ímpar (Odd)', tip: 'Aposte em Par ou Ímpar por 3 rodadas. Proteção até 02.' },
+  { type: 'cor', strategyLabel: 'Vermelho/Preto', signal: () => Math.random() > 0.5 ? 'Vermelho' : 'Preto', tip: 'Aposte na cor indicada por 3 rodadas. Proteção até 02.' },
 ];
 
-const RouletteGame = ({ phase, stepIndex, result }: { phase: Phase; stepIndex: number; result: any }) => {
+const RouletteGame = ({ phase, stepIndex, result, cooldown }: { phase: Phase; stepIndex: number; result: any; cooldown: number }) => {
+  const now = new Date();
+  const currentTime = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
   return (
-    <div className="space-y-6">
-      {/* Info cards */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="bg-[#1a1a1a] rounded-xl p-4 border border-red-500/30 text-center">
-          <p className="text-xs text-muted-foreground mb-1">Horário</p>
-          <p className="text-xl font-bold text-white">
-            {phase === 'result' ? result?.time : '∞'}
+    <div className="space-y-4">
+      {/* Grid 2x2 */}
+      <div className="grid grid-cols-2 gap-3">
+        {/* Card A - Horário */}
+        <div 
+          className="rounded-2xl p-4 text-center"
+          style={{
+            background: 'linear-gradient(145deg, #0b0f14 0%, #131920 100%)',
+            border: '1px solid rgba(139, 92, 246, 0.3)',
+            boxShadow: '0 0 15px rgba(139, 92, 246, 0.15)',
+          }}
+        >
+          <p className="text-xs text-gray-400 mb-1">Horário</p>
+          <p className="text-2xl font-bold text-white">
+            {phase === 'result' ? result?.time : currentTime}
           </p>
         </div>
-        <div className="bg-[#1a1a1a] rounded-xl p-4 border border-green-500/30 text-center">
-          <p className="text-xs text-muted-foreground mb-1">Proteções</p>
-          <p className="text-xl font-bold text-green-500">
+
+        {/* Card B - Estratégia */}
+        <div 
+          className="rounded-2xl p-4 text-center"
+          style={{
+            background: 'linear-gradient(145deg, #0b0f14 0%, #131920 100%)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+          }}
+        >
+          <p className="text-xs text-gray-400 mb-1">Estratégia</p>
+          <p className="text-sm font-semibold text-white leading-tight">
+            {phase === 'result' ? result?.strategyLabel : 'Aguardando...'}
+          </p>
+        </div>
+
+        {/* Card C - Sinal */}
+        <div 
+          className="rounded-2xl p-4 text-center"
+          style={{
+            background: 'linear-gradient(145deg, rgba(127, 29, 29, 0.3) 0%, rgba(153, 27, 27, 0.2) 100%)',
+            border: '1px solid rgba(239, 68, 68, 0.5)',
+            boxShadow: '0 0 20px rgba(239, 68, 68, 0.25)',
+          }}
+        >
+          <p className="text-xs text-gray-400 mb-1">Sinal</p>
+          <p className="text-base font-bold text-red-400">
+            {phase === 'result' ? result?.signal : '—'}
+          </p>
+        </div>
+
+        {/* Card D - Proteções */}
+        <div 
+          className="rounded-2xl p-4 text-center"
+          style={{
+            background: 'linear-gradient(145deg, #0b0f14 0%, #131920 100%)',
+            border: '1px solid rgba(34, 197, 94, 0.4)',
+            boxShadow: '0 0 12px rgba(34, 197, 94, 0.15)',
+          }}
+        >
+          <p className="text-xs text-gray-400 mb-1">Proteções</p>
+          <p className="text-xl font-bold text-green-400">
             {phase === 'result' ? 'Até 02' : '—'}
           </p>
         </div>
       </div>
 
-      {/* Sinal e Dica */}
-      {phase === 'result' && result && (
-        <div className="space-y-4">
-          <div className="bg-gradient-to-r from-red-900/30 to-red-800/20 rounded-xl p-4 border border-red-500/40 text-center">
-            <p className="text-xs text-muted-foreground mb-2">SINAL</p>
-            <p className="text-2xl font-bold text-white">{result.signal}</p>
-          </div>
-          <div className="bg-[#1a1a1a] rounded-xl p-4 border border-white/10">
-            <p className="text-xs text-muted-foreground mb-2">ESTRATÉGIA</p>
-            <p className="text-sm text-white/80 leading-relaxed">{result.tip}</p>
-          </div>
+      {/* Caixa de Dica */}
+      {phase === 'result' && result?.tip && (
+        <div 
+          className="rounded-2xl p-4 flex gap-3"
+          style={{
+            background: 'linear-gradient(145deg, #0b0f14 0%, #131920 100%)',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            boxShadow: '0 0 10px rgba(239, 68, 68, 0.1)',
+          }}
+        >
+          <Lightbulb className="w-5 h-5 text-yellow-400 shrink-0 mt-0.5" />
+          <p className="text-sm text-gray-300 leading-relaxed">
+            <span className="font-bold text-white">Dica:</span> {result.tip}
+          </p>
         </div>
       )}
 
       {/* Loading state */}
       {phase === 'loading' && (
-        <div className="text-center space-y-2 animate-pulse py-8">
-          <p className="text-lg font-semibold text-white">{LOADING_STEPS[stepIndex]}</p>
-          {stepIndex === 2 && <p className="text-sm text-muted-foreground">Prepare-se</p>}
+        <div 
+          className="rounded-2xl p-6 text-center"
+          style={{
+            background: 'linear-gradient(145deg, #0b0f14 0%, #131920 100%)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+          }}
+        >
+          <div className="animate-pulse space-y-2">
+            <p className="text-lg font-semibold text-white">{LOADING_STEPS[stepIndex]}</p>
+            {stepIndex === 2 && <p className="text-sm text-gray-400">Prepare-se</p>}
+          </div>
+        </div>
+      )}
+
+      {/* Idle state - mostrar caixa de instrução */}
+      {phase === 'idle' && (
+        <div 
+          className="rounded-2xl p-4 flex gap-3"
+          style={{
+            background: 'linear-gradient(145deg, #0b0f14 0%, #131920 100%)',
+            border: '1px solid rgba(139, 92, 246, 0.3)',
+          }}
+        >
+          <Lightbulb className="w-5 h-5 text-yellow-400 shrink-0 mt-0.5" />
+          <p className="text-sm text-gray-300 leading-relaxed">
+            <span className="font-bold text-white">Dica:</span> Clique em "Identificar sinal" para a IA analisar o padrão e gerar uma estratégia.
+          </p>
         </div>
       )}
     </div>
@@ -293,6 +368,7 @@ const CasinoSignalGame = () => {
         return {
           time: time.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
           signal: strategy.signal(),
+          strategyLabel: strategy.strategyLabel,
           tip: strategy.tip,
         };
       }
@@ -395,7 +471,7 @@ const CasinoSignalGame = () => {
         {/* Game-specific content */}
         {slug === 'mines' && <MinesGame phase={phase} stepIndex={stepIndex} result={result} />}
         {slug === 'aviator' && <AviatorGame phase={phase} stepIndex={stepIndex} result={result} />}
-        {slug === 'roleta' && <RouletteGame phase={phase} stepIndex={stepIndex} result={result} />}
+        {slug === 'roleta' && <RouletteGame phase={phase} stepIndex={stepIndex} result={result} cooldown={cooldown} />}
         {slug === 'fortune-tiger' && <FortuneTigerGame phase={phase} stepIndex={stepIndex} result={result} />}
 
         {/* Button */}
