@@ -221,8 +221,7 @@ const Sport = () => {
                     market={tip.real_odd_market}
                     betChoice={tip.odd_Name}
                     odds={tip.odd_Value}
-                    insights={tip.odd_market}
-                    footer={`Expira em: ${new Date(tip.expiration_date).toLocaleDateString()}`}
+                    matchDate="14/01/2026 18:00"
                     isLocked={false}
                     onAddTip={() => handleAddTip(tip.id, tip.url_iframe)}
                   />

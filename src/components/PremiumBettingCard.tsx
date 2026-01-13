@@ -1,13 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { TrendingUp, AlertCircle } from "lucide-react";
-import { useState, useEffect } from "react";
-
-interface Indicator {
-  label: string;
-  value: string;
-}
+import { HelpCircle, Info } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
 
 interface PremiumBettingCardProps {
   tipId: number;
@@ -24,7 +18,7 @@ interface PremiumBettingCardProps {
   market: string;
   betChoice: string;
   odds: number;
-  indicators?: Indicator[];
+  matchDate?: string;
   insights?: string;
   footer?: string;
   lineAlert?: boolean;
@@ -33,300 +27,282 @@ interface PremiumBettingCardProps {
   onViewAnalysis?: () => void;
 }
 
-// Gera valores persistentes por tipId
-const getPersistedValues = (tipId: number) => {
-  const storageKey = `tip_${tipId}_data`;
-  const stored = localStorage.getItem(storageKey);
+// Helper function to generate market explanation
+const getMarketExplanation = (market: string): string => {
+  const marketLower = market.toLowerCase();
   
-  if (stored) {
-    return JSON.parse(stored);
+  if (marketLower.includes("total de gols")) {
+    return "Total de gols = soma dos gols dos dois times.";
+  }
+  if (marketLower.includes("escanteios")) {
+    return "Escanteios = total de escanteios dos dois times.";
+  }
+  if (marketLower.includes("ambas marcam")) {
+    return "Ambas marcam = os dois times precisam fazer gol.";
+  }
+  if (marketLower.includes("resultado final")) {
+    return "Resultado final = quem vence ou se empata.";
+  }
+  if (marketLower.includes("handicap")) {
+    return "Handicap = vantagem/desvantagem aplicada ao placar.";
+  }
+  if (marketLower.includes("cartões")) {
+    return "Cartões = total de cartões mostrados no jogo.";
   }
   
-  // Gera novos valores apenas uma vez
-  const peopleCount = Math.floor(Math.random() * (5000 - 100 + 1)) + 100;
-  const confidence = Math.floor(Math.random() * (97 - 80 + 1)) + 80; // 80-97%
+  return "Esse é o tipo de mercado da aposta.";
+};
+
+// Helper function to generate bet explanation
+const getBetExplanation = (betChoice: string): string => {
+  const betLower = betChoice.toLowerCase();
   
-  const data = { peopleCount, confidence };
-  localStorage.setItem(storageKey, JSON.stringify(data));
+  // Match "Mais de X.X" pattern
+  const maisDeMatch = betLower.match(/mais de\s*(\d+[.,]?\d*)/);
+  if (maisDeMatch) {
+    const value = parseFloat(maisDeMatch[1].replace(",", "."));
+    const needed = Math.ceil(value);
+    return `Precisa sair ${needed} ou mais para bater.`;
+  }
   
-  return data;
+  // Match "Menos de X.X" pattern  
+  const menosDeMatch = betLower.match(/menos de\s*(\d+[.,]?\d*)/);
+  if (menosDeMatch) {
+    const value = parseFloat(menosDeMatch[1].replace(",", "."));
+    const max = Math.floor(value);
+    return `Precisa ter no máximo ${max} para bater.`;
+  }
+  
+  // Match "Sim" or "Não"
+  if (betLower === "sim") {
+    return "A condição do mercado precisa acontecer.";
+  }
+  if (betLower === "não") {
+    return "A condição do mercado NÃO pode acontecer.";
+  }
+  
+  return "O jogo precisa seguir exatamente essa condição.";
+};
+
+// Get tier styling configuration
+const getTierConfig = (tier: string) => {
+  switch (tier) {
+    case "ULTRA":
+      return {
+        bgColor: "bg-[#9333EA]",
+        textColor: "text-white",
+        glowColor: "shadow-[0_0_30px_rgba(147,51,234,0.6)]",
+        borderColor: "border-purple-500/60",
+      };
+    case "PRO":
+      return {
+        bgColor: "bg-gradient-to-r from-orange-500 to-orange-600",
+        textColor: "text-white",
+        glowColor: "shadow-[0_0_20px_rgba(249,115,22,0.5)]",
+        borderColor: "border-orange-500/50",
+      };
+    case "GRÁTIS":
+      return {
+        bgColor: "bg-gradient-to-r from-cyan-500 to-cyan-600",
+        textColor: "text-white",
+        glowColor: "shadow-[0_0_20px_rgba(34,211,238,0.4)]",
+        borderColor: "border-cyan-500/40",
+      };
+    case "MÚLTIPLA":
+      return {
+        bgColor: "bg-gradient-to-r from-purple-600 to-purple-700",
+        textColor: "text-white",
+        glowColor: "shadow-[0_0_20px_rgba(147,51,234,0.5)]",
+        borderColor: "border-purple-500/50",
+      };
+    default: // BÁSICO
+      return {
+        bgColor: "bg-gradient-to-r from-emerald-500 to-emerald-600",
+        textColor: "text-white",
+        glowColor: "shadow-[0_0_20px_rgba(16,185,129,0.5)]",
+        borderColor: "border-emerald-500/50",
+      };
+  }
 };
 
 export const PremiumBettingCard = ({
   tipId,
   tier,
-  tierSubtitle,
   team1,
   team2,
   market,
   betChoice,
   odds,
-  indicators,
-  insights,
-  footer = "Gestão 1–2% • Pré-jogo",
-  lineAlert = false,
+  matchDate,
   isLocked = false,
   onAddTip,
-  onViewAnalysis,
 }: PremiumBettingCardProps) => {
-  const [isHovered, setIsHovered] = useState(false);
-  const [peopleCount, setPeopleCount] = useState(0);
-  
-  // Obtém valores persistidos por tipId
-  const persistedData = getPersistedValues(tipId);
-  const finalCount = persistedData.peopleCount;
-  const confidence = persistedData.confidence;
-  
-  // Anima o contador subindo
+  const [showMarketHelp, setShowMarketHelp] = useState(false);
+  const [showBetHelp, setShowBetHelp] = useState(false);
+  const marketHelpRef = useRef<HTMLDivElement>(null);
+  const betHelpRef = useRef<HTMLDivElement>(null);
+
+  const config = getTierConfig(tier);
+  const marketExplanation = getMarketExplanation(market);
+  const betExplanation = getBetExplanation(betChoice);
+
+  // Close tooltips when clicking outside
   useEffect(() => {
-    const startCount = Math.floor(finalCount * 0.3);
-    const duration = 2000;
-    const steps = 60;
-    const increment = (finalCount - startCount) / steps;
-    let current = startCount;
-    let step = 0;
-    
-    const timer = setInterval(() => {
-      step++;
-      current += increment;
-      
-      if (step >= steps) {
-        setPeopleCount(finalCount);
-        clearInterval(timer);
-      } else {
-        setPeopleCount(Math.floor(current));
+    const handleClickOutside = (event: MouseEvent) => {
+      if (marketHelpRef.current && !marketHelpRef.current.contains(event.target as Node)) {
+        setShowMarketHelp(false);
       }
-    }, duration / steps);
-    
-    return () => clearInterval(timer);
-  }, [finalCount]);
+      if (betHelpRef.current && !betHelpRef.current.contains(event.target as Node)) {
+        setShowBetHelp(false);
+      }
+    };
 
-  const getTierConfig = () => {
-    switch (tier) {
-      case "ULTRA":
-        return {
-          gradient: "from-ultra via-purple-500 to-ultra",
-          subtitle: tierSubtitle || "Entrada Ultra Premium",
-          icon: <TrendingUp className="w-3 h-3" />,
-        };
-      case "MÚLTIPLA":
-        return {
-          gradient: "from-vip via-purple-600 to-vip",
-          subtitle: tierSubtitle || "Combinação de entradas",
-          icon: <TrendingUp className="w-3 h-3" />,
-        };
-      case "PRO":
-        return {
-          gradient: "from-primary via-orange-600 to-primary",
-          subtitle: tierSubtitle || "Curadoria avançada",
-          icon: <TrendingUp className="w-3 h-3" />,
-        };
-      case "GRÁTIS":
-        return {
-          gradient: "from-accent via-cyan-500 to-accent",
-          subtitle: tierSubtitle || "Entrada gratuita",
-          icon: null,
-        };
-      default:
-        return {
-          gradient: "from-success via-emerald-500 to-success",
-          subtitle: tierSubtitle || "Sinal validado",
-          icon: null,
-        };
-    }
-  };
-
-  const config = getTierConfig();
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <Card
-      className={`w-full bg-gradient-to-br from-[#121826] to-[#0C0F14] border ${
-        lineAlert 
-          ? "border-warning/50 animate-shake" 
-          : isHovered 
-          ? "border-accent/50 shadow-[0_0_20px_rgba(34,211,238,0.3)]" 
-          : "border-border/30"
-      } overflow-hidden select-none transition-all duration-300 ${
-        isHovered ? "-translate-y-1" : ""
-      } ${isLocked ? "opacity-70" : ""} backdrop-blur-sm relative group`}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      className={`w-full overflow-hidden select-none relative rounded-2xl ${config.borderColor} border-2 ${config.glowColor} transition-all duration-300 hover:scale-[1.02]`}
     >
-      {/* Background Texture */}
-      <div className="absolute inset-0 opacity-[0.08] bg-[radial-gradient(circle_at_30%_50%,rgba(34,211,238,0.1),transparent_50%)]" />
+      {/* Stadium Background Image */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: `url('/images/futsal-arena.jpg')`,
+        }}
+      />
       
-      {/* Locked Overlay - Discreto */}
+      {/* Dark Overlay for readability */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-black/80" />
+      
+      {/* Locked Overlay */}
       {isLocked && (
-        <div className="absolute inset-0 z-20 bg-black/20 backdrop-blur-[1px]" />
-      )}
-      
-      {/* Animated GIF Background for Premium Tiers */}
-      {(tier === "PRO" || tier === "MÚLTIPLA") && !isLocked && (
-        <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
-          <img 
-            src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif" 
-            alt="" 
-            className="w-full h-full object-cover mix-blend-screen"
-          />
-        </div>
-      )}
-      
-      {/* Tier Badge */}
-      <div className="relative overflow-hidden animate-slide-up">
-        <div
-          className={`text-center py-2 px-3 font-display font-extrabold text-[10px] tracking-wider uppercase relative bg-gradient-to-r ${config.gradient} bg-[length:200%_100%] animate-gradient`}
-        >
-          <div className="relative z-10 flex items-center justify-center gap-1.5">
-            {config.icon}
-            <span className="text-white drop-shadow-lg tracking-tight">{tier}</span>
-            {/* Sparkle GIF for special tiers */}
-            {(tier === "PRO" || tier === "MÚLTIPLA") && (
-              <img 
-                src="https://media.giphy.com/media/26tPnAAJxXTvpLwJy/giphy.gif" 
-                alt="" 
-                className="w-3 h-3 inline-block ml-0.5 opacity-80"
-              />
-            )}
-            {tier === "GRÁTIS" && (
-              <img 
-                src="https://media.giphy.com/media/xUPGcC0R9QjyxkPnS8/giphy.gif" 
-                alt="" 
-                className="w-3 h-3 inline-block ml-0.5 opacity-70"
-              />
-            )}
-          </div>
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-shine" />
-        </div>
-      </div>
-
-      {/* Line Alert */}
-      {lineAlert && (
-        <div className="mx-3 mt-2 mb-1">
-          <Badge className="bg-warning/20 text-warning border-warning/30 text-[9px] font-bold animate-bounce-micro">
-            <AlertCircle className="w-2.5 h-2.5 mr-1" />
-            Linha mudou
-          </Badge>
-        </div>
+        <div className="absolute inset-0 z-20 bg-black/50 backdrop-blur-sm" />
       )}
 
-      <div className="p-3 space-y-2.5 relative">
-        {/* Match Header */}
-        <div className="space-y-1">
-          <h3 className="text-sm font-display font-extrabold text-foreground tracking-tight leading-tight">
-            {team1.name} <span className="text-muted-foreground">×</span> {team2.name}
-          </h3>
-          <p className="text-[9px] text-muted-foreground font-medium uppercase tracking-wide">
-            {isLocked ? "***************" : market}
+      {/* Content */}
+      <div className="relative z-10 p-4 flex flex-col items-center">
+        
+        {/* Tier Badge - Centered Top */}
+        <div className={`${config.bgColor} ${config.textColor} px-6 py-1.5 rounded-full font-bold text-sm tracking-wide shadow-lg mb-2`}>
+          {tier}
+        </div>
+
+        {/* Market Help Button - Top Right */}
+        <div className="absolute top-3 right-3" ref={marketHelpRef}>
+          <button
+            onClick={() => setShowMarketHelp(!showMarketHelp)}
+            className="w-6 h-6 rounded-full bg-black/40 backdrop-blur-sm border border-white/20 flex items-center justify-center hover:bg-black/60 transition-colors"
+            aria-label="Ajuda do mercado"
+          >
+            <Info className="w-3.5 h-3.5 text-white/80" />
+          </button>
+          
+          {/* Market Help Tooltip */}
+          {showMarketHelp && (
+            <div className="absolute right-0 top-8 w-48 bg-black/90 backdrop-blur-md border border-white/20 rounded-lg p-2.5 shadow-xl z-50">
+              <p className="text-xs text-white/90 leading-relaxed">
+                {marketExplanation}
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Match Date */}
+        {matchDate && (
+          <p className="text-white/80 text-xs font-medium mb-3">
+            {matchDate}
           </p>
-        </div>
+        )}
 
-        {/* Teams Logos - Compact */}
-        <div className="flex items-center justify-center gap-4">
-          <div className="relative">
-            <div className="w-10 h-10 rounded-full bg-muted/30 backdrop-blur-sm flex items-center justify-center overflow-hidden ring-1 ring-border/30">
+        {/* Teams Section */}
+        <div className="flex items-center justify-center gap-6 w-full mb-3">
+          {/* Team 1 */}
+          <div className="flex flex-col items-center gap-1.5">
+            <div className="w-14 h-14 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center ring-2 ring-white/20 shadow-lg">
               <img
                 src={team1.logo}
                 alt={team1.name}
-                className="w-7 h-7 object-contain"
+                className="w-10 h-10 object-contain"
               />
             </div>
+            <span className="text-white text-[11px] font-semibold text-center max-w-[80px] leading-tight truncate">
+              {team1.name}
+            </span>
           </div>
 
-          <div className="text-muted-foreground/50 text-[9px] font-bold">VS</div>
+          {/* VS Separator - Hidden, implicit */}
+          <div className="text-white/30 text-xs font-bold"></div>
 
-          <div className="relative">
-            <div className="w-10 h-10 rounded-full bg-muted/30 backdrop-blur-sm flex items-center justify-center overflow-hidden ring-1 ring-border/30">
+          {/* Team 2 */}
+          <div className="flex flex-col items-center gap-1.5">
+            <div className="w-14 h-14 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center ring-2 ring-white/20 shadow-lg">
               <img
                 src={team2.logo}
                 alt={team2.name}
-                className="w-7 h-7 object-contain"
+                className="w-10 h-10 object-contain"
               />
             </div>
+            <span className="text-white text-[11px] font-semibold text-center max-w-[80px] leading-tight truncate">
+              {team2.name}
+            </span>
           </div>
         </div>
 
-        {/* People Counter with Fire Animation */}
-        <div className="bg-gradient-to-r from-warning/10 via-warning/5 to-transparent border border-warning/20 rounded-lg p-2 flex items-center gap-2 animate-fade-in">
-          <div className="relative">
-            <img 
-              src="https://media.giphy.com/media/l0HlR3kHtkgFbYfgQ/giphy.gif" 
-              alt="" 
-              className="w-5 h-5 object-contain opacity-90 animate-pulse"
-            />
-          </div>
-          <p className="text-[10px] text-foreground font-bold leading-tight">
-            Já são <span className="text-warning font-extrabold text-xs">{peopleCount.toLocaleString('pt-BR')}</span> pessoas nessa aposta!
-          </p>
+        {/* Market Name - Centered */}
+        <p className="text-white/90 text-sm font-medium mb-3">
+          {market}
+        </p>
+
+        {/* Bet Details Row */}
+        <div className="w-full bg-black/50 backdrop-blur-sm rounded-xl px-4 py-3 flex items-center justify-between mb-4">
+          <span className="text-emerald-400 font-bold text-base">
+            {betChoice}
+          </span>
+          <span className="text-white font-black text-xl">
+            {odds.toFixed(1)}
+          </span>
         </div>
 
-        {/* Insights - Moved below people counter */}
-        {insights && (
-          <div className="bg-accent/5 border border-accent/20 rounded-lg p-2">
-            <p className="text-[10px] text-foreground/90 leading-snug font-medium line-clamp-2">
-              {insights}
-            </p>
-          </div>
-        )}
-
-        {/* Bet Details & Odds - Compact */}
-        <div className="bg-gradient-to-br from-muted/40 to-muted/20 backdrop-blur-sm rounded-lg p-2.5 border border-border/20">
-          <div className="flex items-center justify-between mb-2">
-            <div>
-              <span className="text-[9px] text-muted-foreground font-semibold uppercase block mb-0.5">
-                Entrada
-              </span>
-              <span className="text-foreground font-bold text-xs leading-tight">
-                {betChoice}
-              </span>
-            </div>
-            <div className="text-right">
-              <span className="text-[9px] text-muted-foreground font-semibold uppercase block mb-0.5">
-                Odd
-              </span>
-              <span className="text-success font-black text-xl text-tabular leading-none">
-                {odds.toFixed(2)}
-              </span>
-            </div>
-          </div>
-
-          {/* Confidence Bar - Compact */}
-          <div className="space-y-1">
-            <div className="flex items-center justify-between text-[9px]">
-              <span className="text-muted-foreground font-semibold">Confiança</span>
-              <span className="text-foreground font-bold">{confidence}%</span>
-            </div>
-            <div className="h-1 bg-muted/50 rounded-full overflow-hidden">
-              <div
-                className={`h-full rounded-full transition-all duration-500 ${
-                  confidence >= 80
-                    ? "bg-gradient-to-r from-success to-emerald-400"
-                    : "bg-gradient-to-r from-warning to-yellow-400"
-                }`}
-                style={{ width: `${confidence}%` }}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Action Buttons - Compact */}
-        <div className="pt-1 relative z-30">
+        {/* Action Buttons Row */}
+        <div className="flex items-center gap-2 w-full">
+          {/* Add Button - Primary */}
           <Button
             onClick={onAddTip}
-            className={`w-full font-bold py-4 text-xs shadow-lg transition-all duration-300 hover:scale-[1.02] relative overflow-hidden group/btn ${
+            className={`flex-1 font-bold py-5 text-sm shadow-lg transition-all duration-300 hover:scale-[1.03] ${
               isLocked 
-                ? "bg-warning hover:bg-warning/90 text-black shadow-warning/50 border-2 border-warning" 
-                : "bg-primary hover:bg-primary/90 text-white shadow-primary/30"
+                ? "bg-yellow-500 hover:bg-yellow-400 text-black shadow-yellow-500/40" 
+                : "bg-emerald-500 hover:bg-emerald-400 text-white shadow-emerald-500/40"
             }`}
           >
-            <span className="relative font-extrabold text-sm">{isLocked ? "🔒 Desbloquear" : "Adicionar"}</span>
+            <span className="font-extrabold">
+              {isLocked ? "🔒 Desbloquear" : "Adicionar"}
+            </span>
           </Button>
-        </div>
 
-        {/* Footer - Compact */}
-        <div className="pt-1.5 border-t border-border/20">
-          <p className="text-[9px] text-muted-foreground text-center leading-relaxed font-medium">
-            {footer}
-          </p>
+          {/* "Como bater?" Help Button */}
+          <div className="relative" ref={betHelpRef}>
+            <button
+              onClick={() => setShowBetHelp(!showBetHelp)}
+              className="h-[42px] px-3 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 flex items-center gap-1.5 hover:bg-white/20 transition-colors"
+            >
+              <HelpCircle className="w-4 h-4 text-white/80" />
+              <span className="text-white/90 text-xs font-medium whitespace-nowrap">
+                Como bater?
+              </span>
+            </button>
+            
+            {/* Bet Help Tooltip */}
+            {showBetHelp && (
+              <div className="absolute right-0 bottom-12 w-52 bg-black/90 backdrop-blur-md border border-white/20 rounded-lg p-2.5 shadow-xl z-50">
+                <p className="text-xs text-white/90 leading-relaxed">
+                  <strong className="text-emerald-400">{betChoice}:</strong>{" "}
+                  {betExplanation}
+                </p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </Card>
