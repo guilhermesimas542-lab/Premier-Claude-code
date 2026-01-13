@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState, useRef, useCallback } from "react";
 import { PremiumBettingCard } from "@/components/PremiumBettingCard";
 import { SpecialBettingCard } from "@/components/SpecialBettingCard";
+import { JustificativaModal } from "@/components/JustificativaModal";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { getStoredConfig, clearAuth, isAuthenticated } from "@/lib/auth";
@@ -223,6 +224,10 @@ const Sport = () => {
   const [scrollLeftStart, setScrollLeftStart] = useState(0);
   const isMobile = useIsMobile();
   
+  // Estado do modal de Justificativa (page-level)
+  const [justificativaModalOpen, setJustificativaModalOpen] = useState(false);
+  const [justificativaTexto, setJustificativaTexto] = useState("");
+  
   // Ref para o container do carrossel (scroll)
   const carouselContainerRef = useRef<HTMLDivElement>(null);
   
@@ -418,6 +423,16 @@ const Sport = () => {
     });
   };
 
+  // Abre modal de Justificativa (page-level)
+  const handleOpenJustificativa = useCallback((texto: string) => {
+    setJustificativaTexto(texto);
+    setJustificativaModalOpen(true);
+  }, []);
+
+  const handleCloseJustificativa = useCallback(() => {
+    setJustificativaModalOpen(false);
+  }, []);
+
   // Verifica se é um card especial
   const isSpecialTip = (tip: MockTip): boolean => {
     return tip.special_type === "ALAVANCAGEM" || tip.special_type === "ODDS_ALTAS";
@@ -582,6 +597,7 @@ const Sport = () => {
                         isLocked={false}
                         isExpired={expired}
                         onAddTip={() => handleAddTip(tip.id, tip.url_iframe)}
+                        onOpenJustificativa={handleOpenJustificativa}
                       />
                     )}
                   </div>
@@ -611,6 +627,13 @@ const Sport = () => {
           </div>
         </section>
       </main>
+
+      {/* Modal de Justificativa (page-level, único, sem causar flicker) */}
+      <JustificativaModal
+        isOpen={justificativaModalOpen}
+        onClose={handleCloseJustificativa}
+        texto={justificativaTexto}
+      />
     </div>
   );
 };

@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { HelpCircle, Info, Link2, Clock, Layers, BarChart3, X } from "lucide-react";
+import { HelpCircle, Info, Link2, Clock, Layers, BarChart3 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 
 interface PremiumBettingCardProps {
@@ -29,6 +29,7 @@ interface PremiumBettingCardProps {
   justificativa?: string;
   onAddTip?: () => void;
   onViewAnalysis?: () => void;
+  onOpenJustificativa?: (texto: string) => void;
 }
 
 // Helper function to generate market explanation
@@ -165,10 +166,10 @@ export const PremiumBettingCard = ({
   isExpired: isExpiredProp = false,
   justificativa,
   onAddTip,
+  onOpenJustificativa,
 }: PremiumBettingCardProps) => {
   const [showMarketHelp, setShowMarketHelp] = useState(false);
   const [showBetHelp, setShowBetHelp] = useState(false);
-  const [showJustificativaModal, setShowJustificativaModal] = useState(false);
   const [countdown, setCountdown] = useState<string>("");
   const [isExpiredLocal, setIsExpiredLocal] = useState(false);
   const marketHelpRef = useRef<HTMLDivElement>(null);
@@ -237,17 +238,6 @@ export const PremiumBettingCard = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Close modal on ESC key
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && showJustificativaModal) {
-        setShowJustificativaModal(false);
-      }
-    };
-
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [showJustificativaModal]);
 
   return (
     <Card
@@ -475,9 +465,9 @@ export const PremiumBettingCard = ({
               )}
             </div>
 
-            {/* "Dados/Justificativa" Icon Button - Opens Modal */}
+            {/* "Dados/Justificativa" Icon Button - Opens Modal via callback */}
             <button
-              onClick={() => setShowJustificativaModal(true)}
+              onClick={() => onOpenJustificativa?.(justificativa || "Em breve: dados e percentuais do confronto.")}
               className={`w-8 h-8 rounded-lg backdrop-blur-sm border flex items-center justify-center transition-colors cursor-pointer ${
                 isExpired 
                   ? "bg-gray-700/50 border-gray-600/30 hover:bg-gray-700/70" 
@@ -490,55 +480,6 @@ export const PremiumBettingCard = ({
           </div>
         </div>
       </div>
-
-      {/* Justificativa Modal */}
-      {showJustificativaModal && (
-        <div 
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
-          onClick={() => setShowJustificativaModal(false)}
-        >
-          <div 
-            className="w-full max-w-sm bg-gradient-to-br from-[#0D0A1A] via-[#1A1030] to-[#0D0A1A] border border-purple-500/30 rounded-2xl shadow-2xl shadow-purple-900/40 overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Header */}
-            <div className="relative px-6 py-5 border-b border-purple-500/20">
-              <div className="absolute top-0 right-0 w-24 h-24 bg-purple-500/20 rounded-full blur-3xl" />
-              <div className="relative flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-purple-500/30 border border-purple-400/40 flex items-center justify-center">
-                  <BarChart3 className="w-5 h-5 text-purple-300" />
-                </div>
-                <div>
-                  <h2 className="text-lg font-bold text-white">Justificativa</h2>
-                </div>
-              </div>
-              <button
-                onClick={() => setShowJustificativaModal(false)}
-                className="absolute top-4 right-4 p-1.5 rounded-lg hover:bg-purple-500/20 transition-colors"
-              >
-                <X className="w-5 h-5 text-purple-300" />
-              </button>
-            </div>
-
-            {/* Content */}
-            <div className="px-6 py-6">
-              <p className="text-sm text-purple-200/80 leading-relaxed">
-                {justificativa || "Em breve: dados e percentuais do confronto."}
-              </p>
-            </div>
-
-            {/* Footer */}
-            <div className="px-6 pb-6">
-              <button
-                onClick={() => setShowJustificativaModal(false)}
-                className="w-full py-3 rounded-xl bg-purple-500/20 border border-purple-500/40 text-purple-200 font-medium hover:bg-purple-500/30 transition-colors"
-              >
-                Entendi
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </Card>
   );
 };
