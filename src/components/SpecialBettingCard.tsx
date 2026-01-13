@@ -15,7 +15,9 @@ interface SpecialBettingCardProps {
   expirationDate?: string;
   isLocked?: boolean;
   isExpired?: boolean;
+  justificativa?: string;
   onAddTip?: () => void;
+  onOpenJustificativa?: (texto: string) => void;
 }
 
 // Helper function to format countdown
@@ -69,7 +71,9 @@ export const SpecialBettingCard = ({
   expirationDate,
   isLocked = false,
   isExpired: isExpiredProp = false,
+  justificativa,
   onAddTip,
+  onOpenJustificativa,
 }: SpecialBettingCardProps) => {
   const [showHelp, setShowHelp] = useState(false);
   const [countdown, setCountdown] = useState<string>("");
@@ -291,14 +295,21 @@ export const SpecialBettingCard = ({
             )}
           </div>
 
-          {/* Stats Icon Button */}
+          {/* Stats/Justificativa Icon Button */}
           <button
-            className={`w-8 h-8 rounded-lg backdrop-blur-sm border flex items-center justify-center transition-colors ${
+            onClick={() => {
+              const texto = justificativa ?? (type === "ALAVANCAGEM" 
+                ? "Sequência especial para alavancar sua banca. Em breve: dados e percentuais do confronto."
+                : "Seleções com odds elevadas para maior retorno. Em breve: dados e percentuais do confronto."
+              );
+              onOpenJustificativa?.(texto);
+            }}
+            className={`w-8 h-8 rounded-lg backdrop-blur-sm border flex items-center justify-center transition-colors pointer-events-auto z-20 ${
               isExpired 
                 ? "bg-gray-700/50 border-gray-600/30 hover:bg-gray-700/70" 
                 : "bg-white/10 border-white/20 hover:bg-white/20"
             }`}
-            aria-label="Estatísticas"
+            aria-label="Dados / Justificativa"
           >
             <BarChart3 className={`w-3.5 h-3.5 ${isExpired ? "text-gray-500" : "text-white/80"}`} />
           </button>

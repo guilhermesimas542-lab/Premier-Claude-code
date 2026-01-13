@@ -573,7 +573,9 @@ const Sport = () => {
                         expirationDate={tip.expiration_date}
                         isLocked={false}
                         isExpired={expired}
+                        justificativa={tip.justificativa}
                         onAddTip={() => handleAddTip(tip.id, tip.url_iframe)}
+                        onOpenJustificativa={handleOpenJustificativa}
                       />
                     ) : (
                       <PremiumBettingCard
