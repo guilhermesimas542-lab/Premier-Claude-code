@@ -108,6 +108,7 @@ const getDisplayTier = (tier: string): "GRÁTIS" | "BÁSICO" | "PRO" | "ULTRA" =
 };
 
 // Get tier styling configuration (only 4 tiers now)
+// Border colors per category (2px solid)
 const getTierConfig = (tier: string) => {
   const displayTier = getDisplayTier(tier);
   
@@ -116,8 +117,8 @@ const getTierConfig = (tier: string) => {
       return {
         bgColor: "bg-[#9333EA]",
         textColor: "text-white",
-        glowColor: "shadow-[0_0_30px_rgba(147,51,234,0.6)]",
-        borderColor: "border-purple-500/60",
+        glowColor: "", // Removed glow
+        borderColor: "border-[#A855F7]", // Roxo
         iconColor: "text-purple-400",
         iconBorderColor: "border-purple-500/50",
       };
@@ -125,8 +126,8 @@ const getTierConfig = (tier: string) => {
       return {
         bgColor: "bg-gradient-to-r from-orange-500 to-orange-600",
         textColor: "text-white",
-        glowColor: "shadow-[0_0_20px_rgba(249,115,22,0.5)]",
-        borderColor: "border-orange-500/50",
+        glowColor: "", // Removed glow
+        borderColor: "border-[#F59E0B]", // Amarelo/Laranja
         iconColor: "text-orange-400",
         iconBorderColor: "border-orange-500/50",
       };
@@ -134,8 +135,8 @@ const getTierConfig = (tier: string) => {
       return {
         bgColor: "bg-gradient-to-r from-cyan-500 to-cyan-600",
         textColor: "text-white",
-        glowColor: "shadow-[0_0_20px_rgba(34,211,238,0.4)]",
-        borderColor: "border-cyan-500/40",
+        glowColor: "", // Removed glow
+        borderColor: "border-[#38BDF8]", // Azul claro/ciano
         iconColor: "text-cyan-400",
         iconBorderColor: "border-cyan-500/50",
       };
@@ -143,8 +144,8 @@ const getTierConfig = (tier: string) => {
       return {
         bgColor: "bg-gradient-to-r from-emerald-500 to-emerald-600",
         textColor: "text-white",
-        glowColor: "shadow-[0_0_20px_rgba(16,185,129,0.5)]",
-        borderColor: "border-emerald-500/50",
+        glowColor: "", // Removed glow
+        borderColor: "border-[#22C55E]", // Verde
         iconColor: "text-emerald-400",
         iconBorderColor: "border-emerald-500/50",
       };
@@ -241,10 +242,10 @@ export const PremiumBettingCard = ({
 
   return (
     <Card
-      className={`w-full overflow-hidden select-none relative rounded-xl border transition-all duration-300 flex flex-col ${
+      className={`w-full overflow-hidden select-none relative rounded-xl border-2 transition-all duration-300 flex flex-col ${
         isExpired 
           ? "border-gray-600/50 shadow-none grayscale-[60%]" 
-          : `${config.borderColor} ${config.glowColor} hover:scale-[1.02]`
+          : `${config.borderColor} hover:scale-[1.02]`
       }`}
       style={{
         aspectRatio: '332 / 213',

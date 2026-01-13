@@ -208,46 +208,6 @@ const TIER_TABS: { tier: TierType; label: string }[] = [
   { tier: "PRO", label: "Pro" },
   { tier: "ULTRA", label: "Ultra" },
 ];
-
-// Mapa de cores por categoria para as pills
-const getChipStyles = (tier: TierType, isActive: boolean, hasContent: boolean): string => {
-  if (!hasContent) {
-    return 'bg-transparent text-white/30 border-white/10 cursor-not-allowed';
-  }
-
-  const colorMap: Record<TierType, { inactive: string; active: string }> = {
-    "GRÁTIS": {
-      inactive: 'bg-transparent text-[#E5E7EB] border-[#E5E7EB]/50 hover:border-[#E5E7EB] hover:text-white',
-      active: 'bg-white/10 text-white border-white shadow-[0_0_12px_rgba(255,255,255,0.3)]'
-    },
-    "ALAVANCAGEM": {
-      inactive: 'bg-transparent text-[#3B82F6] border-[#3B82F6]/50 hover:border-[#3B82F6] hover:text-[#60A5FA]',
-      active: 'bg-[#3B82F6] text-[#0B1220] border-[#3B82F6] shadow-[0_0_12px_rgba(59,130,246,0.5)]'
-    },
-    "ODDS_ALTAS": {
-      inactive: 'bg-transparent text-[#EF4444] border-[#EF4444]/50 hover:border-[#EF4444] hover:text-[#F87171]',
-      active: 'bg-[#EF4444] text-[#0B1220] border-[#EF4444] shadow-[0_0_12px_rgba(239,68,68,0.5)]'
-    },
-    "BÁSICO": {
-      inactive: 'bg-transparent text-[#22C55E] border-[#22C55E]/50 hover:border-[#22C55E] hover:text-[#4ADE80]',
-      active: 'bg-[#22C55E] text-[#07130A] border-[#22C55E] shadow-[0_0_12px_rgba(34,197,94,0.5)]'
-    },
-    "PRO": {
-      inactive: 'bg-transparent text-[#F59E0B] border-[#F59E0B]/50 hover:border-[#F59E0B] hover:text-[#FBBF24]',
-      active: 'bg-[#F59E0B] text-[#111827] border-[#F59E0B] shadow-[0_0_12px_rgba(245,158,11,0.5)]'
-    },
-    "ULTRA": {
-      inactive: 'bg-transparent text-[#A855F7] border-[#A855F7]/50 hover:border-[#A855F7] hover:text-[#C084FC]',
-      active: 'bg-[#A855F7] text-[#0B1220] border-[#A855F7] shadow-[0_0_12px_rgba(168,85,247,0.5)]'
-    },
-    "MÚLTIPLA": {
-      inactive: 'bg-transparent text-[#F59E0B] border-[#F59E0B]/50 hover:border-[#F59E0B] hover:text-[#FBBF24]',
-      active: 'bg-[#F59E0B] text-[#111827] border-[#F59E0B] shadow-[0_0_12px_rgba(245,158,11,0.5)]'
-    }
-  };
-
-  return isActive ? colorMap[tier].active : colorMap[tier].inactive;
-};
 // ============ FIM MOCK TIPS ============
 
 const Sport = () => {
@@ -518,7 +478,7 @@ const Sport = () => {
       {/* Main Content */}
       <main className="w-full max-w-7xl mx-auto px-4 py-6 space-y-6 overflow-x-hidden">
         
-        {/* Tier Tabs - Cores por categoria */}
+        {/* Tier Tabs - Preto e Branco */}
         <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide justify-center flex-wrap md:flex-nowrap">
           {TIER_TABS.map((tab) => {
             const isActive = activeTierHighlight === tab.tier;
@@ -529,7 +489,13 @@ const Sport = () => {
                 key={tab.tier}
                 onClick={() => scrollToTier(tab.tier)}
                 disabled={!hasContent}
-                className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all duration-200 active:scale-95 border focus:outline-none focus:ring-2 focus:ring-white/30 focus:ring-offset-1 focus:ring-offset-transparent ${getChipStyles(tab.tier, isActive, hasContent)}`}
+                className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all duration-200 active:scale-95 border focus:outline-none focus:ring-2 focus:ring-white/20 ${
+                  !hasContent
+                    ? 'bg-transparent text-white/30 border-white/10 cursor-not-allowed'
+                    : isActive 
+                      ? 'bg-white/10 text-white border-white/40 shadow-[0_0_8px_rgba(255,255,255,0.15)]' 
+                      : 'bg-transparent text-white/80 border-white/20 hover:bg-white/5 hover:border-white/40 hover:text-white'
+                }`}
               >
                 {tab.label}
               </button>

@@ -33,6 +33,7 @@ const formatCountdown = (totalSeconds: number): string => {
 };
 
 // Get card config based on type
+// Border colors: ALAVANCAGEM = #3B82F6 (azul), ODDS_ALTAS = #EF4444 (vermelho)
 const getCardConfig = (type: SpecialCardType) => {
   if (type === "ALAVANCAGEM") {
     return {
@@ -41,8 +42,8 @@ const getCardConfig = (type: SpecialCardType) => {
       subtitle: "Sequência do dia",
       bgColor: "bg-gradient-to-r from-teal-600 to-emerald-700",
       textColor: "text-white",
-      glowColor: "shadow-[0_0_25px_rgba(20,184,166,0.5)]",
-      borderColor: "border-teal-500/50",
+      glowColor: "", // Removed glow
+      borderColor: "border-[#3B82F6]", // Azul
       iconBg: "bg-teal-500/30",
       iconColor: "text-teal-300",
     };
@@ -54,8 +55,8 @@ const getCardConfig = (type: SpecialCardType) => {
     subtitle: "Seleções especiais",
     bgColor: "bg-gradient-to-r from-amber-600 to-orange-700",
     textColor: "text-white",
-    glowColor: "shadow-[0_0_25px_rgba(245,158,11,0.5)]",
-    borderColor: "border-amber-500/50",
+    glowColor: "", // Removed glow
+    borderColor: "border-[#EF4444]", // Vermelho
     iconBg: "bg-amber-500/30",
     iconColor: "text-amber-300",
   };
@@ -130,10 +131,10 @@ export const SpecialBettingCard = ({
 
   return (
     <Card
-      className={`w-full overflow-hidden select-none relative rounded-xl border transition-all duration-300 flex flex-col ${
+      className={`w-full overflow-hidden select-none relative rounded-xl border-2 transition-all duration-300 flex flex-col ${
         isExpired 
           ? "border-gray-600/50 shadow-none grayscale-[60%]" 
-          : `${config.borderColor} ${config.glowColor} hover:scale-[1.02]`
+          : `${config.borderColor} hover:scale-[1.02]`
       }`}
       style={{
         aspectRatio: '332 / 213',
