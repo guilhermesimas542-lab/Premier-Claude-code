@@ -58,7 +58,7 @@ const MOCK_TIPS: MockTip[] = [
     odd_Value: 1.55,
     odd_market: "Tip básica de demonstração",
     is_pro_plan: 0, // BÁSICO
-    expiration_date: "2026-01-14T23:59:59.000Z",
+    expiration_date: "2026-01-13T18:00:00.000Z", // EXPIRADA - 13/01/2026 18:00
     url_iframe: "https://example.com/basico",
   },
   {
