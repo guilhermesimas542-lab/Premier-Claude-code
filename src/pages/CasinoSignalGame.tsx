@@ -18,7 +18,7 @@ const GAME_CONFIGS: Record<string, GameConfig> = {
   aviator: { name: "Aviator", buttonColor: "#DC2626", buttonGlow: "rgba(220, 38, 38, 0.5)" },
   roleta: { name: "Roleta", buttonColor: "#DC2626", buttonGlow: "rgba(220, 38, 38, 0.5)" },
   mines: { name: "Mines", buttonColor: "#8B5CF6", buttonGlow: "rgba(139, 92, 246, 0.5)" },
-  "fortune-tiger": { name: "Fortune Tiger", buttonColor: "#FF4500", buttonGlow: "rgba(255, 69, 0, 0.5)" },
+  "football-studio": { name: "Football Studio", buttonColor: "#3B82F6", buttonGlow: "rgba(59, 130, 246, 0.5)" },
 };
 
 // Mapa de iFrames por jogo (URLs editáveis)
@@ -26,7 +26,7 @@ const CASINO_IFRAMES: Record<string, { name: string; url: string }> = {
   aviator: { name: "Aviator", url: "https://example.com/aviator" },
   roleta: { name: "Roleta", url: "https://example.com/roleta" },
   mines: { name: "Mines", url: "https://example.com/mines" },
-  "fortune-tiger": { name: "Fortune Tiger", url: "https://example.com/fortune-tiger" },
+  "football-studio": { name: "Football Studio", url: "https://example.com/football-studio" },
 };
 
 // Loading steps
@@ -323,43 +323,135 @@ const RouletteGame = ({ phase, stepIndex, result, cooldown }: { phase: Phase; st
   );
 };
 
-// ===== FORTUNE TIGER =====
-const FortuneTigerGame = ({ phase, stepIndex, result }: { phase: Phase; stepIndex: number; result: any }) => {
+// ===== FOOTBALL STUDIO =====
+const FootballStudioGame = ({ phase, stepIndex, result }: { phase: Phase; stepIndex: number; result: any }) => {
+  const now = new Date();
+  const currentTime = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  
+  const isCasa = result?.signal === 'CASA';
+
   return (
-    <div className="space-y-6">
-      {/* Info cards */}
+    <div className="space-y-4">
+      {/* Grid 2 cards - Horário e Proteções */}
       <div className="grid grid-cols-2 gap-3">
-        <div className="bg-[#1a1a1a] rounded-xl p-4 border border-orange-500/30 text-center">
-          <p className="text-xs text-muted-foreground mb-1">Giros</p>
-          <p className="text-xl font-bold text-orange-500">
-            {phase === 'result' ? `Até ${result?.spins}` : '∞'}
+        {/* Card - Horário */}
+        <div 
+          className="rounded-2xl p-4 text-center"
+          style={{
+            background: 'linear-gradient(145deg, #0b0f14 0%, #131920 100%)',
+            border: '1px solid rgba(139, 92, 246, 0.3)',
+            boxShadow: '0 0 15px rgba(139, 92, 246, 0.15)',
+          }}
+        >
+          <p className="text-xs text-gray-400 mb-1">Horário</p>
+          <p className="text-2xl font-bold text-white">
+            {phase === 'result' ? result?.time : currentTime}
           </p>
         </div>
-        <div className="bg-[#1a1a1a] rounded-xl p-4 border border-green-500/30 text-center">
-          <p className="text-xs text-muted-foreground mb-1">Entrada</p>
-          <p className="text-xl font-bold text-green-500">
-            {phase === 'result' ? 'Agora' : '∞'}
-          </p>
-        </div>
-        <div className="bg-[#1a1a1a] rounded-xl p-4 border border-yellow-500/30 text-center">
-          <p className="text-xs text-muted-foreground mb-1">Válido até</p>
-          <p className="text-xl font-bold text-yellow-500">
-            {phase === 'result' ? result?.validUntil : '—:—'}
-          </p>
-        </div>
-        <div className="bg-[#1a1a1a] rounded-xl p-4 border border-cyan-500/30 text-center">
-          <p className="text-xs text-muted-foreground mb-1">Tentativas</p>
-          <p className="text-xl font-bold text-cyan-500">
-            {phase === 'result' ? 'Até 05' : '—'}
+
+        {/* Card - Proteções */}
+        <div 
+          className="rounded-2xl p-4 text-center"
+          style={{
+            background: 'linear-gradient(145deg, #0b0f14 0%, #131920 100%)',
+            border: '1px solid rgba(34, 197, 94, 0.4)',
+            boxShadow: '0 0 12px rgba(34, 197, 94, 0.15)',
+          }}
+        >
+          <p className="text-xs text-gray-400 mb-1">Proteções</p>
+          <p className="text-xl font-bold text-green-400">
+            {phase === 'result' ? 'Até 02' : '—'}
           </p>
         </div>
       </div>
 
+      {/* Card grande - SINAL */}
+      <div 
+        className="rounded-2xl p-6 text-center"
+        style={{
+          background: phase === 'result' 
+            ? isCasa 
+              ? 'linear-gradient(145deg, rgba(185, 28, 28, 0.4) 0%, rgba(127, 29, 29, 0.3) 100%)'
+              : 'linear-gradient(145deg, rgba(30, 64, 175, 0.4) 0%, rgba(29, 78, 216, 0.3) 100%)'
+            : 'linear-gradient(145deg, #0b0f14 0%, #131920 100%)',
+          border: phase === 'result'
+            ? isCasa 
+              ? '2px solid rgba(239, 68, 68, 0.6)'
+              : '2px solid rgba(59, 130, 246, 0.6)'
+            : '1px solid rgba(255, 255, 255, 0.1)',
+          boxShadow: phase === 'result'
+            ? isCasa
+              ? '0 0 30px rgba(239, 68, 68, 0.35)'
+              : '0 0 30px rgba(59, 130, 246, 0.35)'
+            : 'none',
+        }}
+      >
+        <p className="text-xs text-gray-400 mb-2">SINAL</p>
+        {phase === 'result' ? (
+          <div 
+            className="inline-block px-8 py-3 rounded-xl text-2xl font-bold text-white"
+            style={{
+              background: isCasa 
+                ? 'linear-gradient(135deg, #DC2626 0%, #B91C1C 100%)'
+                : 'linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)',
+              boxShadow: isCasa
+                ? '0 4px 15px rgba(220, 38, 38, 0.4)'
+                : '0 4px 15px rgba(59, 130, 246, 0.4)',
+            }}
+          >
+            {result?.signal}
+          </div>
+        ) : (
+          <p className="text-xl font-bold text-gray-500">—</p>
+        )}
+      </div>
+
+      {/* Caixa de Dica */}
+      {phase === 'result' && (
+        <div 
+          className="rounded-2xl p-4 flex gap-3"
+          style={{
+            background: 'linear-gradient(145deg, #0b0f14 0%, #131920 100%)',
+            border: '1px solid rgba(59, 130, 246, 0.3)',
+            boxShadow: '0 0 10px rgba(59, 130, 246, 0.1)',
+          }}
+        >
+          <Lightbulb className="w-5 h-5 text-yellow-400 shrink-0 mt-0.5" />
+          <p className="text-sm text-gray-300 leading-relaxed">
+            <span className="font-bold text-white">Dica:</span> Aqui o sinal é apenas CASA ou VISITANTE. Siga o lado indicado por até 02 proteções.
+          </p>
+        </div>
+      )}
+
       {/* Loading state */}
       {phase === 'loading' && (
-        <div className="text-center space-y-2 animate-pulse py-8">
-          <p className="text-lg font-semibold text-white">{LOADING_STEPS[stepIndex]}</p>
-          {stepIndex === 2 && <p className="text-sm text-muted-foreground">Prepare-se</p>}
+        <div 
+          className="rounded-2xl p-6 text-center"
+          style={{
+            background: 'linear-gradient(145deg, #0b0f14 0%, #131920 100%)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+          }}
+        >
+          <div className="animate-pulse space-y-2">
+            <p className="text-lg font-semibold text-white">{LOADING_STEPS[stepIndex]}</p>
+            {stepIndex === 2 && <p className="text-sm text-gray-400">Prepare-se</p>}
+          </div>
+        </div>
+      )}
+
+      {/* Idle state */}
+      {phase === 'idle' && (
+        <div 
+          className="rounded-2xl p-4 flex gap-3"
+          style={{
+            background: 'linear-gradient(145deg, #0b0f14 0%, #131920 100%)',
+            border: '1px solid rgba(139, 92, 246, 0.3)',
+          }}
+        >
+          <Lightbulb className="w-5 h-5 text-yellow-400 shrink-0 mt-0.5" />
+          <p className="text-sm text-gray-300 leading-relaxed">
+            <span className="font-bold text-white">Dica:</span> Clique em "Identificar sinal" para a IA indicar CASA ou VISITANTE.
+          </p>
         </div>
       )}
     </div>
@@ -435,13 +527,11 @@ const CasinoSignalGame = () => {
           tip: strategy.tip,
         };
       }
-      case 'fortune-tiger': {
-        const spins = Math.floor(Math.random() * 11) + 5; // 5-15
-        const validMinutes = Math.floor(Math.random() * 3) + 2; // 2-4
-        const validUntil = new Date(now.getTime() + validMinutes * 60000);
+      case 'football-studio': {
+        const signal = Math.random() > 0.5 ? 'CASA' : 'VISITANTE';
         return {
-          spins,
-          validUntil: validUntil.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+          time: now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+          signal,
         };
       }
       default:
@@ -546,7 +636,7 @@ const CasinoSignalGame = () => {
         )}
         {slug === 'aviator' && <AviatorGame phase={phase} stepIndex={stepIndex} result={result} />}
         {slug === 'roleta' && <RouletteGame phase={phase} stepIndex={stepIndex} result={result} cooldown={cooldown} />}
-        {slug === 'fortune-tiger' && <FortuneTigerGame phase={phase} stepIndex={stepIndex} result={result} />}
+        {slug === 'football-studio' && <FootballStudioGame phase={phase} stepIndex={stepIndex} result={result} />}
 
         {/* Button - não mostrar para Mines (já está dentro do card) */}
         {slug !== 'mines' && (

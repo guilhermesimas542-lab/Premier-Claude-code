@@ -1,4 +1,4 @@
-import { ArrowLeft, LogOut, Plane, CircleDot, Gem, Cat, ChevronRight } from "lucide-react";
+import { ArrowLeft, LogOut, Plane, CircleDot, Gem, Dices, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { getStoredConfig, clearAuth, isAuthenticated } from "@/lib/auth";
 import { useEffect, useState } from "react";
@@ -33,10 +33,10 @@ const CASINO_TILES = [
     icon: Gem,
   },
   {
-    slug: "fortune-tiger",
-    name: "Fortune Tiger",
-    subtitle: "Jogar agora",
-    icon: Cat,
+    slug: "football-studio",
+    name: "Football Studio",
+    subtitle: "Dice (Casa x Visitante)",
+    icon: Dices,
   },
 ];
 
