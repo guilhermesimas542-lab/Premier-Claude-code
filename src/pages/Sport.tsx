@@ -548,7 +548,9 @@ const Sport = () => {
             style={{ 
               scrollbarWidth: 'none', 
               msOverflowStyle: 'none',
-              cursor: isDragging ? 'grabbing' : 'grab'
+              cursor: isDragging ? 'grabbing' : 'grab',
+              overflow: 'visible', // Allow badges to float outside
+              overflowX: 'auto',
             }}
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
@@ -560,7 +562,7 @@ const Sport = () => {
                 display: none;
               }
             `}</style>
-            <div className="flex gap-4 md:gap-5 py-2">
+            <div className="flex gap-4 md:gap-5 py-4" style={{ paddingTop: '18px' }}>
               {visibleTips.map((tip, index) => {
                 const expired = isExpiredTip(tip.expiration_date);
                 const isSpecial = isSpecialTip(tip);
@@ -573,7 +575,8 @@ const Sport = () => {
                     style={{ 
                       width: 'min(332px, 92vw)',
                       height: 'calc(min(332px, 92vw) * 213 / 332)',
-                      minWidth: '280px'
+                      minWidth: '280px',
+                      overflow: 'visible', // Allow badge to float outside
                     }}
                   >
                     {isSpecial ? (

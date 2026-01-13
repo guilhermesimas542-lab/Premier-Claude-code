@@ -242,7 +242,7 @@ export const PremiumBettingCard = ({
 
   return (
     <Card
-      className={`w-full overflow-hidden select-none relative rounded-xl border-2 transition-all duration-300 flex flex-col ${
+      className={`w-full select-none relative rounded-xl border-2 transition-all duration-300 flex flex-col ${
         isExpired 
           ? "border-gray-600/50 shadow-none grayscale-[60%]" 
           : `${config.borderColor} hover:scale-[1.02]`
@@ -250,6 +250,7 @@ export const PremiumBettingCard = ({
       style={{
         aspectRatio: '332 / 213',
         minHeight: 0,
+        overflow: 'visible', // Allow badge to float outside
       }}
     >
       {/* Stadium Background Image */}
@@ -279,61 +280,61 @@ export const PremiumBettingCard = ({
         <div className="absolute inset-0 z-20 bg-black/50 backdrop-blur-sm" />
       )}
 
+      {/* Floating Tier Badge - OUTSIDE the card */}
+      <div 
+        className="absolute left-1/2 -translate-x-1/2 z-50"
+        style={{ top: '-14px' }}
+      >
+        {isExpired ? (
+          <div 
+            className="bg-gray-600 text-gray-200 rounded-full font-extrabold uppercase tracking-wide shadow-lg flex items-center justify-center"
+            style={{ height: '30px', padding: '0 14px', fontSize: '13px', letterSpacing: '0.5px' }}
+          >
+            EXPIRADA
+          </div>
+        ) : (
+          <div 
+            className={`${config.bgColor} ${config.textColor} rounded-full font-extrabold uppercase tracking-wide shadow-lg flex items-center justify-center`}
+            style={{ height: '30px', padding: '0 14px', fontSize: '13px', letterSpacing: '0.5px' }}
+          >
+            {displayTier}
+          </div>
+        )}
+      </div>
+
       {/* Content - Improved legibility layout */}
-      <div className="relative z-10 p-3 flex flex-col flex-1 min-h-0 overflow-hidden">
+      <div className="relative z-10 p-3 flex flex-col flex-1 min-h-0 overflow-hidden rounded-xl">
         
-        {/* Top Row - Timer (left), Badge (center), Info (right) - absolute positioned */}
-        <div className="relative h-9 mb-1">
-          {/* Timer - Top Left Corner - BIGGER */}
+        {/* Top Row - Timer (left), Info (right) - no badge here anymore */}
+        <div className="relative h-7 mb-0.5">
+          {/* Timer - Top Left Corner - SMALLER */}
           {!isExpired && countdown && (
             <div 
-              className="absolute top-0 left-0 flex items-center gap-1 bg-black/70 backdrop-blur-sm px-3 rounded-full"
-              style={{ height: '32px' }}
+              className="absolute flex items-center gap-1 bg-black/70 backdrop-blur-sm rounded-full z-40"
+              style={{ top: '0px', left: '0px', height: '28px', padding: '0 10px' }}
             >
-              <Clock className="w-4 h-4 text-white/80" />
-              <span className="text-[15px] text-white font-bold tabular-nums">
+              <Clock className="w-3.5 h-3.5 text-white/80" />
+              <span className="text-[13px] text-white font-bold tabular-nums">
                 {countdown}
               </span>
             </div>
           )}
 
-          {/* Tier Badge - Centered at TOP */}
-          <div 
-            className="absolute left-1/2 -translate-x-1/2"
-            style={{ top: '0px' }}
-          >
-            {isExpired ? (
-              <div 
-                className="bg-gray-600 text-gray-200 rounded-full font-extrabold uppercase tracking-wide shadow-lg flex items-center justify-center"
-                style={{ height: '34px', padding: '0 18px', fontSize: '14px', letterSpacing: '0.5px' }}
-              >
-                EXPIRADA
-              </div>
-            ) : (
-              <div 
-                className={`${config.bgColor} ${config.textColor} rounded-full font-extrabold uppercase tracking-wide shadow-lg flex items-center justify-center`}
-                style={{ height: '34px', padding: '0 18px', fontSize: '14px', letterSpacing: '0.5px' }}
-              >
-                {displayTier}
-              </div>
-            )}
-          </div>
-
           {/* Info Button - Top Right */}
           <div className="absolute top-0 right-0" ref={marketHelpRef}>
             <button
               onClick={() => setShowMarketHelp(!showMarketHelp)}
-              className={`w-8 h-8 rounded-full bg-black/50 backdrop-blur-sm border ${
+              className={`w-7 h-7 rounded-full bg-black/50 backdrop-blur-sm border ${
                 isExpired ? "border-gray-500/50" : config.iconBorderColor
               } flex items-center justify-center hover:bg-black/70 transition-colors`}
               aria-label="Ajuda do mercado"
             >
-              <Info className={`w-4 h-4 ${isExpired ? "text-gray-400" : config.iconColor}`} />
+              <Info className={`w-3.5 h-3.5 ${isExpired ? "text-gray-400" : config.iconColor}`} />
             </button>
             
             {/* Market Help Tooltip */}
             {showMarketHelp && (
-              <div className="absolute right-0 top-9 w-40 bg-black/90 backdrop-blur-md border border-white/20 rounded-lg p-2 shadow-xl z-50">
+              <div className="absolute right-0 top-8 w-40 bg-black/90 backdrop-blur-md border border-white/20 rounded-lg p-2 shadow-xl z-50">
                 <p className="text-[11px] text-white/90 leading-relaxed">
                   {marketExplanation}
                 </p>
@@ -342,12 +343,12 @@ export const PremiumBettingCard = ({
           </div>
         </div>
 
-        {/* Match Date - Below badge */}
-        <div className="flex items-center justify-center" style={{ marginTop: '2px', height: '18px' }}>
+        {/* Match Date - Repositioned */}
+        <div className="flex items-center justify-center" style={{ height: '16px' }}>
           {matchDate && (
             <p 
               className={`font-bold ${isExpired ? "text-gray-400" : "text-white/90"}`}
-              style={{ fontSize: '13px' }}
+              style={{ fontSize: '12px' }}
             >
               {matchDate}
             </p>
@@ -403,19 +404,19 @@ export const PremiumBettingCard = ({
           </div>
         </div>
 
-        {/* Market Name - Bigger badge */}
-        <div className="flex items-center justify-center" style={{ height: '28px' }}>
+        {/* Market Name - Smaller badge */}
+        <div className="flex items-center justify-center" style={{ height: '24px', marginTop: '4px', marginBottom: '4px' }}>
           <div 
             className={`rounded-full backdrop-blur-sm border ${
               isExpired 
                 ? "bg-gray-800/70 border-gray-600/40" 
                 : "bg-black/70 border-white/15"
             }`}
-            style={{ padding: '6px 14px' }}
+            style={{ padding: '5px 12px' }}
           >
             <p 
               className={`font-extrabold line-clamp-1 ${isExpired ? "text-gray-400" : "text-white"}`}
-              style={{ fontSize: '13px' }}
+              style={{ fontSize: '12px' }}
             >
               {market}
             </p>
