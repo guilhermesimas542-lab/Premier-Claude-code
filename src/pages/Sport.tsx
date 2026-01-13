@@ -275,7 +275,7 @@ const Sport = () => {
     const container = carouselContainerRef.current;
     if (!container) return;
     
-    const cardWidth = Math.min(window.innerWidth * 0.85, 360) + 16; // card width + gap
+    const cardWidth = Math.min(332, window.innerWidth * 0.92) + 16; // card width + gap
     const scrollAmount = direction === 'left' ? -cardWidth : cardWidth;
     
     container.scrollBy({
@@ -524,7 +524,8 @@ const Sport = () => {
                     ref={(el) => { cardRefs.current[index] = el; }}
                     className="flex-shrink-0 snap-center"
                     style={{ 
-                      width: 'min(80vw, 340px)',
+                      width: 'min(332px, 92vw)',
+                      height: 'calc(min(332px, 92vw) * 213 / 332)',
                       minWidth: '280px'
                     }}
                   >
