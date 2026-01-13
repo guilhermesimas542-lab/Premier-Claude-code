@@ -10,6 +10,7 @@ import Bonus from "./pages/Bonus";
 import Casino from "./pages/Casino";
 import CasinoGame from "./pages/CasinoGame";
 import CasinoSignalGame from "./pages/CasinoSignalGame";
+import UltimosGreens from "./pages/UltimosGreens";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +37,7 @@ const App = () => (
           <Route path="/alavancagem" element={<Sport />} />
           <Route path="/odds-altas" element={<Sport />} />
           <Route path="/bonus" element={<Bonus />} />
+          <Route path="/ultimos-greens" element={<UltimosGreens />} />
           <Route path="/cassino" element={<Casino />} />
           {/* Nova rota de sinais IA */}
           <Route path="/cassino/jogo/:slug" element={<CasinoSignalGame />} />

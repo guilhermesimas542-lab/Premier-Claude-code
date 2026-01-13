@@ -28,8 +28,8 @@ const cards: QuickCard[] = [
   {
     id: "bilhetes",
     title: "Últimos Bilhetes",
-    subtitle: "Veja seus bilhetes recentes",
-    route: "/bilhetes",
+    subtitle: "Histórico de greens",
+    route: "/ultimos-greens",
     icon: <FileText className="w-5 h-5" />,
   },
 ];
