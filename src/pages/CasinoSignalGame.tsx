@@ -37,7 +37,16 @@ const LOADING_STEPS = [
 ];
 
 // ===== MINES =====
-const MinesGame = ({ phase, stepIndex, result }: { phase: Phase; stepIndex: number; result: any }) => {
+const MinesGame = ({ phase, stepIndex, result, onIdentifySignal, isButtonDisabled, buttonText, buttonColor, buttonGlow }: { 
+  phase: Phase; 
+  stepIndex: number; 
+  result: any;
+  onIdentifySignal: () => void;
+  isButtonDisabled: boolean;
+  buttonText: string;
+  buttonColor: string;
+  buttonGlow: string;
+}) => {
   const renderGrid = () => {
     const grid = [];
     for (let i = 0; i < 25; i++) {
@@ -45,13 +54,13 @@ const MinesGame = ({ phase, stepIndex, result }: { phase: Phase; stepIndex: numb
       grid.push(
         <div
           key={i}
-          className="aspect-square rounded-lg flex items-center justify-center text-xl transition-all duration-300"
+          className="w-[48px] h-[48px] sm:w-[56px] sm:h-[56px] lg:w-[60px] lg:h-[60px] rounded-xl flex items-center justify-center text-base sm:text-lg transition-all duration-300"
           style={{
             background: hasStar 
               ? 'linear-gradient(145deg, #FFD700 0%, #FFA500 100%)' 
-              : 'linear-gradient(145deg, #1a1a1a 0%, #0a0a0a 100%)',
-            border: hasStar ? '2px solid #FFD700' : '1px solid rgba(255,255,255,0.1)',
-            boxShadow: hasStar ? '0 0 15px rgba(255, 215, 0, 0.5)' : 'none',
+              : 'linear-gradient(145deg, #2a2a2a 0%, #1a1a1a 100%)',
+            border: hasStar ? '2px solid #FFD700' : '1px solid rgba(255,255,255,0.08)',
+            boxShadow: hasStar ? '0 0 12px rgba(255, 215, 0, 0.5)' : 'inset 0 1px 0 rgba(255,255,255,0.03)',
           }}
         >
           {hasStar && '⭐'}
@@ -62,35 +71,89 @@ const MinesGame = ({ phase, stepIndex, result }: { phase: Phase; stepIndex: numb
   };
 
   return (
-    <div className="space-y-6">
-      {/* Info cards */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="bg-[#1a1a1a] rounded-xl p-4 border border-red-500/30">
-          <p className="text-xs text-muted-foreground mb-1">Minas</p>
-          <p className="text-2xl font-bold text-red-500">
-            {phase === 'result' ? result?.mines : '—'}
-          </p>
+    <div className="flex justify-center px-0">
+      {/* Card container compacto */}
+      <div 
+        className="w-full max-w-[360px] sm:max-w-[420px] lg:max-w-[460px] rounded-2xl p-4"
+        style={{
+          background: 'linear-gradient(145deg, #0b0f14 0%, #131920 100%)',
+          border: '1px solid rgba(139, 92, 246, 0.2)',
+        }}
+      >
+        {/* Header interno */}
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <span className="text-base font-bold text-white">Mines – IA</span>
+          </div>
+          <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-green-500/20 border border-green-500/40">
+            <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+            <span className="text-xs font-medium text-green-500">Online</span>
+          </div>
         </div>
-        <div className="bg-[#1a1a1a] rounded-xl p-4 border border-green-500/30">
-          <p className="text-xs text-muted-foreground mb-1">Proteções</p>
-          <p className="text-2xl font-bold text-green-500">
-            {phase === 'result' ? '02' : '—'}
-          </p>
-        </div>
-      </div>
 
-      {/* Grid 5x5 */}
-      <div className="grid grid-cols-5 gap-2 max-w-xs mx-auto">
-        {renderGrid()}
-      </div>
-
-      {/* Loading state */}
-      {phase === 'loading' && (
-        <div className="text-center space-y-2 animate-pulse">
-          <p className="text-lg font-semibold text-white">{LOADING_STEPS[stepIndex]}</p>
-          {stepIndex === 2 && <p className="text-sm text-muted-foreground">Prepare-se</p>}
+        {/* Info cards compactos */}
+        <div className="grid grid-cols-2 gap-2 mb-4">
+          <div 
+            className="rounded-xl p-3"
+            style={{
+              background: 'rgba(239, 68, 68, 0.1)',
+              border: '1px solid rgba(239, 68, 68, 0.3)',
+            }}
+          >
+            <p className="text-[11px] text-gray-400 mb-0.5">Minas</p>
+            <p className="text-[22px] sm:text-[26px] font-bold text-red-400">
+              {phase === 'result' ? result?.mines : 'X'}
+            </p>
+          </div>
+          <div 
+            className="rounded-xl p-3"
+            style={{
+              background: 'rgba(34, 197, 94, 0.1)',
+              border: '1px solid rgba(34, 197, 94, 0.3)',
+            }}
+          >
+            <p className="text-[11px] text-gray-400 mb-0.5">Proteções</p>
+            <p className="text-[22px] sm:text-[26px] font-bold text-green-400">
+              {phase === 'result' ? '02' : 'X'}
+            </p>
+          </div>
         </div>
-      )}
+
+        {/* Grid 5x5 compacto */}
+        <div className="flex justify-center mb-4">
+          <div className="grid grid-cols-5 gap-[10px] sm:gap-3">
+            {renderGrid()}
+          </div>
+        </div>
+
+        {/* Loading state */}
+        {phase === 'loading' && (
+          <div className="text-center space-y-1 py-2">
+            <p className="text-sm font-semibold text-white animate-pulse">{LOADING_STEPS[stepIndex]}</p>
+            {stepIndex === 2 && <p className="text-xs text-gray-400">Prepare-se</p>}
+          </div>
+        )}
+
+        {/* Botão compacto dentro do card */}
+        <button
+          onClick={onIdentifySignal}
+          disabled={isButtonDisabled}
+          className="w-full h-[52px] sm:h-[56px] rounded-2xl text-base font-bold text-white transition-all duration-200 disabled:opacity-60"
+          style={{
+            background: isButtonDisabled 
+              ? '#374151' 
+              : `linear-gradient(135deg, ${buttonColor} 0%, ${buttonColor}cc 100%)`,
+            boxShadow: isButtonDisabled ? 'none' : `0 0 15px ${buttonGlow}`,
+          }}
+        >
+          {phase === 'loading' ? (
+            <span className="flex items-center justify-center gap-2">
+              <span className="animate-spin">⏳</span>
+              Processando...
+            </span>
+          ) : buttonText}
+        </button>
+      </div>
     </div>
   );
 };
@@ -469,30 +532,43 @@ const CasinoSignalGame = () => {
       {/* Main Content */}
       <main className="container max-w-lg mx-auto px-4 py-6 space-y-6">
         {/* Game-specific content */}
-        {slug === 'mines' && <MinesGame phase={phase} stepIndex={stepIndex} result={result} />}
+        {slug === 'mines' && (
+          <MinesGame 
+            phase={phase} 
+            stepIndex={stepIndex} 
+            result={result}
+            onIdentifySignal={handleIdentifySignal}
+            isButtonDisabled={isButtonDisabled}
+            buttonText={buttonText}
+            buttonColor={gameConfig.buttonColor}
+            buttonGlow={gameConfig.buttonGlow}
+          />
+        )}
         {slug === 'aviator' && <AviatorGame phase={phase} stepIndex={stepIndex} result={result} />}
         {slug === 'roleta' && <RouletteGame phase={phase} stepIndex={stepIndex} result={result} cooldown={cooldown} />}
         {slug === 'fortune-tiger' && <FortuneTigerGame phase={phase} stepIndex={stepIndex} result={result} />}
 
-        {/* Button */}
-        <Button
-          onClick={handleIdentifySignal}
-          disabled={isButtonDisabled}
-          className="w-full py-6 text-lg font-bold transition-all duration-200"
-          style={{
-            background: isButtonDisabled 
-              ? '#374151' 
-              : `linear-gradient(135deg, ${gameConfig.buttonColor} 0%, ${gameConfig.buttonColor}cc 100%)`,
-            boxShadow: isButtonDisabled ? 'none' : `0 0 20px ${gameConfig.buttonGlow}`,
-          }}
-        >
-          {phase === 'loading' ? (
-            <span className="flex items-center gap-2">
-              <span className="animate-spin">⏳</span>
-              Processando...
-            </span>
-          ) : buttonText}
-        </Button>
+        {/* Button - não mostrar para Mines (já está dentro do card) */}
+        {slug !== 'mines' && (
+          <Button
+            onClick={handleIdentifySignal}
+            disabled={isButtonDisabled}
+            className="w-full py-6 text-lg font-bold transition-all duration-200"
+            style={{
+              background: isButtonDisabled 
+                ? '#374151' 
+                : `linear-gradient(135deg, ${gameConfig.buttonColor} 0%, ${gameConfig.buttonColor}cc 100%)`,
+              boxShadow: isButtonDisabled ? 'none' : `0 0 20px ${gameConfig.buttonGlow}`,
+            }}
+          >
+            {phase === 'loading' ? (
+              <span className="flex items-center gap-2">
+                <span className="animate-spin">⏳</span>
+                Processando...
+              </span>
+            ) : buttonText}
+          </Button>
+        )}
 
         {/* iFrame Section - Mesmo padrão do Sport.tsx */}
         {slug && CASINO_IFRAMES[slug] && (
