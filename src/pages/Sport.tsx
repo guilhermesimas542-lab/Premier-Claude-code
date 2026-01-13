@@ -1,6 +1,6 @@
 import { ArrowLeft, LogOut } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { PremiumBettingCard } from "@/components/PremiumBettingCard";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,6 +13,7 @@ import { getStoredConfig, clearAuth, isAuthenticated } from "@/lib/auth";
 import { fetchSportById } from "@/lib/sports";
 import { AppConfig } from "@/types/auth";
 import { Sport as SportType } from "@/types/sports";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 // ============ MOCK TIPS (ÚNICA FONTE DE DADOS) ============
 interface MockTip {
@@ -30,6 +31,7 @@ interface MockTip {
   url_iframe: string;
 }
 
+// Para teste de expiração, ajuste o horário de uma tip para já ter passado
 const MOCK_TIPS: MockTip[] = [
   {
     id: 99901,
@@ -90,13 +92,48 @@ const MOCK_TIPS: MockTip[] = [
 ];
 
 // Mapeia is_pro_plan para tier incluindo ULTRA
-const mapMockTipToTier = (isPro: number): "BÁSICO" | "PRO" | "GRÁTIS" | "MÚLTIPLA" | "ULTRA" => {
+type TierType = "BÁSICO" | "PRO" | "GRÁTIS" | "MÚLTIPLA" | "ULTRA";
+
+const mapMockTipToTier = (isPro: number): TierType => {
   if (isPro === 3) return "ULTRA";
   if (isPro === 2) return "MÚLTIPLA";
   if (isPro === 1) return "PRO";
   if (isPro === 0) return "BÁSICO";
   return "GRÁTIS";
 };
+
+// Helpers para verificar expiração
+const isExpiredTip = (expirationDate: string): boolean => {
+  const now = new Date();
+  const expireAt = new Date(expirationDate);
+  return now > expireAt;
+};
+
+const isSameDayAsToday = (expirationDate: string): boolean => {
+  const now = new Date();
+  const expireAt = new Date(expirationDate);
+  return (
+    now.getFullYear() === expireAt.getFullYear() &&
+    now.getMonth() === expireAt.getMonth() &&
+    now.getDate() === expireAt.getDate()
+  );
+};
+
+// Filtrar tips que ainda devem aparecer (não expiradas OU expiradas mas do dia atual)
+const shouldShowTip = (tip: MockTip): boolean => {
+  const expired = isExpiredTip(tip.expiration_date);
+  if (!expired) return true;
+  // Se expirou, mostrar apenas se for do mesmo dia
+  return isSameDayAsToday(tip.expiration_date);
+};
+
+// Tabs de navegação por tier
+const TIER_TABS: { tier: TierType; label: string; color: string }[] = [
+  { tier: "GRÁTIS", label: "Grátis", color: "bg-cyan-500" },
+  { tier: "BÁSICO", label: "Básico", color: "bg-emerald-500" },
+  { tier: "PRO", label: "Pro", color: "bg-orange-500" },
+  { tier: "ULTRA", label: "Ultra", color: "bg-purple-500" },
+];
 // ============ FIM MOCK TIPS ============
 
 const Sport = () => {
@@ -105,6 +142,35 @@ const Sport = () => {
   const [config, setConfig] = useState<AppConfig | null>(null);
   const [iframeUrl, setIframeUrl] = useState<string>("");
   const [sportData, setSportData] = useState<SportType | null>(null);
+  const isMobile = useIsMobile();
+  
+  // Refs para scroll para cada tier
+  const tierRefs = useRef<Record<TierType, HTMLDivElement | null>>({
+    "GRÁTIS": null,
+    "BÁSICO": null,
+    "PRO": null,
+    "MÚLTIPLA": null,
+    "ULTRA": null,
+  });
+
+  // Ordenar tips por tier para navegação
+  const visibleTips = MOCK_TIPS.filter(shouldShowTip);
+  
+  // Agrupar tips por tier para saber onde colocar os anchors
+  const tipsByTier = visibleTips.reduce((acc, tip) => {
+    const tier = mapMockTipToTier(tip.is_pro_plan);
+    if (!acc[tier]) acc[tier] = [];
+    acc[tier].push(tip);
+    return acc;
+  }, {} as Record<TierType, MockTip[]>);
+
+  // Scroll para tier
+  const scrollToTier = (tier: TierType) => {
+    const ref = tierRefs.current[tier];
+    if (ref) {
+      ref.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
 
   useEffect(() => {
     // Rola para o topo ao carregar a página
@@ -156,6 +222,17 @@ const Sport = () => {
     });
   };
 
+  // Verifica quais tiers existem nas tips visíveis
+  const availableTiers = TIER_TABS.filter(tab => tipsByTier[tab.tier]?.length > 0);
+
+  // Marca o primeiro card de cada tier para colocar o anchor
+  const getAnchorForTip = (tip: MockTip, index: number): TierType | null => {
+    const tier = mapMockTipToTier(tip.is_pro_plan);
+    const tipsOfSameTier = visibleTips.filter(t => mapMockTipToTier(t.is_pro_plan) === tier);
+    const firstOfTier = tipsOfSameTier[0];
+    return tip.id === firstOfTier?.id ? tier : null;
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#0C0F14] to-[#121826]">
       {/* Header */}
@@ -195,6 +272,22 @@ const Sport = () => {
 
       {/* Main Content */}
       <main className="container max-w-7xl mx-auto px-4 py-6 space-y-6">
+        
+        {/* Mobile Tier Tabs */}
+        {isMobile && availableTiers.length > 0 && (
+          <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide">
+            {availableTiers.map((tab) => (
+              <button
+                key={tab.tier}
+                onClick={() => scrollToTier(tab.tier)}
+                className={`${tab.color} text-white px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap shadow-lg transition-transform active:scale-95`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        )}
+
         {/* Cards de Teste - SOMENTE MOCKS */}
         <section className="relative">
           <Carousel
@@ -205,34 +298,52 @@ const Sport = () => {
             className="w-full"
           >
             <CarouselContent className="-ml-2">
-              {MOCK_TIPS.map((tip) => (
-                <CarouselItem key={tip.id} className="pl-2 basis-[90%] min-[480px]:basis-[85%] sm:basis-[75%] md:basis-[60%] lg:basis-[45%] xl:basis-[35%]">
-                  <PremiumBettingCard
-                    tipId={tip.id}
-                    tier={mapMockTipToTier(tip.is_pro_plan)}
-                    team1={{
-                      name: tip.time1_name,
-                      logo: tip.time1_logo || "/placeholder.svg",
-                    }}
-                    team2={{
-                      name: tip.time2_name,
-                      logo: tip.time2_logo || "/placeholder.svg",
-                    }}
-                    market={tip.real_odd_market}
-                    betChoice={tip.odd_Name}
-                    odds={tip.odd_Value}
-                    matchDate="14/01/2026 18:00"
-                    isLocked={false}
-                    onAddTip={() => handleAddTip(tip.id, tip.url_iframe)}
-                  />
-                </CarouselItem>
-              ))}
+              {visibleTips.map((tip, index) => {
+                const anchorTier = getAnchorForTip(tip, index);
+                const expired = isExpiredTip(tip.expiration_date);
+                
+                return (
+                  <CarouselItem 
+                    key={tip.id} 
+                    className="pl-2 basis-[90%] min-[480px]:basis-[85%] sm:basis-[75%] md:basis-[60%] lg:basis-[45%] xl:basis-[35%]"
+                  >
+                    {/* Anchor invisível para scroll */}
+                    {anchorTier && (
+                      <div 
+                        ref={(el) => { tierRefs.current[anchorTier] = el; }}
+                        className="absolute -top-20"
+                        aria-hidden="true"
+                      />
+                    )}
+                    
+                    <PremiumBettingCard
+                      tipId={tip.id}
+                      tier={mapMockTipToTier(tip.is_pro_plan)}
+                      team1={{
+                        name: tip.time1_name,
+                        logo: tip.time1_logo || "/placeholder.svg",
+                      }}
+                      team2={{
+                        name: tip.time2_name,
+                        logo: tip.time2_logo || "/placeholder.svg",
+                      }}
+                      market={tip.real_odd_market}
+                      betChoice={tip.odd_Name}
+                      odds={tip.odd_Value}
+                      matchDate="14/01/2026 18:00"
+                      isLocked={false}
+                      isExpired={expired}
+                      onAddTip={() => handleAddTip(tip.id, tip.url_iframe)}
+                    />
+                  </CarouselItem>
+                );
+              })}
             </CarouselContent>
           </Carousel>
           
           {/* Scroll Indicator */}
           <div className="flex justify-center mt-4 gap-1.5">
-            {MOCK_TIPS.map((_, index) => (
+            {visibleTips.map((_, index) => (
               <div
                 key={index}
                 className="h-1 w-8 bg-muted/30 rounded-full"
