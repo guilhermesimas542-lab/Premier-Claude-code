@@ -4,11 +4,6 @@ import { useEffect, useState, useRef } from "react";
 import { PremiumBettingCard } from "@/components/PremiumBettingCard";
 import { SpecialBettingCard } from "@/components/SpecialBettingCard";
 import { Button } from "@/components/ui/button";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-} from "@/components/ui/carousel";
 import { toast } from "sonner";
 import { getStoredConfig, clearAuth, isAuthenticated } from "@/lib/auth";
 import { fetchSportById } from "@/lib/sports";
@@ -316,7 +311,7 @@ const Sport = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0C0F14] to-[#121826]">
+    <div className="min-h-screen bg-gradient-to-b from-[#0C0F14] to-[#121826] overflow-x-hidden w-full max-w-full">
       {/* Header */}
       <header className="sticky top-0 z-10 bg-[#0C0F14]/80 backdrop-blur-xl border-b border-border/30">
         <div className="container max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
@@ -353,7 +348,7 @@ const Sport = () => {
       </header>
 
       {/* Main Content */}
-      <main className="container max-w-7xl mx-auto px-4 py-6 space-y-6">
+      <main className="w-full max-w-7xl mx-auto px-4 py-6 space-y-6 overflow-x-hidden">
         
         {/* Mobile Tier Tabs - Todas as abas com scroll horizontal */}
         {isMobile && (
@@ -382,24 +377,19 @@ const Sport = () => {
         )}
 
         {/* Cards de Teste - SOMENTE MOCKS */}
-        <section className="relative flex justify-center">
-          <Carousel
-            opts={{
-              align: "center",
-              loop: false,
-            }}
-            className="w-full max-w-[460px] md:max-w-3xl lg:max-w-4xl"
-          >
-            <CarouselContent className="-ml-3 md:-ml-4">
+        <section className="relative w-full overflow-hidden">
+          <div className="w-full overflow-x-auto scrollbar-hide snap-x snap-mandatory scroll-smooth px-4 -mx-4">
+            <div className="flex gap-3 md:gap-4 py-2" style={{ paddingLeft: '16px', paddingRight: '16px' }}>
               {filteredTips.map((tip, index) => {
                 const anchorTier = getAnchorForTip(tip, index);
                 const expired = isExpiredTip(tip.expiration_date);
                 const isSpecial = isSpecialTip(tip);
                 
                 return (
-                  <CarouselItem 
+                  <div 
                     key={tip.id} 
-                    className="pl-3 md:pl-4 basis-[88%] min-[480px]:basis-[82%] sm:basis-[70%] md:basis-1/2 lg:basis-[45%]"
+                    className="flex-shrink-0 snap-center"
+                    style={{ width: 'min(85vw, 360px)' }}
                   >
                     {/* Anchor invisível para scroll */}
                     {anchorTier && (
@@ -410,50 +400,47 @@ const Sport = () => {
                       />
                     )}
                     
-                    {/* Wrapper com max-width para limitar tamanho */}
-                    <div className="w-full max-w-[400px] mx-auto">
-                      {isSpecial ? (
-                        <SpecialBettingCard
-                          tipId={tip.id}
-                          type={tip.special_type!}
-                          market={tip.real_odd_market}
-                          betChoice={tip.odd_Name}
-                          odds={tip.odd_Value}
-                          matchDate="14/01/2026 18:00"
-                          expirationDate={tip.expiration_date}
-                          isLocked={false}
-                          isExpired={expired}
-                          onAddTip={() => handleAddTip(tip.id, tip.url_iframe)}
-                        />
-                      ) : (
-                        <PremiumBettingCard
-                          tipId={tip.id}
-                          tier={mapMockTipToTier(tip) as "BÁSICO" | "PRO" | "GRÁTIS" | "MÚLTIPLA" | "ULTRA"}
-                          team1={{
-                            name: tip.time1_name,
-                            logo: tip.time1_logo || "/placeholder.svg",
-                          }}
-                          team2={{
-                            name: tip.time2_name,
-                            logo: tip.time2_logo || "/placeholder.svg",
-                          }}
-                          market={tip.real_odd_market}
-                          betChoice={tip.odd_Name}
-                          odds={tip.odd_Value}
-                          matchDate="14/01/2026 18:00"
-                          expirationDate={tip.expiration_date}
-                          selectionsCount={tip.selections_count}
-                          isLocked={false}
-                          isExpired={expired}
-                          onAddTip={() => handleAddTip(tip.id, tip.url_iframe)}
-                        />
-                      )}
-                    </div>
-                  </CarouselItem>
+                    {isSpecial ? (
+                      <SpecialBettingCard
+                        tipId={tip.id}
+                        type={tip.special_type!}
+                        market={tip.real_odd_market}
+                        betChoice={tip.odd_Name}
+                        odds={tip.odd_Value}
+                        matchDate="14/01/2026 18:00"
+                        expirationDate={tip.expiration_date}
+                        isLocked={false}
+                        isExpired={expired}
+                        onAddTip={() => handleAddTip(tip.id, tip.url_iframe)}
+                      />
+                    ) : (
+                      <PremiumBettingCard
+                        tipId={tip.id}
+                        tier={mapMockTipToTier(tip) as "BÁSICO" | "PRO" | "GRÁTIS" | "MÚLTIPLA" | "ULTRA"}
+                        team1={{
+                          name: tip.time1_name,
+                          logo: tip.time1_logo || "/placeholder.svg",
+                        }}
+                        team2={{
+                          name: tip.time2_name,
+                          logo: tip.time2_logo || "/placeholder.svg",
+                        }}
+                        market={tip.real_odd_market}
+                        betChoice={tip.odd_Name}
+                        odds={tip.odd_Value}
+                        matchDate="14/01/2026 18:00"
+                        expirationDate={tip.expiration_date}
+                        selectionsCount={tip.selections_count}
+                        isLocked={false}
+                        isExpired={expired}
+                        onAddTip={() => handleAddTip(tip.id, tip.url_iframe)}
+                      />
+                    )}
+                  </div>
                 );
               })}
-            </CarouselContent>
-          </Carousel>
+            </div>
+          </div>
           
           {/* Scroll Indicator */}
           <div className="flex justify-center mt-4 gap-1.5">
