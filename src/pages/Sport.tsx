@@ -29,6 +29,7 @@ interface MockTip {
   is_pro_plan: number;
   expiration_date: string;
   url_iframe: string;
+  selections_count?: number; // Para múltiplas
 }
 
 // Para teste de expiração, ajuste o horário de uma tip para já ter passado
@@ -74,6 +75,21 @@ const MOCK_TIPS: MockTip[] = [
     is_pro_plan: 1, // PRO
     expiration_date: "2026-01-14T23:59:59.000Z",
     url_iframe: "https://example.com/pro",
+  },
+  {
+    id: 99905,
+    time1_name: "Múltipla",
+    time2_name: "3 jogos",
+    time1_logo: "",
+    time2_logo: "",
+    real_odd_market: "Múltipla do Dia",
+    odd_Name: "3 seleções",
+    odd_Value: 4.85,
+    odd_market: "Bilhete combinado",
+    is_pro_plan: 2, // MÚLTIPLA
+    expiration_date: "2026-01-14T20:00:00.000Z",
+    url_iframe: "https://example.com/multipla",
+    selections_count: 3,
   },
   {
     id: 99904,
@@ -331,6 +347,8 @@ const Sport = () => {
                       betChoice={tip.odd_Name}
                       odds={tip.odd_Value}
                       matchDate="14/01/2026 18:00"
+                      expirationDate={tip.expiration_date}
+                      selectionsCount={tip.selections_count}
                       isLocked={false}
                       isExpired={expired}
                       onAddTip={() => handleAddTip(tip.id, tip.url_iframe)}
