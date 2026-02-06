@@ -249,8 +249,9 @@ export const PremiumBettingCard = ({
 
   return (
     <Card
-      className={`w-full select-none relative rounded-xl border-2 transition-all duration-300 flex flex-col ${
-        isExpired 
+      className={`select-none relative rounded-xl border-2 transition-all duration-300 flex flex-col
+        w-[min(92vw,420px)] sm:w-[460px] md:w-[500px] lg:w-[332px]
+        ${isExpired 
           ? "border-gray-600/50 shadow-none grayscale-[60%]" 
           : `${config.borderColor} hover:scale-[1.02]`
       }`}
@@ -339,9 +340,11 @@ export const PremiumBettingCard = ({
               <Info className={`w-3.5 h-3.5 ${isExpired ? "text-gray-400" : config.iconColor}`} />
             </button>
             
-            {/* Market Help Tooltip */}
+            {/* Market Help Tooltip - Now includes market name */}
             {showMarketHelp && (
-              <div className="absolute right-0 top-8 w-40 bg-black/90 backdrop-blur-md border border-white/20 rounded-lg p-2 shadow-xl z-50">
+              <div className="absolute right-0 top-8 w-44 bg-black/90 backdrop-blur-md border border-white/20 rounded-lg p-2 shadow-xl z-50">
+                <p className="text-[10px] text-white/60 uppercase tracking-wide mb-1">Mercado</p>
+                <p className="text-[12px] text-white font-bold mb-1">{market}</p>
                 <p className="text-[11px] text-white/90 leading-relaxed">
                   {marketExplanation}
                 </p>
@@ -362,95 +365,79 @@ export const PremiumBettingCard = ({
           )}
         </div>
 
-        {/* Teams Section - Larger */}
-        <div className="flex items-center justify-center gap-6 w-full" style={{ height: '52px', marginTop: '2px' }}>
+        {/* Teams Section - LARGER shirts and names */}
+        <div className="flex items-center justify-center gap-4 sm:gap-6 w-full" style={{ height: '70px', marginTop: '4px' }}>
           {/* Team 1 */}
-          <div className="flex flex-col items-center gap-0.5">
+          <div className="flex flex-col items-center gap-1">
             <div className={`rounded-lg backdrop-blur-sm flex items-center justify-center ring-1 shadow-lg ${
               isExpired ? "bg-gray-800/50 ring-gray-600/30" : "bg-white/10 ring-white/20"
-            }`} style={{ width: '40px', height: '40px' }}>
+            }`} style={{ width: '52px', height: '52px' }}>
               {team1.shirt ? (
                 <ShirtIcon
                   variant={team1.shirt.variant}
                   primaryColor={team1.shirt.primaryColor}
                   secondaryColor={team1.shirt.secondaryColor}
-                  size={28}
+                  size={40}
                 />
               ) : team1.logo ? (
                 <img
                   src={team1.logo}
                   alt={team1.name}
                   className={`object-contain ${isExpired ? "opacity-50" : ""}`}
-                  style={{ width: '28px', height: '28px' }}
+                  style={{ width: '36px', height: '36px' }}
                 />
               ) : (
-                <ShirtIcon variant="solid" primaryColor="#6B7280" size={28} />
+                <ShirtIcon variant="solid" primaryColor="#6B7280" size={40} />
               )}
             </div>
             <span 
-              className={`font-bold text-center max-w-[60px] leading-tight line-clamp-1 ${
+              className={`font-extrabold text-center max-w-[80px] leading-tight line-clamp-1 ${
                 isExpired ? "text-gray-400" : "text-white"
               }`}
-              style={{ fontSize: '11px' }}
+              style={{ fontSize: '13px' }}
             >
               {team1.name}
             </span>
           </div>
 
-          <div className="text-white/50 font-extrabold" style={{ fontSize: '11px' }}>VS</div>
+          <div className="text-white/50 font-extrabold" style={{ fontSize: '13px' }}>VS</div>
 
           {/* Team 2 */}
-          <div className="flex flex-col items-center gap-0.5">
+          <div className="flex flex-col items-center gap-1">
             <div className={`rounded-lg backdrop-blur-sm flex items-center justify-center ring-1 shadow-lg ${
               isExpired ? "bg-gray-800/50 ring-gray-600/30" : "bg-white/10 ring-white/20"
-            }`} style={{ width: '40px', height: '40px' }}>
+            }`} style={{ width: '52px', height: '52px' }}>
               {team2.shirt ? (
                 <ShirtIcon
                   variant={team2.shirt.variant}
                   primaryColor={team2.shirt.primaryColor}
                   secondaryColor={team2.shirt.secondaryColor}
-                  size={28}
+                  size={40}
                 />
               ) : team2.logo ? (
                 <img
                   src={team2.logo}
                   alt={team2.name}
                   className={`object-contain ${isExpired ? "opacity-50" : ""}`}
-                  style={{ width: '28px', height: '28px' }}
+                  style={{ width: '36px', height: '36px' }}
                 />
               ) : (
-                <ShirtIcon variant="solid" primaryColor="#6B7280" size={28} />
+                <ShirtIcon variant="solid" primaryColor="#6B7280" size={40} />
               )}
             </div>
             <span 
-              className={`font-bold text-center max-w-[60px] leading-tight line-clamp-1 ${
+              className={`font-extrabold text-center max-w-[80px] leading-tight line-clamp-1 ${
                 isExpired ? "text-gray-400" : "text-white"
               }`}
-              style={{ fontSize: '11px' }}
+              style={{ fontSize: '13px' }}
             >
               {team2.name}
             </span>
           </div>
         </div>
 
-        {/* Market Name - Smaller badge */}
-        <div className="flex items-center justify-center" style={{ height: '24px', marginTop: '4px', marginBottom: '4px' }}>
-          <div 
-            className={`rounded-full backdrop-blur-sm border ${
-              isExpired 
-                ? "bg-gray-800/70 border-gray-600/40" 
-                : "bg-black/70 border-white/15"
-            }`}
-            style={{ padding: '5px 12px' }}
-          >
-            <p 
-              className={`font-extrabold line-clamp-1 ${isExpired ? "text-gray-400" : "text-white"}`}
-              style={{ fontSize: '12px' }}
-            >
-              {market}
-            </p>
-          </div>
-        </div>
+        {/* Market Name - REMOVED from main display, now only in tooltip */}
+        {/* The market info is accessible via the "i" icon tooltip */}
 
         {/* Multiple Bet Label - Compact (always reserve space) */}
         <div className="flex items-center justify-center" style={{ height: '16px' }}>
@@ -464,24 +451,24 @@ export const PremiumBettingCard = ({
           )}
         </div>
 
-        {/* Bet Details Row - BIGGER text */}
+        {/* Bet Details Row - LARGER text for pick */}
         <div 
           className={`w-full backdrop-blur-sm rounded-lg flex items-center justify-between ${
             isExpired 
               ? "bg-gray-800/60" 
               : "bg-black/60"
           }`}
-          style={{ height: '36px', padding: '0 12px' }}
+          style={{ height: '42px', padding: '0 14px', marginTop: '6px' }}
         >
           <span 
             className={`font-extrabold line-clamp-2 ${isExpired ? "text-gray-500" : "text-emerald-400"}`}
-            style={{ fontSize: '14px', lineHeight: '1.15', maxWidth: '65%' }}
+            style={{ fontSize: '16px', lineHeight: '1.15', maxWidth: '65%' }}
           >
             {betChoice}
           </span>
           <span 
             className={`font-black ${isExpired ? "text-gray-500" : "text-white"}`}
-            style={{ fontSize: '18px' }}
+            style={{ fontSize: '20px' }}
           >
             {odds.toFixed(1)}
           </span>
