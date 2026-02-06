@@ -1,7 +1,7 @@
 import { ArrowLeft, LogOut, ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState, useRef, useCallback } from "react";
-import { PremiumBettingCard } from "@/components/PremiumBettingCard";
+import { PremiumBettingCard, ShirtConfig } from "@/components/PremiumBettingCard";
 import { SpecialBettingCard } from "@/components/SpecialBettingCard";
 import { JustificativaModal } from "@/components/JustificativaModal";
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,8 @@ interface MockTip {
   time2_name: string;
   time1_logo: string;
   time2_logo: string;
+  time1_shirt?: ShirtConfig;
+  time2_shirt?: ShirtConfig;
   real_odd_market: string;
   odd_Name: string;
   odd_Value: number;
@@ -45,6 +47,8 @@ const MOCK_TIPS: MockTip[] = [
     time2_name: "Palmeiras",
     time1_logo: "",
     time2_logo: "",
+    time1_shirt: { variant: "stripes", primaryColor: "#EF4444", secondaryColor: "#000000" },
+    time2_shirt: { variant: "solid", primaryColor: "#14532D" },
     real_odd_market: "Resultado Final",
     odd_Name: "Casa Vence",
     odd_Value: 2.15,
@@ -61,6 +65,8 @@ const MOCK_TIPS: MockTip[] = [
     time2_name: "Santos",
     time1_logo: "",
     time2_logo: "",
+    time1_shirt: { variant: "solid", primaryColor: "#000000" },
+    time2_shirt: { variant: "stripes", primaryColor: "#FFFFFF", secondaryColor: "#000000" },
     real_odd_market: "Ambas Marcam",
     odd_Name: "Sim",
     odd_Value: 1.85,
@@ -77,6 +83,8 @@ const MOCK_TIPS: MockTip[] = [
     time2_name: "AC Milan",
     time1_logo: "",
     time2_logo: "",
+    time1_shirt: { variant: "stripes", primaryColor: "#1E40AF", secondaryColor: "#000000" },
+    time2_shirt: { variant: "stripes", primaryColor: "#EF4444", secondaryColor: "#000000" },
     real_odd_market: "Total de Gols",
     odd_Name: "Mais de 2.5",
     odd_Value: 1.72,
@@ -93,6 +101,8 @@ const MOCK_TIPS: MockTip[] = [
     time2_name: "Barcelona",
     time1_logo: "",
     time2_logo: "",
+    time1_shirt: { variant: "solid", primaryColor: "#FFFFFF" },
+    time2_shirt: { variant: "stripes", primaryColor: "#1E40AF", secondaryColor: "#881337" },
     real_odd_market: "Handicap Asiático",
     odd_Name: "Real -0.5",
     odd_Value: 2.05,
@@ -109,6 +119,8 @@ const MOCK_TIPS: MockTip[] = [
     time2_name: "Liverpool",
     time1_logo: "",
     time2_logo: "",
+    time1_shirt: { variant: "solid", primaryColor: "#38BDF8" },
+    time2_shirt: { variant: "solid", primaryColor: "#EF4444" },
     real_odd_market: "Escanteios",
     odd_Name: "Mais de 10.5",
     odd_Value: 1.90,
@@ -125,6 +137,8 @@ const MOCK_TIPS: MockTip[] = [
     time2_name: "5 jogos",
     time1_logo: "",
     time2_logo: "",
+    time1_shirt: { variant: "solid", primaryColor: "#EAB308" },
+    time2_shirt: { variant: "solid", primaryColor: "#A855F7" },
     real_odd_market: "Bilhete Combinado",
     odd_Name: "5 seleções",
     odd_Value: 8.50,
@@ -142,6 +156,8 @@ const MOCK_TIPS: MockTip[] = [
     time2_name: "Marseille",
     time1_logo: "",
     time2_logo: "",
+    time1_shirt: { variant: "stripes", primaryColor: "#1E3A8A", secondaryColor: "#EF4444" },
+    time2_shirt: { variant: "solid", primaryColor: "#38BDF8" },
     real_odd_market: "Cartões Totais",
     odd_Name: "Mais de 5.5",
     odd_Value: 2.10,
@@ -159,6 +175,8 @@ const MOCK_TIPS: MockTip[] = [
     time2_name: "River Plate",
     time1_logo: "",
     time2_logo: "",
+    time1_shirt: { variant: "stripes", primaryColor: "#1E40AF", secondaryColor: "#EAB308" },
+    time2_shirt: { variant: "stripes", primaryColor: "#EF4444", secondaryColor: "#FFFFFF" },
     real_odd_market: "Gols no 2º Tempo",
     odd_Name: "Mais de 1.5",
     odd_Value: 1.75,
@@ -646,11 +664,13 @@ const Sport = () => {
                         tier={mapMockTipToTier(tip) as "BÁSICO" | "PRO" | "GRÁTIS" | "MÚLTIPLA" | "ULTRA"}
                         team1={{
                           name: tip.time1_name,
-                          logo: tip.time1_logo || "/placeholder.svg",
+                          logo: tip.time1_logo || undefined,
+                          shirt: tip.time1_shirt,
                         }}
                         team2={{
                           name: tip.time2_name,
-                          logo: tip.time2_logo || "/placeholder.svg",
+                          logo: tip.time2_logo || undefined,
+                          shirt: tip.time2_shirt,
                         }}
                         market={tip.real_odd_market}
                         betChoice={tip.odd_Name}
