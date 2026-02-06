@@ -3,8 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { normalizePayload, persistConfig } from "@/lib/auth";
-import { LoginResponse } from "@/types/auth";
+import { login, trackEvent } from "@/lib/api";
+import { CHECKOUT_LINKS } from "@/lib/checkoutLinks";
+import { PaywallPopup } from "@/components/PaywallPopup";
 import { Smartphone, Users, Zap, RefreshCw, Target, Brain, ShoppingCart } from "lucide-react";
 import logoImg from "@/assets/premier-logo.png";
 import {
@@ -20,6 +21,7 @@ const Login = () => {
   const [showPlayStoreModal, setShowPlayStoreModal] = useState(false);
   const [showAcquireModal, setShowAcquireModal] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
+  const [showPaywall, setShowPaywall] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -33,33 +35,24 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch(
-        `https://apiv1.premierfc.app/api/v2/auth/Login?email=${encodeURIComponent(email)}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await login(email.toLowerCase().trim());
 
-      const data: LoginResponse = await response.json();
-
-      if (data.success && data.response) {
-        // Se houver redirect, redireciona para checkout
-        if (data.response.redirect && data.response.checkout) {
-          window.location.href = data.response.checkout;
-          return;
-        }
-
-        // Normaliza e persiste configuração
-        const cfg = normalizePayload(data);
-        persistConfig(cfg);
-
+      if (response.success) {
         toast.success("Login realizado com sucesso!");
-        navigate("/");
+        
+        // Track app_open event
+        await trackEvent('app_open');
+        
+        // If free user, show paywall popup
+        if (response.show_paywall_popup) {
+          await trackEvent('open_paywall_popup');
+          setShowPaywall(true);
+        } else {
+          // Go directly to home
+          navigate("/");
+        }
       } else {
-        toast.error(data.message?.[0] || "Erro ao fazer login");
+        toast.error(response.message || "Erro ao fazer login");
       }
     } catch (error) {
       console.error("Erro no login:", error);
@@ -67,6 +60,22 @@ const Login = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handlePaywallBuy = async () => {
+    await trackEvent('click_buy_from_popup');
+    window.open(CHECKOUT_LINKS.paywall_default, '_blank');
+  };
+
+  const handleContinueFree = async () => {
+    await trackEvent('click_continue_free');
+    setShowPaywall(false);
+    navigate("/");
+  };
+
+  const handleAcquireAccess = () => {
+    window.open(CHECKOUT_LINKS.paywall_default, '_blank');
+    setShowAcquireModal(false);
   };
 
   return (
@@ -209,6 +218,16 @@ const Login = () => {
         </div>
       </div>
 
+      {/* Paywall Popup for Free Users */}
+      {showPaywall && (
+        <PaywallPopup
+          open={showPaywall}
+          onOpenChange={setShowPaywall}
+          onBuy={handlePaywallBuy}
+          onContinueFree={handleContinueFree}
+        />
+      )}
+
       {/* Google Play Coming Soon Modal */}
       <Dialog open={showPlayStoreModal} onOpenChange={setShowPlayStoreModal}>
         <DialogContent className="bg-[#0C0F14] border-purple-500/20 max-w-sm">
@@ -249,12 +268,20 @@ const Login = () => {
           
           <div className="space-y-4 py-2">
             <p className="text-sm text-white/70">
-              Em breve: aqui vamos direcionar para o checkout/compra.
+              Tenha acesso completo às entradas e análises do Premier Ultra.
             </p>
             
             <Button
+              onClick={handleAcquireAccess}
+              className="w-full bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white"
+            >
+              Ir para o checkout
+            </Button>
+            
+            <Button
               onClick={() => setShowAcquireModal(false)}
-              className="w-full bg-purple-500/20 hover:bg-purple-500/30 text-purple-200 border border-purple-500/30"
+              variant="ghost"
+              className="w-full text-white/60 hover:text-white/80 hover:bg-white/5"
             >
               Fechar
             </Button>

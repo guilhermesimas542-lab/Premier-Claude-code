@@ -353,9 +353,148 @@ function EntryCard({ title, market, odd, locked, tierRequired, addonRequired }) 
 
 ---
 
+## Arquivos do Frontend
+
+### Estrutura de Arquivos
+
+```
+src/
+├── lib/
+│   ├── api.ts              # Cliente API (login, getMe, getEntries, trackEvent, sessions)
+│   └── checkoutLinks.ts    # Map centralizado de links de checkout
+├── hooks/
+│   ├── useAuth.ts          # Hook de autenticação
+│   ├── useSession.ts       # Hook de sessão (heartbeat)
+│   ├── useEntries.ts       # Hook para buscar entries
+│   └── useTracking.ts      # Hook de eventos
+├── components/
+│   ├── EntryCard.tsx       # Card de entrada (locked/unlocked)
+│   └── PaywallPopup.tsx    # Popup de paywall para free users
+└── pages/
+    ├── Login.tsx           # Tela de login (usa nova API)
+    └── Home.tsx            # Home com entries do dia
+```
+
+### Checkout Links (src/lib/checkoutLinks.ts)
+
+```typescript
+export const CHECKOUT_LINKS = {
+  // Tier upgrade links
+  upgrade_basic: 'https://checkout.premierfc.app/basic',
+  upgrade_pro: 'https://checkout.premierfc.app/pro',
+  upgrade_ultra: 'https://checkout.premierfc.app/ultra',
+  
+  // Add-on purchase links
+  addon_alavancagem: 'https://checkout.premierfc.app/alavancagem',
+  addon_desaltas: 'https://checkout.premierfc.app/desaltas',
+  
+  // Lifetime/Vitalício
+  vitalicio: 'https://checkout.premierfc.app/vitalicio',
+  
+  // Default paywall
+  paywall_default: 'https://checkout.premierfc.app',
+};
+
+// Helper para obter link de desbloqueio
+export function getUnlockLink(tierRequired: string, addonRequired: string | null): string;
+```
+
+### EntryCard Component
+
+```tsx
+<EntryCard
+  id={entry.id}
+  display_title={entry.display_title}
+  display_market={entry.display_market}
+  display_odd={entry.display_odd}
+  locked={entry.locked}
+  tier_required={entry.tier_required}
+  addon_required={entry.addon_required}
+/>
+```
+
+**Comportamento:**
+- `locked=false`: Card verde, mostra todos os dados
+- `locked=true`: Card cinza (grayscale), cadeado, dados mascarados, botão "Desbloquear"
+- Ao clicar "Desbloquear": dispara evento + abre checkout apropriado
+
+---
+
+## Eventos Rastreados
+
+| Evento | Quando | Metadata |
+|--------|--------|----------|
+| `app_open` | Ao abrir o app logado | - |
+| `view_entries` | Ao carregar entradas do dia | `{ date }` |
+| `open_paywall_popup` | Ao abrir popup de paywall | - |
+| `click_buy_from_popup` | Ao clicar "Assinar agora" no popup | - |
+| `click_continue_free` | Ao clicar "Continuar gratuito" | - |
+| `click_locked_entry` | Ao clicar "Desbloquear" em entry | `{ entry_id, tier_required, addon_required }` |
+| `click_banner` | Ao clicar em banner | `{ banner_id }` |
+
+---
+
+## Sessões (Tempo no App)
+
+```typescript
+// Ao iniciar o app
+POST /sessions { action: "start" }
+// Retorna: { session_id: "uuid" }
+
+// A cada 60 segundos
+POST /sessions { action: "heartbeat", session_id: "uuid" }
+
+// Ao fechar/sair (best-effort via sendBeacon)
+POST /sessions { action: "end", session_id: "uuid" }
+```
+
+---
+
+## LocalStorage Keys
+
+| Key | Descrição |
+|-----|-----------|
+| `premier_token` | JWT token |
+| `premier_user` | Dados do usuário (JSON) |
+| `premier_access` | Permissões { tiers, addons } |
+| `premier_show_paywall` | Flag para mostrar paywall |
+| `premier_checkout_url` | URL do checkout para paywall |
+| `premier_session_id` | ID da sessão atual |
+
+---
+
+## Fluxo de Autenticação
+
+1. Usuário digita email na tela de Login
+2. `POST /auth-login { email }` → retorna token + user + access
+3. Salva em localStorage
+4. Se `show_paywall_popup=true` → abre PaywallPopup
+5. Usuário pode assinar ou continuar free
+6. Navega para Home
+
+## Fluxo de Entries
+
+1. Home monta e chama `useEntries(today)`
+2. `GET /entries?date=YYYY-MM-DD` com token
+3. Retorna array com todas entries (locked/unlocked)
+4. Renderiza EntryCard para cada entry
+5. Cards locked têm botão "Desbloquear" que abre checkout
+
+---
+
 ## Arquivos Atualizados
 
 | Arquivo | Alteração |
 |---------|-----------|
 | `supabase/functions/entries/index.ts` | Lógica locked/unlocked |
+| `supabase/functions/auth-login/index.ts` | Login com paywall flag |
+| `src/lib/api.ts` | Cliente API completo |
+| `src/lib/checkoutLinks.ts` | Map de links de checkout |
+| `src/hooks/useAuth.ts` | Hook de autenticação |
+| `src/hooks/useSession.ts` | Hook de sessão |
+| `src/hooks/useEntries.ts` | Hook de entries |
+| `src/components/EntryCard.tsx` | Card locked/unlocked |
+| `src/components/PaywallPopup.tsx` | Popup de paywall |
+| `src/pages/Login.tsx` | Tela de login (nova API) |
+| `src/pages/Home.tsx` | Home com entries |
 | `docs/BACKEND_API.md` | Esta documentação |
