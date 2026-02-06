@@ -116,30 +116,77 @@ export function getStoredConfig(): AppConfig | null {
 }
 
 export function clearAuth(): void {
-  localStorage.clear();
+  // Evitar localStorage.clear() para não apagar chaves não relacionadas
+  const keysToRemove = [
+    // Legacy
+    "jwt",
+    "_user",
+    "appConfig",
+    "userData",
+    "metric",
+    "betSiteType",
+    "betSite",
+    "telegramUrl",
+    "checkout",
+    "basicImageBanner",
+    "proUrl",
+    "proImageBanner",
+    "banner1Url",
+    "banner1Image",
+
+    // New auth
+    "premier_token",
+    "premier_user",
+    "premier_access",
+    "premier_show_paywall",
+    "premier_checkout_url",
+  ];
+
+  keysToRemove.forEach((k) => localStorage.removeItem(k));
+}
+
+function isPremierTokenValid(): boolean {
+  const token = localStorage.getItem("premier_token");
+  if (!token) return false;
+
+  try {
+    const data = JSON.parse(atob(token));
+    return typeof data?.exp === "number" && data.exp > Date.now();
+  } catch {
+    return false;
+  }
 }
 
 export async function fetchAuth(url: string, options: RequestInit = {}): Promise<any> {
   const jwt = localStorage.getItem("jwt");
+  const premierToken = localStorage.getItem("premier_token");
   const headers: HeadersInit = { ...(options.headers || {}) };
-  
+
+  // Preferir legacy JWT apenas quando existir; senão usar premier_token
   if (jwt) {
     headers["Authorization"] = `Bearer ${jwt}`;
+  } else if (premierToken) {
+    headers["Authorization"] = `Bearer ${premierToken}`;
   }
 
   const res = await fetch(url, { ...options, headers });
-  
-  if (res.status === 401) {
+
+  // Só forçar logout em 401 quando estamos falando com o backend novo (/functions/v1)
+  // ou quando estamos no fluxo legado (jwt presente). Isso evita deslogar usuário
+  // do novo sistema por chamadas antigas que não aceitam premier_token.
+  const isBackendFn = url.includes("/functions/v1/");
+  if (res.status === 401 && (jwt || isBackendFn)) {
     clearAuth();
     window.location.replace("/login");
     return;
   }
-  
+
   return res.json();
 }
 
 export function isAuthenticated(): boolean {
-  return !!localStorage.getItem("jwt");
+  // Compat: considera autenticado se tiver jwt legado OU token novo válido
+  return !!localStorage.getItem("jwt") || isPremierTokenValid();
 }
 
 export function getBetSiteType(): number {
