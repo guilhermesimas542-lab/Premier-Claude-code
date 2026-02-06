@@ -14,16 +14,303 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      content_banners: {
+        Row: {
+          active: boolean
+          button_link: string | null
+          button_text: string | null
+          created_at: string
+          ends_at: string | null
+          id: string
+          image_url: string
+          starts_at: string
+          title: string
+        }
+        Insert: {
+          active?: boolean
+          button_link?: string | null
+          button_text?: string | null
+          created_at?: string
+          ends_at?: string | null
+          id?: string
+          image_url: string
+          starts_at?: string
+          title: string
+        }
+        Update: {
+          active?: boolean
+          button_link?: string | null
+          button_text?: string | null
+          created_at?: string
+          ends_at?: string | null
+          id?: string
+          image_url?: string
+          starts_at?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      content_entries: {
+        Row: {
+          active: boolean
+          addon_required: Database["public"]["Enums"]["product_key"] | null
+          created_at: string
+          date: string
+          id: string
+          market: string | null
+          metadata: Json | null
+          odd: number | null
+          tier_required: Database["public"]["Enums"]["main_tier"]
+          title: string
+        }
+        Insert: {
+          active?: boolean
+          addon_required?: Database["public"]["Enums"]["product_key"] | null
+          created_at?: string
+          date: string
+          id?: string
+          market?: string | null
+          metadata?: Json | null
+          odd?: number | null
+          tier_required?: Database["public"]["Enums"]["main_tier"]
+          title: string
+        }
+        Update: {
+          active?: boolean
+          addon_required?: Database["public"]["Enums"]["product_key"] | null
+          created_at?: string
+          date?: string
+          id?: string
+          market?: string | null
+          metadata?: Json | null
+          odd?: number | null
+          tier_required?: Database["public"]["Enums"]["main_tier"]
+          title?: string
+        }
+        Relationships: []
+      }
+      entitlements: {
+        Row: {
+          created_at: string
+          ends_at: string | null
+          id: string
+          product_key: Database["public"]["Enums"]["product_key"]
+          source: Database["public"]["Enums"]["entitlement_source"]
+          starts_at: string
+          status: Database["public"]["Enums"]["entitlement_status"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          ends_at?: string | null
+          id?: string
+          product_key: Database["public"]["Enums"]["product_key"]
+          source?: Database["public"]["Enums"]["entitlement_source"]
+          starts_at?: string
+          status?: Database["public"]["Enums"]["entitlement_status"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          ends_at?: string | null
+          id?: string
+          product_key?: Database["public"]["Enums"]["product_key"]
+          source?: Database["public"]["Enums"]["entitlement_source"]
+          starts_at?: string
+          status?: Database["public"]["Enums"]["entitlement_status"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "entitlements_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      events: {
+        Row: {
+          created_at: string
+          event_name: string
+          id: string
+          metadata: Json | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_name: string
+          id?: string
+          metadata?: Json | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_name?: string
+          id?: string
+          metadata?: Json | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          amount: number
+          buyer_email: string
+          created_at: string
+          id: string
+          paid_at: string | null
+          provider: string
+          provider_order_id: string
+          raw_payload: Json | null
+          status: Database["public"]["Enums"]["order_status"]
+        }
+        Insert: {
+          amount: number
+          buyer_email: string
+          created_at?: string
+          id?: string
+          paid_at?: string | null
+          provider: string
+          provider_order_id: string
+          raw_payload?: Json | null
+          status?: Database["public"]["Enums"]["order_status"]
+        }
+        Update: {
+          amount?: number
+          buyer_email?: string
+          created_at?: string
+          id?: string
+          paid_at?: string | null
+          provider?: string
+          provider_order_id?: string
+          raw_payload?: Json | null
+          status?: Database["public"]["Enums"]["order_status"]
+        }
+        Relationships: []
+      }
+      sessions: {
+        Row: {
+          created_at: string
+          duration_seconds: number | null
+          id: string
+          last_heartbeat_at: string | null
+          session_end_at: string | null
+          session_start_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          duration_seconds?: number | null
+          id?: string
+          last_heartbeat_at?: string | null
+          session_end_at?: string | null
+          session_start_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          duration_seconds?: number | null
+          id?: string
+          last_heartbeat_at?: string | null
+          session_end_at?: string | null
+          session_start_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sessions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      users: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          is_vitalicio: boolean
+          last_event_at: string | null
+          last_seen_at: string | null
+          main_tier: Database["public"]["Enums"]["main_tier"]
+          vitalicio_since: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          is_vitalicio?: boolean
+          last_event_at?: string | null
+          last_seen_at?: string | null
+          main_tier?: Database["public"]["Enums"]["main_tier"]
+          vitalicio_since?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          is_vitalicio?: boolean
+          last_event_at?: string | null
+          last_seen_at?: string | null
+          main_tier?: Database["public"]["Enums"]["main_tier"]
+          vitalicio_since?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_allowed_tiers: {
+        Args: { user_tier: Database["public"]["Enums"]["main_tier"] }
+        Returns: Database["public"]["Enums"]["main_tier"][]
+      }
+      get_or_create_user: {
+        Args: { p_email: string }
+        Returns: {
+          created_at: string
+          email: string
+          id: string
+          is_vitalicio: boolean
+          last_event_at: string | null
+          last_seen_at: string | null
+          main_tier: Database["public"]["Enums"]["main_tier"]
+          vitalicio_since: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "users"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      has_active_entitlement: {
+        Args: {
+          p_product: Database["public"]["Enums"]["product_key"]
+          p_user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      entitlement_source: "purchase" | "manual" | "admin"
+      entitlement_status: "active" | "expired" | "revoked"
+      main_tier: "free" | "basic" | "pro" | "ultra"
+      order_status: "paid" | "refunded" | "chargeback"
+      product_key: "alavancagem" | "desaltas"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +437,12 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      entitlement_source: ["purchase", "manual", "admin"],
+      entitlement_status: ["active", "expired", "revoked"],
+      main_tier: ["free", "basic", "pro", "ultra"],
+      order_status: ["paid", "refunded", "chargeback"],
+      product_key: ["alavancagem", "desaltas"],
+    },
   },
 } as const
