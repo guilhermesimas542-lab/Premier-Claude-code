@@ -31,8 +31,8 @@ export interface AllowedAccess {
 
 export interface LoginResponse {
   success: boolean;
-  redirect?: boolean;
-  checkout?: string;
+  show_paywall_popup?: boolean; // AJUSTE 1: Flag para mostrar popup
+  checkout?: string | null;
   message?: string;
   user?: User;
   entitlements?: Entitlement[];
@@ -42,6 +42,8 @@ export interface LoginResponse {
 
 export interface MeResponse {
   success: boolean;
+  show_paywall_popup?: boolean;
+  checkout?: string | null;
   message?: string;
   user?: User;
   entitlements?: Entitlement[];
@@ -111,6 +113,8 @@ export interface SessionEndResponse {
 const TOKEN_KEY = 'premier_token';
 const USER_KEY = 'premier_user';
 const ACCESS_KEY = 'premier_access';
+const PAYWALL_KEY = 'premier_show_paywall';
+const CHECKOUT_KEY = 'premier_checkout_url';
 
 export function getStoredToken(): string | null {
   return localStorage.getItem(TOKEN_KEY);
@@ -126,16 +130,40 @@ export function getStoredAccess(): AllowedAccess | null {
   return stored ? JSON.parse(stored) : null;
 }
 
-export function persistAuth(token: string, user: User, access: AllowedAccess): void {
+export function shouldShowPaywall(): boolean {
+  return localStorage.getItem(PAYWALL_KEY) === 'true';
+}
+
+export function getCheckoutUrl(): string | null {
+  return localStorage.getItem(CHECKOUT_KEY);
+}
+
+export function dismissPaywall(): void {
+  localStorage.setItem(PAYWALL_KEY, 'false');
+}
+
+export function persistAuth(
+  token: string, 
+  user: User, 
+  access: AllowedAccess,
+  showPaywall: boolean = false,
+  checkoutUrl: string | null = null
+): void {
   localStorage.setItem(TOKEN_KEY, token);
   localStorage.setItem(USER_KEY, JSON.stringify(user));
   localStorage.setItem(ACCESS_KEY, JSON.stringify(access));
+  localStorage.setItem(PAYWALL_KEY, String(showPaywall));
+  if (checkoutUrl) {
+    localStorage.setItem(CHECKOUT_KEY, checkoutUrl);
+  }
 }
 
 export function clearAuth(): void {
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(USER_KEY);
   localStorage.removeItem(ACCESS_KEY);
+  localStorage.removeItem(PAYWALL_KEY);
+  localStorage.removeItem(CHECKOUT_KEY);
   // Limpar também dados antigos para compatibilidade
   localStorage.removeItem('jwt');
   localStorage.removeItem('_user');
@@ -201,7 +229,13 @@ export async function login(email: string): Promise<LoginResponse> {
   });
 
   if (response.success && response.token && response.user && response.allowed_access) {
-    persistAuth(response.token, response.user, response.allowed_access);
+    persistAuth(
+      response.token, 
+      response.user, 
+      response.allowed_access,
+      response.show_paywall_popup ?? false,
+      response.checkout ?? null
+    );
   }
 
   return response;
@@ -283,4 +317,8 @@ export function isVitalicio(): boolean {
 export function getUserTier(): string {
   const user = getStoredUser();
   return user?.main_tier ?? 'free';
+}
+
+export function isFreeUser(): boolean {
+  return getUserTier() === 'free';
 }

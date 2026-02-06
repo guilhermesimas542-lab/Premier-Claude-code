@@ -10,16 +10,6 @@ interface LoginRequest {
   email: string;
 }
 
-interface UserResponse {
-  id: string;
-  email: string;
-  main_tier: string;
-  is_vitalicio: boolean;
-  vitalicio_since: string | null;
-  created_at: string;
-  last_seen_at: string | null;
-}
-
 serve(async (req) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
@@ -62,20 +52,7 @@ serve(async (req) => {
       );
     }
 
-    // Se usuário é free (não tem compra), redireciona para checkout
-    if (user.main_tier === 'free') {
-      return new Response(
-        JSON.stringify({
-          success: true,
-          redirect: true,
-          checkout: 'https://checkout.premierfc.app', // URL de checkout configurável
-          message: 'Usuário não possui plano ativo'
-        }),
-        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // Buscar entitlements ativos do usuário
+    // Buscar entitlements ativos do usuário (add-ons são independentes do tier)
     const { data: entitlements, error: entError } = await supabase
       .from('entitlements')
       .select('product_key, starts_at, ends_at, status')
@@ -92,7 +69,7 @@ serve(async (req) => {
       .filter(e => e.status === 'active' && (!e.ends_at || new Date(e.ends_at) > new Date()))
       .map(e => e.product_key);
 
-    // Gerar token simples (em produção, usar JWT real)
+    // Gerar token (em produção, usar JWT real)
     const token = btoa(JSON.stringify({
       user_id: user.id,
       email: user.email,
@@ -100,9 +77,13 @@ serve(async (req) => {
       exp: Date.now() + (24 * 60 * 60 * 1000) // 24 horas
     }));
 
+    // AJUSTE 1: Free loga normalmente mas recebe show_paywall_popup=true
+    const isFree = user.main_tier === 'free';
+
     const response = {
       success: true,
-      redirect: false,
+      show_paywall_popup: isFree, // Pop-up de paywall para usuários free
+      checkout: isFree ? 'https://checkout.premierfc.app' : null, // URL do checkout para o pop-up
       user: {
         id: user.id,
         email: user.email,

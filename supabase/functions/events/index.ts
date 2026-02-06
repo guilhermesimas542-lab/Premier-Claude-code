@@ -73,11 +73,20 @@ serve(async (req) => {
       );
     }
 
-    // Atualizar last_event_at do usuário
+    // AJUSTE 2: Atualizar APENAS last_event_at do usuário (não last_seen_at)
     if (userId) {
+      const updateData: Record<string, string> = {
+        last_event_at: new Date().toISOString()
+      };
+      
+      // Se for evento app_open, atualiza TAMBÉM last_seen_at
+      if (body.event_name === 'app_open') {
+        updateData.last_seen_at = new Date().toISOString();
+      }
+      
       await supabase
         .from('users')
-        .update({ last_event_at: new Date().toISOString() })
+        .update(updateData)
         .eq('id', userId);
     }
 
