@@ -8,37 +8,44 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Crown, Zap, Gift } from 'lucide-react';
-import { shouldShowPaywall, getCheckoutUrl, dismissPaywall } from '@/lib/api';
+import { getCheckoutUrl } from '@/lib/api';
+import { CHECKOUT_LINKS } from '@/lib/checkoutLinks';
 
 interface PaywallPopupProps {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  onBuy?: () => void;
   onContinueFree?: () => void;
 }
 
-export function PaywallPopup({ onContinueFree }: PaywallPopupProps) {
-  const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    // Verificar se deve mostrar o paywall
-    if (shouldShowPaywall()) {
-      setOpen(true);
-    }
-  }, []);
+export function PaywallPopup({ 
+  open: controlledOpen, 
+  onOpenChange,
+  onBuy,
+  onContinueFree 
+}: PaywallPopupProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  
+  // Use controlled or uncontrolled mode
+  const isOpen = controlledOpen !== undefined ? controlledOpen : internalOpen;
+  const setIsOpen = onOpenChange || setInternalOpen;
 
   const handleBuyClick = () => {
-    const checkoutUrl = getCheckoutUrl();
-    if (checkoutUrl) {
+    if (onBuy) {
+      onBuy();
+    } else {
+      const checkoutUrl = getCheckoutUrl() || CHECKOUT_LINKS.paywall_default;
       window.open(checkoutUrl, '_blank');
     }
   };
 
   const handleContinueFree = () => {
-    dismissPaywall();
-    setOpen(false);
+    setIsOpen(false);
     onContinueFree?.();
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className="bg-gradient-to-br from-[#121826] to-[#0C0F14] border-purple-500/30 max-w-md">
         <DialogHeader className="text-center">
           <div className="mx-auto mb-4 w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-700 rounded-2xl flex items-center justify-center">

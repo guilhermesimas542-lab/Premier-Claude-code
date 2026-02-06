@@ -1,42 +1,40 @@
-import { LogOut, Menu, Headphones, X, Gift, Sparkles, ShoppingCart, Crown } from "lucide-react";
+import { LogOut, Menu, Headphones, X, Gift, Sparkles, ShoppingCart, Crown, RefreshCw } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
 import { toast } from "sonner";
-import { getStoredConfig, clearAuth, isAuthenticated } from "@/lib/auth";
-import { AppConfig } from "@/types/auth";
-import { getBackgroundImageUrl } from "@/lib/sports";
-import { Sport } from "@/types/sports";
-import { PremiumSportCard } from "@/components/PremiumSportCard";
-import BasicPlanModal from "@/components/BasicPlanModal";
+import { format } from "date-fns";
+import { clearAuth, isAuthenticated, getStoredUser, getStoredAccess, getMe, persistAuth, shouldShowPaywall, trackEvent } from "@/lib/api";
+import { CHECKOUT_LINKS } from "@/lib/checkoutLinks";
+import { useSession } from "@/hooks/useSession";
+import { useEntries } from "@/hooks/useEntries";
+import { EntryCard } from "@/components/EntryCard";
+import { PaywallPopup } from "@/components/PaywallPopup";
 import { PromoCarousel } from "@/components/PromoCarousel";
-import { QuickAccessCards } from "@/components/QuickAccessCards";
 import { BottomNav } from "@/components/BottomNav";
 import logoImg from "@/assets/premier-logo.png";
 
-// URL de checkout do vitalício (placeholder - trocar pela URL real depois)
-const LIFETIME_CHECKOUT_URL = "/checkout/vitalicio";
-
 const Home = () => {
   const navigate = useNavigate();
-  const [config, setConfig] = useState<AppConfig | null>(null);
-  const [sports, setSports] = useState<Sport[]>([]);
+  const [user, setUser] = useState(getStoredUser());
+  const [access, setAccess] = useState(getStoredAccess());
   const [loading, setLoading] = useState(true);
-  const [showBasicModal, setShowBasicModal] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
-  const [countdown, setCountdown] = useState({
-    days: 0,
-    hours: 0,
-    minutes: 0,
-    seconds: 0,
-  });
+  const [showPaywall, setShowPaywall] = useState(false);
   const [showPromotionsModal, setShowPromotionsModal] = useState(false);
   const [showLifetimeModal, setShowLifetimeModal] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
-  // Boolean para acesso vitalício (trocar depois pela lógica real)
-  const hasLifetimeAccess = false;
+  // Session tracking
+  useSession();
 
-  // Fecha menu ao clicar fora
+  // Fetch entries for today
+  const today = format(new Date(), 'yyyy-MM-dd');
+  const { entries, isLoading: entriesLoading, error: entriesError, refetch } = useEntries(today);
+
+  // Check if user is vitalício
+  const hasLifetimeAccess = user?.is_vitalicio ?? false;
+
+  // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -47,148 +45,45 @@ const Home = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Auth check and /me refresh
   useEffect(() => {
     if (!isAuthenticated()) {
       navigate("/login");
       return;
     }
 
-    const storedConfig = getStoredConfig();
-    if (storedConfig) {
-      setConfig(storedConfig);
-    }
-
-    // Dados mockados com diferentes estados
-    const mockSports: Sport[] = [
-      {
-        id: 1,
-        name: "Futebol",
-        enabled: true,
-        isproplan: false,
-        background: "cyberbet_3ef04120-9b39-44f5-9e4e-0127a76326bb",
-        tipo: 0, // Premium ativo - único liberado
-      },
-      {
-        id: 2,
-        name: "MMA",
-        enabled: true,
-        isproplan: false,
-        background: "cyberbet_76a934f8-71c1-41a2-a9fe-93c36359dd7f",
-        tipo: 1, // Em breve (bloqueado)
-      },
-      {
-        id: 3,
-        name: "Basquete",
-        enabled: true,
-        isproplan: false,
-        background: "cyberbet_20d5c209-1849-49d0-9475-4eabf2541b07",
-        tipo: 1, // Em breve (bloqueado)
-      },
-      {
-        id: 4,
-        name: "Tenis",
-        enabled: true,
-        isproplan: false,
-        background: "cyberbet_75203e34-3699-4203-9063-24bb8b805083",
-        tipo: 1, // Em breve (bloqueado)
-      },
-      {
-        id: 5,
-        name: "Futsal",
-        enabled: true,
-        isproplan: false,
-        background: "cyberbet_3164bd85-f9f8-4113-b776-fb37acf872a3",
-        tipo: 1, // Em breve (bloqueado)
-      },
-      {
-        id: 6,
-        name: "Volei",
-        enabled: true,
-        isproplan: false,
-        background: "cyberbet_55e38087-eeb7-4031-9a11-a326b50db79f",
-        tipo: 1, // Em breve (bloqueado)
-      },
-      {
-        id: 8,
-        name: "Hoquei",
-        enabled: true,
-        isproplan: false,
-        background: "cyberbet_255695b8-2046-4b5b-b6c5-17e7bb5e3df2",
-        tipo: 1, // Em breve (bloqueado)
-      },
-      {
-        id: 9,
-        name: "E-Sports",
-        enabled: true,
-        isproplan: false,
-        background: "cyberbet_3ef04120-9b39-44f5-9e4e-0127a76326bb",
-        tipo: 1, // Em breve (bloqueado)
-      },
-      {
-        id: 11,
-        name: "Cassino",
-        enabled: true,
-        isproplan: false,
-        background: "casino-custom",
-        tipo: 0, // Premium ativo
-      },
-      {
-        id: 12,
-        name: "Premier Ultra - IA",
-        enabled: true,
-        isproplan: false,
-        background: "futsal-custom",
-        tipo: 1, // Em breve (bloqueado)
-      },
-    ];
-
-    // Usar apenas mock (não busca API)
-    setSports(mockSports);
-    setLoading(false);
-  }, [navigate]);
-
-  // Countdown timer for Aviator launch (Dec 17, 2024 at 20:00)
-  useEffect(() => {
-    const targetDate = new Date("2025-12-17T20:00:00").getTime();
-    
-    const updateCountdown = () => {
-      const now = new Date().getTime();
-      const difference = targetDate - now;
-      
-      if (difference <= 0) {
-        setCountdown({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-        return;
+    const refreshAuth = async () => {
+      try {
+        const response = await getMe();
+        
+        if (response.success && response.user && response.allowed_access) {
+          const token = localStorage.getItem('premier_token') || '';
+          persistAuth(
+            token,
+            response.user,
+            response.allowed_access,
+            response.show_paywall_popup ?? false,
+            response.checkout ?? null
+          );
+          
+          setUser(response.user);
+          setAccess(response.allowed_access);
+          
+          // Show paywall for free users if flagged
+          if (shouldShowPaywall()) {
+            setShowPaywall(true);
+            await trackEvent('open_paywall_popup');
+          }
+        }
+      } catch (error) {
+        console.error('Error refreshing auth:', error);
+      } finally {
+        setLoading(false);
       }
-      
-      const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((difference % (1000 * 60)) / 1000);
-      
-      setCountdown({ days, hours, minutes, seconds });
     };
-    
-    updateCountdown();
-    const timer = setInterval(updateCountdown, 1000);
 
-    return () => clearInterval(timer);
-  }, []);
-
-  // Show modal for free plan users
-  useEffect(() => {
-    const storedConfig = getStoredConfig();
-    const purchasedPlan = storedConfig?.user?.purchasedPlan ?? 0;
-    const isFreeUser = purchasedPlan === 0 || purchasedPlan === -1;
-    
-    console.log('[Home] purchasedPlan:', purchasedPlan, 'isFreeUser:', isFreeUser);
-    
-    if (isFreeUser) {
-      // Reset counter for testing (remove this line in production)
-      localStorage.removeItem('basicPlanModalViews');
-      localStorage.removeItem('basicPlanModalExpiration');
-      setShowBasicModal(true);
-    }
-  }, []);
+    refreshAuth();
+  }, [navigate]);
 
   const handleLogout = () => {
     clearAuth();
@@ -197,7 +92,7 @@ const Home = () => {
   };
 
   const handleSupport = () => {
-    toast.info("Em breve");
+    navigate("/support");
     setMenuOpen(false);
   };
 
@@ -207,137 +102,28 @@ const Home = () => {
   };
 
   const handleBuyLifetime = () => {
-    // Placeholder: redireciona para URL de checkout
-    navigate(LIFETIME_CHECKOUT_URL);
+    window.open(CHECKOUT_LINKS.vitalicio, '_blank');
     setShowLifetimeModal(false);
   };
 
-  // Mapear esportes da API para o formato do componente (por ID)
-  const sportEmojiMap: Record<number, string> = {
-    1: "⚽",  // Futebol
-    2: "🥊",  // MMA
-    3: "⚾",  // Baseball
-    4: "🏈",  // Rugby
-    5: "🎾",  // Tenis
-    6: "🏀",  // Basquete
-    7: "⚽",  // Futsal
-    8: "🏒",  // Hoquei
-    9: "🤾",  // Handball
-    10: "🏐", // Volei
-    11: "🎰", // Cassino
-    12: "✈️", // Premier Ultra - IA
+  const handlePaywallBuy = async () => {
+    await trackEvent('click_buy_from_popup');
+    window.open(CHECKOUT_LINKS.paywall_default, '_blank');
   };
 
-  // Cores premium tecnológicas por esporte (paleta dark + neon sutil)
-  const sportColorSchemes: Record<number, {
-    primary: string;
-    secondary: string;
-    glow: string;
-  }> = {
-    1: { // Futebol - Verde neon
-      primary: "#00FF7F",
-      secondary: "#00CC66",
-      glow: "rgba(0, 255, 127, 0.35)",
-    },
-    2: { // MMA - Vermelho intenso
-      primary: "#FF4E4E",
-      secondary: "#CC3E3E",
-      glow: "rgba(255, 78, 78, 0.35)",
-    },
-    3: { // Baseball - Azul royal
-      primary: "#4A90FF",
-      secondary: "#3A70CC",
-      glow: "rgba(74, 144, 255, 0.35)",
-    },
-    4: { // Rugby - Verde escuro
-      primary: "#2ECC71",
-      secondary: "#27AE60",
-      glow: "rgba(46, 204, 113, 0.35)",
-    },
-    5: { // Tenis - Amarelo dourado
-      primary: "#FFD700",
-      secondary: "#CCAC00",
-      glow: "rgba(255, 215, 0, 0.35)",
-    },
-    6: { // Basquete - Laranja queimado
-      primary: "#FF8C42",
-      secondary: "#CC7035",
-      glow: "rgba(255, 140, 66, 0.35)",
-    },
-    7: { // Futsal - Azul água / Cyan
-      primary: "#00D4FF",
-      secondary: "#00A8CC",
-      glow: "rgba(0, 212, 255, 0.35)",
-    },
-    8: { // Hoquei - Azul gelo
-      primary: "#5BC0EB",
-      secondary: "#4899BC",
-      glow: "rgba(91, 192, 235, 0.35)",
-    },
-    9: { // Handball - Rosa magenta
-      primary: "#FF6B9D",
-      secondary: "#CC567E",
-      glow: "rgba(255, 107, 157, 0.35)",
-    },
-    10: { // Volei - Amarelo vibrante
-      primary: "#FFEA00",
-      secondary: "#CCBB00",
-      glow: "rgba(255, 234, 0, 0.35)",
-    },
-    11: { // Cassino - Roxo neon
-      primary: "#A855F7",
-      secondary: "#8644C5",
-      glow: "rgba(168, 85, 247, 0.35)",
-    },
-    12: { // Premier Ultra - IA - Vermelho/Laranja vibrante
-      primary: "#FF6B35",
-      secondary: "#E85D2D",
-      glow: "rgba(255, 107, 53, 0.35)",
-    },
+  const handleContinueFree = async () => {
+    await trackEvent('click_continue_free');
+    setShowPaywall(false);
+    localStorage.setItem('premier_show_paywall', 'false');
   };
 
-  const mappedSports = sports.map((sport) => {
-    const tipo = sport.tipo ?? 0;
-    const colors = sportColorSchemes[sport.id] || sportColorSchemes[1]; // Fallback para Futebol (ID 1)
-    
-    // Tipo 0: Verifica enabled para premium ou bloqueado
-    // Tipo 1: Em desenvolvimento
-    // Tipo 2: Pré-venda
-    
-    let cardType: 'premium' | 'locked' | 'development' | 'presale' = 'development';
-    
-    if (tipo === 0) {
-      cardType = sport.enabled ? 'premium' : 'locked';
-    } else if (tipo === 1) {
-      cardType = 'development';
-    } else if (tipo === 2) {
-      cardType = 'presale';
-    }
-
-    // Rota especial para Cassino
-    let route = "#";
-    if (cardType === 'premium') {
-      route = sport.id === 11 ? '/cassino' : `/sport/${sport.id}`;
-    }
-
-    return {
-      ...sport,
-      emoji: sportEmojiMap[sport.id] || "🏆",
-      route: route,
-      image: getBackgroundImageUrl(sport.background),
-      gradient: "from-[#000636] via-[#0026A3] to-[#0033C6]",
-      isPremium: cardType === 'premium',
-      isLocked: cardType === 'locked',
-      isDevelopment: cardType === 'development',
-      isPreSale: cardType === 'presale',
-      colors: colors,
-      badgeColor: cardType === 'premium'
-        ? `bg-[${colors.primary}]/20 text-[${colors.primary}] border-[${colors.primary}]/40`
-        : "bg-muted/30 text-muted-foreground border-border/30",
-      priceFrom: cardType === 'presale' ? (sport.priceFrom || "R$ 299,00") : undefined,
-      priceTo: cardType === 'presale' ? (sport.priceTo || "R$ 149,00") : undefined,
-    };
-  });
+  // Tier display name
+  const tierDisplayName: Record<string, string> = {
+    free: 'Gratuito',
+    basic: 'Basic',
+    pro: 'Pro',
+    ultra: 'Ultra',
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0D0A1A] via-[#1A1030] to-[#0D0A1A] relative overflow-hidden pb-20 md:pb-0">
@@ -355,16 +141,29 @@ const Home = () => {
               <span className="text-base sm:text-lg font-bold text-white">Premier Ultra</span>
             </div>
             
-            {/* Right side: Email (desktop only) + Badge + Cart + Menu */}
+            {/* Right side: Email (desktop only) + Badge + Menu */}
             <div className="flex items-center gap-2 sm:gap-3">
-              {/* Email - HIDDEN no mobile, visível no md+ */}
-              {config?.user && (
+              {/* Email - HIDDEN no mobile */}
+              {user && (
                 <span className="hidden md:block text-xs sm:text-sm font-medium text-white/80 truncate max-w-[180px]">
-                  {config.user.userMail}
+                  {user.email}
                 </span>
               )}
               
-              {/* Status Badge */}
+              {/* Tier Badge */}
+              <span className={`inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-semibold ${
+                user?.main_tier === 'ultra' 
+                  ? 'bg-gradient-to-r from-amber-500/30 to-yellow-500/30 text-amber-300 border border-amber-500/50'
+                  : user?.main_tier === 'pro'
+                  ? 'bg-purple-500/20 text-purple-300 border border-purple-500/40'
+                  : user?.main_tier === 'basic'
+                  ? 'bg-blue-500/20 text-blue-300 border border-blue-500/40'
+                  : 'bg-gray-500/20 text-gray-300 border border-gray-500/40'
+              }`}>
+                {tierDisplayName[user?.main_tier || 'free']}
+              </span>
+              
+              {/* Vitalício Badge */}
               {hasLifetimeAccess ? (
                 <span className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-semibold bg-gradient-to-r from-amber-500/30 to-yellow-500/30 text-amber-300 border border-amber-500/50 shadow-[0_0_12px_rgba(245,158,11,0.25)]">
                   <Crown className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
@@ -443,82 +242,75 @@ const Home = () => {
         {/* Carrossel de Promoções */}
         <PromoCarousel />
 
-        {/* Entradas Disponíveis - Premium */}
+        {/* Entradas do Dia */}
         <section className="space-y-4 sm:space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="text-xl sm:text-2xl font-display font-extrabold text-white tracking-tight">
-              Entradas Disponíveis
+              Entradas do Dia
             </h2>
+            <button
+              onClick={() => refetch()}
+              className="p-2 rounded-lg bg-purple-500/10 border border-purple-500/30 hover:bg-purple-500/20 transition-colors"
+              title="Atualizar entradas"
+            >
+              <RefreshCw className={`w-4 h-4 text-purple-300 ${entriesLoading ? 'animate-spin' : ''}`} />
+            </button>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-            {loading ? (
-              <div className="col-span-full text-center py-12">
-                <p className="text-purple-300/60">Carregando esportes...</p>
-              </div>
-            ) : mappedSports.filter(sport => sport.isPremium || (sport as any).isPreSale).length === 0 ? (
-              <div className="col-span-full text-center py-12">
-                <p className="text-purple-300/60">Nenhum esporte disponível</p>
-              </div>
-            ) : (
-              mappedSports.filter(sport => sport.isPremium || (sport as any).isPreSale).map((sport) => (
-                <PremiumSportCard
-                  key={sport.id}
-                  id={sport.id}
-                  name={sport.name}
-                  emoji={(sport as any).emoji}
-                  isPremium={sport.isPremium}
-                  isLocked={(sport as any).isLocked}
-                  isDevelopment={(sport as any).isDevelopment}
-                  isPreSale={(sport as any).isPreSale}
-                  colors={(sport as any).colors}
-                  priceFrom={(sport as any).priceFrom}
-                  priceTo={(sport as any).priceTo}
-                  countdown={(sport as any).isPreSale ? countdown : undefined}
-                  sportSubheadline={sport.id === 1 ? "Entradas Ativas no Premier Ultra" : undefined}
-                  casinoTitle={sport.id === 11 ? "Painel IA em Execução" : undefined}
-                  casinoSubheadline={sport.id === 11 ? "Dados processados continuamente para decisões rápidas" : undefined}
-                  onClick={() => {
-                    if (sport.isPremium && sport.route !== "#") {
-                      navigate(sport.route);
-                    }
-                  }}
+          {loading || entriesLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="h-40 rounded-xl bg-white/5 animate-pulse" />
+              ))}
+            </div>
+          ) : entriesError ? (
+            <div className="text-center py-12">
+              <p className="text-red-300/60">{entriesError}</p>
+              <button 
+                onClick={() => refetch()}
+                className="mt-4 px-4 py-2 rounded-lg bg-purple-500/20 text-purple-300 hover:bg-purple-500/30 transition-colors"
+              >
+                Tentar novamente
+              </button>
+            </div>
+          ) : entries.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-purple-300/60">Nenhuma entrada disponível para hoje</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
+              {entries.map((entry) => (
+                <EntryCard
+                  key={entry.id}
+                  id={entry.id}
+                  display_title={entry.display_title}
+                  display_market={entry.display_market}
+                  display_odd={entry.display_odd}
+                  locked={entry.locked}
+                  tier_required={entry.tier_required}
+                  addon_required={entry.addon_required}
                 />
-              ))
-            )}
-          </div>
+              ))}
+            </div>
+          )}
         </section>
-
-        {/* Quick Access Cards - Bilhetes, Alavancagem, Odds Altas */}
-        <QuickAccessCards />
       </main>
 
       {/* Footer */}
       <footer className="mt-12 pb-8">
         <div className="container max-w-7xl mx-auto px-4">
           <div className="border-t border-purple-500/20 pt-6 text-center space-y-2">
-            {/* Identidade */}
             <p className="text-sm text-purple-300/60 font-medium">Premier Ultra ©</p>
             <p className="text-xs text-purple-300/50">Análises processadas continuamente</p>
-            
-            {/* Compliance */}
             <p className="text-[11px] text-purple-300/40 pt-2">
               Dados protegidos • 18+ • Jogue com responsabilidade
             </p>
-            
-            {/* Links */}
             <div className="flex items-center justify-center gap-2 text-[11px] text-purple-300/50">
-              <a 
-                href="/termos" 
-                className="hover:text-purple-400 transition-colors"
-              >
+              <a href="/termos" className="hover:text-purple-400 transition-colors">
                 Termos & Privacidade
               </a>
               <span className="text-purple-500/30">|</span>
-              <a 
-                href="/suporte" 
-                className="hover:text-purple-400 transition-colors"
-              >
+              <a href="/support" className="hover:text-purple-400 transition-colors">
                 Suporte
               </a>
             </div>
@@ -526,11 +318,15 @@ const Home = () => {
         </div>
       </footer>
 
-      {/* Basic Plan Conversion Modal for Free Users */}
-      <BasicPlanModal 
-        open={showBasicModal} 
-        onClose={() => setShowBasicModal(false)} 
-      />
+      {/* Paywall Popup */}
+      {showPaywall && (
+        <PaywallPopup
+          open={showPaywall}
+          onOpenChange={setShowPaywall}
+          onBuy={handlePaywallBuy}
+          onContinueFree={handleContinueFree}
+        />
+      )}
 
       {/* Modal Promoções */}
       {showPromotionsModal && (
@@ -539,7 +335,6 @@ const Home = () => {
             className="w-full max-w-md bg-gradient-to-br from-[#0D0A1A] via-[#1A1030] to-[#0D0A1A] border border-purple-500/30 rounded-2xl shadow-2xl shadow-purple-900/40 overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Header */}
             <div className="relative px-6 py-5 border-b border-purple-500/20">
               <div className="absolute top-0 right-0 w-24 h-24 bg-purple-500/20 rounded-full blur-3xl" />
               <div className="relative flex items-center gap-3">
@@ -558,7 +353,6 @@ const Home = () => {
               </button>
             </div>
 
-            {/* Content */}
             <div className="px-6 py-8 text-center">
               <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center">
                 <Sparkles className="w-8 h-8 text-purple-400" />
@@ -569,7 +363,6 @@ const Home = () => {
               </p>
             </div>
 
-            {/* Footer */}
             <div className="px-6 pb-6">
               <button
                 onClick={() => setShowPromotionsModal(false)}
@@ -582,14 +375,13 @@ const Home = () => {
         </div>
       )}
 
-      {/* Modal Compra Vitalício (Carrinho) */}
+      {/* Modal Compra Vitalício */}
       {showLifetimeModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onClick={() => setShowLifetimeModal(false)}>
           <div 
             className="w-full max-w-sm bg-gradient-to-br from-[#0D0A1A] via-[#1A1030] to-[#0D0A1A] border border-purple-500/30 rounded-2xl shadow-2xl shadow-purple-900/40 overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Header */}
             <div className="relative px-6 py-5 border-b border-purple-500/20">
               <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/10 rounded-full blur-3xl" />
               <div className="relative flex items-center gap-3">
@@ -608,14 +400,12 @@ const Home = () => {
               </button>
             </div>
 
-            {/* Content */}
             <div className="px-6 py-6 text-center">
               <p className="text-sm text-purple-200/80 leading-relaxed">
                 Desbloqueie acesso total e continue usando sem limitações.
               </p>
             </div>
 
-            {/* Footer */}
             <div className="px-6 pb-6 space-y-3">
               <button
                 onClick={handleBuyLifetime}
