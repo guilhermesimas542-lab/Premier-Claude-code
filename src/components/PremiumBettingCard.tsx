@@ -2,19 +2,26 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { HelpCircle, Info, Link2, Clock, Layers, BarChart3 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
+import { ShirtIcon } from "./ShirtIcon";
+
+export interface ShirtConfig {
+  variant: "solid" | "stripes";
+  primaryColor: string;
+  secondaryColor?: string;
+}
+
+export interface TeamWithShirt {
+  name: string;
+  logo?: string;
+  shirt?: ShirtConfig;
+}
 
 interface PremiumBettingCardProps {
   tipId: number;
   tier: "BÁSICO" | "PRO" | "GRÁTIS" | "MÚLTIPLA" | "ULTRA";
   tierSubtitle?: string;
-  team1: {
-    name: string;
-    logo: string;
-  };
-  team2: {
-    name: string;
-    logo: string;
-  };
+  team1: TeamWithShirt;
+  team2: TeamWithShirt;
   market: string;
   betChoice: string;
   odds: number;
@@ -362,12 +369,23 @@ export const PremiumBettingCard = ({
             <div className={`rounded-lg backdrop-blur-sm flex items-center justify-center ring-1 shadow-lg ${
               isExpired ? "bg-gray-800/50 ring-gray-600/30" : "bg-white/10 ring-white/20"
             }`} style={{ width: '40px', height: '40px' }}>
-              <img
-                src={team1.logo}
-                alt={team1.name}
-                className={`object-contain ${isExpired ? "opacity-50" : ""}`}
-                style={{ width: '28px', height: '28px' }}
-              />
+              {team1.shirt ? (
+                <ShirtIcon
+                  variant={team1.shirt.variant}
+                  primaryColor={team1.shirt.primaryColor}
+                  secondaryColor={team1.shirt.secondaryColor}
+                  size={28}
+                />
+              ) : team1.logo ? (
+                <img
+                  src={team1.logo}
+                  alt={team1.name}
+                  className={`object-contain ${isExpired ? "opacity-50" : ""}`}
+                  style={{ width: '28px', height: '28px' }}
+                />
+              ) : (
+                <ShirtIcon variant="solid" primaryColor="#6B7280" size={28} />
+              )}
             </div>
             <span 
               className={`font-bold text-center max-w-[60px] leading-tight line-clamp-1 ${
@@ -386,12 +404,23 @@ export const PremiumBettingCard = ({
             <div className={`rounded-lg backdrop-blur-sm flex items-center justify-center ring-1 shadow-lg ${
               isExpired ? "bg-gray-800/50 ring-gray-600/30" : "bg-white/10 ring-white/20"
             }`} style={{ width: '40px', height: '40px' }}>
-              <img
-                src={team2.logo}
-                alt={team2.name}
-                className={`object-contain ${isExpired ? "opacity-50" : ""}`}
-                style={{ width: '28px', height: '28px' }}
-              />
+              {team2.shirt ? (
+                <ShirtIcon
+                  variant={team2.shirt.variant}
+                  primaryColor={team2.shirt.primaryColor}
+                  secondaryColor={team2.shirt.secondaryColor}
+                  size={28}
+                />
+              ) : team2.logo ? (
+                <img
+                  src={team2.logo}
+                  alt={team2.name}
+                  className={`object-contain ${isExpired ? "opacity-50" : ""}`}
+                  style={{ width: '28px', height: '28px' }}
+                />
+              ) : (
+                <ShirtIcon variant="solid" primaryColor="#6B7280" size={28} />
+              )}
             </div>
             <span 
               className={`font-bold text-center max-w-[60px] leading-tight line-clamp-1 ${
