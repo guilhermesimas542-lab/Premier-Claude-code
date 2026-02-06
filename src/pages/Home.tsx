@@ -195,17 +195,30 @@ const Home = () => {
     return () => clearInterval(timer);
   }, []);
 
-  // Show modal for free plan users
+  // Show modal ONLY for free plan users (new system takes priority)
   useEffect(() => {
+    // Novo sistema tem prioridade - se usuário está logado com novo token, usa ele
+    const newTier = newUser?.main_tier;
+    
+    if (newTier) {
+      // Usuário está no novo sistema - mostrar modal APENAS se for free
+      if (newTier === 'free') {
+        localStorage.removeItem('basicPlanModalViews');
+        localStorage.removeItem('basicPlanModalExpiration');
+        setShowBasicModal(true);
+      } else {
+        // Não é free (basic, pro, ultra) - NÃO mostrar modal
+        setShowBasicModal(false);
+      }
+      return;
+    }
+    
+    // Fallback para sistema antigo (só se não tiver novo token)
     const storedConfig = getStoredConfig();
-    const purchasedPlan = storedConfig?.user?.purchasedPlan ?? 0;
+    const purchasedPlan = storedConfig?.user?.purchasedPlan ?? -1;
     const isFreeUser = purchasedPlan === 0 || purchasedPlan === -1;
     
-    // Também verificar pelo novo sistema
-    const newTier = newUser?.main_tier;
-    const isFreeNewSystem = newTier === 'free';
-    
-    if (isFreeUser || isFreeNewSystem) {
+    if (isFreeUser) {
       localStorage.removeItem('basicPlanModalViews');
       localStorage.removeItem('basicPlanModalExpiration');
       setShowBasicModal(true);
