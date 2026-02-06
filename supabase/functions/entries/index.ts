@@ -6,6 +6,19 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+interface EntryResponse {
+  id: string;
+  date: string;
+  tier_required: string;
+  addon_required: string | null;
+  locked: boolean;
+  display_title: string;
+  display_market: string | null;
+  display_odd: number | null;
+  metadata: Record<string, unknown> | null;
+  created_at: string;
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -77,51 +90,62 @@ serve(async (req) => {
     const dateParam = url.searchParams.get('date');
     const filterDate = dateParam || new Date().toISOString().split('T')[0];
 
-    // Calcular tiers permitidos
+    // Calcular tiers permitidos (para UNLOCK)
     const allowedTiers = getAllowedTiers(user.main_tier);
+    const isPaidUser = user.main_tier !== 'free';
 
-    // AJUSTE 3: Buscar entradas por TIER + entradas por ADD-ON (independente do tier)
-    
-    // 1. Entradas pelo tier (sem addon_required)
-    const { data: tierEntries, error: tierError } = await supabase
+    // Buscar TODAS as entradas ativas do dia
+    const { data: allEntries, error: entriesError } = await supabase
       .from('content_entries')
       .select('*')
       .eq('active', true)
       .eq('date', filterDate)
-      .in('tier_required', allowedTiers)
-      .is('addon_required', null);
+      .order('created_at', { ascending: false });
 
-    if (tierError) {
-      console.error('Erro ao buscar entradas por tier:', tierError);
+    if (entriesError) {
+      console.error('Erro ao buscar entradas:', entriesError);
+      return new Response(
+        JSON.stringify({ success: false, message: 'Erro ao buscar entradas' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
-    // 2. Entradas por add-on (independente do tier, basta ter o addon ativo)
-    let addonEntries: any[] = [];
-    if (activeAddons.length > 0) {
-      const { data: addons, error: addonError } = await supabase
-        .from('content_entries')
-        .select('*')
-        .eq('active', true)
-        .eq('date', filterDate)
-        .in('addon_required', activeAddons);
+    // Processar cada entrada para determinar locked/unlocked
+    // DECISÃO: Usuário pago NÃO vê entries de tier FREE (nem locked nem unlocked)
+    // Motivo: Não faz sentido mostrar conteúdo inferior, evita confusão
+    const entries: EntryResponse[] = (allEntries || [])
+      .filter(entry => {
+        // Filtrar entries FREE para usuários pagos
+        if (isPaidUser && entry.tier_required === 'free' && !entry.addon_required) {
+          return false;
+        }
+        return true;
+      })
+      .map(entry => {
+        // Calcular se está UNLOCKED
+        const isUnlocked = calculateUnlocked(
+          entry.tier_required,
+          entry.addon_required,
+          allowedTiers,
+          activeAddons
+        );
 
-      if (addonError) {
-        console.error('Erro ao buscar entradas por addon:', addonError);
-      } else {
-        addonEntries = addons || [];
-      }
-    }
-
-    // 3. Unir e remover duplicados (por id)
-    const allEntries = [...(tierEntries || []), ...addonEntries];
-    const uniqueEntries = allEntries.filter(
-      (entry, index, self) => index === self.findIndex(e => e.id === entry.id)
-    );
-
-    // Ordenar por created_at desc
-    uniqueEntries.sort((a, b) => 
-      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-    );
+        return {
+          id: entry.id,
+          date: entry.date,
+          tier_required: entry.tier_required,
+          addon_required: entry.addon_required,
+          locked: !isUnlocked,
+          created_at: entry.created_at,
+          // display_title sempre visível
+          display_title: entry.title,
+          // market e odd só se unlocked
+          display_market: isUnlocked ? entry.market : null,
+          display_odd: isUnlocked ? entry.odd : null,
+          // metadata completo só se unlocked
+          metadata: isUnlocked ? entry.metadata : null,
+        };
+      });
 
     return new Response(
       JSON.stringify({
@@ -130,7 +154,7 @@ serve(async (req) => {
         user_tier: user.main_tier,
         allowed_tiers: allowedTiers,
         active_addons: activeAddons,
-        entries: uniqueEntries,
+        entries,
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
@@ -157,4 +181,31 @@ function getAllowedTiers(mainTier: string): string[] {
     default:
       return ['free'];
   }
+}
+
+/**
+ * Calcula se uma entry está UNLOCKED para o usuário
+ * 
+ * Regras:
+ * 1. Se tier_required está em allowedTiers → UNLOCKED
+ * 2. Se addon_required != null E está em activeAddons → UNLOCKED
+ * 3. Caso contrário → LOCKED
+ */
+function calculateUnlocked(
+  tierRequired: string,
+  addonRequired: string | null,
+  allowedTiers: string[],
+  activeAddons: string[]
+): boolean {
+  // Regra 1: Tier está permitido
+  if (allowedTiers.includes(tierRequired)) {
+    return true;
+  }
+
+  // Regra 2: Addon está ativo (independente do tier)
+  if (addonRequired && activeAddons.includes(addonRequired)) {
+    return true;
+  }
+
+  return false;
 }
