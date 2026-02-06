@@ -81,7 +81,7 @@ serve(async (req) => {
         );
       }
 
-      // Atualizar last_seen_at do usuário
+      // AJUSTE 2: Atualizar last_seen_at SOMENTE no start da sessão
       await supabase
         .from('users')
         .update({ last_seen_at: now.toISOString() })
@@ -145,7 +145,7 @@ serve(async (req) => {
     }
 
     if (body.action === 'heartbeat' && body.session_id) {
-      // Atualizar heartbeat
+      // Atualizar heartbeat (NÃO atualiza last_seen_at)
       const { error } = await supabase
         .from('sessions')
         .update({ last_heartbeat_at: now.toISOString() })

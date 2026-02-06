@@ -64,11 +64,13 @@ serve(async (req) => {
     // Buscar entitlements ativos
     const { data: entitlements } = await supabase
       .from('entitlements')
-      .select('product_key')
+      .select('product_key, ends_at')
       .eq('user_id', user.id)
       .eq('status', 'active');
 
-    const activeAddons = (entitlements || []).map(e => e.product_key);
+    const activeAddons = (entitlements || [])
+      .filter(e => !e.ends_at || new Date(e.ends_at) > new Date())
+      .map(e => e.product_key);
 
     // Parâmetro de data
     const url = new URL(req.url);
@@ -78,29 +80,48 @@ serve(async (req) => {
     // Calcular tiers permitidos
     const allowedTiers = getAllowedTiers(user.main_tier);
 
-    // Buscar entradas ativas
-    const { data: entries, error: entriesError } = await supabase
+    // AJUSTE 3: Buscar entradas por TIER + entradas por ADD-ON (independente do tier)
+    
+    // 1. Entradas pelo tier (sem addon_required)
+    const { data: tierEntries, error: tierError } = await supabase
       .from('content_entries')
       .select('*')
       .eq('active', true)
       .eq('date', filterDate)
-      .in('tier_required', allowedTiers);
+      .in('tier_required', allowedTiers)
+      .is('addon_required', null);
 
-    if (entriesError) {
-      console.error('Erro ao buscar entradas:', entriesError);
-      return new Response(
-        JSON.stringify({ success: false, message: 'Erro ao buscar entradas' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    if (tierError) {
+      console.error('Erro ao buscar entradas por tier:', tierError);
     }
 
-    // Filtrar por addon_required
-    const filteredEntries = (entries || []).filter(entry => {
-      // Se não exige addon, passa
-      if (!entry.addon_required) return true;
-      // Se exige addon, verificar se o usuário tem
-      return activeAddons.includes(entry.addon_required);
-    });
+    // 2. Entradas por add-on (independente do tier, basta ter o addon ativo)
+    let addonEntries: any[] = [];
+    if (activeAddons.length > 0) {
+      const { data: addons, error: addonError } = await supabase
+        .from('content_entries')
+        .select('*')
+        .eq('active', true)
+        .eq('date', filterDate)
+        .in('addon_required', activeAddons);
+
+      if (addonError) {
+        console.error('Erro ao buscar entradas por addon:', addonError);
+      } else {
+        addonEntries = addons || [];
+      }
+    }
+
+    // 3. Unir e remover duplicados (por id)
+    const allEntries = [...(tierEntries || []), ...addonEntries];
+    const uniqueEntries = allEntries.filter(
+      (entry, index, self) => index === self.findIndex(e => e.id === entry.id)
+    );
+
+    // Ordenar por created_at desc
+    uniqueEntries.sort((a, b) => 
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
 
     return new Response(
       JSON.stringify({
@@ -109,7 +130,7 @@ serve(async (req) => {
         user_tier: user.main_tier,
         allowed_tiers: allowedTiers,
         active_addons: activeAddons,
-        entries: filteredEntries,
+        entries: uniqueEntries,
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );

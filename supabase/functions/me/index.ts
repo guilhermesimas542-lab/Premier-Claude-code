@@ -47,7 +47,7 @@ serve(async (req) => {
       );
     }
 
-    // Buscar usuário atualizado
+    // Buscar usuário atualizado (SEM atualizar last_seen_at - AJUSTE 2)
     const { data: user, error: userError } = await supabase
       .from('users')
       .select('*')
@@ -60,12 +60,6 @@ serve(async (req) => {
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
-
-    // Atualizar last_seen_at
-    await supabase
-      .from('users')
-      .update({ last_seen_at: new Date().toISOString() })
-      .eq('id', user.id);
 
     // Buscar entitlements ativos
     const { data: entitlements } = await supabase
@@ -80,9 +74,14 @@ serve(async (req) => {
       .filter(e => e.status === 'active' && (!e.ends_at || new Date(e.ends_at) > new Date()))
       .map(e => e.product_key);
 
+    // Flag de paywall para usuários free
+    const isFree = user.main_tier === 'free';
+
     return new Response(
       JSON.stringify({
         success: true,
+        show_paywall_popup: isFree,
+        checkout: isFree ? 'https://checkout.premierfc.app' : null,
         user: {
           id: user.id,
           email: user.email,
