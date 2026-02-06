@@ -1,4 +1,4 @@
-import { ArrowLeft, LogOut, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { ArrowLeft, LogOut, ChevronLeft, ChevronRight, Loader2, Zap } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState, useRef, useCallback } from "react";
 import { PremiumBettingCard } from "@/components/PremiumBettingCard";
@@ -326,6 +326,55 @@ const Sport = () => {
           </div>
           
           <div className="flex items-center gap-4">
+            {/* BOTÃO TEMPORÁRIO DE TESTE */}
+            <Button
+              onClick={async () => {
+                const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+                const token = localStorage.getItem("premier_token");
+                const testDate = format(new Date(), 'yyyy-MM-dd');
+                const url = `${supabaseUrl}/functions/v1/entries?date=${testDate}`;
+                
+                console.log("🔍 URL Final:", url);
+                console.log("🔑 Token presente:", !!token);
+                
+                try {
+                  const response = await fetch(url, {
+                    headers: {
+                      "Authorization": `Bearer ${token}`,
+                      "Content-Type": "application/json"
+                    }
+                  });
+                  
+                  console.log("📡 Status HTTP:", response.status);
+                  
+                  if (response.ok) {
+                    const data = await response.json();
+                    console.log("✅ Response completa:", data);
+                    toast.success(`Status: ${response.status}`, {
+                      description: `Entries: ${data.entries?.length ?? 'N/A'} | Tier: ${data.user_tier ?? 'N/A'}`
+                    });
+                  } else {
+                    const errorText = await response.text();
+                    console.error("❌ Erro HTTP:", response.status, errorText);
+                    toast.error(`Status: ${response.status}`, {
+                      description: errorText.substring(0, 100)
+                    });
+                  }
+                } catch (err) {
+                  console.error("💥 Erro de rede:", err);
+                  toast.error("Erro de conexão", {
+                    description: err instanceof Error ? err.message : "Falha na requisição"
+                  });
+                }
+              }}
+              variant="outline"
+              size="sm"
+              className="bg-yellow-500/20 border-yellow-500/50 hover:bg-yellow-500/40 text-yellow-300"
+            >
+              <Zap className="w-4 h-4 mr-2" />
+              Testar Backend
+            </Button>
+            
             {config?.user && (
               <div className="hidden md:flex flex-col items-end">
                 <span className="text-xs text-muted-foreground">Usuário</span>
