@@ -1,4 +1,4 @@
-import { ArrowLeft, LogOut, ChevronLeft, ChevronRight, Loader2, Zap } from "lucide-react";
+import { ArrowLeft, LogOut, ChevronLeft, ChevronRight, Loader2, Zap, CheckCircle, XCircle } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState, useRef, useCallback } from "react";
 import { PremiumBettingCard } from "@/components/PremiumBettingCard";
@@ -12,7 +12,10 @@ import { AppConfig } from "@/types/auth";
 import { Sport as SportType } from "@/types/sports";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { BottomNav } from "@/components/BottomNav";
-import { useEntries, DisplayEntry } from "@/hooks/useEntries";
+// ✅ MUDANÇA: Usando hook do Supabase EXTERNO (INFLUENCE PASS)
+import { useEntriesExternal, DisplayEntry } from "@/hooks/useEntriesExternal";
+import { EXTERNAL_SUPABASE_URL, getActiveBackendInfo } from "@/lib/supabaseExternal";
+import { logBackendInfo } from "@/lib/apiExternal";
 import { format } from "date-fns";
 
 // ============ TIPOS DE TIER ============
@@ -56,9 +59,9 @@ const Sport = () => {
   const isAlavancagemRoute = pathname === "/alavancagem";
   const isOddsAltasRoute = pathname === "/odds-altas";
 
-  // ========== DADOS DO BACKEND ==========
+  // ========== DADOS DO BACKEND EXTERNO ==========
   const today = format(new Date(), 'yyyy-MM-dd');
-  const { activeEntries, expiredEntries, isLoading, error, refetch } = useEntries(today);
+  const { activeEntries, expiredEntries, isLoading, error, refetch } = useEntriesExternal(today);
   
   // Agrupar entries por tier
   const tipsByTier = activeEntries.reduce((acc, entry) => {
@@ -326,14 +329,17 @@ const Sport = () => {
           </div>
           
           <div className="flex items-center gap-4">
-            {/* BOTÃO TEMPORÁRIO DE TESTE */}
+            {/* BOTÃO DE TESTE - SUPABASE EXTERNO */}
             <Button
               onClick={async () => {
-                const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+                // ✅ USA URL DO SUPABASE EXTERNO (INFLUENCE PASS)
+                const backendInfo = getActiveBackendInfo();
                 const token = localStorage.getItem("premier_token");
                 const testDate = format(new Date(), 'yyyy-MM-dd');
-                const url = `${supabaseUrl}/functions/v1/entries?date=${testDate}`;
+                const url = `${EXTERNAL_SUPABASE_URL}/functions/v1/entries?date=${testDate}`;
                 
+                // Log detalhado no console
+                logBackendInfo();
                 console.log("🔍 URL Final:", url);
                 console.log("🔑 Token presente:", !!token);
                 
@@ -350,29 +356,32 @@ const Sport = () => {
                   if (response.ok) {
                     const data = await response.json();
                     console.log("✅ Response completa:", data);
-                    toast.success(`Status: ${response.status}`, {
-                      description: `Entries: ${data.entries?.length ?? 'N/A'} | Tier: ${data.user_tier ?? 'N/A'}`
+                    toast.success(`✅ EXTERNO: Status ${response.status}`, {
+                      description: `Projeto: ${backendInfo.projectRef} | Entries: ${data.entries?.length ?? 0}`,
+                      duration: 5000,
                     });
                   } else {
                     const errorText = await response.text();
                     console.error("❌ Erro HTTP:", response.status, errorText);
-                    toast.error(`Status: ${response.status}`, {
-                      description: errorText.substring(0, 100)
+                    toast.error(`❌ EXTERNO: Status ${response.status}`, {
+                      description: `${backendInfo.projectRef}: ${errorText.substring(0, 80)}`,
+                      duration: 5000,
                     });
                   }
                 } catch (err) {
                   console.error("💥 Erro de rede:", err);
-                  toast.error("Erro de conexão", {
-                    description: err instanceof Error ? err.message : "Falha na requisição"
+                  toast.error("💥 Erro de conexão com EXTERNO", {
+                    description: `${backendInfo.url}: ${err instanceof Error ? err.message : "Falha na requisição"}`,
+                    duration: 5000,
                   });
                 }
               }}
               variant="outline"
               size="sm"
-              className="bg-yellow-500/20 border-yellow-500/50 hover:bg-yellow-500/40 text-yellow-300"
+              className="bg-emerald-500/20 border-emerald-500/50 hover:bg-emerald-500/40 text-emerald-300"
             >
-              <Zap className="w-4 h-4 mr-2" />
-              Testar Backend
+              <CheckCircle className="w-4 h-4 mr-2" />
+              Testar EXTERNO
             </Button>
             
             {config?.user && (
