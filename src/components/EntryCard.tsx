@@ -1,7 +1,6 @@
 import { Lock, TrendingUp, Unlock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getUnlockLink } from '@/lib/checkoutLinks';
-import { trackEvent } from '@/lib/api';
 
 export interface EntryCardProps {
   id: string;
@@ -22,20 +21,11 @@ export function EntryCard({
   tier_required,
   addon_required,
 }: EntryCardProps) {
-  const handleUnlockClick = async () => {
-    // Track the click event
-    await trackEvent('click_locked_entry', {
-      entry_id: id,
-      tier_required,
-      addon_required,
-    });
-
-    // Open the appropriate checkout link
+  const handleUnlockClick = () => {
     const unlockLink = getUnlockLink(tier_required, addon_required);
     window.open(unlockLink, '_blank');
   };
 
-  // Tier badge colors
   const tierColors: Record<string, string> = {
     free: 'bg-gray-500/20 text-gray-300 border-gray-500/30',
     basic: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
@@ -48,30 +38,18 @@ export function EntryCard({
   if (locked) {
     return (
       <div className="relative overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-gray-900/80 to-gray-800/60 p-4 grayscale">
-        {/* Locked overlay */}
         <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px] z-10" />
-        
-        {/* Lock icon */}
         <div className="absolute top-3 right-3 z-20">
           <div className="w-8 h-8 rounded-full bg-black/60 flex items-center justify-center border border-white/20">
             <Lock className="w-4 h-4 text-white/70" />
           </div>
         </div>
-
-        {/* Content (blurred/masked) */}
         <div className="relative z-0">
-          {/* Tier badge */}
           <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase border ${tierBadgeClass}`}>
             {tier_required}
             {addon_required && ` + ${addon_required}`}
           </span>
-
-          {/* Title */}
-          <h3 className="mt-2 text-sm font-semibold text-white/80 line-clamp-2">
-            {display_title}
-          </h3>
-
-          {/* Masked data */}
+          <h3 className="mt-2 text-sm font-semibold text-white/80 line-clamp-2">{display_title}</h3>
           <div className="mt-3 space-y-1.5">
             <div className="flex items-center gap-2">
               <span className="text-xs text-white/40">Mercado:</span>
@@ -83,15 +61,8 @@ export function EntryCard({
             </div>
           </div>
         </div>
-
-        {/* Unlock button */}
         <div className="relative z-20 mt-4">
-          <Button
-            onClick={handleUnlockClick}
-            variant="outline"
-            size="sm"
-            className="w-full border-purple-500/50 bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 hover:text-purple-200"
-          >
+          <Button onClick={handleUnlockClick} variant="outline" size="sm" className="w-full border-purple-500/50 bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 hover:text-purple-200">
             <Unlock className="w-3.5 h-3.5 mr-1.5" />
             Desbloquear
           </Button>
@@ -100,21 +71,13 @@ export function EntryCard({
     );
   }
 
-  // Unlocked card
   return (
     <div className="relative overflow-hidden rounded-xl border border-emerald-500/30 bg-gradient-to-br from-emerald-900/20 to-emerald-800/10 p-4 hover:border-emerald-500/50 transition-colors">
-      {/* Tier badge */}
       <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase border ${tierBadgeClass}`}>
         {tier_required}
         {addon_required && ` + ${addon_required}`}
       </span>
-
-      {/* Title */}
-      <h3 className="mt-2 text-sm font-semibold text-white line-clamp-2">
-        {display_title}
-      </h3>
-
-      {/* Data */}
+      <h3 className="mt-2 text-sm font-semibold text-white line-clamp-2">{display_title}</h3>
       <div className="mt-3 space-y-1.5">
         {display_market && (
           <div className="flex items-center gap-2">
