@@ -3,9 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { login, trackEvent } from "@/lib/api";
+import { mockLogin } from "@/mocks/user";
 import { CHECKOUT_LINKS } from "@/lib/checkoutLinks";
-import { PaywallPopup } from "@/components/PaywallPopup";
 import { Smartphone, Users, Zap, RefreshCw, Target, Brain, ShoppingCart } from "lucide-react";
 import logoImg from "@/assets/premier-logo.png";
 import {
@@ -21,7 +20,6 @@ const Login = () => {
   const [showPlayStoreModal, setShowPlayStoreModal] = useState(false);
   const [showAcquireModal, setShowAcquireModal] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
-  const [showPaywall, setShowPaywall] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -34,43 +32,13 @@ const Login = () => {
 
     setIsLoading(true);
 
-    try {
-      const response = await login(email.toLowerCase().trim());
-
-      if (response.success) {
-        toast.success("Login realizado com sucesso!");
-        
-        // Track app_open event
-        await trackEvent('app_open');
-        
-        // If free user, show paywall popup
-        if (response.show_paywall_popup) {
-          await trackEvent('open_paywall_popup');
-          setShowPaywall(true);
-        } else {
-          // Go directly to home
-          navigate("/");
-        }
-      } else {
-        toast.error(response.message || "Erro ao fazer login");
-      }
-    } catch (error) {
-      console.error("Erro no login:", error);
-      toast.error("Erro ao conectar com o servidor");
-    } finally {
+    // Fake login - salva em localStorage e navega
+    setTimeout(() => {
+      mockLogin(email);
+      toast.success("Login realizado com sucesso!");
       setIsLoading(false);
-    }
-  };
-
-  const handlePaywallBuy = async () => {
-    await trackEvent('click_buy_from_popup');
-    window.open(CHECKOUT_LINKS.paywall_default, '_blank');
-  };
-
-  const handleContinueFree = async () => {
-    await trackEvent('click_continue_free');
-    setShowPaywall(false);
-    navigate("/");
+      navigate("/");
+    }, 500);
   };
 
   const handleAcquireAccess = () => {
@@ -168,7 +136,6 @@ const Login = () => {
 
           {/* Download App + Social Proof */}
           <div className="mt-6 flex flex-col items-center gap-3">
-            {/* Social Proof Badge - Reposicionado */}
             <div className="bg-purple-600/20 border border-purple-500/30 text-purple-300 px-3 py-1.5 rounded-full font-semibold text-xs flex items-center gap-1.5">
               <Users className="w-3.5 h-3.5 text-purple-400" />
               +50.000 clientes ativos
@@ -217,16 +184,6 @@ const Login = () => {
           </div>
         </div>
       </div>
-
-      {/* Paywall Popup for Free Users */}
-      {showPaywall && (
-        <PaywallPopup
-          open={showPaywall}
-          onOpenChange={setShowPaywall}
-          onBuy={handlePaywallBuy}
-          onContinueFree={handleContinueFree}
-        />
-      )}
 
       {/* Google Play Coming Soon Modal */}
       <Dialog open={showPlayStoreModal} onOpenChange={setShowPlayStoreModal}>

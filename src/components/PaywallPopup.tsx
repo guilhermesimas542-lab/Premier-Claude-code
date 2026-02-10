@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -8,7 +8,6 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Crown, Zap, Gift } from 'lucide-react';
-import { getCheckoutUrl } from '@/lib/api';
 import { CHECKOUT_LINKS } from '@/lib/checkoutLinks';
 
 interface PaywallPopupProps {
@@ -25,8 +24,6 @@ export function PaywallPopup({
   onContinueFree 
 }: PaywallPopupProps) {
   const [internalOpen, setInternalOpen] = useState(false);
-  
-  // Use controlled or uncontrolled mode
   const isOpen = controlledOpen !== undefined ? controlledOpen : internalOpen;
   const setIsOpen = onOpenChange || setInternalOpen;
 
@@ -34,8 +31,7 @@ export function PaywallPopup({
     if (onBuy) {
       onBuy();
     } else {
-      const checkoutUrl = getCheckoutUrl() || CHECKOUT_LINKS.paywall_default;
-      window.open(checkoutUrl, '_blank');
+      window.open(CHECKOUT_LINKS.paywall_default, '_blank');
     }
   };
 
@@ -75,18 +71,10 @@ export function PaywallPopup({
         </div>
 
         <div className="flex flex-col gap-3 pt-2">
-          <Button
-            onClick={handleBuyClick}
-            className="w-full bg-gradient-to-r from-emerald-600 via-emerald-500 to-emerald-600 hover:from-emerald-700 hover:via-emerald-600 hover:to-emerald-700 text-white font-bold py-6 text-base shadow-xl shadow-emerald-500/30"
-          >
+          <Button onClick={handleBuyClick} className="w-full bg-gradient-to-r from-emerald-600 via-emerald-500 to-emerald-600 hover:from-emerald-700 hover:via-emerald-600 hover:to-emerald-700 text-white font-bold py-6 text-base shadow-xl shadow-emerald-500/30">
             Assinar agora
           </Button>
-          
-          <Button
-            variant="ghost"
-            onClick={handleContinueFree}
-            className="w-full text-white/60 hover:text-white/80 hover:bg-white/5"
-          >
+          <Button variant="ghost" onClick={handleContinueFree} className="w-full text-white/60 hover:text-white/80 hover:bg-white/5">
             Continuar no plano gratuito
           </Button>
         </div>

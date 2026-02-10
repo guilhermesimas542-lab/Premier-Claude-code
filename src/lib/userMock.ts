@@ -1,5 +1,5 @@
 // Mock centralizado do usuário para a página de suporte
-// Trocar depois pela integração real com backend
+import { mockGetUser } from "@/mocks/user";
 
 export interface MockUserData {
   name: string;
@@ -12,26 +12,15 @@ export interface MockUserData {
 }
 
 export const getMockUserData = (): MockUserData => {
-  // Tenta pegar dados reais do localStorage
-  const storedUser = localStorage.getItem("_user");
-  let userMail = "—";
-  
-  if (storedUser) {
-    try {
-      const parsed = JSON.parse(storedUser);
-      userMail = parsed?.userMail || "—";
-    } catch {
-      // Ignora erro de parse
-    }
-  }
+  const user = mockGetUser();
 
   return {
-    name: "—", // Sem nome no sistema atual
-    email: userMail,
-    phone: "—", // Sem telefone no sistema atual
+    name: "—",
+    email: user?.email || "—",
+    phone: "—",
     plan: {
-      name: "Básico", // Placeholder
-      isActive: true, // Placeholder
+      name: "Ultra",
+      isActive: true,
     },
   };
 };
