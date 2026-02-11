@@ -69,20 +69,63 @@ const Login = () => {
         />
       </div>
 
-      {/* DEBUG OVERLAY - TESTE DEFINITIVO */}
+      {/* Light Trail Effect (inline) */}
+      <style>{`
+        @keyframes trailA {
+          0%   { transform: translate3d(-20%, -10%, 0) rotate(0deg); }
+          50%  { transform: translate3d(10%, 12%, 0) rotate(12deg); }
+          100% { transform: translate3d(-20%, -10%, 0) rotate(0deg); }
+        }
+        @keyframes trailB {
+          0%   { transform: translate3d(15%, 20%, 0) rotate(0deg); }
+          50%  { transform: translate3d(-10%, -8%, 0) rotate(-10deg); }
+          100% { transform: translate3d(15%, 20%, 0) rotate(0deg); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .trailA, .trailB { animation: none !important; }
+        }
+      `}</style>
       <div
         style={{
           position: "absolute",
           inset: 0,
-          zIndex: 999,
-          background: "rgba(255,255,255,0.35)",
-          outline: "8px solid red",
+          zIndex: 10,
+          overflow: "hidden",
           pointerEvents: "none",
         }}
       >
-        <div style={{ position: "absolute", top: 12, left: 12, color: "#000", fontSize: 18, fontWeight: 800 }}>
-          DEBUG OVERLAY OK
-        </div>
+        {/* Trail A - lilac */}
+        <div
+          className="trailA"
+          style={{
+            position: "absolute",
+            width: "70%",
+            height: "220px",
+            top: "15%",
+            left: "-10%",
+            background: "radial-gradient(ellipse at center, rgba(180,150,255,0.45) 0%, rgba(140,100,255,0.12) 40%, transparent 70%)",
+            filter: "blur(28px)",
+            borderRadius: "50%",
+            animation: "trailA 12s ease-in-out infinite",
+            willChange: "transform",
+          }}
+        />
+        {/* Trail B - white */}
+        <div
+          className="trailB"
+          style={{
+            position: "absolute",
+            width: "55%",
+            height: "180px",
+            bottom: "18%",
+            right: "-8%",
+            background: "radial-gradient(ellipse at center, rgba(255,255,255,0.3) 0%, rgba(200,180,255,0.08) 40%, transparent 70%)",
+            filter: "blur(28px)",
+            borderRadius: "50%",
+            animation: "trailB 14s ease-in-out infinite",
+            willChange: "transform",
+          }}
+        />
       </div>
 
       {/* Layer 3: Content (z-20) */}
