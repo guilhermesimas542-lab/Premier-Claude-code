@@ -1,40 +1,72 @@
 const BackgroundLightTrail = () => {
   return (
-    <div
-      className="absolute inset-0 overflow-hidden pointer-events-none"
-      style={{ zIndex: 2, mixBlendMode: "screen" }}
-    >
-      {/* Trail 1 - lilac */}
+    <>
+      <style>{`
+        @keyframes trailMoveA {
+          0%   { transform: translate3d(-20%, -10%, 0) rotate(0deg); }
+          50%  { transform: translate3d(10%, 12%, 0) rotate(12deg); }
+          100% { transform: translate3d(-20%, -10%, 0) rotate(0deg); }
+        }
+        @keyframes trailMoveB {
+          0%   { transform: translate3d(15%, 20%, 0) rotate(0deg); }
+          50%  { transform: translate3d(-10%, -8%, 0) rotate(-10deg); }
+          100% { transform: translate3d(15%, 20%, 0) rotate(0deg); }
+        }
+        @keyframes trailPulse {
+          0%,100% { opacity: 0.10; }
+          50%     { opacity: 0.22; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .trailA, .trailB { animation: none !important; }
+        }
+      `}</style>
+
       <div
-        className="light-trail-1"
         style={{
           position: "absolute",
-          width: "60%",
-          height: "200px",
-          top: "18%",
-          left: "-10%",
-          background:
-            "radial-gradient(ellipse at center, rgba(180,150,255,0.5) 0%, rgba(140,100,255,0.15) 40%, transparent 70%)",
-          filter: "blur(30px)",
-          borderRadius: "50%",
+          inset: 0,
+          zIndex: 0,
+          overflow: "hidden",
+          pointerEvents: "none",
         }}
-      />
-      {/* Trail 2 - white */}
-      <div
-        className="light-trail-2"
-        style={{
-          position: "absolute",
-          width: "50%",
-          height: "160px",
-          bottom: "22%",
-          right: "-10%",
-          background:
-            "radial-gradient(ellipse at center, rgba(255,255,255,0.4) 0%, rgba(200,180,255,0.1) 40%, transparent 70%)",
-          filter: "blur(30px)",
-          borderRadius: "50%",
-        }}
-      />
-    </div>
+      >
+        {/* Trail A */}
+        <div
+          className="trailA"
+          style={{
+            position: "absolute",
+            width: "70%",
+            height: "220px",
+            top: "15%",
+            left: "-10%",
+            background:
+              "radial-gradient(ellipse at center, rgba(180,150,255,0.5) 0%, rgba(140,100,255,0.15) 40%, transparent 70%)",
+            filter: "blur(30px)",
+            borderRadius: "50%",
+            animation: "trailMoveA 12s ease-in-out infinite, trailPulse 6s ease-in-out infinite",
+            willChange: "transform, opacity",
+          }}
+        />
+
+        {/* Trail B */}
+        <div
+          className="trailB"
+          style={{
+            position: "absolute",
+            width: "55%",
+            height: "180px",
+            bottom: "18%",
+            right: "-8%",
+            background:
+              "radial-gradient(ellipse at center, rgba(255,255,255,0.35) 0%, rgba(200,180,255,0.1) 40%, transparent 70%)",
+            filter: "blur(30px)",
+            borderRadius: "50%",
+            animation: "trailMoveB 14s ease-in-out infinite, trailPulse 8s ease-in-out infinite",
+            willChange: "transform, opacity",
+          }}
+        />
+      </div>
+    </>
   );
 };
 
