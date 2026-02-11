@@ -71,6 +71,10 @@ const Login = () => {
 
       {/* Light Trail Effect (inline) */}
       <style>{`
+        @keyframes spinTest {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
         @keyframes trailA {
           0%   { transform: translate3d(-35%, -15%, 0) rotate(0deg); }
           50%  { transform: translate3d(18%, 16%, 0) rotate(14deg); }
@@ -85,6 +89,20 @@ const Login = () => {
           .trailA, .trailB { animation: none !important; }
         }
       `}</style>
+      {/* TEMP: spinning red square test */}
+      <div style={{
+        position: "absolute",
+        top: "50%",
+        left: "50%",
+        width: 80,
+        height: 80,
+        marginTop: -40,
+        marginLeft: -40,
+        background: "red",
+        zIndex: 999,
+        animation: "spinTest 2s linear infinite",
+        pointerEvents: "none",
+      }} />
       <div
         style={{
           position: "absolute",
