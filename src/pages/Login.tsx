@@ -269,7 +269,7 @@ const Login = () => {
               Termos e Privacidade
             </button>
             <span className="text-white/20">|</span>
-            <a href="/support" className="text-purple-400 hover:text-purple-300 transition-colors">
+            <a href="https://wa.link/1p68qg" target="_blank" rel="noopener noreferrer" className="text-purple-400 hover:text-purple-300 transition-colors">
               Suporte
             </a>
           </div>
