@@ -48,8 +48,8 @@ const Login = () => {
   const isDisabled = !email.trim() || isLoading;
 
   return (
-    <div className="relative min-h-screen flex flex-col items-center justify-center px-6 py-12 overflow-hidden">
-      <div style={{ position: "fixed", top: 12, left: 12, zIndex: 9999, color: "red", fontSize: 24, fontWeight: "bold" }}>TESTE LOGIN OK</div>
+    <div className="relative min-h-screen overflow-hidden">
+      <BackgroundLightTrail />
       {/* Aurora background */}
       <div className="absolute inset-0 bg-[#1A0E2E]" style={{ zIndex: 0 }} />
       <div
@@ -69,10 +69,7 @@ const Login = () => {
             "radial-gradient(ellipse 60% 40% at 60% 30%, rgba(74, 31, 111, 0.5) 0%, transparent 70%)",
         }}
       />
-      <BackgroundLightTrail />
-
-      {/* Content */}
-      <main className="relative z-10 flex flex-col items-center w-full max-w-md">
+      <main className="relative z-10 flex flex-col items-center justify-center min-h-screen px-6 py-12 w-full max-w-md mx-auto">
         {/* Logo */}
         <img src={logo} alt="Premier Ultra" className="h-16 w-auto mx-auto mb-8 object-contain scale-[9.0]" />
 
