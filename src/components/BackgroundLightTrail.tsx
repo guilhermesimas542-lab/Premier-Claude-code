@@ -3,7 +3,7 @@ const BackgroundLightTrail = () => {
     <div
       className="pointer-events-none absolute inset-0 overflow-hidden"
       style={{
-        zIndex: 0,
+        zIndex: 10,
         outline: "6px solid red",
         background: "rgba(255,255,255,0.35)",
       }}
@@ -18,10 +18,6 @@ const BackgroundLightTrail = () => {
           0%   { transform: translate3d(15%, 20%, 0) rotate(0deg); }
           50%  { transform: translate3d(-10%, -8%, 0) rotate(-10deg); }
           100% { transform: translate3d(15%, 20%, 0) rotate(0deg); }
-        }
-        @keyframes trailPulse {
-          0%,100% { opacity: 0.10; }
-          50%     { opacity: 0.22; }
         }
         @media (prefers-reduced-motion: reduce) {
           .trailA, .trailB { animation: none !important; }
@@ -42,7 +38,7 @@ const BackgroundLightTrail = () => {
           filter: "blur(30px)",
           borderRadius: "50%",
           opacity: 1,
-          animation: "trailMoveA 12s ease-in-out infinite, trailPulse 6s ease-in-out infinite",
+          animation: "trailMoveA 12s ease-in-out infinite",
           willChange: "transform, opacity",
         }}
       />
@@ -61,7 +57,7 @@ const BackgroundLightTrail = () => {
           filter: "blur(30px)",
           borderRadius: "50%",
           opacity: 1,
-          animation: "trailMoveB 14s ease-in-out infinite, trailPulse 8s ease-in-out infinite",
+          animation: "trailMoveB 14s ease-in-out infinite",
           willChange: "transform, opacity",
         }}
       />

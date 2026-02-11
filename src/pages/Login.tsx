@@ -49,27 +49,31 @@ const Login = () => {
 
   return (
     <div className="relative min-h-screen overflow-hidden">
+      {/* Layer 1: Aurora background (z-0) */}
+      <div className="absolute inset-0" style={{ zIndex: 0 }}>
+        <div className="absolute inset-0 bg-[#1A0E2E]" />
+        <div
+          className="absolute inset-0 opacity-80"
+          style={{
+            background:
+              "radial-gradient(ellipse 80% 60% at 30% 20%, #4A1F6F 0%, transparent 60%), radial-gradient(ellipse 70% 50% at 70% 80%, #1F3A6F 0%, transparent 60%), radial-gradient(ellipse 50% 40% at 50% 50%, #2E1A47 0%, transparent 50%)",
+          }}
+        />
+        <div
+          className="absolute inset-0 opacity-40 animate-pulse"
+          style={{
+            animationDuration: "8s",
+            background:
+              "radial-gradient(ellipse 60% 40% at 60% 30%, rgba(74, 31, 111, 0.5) 0%, transparent 70%)",
+          }}
+        />
+      </div>
+
+      {/* Layer 2: Light trail effect (z-10) */}
       <BackgroundLightTrail />
-      {/* Aurora background */}
-      <div className="absolute inset-0 bg-[#1A0E2E]" style={{ zIndex: 0 }} />
-      <div
-        className="absolute inset-0 opacity-80"
-        style={{
-          zIndex: 0,
-          background:
-            "radial-gradient(ellipse 80% 60% at 30% 20%, #4A1F6F 0%, transparent 60%), radial-gradient(ellipse 70% 50% at 70% 80%, #1F3A6F 0%, transparent 60%), radial-gradient(ellipse 50% 40% at 50% 50%, #2E1A47 0%, transparent 50%)",
-        }}
-      />
-      <div
-        className="absolute inset-0 opacity-40 animate-pulse"
-        style={{
-          zIndex: 0,
-          animationDuration: "8s",
-          background:
-            "radial-gradient(ellipse 60% 40% at 60% 30%, rgba(74, 31, 111, 0.5) 0%, transparent 70%)",
-        }}
-      />
-      <main className="relative z-10 flex flex-col items-center justify-center min-h-screen px-6 py-12 w-full max-w-md mx-auto">
+
+      {/* Layer 3: Content (z-20) */}
+      <main className="relative flex flex-col items-center justify-center min-h-screen px-6 py-12 w-full max-w-md mx-auto" style={{ zIndex: 20 }}>
         {/* Logo */}
         <img src={logo} alt="Premier Ultra" className="h-16 w-auto mx-auto mb-8 object-contain scale-[9.0]" />
 
