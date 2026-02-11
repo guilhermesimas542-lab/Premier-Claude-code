@@ -5,6 +5,7 @@ import { mockLogin } from "@/mocks/user";
 import { CHECKOUT_LINKS } from "@/lib/checkoutLinks";
 import { Crown, Loader2, ShoppingCart, Sparkles, Users } from "lucide-react";
 import logo from "@/assets/premier-logo-new.png";
+import BackgroundLightTrail from "@/components/BackgroundLightTrail";
 import {
   Dialog,
   DialogContent,
@@ -50,6 +51,7 @@ const Login = () => {
     <div className="min-h-screen relative flex flex-col items-center justify-center px-6 py-12 overflow-hidden">
       {/* Aurora background */}
       <div className="absolute inset-0 bg-[#1A0E2E]" />
+      <BackgroundLightTrail />
       <div
         className="absolute inset-0 opacity-80"
         style={{
