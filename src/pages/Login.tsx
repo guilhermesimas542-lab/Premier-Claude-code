@@ -69,8 +69,21 @@ const Login = () => {
         />
       </div>
 
-      {/* Layer 2: Light trail effect (z-10) */}
-      <BackgroundLightTrail />
+      {/* DEBUG OVERLAY - TESTE DEFINITIVO */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          zIndex: 999,
+          background: "rgba(255,255,255,0.35)",
+          outline: "8px solid red",
+          pointerEvents: "none",
+        }}
+      >
+        <div style={{ position: "absolute", top: 12, left: 12, color: "#000", fontSize: 18, fontWeight: 800 }}>
+          DEBUG OVERLAY OK
+        </div>
+      </div>
 
       {/* Layer 3: Content (z-20) */}
       <main className="relative flex flex-col items-center justify-center min-h-screen px-6 py-12 w-full max-w-md mx-auto" style={{ zIndex: 20 }}>
