@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { mockLogin } from "@/mocks/user";
 import { CHECKOUT_LINKS } from "@/lib/checkoutLinks";
-import { Crown, Loader2, ShoppingCart, Sparkles, Users } from "lucide-react";
+import { Copy, RefreshCw, Target, Crown, Loader2, ShoppingCart, Users } from "lucide-react";
 import logo from "@/assets/premier-logo-new.png";
 import BackgroundLightTrail from "@/components/BackgroundLightTrail";
 import {
@@ -153,15 +153,30 @@ const Login = () => {
 
         {/* Benefit chips */}
         <div className="flex flex-wrap justify-center gap-2 mb-8">
-          <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-purple-500/30 bg-purple-500/10 text-white/80 text-xs">
-            <Sparkles className="w-3 h-3" /> Entradas prontas
-          </span>
-          <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-purple-500/30 bg-purple-500/10 text-white/80 text-xs">
-            <Sparkles className="w-3 h-3" /> Atualizados diariamente
-          </span>
-          <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-purple-500/30 bg-purple-500/10 text-white/80 text-xs">
-            <Sparkles className="w-3 h-3" /> Alto índice de assertividade
-          </span>
+          <div
+            role="note"
+            aria-label="Benefício: Entradas prontas"
+            className="flex items-center gap-2 px-3.5 py-2.5 rounded-full border text-[13px] font-medium text-white/80 transition-all active:scale-[0.98]"
+            style={{ background: "rgba(255,255,255,0.08)", borderColor: "rgba(255,255,255,0.14)" }}
+          >
+            <Copy className="w-4 h-4 shrink-0" /> Entradas prontas
+          </div>
+          <div
+            role="note"
+            aria-label="Benefício: Atualizados diariamente"
+            className="flex items-center gap-2 px-3.5 py-2.5 rounded-full border text-[13px] font-medium text-white/80 transition-all active:scale-[0.98]"
+            style={{ background: "rgba(255,255,255,0.08)", borderColor: "rgba(255,255,255,0.14)" }}
+          >
+            <RefreshCw className="w-4 h-4 shrink-0" /> Atualizados diariamente
+          </div>
+          <div
+            role="note"
+            aria-label="Benefício: Alto índice de assertividade"
+            className="flex items-center gap-2 px-3.5 py-2.5 rounded-full border text-[13px] font-medium text-white/80 transition-all active:scale-[0.98]"
+            style={{ background: "rgba(255,255,255,0.08)", borderColor: "rgba(255,255,255,0.14)" }}
+          >
+            <Target className="w-4 h-4 shrink-0" /> Alto índice de assertividade
+          </div>
         </div>
 
         {/* Card */}
