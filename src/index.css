@@ -308,3 +308,37 @@ All colors MUST be HSL.
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
+/* Light Trail animations for login background */
+@keyframes lightTrailMove1 {
+  0% { transform: translateX(-20%) translateY(0%) rotate(0deg); opacity: 0.07; }
+  25% { transform: translateX(60%) translateY(-15%) rotate(8deg); opacity: 0.10; }
+  50% { transform: translateX(120%) translateY(10%) rotate(-4deg); opacity: 0.06; }
+  75% { transform: translateX(40%) translateY(20%) rotate(6deg); opacity: 0.09; }
+  100% { transform: translateX(-20%) translateY(0%) rotate(0deg); opacity: 0.07; }
+}
+
+@keyframes lightTrailMove2 {
+  0% { transform: translateX(120%) translateY(0%) rotate(0deg); opacity: 0.05; }
+  25% { transform: translateX(30%) translateY(15%) rotate(-6deg); opacity: 0.08; }
+  50% { transform: translateX(-30%) translateY(-10%) rotate(4deg); opacity: 0.06; }
+  75% { transform: translateX(60%) translateY(-20%) rotate(-5deg); opacity: 0.09; }
+  100% { transform: translateX(120%) translateY(0%) rotate(0deg); opacity: 0.05; }
+}
+
+.light-trail-1 {
+  animation: lightTrailMove1 24s linear infinite;
+  will-change: transform, opacity;
+}
+
+.light-trail-2 {
+  animation: lightTrailMove2 28s linear infinite;
+  will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .light-trail-1,
+  .light-trail-2 {
+    animation: none !important;
+  }
+}
