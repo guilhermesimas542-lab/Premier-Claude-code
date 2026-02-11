@@ -1,11 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { mockLogin } from "@/mocks/user";
 import { CHECKOUT_LINKS } from "@/lib/checkoutLinks";
-import { Smartphone, Users, Zap, RefreshCw, Target, Brain, ShoppingCart } from "lucide-react";
+import { Crown, ShoppingCart, Loader2 } from "lucide-react";
 import logoImg from "@/assets/premier-logo.png";
 import {
   Dialog,
@@ -17,255 +15,188 @@ import {
 const Login = () => {
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [showPlayStoreModal, setShowPlayStoreModal] = useState(false);
+  const [emailError, setEmailError] = useState("");
   const [showAcquireModal, setShowAcquireModal] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
   const navigate = useNavigate();
 
+  const validateEmail = (value: string) => {
+    if (!value) return false;
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setEmailError("");
 
-    if (!email) {
-      toast.error("Digite seu e-mail");
+    if (!email || !validateEmail(email)) {
+      setEmailError("Por favor, insira um e-mail válido.");
       return;
     }
 
     setIsLoading(true);
-
-    // Fake login - salva em localStorage e navega
     setTimeout(() => {
       mockLogin(email);
       toast.success("Login realizado com sucesso!");
       setIsLoading(false);
       navigate("/");
-    }, 500);
+    }, 800);
   };
 
   const handleAcquireAccess = () => {
-    window.open(CHECKOUT_LINKS.paywall_default, '_blank');
+    window.open(CHECKOUT_LINKS.paywall_default, "_blank");
     setShowAcquireModal(false);
   };
 
+  const isDisabled = !email.trim() || isLoading;
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0C0F14] via-[#121826] to-[#0C0F14] flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Decorative Background Elements */}
-      <div className="absolute inset-0 opacity-30">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-purple-600/20 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"></div>
-      </div>
+    <div className="min-h-screen bg-[#1A0F2A] flex items-center justify-center px-6 py-12 relative overflow-hidden">
+      {/* Subtle radial glow for depth */}
+      <div className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-purple-600/8 rounded-full blur-[120px] pointer-events-none" />
 
-      <div className="w-full max-w-md relative z-10">
-        {/* Main Card */}
-        <div className="bg-gradient-to-br from-[#121826]/90 to-[#0C0F14]/90 border border-purple-500/20 rounded-3xl p-8 shadow-2xl backdrop-blur-xl">
-          
-          {/* Logo/Header */}
-          <div className="text-center mb-6">
-            <div className="mb-4 relative">
-              <div className="absolute inset-0 bg-purple-600/30 blur-2xl rounded-full"></div>
-              <img src={logoImg} alt="Premier Ultra" className="h-20 w-auto mx-auto relative z-10 rounded-xl ring-2 ring-purple-500/30" />
-            </div>
-            <h1 className="text-2xl font-extrabold text-white mb-2 tracking-tight">
-              Premier Ultra
-            </h1>
-            <p className="text-white/70 text-sm flex items-center justify-center gap-1.5">
-              <Brain className="w-4 h-4 text-purple-400" />
-              Análise de futebol feita por Inteligência Artificial.
-            </p>
-          </div>
+      <div className="w-full max-w-md relative z-10 flex flex-col items-center">
+        {/* Logo */}
+        <img
+          src={logoImg}
+          alt="Premier Ultra"
+          className="h-16 w-auto brightness-0 invert opacity-90 mb-8"
+        />
 
-          {/* Benefit Chips */}
-          <div className="flex flex-wrap justify-center gap-2 mb-6">
-            <span className="bg-purple-500/10 border border-purple-500/20 text-white/80 text-xs font-medium px-3 py-1.5 rounded-full flex items-center gap-1.5">
-              <Zap className="w-3 h-3 text-purple-400" />
-              Entradas prontas
-            </span>
-            <span className="bg-purple-500/10 border border-purple-500/20 text-white/80 text-xs font-medium px-3 py-1.5 rounded-full flex items-center gap-1.5">
-              <RefreshCw className="w-3 h-3 text-purple-400" />
-              Atualizados diariamente
-            </span>
-            <span className="bg-purple-500/10 border border-purple-500/20 text-white/80 text-xs font-medium px-3 py-1.5 rounded-full flex items-center gap-1.5">
-              <Target className="w-3 h-3 text-purple-400" />
-              Alto índice de assertividade
-            </span>
-          </div>
+        {/* Headline */}
+        <h1 className="text-[28px] font-bold text-white text-center leading-tight mb-6">
+          Sua análise de futebol com Inteligência Artificial.
+        </h1>
 
-          {/* Form */}
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div className="space-y-2">
-              <label htmlFor="email" className="text-sm font-semibold text-white/90">
-                E-mail
-              </label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="seu@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="bg-white/5 border-purple-500/30 text-white placeholder:text-white/40 h-12 text-base focus:border-purple-500/50 focus:ring-purple-500/20 transition-all"
-                disabled={isLoading}
-              />
-            </div>
+        {/* Benefits list */}
+        <ul className="w-full space-y-3 mb-8">
+          <li className="flex items-center gap-3 text-white/90">
+            <span className="text-base shrink-0">✅</span>
+            <span className="text-base font-medium">Entradas prontas para copiar e colar.</span>
+          </li>
+          <li className="flex items-center gap-3 text-white/90">
+            <span className="text-base shrink-0">📈</span>
+            <span className="text-base font-medium">Análises atualizadas diariamente.</span>
+          </li>
+          <li className="flex items-center gap-3 text-white/90">
+            <span className="text-base shrink-0">🎯</span>
+            <span className="text-base font-medium">Alto índice de assertividade.</span>
+          </li>
+        </ul>
 
-            {/* CTA Principal - VERDE */}
-            <Button
-              type="submit"
-              className="w-full bg-gradient-to-r from-emerald-600 via-emerald-500 to-emerald-600 hover:from-emerald-700 hover:via-emerald-600 hover:to-emerald-700 text-white font-bold py-6 text-base shadow-xl shadow-emerald-500/30 transition-all duration-300 hover:scale-[1.02] hover:shadow-emerald-500/50"
+        {/* Form */}
+        <form onSubmit={handleLogin} className="w-full space-y-6">
+          <div className="space-y-2">
+            <label htmlFor="email" className="text-base font-medium text-white">
+              Digite seu e-mail
+            </label>
+            <input
+              id="email"
+              type="email"
+              placeholder="seu@email.com"
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                if (emailError) setEmailError("");
+              }}
               disabled={isLoading}
-            >
-              {isLoading ? "Entrando..." : "Acessar aplicativo"}
-            </Button>
+              className={`w-full h-[52px] rounded-lg px-4 text-base text-white placeholder:text-white/40 bg-white/5 border outline-none transition-colors ${
+                emailError
+                  ? "border-red-500 focus:border-red-500"
+                  : "border-white/15 focus:border-[#00FF7F]"
+              } disabled:opacity-50`}
+            />
+            {emailError && (
+              <p className="text-sm text-red-400">{emailError}</p>
+            )}
+          </div>
 
-            {/* Separador */}
-            <div className="border-t border-white/10 my-4"></div>
+          {/* CTA */}
+          <button
+            type="submit"
+            disabled={isDisabled}
+            className="w-full h-14 rounded-xl bg-[#00FF7F] text-black text-base font-bold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:brightness-110 active:scale-[0.98] flex items-center justify-center"
+          >
+            {isLoading ? (
+              <Loader2 className="w-5 h-5 animate-spin" />
+            ) : (
+              "Continuar"
+            )}
+          </button>
+        </form>
 
-            {/* Botão Secundário - ROXO OUTLINE */}
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setShowAcquireModal(true)}
-              className="w-full border-purple-500/50 bg-purple-500/5 hover:bg-purple-500/15 text-purple-300 hover:text-purple-200 font-semibold py-5 text-sm transition-all duration-300"
-            >
-              <ShoppingCart className="w-4 h-4 mr-2 text-purple-400" />
-              Adquirir acesso
-            </Button>
+        {/* Social proof pill */}
+        <div className="mt-8 px-4 py-2 rounded-full bg-white/5 border border-white/10">
+          <span className="text-sm text-white/60">
+            Junte-se aos +50.000 clientes.
+          </span>
+        </div>
 
-            <p className="text-center text-white/40 text-xs">
-              Acesso rápido • Sem complicação
-            </p>
-          </form>
-
-          {/* Download App + Social Proof */}
-          <div className="mt-6 flex flex-col items-center gap-3">
-            <div className="bg-purple-600/20 border border-purple-500/30 text-purple-300 px-3 py-1.5 rounded-full font-semibold text-xs flex items-center gap-1.5">
-              <Users className="w-3.5 h-3.5 text-purple-400" />
-              +50.000 clientes ativos
-            </div>
-            
+        {/* Footer */}
+        <div className="mt-8 text-center space-y-2">
+          <div className="flex items-center justify-center gap-2 text-xs text-white/40">
             <button
-              onClick={() => setShowPlayStoreModal(true)}
-              className="block transition-all duration-300 hover:scale-[1.02] opacity-80 hover:opacity-100"
+              onClick={() => setShowTermsModal(true)}
+              className="hover:text-white/60 transition-colors"
             >
-              <img 
-                src="/images/google-play-badge.png" 
-                alt="Disponível no Google Play" 
-                className="h-11 w-auto"
-              />
+              Termos e Privacidade
             </button>
+            <span>|</span>
+            <a href="/support" className="hover:text-white/60 transition-colors">
+              Suporte
+            </a>
           </div>
-
-          {/* Footer Legal */}
-          <div className="mt-6 pt-4 border-t border-white/10 text-center space-y-3">
-            <p className="text-[11px] text-white/50 leading-relaxed">
-              Ao continuar, você concorda com nossos{" "}
-              <button 
-                onClick={() => setShowTermsModal(true)}
-                className="text-purple-400 underline underline-offset-2 hover:text-purple-300 transition-colors"
-              >
-                Termos e Privacidade
-              </button>.
-            </p>
-            
-            <div className="flex items-center justify-center gap-3 text-[11px]">
-              <button 
-                onClick={() => setShowTermsModal(true)}
-                className="text-purple-400/70 hover:text-purple-300 transition-colors"
-              >
-                Termos e Privacidade
-              </button>
-              <span className="text-white/30">|</span>
-              <a href="#" className="text-purple-400/70 hover:text-purple-300 transition-colors">
-                Suporte
-              </a>
-            </div>
-
-            <p className="text-[10px] text-white/40 font-medium">
-              18+ • Jogue com responsabilidade.
-            </p>
-          </div>
+          <p className="text-[10px] text-white/30">
+            18+ • Jogue com responsabilidade.
+          </p>
         </div>
       </div>
 
-      {/* Google Play Coming Soon Modal */}
-      <Dialog open={showPlayStoreModal} onOpenChange={setShowPlayStoreModal}>
-        <DialogContent className="bg-[#0C0F14] border-purple-500/20 max-w-sm">
-          <DialogHeader>
-            <DialogTitle className="text-white text-lg font-bold flex items-center gap-2">
-              <Smartphone className="w-5 h-5 text-purple-400" />
-              Em Breve na Google Play
-            </DialogTitle>
-          </DialogHeader>
-          
-          <div className="space-y-4 py-2">
-            <p className="text-sm text-white/70">
-              Em poucos dias o app estará disponível na Google Play! 🚀
-            </p>
-            
-            <div className="bg-purple-600/10 border border-purple-500/20 rounded-xl p-4 text-center">
-              <p className="text-white text-sm font-medium">
-                Fique atento às nossas atualizações para ser um dos primeiros a baixar!
-              </p>
-            </div>
-
-            <p className="text-xs text-white/50 pt-2 border-t border-white/10">
-              Enquanto isso, você pode usar o app direto pelo navegador ou instalar o atalho na tela inicial.
-            </p>
-          </div>
-        </DialogContent>
-      </Dialog>
-
       {/* Acquire Access Modal */}
       <Dialog open={showAcquireModal} onOpenChange={setShowAcquireModal}>
-        <DialogContent className="bg-[#0C0F14] border-purple-500/20 max-w-sm">
+        <DialogContent className="bg-[#1A0F2A] border-purple-500/20 max-w-sm">
           <DialogHeader>
             <DialogTitle className="text-white text-lg font-bold flex items-center gap-2">
-              <ShoppingCart className="w-5 h-5 text-purple-400" />
-              Adquirir acesso
+              <Crown className="w-5 h-5 text-purple-400" />
+              Acesso Exclusivo Premier Ultra
             </DialogTitle>
           </DialogHeader>
-          
           <div className="space-y-4 py-2">
             <p className="text-sm text-white/70">
-              Tenha acesso completo às entradas e análises do Premier Ultra.
+              Você está a um passo de receber as melhores análises por IA. Adquira seu acesso para continuar.
             </p>
-            
-            <Button
+            <button
               onClick={handleAcquireAccess}
-              className="w-full bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white"
+              className="w-full h-12 rounded-xl bg-[#00FF7F] text-black font-bold text-sm hover:brightness-110 transition-all"
             >
-              Ir para o checkout
-            </Button>
-            
-            <Button
+              Adquirir Acesso Agora
+            </button>
+            <button
               onClick={() => setShowAcquireModal(false)}
-              variant="ghost"
-              className="w-full text-white/60 hover:text-white/80 hover:bg-white/5"
+              className="w-full py-2.5 text-sm text-white/50 hover:text-white/70 transition-colors"
             >
               Fechar
-            </Button>
+            </button>
           </div>
         </DialogContent>
       </Dialog>
 
-      {/* Terms and Privacy Modal */}
+      {/* Terms Modal */}
       <Dialog open={showTermsModal} onOpenChange={setShowTermsModal}>
-        <DialogContent className="bg-[#0C0F14] border-purple-500/20 max-w-sm">
+        <DialogContent className="bg-[#1A0F2A] border-purple-500/20 max-w-sm">
           <DialogHeader>
             <DialogTitle className="text-white text-lg font-bold">
               Termos e Privacidade
             </DialogTitle>
           </DialogHeader>
-          
           <div className="space-y-4 py-2">
-            <p className="text-sm text-white/70">
-              Conteúdo em breve.
-            </p>
-            
-            <Button
+            <p className="text-sm text-white/70">Conteúdo em breve.</p>
+            <button
               onClick={() => setShowTermsModal(false)}
-              className="w-full bg-purple-500/20 hover:bg-purple-500/30 text-purple-200 border border-purple-500/30"
+              className="w-full py-2.5 rounded-xl bg-white/5 border border-white/10 text-white/60 text-sm hover:bg-white/10 transition-colors"
             >
               Fechar
-            </Button>
+            </button>
           </div>
         </DialogContent>
       </Dialog>
