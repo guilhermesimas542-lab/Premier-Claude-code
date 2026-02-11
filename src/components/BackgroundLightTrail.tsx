@@ -28,6 +28,8 @@ const BackgroundLightTrail = () => {
           zIndex: 0,
           overflow: "hidden",
           pointerEvents: "none",
+          outline: "4px solid red",
+          background: "rgba(255,255,255,0.35)",
         }}
       >
         {/* Trail A */}
@@ -43,6 +45,7 @@ const BackgroundLightTrail = () => {
               "radial-gradient(ellipse at center, rgba(180,150,255,0.5) 0%, rgba(140,100,255,0.15) 40%, transparent 70%)",
             filter: "blur(30px)",
             borderRadius: "50%",
+            opacity: 1,
             animation: "trailMoveA 12s ease-in-out infinite, trailPulse 6s ease-in-out infinite",
             willChange: "transform, opacity",
           }}
