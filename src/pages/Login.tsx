@@ -49,6 +49,7 @@ const Login = () => {
 
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-center px-6 py-12 overflow-hidden">
+      <div style={{ position: "fixed", top: 12, left: 12, zIndex: 9999, color: "red", fontSize: 24, fontWeight: "bold" }}>TESTE LOGIN OK</div>
       {/* Aurora background */}
       <div className="absolute inset-0 bg-[#1A0E2E]" style={{ zIndex: 0 }} />
       <div
