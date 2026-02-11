@@ -70,7 +70,7 @@ const Login = () => {
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center w-full max-w-md">
         {/* Logo */}
-        <img src={logo} alt="Premier Ultra" className="h-16 w-auto mx-auto mb-8 object-contain scale-[3.0]" />
+        <img src={logo} alt="Premier Ultra" className="h-16 w-auto mx-auto mb-8 object-contain scale-[9.0]" />
 
         {/* Glass Card */}
         <div
