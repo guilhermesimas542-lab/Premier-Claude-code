@@ -48,12 +48,13 @@ const Login = () => {
   const isDisabled = !email.trim() || isLoading;
 
   return (
-    <div className="min-h-screen relative flex flex-col items-center justify-center px-6 py-12 overflow-hidden">
+    <div className="relative min-h-screen flex flex-col items-center justify-center px-6 py-12 overflow-hidden">
       {/* Aurora background */}
-      <div className="absolute inset-0 bg-[#1A0E2E]" />
+      <div className="absolute inset-0 bg-[#1A0E2E]" style={{ zIndex: 0 }} />
       <div
         className="absolute inset-0 opacity-80"
         style={{
+          zIndex: 0,
           background:
             "radial-gradient(ellipse 80% 60% at 30% 20%, #4A1F6F 0%, transparent 60%), radial-gradient(ellipse 70% 50% at 70% 80%, #1F3A6F 0%, transparent 60%), radial-gradient(ellipse 50% 40% at 50% 50%, #2E1A47 0%, transparent 50%)",
         }}
@@ -61,6 +62,7 @@ const Login = () => {
       <div
         className="absolute inset-0 opacity-40 animate-pulse"
         style={{
+          zIndex: 0,
           animationDuration: "8s",
           background:
             "radial-gradient(ellipse 60% 40% at 60% 30%, rgba(74, 31, 111, 0.5) 0%, transparent 70%)",
@@ -69,7 +71,7 @@ const Login = () => {
       <BackgroundLightTrail />
 
       {/* Content */}
-      <div className="relative z-10 flex flex-col items-center w-full max-w-md">
+      <main className="relative z-10 flex flex-col items-center w-full max-w-md">
         {/* Logo */}
         <img src={logo} alt="Premier Ultra" className="h-16 w-auto mx-auto mb-8 object-contain scale-[9.0]" />
 
@@ -188,7 +190,7 @@ const Login = () => {
           </div>
           <p className="text-xs text-white/30">18+ • Jogue com responsabilidade.</p>
         </div>
-      </div>
+      </main>
 
       {/* Acquire Modal */}
       <Dialog open={showAcquireModal} onOpenChange={setShowAcquireModal}>
