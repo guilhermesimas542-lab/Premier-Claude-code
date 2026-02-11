@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { mockLogin } from "@/mocks/user";
 import { CHECKOUT_LINKS } from "@/lib/checkoutLinks";
-import { Crown, ShoppingCart, Loader2 } from "lucide-react";
+import { Crown, Loader2, Users } from "lucide-react";
 import logoImg from "@/assets/premier-logo.png";
 import {
   Dialog,
@@ -20,20 +20,16 @@ const Login = () => {
   const [showTermsModal, setShowTermsModal] = useState(false);
   const navigate = useNavigate();
 
-  const validateEmail = (value: string) => {
-    if (!value) return false;
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-  };
+  const validateEmail = (value: string) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setEmailError("");
-
     if (!email || !validateEmail(email)) {
       setEmailError("Por favor, insira um e-mail válido.");
       return;
     }
-
     setIsLoading(true);
     setTimeout(() => {
       mockLogin(email);
@@ -51,28 +47,26 @@ const Login = () => {
   const isDisabled = !email.trim() || isLoading;
 
   return (
-    <div className="min-h-screen bg-[#1A0F2A] flex items-center justify-center px-6 py-12 relative overflow-hidden">
-      {/* Subtle radial glow for depth */}
-      <div className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-purple-600/8 rounded-full blur-[120px] pointer-events-none" />
+    <div className="min-h-screen bg-[#120A1F] flex flex-col items-center justify-center px-6 py-12">
+      {/* Logo outside card */}
+      <img
+        src={logoImg}
+        alt="Premier Ultra"
+        className="h-14 w-auto brightness-0 invert opacity-90 mb-8"
+      />
 
-      <div className="w-full max-w-md relative z-10 flex flex-col items-center">
-        {/* Logo */}
-        <img
-          src={logoImg}
-          alt="Premier Ultra"
-          className="h-16 w-auto brightness-0 invert opacity-90 mb-8"
-        />
-
+      {/* Main Card */}
+      <div className="w-full max-w-md bg-[#1C102E] rounded-2xl p-6">
         {/* Headline */}
-        <h1 className="text-[28px] font-bold text-white text-center leading-tight mb-6">
-          Sua análise de futebol com Inteligência Artificial.
+        <h1 className="text-2xl font-bold text-white text-center leading-tight mb-6">
+          Análise de futebol por IA.
         </h1>
 
-        {/* Benefits list */}
-        <ul className="w-full space-y-3 mb-8">
+        {/* Benefits */}
+        <ul className="space-y-3 mb-6">
           <li className="flex items-center gap-3 text-white/90">
             <span className="text-base shrink-0">✅</span>
-            <span className="text-base font-medium">Entradas prontas para copiar e colar.</span>
+            <span className="text-base font-medium">Entradas prontas para você usar.</span>
           </li>
           <li className="flex items-center gap-3 text-white/90">
             <span className="text-base shrink-0">📈</span>
@@ -84,10 +78,13 @@ const Login = () => {
           </li>
         </ul>
 
+        {/* Divider */}
+        <div className="border-t border-[#3A2F4B]/50 my-6" />
+
         {/* Form */}
-        <form onSubmit={handleLogin} className="w-full space-y-6">
+        <form onSubmit={handleLogin} className="space-y-4">
           <div className="space-y-2">
-            <label htmlFor="email" className="text-base font-medium text-white">
+            <label htmlFor="email" className="text-sm text-white/70">
               Digite seu e-mail
             </label>
             <input
@@ -100,15 +97,23 @@ const Login = () => {
                 if (emailError) setEmailError("");
               }}
               disabled={isLoading}
-              className={`w-full h-[52px] rounded-lg px-4 text-base text-white placeholder:text-white/40 bg-white/5 border outline-none transition-colors ${
+              className={`w-full h-[52px] rounded-lg px-4 text-base text-white placeholder:text-white/30 bg-[#2C1A47] border outline-none transition-colors ${
                 emailError
                   ? "border-red-500 focus:border-red-500"
-                  : "border-white/15 focus:border-[#00FF7F]"
+                  : "border-[#2C1A47] focus:border-[#00FF7F]"
               } disabled:opacity-50`}
             />
             {emailError && (
               <p className="text-sm text-red-400">{emailError}</p>
             )}
+          </div>
+
+          {/* Social proof */}
+          <div className="flex items-center justify-center gap-2 py-2">
+            <Users className="w-4 h-4 text-[#A89EB5]" />
+            <span className="text-sm font-medium text-[#A89EB5]">
+              Mais de 50.000 clientes confiam
+            </span>
           </div>
 
           {/* CTA */}
@@ -124,37 +129,28 @@ const Login = () => {
             )}
           </button>
         </form>
-
-        {/* Social proof pill */}
-        <div className="mt-8 px-4 py-2 rounded-full bg-white/5 border border-white/10">
-          <span className="text-sm text-white/60">
-            Junte-se aos +50.000 clientes.
-          </span>
-        </div>
-
-        {/* Footer */}
-        <div className="mt-8 text-center space-y-2">
-          <div className="flex items-center justify-center gap-2 text-xs text-white/40">
-            <button
-              onClick={() => setShowTermsModal(true)}
-              className="hover:text-white/60 transition-colors"
-            >
-              Termos e Privacidade
-            </button>
-            <span>|</span>
-            <a href="/support" className="hover:text-white/60 transition-colors">
-              Suporte
-            </a>
-          </div>
-          <p className="text-[10px] text-white/30">
-            18+ • Jogue com responsabilidade.
-          </p>
-        </div>
       </div>
 
-      {/* Acquire Access Modal */}
+      {/* Footer links outside card */}
+      <div className="mt-6 text-center space-y-2">
+        <div className="flex items-center justify-center gap-2 text-xs text-white/35">
+          <button
+            onClick={() => setShowTermsModal(true)}
+            className="hover:text-white/60 transition-colors"
+          >
+            Termos e Privacidade
+          </button>
+          <span>|</span>
+          <a href="/support" className="hover:text-white/60 transition-colors">
+            Suporte
+          </a>
+        </div>
+        <p className="text-[10px] text-white/25">18+ • Jogue com responsabilidade.</p>
+      </div>
+
+      {/* Acquire Modal */}
       <Dialog open={showAcquireModal} onOpenChange={setShowAcquireModal}>
-        <DialogContent className="bg-[#1A0F2A] border-purple-500/20 max-w-sm">
+        <DialogContent className="bg-[#1C102E] border-[#3A2F4B]/50 max-w-sm">
           <DialogHeader>
             <DialogTitle className="text-white text-lg font-bold flex items-center gap-2">
               <Crown className="w-5 h-5 text-purple-400" />
@@ -183,11 +179,9 @@ const Login = () => {
 
       {/* Terms Modal */}
       <Dialog open={showTermsModal} onOpenChange={setShowTermsModal}>
-        <DialogContent className="bg-[#1A0F2A] border-purple-500/20 max-w-sm">
+        <DialogContent className="bg-[#1C102E] border-[#3A2F4B]/50 max-w-sm">
           <DialogHeader>
-            <DialogTitle className="text-white text-lg font-bold">
-              Termos e Privacidade
-            </DialogTitle>
+            <DialogTitle className="text-white text-lg font-bold">Termos e Privacidade</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <p className="text-sm text-white/70">Conteúdo em breve.</p>
