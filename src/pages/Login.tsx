@@ -69,20 +69,14 @@ const Login = () => {
         />
       </div>
 
-      {/* Light Trail Effect */}
+      {/* Matrix Rain Effect */}
       <style>{`
-        @keyframes snakeSweep {
-          0%   { transform: translate3d(-10%, -16px, 0) rotate(-8deg); }
-          50%  { transform: translate3d(10%,  24px, 0) rotate(9deg); }
-          100% { transform: translate3d(-10%, -16px, 0) rotate(-8deg); }
-        }
-        @keyframes snakeSweep2 {
-          0%   { transform: translate3d(12%,  18px, 0) rotate(7deg); }
-          50%  { transform: translate3d(-12%, -22px, 0) rotate(-8deg); }
-          100% { transform: translate3d(12%,  18px, 0) rotate(7deg); }
+        @keyframes matrixFall {
+          from { transform: translate3d(0, -35%, 0); }
+          to   { transform: translate3d(0, 120%, 0); }
         }
         @media (prefers-reduced-motion: reduce) {
-          .snake1, .snake2 { animation: none !important; }
+          .matrix-col { animation: none !important; }
         }
       `}</style>
       <div
@@ -92,50 +86,57 @@ const Login = () => {
           zIndex: 10,
           overflow: "hidden",
           pointerEvents: "none",
-          mixBlendMode: "screen",
         }}
       >
-        {/* Trail 1 - principal */}
-        <div
-          className="snake1"
-          style={{
-            position: "absolute",
-            width: "110%",
-            height: "38px",
-            top: "22%",
-            left: "-5%",
-            background: "linear-gradient(90deg, transparent 0%, rgba(201,182,255,0.08) 15%, rgba(255,255,255,0.32) 45%, rgba(201,182,255,0.32) 55%, rgba(255,255,255,0.08) 85%, transparent 100%)",
-            filter: "blur(18px)",
-            borderRadius: "9999px",
-            animation: "snakeSweep 20s ease-in-out infinite",
-            willChange: "transform",
-          }}
-        />
-        {/* Trail 2 - secundário */}
-        <div
-          className="snake2"
-          style={{
-            position: "absolute",
-            width: "90%",
-            height: "28px",
-            bottom: "28%",
-            right: "-5%",
-            background: "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.06) 20%, rgba(201,182,255,0.18) 48%, rgba(255,255,255,0.18) 52%, rgba(201,182,255,0.06) 80%, transparent 100%)",
-            filter: "blur(16px)",
-            borderRadius: "9999px",
-            animation: "snakeSweep2 28s ease-in-out infinite",
-            willChange: "transform",
-          }}
-        />
+        {[
+          { left: "3%",  opacity: 0.22, dur: "14s", delay: "0s",    size: 12, chars: "01|10•:01|10•:01" },
+          { left: "11%", opacity: 0.35, dur: "18s", delay: "-4s",   size: 13, chars: "|:•01|0•:1|01•:" },
+          { left: "19%", opacity: 0.18, dur: "22s", delay: "-2s",   size: 12, chars: "0•:|10|•01:0|1•" },
+          { left: "27%", opacity: 0.40, dur: "16s", delay: "-8s",   size: 14, chars: "1|0•:01•|10:•01" },
+          { left: "35%", opacity: 0.20, dur: "20s", delay: "-6s",   size: 12, chars: "•:01|0•1|:01|0•" },
+          { left: "44%", opacity: 0.28, dur: "24s", delay: "-10s",  size: 13, chars: "01•|:10•01|:0•1" },
+          { left: "53%", opacity: 0.32, dur: "15s", delay: "-3s",   size: 12, chars: "|01•:0|1•:01|0•" },
+          { left: "62%", opacity: 0.18, dur: "21s", delay: "-7s",   size: 14, chars: "0•1|:01•|10:•01" },
+          { left: "71%", opacity: 0.38, dur: "17s", delay: "-1s",   size: 12, chars: "•01|:0•1|01:•10" },
+          { left: "79%", opacity: 0.22, dur: "23s", delay: "-5s",   size: 13, chars: "1|•:01|0•:1|01•" },
+          { left: "87%", opacity: 0.30, dur: "19s", delay: "-9s",   size: 12, chars: "01|•:10•01|:0•1" },
+          { left: "95%", opacity: 0.20, dur: "25s", delay: "-11s",  size: 13, chars: "|0•1:01•|10:•01" },
+        ].map((col, i) => (
+          <div
+            key={i}
+            className="matrix-col"
+            style={{
+              position: "absolute",
+              left: col.left,
+              top: 0,
+              width: "14px",
+              height: "100%",
+              fontSize: `${col.size}px`,
+              lineHeight: `${col.size + 2}px`,
+              fontFamily: "'Courier New', monospace",
+              color: `rgba(201, 182, 255, ${col.opacity})`,
+              filter: `blur(${col.opacity < 0.25 ? 1 : 0.5}px)`,
+              writingMode: "vertical-lr",
+              textOrientation: "upright",
+              letterSpacing: "2px",
+              whiteSpace: "nowrap",
+              animation: `matrixFall ${col.dur} linear infinite`,
+              animationDelay: col.delay,
+              willChange: "transform",
+            }}
+          >
+            {col.chars}
+          </div>
+        ))}
       </div>
-      {/* Center fade mask */}
+      {/* Vignette mask - protects card readability */}
       <div
         style={{
           position: "absolute",
           inset: 0,
           zIndex: 15,
           pointerEvents: "none",
-          background: "radial-gradient(circle at 50% 50%, rgba(26,15,42,0.4) 0%, rgba(26,15,42,0.1) 40%, rgba(26,15,42,0) 65%)",
+          background: "radial-gradient(circle at 50% 50%, rgba(26,15,42,0.78) 0%, rgba(26,15,42,0.35) 35%, rgba(26,15,42,0) 65%)",
         }}
       />
 
