@@ -69,40 +69,22 @@ const Login = () => {
         />
       </div>
 
-      {/* Light Trail Effect (inline) */}
+      {/* Light Trail Effect */}
       <style>{`
-        @keyframes spinTest {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
+        @keyframes snakeSweep {
+          0%   { transform: translate3d(-10%, -16px, 0) rotate(-8deg); }
+          50%  { transform: translate3d(10%,  24px, 0) rotate(9deg); }
+          100% { transform: translate3d(-10%, -16px, 0) rotate(-8deg); }
         }
-        @keyframes trailA {
-          0%   { transform: translate3d(-35%, -15%, 0) rotate(0deg); }
-          50%  { transform: translate3d(18%, 16%, 0) rotate(14deg); }
-          100% { transform: translate3d(-35%, -15%, 0) rotate(0deg); }
-        }
-        @keyframes trailB {
-          0%   { transform: translate3d(28%, 26%, 0) rotate(0deg); }
-          50%  { transform: translate3d(-14%, -12%, 0) rotate(-12deg); }
-          100% { transform: translate3d(28%, 26%, 0) rotate(0deg); }
+        @keyframes snakeSweep2 {
+          0%   { transform: translate3d(12%,  18px, 0) rotate(7deg); }
+          50%  { transform: translate3d(-12%, -22px, 0) rotate(-8deg); }
+          100% { transform: translate3d(12%,  18px, 0) rotate(7deg); }
         }
         @media (prefers-reduced-motion: reduce) {
-          .trailA, .trailB { animation: none !important; }
+          .snake1, .snake2 { animation: none !important; }
         }
       `}</style>
-      {/* TEMP: spinning red square test */}
-      <div style={{
-        position: "absolute",
-        top: "50%",
-        left: "50%",
-        width: 80,
-        height: 80,
-        marginTop: -40,
-        marginLeft: -40,
-        background: "red",
-        zIndex: 999,
-        animation: "spinTest 2s linear infinite",
-        pointerEvents: "none",
-      }} />
       <div
         style={{
           position: "absolute",
@@ -113,49 +95,47 @@ const Login = () => {
           mixBlendMode: "screen",
         }}
       >
-        {/* Trail A - lilac beam */}
+        {/* Trail 1 - principal */}
         <div
-          className="trailA"
+          className="snake1"
           style={{
             position: "absolute",
-            width: "80%",
-            height: "120px",
-            top: "18%",
-            left: "-15%",
-            background: "radial-gradient(closest-side, rgba(255,255,255,0.35), transparent 65%), linear-gradient(90deg, transparent 0%, rgba(201,182,255,0.22) 35%, rgba(255,255,255,0.18) 50%, rgba(201,182,255,0.22) 65%, transparent 100%)",
-            filter: "blur(22px) brightness(1.25) contrast(1.15)",
-            borderRadius: "50%",
-            opacity: 0.3,
-            animation: "trailA 26s ease-in-out infinite",
+            width: "110%",
+            height: "38px",
+            top: "22%",
+            left: "-5%",
+            background: "linear-gradient(90deg, transparent 0%, rgba(201,182,255,0.08) 15%, rgba(255,255,255,0.32) 45%, rgba(201,182,255,0.32) 55%, rgba(255,255,255,0.08) 85%, transparent 100%)",
+            filter: "blur(18px)",
+            borderRadius: "9999px",
+            animation: "snakeSweep 20s ease-in-out infinite",
             willChange: "transform",
           }}
         />
-        {/* Trail B - white beam */}
+        {/* Trail 2 - secundário */}
         <div
-          className="trailB"
+          className="snake2"
           style={{
             position: "absolute",
-            width: "65%",
-            height: "100px",
-            bottom: "22%",
-            right: "-10%",
-            background: "radial-gradient(closest-side, rgba(201,182,255,0.28), transparent 70%), linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.10) 40%, rgba(201,182,255,0.14) 55%, transparent 100%)",
-            filter: "blur(26px) brightness(1.25) contrast(1.15)",
-            borderRadius: "50%",
-            opacity: 0.18,
-            animation: "trailB 34s ease-in-out infinite",
+            width: "90%",
+            height: "28px",
+            bottom: "28%",
+            right: "-5%",
+            background: "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.06) 20%, rgba(201,182,255,0.18) 48%, rgba(255,255,255,0.18) 52%, rgba(201,182,255,0.06) 80%, transparent 100%)",
+            filter: "blur(16px)",
+            borderRadius: "9999px",
+            animation: "snakeSweep2 28s ease-in-out infinite",
             willChange: "transform",
           }}
         />
       </div>
-      {/* Center fade mask - keeps card area clean */}
+      {/* Center fade mask */}
       <div
         style={{
           position: "absolute",
           inset: 0,
           zIndex: 15,
           pointerEvents: "none",
-          background: "radial-gradient(circle at center, rgba(26,15,42,0.55) 0%, rgba(26,15,42,0.15) 45%, rgba(26,15,42,0) 70%)",
+          background: "radial-gradient(circle at 50% 50%, rgba(26,15,42,0.4) 0%, rgba(26,15,42,0.1) 40%, rgba(26,15,42,0) 65%)",
         }}
       />
 
