@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { mockLogin } from "@/mocks/user";
 import { CHECKOUT_LINKS } from "@/lib/checkoutLinks";
 import { Crown, Loader2, ClipboardCheck, BarChart3, Target } from "lucide-react";
-import logoImg from "@/assets/premier-logo.png";
+import logo from "@/assets/premier-logo-new.png";
 import {
   Dialog,
   DialogContent,
@@ -70,11 +70,7 @@ const Login = () => {
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center w-full max-w-md">
         {/* Logo */}
-        <img
-          src={logoImg}
-          alt="Premier Ultra"
-          className="h-14 w-auto brightness-0 invert opacity-90 mb-8"
-        />
+        <img src={logo} className="h-16 w-auto" alt="Premier Ultra" />
 
         {/* Glass Card */}
         <div
