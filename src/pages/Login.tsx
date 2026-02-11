@@ -72,14 +72,14 @@ const Login = () => {
       {/* Light Trail Effect (inline) */}
       <style>{`
         @keyframes trailA {
-          0%   { transform: translate3d(-20%, -10%, 0) rotate(0deg); }
-          50%  { transform: translate3d(10%, 12%, 0) rotate(12deg); }
-          100% { transform: translate3d(-20%, -10%, 0) rotate(0deg); }
+          0%   { transform: translate3d(-35%, -15%, 0) rotate(0deg); }
+          50%  { transform: translate3d(18%, 16%, 0) rotate(14deg); }
+          100% { transform: translate3d(-35%, -15%, 0) rotate(0deg); }
         }
         @keyframes trailB {
-          0%   { transform: translate3d(15%, 20%, 0) rotate(0deg); }
-          50%  { transform: translate3d(-10%, -8%, 0) rotate(-10deg); }
-          100% { transform: translate3d(15%, 20%, 0) rotate(0deg); }
+          0%   { transform: translate3d(28%, 26%, 0) rotate(0deg); }
+          50%  { transform: translate3d(-14%, -12%, 0) rotate(-12deg); }
+          100% { transform: translate3d(28%, 26%, 0) rotate(0deg); }
         }
         @media (prefers-reduced-motion: reduce) {
           .trailA, .trailB { animation: none !important; }
@@ -92,41 +92,54 @@ const Login = () => {
           zIndex: 10,
           overflow: "hidden",
           pointerEvents: "none",
+          mixBlendMode: "screen",
         }}
       >
-        {/* Trail A - lilac */}
+        {/* Trail A - lilac beam */}
         <div
           className="trailA"
           style={{
             position: "absolute",
-            width: "70%",
-            height: "220px",
-            top: "15%",
-            left: "-10%",
-            background: "radial-gradient(ellipse at center, rgba(180,150,255,0.45) 0%, rgba(140,100,255,0.12) 40%, transparent 70%)",
-            filter: "blur(28px)",
+            width: "80%",
+            height: "120px",
+            top: "18%",
+            left: "-15%",
+            background: "radial-gradient(closest-side, rgba(255,255,255,0.35), transparent 65%), linear-gradient(90deg, transparent 0%, rgba(201,182,255,0.22) 35%, rgba(255,255,255,0.18) 50%, rgba(201,182,255,0.22) 65%, transparent 100%)",
+            filter: "blur(22px) brightness(1.25) contrast(1.15)",
             borderRadius: "50%",
-            animation: "trailA 12s ease-in-out infinite",
+            opacity: 0.3,
+            animation: "trailA 26s ease-in-out infinite",
             willChange: "transform",
           }}
         />
-        {/* Trail B - white */}
+        {/* Trail B - white beam */}
         <div
           className="trailB"
           style={{
             position: "absolute",
-            width: "55%",
-            height: "180px",
-            bottom: "18%",
-            right: "-8%",
-            background: "radial-gradient(ellipse at center, rgba(255,255,255,0.3) 0%, rgba(200,180,255,0.08) 40%, transparent 70%)",
-            filter: "blur(28px)",
+            width: "65%",
+            height: "100px",
+            bottom: "22%",
+            right: "-10%",
+            background: "radial-gradient(closest-side, rgba(201,182,255,0.28), transparent 70%), linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.10) 40%, rgba(201,182,255,0.14) 55%, transparent 100%)",
+            filter: "blur(26px) brightness(1.25) contrast(1.15)",
             borderRadius: "50%",
-            animation: "trailB 14s ease-in-out infinite",
+            opacity: 0.18,
+            animation: "trailB 34s ease-in-out infinite",
             willChange: "transform",
           }}
         />
       </div>
+      {/* Center fade mask - keeps card area clean */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          zIndex: 15,
+          pointerEvents: "none",
+          background: "radial-gradient(circle at center, rgba(26,15,42,0.55) 0%, rgba(26,15,42,0.15) 45%, rgba(26,15,42,0) 70%)",
+        }}
+      />
 
       {/* Layer 3: Content (z-20) */}
       <main className="relative flex flex-col items-center justify-center min-h-screen px-6 py-12 w-full max-w-md mx-auto" style={{ zIndex: 20 }}>
