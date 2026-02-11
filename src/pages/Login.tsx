@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { mockLogin } from "@/mocks/user";
 import { CHECKOUT_LINKS } from "@/lib/checkoutLinks";
-import { Crown, Loader2, ClipboardCheck, BarChart3, Target } from "lucide-react";
+import { Crown, Loader2, ShoppingCart, Sparkles, Users } from "lucide-react";
 import logo from "@/assets/premier-logo-new.png";
 import {
   Dialog,
@@ -57,7 +57,6 @@ const Login = () => {
             "radial-gradient(ellipse 80% 60% at 30% 20%, #4A1F6F 0%, transparent 60%), radial-gradient(ellipse 70% 50% at 70% 80%, #1F3A6F 0%, transparent 60%), radial-gradient(ellipse 50% 40% at 50% 50%, #2E1A47 0%, transparent 50%)",
         }}
       />
-      {/* Slow animated aurora layer */}
       <div
         className="absolute inset-0 opacity-40 animate-pulse"
         style={{
@@ -72,44 +71,38 @@ const Login = () => {
         {/* Logo */}
         <img src={logo} alt="Premier Ultra" className="h-16 w-auto mx-auto mb-8 object-contain scale-[9.0]" />
 
-        {/* Glass Card */}
+        {/* Title */}
+        <h1 className="text-2xl font-bold text-white text-center mb-1">Premier Ultra</h1>
+        <p className="text-white/70 text-center text-sm mb-6">
+          Análise de futebol feita por Inteligência Artificial.
+        </p>
+
+        {/* Benefit chips */}
+        <div className="flex flex-wrap justify-center gap-2 mb-8">
+          <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-purple-500/30 bg-purple-500/10 text-white/80 text-xs">
+            <Sparkles className="w-3 h-3" /> Entradas prontas
+          </span>
+          <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-purple-500/30 bg-purple-500/10 text-white/80 text-xs">
+            <Sparkles className="w-3 h-3" /> Atualizados diariamente
+          </span>
+          <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-purple-500/30 bg-purple-500/10 text-white/80 text-xs">
+            <Sparkles className="w-3 h-3" /> Alto índice de assertividade
+          </span>
+        </div>
+
+        {/* Card */}
         <div
-          className="w-full rounded-3xl p-6"
+          className="w-full rounded-2xl p-6 mb-6"
           style={{
-            background: "rgba(255, 255, 255, 0.08)",
-            backdropFilter: "blur(20px)",
-            WebkitBackdropFilter: "blur(20px)",
-            border: "1px solid rgba(255, 255, 255, 0.15)",
+            background: "rgba(28, 16, 46, 0.85)",
+            border: "1px solid rgba(139, 92, 246, 0.2)",
           }}
         >
-          {/* Headline */}
-          <h1 className="text-[28px] font-semibold text-white text-center leading-tight mb-8">
-            Análises por IA.
-            <br />
-            Entradas prontas.
-          </h1>
-
-          {/* Benefits */}
-          <ul className="space-y-4 mb-8">
-            <li className="flex items-center gap-3">
-              <ClipboardCheck className="w-4 h-4 text-white/60 shrink-0" strokeWidth={1.5} />
-              <span className="text-base text-white/85">Entradas prontas para copiar e colar.</span>
-            </li>
-            <li className="flex items-center gap-3">
-              <BarChart3 className="w-4 h-4 text-white/60 shrink-0" strokeWidth={1.5} />
-              <span className="text-base text-white/85">Atualizado diariamente.</span>
-            </li>
-            <li className="flex items-center gap-3">
-              <Target className="w-4 h-4 text-white/60 shrink-0" strokeWidth={1.5} />
-              <span className="text-base text-white/85">Alto índice de assertividade.</span>
-            </li>
-          </ul>
-
           {/* Form */}
-          <form onSubmit={handleLogin} className="space-y-6">
+          <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
-              <label htmlFor="email" className="text-sm text-white/60">
-                Seu melhor e-mail
+              <label htmlFor="email" className="text-sm text-white/80 font-medium">
+                E-mail
               </label>
               <input
                 id="email"
@@ -121,16 +114,11 @@ const Login = () => {
                   if (emailError) setEmailError("");
                 }}
                 disabled={isLoading}
-                className={`w-full h-[52px] rounded-lg px-4 text-base text-white placeholder:text-white/25 outline-none transition-colors disabled:opacity-50 ${
+                className={`w-full h-[52px] rounded-xl px-4 text-base text-white placeholder:text-white/30 outline-none transition-colors disabled:opacity-50 bg-[#2C1A47] ${
                   emailError
                     ? "border border-red-500 focus:border-red-500"
-                    : "border border-white/15 focus:border-[#00FF7F]"
+                    : "border border-purple-500/20 focus:border-[#00FF7F]"
                 }`}
-                style={{
-                  background: "rgba(255, 255, 255, 0.12)",
-                  backdropFilter: "blur(20px)",
-                  WebkitBackdropFilter: "blur(20px)",
-                }}
               />
               {emailError && (
                 <p className="text-sm text-red-400">{emailError}</p>
@@ -141,34 +129,58 @@ const Login = () => {
             <button
               type="submit"
               disabled={isDisabled}
-              className="w-full h-14 rounded-xl text-black text-base font-bold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none hover:brightness-110 active:scale-[0.98] flex items-center justify-center"
-              style={{
-                background: "#00FF7F",
-                boxShadow: isDisabled ? "none" : "0 0 20px rgba(0, 255, 127, 0.35)",
-              }}
+              className="w-full h-14 rounded-xl text-white text-base font-bold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:brightness-110 active:scale-[0.98] flex items-center justify-center bg-[#7C3AED] hover:bg-[#6D28D9]"
             >
               {isLoading ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
               ) : (
-                "Entrar Agora"
+                "Acessar aplicativo"
               )}
             </button>
           </form>
+
+          {/* Acquire button */}
+          <button
+            onClick={() => setShowAcquireModal(true)}
+            className="w-full h-12 mt-3 rounded-xl border border-purple-500/30 bg-transparent text-white/80 text-sm font-medium flex items-center justify-center gap-2 hover:bg-purple-500/10 transition-colors"
+          >
+            <ShoppingCart className="w-4 h-4" />
+            Adquirir acesso
+          </button>
+
+          {/* Subtext */}
+          <p className="text-center text-white/40 text-xs mt-3">
+            Acesso rápido • Sem complicação
+          </p>
+        </div>
+
+        {/* Social proof */}
+        <div className="flex items-center justify-center gap-2 mb-6">
+          <span className="flex items-center gap-1.5 px-4 py-2 rounded-full border border-purple-500/30 bg-purple-500/10 text-white/80 text-sm">
+            <Users className="w-4 h-4" /> +50.000 clientes ativos
+          </span>
         </div>
 
         {/* Footer */}
-        <div className="mt-8 text-center space-y-2">
+        <div className="text-center space-y-3">
           <p className="text-sm text-white/50">
             Ao continuar, você concorda com nossos{" "}
             <button
               onClick={() => setShowTermsModal(true)}
-              className="underline underline-offset-2 hover:text-white/70 transition-colors"
+              className="text-purple-400 underline underline-offset-2 hover:text-purple-300 transition-colors"
             >
               Termos e Privacidade
             </button>
           </p>
-          <div className="flex items-center justify-center gap-2 text-xs text-white/40">
-            <a href="/support" className="hover:text-white/60 transition-colors">
+          <div className="flex items-center justify-center gap-3 text-xs">
+            <button
+              onClick={() => setShowTermsModal(true)}
+              className="text-purple-400 hover:text-purple-300 transition-colors"
+            >
+              Termos e Privacidade
+            </button>
+            <span className="text-white/20">|</span>
+            <a href="/support" className="text-purple-400 hover:text-purple-300 transition-colors">
               Suporte
             </a>
           </div>
