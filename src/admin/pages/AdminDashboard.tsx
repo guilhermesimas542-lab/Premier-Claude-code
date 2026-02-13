@@ -1,8 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
 import { format, startOfDay, endOfDay, startOfWeek, startOfMonth, subDays } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
-import { Users, UserPlus, AlertTriangle, Wifi, Info, CalendarIcon, X } from "lucide-react";
+import { Users, UserPlus, AlertTriangle, Wifi, Info, CalendarIcon, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
@@ -78,7 +77,6 @@ function InfoPopup({ title, text }: { title: string; text: string }) {
 }
 
 export default function AdminDashboard() {
-  const navigate = useNavigate();
   const now = new Date();
 
   // Period filter
@@ -273,7 +271,15 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-xl font-bold">Dashboard — Futebol</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-bold">Dashboard — Futebol</h2>
+        <Button variant="outline" size="sm" className="border-gray-700 text-gray-400 hover:text-white gap-2"
+          disabled={loading}
+          onClick={() => { setDateFrom(new Date(dateFrom)); }}>
+          <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
+          Atualizar
+        </Button>
+      </div>
 
       {/* Period + Plan Filters */}
       <div className="bg-gray-900 rounded-xl border border-white/10 p-4 space-y-3">
@@ -408,15 +414,6 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* Quick Actions */}
-      <div className="flex gap-3">
-        <Button variant="outline" className="border-amber-500/30 text-amber-400 hover:bg-amber-500/10" onClick={() => navigate("/admin/clients?filter=churn")}>
-          <AlertTriangle className="w-4 h-4 mr-2" />Ver Clientes em Risco
-        </Button>
-        <Button variant="outline" className="border-blue-500/30 text-blue-400 hover:bg-blue-500/10" onClick={() => navigate("/admin/notifications")}>
-          Enviar Notificação
-        </Button>
-      </div>
     </div>
   );
 }
