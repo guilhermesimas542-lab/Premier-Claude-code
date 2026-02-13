@@ -16,6 +16,7 @@ import NotFound from "./pages/NotFound";
 import { AdminGuard } from "./admin/components/AdminGuard";
 import { AdminLayout } from "./admin/components/AdminLayout";
 import AdminLogin from "./admin/pages/AdminLogin";
+import AdminVerify from "./admin/pages/AdminVerify";
 import AdminDashboard from "./admin/pages/AdminDashboard";
 import AdminBanners from "./admin/pages/AdminBanners";
 import AdminTipsCreate from "./admin/pages/AdminTipsCreate";
@@ -62,6 +63,7 @@ const App = () => (
           />
           {/* Admin routes */}
           <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin/verify" element={<AdminVerify />} />
           <Route path="/admin" element={<AdminGuard><AdminLayout /></AdminGuard>}>
             <Route index element={<AdminDashboard />} />
             <Route path="banners" element={<AdminBanners />} />

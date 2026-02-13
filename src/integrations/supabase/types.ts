@@ -370,6 +370,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_is_admin_email: { Args: { p_email: string }; Returns: boolean }
       get_allowed_tiers: {
         Args: { user_tier: Database["public"]["Enums"]["main_tier"] }
         Returns: Database["public"]["Enums"]["main_tier"][]
