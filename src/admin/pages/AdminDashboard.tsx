@@ -1,25 +1,43 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { format, startOfDay, endOfDay, startOfWeek, startOfMonth, subDays } from "date-fns";
-import { ptBR } from "date-fns/locale";
 import { supabase } from "@/integrations/supabase/client";
-import { Users, UserPlus, AlertTriangle, Wifi, Info, CalendarIcon } from "lucide-react";
+import { Users, UserPlus, AlertTriangle, Wifi, Info, CalendarIcon, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Tooltip as UiTooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { PLAN_PRICES, ADDON_PRICES } from "@/lib/prices";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
 import { cn } from "@/lib/utils";
 
+/* ── Tooltip texts ── */
 const KPI_TOOLTIPS: Record<string, string> = {
-  "Usuários Totais": "Total de usuários cadastrados no Premier, incluindo usuários free e pagos.",
-  "Usuários Ativos": "Usuários únicos que abriram o aplicativo no período selecionado.",
-  "Usuários Online": "Usuários que estão usando o aplicativo neste momento.",
-  "Churn (Risco)": "Usuários com plano pago (Básico, Pro ou Ultra) que não abriram o aplicativo nos últimos 15 dias. Estes clientes estão em risco de cancelamento.",
+  "Usuários Totais": "Total de usuários cadastrados no Premier, incluindo usuários free e pagos. Este número não é afetado pelo filtro de período.",
+  "Usuários Ativos": "Usuários únicos que abriram o aplicativo no período selecionado. Contabiliza qualquer sessão registrada dentro do intervalo de datas.",
+  "Usuários Online": "Usuários que estão usando o aplicativo neste exato momento. Considera sessões iniciadas nos últimos 5 minutos. Atualiza automaticamente a cada 30 segundos.",
+  "Churn (Risco)": "Usuários com plano pago (Básico, Pro ou Ultra) que não abriram o aplicativo nos últimos 15 dias. Estes clientes estão em risco de cancelamento. Este número não é afetado pelo filtro de período.",
+};
+
+const PCT_TOOLTIPS: Record<string, string> = {
+  "% Ativos / Total": "Porcentagem de usuários que abriram o app no período selecionado em relação ao total de usuários cadastrados. Quanto maior, melhor o engajamento geral da base.",
+  "% Novos no Período": "Porcentagem de novos cadastros no período selecionado em relação ao total de usuários. Indica o ritmo de crescimento da base.",
+  "% Online / Ativos": "Porcentagem de usuários online agora em relação aos usuários ativos no período. Mostra o nível de uso em tempo real.",
+  "% Churn / Pagos": "Porcentagem de usuários pagos em risco de cancelamento (sem abrir o app há 15+ dias) em relação ao total de usuários pagos. Quanto menor, melhor a retenção.",
 };
 
 const PIE_COLORS = ["#3b82f6", "#8b5cf6", "#f59e0b", "#10b981", "#ef4444"];
+
+type PlanFilter = "geral" | "free" | "basic" | "pro" | "ultra" | "alavancagem" | "desaltas";
+
+const PLAN_FILTERS: { key: PlanFilter; label: string }[] = [
+  { key: "geral", label: "Geral" },
+  { key: "free", label: "Free" },
+  { key: "basic", label: "Básico" },
+  { key: "pro", label: "Pro" },
+  { key: "ultra", label: "Ultra" },
+  { key: "alavancagem", label: "Alavancagem" },
+  { key: "desaltas", label: "Odds Altas" },
+];
 
 function getColorClass(pct: number, thresholds: [number, number], inverted = false) {
   if (inverted) {
@@ -32,72 +50,71 @@ function getColorClass(pct: number, thresholds: [number, number], inverted = fal
   return "text-red-400";
 }
 
+/* ── Info Button component ── */
+function InfoPopup({ title, text }: { title: string; text: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <button onClick={() => setOpen(true)} className="ml-auto shrink-0">
+        <Info className="w-3.5 h-3.5 text-gray-600 hover:text-gray-300 transition-colors" />
+      </button>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-sm bg-gray-900 border-white/10">
+          <DialogHeader>
+            <DialogTitle className="text-sm">{title}</DialogTitle>
+          </DialogHeader>
+          <p className="text-xs text-gray-400 leading-relaxed">{text}</p>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
+
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const now = new Date();
 
-  // Period filter — default "Últimos 7 dias"
+  // Period filter
   const [dateFrom, setDateFrom] = useState<Date>(subDays(now, 7));
   const [dateTo, setDateTo] = useState<Date>(now);
   const [openFrom, setOpenFrom] = useState(false);
   const [openTo, setOpenTo] = useState(false);
   const [activeShortcut, setActiveShortcut] = useState("7d");
 
+  // Plan filter
+  const [planFilter, setPlanFilter] = useState<PlanFilter>("geral");
+
   const [loading, setLoading] = useState(true);
 
-  // KPIs
-  const [totalUsers, setTotalUsers] = useState(0);
-  const [activeUsers, setActiveUsers] = useState(0);
-  const [onlineUsers, setOnlineUsers] = useState(0);
-  const [churnRisk, setChurnRisk] = useState(0);
-  const [paidUsersCount, setPaidUsersCount] = useState(0);
+  // Raw data
+  const [allUsers, setAllUsers] = useState<{ id: string; main_tier: string }[]>([]);
+  const [allSessions, setAllSessions] = useState<{ user_id: string; session_start_at: string }[]>([]);
+  const [allEntitlements, setAllEntitlements] = useState<{ product_key: string; user_id: string }[]>([]);
   const [newSignups, setNewSignups] = useState(0);
-
-  // Charts
-  const [dauData, setDauData] = useState<{ date: string; users: number }[]>([]);
-  const [planDist, setPlanDist] = useState<{ name: string; value: number }[]>([]);
-  const [addonDist, setAddonDist] = useState<{ name: string; value: number }[]>([]);
+  const [onlineUserIds, setOnlineUserIds] = useState<Set<string>>(new Set());
+  const [churnIds, setChurnIds] = useState<string[]>([]);
+  const [paidIds, setPaidIds] = useState<string[]>([]);
 
   const applyShortcut = (key: string) => {
     setActiveShortcut(key);
     const today = new Date();
     let from: Date, to: Date;
     switch (key) {
-      case "today":
-        from = startOfDay(today);
-        to = today;
-        break;
-      case "yesterday":
-        from = startOfDay(subDays(today, 1));
-        to = endOfDay(subDays(today, 1));
-        break;
-      case "week":
-        from = startOfWeek(today, { weekStartsOn: 1 });
-        to = today;
-        break;
-      case "month":
-        from = startOfMonth(today);
-        to = today;
-        break;
-      case "7d":
-      default:
-        from = subDays(today, 7);
-        to = today;
-        break;
+      case "today": from = startOfDay(today); to = today; break;
+      case "yesterday": from = startOfDay(subDays(today, 1)); to = endOfDay(subDays(today, 1)); break;
+      case "week": from = startOfWeek(today, { weekStartsOn: 1 }); to = today; break;
+      case "month": from = startOfMonth(today); to = today; break;
+      case "7d": default: from = subDays(today, 7); to = today; break;
     }
     setDateFrom(from);
     setDateTo(to);
   };
 
-  // Fetch online users separately (polled every 30s)
+  // Online polling
   const fetchOnline = useCallback(async () => {
     const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
-    const { data } = await supabase
-      .from("sessions")
-      .select("user_id")
-      .gte("session_start_at", fiveMinAgo);
-    const unique = new Set((data ?? []).map((s) => s.user_id));
-    setOnlineUsers(unique.size);
+    const { data } = await supabase.from("sessions").select("user_id").gte("session_start_at", fiveMinAgo);
+    setOnlineUserIds(new Set((data ?? []).map((s) => s.user_id)));
   }, []);
 
   useEffect(() => {
@@ -114,69 +131,37 @@ export default function AdminDashboard() {
       const until = dateTo.toISOString();
       const fifteenDaysAgo = new Date(Date.now() - 15 * 86400000).toISOString();
 
-      const [totalRes, sessionsRes, newUsersRes, churnRes, allUsersRes, entitlementsRes] = await Promise.all([
-        supabase.from("users").select("id", { count: "exact", head: true }),
+      const [sessionsRes, newUsersRes, usersRes, entitlementsRes, paidUsersRes] = await Promise.all([
         supabase.from("sessions").select("user_id, session_start_at").gte("session_start_at", since).lte("session_start_at", until),
         supabase.from("users").select("id", { count: "exact", head: true }).gte("created_at", since).lte("created_at", until),
-        supabase.from("users").select("id").neq("main_tier", "free"),
-        supabase.from("users").select("main_tier"),
+        supabase.from("users").select("id, main_tier"),
         supabase.from("entitlements").select("product_key, user_id").eq("status", "active"),
+        supabase.from("users").select("id").neq("main_tier", "free"),
       ]);
 
+      const users = usersRes.data ?? [];
       const sessions = sessionsRes.data ?? [];
-      const paidUsers = churnRes.data ?? [];
-      const allUsers = allUsersRes.data ?? [];
       const entitlements = entitlementsRes.data ?? [];
+      const paid = paidUsersRes.data ?? [];
 
-      setTotalUsers(totalRes.count ?? 0);
-      const activeIds = new Set(sessions.map((s) => s.user_id));
-      setActiveUsers(activeIds.size);
+      setAllUsers(users);
+      setAllSessions(sessions);
+      setAllEntitlements(entitlements);
       setNewSignups(newUsersRes.count ?? 0);
-      setPaidUsersCount(paidUsers.length);
+      setPaidIds(paid.map((u) => u.id));
 
       // Churn
-      if (paidUsers.length > 0) {
-        const paidIds = paidUsers.map((u) => u.id);
+      if (paid.length > 0) {
+        const ids = paid.map((u) => u.id);
         const { data: recentSessions } = await supabase
           .from("sessions").select("user_id")
           .gte("session_start_at", fifteenDaysAgo)
-          .in("user_id", paidIds.slice(0, 500));
+          .in("user_id", ids.slice(0, 500));
         const recentIds = new Set((recentSessions ?? []).map((s) => s.user_id));
-        setChurnRisk(paidIds.filter((id) => !recentIds.has(id)).length);
+        setChurnIds(ids.filter((id) => !recentIds.has(id)));
       } else {
-        setChurnRisk(0);
+        setChurnIds([]);
       }
-
-      // DAU
-      const dauMap: Record<string, Set<string>> = {};
-      sessions.forEach((s) => {
-        const day = s.session_start_at.slice(0, 10);
-        if (!dauMap[day]) dauMap[day] = new Set();
-        dauMap[day].add(s.user_id);
-      });
-      setDauData(
-        Object.entries(dauMap)
-          .map(([date, set]) => ({ date, users: set.size }))
-          .sort((a, b) => a.date.localeCompare(b.date))
-      );
-
-      // Plan distribution
-      const tierCounts: Record<string, number> = {};
-      allUsers.forEach((u) => { tierCounts[u.main_tier] = (tierCounts[u.main_tier] ?? 0) + 1; });
-      setPlanDist(
-        Object.entries(tierCounts)
-          .filter(([t]) => t !== "free")
-          .map(([name, value]) => ({ name: name.charAt(0).toUpperCase() + name.slice(1), value }))
-      );
-
-      const addonCounts: Record<string, number> = {};
-      entitlements.forEach((e) => { addonCounts[e.product_key] = (addonCounts[e.product_key] ?? 0) + 1; });
-      setAddonDist(
-        Object.entries(addonCounts).map(([name, value]) => ({
-          name: name === "desaltas" ? "Odds Altas" : name.charAt(0).toUpperCase() + name.slice(1),
-          value,
-        }))
-      );
 
       setLoading(false);
     };
@@ -185,11 +170,74 @@ export default function AdminDashboard() {
 
   if (loading) return <div className="text-gray-400">Carregando…</div>;
 
-  // Percentage calculations
+  /* ── Compute filtered user IDs based on plan filter ── */
+  let filteredUserIds: Set<string> | null = null; // null = no filter (geral)
+
+  if (planFilter !== "geral") {
+    if (planFilter === "alavancagem" || planFilter === "desaltas") {
+      filteredUserIds = new Set(allEntitlements.filter((e) => e.product_key === planFilter).map((e) => e.user_id));
+    } else {
+      filteredUserIds = new Set(allUsers.filter((u) => u.main_tier === planFilter).map((u) => u.id));
+    }
+  }
+
+  const filterSet = (ids: Iterable<string>) => {
+    if (!filteredUserIds) return new Set(ids);
+    const result = new Set<string>();
+    for (const id of ids) { if (filteredUserIds.has(id)) result.add(id); }
+    return result;
+  };
+
+  const totalUsers = filteredUserIds ? filteredUserIds.size : allUsers.length;
+  const activeIds = filterSet(allSessions.map((s) => s.user_id));
+  const activeUsers = activeIds.size;
+  const onlineUsers = filterSet(onlineUserIds).size;
+
+  const relevantPaidIds = filteredUserIds
+    ? paidIds.filter((id) => filteredUserIds!.has(id))
+    : paidIds;
+  const churnRisk = planFilter === "free" ? 0 : (filteredUserIds
+    ? churnIds.filter((id) => filteredUserIds!.has(id)).length
+    : churnIds.length);
+  const paidUsersCount = relevantPaidIds.length;
+
+  // Percentages
   const pctActiveTotal = totalUsers > 0 ? (activeUsers / totalUsers) * 100 : 0;
   const pctNewPeriod = totalUsers > 0 ? (newSignups / totalUsers) * 100 : 0;
   const pctOnlineActive = activeUsers > 0 ? (onlineUsers / activeUsers) * 100 : 0;
   const pctChurnPaid = paidUsersCount > 0 ? (churnRisk / paidUsersCount) * 100 : 0;
+
+  // DAU (filtered)
+  const dauMap: Record<string, Set<string>> = {};
+  allSessions.forEach((s) => {
+    if (filteredUserIds && !filteredUserIds.has(s.user_id)) return;
+    const day = s.session_start_at.slice(0, 10);
+    if (!dauMap[day]) dauMap[day] = new Set();
+    dauMap[day].add(s.user_id);
+  });
+  const dauData = Object.entries(dauMap)
+    .map(([date, set]) => ({ date, users: set.size }))
+    .sort((a, b) => a.date.localeCompare(b.date));
+
+  // Plan distribution (filtered)
+  const relevantUsers = filteredUserIds
+    ? allUsers.filter((u) => filteredUserIds!.has(u.id))
+    : allUsers;
+  const tierCounts: Record<string, number> = {};
+  relevantUsers.forEach((u) => { tierCounts[u.main_tier] = (tierCounts[u.main_tier] ?? 0) + 1; });
+  const planDist = Object.entries(tierCounts)
+    .filter(([t]) => t !== "free")
+    .map(([name, value]) => ({ name: name.charAt(0).toUpperCase() + name.slice(1), value }));
+
+  const relevantEntitlements = filteredUserIds
+    ? allEntitlements.filter((e) => filteredUserIds!.has(e.user_id))
+    : allEntitlements;
+  const addonCounts: Record<string, number> = {};
+  relevantEntitlements.forEach((e) => { addonCounts[e.product_key] = (addonCounts[e.product_key] ?? 0) + 1; });
+  const addonDist = Object.entries(addonCounts).map(([name, value]) => ({
+    name: name === "desaltas" ? "Odds Altas" : name.charAt(0).toUpperCase() + name.slice(1),
+    value,
+  }));
 
   const kpis = [
     { label: "Usuários Totais", value: totalUsers, icon: Users, color: "text-blue-400" },
@@ -217,7 +265,7 @@ export default function AdminDashboard() {
     <div className="space-y-6">
       <h2 className="text-xl font-bold">Dashboard — Futebol</h2>
 
-      {/* Period Filter */}
+      {/* Period + Plan Filters */}
       <div className="bg-gray-900 rounded-xl border border-white/10 p-4 space-y-3">
         <div className="flex items-center gap-3 flex-wrap">
           <Popover open={openFrom} onOpenChange={setOpenFrom}>
@@ -228,17 +276,10 @@ export default function AdminDashboard() {
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={dateFrom}
-                onSelect={(d) => { if (d) { setDateFrom(d); setActiveShortcut(""); setOpenFrom(false); } }}
-                className={cn("p-3 pointer-events-auto")}
-              />
+              <Calendar mode="single" selected={dateFrom} onSelect={(d) => { if (d) { setDateFrom(d); setActiveShortcut(""); setOpenFrom(false); } }} className={cn("p-3 pointer-events-auto")} />
             </PopoverContent>
           </Popover>
-
           <span className="text-gray-500 text-sm">até</span>
-
           <Popover open={openTo} onOpenChange={setOpenTo}>
             <PopoverTrigger asChild>
               <Button variant="outline" className="border-gray-700 text-gray-300 gap-2">
@@ -247,30 +288,25 @@ export default function AdminDashboard() {
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={dateTo}
-                onSelect={(d) => { if (d) { setDateTo(d); setActiveShortcut(""); setOpenTo(false); } }}
-                className={cn("p-3 pointer-events-auto")}
-              />
+              <Calendar mode="single" selected={dateTo} onSelect={(d) => { if (d) { setDateTo(d); setActiveShortcut(""); setOpenTo(false); } }} className={cn("p-3 pointer-events-auto")} />
             </PopoverContent>
           </Popover>
         </div>
 
         <div className="flex gap-2 flex-wrap">
           {shortcuts.map((s) => (
-            <Button
-              key={s.key}
-              size="sm"
-              variant={activeShortcut === s.key ? "default" : "outline"}
-              className={activeShortcut === s.key
-                ? "bg-blue-600 hover:bg-blue-700 text-white"
-                : "border-gray-700 text-gray-400 hover:text-white"
-              }
-              onClick={() => applyShortcut(s.key)}
-            >
-              {s.label}
-            </Button>
+            <Button key={s.key} size="sm" variant={activeShortcut === s.key ? "default" : "outline"}
+              className={activeShortcut === s.key ? "bg-blue-600 hover:bg-blue-700 text-white" : "border-gray-700 text-gray-400 hover:text-white"}
+              onClick={() => applyShortcut(s.key)}>{s.label}</Button>
+          ))}
+        </div>
+
+        {/* Plan / Add-on filter */}
+        <div className="flex gap-2 flex-wrap pt-1 border-t border-white/5">
+          {PLAN_FILTERS.map((f) => (
+            <Button key={f.key} size="sm" variant={planFilter === f.key ? "default" : "outline"}
+              className={planFilter === f.key ? "bg-purple-600 hover:bg-purple-700 text-white" : "border-gray-700 text-gray-400 hover:text-white"}
+              onClick={() => setPlanFilter(f.key)}>{f.label}</Button>
           ))}
         </div>
       </div>
@@ -282,14 +318,7 @@ export default function AdminDashboard() {
             <div className="flex items-center gap-2 text-gray-400 text-xs mb-2">
               <kpi.icon className={`w-4 h-4 ${kpi.color}`} />
               <span>{kpi.label}</span>
-              <UiTooltip>
-                <TooltipTrigger asChild>
-                  <Info className="w-3.5 h-3.5 text-gray-600 hover:text-gray-300 cursor-help" />
-                </TooltipTrigger>
-                <TooltipContent side="top" className="max-w-[260px] text-xs">
-                  {KPI_TOOLTIPS[kpi.label]}
-                </TooltipContent>
-              </UiTooltip>
+              <InfoPopup title={kpi.label} text={KPI_TOOLTIPS[kpi.label]} />
             </div>
             <div className="text-2xl font-bold">{kpi.value}</div>
           </div>
@@ -300,10 +329,11 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {pctCards.map((card) => (
           <div key={card.label} className="bg-gray-900/60 rounded-xl p-3 border border-white/5">
-            <div className="text-[11px] text-gray-500 mb-1">{card.label}</div>
-            <div className={`text-lg font-bold ${card.colorClass}`}>
-              {card.value.toFixed(1)}%
+            <div className="flex items-center gap-1 mb-1">
+              <span className="text-[11px] text-gray-500">{card.label}</span>
+              <InfoPopup title={card.label} text={PCT_TOOLTIPS[card.label]} />
             </div>
+            <div className={`text-lg font-bold ${card.colorClass}`}>{card.value.toFixed(1)}%</div>
           </div>
         ))}
       </div>
@@ -333,9 +363,7 @@ export default function AdminDashboard() {
             <ResponsiveContainer width="100%" height={250}>
               <PieChart>
                 <Pie data={[...planDist, ...addonDist]} cx="50%" cy="50%" outerRadius={90} dataKey="value" nameKey="name" label={({ name, value }) => `${name}: ${value}`}>
-                  {[...planDist, ...addonDist].map((_, i) => (
-                    <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
-                  ))}
+                  {[...planDist, ...addonDist].map((_, i) => (<Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />))}
                 </Pie>
                 <Legend wrapperStyle={{ fontSize: 12, color: "#9ca3af" }} />
                 <Tooltip contentStyle={{ backgroundColor: "#1f2937", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8 }} />
@@ -350,8 +378,7 @@ export default function AdminDashboard() {
       {/* Quick Actions */}
       <div className="flex gap-3">
         <Button variant="outline" className="border-amber-500/30 text-amber-400 hover:bg-amber-500/10" onClick={() => navigate("/admin/clients?filter=churn")}>
-          <AlertTriangle className="w-4 h-4 mr-2" />
-          Ver Clientes em Risco
+          <AlertTriangle className="w-4 h-4 mr-2" />Ver Clientes em Risco
         </Button>
         <Button variant="outline" className="border-blue-500/30 text-blue-400 hover:bg-blue-500/10" onClick={() => navigate("/admin/notifications")}>
           Enviar Notificação
