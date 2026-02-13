@@ -408,7 +408,11 @@ export type Database = {
       entitlement_status: "active" | "expired" | "revoked"
       main_tier: "free" | "basic" | "pro" | "ultra"
       order_status: "paid" | "refunded" | "chargeback"
-      product_key: "alavancagem" | "desaltas"
+      product_key:
+        | "alavancagem"
+        | "desaltas"
+        | "live_telegram"
+        | "acesso_vitalicio"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -540,7 +544,12 @@ export const Constants = {
       entitlement_status: ["active", "expired", "revoked"],
       main_tier: ["free", "basic", "pro", "ultra"],
       order_status: ["paid", "refunded", "chargeback"],
-      product_key: ["alavancagem", "desaltas"],
+      product_key: [
+        "alavancagem",
+        "desaltas",
+        "live_telegram",
+        "acesso_vitalicio",
+      ],
     },
   },
 } as const

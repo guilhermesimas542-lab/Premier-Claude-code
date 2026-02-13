@@ -7,11 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend, BarChart, Bar } from "recharts";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
 import { cn } from "@/lib/utils";
 
-const PLAN_COLORS: Record<string, string> = { Free: "#6b7280", "Básico": "#3b82f6", Pro: "#8b5cf6", Ultra: "#f59e0b" };
-const ADDON_COLORS: Record<string, string> = { Alavancagem: "#10b981", "Odds Altas": "#ef4444" };
+const PLAN_COLORS: Record<string, string> = { Free: "#3b82f6", "Básico": "#10b981", Pro: "#f59e0b", Ultra: "#8b5cf6" };
+const ADDON_COLORS: Record<string, string> = { Alavancagem: "#10b981", "Odds Altas": "#ef4444", "Live Telegram": "#3b82f6", "Acesso Vitalício": "#f59e0b" };
 
 /* ── Tooltip texts ── */
 const KPI_TOOLTIPS: Record<string, string> = {
@@ -30,16 +30,20 @@ const PCT_TOOLTIPS: Record<string, string> = {
 
 const PIE_COLORS = ["#3b82f6", "#8b5cf6", "#f59e0b", "#10b981", "#ef4444"];
 
-type PlanFilter = "geral" | "free" | "basic" | "pro" | "ultra" | "alavancagem" | "desaltas";
+type PlanFilter = "geral" | "free" | "basic" | "pro" | "ultra" | "alavancagem" | "desaltas" | "live_telegram" | "acesso_vitalicio";
 
-const PLAN_FILTERS: { key: PlanFilter; label: string }[] = [
+const PLAN_FILTERS_MAIN: { key: PlanFilter; label: string }[] = [
   { key: "geral", label: "Geral" },
   { key: "free", label: "Free" },
   { key: "basic", label: "Básico" },
   { key: "pro", label: "Pro" },
   { key: "ultra", label: "Ultra" },
+];
+const PLAN_FILTERS_ADDONS: { key: PlanFilter; label: string }[] = [
   { key: "alavancagem", label: "Alavancagem" },
   { key: "desaltas", label: "Odds Altas" },
+  { key: "live_telegram", label: "Live Telegram" },
+  { key: "acesso_vitalicio", label: "Acesso Vitalício" },
 ];
 
 function getColorClass(pct: number, thresholds: [number, number], inverted = false) {
@@ -177,7 +181,7 @@ export default function AdminDashboard() {
   let filteredUserIds: Set<string> | null = null; // null = no filter (geral)
 
   if (planFilter !== "geral") {
-    if (planFilter === "alavancagem" || planFilter === "desaltas") {
+    if (["alavancagem", "desaltas", "live_telegram", "acesso_vitalicio"].includes(planFilter)) {
       filteredUserIds = new Set(allEntitlements.filter((e) => e.product_key === planFilter).map((e) => e.user_id));
     } else {
       filteredUserIds = new Set(allUsers.filter((u) => u.main_tier === planFilter).map((u) => u.id));
@@ -239,8 +243,9 @@ export default function AdminDashboard() {
     : allEntitlements;
   const addonCounts: Record<string, number> = {};
   relevantEntitlements.forEach((e) => { addonCounts[e.product_key] = (addonCounts[e.product_key] ?? 0) + 1; });
+  const addonLabels: Record<string, string> = { alavancagem: "Alavancagem", desaltas: "Odds Altas", live_telegram: "Live Telegram", acesso_vitalicio: "Acesso Vitalício" };
   const addonDist = Object.entries(addonCounts).map(([name, value]) => ({
-    name: name === "desaltas" ? "Odds Altas" : name.charAt(0).toUpperCase() + name.slice(1),
+    name: addonLabels[name] ?? name,
     value,
   }));
 
@@ -272,7 +277,7 @@ export default function AdminDashboard() {
 
       {/* Period + Plan Filters */}
       <div className="bg-gray-900 rounded-xl border border-white/10 p-4 space-y-3">
-        <div className="flex items-center gap-3 flex-wrap">
+        <div className="flex items-center gap-3 flex-wrap justify-center">
           <Popover open={openFrom} onOpenChange={setOpenFrom}>
             <PopoverTrigger asChild>
               <Button variant="outline" className="border-gray-700 text-gray-300 gap-2">
@@ -298,7 +303,7 @@ export default function AdminDashboard() {
           </Popover>
         </div>
 
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex gap-2 flex-wrap justify-center">
           {shortcuts.map((s) => (
             <Button key={s.key} size="sm" variant={activeShortcut === s.key ? "default" : "outline"}
               className={activeShortcut === s.key ? "bg-blue-600 hover:bg-blue-700 text-white" : "border-gray-700 text-gray-400 hover:text-white"}
@@ -307,8 +312,14 @@ export default function AdminDashboard() {
         </div>
 
         {/* Plan / Add-on filter */}
-        <div className="flex gap-2 flex-wrap pt-1 border-t border-white/5">
-          {PLAN_FILTERS.map((f) => (
+        <div className="flex gap-2 flex-wrap pt-1 border-t border-white/5 justify-center items-center">
+          {PLAN_FILTERS_MAIN.map((f) => (
+            <Button key={f.key} size="sm" variant={planFilter === f.key ? "default" : "outline"}
+              className={planFilter === f.key ? "bg-purple-600 hover:bg-purple-700 text-white" : "border-gray-700 text-gray-400 hover:text-white"}
+              onClick={() => setPlanFilter(f.key)}>{f.label}</Button>
+          ))}
+          <div className="w-px h-6 bg-white/20 mx-1" />
+          {PLAN_FILTERS_ADDONS.map((f) => (
             <Button key={f.key} size="sm" variant={planFilter === f.key ? "default" : "outline"}
               className={planFilter === f.key ? "bg-purple-600 hover:bg-purple-700 text-white" : "border-gray-700 text-gray-400 hover:text-white"}
               onClick={() => setPlanFilter(f.key)}>{f.label}</Button>
@@ -363,7 +374,7 @@ export default function AdminDashboard() {
         </div>
 
         <div className="bg-gray-900 rounded-xl border border-white/10 p-4">
-          <h3 className="text-sm font-semibold text-gray-400 mb-4">Planos Principais</h3>
+          <h3 className="text-sm font-semibold text-gray-400 mb-4">Usuários dos Planos Principais</h3>
           {planDist.length > 0 ? (
             <ResponsiveContainer width="100%" height={250}>
               <PieChart>
@@ -380,21 +391,19 @@ export default function AdminDashboard() {
         </div>
 
         <div className="bg-gray-900 rounded-xl border border-white/10 p-4">
-          <h3 className="text-sm font-semibold text-gray-400 mb-4">Add-ons Ativos</h3>
+          <h3 className="text-sm font-semibold text-gray-400 mb-4">Usuários dos Planos Adicionais</h3>
           {addonDist.length > 0 ? (
             <ResponsiveContainer width="100%" height={250}>
-              <BarChart data={addonDist} layout="vertical" margin={{ left: 20 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#374151" horizontal={false} />
-                <XAxis type="number" tick={{ fill: "#9ca3af", fontSize: 10 }} allowDecimals={false} />
-                <YAxis type="category" dataKey="name" tick={{ fill: "#9ca3af", fontSize: 11 }} width={90} />
-                <Tooltip contentStyle={{ backgroundColor: "#1f2937", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8 }} />
-                <Bar dataKey="value" radius={[0, 4, 4, 0]}>
+              <PieChart>
+                <Pie data={addonDist} cx="50%" cy="50%" outerRadius={90} dataKey="value" nameKey="name" label={({ name, value }) => `${name}: ${value}`}>
                   {addonDist.map((entry) => (<Cell key={entry.name} fill={ADDON_COLORS[entry.name] ?? "#8b5cf6"} />))}
-                </Bar>
-              </BarChart>
+                </Pie>
+                <Legend wrapperStyle={{ fontSize: 12, color: "#9ca3af" }} />
+                <Tooltip contentStyle={{ backgroundColor: "#1f2937", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8 }} />
+              </PieChart>
             </ResponsiveContainer>
           ) : (
-            <div className="flex items-center justify-center h-[250px] text-gray-600">Sem add-ons ativos</div>
+            <div className="flex items-center justify-center h-[250px] text-gray-600">Sem planos adicionais ativos</div>
           )}
         </div>
       </div>
