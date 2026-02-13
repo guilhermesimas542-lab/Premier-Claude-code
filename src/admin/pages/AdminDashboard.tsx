@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { format } from "date-fns";
+import { format, startOfDay, endOfDay, startOfWeek, startOfMonth, subDays } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import { supabase } from "@/integrations/supabase/client";
-import { Users, UserPlus, AlertTriangle, DollarSign, Info, CalendarIcon } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Users, UserPlus, AlertTriangle, Wifi, Info, CalendarIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip as UiTooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -12,87 +12,112 @@ import { PLAN_PRICES, ADDON_PRICES } from "@/lib/prices";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
 import { cn } from "@/lib/utils";
 
-const PERIOD_OPTIONS = [
-  { value: "1", label: "Hoje" },
-  { value: "7", label: "Últimos 7 dias" },
-  { value: "30", label: "Últimos 30 dias" },
-  { value: "90", label: "Últimos 90 dias" },
-  { value: "custom", label: "Personalizado" },
-];
-
 const KPI_TOOLTIPS: Record<string, string> = {
-  "Usuários Ativos": "Quantidade de usuários únicos que abriram o aplicativo no período selecionado.",
-  "Novos Cadastros": "Quantidade de novos usuários que se cadastraram no aplicativo no período selecionado.",
-  "Churn (Risco)": "Quantidade de usuários com plano pago (Básico, Pro ou Ultra) que não abriram o aplicativo nos últimos 15 dias. Estes são clientes em risco de cancelamento.",
-  "Receita (MRR est.)": "Estimativa de receita mensal recorrente, calculada com base nos planos e add-ons ativos. Este valor será atualizado automaticamente quando a integração com a plataforma de pagamento for implementada.",
+  "Usuários Totais": "Total de usuários cadastrados no Premier, incluindo usuários free e pagos.",
+  "Usuários Ativos": "Usuários únicos que abriram o aplicativo no período selecionado.",
+  "Usuários Online": "Usuários que estão usando o aplicativo neste momento.",
+  "Churn (Risco)": "Usuários com plano pago (Básico, Pro ou Ultra) que não abriram o aplicativo nos últimos 15 dias. Estes clientes estão em risco de cancelamento.",
 };
 
 const PIE_COLORS = ["#3b82f6", "#8b5cf6", "#f59e0b", "#10b981", "#ef4444"];
 
-function getPercentColor(pct: number, inverted = false) {
+function getColorClass(pct: number, thresholds: [number, number], inverted = false) {
   if (inverted) {
-    if (pct >= 50) return "text-red-400";
-    if (pct >= 25) return "text-amber-400";
+    if (pct >= thresholds[1]) return "text-red-400";
+    if (pct >= thresholds[0]) return "text-amber-400";
     return "text-green-400";
   }
-  if (pct >= 50) return "text-green-400";
-  if (pct >= 25) return "text-amber-400";
+  if (pct >= thresholds[1]) return "text-green-400";
+  if (pct >= thresholds[0]) return "text-amber-400";
   return "text-red-400";
 }
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
-  const [period, setPeriod] = useState("30");
-  const [customRange, setCustomRange] = useState<{ from?: Date; to?: Date }>({});
-  const [showCalendar, setShowCalendar] = useState(false);
+  const now = new Date();
+
+  // Period filter — default "Últimos 7 dias"
+  const [dateFrom, setDateFrom] = useState<Date>(subDays(now, 7));
+  const [dateTo, setDateTo] = useState<Date>(now);
+  const [openFrom, setOpenFrom] = useState(false);
+  const [openTo, setOpenTo] = useState(false);
+  const [activeShortcut, setActiveShortcut] = useState("7d");
+
   const [loading, setLoading] = useState(true);
 
-  // KPI data
-  const [activeUsers, setActiveUsers] = useState(0);
+  // KPIs
   const [totalUsers, setTotalUsers] = useState(0);
-  const [newSignups, setNewSignups] = useState(0);
-  const [prevSignups, setPrevSignups] = useState(0);
+  const [activeUsers, setActiveUsers] = useState(0);
+  const [onlineUsers, setOnlineUsers] = useState(0);
   const [churnRisk, setChurnRisk] = useState(0);
   const [paidUsersCount, setPaidUsersCount] = useState(0);
-  const [mrr, setMrr] = useState(0);
-  const [planCount, setPlanCount] = useState(0);
-  const [addonCount, setAddonCount] = useState(0);
+  const [newSignups, setNewSignups] = useState(0);
 
-  // Chart data
+  // Charts
   const [dauData, setDauData] = useState<{ date: string; users: number }[]>([]);
   const [planDist, setPlanDist] = useState<{ name: string; value: number }[]>([]);
   const [addonDist, setAddonDist] = useState<{ name: string; value: number }[]>([]);
 
-  // Compute date range
-  const getDateRange = () => {
-    if (period === "custom" && customRange.from) {
-      const from = new Date(customRange.from);
-      from.setHours(0, 0, 0, 0);
-      const to = customRange.to ? new Date(customRange.to) : new Date();
-      to.setHours(23, 59, 59, 999);
-      const days = Math.max(1, Math.ceil((to.getTime() - from.getTime()) / 86400000));
-      return { since: from.toISOString(), days };
+  const applyShortcut = (key: string) => {
+    setActiveShortcut(key);
+    const today = new Date();
+    let from: Date, to: Date;
+    switch (key) {
+      case "today":
+        from = startOfDay(today);
+        to = today;
+        break;
+      case "yesterday":
+        from = startOfDay(subDays(today, 1));
+        to = endOfDay(subDays(today, 1));
+        break;
+      case "week":
+        from = startOfWeek(today, { weekStartsOn: 1 });
+        to = today;
+        break;
+      case "month":
+        from = startOfMonth(today);
+        to = today;
+        break;
+      case "7d":
+      default:
+        from = subDays(today, 7);
+        to = today;
+        break;
     }
-    const days = parseInt(period);
-    return { since: new Date(Date.now() - days * 86400000).toISOString(), days };
+    setDateFrom(from);
+    setDateTo(to);
   };
 
-  useEffect(() => {
-    if (period === "custom" && !customRange.from) return;
+  // Fetch online users separately (polled every 30s)
+  const fetchOnline = useCallback(async () => {
+    const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+    const { data } = await supabase
+      .from("sessions")
+      .select("user_id")
+      .gte("session_start_at", fiveMinAgo);
+    const unique = new Set((data ?? []).map((s) => s.user_id));
+    setOnlineUsers(unique.size);
+  }, []);
 
+  useEffect(() => {
+    fetchOnline();
+    const interval = setInterval(fetchOnline, 30000);
+    return () => clearInterval(interval);
+  }, [fetchOnline]);
+
+  // Main data load
+  useEffect(() => {
     const load = async () => {
       setLoading(true);
-      const { since, days } = getDateRange();
+      const since = dateFrom.toISOString();
+      const until = dateTo.toISOString();
       const fifteenDaysAgo = new Date(Date.now() - 15 * 86400000).toISOString();
 
-      // Previous period for comparison
-      const prevSince = new Date(new Date(since).getTime() - days * 86400000).toISOString();
-
-      const [sessionsRes, newUsersRes, prevUsersRes, churnRes, allUsersRes, entitlementsRes] = await Promise.all([
-        supabase.from("sessions").select("user_id, session_start_at").gte("session_start_at", since),
-        supabase.from("users").select("id", { count: "exact", head: true }).gte("created_at", since),
-        // Previous period signups
-        supabase.from("users").select("id", { count: "exact", head: true }).gte("created_at", prevSince).lt("created_at", since),
+      const [totalRes, sessionsRes, newUsersRes, churnRes, allUsersRes, entitlementsRes] = await Promise.all([
+        supabase.from("users").select("id", { count: "exact", head: true }),
+        supabase.from("sessions").select("user_id, session_start_at").gte("session_start_at", since).lte("session_start_at", until),
+        supabase.from("users").select("id", { count: "exact", head: true }).gte("created_at", since).lte("created_at", until),
         supabase.from("users").select("id").neq("main_tier", "free"),
         supabase.from("users").select("main_tier"),
         supabase.from("entitlements").select("product_key, user_id").eq("status", "active"),
@@ -103,48 +128,24 @@ export default function AdminDashboard() {
       const allUsers = allUsersRes.data ?? [];
       const entitlements = entitlementsRes.data ?? [];
 
-      // KPI 1
-      const activeUserIds = new Set(sessions.map((s) => s.user_id));
-      setActiveUsers(activeUserIds.size);
-      setTotalUsers(allUsers.length);
-
-      // KPI 2
+      setTotalUsers(totalRes.count ?? 0);
+      const activeIds = new Set(sessions.map((s) => s.user_id));
+      setActiveUsers(activeIds.size);
       setNewSignups(newUsersRes.count ?? 0);
-      setPrevSignups(prevUsersRes.count ?? 0);
-
-      // KPI 3
       setPaidUsersCount(paidUsers.length);
+
+      // Churn
       if (paidUsers.length > 0) {
         const paidIds = paidUsers.map((u) => u.id);
         const { data: recentSessions } = await supabase
           .from("sessions").select("user_id")
           .gte("session_start_at", fifteenDaysAgo)
           .in("user_id", paidIds.slice(0, 500));
-        const recentUserIds = new Set((recentSessions ?? []).map((s) => s.user_id));
-        setChurnRisk(paidIds.filter((id) => !recentUserIds.has(id)).length);
+        const recentIds = new Set((recentSessions ?? []).map((s) => s.user_id));
+        setChurnRisk(paidIds.filter((id) => !recentIds.has(id)).length);
       } else {
         setChurnRisk(0);
       }
-
-      // KPI 4
-      const tierCounts: Record<string, number> = {};
-      allUsers.forEach((u) => { tierCounts[u.main_tier] = (tierCounts[u.main_tier] ?? 0) + 1; });
-      let estimatedMrr = 0;
-      let paidPlanCount = 0;
-      Object.entries(tierCounts).forEach(([tier, count]) => {
-        estimatedMrr += (PLAN_PRICES[tier] ?? 0) * count;
-        if (tier !== "free") paidPlanCount += count;
-      });
-      const addonCounts: Record<string, number> = {};
-      entitlements.forEach((e) => { addonCounts[e.product_key] = (addonCounts[e.product_key] ?? 0) + 1; });
-      let totalAddons = 0;
-      Object.entries(addonCounts).forEach(([key, count]) => {
-        estimatedMrr += (ADDON_PRICES[key] ?? 0) * count;
-        totalAddons += count;
-      });
-      setMrr(estimatedMrr);
-      setPlanCount(paidPlanCount);
-      setAddonCount(totalAddons);
 
       // DAU
       const dauMap: Record<string, Set<string>> = {};
@@ -159,12 +160,17 @@ export default function AdminDashboard() {
           .sort((a, b) => a.date.localeCompare(b.date))
       );
 
-      // Plans
+      // Plan distribution
+      const tierCounts: Record<string, number> = {};
+      allUsers.forEach((u) => { tierCounts[u.main_tier] = (tierCounts[u.main_tier] ?? 0) + 1; });
       setPlanDist(
         Object.entries(tierCounts)
           .filter(([t]) => t !== "free")
           .map(([name, value]) => ({ name: name.charAt(0).toUpperCase() + name.slice(1), value }))
       );
+
+      const addonCounts: Record<string, number> = {};
+      entitlements.forEach((e) => { addonCounts[e.product_key] = (addonCounts[e.product_key] ?? 0) + 1; });
       setAddonDist(
         Object.entries(addonCounts).map(([name, value]) => ({
           name: name === "desaltas" ? "Odds Altas" : name.charAt(0).toUpperCase() + name.slice(1),
@@ -175,108 +181,97 @@ export default function AdminDashboard() {
       setLoading(false);
     };
     load();
-  }, [period, customRange.from, customRange.to]);
-
-  const handlePeriodChange = (val: string) => {
-    setPeriod(val);
-    if (val === "custom") {
-      setShowCalendar(true);
-    } else {
-      setShowCalendar(false);
-    }
-  };
+  }, [dateFrom, dateTo]);
 
   if (loading) return <div className="text-gray-400">Carregando…</div>;
 
-  // Context lines
-  const activeUsersPct = totalUsers > 0 ? (activeUsers / totalUsers) * 100 : 0;
-  const signupDelta = prevSignups > 0 ? ((newSignups - prevSignups) / prevSignups) * 100 : newSignups > 0 ? 100 : 0;
-  const churnPct = paidUsersCount > 0 ? (churnRisk / paidUsersCount) * 100 : 0;
+  // Percentage calculations
+  const pctActiveTotal = totalUsers > 0 ? (activeUsers / totalUsers) * 100 : 0;
+  const pctNewPeriod = totalUsers > 0 ? (newSignups / totalUsers) * 100 : 0;
+  const pctOnlineActive = activeUsers > 0 ? (onlineUsers / activeUsers) * 100 : 0;
+  const pctChurnPaid = paidUsersCount > 0 ? (churnRisk / paidUsersCount) * 100 : 0;
 
   const kpis = [
-    {
-      label: "Usuários Ativos",
-      value: activeUsers,
-      icon: Users,
-      color: "text-blue-400",
-      context: `${activeUsersPct.toFixed(1)}% do total de usuários`,
-      contextColor: getPercentColor(activeUsersPct),
-    },
-    {
-      label: "Novos Cadastros",
-      value: newSignups,
-      icon: UserPlus,
-      color: "text-green-400",
-      context: signupDelta > 0
-        ? `↑ ${signupDelta.toFixed(0)}% vs. período anterior`
-        : signupDelta < 0
-          ? `↓ ${Math.abs(signupDelta).toFixed(0)}% vs. período anterior`
-          : "— sem variação",
-      contextColor: signupDelta > 0 ? "text-green-400" : signupDelta < 0 ? "text-red-400" : "text-gray-500",
-    },
-    {
-      label: "Churn (Risco)",
-      value: churnRisk,
-      icon: AlertTriangle,
-      color: "text-amber-400",
-      context: `${churnPct.toFixed(0)}% dos usuários pagos`,
-      contextColor: getPercentColor(churnPct, true),
-    },
-    {
-      label: "Receita (MRR est.)",
-      value: `R$ ${mrr.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`,
-      icon: DollarSign,
-      color: "text-emerald-400",
-      context: `${planCount} planos + ${addonCount} add-ons ativos`,
-      contextColor: "text-gray-500",
-    },
+    { label: "Usuários Totais", value: totalUsers, icon: Users, color: "text-blue-400" },
+    { label: "Usuários Ativos", value: activeUsers, icon: UserPlus, color: "text-green-400" },
+    { label: "Usuários Online", value: onlineUsers, icon: Wifi, color: "text-cyan-400" },
+    { label: "Churn (Risco)", value: churnRisk, icon: AlertTriangle, color: "text-amber-400" },
   ];
 
-  const periodLabel = period === "custom" && customRange.from
-    ? `${format(customRange.from, "dd/MM")}${customRange.to ? ` – ${format(customRange.to, "dd/MM")}` : ""}`
-    : undefined;
+  const pctCards = [
+    { label: "% Ativos / Total", value: pctActiveTotal, colorClass: getColorClass(pctActiveTotal, [25, 50]) },
+    { label: "% Novos no Período", value: pctNewPeriod, colorClass: getColorClass(pctNewPeriod, [5, 10]) },
+    { label: "% Online / Ativos", value: pctOnlineActive, colorClass: getColorClass(pctOnlineActive, [5, 20]) },
+    { label: "% Churn / Pagos", value: pctChurnPaid, colorClass: getColorClass(pctChurnPaid, [25, 50], true) },
+  ];
+
+  const shortcuts = [
+    { key: "today", label: "Hoje" },
+    { key: "yesterday", label: "Ontem" },
+    { key: "week", label: "Esta Semana" },
+    { key: "month", label: "Este Mês" },
+    { key: "7d", label: "Últimos 7 dias" },
+  ];
 
   return (
     <div className="space-y-6">
-      {/* Header + Period Filter */}
-      <div className="flex items-center justify-between gap-3 flex-wrap">
-        <h2 className="text-xl font-bold">Dashboard — Futebol</h2>
-        <div className="flex items-center gap-2">
-          <Select value={period} onValueChange={handlePeriodChange}>
-            <SelectTrigger className="w-44 bg-gray-900 border-gray-800">
-              <SelectValue>{periodLabel || PERIOD_OPTIONS.find((o) => o.value === period)?.label}</SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              {PERIOD_OPTIONS.map((o) => (
-                <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+      <h2 className="text-xl font-bold">Dashboard — Futebol</h2>
 
-          {period === "custom" && (
-            <Popover open={showCalendar} onOpenChange={setShowCalendar}>
-              <PopoverTrigger asChild>
-                <Button variant="outline" size="sm" className="border-gray-700 text-gray-300">
-                  <CalendarIcon className="w-4 h-4 mr-1" />
-                  {customRange.from ? format(customRange.from, "dd/MM") : "Início"}
-                  {" – "}
-                  {customRange.to ? format(customRange.to, "dd/MM") : "Fim"}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="end">
-                <Calendar
-                  mode="range"
-                  selected={customRange.from ? { from: customRange.from, to: customRange.to } : undefined}
-                  onSelect={(range) => {
-                    setCustomRange({ from: range?.from, to: range?.to });
-                    if (range?.from && range?.to) setShowCalendar(false);
-                  }}
-                  numberOfMonths={2}
-                  className={cn("p-3 pointer-events-auto")}
-                />
-              </PopoverContent>
-            </Popover>
-          )}
+      {/* Period Filter */}
+      <div className="bg-gray-900 rounded-xl border border-white/10 p-4 space-y-3">
+        <div className="flex items-center gap-3 flex-wrap">
+          <Popover open={openFrom} onOpenChange={setOpenFrom}>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="border-gray-700 text-gray-300 gap-2">
+                <CalendarIcon className="w-4 h-4" />
+                {format(dateFrom, "dd/MM/yyyy")}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={dateFrom}
+                onSelect={(d) => { if (d) { setDateFrom(d); setActiveShortcut(""); setOpenFrom(false); } }}
+                className={cn("p-3 pointer-events-auto")}
+              />
+            </PopoverContent>
+          </Popover>
+
+          <span className="text-gray-500 text-sm">até</span>
+
+          <Popover open={openTo} onOpenChange={setOpenTo}>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="border-gray-700 text-gray-300 gap-2">
+                <CalendarIcon className="w-4 h-4" />
+                {format(dateTo, "dd/MM/yyyy")}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={dateTo}
+                onSelect={(d) => { if (d) { setDateTo(d); setActiveShortcut(""); setOpenTo(false); } }}
+                className={cn("p-3 pointer-events-auto")}
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
+
+        <div className="flex gap-2 flex-wrap">
+          {shortcuts.map((s) => (
+            <Button
+              key={s.key}
+              size="sm"
+              variant={activeShortcut === s.key ? "default" : "outline"}
+              className={activeShortcut === s.key
+                ? "bg-blue-600 hover:bg-blue-700 text-white"
+                : "border-gray-700 text-gray-400 hover:text-white"
+              }
+              onClick={() => applyShortcut(s.key)}
+            >
+              {s.label}
+            </Button>
+          ))}
         </div>
       </div>
 
@@ -297,12 +292,23 @@ export default function AdminDashboard() {
               </UiTooltip>
             </div>
             <div className="text-2xl font-bold">{kpi.value}</div>
-            <div className={`text-[11px] mt-1 ${kpi.contextColor}`}>{kpi.context}</div>
           </div>
         ))}
       </div>
 
-      {/* Charts Row */}
+      {/* Percentage Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {pctCards.map((card) => (
+          <div key={card.label} className="bg-gray-900/60 rounded-xl p-3 border border-white/5">
+            <div className="text-[11px] text-gray-500 mb-1">{card.label}</div>
+            <div className={`text-lg font-bold ${card.colorClass}`}>
+              {card.value.toFixed(1)}%
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-gray-900 rounded-xl border border-white/10 p-4">
           <h3 className="text-sm font-semibold text-gray-400 mb-4">Usuários Ativos Diários (DAU)</h3>
