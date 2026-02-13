@@ -5,13 +5,8 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { AppConfig } from "@/types/auth";
 import { BottomNav } from "@/components/BottomNav";
+import { PromoCarousel } from "@/components/PromoCarousel";
 import logoImg from "@/assets/premier-logo.png";
-
-// Configuração do banner (editável)
-const CASINO_BANNER = {
-  imageUrl: "https://images.unsplash.com/photo-1596838132731-3301c3fd4317?w=800&h=300&fit=crop",
-  target: "https://example.com/promo", // URL ou rota interna
-};
 
 // Configuração dos tiles - estilo Acesso Rápido
 const CASINO_TILES = [
@@ -65,14 +60,6 @@ const Casino = () => {
     navigate("/login");
   };
 
-  const handleBannerClick = () => {
-    if (CASINO_BANNER.target.startsWith("http")) {
-      window.open(CASINO_BANNER.target, "_blank");
-    } else {
-      navigate(CASINO_BANNER.target);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0D0A1A] via-[#1A1030] to-[#0D0A1A] relative overflow-hidden pb-20 md:pb-0">
       {/* Purple glow effects - igual Home */}
@@ -117,19 +104,7 @@ const Casino = () => {
 
       {/* Main Content */}
       <main className="container max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6 relative z-10">
-        {/* Banner clicável - estilo Home */}
-        <div 
-          onClick={handleBannerClick}
-          className="relative w-full aspect-[2.5/1] rounded-2xl overflow-hidden cursor-pointer group border border-purple-500/20 shadow-lg shadow-purple-900/20"
-        >
-          <img 
-            src={CASINO_BANNER.imageUrl}
-            alt="Casino Banner"
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-          />
-          {/* Overlay glow */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0D0A1A]/60 to-transparent pointer-events-none" />
-        </div>
+        <PromoCarousel context="cassino" />
 
         {/* Título da seção - estilo Home */}
         <section className="space-y-4 sm:space-y-6">
