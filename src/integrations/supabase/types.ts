@@ -34,34 +34,49 @@ export type Database = {
           active: boolean
           button_link: string | null
           button_text: string | null
+          context: string
           created_at: string
+          display_order: number
           ends_at: string | null
           id: string
           image_url: string
           starts_at: string
+          subtitle: string
+          tag: string
           title: string
+          updated_at: string
         }
         Insert: {
           active?: boolean
           button_link?: string | null
           button_text?: string | null
+          context?: string
           created_at?: string
+          display_order?: number
           ends_at?: string | null
           id?: string
           image_url: string
           starts_at?: string
+          subtitle?: string
+          tag?: string
           title: string
+          updated_at?: string
         }
         Update: {
           active?: boolean
           button_link?: string | null
           button_text?: string | null
+          context?: string
           created_at?: string
+          display_order?: number
           ends_at?: string | null
           id?: string
           image_url?: string
           starts_at?: string
+          subtitle?: string
+          tag?: string
           title?: string
+          updated_at?: string
         }
         Relationships: []
       }
