@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { mockLogin } from "@/mocks/user";
 import { supabase } from "@/integrations/supabase/client";
 import { CHECKOUT_LINKS } from "@/lib/checkoutLinks";
 import { Copy, RefreshCw, Target, Crown, Loader2, ShoppingCart, Users } from "lucide-react";
@@ -16,8 +15,10 @@ import {
 
 const Login = () => {
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [emailError, setEmailError] = useState("");
+  const [loginError, setLoginError] = useState("");
   const [showAcquireModal, setShowAcquireModal] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
   const navigate = useNavigate();
@@ -28,27 +29,37 @@ const Login = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setEmailError("");
+    setLoginError("");
     if (!email || !validateEmail(email)) {
       setEmailError("Por favor, insira um e-mail válido.");
       return;
     }
+    if (!password || password.length < 6) {
+      setLoginError("A senha deve ter pelo menos 6 caracteres.");
+      return;
+    }
     setIsLoading(true);
     try {
-      mockLogin(email);
+      const { error: signInErr } = await supabase.auth.signInWithPassword({ email, password });
+      if (signInErr) {
+        setLoginError(signInErr.message === "Invalid login credentials"
+          ? "E-mail ou senha incorretos."
+          : signInErr.message);
+        return;
+      }
 
       // Verifica se o usuário é admin
-      const { data: isAdmin, error: isAdminError } = await (supabase.rpc as any)("is_admin");
+      const { data: isAdmin } = await (supabase.rpc as any)("is_admin");
 
-      if (!isAdminError && isAdmin) {
+      if (isAdmin) {
         toast.success("Bem-vindo, administrador!");
-        navigate("/admin");
+        navigate("/admin", { replace: true });
       } else {
         toast.success("Login realizado com sucesso!");
-        navigate("/");
+        navigate("/", { replace: true });
       }
-    } catch (err) {
-      toast.success("Login realizado com sucesso!");
-      navigate("/");
+    } catch (err: any) {
+      setLoginError(err.message || "Erro ao autenticar.");
     } finally {
       setIsLoading(false);
     }
@@ -59,7 +70,7 @@ const Login = () => {
     setShowAcquireModal(false);
   };
 
-  const isDisabled = !email.trim() || isLoading;
+  const isDisabled = !email.trim() || !password.trim() || isLoading;
 
   return (
     <div className="relative min-h-screen overflow-hidden">
@@ -228,7 +239,28 @@ const Login = () => {
               )}
             </div>
 
-            {/* CTA */}
+            <div className="space-y-2">
+              <label htmlFor="password" className="text-sm text-white/80 font-medium">
+                Senha
+              </label>
+              <input
+                id="password"
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (loginError) setLoginError("");
+                }}
+                disabled={isLoading}
+                className="w-full h-[52px] rounded-xl px-4 text-base text-white placeholder:text-white/30 outline-none transition-colors disabled:opacity-50 bg-[#2C1A47] border border-purple-500/20 focus:border-[#00FF7F]"
+              />
+            </div>
+
+            {loginError && (
+              <p className="text-sm text-red-400 text-center">{loginError}</p>
+            )}
+
             <button
               type="submit"
               disabled={isDisabled}
