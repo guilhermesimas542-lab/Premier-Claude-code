@@ -28,11 +28,15 @@ const AUDIENCE_OPTIONS = [
 ] as const;
 
 const VIEW_AS_OPTIONS = [
-  { value: "admin", label: "Admin (Todos)" },
-  { value: "free", label: "Cliente Free" },
-  { value: "basic", label: "Cliente Básico" },
-  { value: "pro", label: "Cliente Pro" },
-  { value: "ultra", label: "Cliente Ultra" },
+  { value: "admin", label: "Admin (Todos)", group: "admin" },
+  { value: "free", label: "Cliente Free", group: "tier" },
+  { value: "basic", label: "Cliente Básico", group: "tier" },
+  { value: "pro", label: "Cliente Pro", group: "tier" },
+  { value: "ultra", label: "Cliente Ultra", group: "tier" },
+  { value: "no_alavancagem", label: "Sem Alavancagem", group: "addon" },
+  { value: "no_desaltas", label: "Sem Odds Altas", group: "addon" },
+  { value: "no_live_telegram", label: "Sem Live Telegram", group: "addon" },
+  { value: "no_acesso_vitalicio", label: "Sem Acesso Vitalício", group: "addon" },
 ] as const;
 
 const audienceLabel = (v: string) => AUDIENCE_OPTIONS.find((o) => o.value === v)?.label ?? v;
@@ -355,8 +359,13 @@ export default function AdminBanners() {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {VIEW_AS_OPTIONS.map((o) => (
-              <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+            {VIEW_AS_OPTIONS.map((o, i) => (
+              <div key={o.value}>
+                {i > 0 && VIEW_AS_OPTIONS[i - 1].group !== o.group && (
+                  <div className="my-1 border-t border-white/10" />
+                )}
+                <SelectItem value={o.value}>{o.label}</SelectItem>
+              </div>
             ))}
           </SelectContent>
         </Select>
