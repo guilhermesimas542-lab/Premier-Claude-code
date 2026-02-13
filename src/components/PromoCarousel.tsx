@@ -1,8 +1,9 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import useEmblaCarousel from "embla-carousel-react";
 import { supabase } from "@/integrations/supabase/client";
+import { mockGetUser } from "@/mocks/user";
 
 interface BannerItem {
   id: string;
@@ -12,6 +13,7 @@ interface BannerItem {
   subtitle: string;
   button_text: string | null;
   button_link: string | null;
+  target_audience: string;
 }
 
 interface PromoCarouselProps {
@@ -24,23 +26,110 @@ export const PromoCarousel = ({ context = "futebol" }: PromoCarouselProps) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [banners, setBanners] = useState<BannerItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const impressionsSent = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     const fetchBanners = async () => {
       const now = new Date().toISOString();
       const { data } = await supabase
         .from("content_banners")
-        .select("id, image_url, tag, title, subtitle, button_text, button_link")
+        .select("id, image_url, tag, title, subtitle, button_text, button_link, target_audience")
         .eq("context", context)
         .eq("status", "active")
         .lte("starts_at", now)
         .or(`ends_at.is.null,ends_at.gte.${now}`)
         .order("display_order", { ascending: true });
-      setBanners((data as unknown as BannerItem[]) ?? []);
+
+      const allBanners = (data as unknown as BannerItem[]) ?? [];
+
+      // Filter by audience based on current user
+      const user = mockGetUser();
+      const userEmail = user?.email;
+
+      let userTier = "free";
+      let activeEntitlements: string[] = [];
+
+      if (userEmail) {
+        // Fetch user tier
+        const { data: userData } = await supabase
+          .from("users")
+          .select("id, main_tier")
+          .eq("email", userEmail)
+          .maybeSingle();
+
+        if (userData) {
+          userTier = userData.main_tier;
+          // Fetch active entitlements
+          const { data: ents } = await supabase
+            .from("entitlements")
+            .select("product_key")
+            .eq("user_id", userData.id)
+            .eq("status", "active");
+          activeEntitlements = (ents ?? []).map((e: any) => e.product_key);
+        }
+      }
+
+      const filtered = allBanners.filter((b) => {
+        const t = b.target_audience || "all";
+        if (t === "all") return true;
+        if (["free", "basic", "pro", "ultra"].includes(t)) return userTier === t;
+        if (t === "no_alavancagem") return !activeEntitlements.includes("alavancagem");
+        if (t === "no_desaltas") return !activeEntitlements.includes("desaltas");
+        if (t === "no_live_telegram") return !activeEntitlements.includes("live_telegram");
+        if (t === "no_acesso_vitalicio") return !activeEntitlements.includes("acesso_vitalicio");
+        return true;
+      });
+
+      setBanners(filtered);
       setLoading(false);
     };
     fetchBanners();
   }, [context]);
+
+  // Track impressions once per session per banner
+  useEffect(() => {
+    if (banners.length === 0) return;
+    const user = mockGetUser();
+    let userId: string | null = null;
+
+    const trackImpressions = async () => {
+      if (user?.email) {
+        const { data: u } = await supabase
+          .from("users")
+          .select("id")
+          .eq("email", user.email)
+          .maybeSingle();
+        userId = u?.id ?? null;
+      }
+
+      const toInsert = banners
+        .filter((b) => !impressionsSent.current.has(b.id))
+        .map((b) => {
+          impressionsSent.current.add(b.id);
+          return { banner_id: b.id, user_id: userId, event_type: "impression" as const };
+        });
+
+      if (toInsert.length > 0) {
+        await supabase.from("banner_analytics").insert(toInsert);
+      }
+    };
+
+    trackImpressions();
+  }, [banners]);
+
+  const trackClick = async (bannerId: string) => {
+    const user = mockGetUser();
+    let userId: string | null = null;
+    if (user?.email) {
+      const { data: u } = await supabase
+        .from("users")
+        .select("id")
+        .eq("email", user.email)
+        .maybeSingle();
+      userId = u?.id ?? null;
+    }
+    await supabase.from("banner_analytics").insert({ banner_id: bannerId, user_id: userId, event_type: "click" });
+  };
 
   const onSelect = useCallback(() => {
     if (!emblaApi) return;
@@ -61,8 +150,9 @@ export const PromoCarousel = ({ context = "futebol" }: PromoCarouselProps) => {
     return () => clearInterval(interval);
   }, [emblaApi, banners.length]);
 
-  const handleClick = (link: string | null) => {
+  const handleClick = async (bannerId: string, link: string | null) => {
     if (!link) return;
+    await trackClick(bannerId);
     if (link.startsWith("http")) window.open(link, "_blank");
     else navigate(link);
   };
@@ -78,7 +168,7 @@ export const PromoCarousel = ({ context = "futebol" }: PromoCarouselProps) => {
             <div key={b.id} className="flex-[0_0_100%] min-w-0">
               <div
                 className="relative overflow-hidden rounded-xl sm:rounded-2xl border border-purple-500/30 shadow-lg shadow-purple-900/30 cursor-pointer group aspect-video"
-                onClick={() => handleClick(b.button_link)}
+                onClick={() => handleClick(b.id, b.button_link)}
               >
                 {b.image_url ? (
                   <img src={b.image_url} alt="" className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />

@@ -14,6 +14,20 @@ import { format } from "date-fns";
 
 type BannerStatus = "active" | "inactive" | "deleted";
 
+const AUDIENCE_OPTIONS = [
+  { value: "all", label: "Todos" },
+  { value: "free", label: "Só Free" },
+  { value: "basic", label: "Só Básico" },
+  { value: "pro", label: "Só Pro" },
+  { value: "ultra", label: "Só Ultra" },
+  { value: "no_alavancagem", label: "Sem Alavancagem" },
+  { value: "no_desaltas", label: "Sem Odds Altas" },
+  { value: "no_live_telegram", label: "Sem Live Telegram" },
+  { value: "no_acesso_vitalicio", label: "Sem Acesso Vitalício" },
+] as const;
+
+const audienceLabel = (v: string) => AUDIENCE_OPTIONS.find((o) => o.value === v)?.label ?? v;
+
 interface Banner {
   id: string;
   context: string;
@@ -28,6 +42,13 @@ interface Banner {
   starts_at: string;
   ends_at: string | null;
   created_at: string;
+  target_audience: string;
+}
+
+interface BannerAnalytics {
+  banner_id: string;
+  impressions: number;
+  clicks: number;
 }
 
 const emptyForm = {
@@ -42,6 +63,7 @@ const emptyForm = {
   display_order: 0,
   starts_at: "",
   ends_at: "",
+  target_audience: "all",
 };
 
 export default function AdminBanners() {
@@ -49,15 +71,15 @@ export default function AdminBanners() {
   const ctx = mode === "cassino" ? "cassino" : "futebol";
 
   const [allItems, setAllItems] = useState<Banner[]>([]);
+  const [analytics, setAnalytics] = useState<Record<string, BannerAnalytics>>({});
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<Partial<Banner>>({ ...emptyForm, context: ctx });
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [tab, setTab] = useState<BannerStatus>("active");
-
-  // Confirm dialog state
   const [confirmAction, setConfirmAction] = useState<{ title: string; description: string; onConfirm: () => void } | null>(null);
+  const [editAnalytics, setEditAnalytics] = useState<{ impressions: number; clicks: number; dailyClicks: { date: string; count: number }[] } | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -66,7 +88,27 @@ export default function AdminBanners() {
       .select("*")
       .eq("context", ctx)
       .order("display_order", { ascending: true });
-    setAllItems((data as unknown as Banner[]) ?? []);
+    const banners = (data as unknown as Banner[]) ?? [];
+    setAllItems(banners);
+
+    // Load analytics for all banners
+    if (banners.length > 0) {
+      const ids = banners.map((b) => b.id);
+      const { data: events } = await supabase
+        .from("banner_analytics")
+        .select("banner_id, event_type")
+        .in("banner_id", ids);
+
+      const map: Record<string, BannerAnalytics> = {};
+      ids.forEach((id) => { map[id] = { banner_id: id, impressions: 0, clicks: 0 }; });
+      (events ?? []).forEach((e: any) => {
+        if (!map[e.banner_id]) map[e.banner_id] = { banner_id: e.banner_id, impressions: 0, clicks: 0 };
+        if (e.event_type === "impression") map[e.banner_id].impressions++;
+        else if (e.event_type === "click") map[e.banner_id].clicks++;
+      });
+      setAnalytics(map);
+    }
+
     setLoading(false);
   };
 
@@ -111,6 +153,7 @@ export default function AdminBanners() {
       display_order: form.display_order ?? 0,
       starts_at: form.starts_at || new Date().toISOString(),
       ends_at: form.ends_at || null,
+      target_audience: form.target_audience || "all",
     };
 
     if ((form as Banner).id) {
@@ -131,7 +174,6 @@ export default function AdminBanners() {
   };
 
   const permanentDelete = async (b: Banner) => {
-    // Delete image from storage if it exists
     if (b.image_url) {
       try {
         const url = new URL(b.image_url);
@@ -149,11 +191,37 @@ export default function AdminBanners() {
     const offset = now.getTimezoneOffset() * 60000;
     const localNow = new Date(now.getTime() - offset).toISOString().slice(0, 16);
     setForm({ ...emptyForm, context: ctx, display_order: nextOrder, starts_at: localNow, ends_at: "" });
+    setEditAnalytics(null);
     setOpen(true);
   };
 
-  const openEdit = (b: Banner) => {
+  const openEdit = async (b: Banner) => {
     setForm({ ...b, starts_at: toLocalDatetime(b.starts_at), ends_at: toLocalDatetime(b.ends_at) });
+
+    // Load detailed analytics for this banner
+    const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString();
+    const { data: events } = await supabase
+      .from("banner_analytics")
+      .select("event_type, created_at")
+      .eq("banner_id", b.id);
+
+    const impressions = (events ?? []).filter((e: any) => e.event_type === "impression").length;
+    const clicks = (events ?? []).filter((e: any) => e.event_type === "click").length;
+
+    // Daily clicks last 7 days
+    const clickEvents = (events ?? []).filter((e: any) => e.event_type === "click" && e.created_at >= sevenDaysAgo);
+    const dailyMap: Record<string, number> = {};
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(Date.now() - i * 86400000);
+      dailyMap[format(d, "dd/MM")] = 0;
+    }
+    clickEvents.forEach((e: any) => {
+      const key = format(new Date(e.created_at), "dd/MM");
+      if (dailyMap[key] !== undefined) dailyMap[key]++;
+    });
+    const dailyClicks = Object.entries(dailyMap).map(([date, count]) => ({ date, count }));
+
+    setEditAnalytics({ impressions, clicks, dailyClicks });
     setOpen(true);
   };
 
@@ -173,6 +241,12 @@ export default function AdminBanners() {
     );
   };
 
+  const getCtr = (bannerId: string) => {
+    const a = analytics[bannerId];
+    if (!a || a.impressions === 0) return "—";
+    return ((a.clicks / a.impressions) * 100).toFixed(1) + "%";
+  };
+
   const renderTable = (list: Banner[], tabStatus: BannerStatus) => (
     <div className="bg-gray-900 rounded-xl border border-white/10 overflow-x-auto">
       <table className="w-full text-sm">
@@ -181,8 +255,12 @@ export default function AdminBanners() {
             <th className="px-3 py-2">Preview</th>
             <th className="px-3 py-2">Título</th>
             <th className="px-3 py-2">Tag</th>
+            <th className="px-3 py-2">Público</th>
             {tabStatus === "active" && <th className="px-3 py-2">Programado</th>}
             <th className="px-3 py-2">Ordem</th>
+            <th className="px-3 py-2 text-center">Impressões</th>
+            <th className="px-3 py-2 text-center">Cliques</th>
+            <th className="px-3 py-2 text-center">CTR</th>
             <th className="px-3 py-2">Ações</th>
           </tr>
         </thead>
@@ -198,8 +276,12 @@ export default function AdminBanners() {
               </td>
               <td className="px-3 py-2 max-w-[160px] truncate">{b.title}</td>
               <td className="px-3 py-2"><span className="px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 text-xs">{b.tag}</span></td>
+              <td className="px-3 py-2"><span className="text-xs text-gray-400">{audienceLabel(b.target_audience)}</span></td>
               {tabStatus === "active" && <td className="px-3 py-2">{renderScheduleInfo(b)}</td>}
               <td className="px-3 py-2 text-center">{b.display_order}</td>
+              <td className="px-3 py-2 text-center">{analytics[b.id]?.impressions ?? 0}</td>
+              <td className="px-3 py-2 text-center">{analytics[b.id]?.clicks ?? 0}</td>
+              <td className="px-3 py-2 text-center font-medium">{getCtr(b.id)}</td>
               <td className="px-3 py-2">
                 <div className="flex gap-2">
                   {tabStatus !== "deleted" && (
@@ -225,7 +307,7 @@ export default function AdminBanners() {
             </tr>
           ))}
           {list.length === 0 && (
-            <tr><td colSpan={tabStatus === "active" ? 6 : 5} className="px-4 py-6 text-center text-gray-600">Nenhum banner</td></tr>
+            <tr><td colSpan={tabStatus === "active" ? 10 : 9} className="px-4 py-6 text-center text-gray-600">Nenhum banner</td></tr>
           )}
         </tbody>
       </table>
@@ -271,6 +353,45 @@ export default function AdminBanners() {
         <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{(form as Banner).id ? "Editar" : "Novo"} Banner</DialogTitle></DialogHeader>
 
+          {/* Performance section for existing banners */}
+          {(form as Banner).id && editAnalytics && (
+            <div className="bg-gray-800/50 rounded-lg border border-white/10 p-4 space-y-3">
+              <h4 className="text-sm font-semibold text-gray-300">📊 Performance</h4>
+              <div className="grid grid-cols-3 gap-3">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-white">{editAnalytics.impressions}</div>
+                  <div className="text-xs text-gray-500">Impressões</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-white">{editAnalytics.clicks}</div>
+                  <div className="text-xs text-gray-500">Cliques</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-white">
+                    {editAnalytics.impressions > 0 ? ((editAnalytics.clicks / editAnalytics.impressions) * 100).toFixed(1) + "%" : "—"}
+                  </div>
+                  <div className="text-xs text-gray-500">CTR</div>
+                </div>
+              </div>
+              {/* Mini chart - last 7 days */}
+              <div>
+                <div className="text-xs text-gray-500 mb-1">Cliques — últimos 7 dias</div>
+                <div className="flex items-end gap-1 h-12">
+                  {editAnalytics.dailyClicks.map((d) => {
+                    const max = Math.max(...editAnalytics.dailyClicks.map((x) => x.count), 1);
+                    const h = Math.max((d.count / max) * 100, 4);
+                    return (
+                      <div key={d.date} className="flex-1 flex flex-col items-center gap-0.5">
+                        <div className="w-full rounded-sm bg-purple-500/60" style={{ height: `${h}%` }} title={`${d.date}: ${d.count}`} />
+                        <span className="text-[9px] text-gray-600">{d.date}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-3">
               <div>
@@ -280,6 +401,18 @@ export default function AdminBanners() {
                   <SelectContent>
                     <SelectItem value="futebol">Futebol</SelectItem>
                     <SelectItem value="cassino">Cassino</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label className="text-gray-400 text-xs">Público-Alvo</Label>
+                <Select value={form.target_audience || "all"} onValueChange={(v) => setForm({ ...form, target_audience: v })}>
+                  <SelectTrigger className="bg-gray-800 border-gray-700"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {AUDIENCE_OPTIONS.map((o) => (
+                      <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
