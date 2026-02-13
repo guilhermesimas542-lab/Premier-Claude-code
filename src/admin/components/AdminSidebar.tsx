@@ -2,10 +2,12 @@ import { NavLink } from "react-router-dom";
 import {
   LayoutDashboard, Image, PlusCircle, Upload, List,
   Users, Bell, BarChart3, ChevronLeft, ChevronRight,
+  Eye, DollarSign, Activity,
 } from "lucide-react";
 import { useState } from "react";
+import { useAdminMode } from "../context/AdminModeContext";
 
-const sections = [
+const futebolSections = [
   {
     label: "Gestão",
     items: [
@@ -21,13 +23,44 @@ const sections = [
   {
     label: "Analytics",
     items: [
-      { to: "/admin/analytics", icon: BarChart3, label: "Analytics" },
+      { to: "/admin/analytics", icon: BarChart3, label: "Visão Geral" },
+      { to: "/admin/analytics/events", icon: Activity, label: "Eventos" },
+    ],
+  },
+  {
+    label: "Finanças",
+    items: [
+      { to: "/admin/revenue", icon: DollarSign, label: "Receita" },
+    ],
+  },
+];
+
+const cassinoSections = [
+  {
+    label: "Gestão",
+    items: [
+      { to: "/admin/cassino", icon: LayoutDashboard, label: "Dashboard", end: true },
+    ],
+  },
+  {
+    label: "Analytics",
+    items: [
+      { to: "/admin/cassino/analytics", icon: BarChart3, label: "Visão Geral" },
+    ],
+  },
+  {
+    label: "Finanças",
+    items: [
+      { to: "/admin/cassino/revenue", icon: DollarSign, label: "Receita" },
     ],
   },
 ];
 
 export function AdminSidebar() {
   const [collapsed, setCollapsed] = useState(false);
+  const { mode, setMode } = useAdminMode();
+
+  const sections = mode === "futebol" ? futebolSections : cassinoSections;
 
   return (
     <aside
@@ -42,6 +75,30 @@ export function AdminSidebar() {
           {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
         </button>
       </div>
+
+      {/* Mode Toggle */}
+      {!collapsed && (
+        <div className="px-3 py-3 border-b border-white/10">
+          <div className="flex rounded-lg bg-gray-800 p-0.5">
+            <button
+              onClick={() => setMode("futebol")}
+              className={`flex-1 text-xs py-1.5 rounded-md font-medium transition-colors ${
+                mode === "futebol" ? "bg-blue-600 text-white" : "text-gray-400 hover:text-white"
+              }`}
+            >
+              ⚽ Futebol
+            </button>
+            <button
+              onClick={() => setMode("cassino")}
+              className={`flex-1 text-xs py-1.5 rounded-md font-medium transition-colors ${
+                mode === "cassino" ? "bg-purple-600 text-white" : "text-gray-400 hover:text-white"
+              }`}
+            >
+              🎰 Cassino
+            </button>
+          </div>
+        </div>
+      )}
 
       <nav className="flex-1 overflow-y-auto py-2 space-y-4">
         {sections.map((section) => (

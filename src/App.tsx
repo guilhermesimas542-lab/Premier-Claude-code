@@ -25,10 +25,13 @@ import AdminTipsList from "./admin/pages/AdminTipsList";
 import AdminClientsManage from "./admin/pages/AdminClientsManage";
 import AdminNotifications from "./admin/pages/AdminNotifications";
 import AdminAnalytics from "./admin/pages/AdminAnalytics";
+import AdminEventsPage from "./admin/pages/AdminEventsPage";
+import AdminOverview from "./admin/pages/AdminOverview";
+import AdminRevenue from "./admin/pages/AdminRevenue";
+import AdminCassinoPlaceholder from "./admin/pages/AdminCassinoPlaceholder";
 
 const queryClient = new QueryClient();
 
-// Mapeamento de IDs antigos para slugs novos
 const LEGACY_GAME_MAP: Record<string, string> = {
   av8: "aviator",
   roleta: "roleta",
@@ -46,21 +49,14 @@ const App = () => (
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<Home />} />
           <Route path="/sport/:sportId" element={<Sport />} />
-          {/* Rotas especiais - redirecionam para sport com filtro */}
           <Route path="/alavancagem" element={<Sport />} />
           <Route path="/odds-altas" element={<Sport />} />
           <Route path="/bonus" element={<Bonus />} />
           <Route path="/ultimos-greens" element={<UltimosGreens />} />
           <Route path="/cassino" element={<Casino />} />
-          {/* Rota de Suporte/Configurações */}
           <Route path="/support" element={<Support />} />
-          {/* Nova rota de sinais IA */}
           <Route path="/cassino/jogo/:slug" element={<CasinoSignalGame />} />
-          {/* Rota legado para compatibilidade - redireciona para nova estrutura */}
-          <Route 
-            path="/cassino/:gameId" 
-            element={<CasinoGame />} 
-          />
+          <Route path="/cassino/:gameId" element={<CasinoGame />} />
           {/* Admin routes */}
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/verify" element={<AdminVerify />} />
@@ -73,8 +69,13 @@ const App = () => (
             <Route path="clients" element={<AdminClientsManage />} />
             <Route path="notifications" element={<AdminNotifications />} />
             <Route path="analytics" element={<AdminAnalytics />} />
+            <Route path="analytics/events" element={<AdminEventsPage />} />
+            <Route path="revenue" element={<AdminRevenue />} />
+            {/* Cassino placeholders */}
+            <Route path="cassino" element={<AdminCassinoPlaceholder />} />
+            <Route path="cassino/analytics" element={<AdminCassinoPlaceholder />} />
+            <Route path="cassino/revenue" element={<AdminCassinoPlaceholder />} />
           </Route>
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
