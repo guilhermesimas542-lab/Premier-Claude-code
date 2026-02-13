@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Pencil, Trash2, Loader2, ChevronRight, Upload, X, Pause, Play, RotateCcw } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, ChevronRight, Upload, X, Pause, Play, RotateCcw, Copy, GripVertical, CheckCircle, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { useAdminMode } from "@/admin/context/AdminModeContext";
 import { format } from "date-fns";
@@ -37,6 +37,17 @@ const VIEW_AS_OPTIONS = [
   { value: "no_desaltas", label: "Sem Odds Altas", group: "addon" },
   { value: "no_live_telegram", label: "Sem Live Telegram", group: "addon" },
   { value: "no_acesso_vitalicio", label: "Sem Acesso Vitalício", group: "addon" },
+] as const;
+
+const LIMIT_CHECK_AUDIENCES = [
+  { key: "free", label: "Cliente Free" },
+  { key: "basic", label: "Cliente Básico" },
+  { key: "pro", label: "Cliente Pro" },
+  { key: "ultra", label: "Cliente Ultra" },
+  { key: "no_alavancagem", label: "Sem Alavancagem" },
+  { key: "no_desaltas", label: "Sem Odds Altas" },
+  { key: "no_live_telegram", label: "Sem Live Telegram" },
+  { key: "no_acesso_vitalicio", label: "Sem Acesso Vitalício" },
 ] as const;
 
 const audienceLabel = (v: string) => AUDIENCE_OPTIONS.find((o) => o.value === v)?.label ?? v;
@@ -95,6 +106,11 @@ export default function AdminBanners() {
   const [scheduleEnabled, setScheduleEnabled] = useState(false);
   const [confirmAction, setConfirmAction] = useState<{ title: string; description: string; onConfirm: () => void } | null>(null);
   const [editAnalytics, setEditAnalytics] = useState<{ impressions: number; clicks: number; dailyClicks: { date: string; count: number }[] } | null>(null);
+  const [limitModalOpen, setLimitModalOpen] = useState(false);
+
+  // Drag state
+  const dragItem = useRef<number | null>(null);
+  const dragOverItem = useRef<number | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -128,13 +144,23 @@ export default function AdminBanners() {
 
   useEffect(() => { load(); }, [ctx]);
 
-  // Filter by tab status + viewAs
   const items = allItems.filter((b) => {
     if (b.status !== tab) return false;
     if (viewAs === "admin") return true;
     const t = b.target_audience || "all";
     return t === "all" || t === viewAs;
   });
+
+  // Limit semaphore calculation
+  const activeBanners = allItems.filter((b) => b.status === "active");
+  const limitData = LIMIT_CHECK_AUDIENCES.map(({ key, label }) => {
+    const count = activeBanners.filter((b) => {
+      const t = b.target_audience || "all";
+      return t === "all" || t === key;
+    }).length;
+    return { label, count, over: count > 5 };
+  });
+  const hasOverLimit = limitData.some((d) => d.over);
 
   const handleUpload = async (file: File) => {
     setUploading(true);
@@ -161,9 +187,7 @@ export default function AdminBanners() {
       return;
     }
     setSaving(true);
-
     const nextOrder = allItems.length > 0 ? Math.max(...allItems.map((i) => i.display_order)) + 1 : 1;
-
     const payload: Record<string, unknown> = {
       context: form.context || ctx,
       image_url: form.image_url || "",
@@ -178,7 +202,6 @@ export default function AdminBanners() {
       ends_at: scheduleEnabled && form.ends_at ? form.ends_at : null,
       target_audience: form.target_audience || "all",
     };
-
     if ((form as Banner).id) {
       const { error } = await supabase.from("content_banners").update(payload).eq("id", (form as Banner).id);
       if (error) toast.error(error.message); else toast.success("Banner atualizado");
@@ -193,6 +216,28 @@ export default function AdminBanners() {
 
   const changeStatus = async (id: string, newStatus: BannerStatus) => {
     await supabase.from("content_banners").update({ status: newStatus }).eq("id", id);
+    load();
+  };
+
+  const duplicateBanner = async (b: Banner) => {
+    const nextOrder = allItems.length > 0 ? Math.max(...allItems.map((i) => i.display_order)) + 1 : 1;
+    const payload = {
+      context: b.context,
+      image_url: b.image_url,
+      tag: b.tag,
+      title: (b.title + " (cópia)").slice(0, 60),
+      subtitle: b.subtitle,
+      button_text: b.button_text,
+      button_link: b.button_link,
+      status: "inactive" as const,
+      display_order: nextOrder,
+      starts_at: new Date().toISOString(),
+      ends_at: null,
+      target_audience: b.target_audience,
+    };
+    const { error } = await supabase.from("content_banners").insert(payload as any);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Banner duplicado com sucesso! Ele está na aba Inativos.");
     load();
   };
 
@@ -217,8 +262,6 @@ export default function AdminBanners() {
 
   const openEdit = async (b: Banner) => {
     setForm({ ...b, starts_at: toLocalDatetime(b.starts_at), ends_at: toLocalDatetime(b.ends_at) });
-
-    // Determine if scheduling was used: if starts_at is significantly after created_at or ends_at exists
     const createdMs = new Date(b.created_at).getTime();
     const startsMs = new Date(b.starts_at).getTime();
     const hasCustomSchedule = Math.abs(startsMs - createdMs) > 60000 || !!b.ends_at;
@@ -228,10 +271,8 @@ export default function AdminBanners() {
       .from("banner_analytics")
       .select("event_type, created_at")
       .eq("banner_id", b.id);
-
     const impressions = (events ?? []).filter((e: any) => e.event_type === "impression").length;
     const clicks = (events ?? []).filter((e: any) => e.event_type === "click").length;
-
     const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString();
     const clickEvents = (events ?? []).filter((e: any) => e.event_type === "click" && e.created_at >= sevenDaysAgo);
     const dailyMap: Record<string, number> = {};
@@ -244,9 +285,41 @@ export default function AdminBanners() {
       if (dailyMap[key] !== undefined) dailyMap[key]++;
     });
     const dailyClicks = Object.entries(dailyMap).map(([date, count]) => ({ date, count }));
-
     setEditAnalytics({ impressions, clicks, dailyClicks });
     setOpen(true);
+  };
+
+  // Drag-and-drop handlers
+  const handleDragStart = (index: number) => { dragItem.current = index; };
+  const handleDragEnter = (index: number) => { dragOverItem.current = index; };
+  const handleDragEnd = async () => {
+    if (dragItem.current === null || dragOverItem.current === null || dragItem.current === dragOverItem.current) {
+      dragItem.current = null;
+      dragOverItem.current = null;
+      return;
+    }
+    // Reorder active items
+    const activeList = allItems.filter((b) => b.status === "active");
+    const reordered = [...activeList];
+    const [removed] = reordered.splice(dragItem.current, 1);
+    reordered.splice(dragOverItem.current, 0, removed);
+    dragItem.current = null;
+    dragOverItem.current = null;
+
+    // Optimistic update
+    const updatedAll = allItems.map((b) => {
+      if (b.status !== "active") return b;
+      const newIdx = reordered.findIndex((r) => r.id === b.id);
+      return { ...b, display_order: newIdx + 1 };
+    });
+    setAllItems(updatedAll);
+
+    // Save to DB
+    const updates = reordered.map((b, i) =>
+      supabase.from("content_banners").update({ display_order: i + 1 }).eq("id", b.id)
+    );
+    await Promise.all(updates);
+    toast.success("Ordem atualizada");
   };
 
   const renderScheduleInfo = (b: Banner) => {
@@ -256,7 +329,6 @@ export default function AdminBanners() {
     const startsMs = start.getTime();
     const isImmediate = Math.abs(startsMs - createdMs) < 60000 && !b.ends_at;
     const isFuture = start > now;
-
     return (
       <div className="text-xs space-y-0.5">
         {isImmediate ? (
@@ -277,70 +349,95 @@ export default function AdminBanners() {
     return ((a.clicks / a.impressions) * 100).toFixed(1) + "%";
   };
 
-  const renderTable = (list: Banner[], tabStatus: BannerStatus) => (
-    <div className="bg-gray-900 rounded-xl border border-white/10 overflow-x-auto">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b border-white/10 text-left text-gray-500">
-            <th className="px-3 py-2">Preview</th>
-            <th className="px-3 py-2">Título</th>
-            <th className="px-3 py-2">Tag</th>
-            <th className="px-3 py-2">Público</th>
-            {tabStatus === "active" && <th className="px-3 py-2">Programado</th>}
-            <th className="px-3 py-2 text-center">Impressões</th>
-            <th className="px-3 py-2 text-center">Cliques</th>
-            <th className="px-3 py-2 text-center">CTR</th>
-            <th className="px-3 py-2">Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          {list.map((b) => (
-            <tr key={b.id} className="border-b border-white/5 text-gray-300">
-              <td className="px-3 py-2">
-                {b.image_url ? (
-                  <img src={b.image_url} alt="" className="w-20 h-11 object-cover rounded-md border border-white/10" />
-                ) : (
-                  <div className="w-20 h-11 rounded-md bg-gradient-to-br from-purple-700 to-purple-900 border border-white/10" />
-                )}
-              </td>
-              <td className="px-3 py-2 max-w-[160px] truncate">{b.title}</td>
-              <td className="px-3 py-2"><span className="px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 text-xs">{b.tag}</span></td>
-              <td className="px-3 py-2"><span className="text-xs text-gray-400">{audienceLabel(b.target_audience)}</span></td>
-              {tabStatus === "active" && <td className="px-3 py-2">{renderScheduleInfo(b)}</td>}
-              <td className="px-3 py-2 text-center">{analytics[b.id]?.impressions ?? 0}</td>
-              <td className="px-3 py-2 text-center">{analytics[b.id]?.clicks ?? 0}</td>
-              <td className="px-3 py-2 text-center font-medium">{getCtr(b.id)}</td>
-              <td className="px-3 py-2">
-                <div className="flex gap-2">
-                  {tabStatus !== "deleted" && (
-                    <button onClick={() => openEdit(b)} className="text-blue-400 hover:text-blue-300" title="Editar"><Pencil className="w-4 h-4" /></button>
-                  )}
-                  {tabStatus === "active" && (
-                    <button onClick={() => setConfirmAction({ title: "Desativar banner?", description: "Ele não aparecerá mais no carrossel.", onConfirm: () => { changeStatus(b.id, "inactive"); setConfirmAction(null); } })} className="text-yellow-400 hover:text-yellow-300" title="Desativar"><Pause className="w-4 h-4" /></button>
-                  )}
-                  {tabStatus === "inactive" && (
-                    <button onClick={() => setConfirmAction({ title: "Ativar banner?", description: "Ele passará a aparecer no carrossel.", onConfirm: () => { changeStatus(b.id, "active"); setConfirmAction(null); } })} className="text-green-400 hover:text-green-300" title="Ativar"><Play className="w-4 h-4" /></button>
-                  )}
-                  {tabStatus !== "deleted" && (
-                    <button onClick={() => setConfirmAction({ title: "Excluir banner?", description: "Ele será movido para a lixeira.", onConfirm: () => { changeStatus(b.id, "deleted"); setConfirmAction(null); } })} className="text-red-400 hover:text-red-300" title="Excluir"><Trash2 className="w-4 h-4" /></button>
-                  )}
-                  {tabStatus === "deleted" && (
-                    <>
-                      <button onClick={() => setConfirmAction({ title: "Restaurar banner?", description: "Ele voltará para a aba Inativos.", onConfirm: () => { changeStatus(b.id, "inactive"); setConfirmAction(null); } })} className="text-blue-400 hover:text-blue-300" title="Restaurar"><RotateCcw className="w-4 h-4" /></button>
-                      <button onClick={() => setConfirmAction({ title: "Excluir permanentemente?", description: "Esta ação é irreversível. O banner será apagado permanentemente.", onConfirm: () => { permanentDelete(b); setConfirmAction(null); } })} className="text-red-500 hover:text-red-400" title="Excluir permanentemente"><Trash2 className="w-4 h-4" /></button>
-                    </>
-                  )}
-                </div>
-              </td>
+  const renderTable = (list: Banner[], tabStatus: BannerStatus) => {
+    const isActiveTab = tabStatus === "active";
+    // For drag-and-drop we need the unfiltered active list order
+    const activeListForDrag = isActiveTab ? allItems.filter((b) => b.status === "active") : [];
+
+    return (
+      <div className="bg-gray-900 rounded-xl border border-white/10 overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-white/10 text-left text-gray-500">
+              {isActiveTab && viewAs === "admin" && <th className="px-1 py-2 w-8"></th>}
+              <th className="px-3 py-2">Preview</th>
+              <th className="px-3 py-2">Título</th>
+              <th className="px-3 py-2">Tag</th>
+              <th className="px-3 py-2">Público</th>
+              {isActiveTab && <th className="px-3 py-2">Programado</th>}
+              <th className="px-3 py-2 text-center">Impressões</th>
+              <th className="px-3 py-2 text-center">Cliques</th>
+              <th className="px-3 py-2 text-center">CTR</th>
+              <th className="px-3 py-2">Ações</th>
             </tr>
-          ))}
-          {list.length === 0 && (
-            <tr><td colSpan={tabStatus === "active" ? 9 : 8} className="px-4 py-6 text-center text-gray-600">Nenhum banner</td></tr>
-          )}
-        </tbody>
-      </table>
-    </div>
-  );
+          </thead>
+          <tbody>
+            {list.map((b) => {
+              const dragIndex = isActiveTab ? activeListForDrag.findIndex((x) => x.id === b.id) : -1;
+              return (
+                <tr
+                  key={b.id}
+                  className="border-b border-white/5 text-gray-300"
+                  draggable={isActiveTab && viewAs === "admin"}
+                  onDragStart={() => handleDragStart(dragIndex)}
+                  onDragEnter={() => handleDragEnter(dragIndex)}
+                  onDragEnd={handleDragEnd}
+                  onDragOver={(e) => e.preventDefault()}
+                >
+                  {isActiveTab && viewAs === "admin" && (
+                    <td className="px-1 py-2 cursor-grab active:cursor-grabbing">
+                      <GripVertical className="w-4 h-4 text-gray-600" />
+                    </td>
+                  )}
+                  <td className="px-3 py-2">
+                    {b.image_url ? (
+                      <img src={b.image_url} alt="" className="w-20 h-11 object-cover rounded-md border border-white/10" />
+                    ) : (
+                      <div className="w-20 h-11 rounded-md bg-gradient-to-br from-purple-700 to-purple-900 border border-white/10" />
+                    )}
+                  </td>
+                  <td className="px-3 py-2 max-w-[160px] truncate">{b.title}</td>
+                  <td className="px-3 py-2"><span className="px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 text-xs">{b.tag}</span></td>
+                  <td className="px-3 py-2"><span className="text-xs text-gray-400">{audienceLabel(b.target_audience)}</span></td>
+                  {isActiveTab && <td className="px-3 py-2">{renderScheduleInfo(b)}</td>}
+                  <td className="px-3 py-2 text-center">{analytics[b.id]?.impressions ?? 0}</td>
+                  <td className="px-3 py-2 text-center">{analytics[b.id]?.clicks ?? 0}</td>
+                  <td className="px-3 py-2 text-center font-medium">{getCtr(b.id)}</td>
+                  <td className="px-3 py-2">
+                    <div className="flex gap-2">
+                      {tabStatus !== "deleted" && (
+                        <button onClick={() => openEdit(b)} className="text-blue-400 hover:text-blue-300" title="Editar"><Pencil className="w-4 h-4" /></button>
+                      )}
+                      {/* Duplicate - available on all tabs */}
+                      <button onClick={() => duplicateBanner(b)} className="text-cyan-400 hover:text-cyan-300" title="Duplicar"><Copy className="w-4 h-4" /></button>
+                      {tabStatus === "active" && (
+                        <button onClick={() => setConfirmAction({ title: "Desativar banner?", description: "Ele não aparecerá mais no carrossel.", onConfirm: () => { changeStatus(b.id, "inactive"); setConfirmAction(null); } })} className="text-yellow-400 hover:text-yellow-300" title="Desativar"><Pause className="w-4 h-4" /></button>
+                      )}
+                      {tabStatus === "inactive" && (
+                        <button onClick={() => setConfirmAction({ title: "Ativar banner?", description: "Ele passará a aparecer no carrossel.", onConfirm: () => { changeStatus(b.id, "active"); setConfirmAction(null); } })} className="text-green-400 hover:text-green-300" title="Ativar"><Play className="w-4 h-4" /></button>
+                      )}
+                      {tabStatus !== "deleted" && (
+                        <button onClick={() => setConfirmAction({ title: "Excluir banner?", description: "Ele será movido para a lixeira.", onConfirm: () => { changeStatus(b.id, "deleted"); setConfirmAction(null); } })} className="text-red-400 hover:text-red-300" title="Excluir"><Trash2 className="w-4 h-4" /></button>
+                      )}
+                      {tabStatus === "deleted" && (
+                        <>
+                          <button onClick={() => setConfirmAction({ title: "Restaurar banner?", description: "Ele voltará para a aba Inativos.", onConfirm: () => { changeStatus(b.id, "inactive"); setConfirmAction(null); } })} className="text-blue-400 hover:text-blue-300" title="Restaurar"><RotateCcw className="w-4 h-4" /></button>
+                          <button onClick={() => setConfirmAction({ title: "Excluir permanentemente?", description: "Esta ação é irreversível. O banner será apagado permanentemente.", onConfirm: () => { permanentDelete(b); setConfirmAction(null); } })} className="text-red-500 hover:text-red-400" title="Excluir permanentemente"><Trash2 className="w-4 h-4" /></button>
+                        </>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+            {list.length === 0 && (
+              <tr><td colSpan={isActiveTab ? (viewAs === "admin" ? 11 : 10) : (viewAs === "admin" ? 9 : 9)} className="px-4 py-6 text-center text-gray-600">Nenhum banner</td></tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    );
+  };
 
   if (loading) return <div className="text-gray-400">Carregando…</div>;
 
@@ -348,7 +445,22 @@ export default function AdminBanners() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold">Banners — {ctx === "futebol" ? "Futebol" : "Cassino"}</h2>
-        <Button size="sm" onClick={openNew}><Plus className="w-4 h-4" /> Novo</Button>
+        <div className="flex items-center gap-3">
+          {/* Limit semaphore */}
+          <button
+            onClick={() => setLimitModalOpen(true)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+              hasOverLimit
+                ? "bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-500/20"
+                : "bg-green-500/10 border-green-500/30 text-green-400 hover:bg-green-500/20"
+            }`}
+            title="Status de banners por tipo de cliente"
+          >
+            {hasOverLimit ? <AlertCircle className="w-3.5 h-3.5" /> : <CheckCircle className="w-3.5 h-3.5" />}
+            {hasOverLimit ? "Atenção" : "OK"}
+          </button>
+          <Button size="sm" onClick={openNew}><Plus className="w-4 h-4" /> Novo</Button>
+        </div>
       </div>
 
       {/* View-as filter */}
@@ -382,6 +494,40 @@ export default function AdminBanners() {
         <TabsContent value="deleted">{renderTable(items, "deleted")}</TabsContent>
       </Tabs>
 
+      {/* Limit Modal */}
+      <Dialog open={limitModalOpen} onOpenChange={setLimitModalOpen}>
+        <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-md">
+          <DialogHeader><DialogTitle>Banners por Tipo de Cliente</DialogTitle></DialogHeader>
+          <p className="text-xs text-gray-500 mb-3">Máximo recomendado: 5 banners ativos por tipo de cliente.</p>
+          <div className="rounded-lg border border-white/10 overflow-hidden">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-white/10 text-gray-500">
+                  <th className="px-3 py-2 text-left">Tipo de Cliente</th>
+                  <th className="px-3 py-2 text-center">Banners</th>
+                  <th className="px-3 py-2 text-center">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {limitData.map((d) => (
+                  <tr key={d.label} className={`border-b border-white/5 ${d.over ? "bg-red-500/5" : ""}`}>
+                    <td className="px-3 py-2 text-gray-300">{d.label}</td>
+                    <td className="px-3 py-2 text-center font-medium text-white">{d.count}</td>
+                    <td className="px-3 py-2 text-center">
+                      {d.over ? (
+                        <span className="text-red-400 text-xs">⚠️ Acima do limite</span>
+                      ) : (
+                        <span className="text-green-400 text-xs">✅ OK</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* Confirm Dialog */}
       <AlertDialog open={!!confirmAction} onOpenChange={(o) => { if (!o) setConfirmAction(null); }}>
         <AlertDialogContent className="bg-gray-900 border-gray-800 text-white">
@@ -401,7 +547,6 @@ export default function AdminBanners() {
         <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{(form as Banner).id ? "Editar" : "Novo"} Banner</DialogTitle></DialogHeader>
 
-          {/* Performance section for existing banners */}
           {(form as Banner).id && editAnalytics && (
             <div className="bg-gray-800/50 rounded-lg border border-white/10 p-4 space-y-3">
               <h4 className="text-sm font-semibold text-gray-300">📊 Performance</h4>
@@ -504,7 +649,6 @@ export default function AdminBanners() {
                 <Input placeholder="https://... ou /rota" value={form.button_link ?? ""} onChange={(e) => setForm({ ...form, button_link: e.target.value })} className="bg-gray-800 border-gray-700" />
               </div>
 
-              {/* Schedule toggle */}
               <div className="space-y-2">
                 <div className="flex items-center gap-3">
                   <Switch checked={scheduleEnabled} onCheckedChange={setScheduleEnabled} />
