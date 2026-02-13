@@ -13,6 +13,17 @@ import CasinoSignalGame from "./pages/CasinoSignalGame";
 import UltimosGreens from "./pages/UltimosGreens";
 import Support from "./pages/Support";
 import NotFound from "./pages/NotFound";
+import { AdminGuard } from "./admin/components/AdminGuard";
+import { AdminLayout } from "./admin/components/AdminLayout";
+import AdminLogin from "./admin/pages/AdminLogin";
+import AdminDashboard from "./admin/pages/AdminDashboard";
+import AdminBanners from "./admin/pages/AdminBanners";
+import AdminTipsCreate from "./admin/pages/AdminTipsCreate";
+import AdminTipsImport from "./admin/pages/AdminTipsImport";
+import AdminTipsList from "./admin/pages/AdminTipsList";
+import AdminClientsManage from "./admin/pages/AdminClientsManage";
+import AdminNotifications from "./admin/pages/AdminNotifications";
+import AdminAnalytics from "./admin/pages/AdminAnalytics";
 
 const queryClient = new QueryClient();
 
@@ -49,6 +60,18 @@ const App = () => (
             path="/cassino/:gameId" 
             element={<CasinoGame />} 
           />
+          {/* Admin routes */}
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin" element={<AdminGuard><AdminLayout /></AdminGuard>}>
+            <Route index element={<AdminDashboard />} />
+            <Route path="banners" element={<AdminBanners />} />
+            <Route path="tips/create" element={<AdminTipsCreate />} />
+            <Route path="tips/import" element={<AdminTipsImport />} />
+            <Route path="tips/list" element={<AdminTipsList />} />
+            <Route path="clients" element={<AdminClientsManage />} />
+            <Route path="notifications" element={<AdminNotifications />} />
+            <Route path="analytics" element={<AdminAnalytics />} />
+          </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

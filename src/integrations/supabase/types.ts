@@ -14,6 +14,21 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_emails: {
+        Row: {
+          created_at: string
+          email: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+        }
+        Relationships: []
+      }
       content_banners: {
         Row: {
           active: boolean
@@ -54,36 +69,84 @@ export type Database = {
         Row: {
           active: boolean
           addon_required: Database["public"]["Enums"]["product_key"] | null
+          category: string | null
+          category_explanation: string | null
+          classification: string | null
+          condition_to_win: string | null
           created_at: string
           date: string
+          expires_at: string | null
           id: string
+          justification: string | null
+          link: string | null
           market: string | null
           metadata: Json | null
           odd: number | null
+          starts_at: string | null
+          team1_name: string | null
+          team1_primary_color: string | null
+          team1_secondary_color: string | null
+          team1_shirt_variant: string | null
+          team2_name: string | null
+          team2_primary_color: string | null
+          team2_secondary_color: string | null
+          team2_shirt_variant: string | null
           tier_required: Database["public"]["Enums"]["main_tier"]
           title: string
         }
         Insert: {
           active?: boolean
           addon_required?: Database["public"]["Enums"]["product_key"] | null
+          category?: string | null
+          category_explanation?: string | null
+          classification?: string | null
+          condition_to_win?: string | null
           created_at?: string
           date: string
+          expires_at?: string | null
           id?: string
+          justification?: string | null
+          link?: string | null
           market?: string | null
           metadata?: Json | null
           odd?: number | null
+          starts_at?: string | null
+          team1_name?: string | null
+          team1_primary_color?: string | null
+          team1_secondary_color?: string | null
+          team1_shirt_variant?: string | null
+          team2_name?: string | null
+          team2_primary_color?: string | null
+          team2_secondary_color?: string | null
+          team2_shirt_variant?: string | null
           tier_required?: Database["public"]["Enums"]["main_tier"]
           title: string
         }
         Update: {
           active?: boolean
           addon_required?: Database["public"]["Enums"]["product_key"] | null
+          category?: string | null
+          category_explanation?: string | null
+          classification?: string | null
+          condition_to_win?: string | null
           created_at?: string
           date?: string
+          expires_at?: string | null
           id?: string
+          justification?: string | null
+          link?: string | null
           market?: string | null
           metadata?: Json | null
           odd?: number | null
+          starts_at?: string | null
+          team1_name?: string | null
+          team1_primary_color?: string | null
+          team1_secondary_color?: string | null
+          team1_shirt_variant?: string | null
+          team2_name?: string | null
+          team2_primary_color?: string | null
+          team2_secondary_color?: string | null
+          team2_shirt_variant?: string | null
           tier_required?: Database["public"]["Enums"]["main_tier"]
           title?: string
         }
@@ -161,6 +224,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          scheduled_at: string | null
+          sent_at: string | null
+          target: string
+          target_email: string | null
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          scheduled_at?: string | null
+          sent_at?: string | null
+          target?: string
+          target_email?: string | null
+          title: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          scheduled_at?: string | null
+          sent_at?: string | null
+          target?: string
+          target_email?: string | null
+          title?: string
+        }
+        Relationships: []
       }
       orders: {
         Row: {
@@ -304,6 +400,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_admin: { Args: never; Returns: boolean }
     }
     Enums: {
       entitlement_source: "purchase" | "manual" | "admin"
