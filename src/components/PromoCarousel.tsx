@@ -27,13 +27,16 @@ export const PromoCarousel = ({ context = "futebol" }: PromoCarouselProps) => {
 
   useEffect(() => {
     const fetchBanners = async () => {
+      const now = new Date().toISOString();
       const { data } = await supabase
         .from("content_banners")
         .select("id, image_url, tag, title, subtitle, button_text, button_link")
         .eq("context", context)
-        .eq("active", true)
+        .eq("status", "active")
+        .lte("starts_at", now)
+        .or(`ends_at.is.null,ends_at.gte.${now}`)
         .order("display_order", { ascending: true });
-      setBanners((data as BannerItem[]) ?? []);
+      setBanners((data as unknown as BannerItem[]) ?? []);
       setLoading(false);
     };
     fetchBanners();
@@ -52,7 +55,6 @@ export const PromoCarousel = ({ context = "futebol" }: PromoCarouselProps) => {
     return () => { emblaApi.off("select", onSelect); emblaApi.off("reInit", onSelect); };
   }, [emblaApi, onSelect]);
 
-  // Auto-scroll
   useEffect(() => {
     if (!emblaApi || banners.length <= 1) return;
     const interval = setInterval(() => emblaApi.scrollNext(), 5000);
