@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, Pencil, Trash2, Loader2, ChevronRight, Upload, X, Pause, Play, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
@@ -24,6 +25,14 @@ const AUDIENCE_OPTIONS = [
   { value: "no_desaltas", label: "Sem Odds Altas" },
   { value: "no_live_telegram", label: "Sem Live Telegram" },
   { value: "no_acesso_vitalicio", label: "Sem Acesso Vitalício" },
+] as const;
+
+const VIEW_AS_OPTIONS = [
+  { value: "admin", label: "Admin (Todos)" },
+  { value: "free", label: "Cliente Free" },
+  { value: "basic", label: "Cliente Básico" },
+  { value: "pro", label: "Cliente Pro" },
+  { value: "ultra", label: "Cliente Ultra" },
 ] as const;
 
 const audienceLabel = (v: string) => AUDIENCE_OPTIONS.find((o) => o.value === v)?.label ?? v;
@@ -78,6 +87,8 @@ export default function AdminBanners() {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [tab, setTab] = useState<BannerStatus>("active");
+  const [viewAs, setViewAs] = useState("admin");
+  const [scheduleEnabled, setScheduleEnabled] = useState(false);
   const [confirmAction, setConfirmAction] = useState<{ title: string; description: string; onConfirm: () => void } | null>(null);
   const [editAnalytics, setEditAnalytics] = useState<{ impressions: number; clicks: number; dailyClicks: { date: string; count: number }[] } | null>(null);
 
@@ -91,7 +102,6 @@ export default function AdminBanners() {
     const banners = (data as unknown as Banner[]) ?? [];
     setAllItems(banners);
 
-    // Load analytics for all banners
     if (banners.length > 0) {
       const ids = banners.map((b) => b.id);
       const { data: events } = await supabase
@@ -114,7 +124,13 @@ export default function AdminBanners() {
 
   useEffect(() => { load(); }, [ctx]);
 
-  const items = allItems.filter((b) => b.status === tab);
+  // Filter by tab status + viewAs
+  const items = allItems.filter((b) => {
+    if (b.status !== tab) return false;
+    if (viewAs === "admin") return true;
+    const t = b.target_audience || "all";
+    return t === "all" || t === viewAs;
+  });
 
   const handleUpload = async (file: File) => {
     setUploading(true);
@@ -141,6 +157,9 @@ export default function AdminBanners() {
       return;
     }
     setSaving(true);
+
+    const nextOrder = allItems.length > 0 ? Math.max(...allItems.map((i) => i.display_order)) + 1 : 1;
+
     const payload: Record<string, unknown> = {
       context: form.context || ctx,
       image_url: form.image_url || "",
@@ -150,9 +169,9 @@ export default function AdminBanners() {
       button_text: form.button_text || null,
       button_link: form.button_link || null,
       status: form.status ?? "active",
-      display_order: form.display_order ?? 0,
-      starts_at: form.starts_at || new Date().toISOString(),
-      ends_at: form.ends_at || null,
+      display_order: (form as Banner).id ? form.display_order ?? 0 : nextOrder,
+      starts_at: scheduleEnabled && form.starts_at ? form.starts_at : new Date().toISOString(),
+      ends_at: scheduleEnabled && form.ends_at ? form.ends_at : null,
       target_audience: form.target_audience || "all",
     };
 
@@ -186,11 +205,8 @@ export default function AdminBanners() {
   };
 
   const openNew = () => {
-    const nextOrder = allItems.length > 0 ? Math.max(...allItems.map((i) => i.display_order)) + 1 : 1;
-    const now = new Date();
-    const offset = now.getTimezoneOffset() * 60000;
-    const localNow = new Date(now.getTime() - offset).toISOString().slice(0, 16);
-    setForm({ ...emptyForm, context: ctx, display_order: nextOrder, starts_at: localNow, ends_at: "" });
+    setForm({ ...emptyForm, context: ctx, display_order: 0, starts_at: "", ends_at: "" });
+    setScheduleEnabled(false);
     setEditAnalytics(null);
     setOpen(true);
   };
@@ -198,8 +214,12 @@ export default function AdminBanners() {
   const openEdit = async (b: Banner) => {
     setForm({ ...b, starts_at: toLocalDatetime(b.starts_at), ends_at: toLocalDatetime(b.ends_at) });
 
-    // Load detailed analytics for this banner
-    const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString();
+    // Determine if scheduling was used: if starts_at is significantly after created_at or ends_at exists
+    const createdMs = new Date(b.created_at).getTime();
+    const startsMs = new Date(b.starts_at).getTime();
+    const hasCustomSchedule = Math.abs(startsMs - createdMs) > 60000 || !!b.ends_at;
+    setScheduleEnabled(hasCustomSchedule);
+
     const { data: events } = await supabase
       .from("banner_analytics")
       .select("event_type, created_at")
@@ -208,7 +228,7 @@ export default function AdminBanners() {
     const impressions = (events ?? []).filter((e: any) => e.event_type === "impression").length;
     const clicks = (events ?? []).filter((e: any) => e.event_type === "click").length;
 
-    // Daily clicks last 7 days
+    const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString();
     const clickEvents = (events ?? []).filter((e: any) => e.event_type === "click" && e.created_at >= sevenDaysAgo);
     const dailyMap: Record<string, number> = {};
     for (let i = 6; i >= 0; i--) {
@@ -228,10 +248,16 @@ export default function AdminBanners() {
   const renderScheduleInfo = (b: Banner) => {
     const now = new Date();
     const start = new Date(b.starts_at);
+    const createdMs = new Date(b.created_at).getTime();
+    const startsMs = start.getTime();
+    const isImmediate = Math.abs(startsMs - createdMs) < 60000 && !b.ends_at;
     const isFuture = start > now;
+
     return (
       <div className="text-xs space-y-0.5">
-        {isFuture ? (
+        {isImmediate ? (
+          <span className="text-gray-400">Publicado em {format(start, "dd/MM/yyyy")}</span>
+        ) : isFuture ? (
           <span className="text-amber-400">Inicia em {format(start, "dd/MM/yyyy HH:mm")}</span>
         ) : (
           <span className="text-green-400">Ativo desde {format(start, "dd/MM/yyyy HH:mm")}</span>
@@ -257,7 +283,6 @@ export default function AdminBanners() {
             <th className="px-3 py-2">Tag</th>
             <th className="px-3 py-2">Público</th>
             {tabStatus === "active" && <th className="px-3 py-2">Programado</th>}
-            <th className="px-3 py-2">Ordem</th>
             <th className="px-3 py-2 text-center">Impressões</th>
             <th className="px-3 py-2 text-center">Cliques</th>
             <th className="px-3 py-2 text-center">CTR</th>
@@ -278,7 +303,6 @@ export default function AdminBanners() {
               <td className="px-3 py-2"><span className="px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 text-xs">{b.tag}</span></td>
               <td className="px-3 py-2"><span className="text-xs text-gray-400">{audienceLabel(b.target_audience)}</span></td>
               {tabStatus === "active" && <td className="px-3 py-2">{renderScheduleInfo(b)}</td>}
-              <td className="px-3 py-2 text-center">{b.display_order}</td>
               <td className="px-3 py-2 text-center">{analytics[b.id]?.impressions ?? 0}</td>
               <td className="px-3 py-2 text-center">{analytics[b.id]?.clicks ?? 0}</td>
               <td className="px-3 py-2 text-center font-medium">{getCtr(b.id)}</td>
@@ -307,7 +331,7 @@ export default function AdminBanners() {
             </tr>
           ))}
           {list.length === 0 && (
-            <tr><td colSpan={tabStatus === "active" ? 10 : 9} className="px-4 py-6 text-center text-gray-600">Nenhum banner</td></tr>
+            <tr><td colSpan={tabStatus === "active" ? 9 : 8} className="px-4 py-6 text-center text-gray-600">Nenhum banner</td></tr>
           )}
         </tbody>
       </table>
@@ -321,6 +345,21 @@ export default function AdminBanners() {
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold">Banners — {ctx === "futebol" ? "Futebol" : "Cassino"}</h2>
         <Button size="sm" onClick={openNew}><Plus className="w-4 h-4" /> Novo</Button>
+      </div>
+
+      {/* View-as filter */}
+      <div className="flex items-center gap-3">
+        <span className="text-sm text-gray-400">Visualizar como:</span>
+        <Select value={viewAs} onValueChange={setViewAs}>
+          <SelectTrigger className="w-[180px] bg-gray-800 border-gray-700 h-8 text-sm">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {VIEW_AS_OPTIONS.map((o) => (
+              <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <Tabs value={tab} onValueChange={(v) => setTab(v as BannerStatus)} className="w-full">
@@ -373,7 +412,6 @@ export default function AdminBanners() {
                   <div className="text-xs text-gray-500">CTR</div>
                 </div>
               </div>
-              {/* Mini chart - last 7 days */}
               <div>
                 <div className="text-xs text-gray-500 mb-1">Cliques — últimos 7 dias</div>
                 <div className="flex items-end gap-1 h-12">
@@ -457,20 +495,27 @@ export default function AdminBanners() {
                 <Input placeholder="https://... ou /rota" value={form.button_link ?? ""} onChange={(e) => setForm({ ...form, button_link: e.target.value })} className="bg-gray-800 border-gray-700" />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <Label className="text-gray-400 text-xs">Programar Início (Brasília)</Label>
-                  <Input type="datetime-local" value={form.starts_at ?? ""} onChange={(e) => setForm({ ...form, starts_at: e.target.value })} className="bg-gray-800 border-gray-700" />
+              {/* Schedule toggle */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-3">
+                  <Switch checked={scheduleEnabled} onCheckedChange={setScheduleEnabled} />
+                  <Label className="text-gray-300 text-sm cursor-pointer" onClick={() => setScheduleEnabled(!scheduleEnabled)}>Programar publicação</Label>
                 </div>
-                <div>
-                  <Label className="text-gray-400 text-xs">Programar Fim (opcional)</Label>
-                  <Input type="datetime-local" value={form.ends_at ?? ""} onChange={(e) => setForm({ ...form, ends_at: e.target.value })} className="bg-gray-800 border-gray-700" />
-                </div>
-              </div>
-
-              <div>
-                <Label className="text-gray-400 text-xs">Ordem</Label>
-                <Input type="number" min={0} value={form.display_order ?? 0} onChange={(e) => setForm({ ...form, display_order: Number(e.target.value) })} className="bg-gray-800 border-gray-700" />
+                {!scheduleEnabled && (form as Banner).id && form.starts_at && (
+                  <p className="text-xs text-gray-500">Publicado imediatamente em {format(new Date((form as Banner).created_at || form.starts_at!), "dd/MM/yyyy HH:mm")}</p>
+                )}
+                {scheduleEnabled && (
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label className="text-gray-400 text-xs">Programar Início (Brasília)</Label>
+                      <Input type="datetime-local" value={form.starts_at ?? ""} onChange={(e) => setForm({ ...form, starts_at: e.target.value })} className="bg-gray-800 border-gray-700" />
+                    </div>
+                    <div>
+                      <Label className="text-gray-400 text-xs">Programar Fim (opcional)</Label>
+                      <Input type="datetime-local" value={form.ends_at ?? ""} onChange={(e) => setForm({ ...form, ends_at: e.target.value })} className="bg-gray-800 border-gray-700" />
+                    </div>
+                  </div>
+                )}
               </div>
 
               <Button onClick={handleSave} disabled={saving} className="w-full">
