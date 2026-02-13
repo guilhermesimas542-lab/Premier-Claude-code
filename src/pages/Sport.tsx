@@ -1,18 +1,73 @@
-import { ArrowLeft, LogOut, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { ArrowLeft, LogOut, ChevronLeft, ChevronRight, Loader2, Lock } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState, useRef, useCallback } from "react";
 import { PremiumBettingCard } from "@/components/PremiumBettingCard";
 import { SpecialBettingCard } from "@/components/SpecialBettingCard";
 import { JustificativaModal } from "@/components/JustificativaModal";
+import { LockedTipModal } from "@/components/LockedTipModal";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { isAuthenticated, clearAuth, getStoredConfig } from "@/lib/auth";
+import { isAuthenticated, clearAuth } from "@/lib/auth";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { BottomNav } from "@/components/BottomNav";
-import { MOCK_TIPS, MockDisplayEntry } from "@/mocks/tips";
+import { supabase } from "@/integrations/supabase/client";
+import { mockGetUser } from "@/mocks/user";
 
-// ============ TIPOS DE TIER ============
+// ============ TIPOS ============
 type TierType = "GRÁTIS" | "ALAVANCAGEM" | "ODDS_ALTAS" | "BÁSICO" | "PRO" | "ULTRA" | "MÚLTIPLA";
+
+interface DisplayTip {
+  id: string;
+  date: string;
+  title: string;
+  category: string | null;
+  category_explanation: string | null;
+  condition_to_win: string | null;
+  classification: string | null;
+  justification: string | null;
+  odd: number | null;
+  tier_required: string;
+  addon_required: string | null;
+  starts_at: string | null;
+  expires_at: string | null;
+  link: string | null;
+  team1_name: string | null;
+  team1_shirt_variant: string | null;
+  team1_primary_color: string | null;
+  team1_secondary_color: string | null;
+  team2_name: string | null;
+  team2_shirt_variant: string | null;
+  team2_primary_color: string | null;
+  team2_secondary_color: string | null;
+  metadata: any;
+  created_at: string;
+  display_status: "unlocked" | "locked" | "expired";
+}
+
+// Map DB tier to display tier
+function mapTierToDisplay(tierRequired: string, addonRequired: string | null): TierType {
+  if (addonRequired === "alavancagem") return "ALAVANCAGEM";
+  if (addonRequired === "desaltas") return "ODDS_ALTAS";
+  switch (tierRequired) {
+    case "free": return "GRÁTIS";
+    case "basic": return "BÁSICO";
+    case "pro": return "PRO";
+    case "ultra": return "ULTRA";
+    default: return "BÁSICO";
+  }
+}
+
+// Map DB tier to display label for locked modal
+function getTierLabel(tierRequired: string, addonRequired: string | null): string {
+  if (addonRequired === "alavancagem") return "Alavancagem";
+  if (addonRequired === "desaltas") return "Odds Altas";
+  switch (tierRequired) {
+    case "basic": return "Básico";
+    case "pro": return "Pro";
+    case "ultra": return "Ultra";
+    default: return "Premium";
+  }
+}
 
 const TIER_TABS: { tier: TierType; label: string; labelShort: string }[] = [
   { tier: "GRÁTIS", label: "Grátis", labelShort: "Grátis" },
@@ -38,6 +93,17 @@ const Sport = () => {
   const [justificativaModalOpen, setJustificativaModalOpen] = useState(false);
   const [justificativaTexto, setJustificativaTexto] = useState("");
   
+  // Locked modal state
+  const [lockedModalOpen, setLockedModalOpen] = useState(false);
+  const [lockedTierLabel, setLockedTierLabel] = useState("");
+  const [lockedTierRequired, setLockedTierRequired] = useState("");
+  const [lockedAddonRequired, setLockedAddonRequired] = useState<string | null>(null);
+
+  // Data state
+  const [tips, setTips] = useState<DisplayTip[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
   const activeCarouselRef = useRef<HTMLDivElement>(null);
   const expiredCarouselRef = useRef<HTMLDivElement>(null);
   const activeCardRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -46,21 +112,49 @@ const Sport = () => {
   const isAlavancagemRoute = pathname === "/alavancagem";
   const isOddsAltasRoute = pathname === "/odds-altas";
 
-  // ========== DADOS MOCK ==========
-  const activeEntries = MOCK_TIPS.filter(e => !e.isExpired);
-  const expiredEntries = MOCK_TIPS.filter(e => e.isExpired);
-  const isLoading = false;
-  const error: string | null = null;
+  // Fetch tips from DB
+  const fetchTips = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const user = mockGetUser();
+      if (!user) {
+        setError("Usuário não autenticado");
+        setIsLoading(false);
+        return;
+      }
+
+      const { data, error: rpcError } = await supabase.rpc("get_display_tips", {
+        p_email: user.email,
+      });
+
+      if (rpcError) {
+        console.error("Erro ao buscar tips:", rpcError);
+        setError("Erro ao carregar tips");
+      } else {
+        setTips((data as DisplayTip[]) || []);
+      }
+    } catch (err) {
+      console.error("Erro inesperado:", err);
+      setError("Erro inesperado ao carregar tips");
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  // Derived data
+  const activeEntries = tips.filter(t => t.display_status !== "expired");
+  const expiredEntries = tips.filter(t => t.display_status === "expired");
 
   const tipsByTier = activeEntries.reduce((acc, entry) => {
-    const tier = entry.tier as TierType;
+    const tier = mapTierToDisplay(entry.tier_required, entry.addon_required);
     if (!acc[tier]) acc[tier] = [];
     acc[tier].push(entry);
     return acc;
-  }, {} as Record<TierType, MockDisplayEntry[]>);
+  }, {} as Record<TierType, DisplayTip[]>);
 
   const getFirstIndexOfTier = (tier: TierType): number => {
-    return activeEntries.findIndex(entry => entry.tier === tier);
+    return activeEntries.findIndex(entry => mapTierToDisplay(entry.tier_required, entry.addon_required) === tier);
   };
 
   const scrollToTier = (tier: TierType) => {
@@ -116,12 +210,17 @@ const Sport = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
     if (!isAuthenticated()) { navigate("/login"); return; }
+    fetchTips();
+  }, [navigate, sportId, fetchTips]);
+
+  useEffect(() => {
+    if (isLoading || activeEntries.length === 0) return;
     const scrollTimeout = setTimeout(() => {
       if (isAlavancagemRoute) scrollToTier("ALAVANCAGEM");
       else if (isOddsAltasRoute) scrollToTier("ODDS_ALTAS");
     }, 500);
     return () => clearTimeout(scrollTimeout);
-  }, [navigate, sportId, isAlavancagemRoute, isOddsAltasRoute]);
+  }, [isLoading, activeEntries.length, isAlavancagemRoute, isOddsAltasRoute]);
 
   useEffect(() => {
     const container = activeCarouselRef.current;
@@ -141,9 +240,16 @@ const Sport = () => {
     navigate("/login");
   };
 
-  const handleAddTip = (entry: MockDisplayEntry) => {
-    if (entry.urlIframe) setIframeUrl(entry.urlIframe);
+  const handleAddTip = (entry: DisplayTip) => {
+    if (entry.link) setIframeUrl(entry.link);
     toast.success("Tip adicionada!", { description: "Cupom carregado no site de apostas" });
+  };
+
+  const handleLockedClick = (entry: DisplayTip) => {
+    setLockedTierLabel(getTierLabel(entry.tier_required, entry.addon_required));
+    setLockedTierRequired(entry.tier_required);
+    setLockedAddonRequired(entry.addon_required);
+    setLockedModalOpen(true);
   };
 
   const handleOpenJustificativa = useCallback((texto: string) => {
@@ -155,49 +261,87 @@ const Sport = () => {
     setJustificativaModalOpen(false);
   }, []);
 
-  const isSpecialEntry = (entry: MockDisplayEntry): boolean => {
-    return entry.tier === "ALAVANCAGEM" || entry.tier === "ODDS_ALTAS";
+  const isSpecialEntry = (entry: DisplayTip): boolean => {
+    return entry.addon_required === "alavancagem" || entry.addon_required === "desaltas";
   };
 
-  const renderEntryCard = (entry: MockDisplayEntry, index: number, isExpiredSection: boolean = false) => {
+  const renderEntryCard = (entry: DisplayTip, index: number, isExpiredSection: boolean = false) => {
     const isSpecial = isSpecialEntry(entry);
+    const displayTier = mapTierToDisplay(entry.tier_required, entry.addon_required);
+    const isLocked = entry.display_status === "locked";
+    const isExpired = entry.display_status === "expired";
+
+    // Build team objects from DB fields
+    const team1 = {
+      name: entry.team1_name || "Time 1",
+      shirt: entry.team1_shirt_variant ? {
+        variant: entry.team1_shirt_variant as "solid" | "stripes",
+        primaryColor: entry.team1_primary_color || "#6B7280",
+        secondaryColor: entry.team1_secondary_color || undefined,
+      } : undefined,
+    };
+    const team2 = {
+      name: entry.team2_name || "Time 2",
+      shirt: entry.team2_shirt_variant ? {
+        variant: entry.team2_shirt_variant as "solid" | "stripes",
+        primaryColor: entry.team2_primary_color || "#6B7280",
+        secondaryColor: entry.team2_secondary_color || undefined,
+      } : undefined,
+    };
+
+    // Use category as market display (simplified, no redundancy)
+    const market = entry.category || entry.title;
+    const betChoice = entry.condition_to_win || entry.title;
+    const matchDate = entry.starts_at
+      ? new Date(entry.starts_at).toLocaleString("pt-BR", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit" })
+      : undefined;
+    const expirationDate = entry.expires_at || entry.starts_at || undefined;
+
+    const handleCardClick = () => {
+      if (isLocked) {
+        handleLockedClick(entry);
+        return;
+      }
+    };
+
     return (
       <div 
         key={entry.id}
         ref={isExpiredSection ? undefined : (el) => { activeCardRefs.current[index] = el; }}
-        className="flex-shrink-0 snap-center"
+        className={`flex-shrink-0 snap-center ${isLocked ? "cursor-pointer" : ""} ${isExpired ? "pointer-events-none" : ""}`}
         style={{ width: 'min(420px, 92vw)', height: 'calc(min(420px, 92vw) * 213 / 332)', minWidth: '280px', overflow: 'visible' }}
+        onClick={isLocked ? handleCardClick : undefined}
       >
         {isSpecial ? (
           <SpecialBettingCard
-            tipId={parseInt(entry.id) || 0}
-            type={entry.specialType || "ALAVANCAGEM"}
-            market={entry.market}
-            betChoice={entry.betChoice}
-            odds={entry.odds}
-            matchDate={entry.matchDate}
-            expirationDate={entry.expirationDate}
-            isLocked={entry.locked}
-            isExpired={entry.isExpired}
-            justificativa={entry.justificativa}
+            tipId={0}
+            type={entry.addon_required === "alavancagem" ? "ALAVANCAGEM" : "ODDS_ALTAS"}
+            market={market}
+            betChoice={betChoice}
+            odds={entry.odd || 0}
+            matchDate={matchDate}
+            expirationDate={expirationDate}
+            isLocked={isLocked}
+            isExpired={isExpired}
+            justificativa={entry.justification || undefined}
             onAddTip={() => handleAddTip(entry)}
             onOpenJustificativa={handleOpenJustificativa}
           />
         ) : (
           <PremiumBettingCard
-            tipId={parseInt(entry.id) || 0}
-            tier={entry.tier as "BÁSICO" | "PRO" | "GRÁTIS" | "MÚLTIPLA" | "ULTRA"}
-            team1={entry.team1}
-            team2={entry.team2}
-            market={entry.market}
-            betChoice={entry.betChoice}
-            odds={entry.odds}
-            matchDate={entry.matchDate}
-            expirationDate={entry.expirationDate}
-            selectionsCount={entry.selectionsCount}
-            justificativa={entry.justificativa}
-            isLocked={entry.locked}
-            isExpired={entry.isExpired}
+            tipId={0}
+            tier={displayTier as "BÁSICO" | "PRO" | "GRÁTIS" | "MÚLTIPLA" | "ULTRA"}
+            team1={team1}
+            team2={team2}
+            market={market}
+            betChoice={betChoice}
+            odds={entry.odd || 0}
+            matchDate={matchDate}
+            expirationDate={expirationDate}
+            selectionsCount={displayTier === "ULTRA" ? 3 : undefined}
+            justificativa={entry.justification || undefined}
+            isLocked={isLocked}
+            isExpired={isExpired}
             onAddTip={() => handleAddTip(entry)}
             onOpenJustificativa={handleOpenJustificativa}
           />
@@ -262,6 +406,7 @@ const Sport = () => {
         {error && !isLoading && (
           <div className="flex flex-col items-center justify-center py-20 gap-4">
             <p className="text-destructive">{error}</p>
+            <Button onClick={fetchTips} variant="outline" size="sm">Tentar novamente</Button>
           </div>
         )}
 
@@ -303,7 +448,7 @@ const Sport = () => {
         {!isLoading && !error && expiredEntries.length > 0 && (
           <section className="relative w-full mt-8">
             <h2 className="text-lg font-bold text-muted-foreground mb-3 px-2">
-              ⏱️ Expiradas Hoje ({expiredEntries.length})
+              ⏱️ Encerradas Hoje ({expiredEntries.length})
             </h2>
             <div ref={expiredCarouselRef} className="w-full overflow-x-auto snap-x snap-mandatory scroll-smooth px-6 md:px-8 select-none" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', cursor: 'grab' }}>
               <div className="flex gap-4 md:gap-5 py-4" style={{ paddingTop: '18px' }}>
@@ -334,6 +479,13 @@ const Sport = () => {
       </main>
 
       <JustificativaModal isOpen={justificativaModalOpen} onClose={handleCloseJustificativa} texto={justificativaTexto} />
+      <LockedTipModal 
+        isOpen={lockedModalOpen} 
+        onClose={() => setLockedModalOpen(false)} 
+        tierLabel={lockedTierLabel}
+        tierRequired={lockedTierRequired}
+        addonRequired={lockedAddonRequired}
+      />
       <BottomNav />
     </div>
   );

@@ -432,6 +432,36 @@ export type Database = {
         Args: { user_tier: Database["public"]["Enums"]["main_tier"] }
         Returns: Database["public"]["Enums"]["main_tier"][]
       }
+      get_display_tips: {
+        Args: { p_email: string }
+        Returns: {
+          addon_required: Database["public"]["Enums"]["product_key"]
+          category: string
+          category_explanation: string
+          classification: string
+          condition_to_win: string
+          created_at: string
+          date: string
+          display_status: string
+          expires_at: string
+          id: string
+          justification: string
+          link: string
+          metadata: Json
+          odd: number
+          starts_at: string
+          team1_name: string
+          team1_primary_color: string
+          team1_secondary_color: string
+          team1_shirt_variant: string
+          team2_name: string
+          team2_primary_color: string
+          team2_secondary_color: string
+          team2_shirt_variant: string
+          tier_required: Database["public"]["Enums"]["main_tier"]
+          title: string
+        }[]
+      }
       get_or_create_user: {
         Args: { p_email: string }
         Returns: {
