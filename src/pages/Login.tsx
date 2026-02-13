@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { mockLogin } from "@/mocks/user";
+import { supabase } from "@/integrations/supabase/client";
 import { CHECKOUT_LINKS } from "@/lib/checkoutLinks";
 import { Copy, RefreshCw, Target, Crown, Loader2, ShoppingCart, Users } from "lucide-react";
 import logo from "@/assets/premier-logo-new.png";
@@ -32,12 +33,25 @@ const Login = () => {
       return;
     }
     setIsLoading(true);
-    setTimeout(() => {
+    try {
       mockLogin(email);
+
+      // Verifica se o usuário é admin
+      const { data: isAdmin, error: isAdminError } = await (supabase.rpc as any)("is_admin");
+
+      if (!isAdminError && isAdmin) {
+        toast.success("Bem-vindo, administrador!");
+        navigate("/admin");
+      } else {
+        toast.success("Login realizado com sucesso!");
+        navigate("/");
+      }
+    } catch (err) {
       toast.success("Login realizado com sucesso!");
-      setIsLoading(false);
       navigate("/");
-    }, 800);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleAcquireAccess = () => {
