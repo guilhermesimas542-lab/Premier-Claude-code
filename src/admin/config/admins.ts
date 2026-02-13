@@ -2,4 +2,5 @@
 // Para adicionar um admin, insira o email na tabela admin_emails.
 export const ADMIN_EMAILS = [
   "admin@premierultra.com",
+  "admin@gmail.com",
 ];
