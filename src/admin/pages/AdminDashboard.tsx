@@ -7,8 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend, BarChart, Bar } from "recharts";
 import { cn } from "@/lib/utils";
+
+const PLAN_COLORS: Record<string, string> = { Free: "#6b7280", "Básico": "#3b82f6", Pro: "#8b5cf6", Ultra: "#f59e0b" };
+const ADDON_COLORS: Record<string, string> = { Alavancagem: "#10b981", "Odds Altas": "#ef4444" };
 
 /* ── Tooltip texts ── */
 const KPI_TOOLTIPS: Record<string, string> = {
@@ -225,9 +228,11 @@ export default function AdminDashboard() {
     : allUsers;
   const tierCounts: Record<string, number> = {};
   relevantUsers.forEach((u) => { tierCounts[u.main_tier] = (tierCounts[u.main_tier] ?? 0) + 1; });
-  const planDist = Object.entries(tierCounts)
-    .filter(([t]) => t !== "free")
-    .map(([name, value]) => ({ name: name.charAt(0).toUpperCase() + name.slice(1), value }));
+  const tierOrder = ["free", "basic", "pro", "ultra"];
+  const tierLabels: Record<string, string> = { free: "Free", basic: "Básico", pro: "Pro", ultra: "Ultra" };
+  const planDist = tierOrder
+    .filter((t) => (tierCounts[t] ?? 0) > 0)
+    .map((t) => ({ name: tierLabels[t], value: tierCounts[t] }));
 
   const relevantEntitlements = filteredUserIds
     ? allEntitlements.filter((e) => filteredUserIds!.has(e.user_id))
@@ -339,7 +344,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="bg-gray-900 rounded-xl border border-white/10 p-4">
           <h3 className="text-sm font-semibold text-gray-400 mb-4">Usuários Ativos Diários (DAU)</h3>
           {dauData.length > 0 ? (
@@ -358,12 +363,12 @@ export default function AdminDashboard() {
         </div>
 
         <div className="bg-gray-900 rounded-xl border border-white/10 p-4">
-          <h3 className="text-sm font-semibold text-gray-400 mb-4">Distribuição de Planos & Add-ons</h3>
-          {planDist.length > 0 || addonDist.length > 0 ? (
+          <h3 className="text-sm font-semibold text-gray-400 mb-4">Planos Principais</h3>
+          {planDist.length > 0 ? (
             <ResponsiveContainer width="100%" height={250}>
               <PieChart>
-                <Pie data={[...planDist, ...addonDist]} cx="50%" cy="50%" outerRadius={90} dataKey="value" nameKey="name" label={({ name, value }) => `${name}: ${value}`}>
-                  {[...planDist, ...addonDist].map((_, i) => (<Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />))}
+                <Pie data={planDist} cx="50%" cy="50%" outerRadius={90} dataKey="value" nameKey="name" label={({ name, value }) => `${name}: ${value}`}>
+                  {planDist.map((entry) => (<Cell key={entry.name} fill={PLAN_COLORS[entry.name] ?? "#6b7280"} />))}
                 </Pie>
                 <Legend wrapperStyle={{ fontSize: 12, color: "#9ca3af" }} />
                 <Tooltip contentStyle={{ backgroundColor: "#1f2937", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8 }} />
@@ -371,6 +376,25 @@ export default function AdminDashboard() {
             </ResponsiveContainer>
           ) : (
             <div className="flex items-center justify-center h-[250px] text-gray-600">Sem dados de planos</div>
+          )}
+        </div>
+
+        <div className="bg-gray-900 rounded-xl border border-white/10 p-4">
+          <h3 className="text-sm font-semibold text-gray-400 mb-4">Add-ons Ativos</h3>
+          {addonDist.length > 0 ? (
+            <ResponsiveContainer width="100%" height={250}>
+              <BarChart data={addonDist} layout="vertical" margin={{ left: 20 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#374151" horizontal={false} />
+                <XAxis type="number" tick={{ fill: "#9ca3af", fontSize: 10 }} allowDecimals={false} />
+                <YAxis type="category" dataKey="name" tick={{ fill: "#9ca3af", fontSize: 11 }} width={90} />
+                <Tooltip contentStyle={{ backgroundColor: "#1f2937", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8 }} />
+                <Bar dataKey="value" radius={[0, 4, 4, 0]}>
+                  {addonDist.map((entry) => (<Cell key={entry.name} fill={ADDON_COLORS[entry.name] ?? "#8b5cf6"} />))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="flex items-center justify-center h-[250px] text-gray-600">Sem add-ons ativos</div>
           )}
         </div>
       </div>
