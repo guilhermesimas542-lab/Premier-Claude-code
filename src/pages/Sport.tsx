@@ -88,12 +88,14 @@ function calculateDisplayStatus(
   activeAddons: string[],
 ): "unlocked" | "locked" | "expired" {
   const now = new Date();
-  // Expiration: starts_at + 10min
-  if (entry.starts_at) {
+
+  // Expiration check: prefer expires_at; fallback to starts_at + 10min
+  if (entry.expires_at) {
+    if (now > new Date(entry.expires_at)) return "expired";
+  } else if (entry.starts_at) {
     const startsAt = new Date(entry.starts_at);
     if (now > new Date(startsAt.getTime() + 10 * 60 * 1000)) return "expired";
   }
-  if (entry.expires_at && now > new Date(entry.expires_at)) return "expired";
 
   // Addon access
   if (entry.addon_required && activeAddons.includes(entry.addon_required)) return "unlocked";
