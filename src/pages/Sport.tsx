@@ -351,6 +351,11 @@ const Sport = () => {
     const displayTier = mapTierToDisplay(entry.tier_required, entry.addon_required);
     const isLocked = entry.display_status === "locked";
     const isExpired = entry.display_status === "expired";
+    const lockedLabel = isLocked
+      ? entry.addon_required
+        ? `add-on ${getTierLabel(entry.tier_required, entry.addon_required)}`
+        : `plano ${getTierLabel(entry.tier_required, null)}`
+      : undefined;
 
     const team1 = {
       name: entry.team1_name || "Time 1",
@@ -394,6 +399,7 @@ const Sport = () => {
             matchDate={matchDate}
             expirationDate={expirationDate}
             isLocked={isLocked}
+            lockedLabel={lockedLabel}
             isExpired={isExpired}
             justificativa={entry.justification || undefined}
             onAddTip={() => handleAddTip(entry)}
@@ -413,6 +419,7 @@ const Sport = () => {
             selectionsCount={displayTier === "ULTRA" ? 3 : undefined}
             justificativa={entry.justification || undefined}
             isLocked={isLocked}
+            lockedLabel={lockedLabel}
             isExpired={isExpired}
             onAddTip={() => handleAddTip(entry)}
             onOpenJustificativa={handleOpenJustificativa}
