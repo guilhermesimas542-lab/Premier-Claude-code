@@ -7,12 +7,38 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Loader2, CheckCircle, Upload, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 
+const COLOR_OPTIONS: Record<string, string> = {
+  Preto: "#000000",
+  Branco: "#FFFFFF",
+  Vermelho: "#EF4444",
+  Azul: "#3B82F6",
+  Verde: "#22C55E",
+  Amarelo: "#FACC15",
+  Laranja: "#F97316",
+  Roxo: "#A855F7",
+  Cinza: "#6B7280",
+};
+
+const CATEGORIA_MAP: Record<string, { tier: string; addon: string | null }> = {
+  free: { tier: "free", addon: null },
+  basico: { tier: "basic", addon: null },
+  pro: { tier: "pro", addon: null },
+  ultra: { tier: "ultra", addon: null },
+  alavancagem: { tier: "pro", addon: "alavancagem" },
+  odds_altas: { tier: "pro", addon: "desaltas" },
+};
+
 const EMPTY_FORM = {
-  title: "", date: "", starts_at: "", expires_at: "",
-  team1_name: "", team1_shirt_variant: "solid", team1_primary_color: "#ffffff", team1_secondary_color: "",
-  team2_name: "", team2_shirt_variant: "solid", team2_primary_color: "#ffffff", team2_secondary_color: "",
-  category: "", category_explanation: "", condition_to_win: "", classification: "",
-  justification: "", odd: "", tier_required: "free", addon_required: "", link: "",
+  date: "",
+  team1_name: "", team1_shirt_variant: "solid", team1_primary_color: "Branco", team1_secondary_color: "",
+  team2_name: "", team2_shirt_variant: "solid", team2_primary_color: "Branco", team2_secondary_color: "",
+  categoria: "free",
+  palpite: "",
+  odd: "",
+  mercado: "",
+  mercado_explicacao: "",
+  justification: "",
+  link: "",
 };
 
 function parseCSV(text: string) {
@@ -36,24 +62,39 @@ export default function AdminTipsCreate() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.title || !form.date || !form.team1_name || !form.team2_name || !form.odd) {
+    if (!form.date || !form.team1_name || !form.team2_name || !form.odd || !form.palpite) {
       toast.error("Preencha os campos obrigatórios");
       return;
     }
     setSaving(true);
 
+    const cat = CATEGORIA_MAP[form.categoria] || CATEGORIA_MAP.free;
+    const dateOnly = form.date.split("T")[0];
+
     const payload: any = {
-      title: form.title, date: form.date, odd: parseFloat(form.odd),
-      tier_required: form.tier_required, active: true,
-      starts_at: form.starts_at || null, expires_at: form.expires_at || null,
-      team1_name: form.team1_name, team1_shirt_variant: form.team1_shirt_variant,
-      team1_primary_color: form.team1_primary_color, team1_secondary_color: form.team1_secondary_color || null,
-      team2_name: form.team2_name, team2_shirt_variant: form.team2_shirt_variant,
-      team2_primary_color: form.team2_primary_color, team2_secondary_color: form.team2_secondary_color || null,
-      category: form.category || null, category_explanation: form.category_explanation || null,
-      condition_to_win: form.condition_to_win || null, classification: form.classification || null,
-      justification: form.justification || null, addon_required: form.addon_required || null,
-      link: form.link || null, market: form.category || null,
+      title: `${form.team1_name} x ${form.team2_name}`,
+      date: dateOnly,
+      starts_at: form.date ? new Date(form.date).toISOString() : null,
+      expires_at: dateOnly ? `${dateOnly}T23:59:00` : null,
+      odd: parseFloat(form.odd),
+      tier_required: cat.tier,
+      addon_required: cat.addon,
+      active: true,
+      team1_name: form.team1_name,
+      team1_shirt_variant: form.team1_shirt_variant,
+      team1_primary_color: COLOR_OPTIONS[form.team1_primary_color] || form.team1_primary_color,
+      team1_secondary_color: form.team1_secondary_color ? (COLOR_OPTIONS[form.team1_secondary_color] || form.team1_secondary_color) : null,
+      team2_name: form.team2_name,
+      team2_shirt_variant: form.team2_shirt_variant,
+      team2_primary_color: COLOR_OPTIONS[form.team2_primary_color] || form.team2_primary_color,
+      team2_secondary_color: form.team2_secondary_color ? (COLOR_OPTIONS[form.team2_secondary_color] || form.team2_secondary_color) : null,
+      condition_to_win: form.palpite || null,
+      market: form.mercado || null,
+      category: form.mercado || null,
+      category_explanation: form.mercado_explicacao || null,
+      justification: form.justification || null,
+      link: form.link || null,
+      classification: null,
     };
 
     const { error } = await supabase.from("content_entries").insert(payload);
@@ -72,46 +113,35 @@ export default function AdminTipsCreate() {
     reader.onload = (ev) => {
       const text = ev.target?.result as string;
       const parsed = parseCSV(text);
-      if (parsed.length === 0) {
-        setCsvErrors(["Nenhuma linha encontrada no CSV"]);
-        return;
-      }
+      if (parsed.length === 0) { setCsvErrors(["Nenhuma linha encontrada no CSV"]); return; }
       const errs: string[] = [];
       const row = parsed[0];
-      if (!row.title) errs.push("Campo 'title' vazio");
-      if (!row.date) errs.push("Campo 'date' vazio");
-      if (!row.team1_name) errs.push("Campo 'team1_name' vazio");
-      if (!row.team2_name) errs.push("Campo 'team2_name' vazio");
+      if (!row.date && !row.data) errs.push("Campo 'date' vazio");
+      if (!row.team1_name && !row.time1) errs.push("Campo 'team1_name' vazio");
+      if (!row.team2_name && !row.time2) errs.push("Campo 'team2_name' vazio");
       if (!row.odd || isNaN(parseFloat(row.odd))) errs.push("Campo 'odd' inválido");
+      if (!row.palpite && !row.condition_to_win) errs.push("Campo 'palpite' vazio");
 
-      if (errs.length > 0) {
-        setCsvErrors(errs);
-        return;
-      }
+      if (errs.length > 0) { setCsvErrors(errs); return; }
 
       setCsvErrors([]);
       setForm({
-        title: row.title || "",
-        date: row.date || "",
-        starts_at: row.starts_at || "",
-        expires_at: row.expires_at || "",
-        team1_name: row.team1_name || "",
-        team1_shirt_variant: row.team1_shirt_variant || "solid",
-        team1_primary_color: row.team1_primary_color || "#ffffff",
-        team1_secondary_color: row.team1_secondary_color || "",
-        team2_name: row.team2_name || "",
-        team2_shirt_variant: row.team2_shirt_variant || "solid",
-        team2_primary_color: row.team2_primary_color || "#ffffff",
-        team2_secondary_color: row.team2_secondary_color || "",
-        category: row.category || "",
-        category_explanation: row.category_explanation || "",
-        condition_to_win: row.condition_to_win || "",
-        classification: row.classification || "",
-        justification: row.justification || "",
+        date: row.date || row.data || "",
+        team1_name: row.team1_name || row.time1 || "",
+        team1_shirt_variant: row.team1_shirt_variant || row.camisa1 || "solid",
+        team1_primary_color: row.team1_primary_color || row.cor1 || "Branco",
+        team1_secondary_color: row.team1_secondary_color || row.cor1_sec || "",
+        team2_name: row.team2_name || row.time2 || "",
+        team2_shirt_variant: row.team2_shirt_variant || row.camisa2 || "solid",
+        team2_primary_color: row.team2_primary_color || row.cor2 || "Branco",
+        team2_secondary_color: row.team2_secondary_color || row.cor2_sec || "",
+        categoria: row.categoria || row.category || "free",
+        palpite: row.palpite || row.condition_to_win || "",
         odd: row.odd || "",
-        tier_required: row.tier_required || "free",
-        addon_required: row.addon_required || "",
-        link: "", // sempre vazio — admin preenche manualmente
+        mercado: row.mercado || row.market || "",
+        mercado_explicacao: row.mercado_explicacao || row.category_explanation || "",
+        justification: row.justification || row.justificativa || "",
+        link: "",
       });
       setMode("manual");
       toast.success("Dados importados do CSV. Revise e preencha o Link antes de salvar.");
@@ -119,26 +149,17 @@ export default function AdminTipsCreate() {
     reader.readAsText(file);
   };
 
+  const colorNames = Object.keys(COLOR_OPTIONS);
+
   return (
     <div className="max-w-2xl space-y-4">
       <h2 className="text-xl font-bold">Cadastrar Tip</h2>
 
-      {/* Mode tabs */}
       <div className="flex rounded-lg bg-gray-800 p-0.5 w-fit">
-        <button
-          onClick={() => setMode("manual")}
-          className={`px-4 py-1.5 text-sm rounded-md font-medium transition-colors ${
-            mode === "manual" ? "bg-blue-600 text-white" : "text-gray-400 hover:text-white"
-          }`}
-        >
+        <button onClick={() => setMode("manual")} className={`px-4 py-1.5 text-sm rounded-md font-medium transition-colors ${mode === "manual" ? "bg-blue-600 text-white" : "text-gray-400 hover:text-white"}`}>
           Cadastro Manual
         </button>
-        <button
-          onClick={() => setMode("csv")}
-          className={`px-4 py-1.5 text-sm rounded-md font-medium transition-colors ${
-            mode === "csv" ? "bg-blue-600 text-white" : "text-gray-400 hover:text-white"
-          }`}
-        >
+        <button onClick={() => setMode("csv")} className={`px-4 py-1.5 text-sm rounded-md font-medium transition-colors ${mode === "csv" ? "bg-blue-600 text-white" : "text-gray-400 hover:text-white"}`}>
           Importar via CSV
         </button>
       </div>
@@ -147,45 +168,29 @@ export default function AdminTipsCreate() {
         <div className="space-y-4">
           <div className="bg-gray-900 border border-dashed border-gray-700 rounded-xl p-8 text-center">
             <Upload className="w-8 h-8 text-gray-500 mx-auto mb-2" />
-            <p className="text-gray-400 text-sm mb-3">
-              Selecione um CSV com os dados da tip. A primeira linha será usada para pré-preencher o formulário.
-            </p>
+            <p className="text-gray-400 text-sm mb-3">Selecione um CSV com os dados da tip.</p>
             <input type="file" accept=".csv" onChange={handleCSVFile} className="text-sm text-gray-400" />
           </div>
           <div className="text-xs text-gray-500">
-            <span className="font-semibold">Cabeçalhos esperados:</span> title, date, starts_at, expires_at, team1_name, team2_name, odd, tier_required, category, ...
+            <span className="font-semibold">Colunas esperadas:</span> date, team1_name, team2_name, odd, palpite, categoria, mercado, mercado_explicacao, justification, team1_primary_color, ...
           </div>
           {csvErrors.length > 0 && (
             <div className="bg-red-400/10 border border-red-400/30 rounded-lg p-3 space-y-1">
               {csvErrors.map((err, i) => (
-                <div key={i} className="flex items-center gap-1 text-red-400 text-xs">
-                  <AlertCircle className="w-3 h-3 shrink-0" /> {err}
-                </div>
+                <div key={i} className="flex items-center gap-1 text-red-400 text-xs"><AlertCircle className="w-3 h-3 shrink-0" /> {err}</div>
               ))}
             </div>
           )}
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-xs text-gray-500">Título *</label>
-              <Input value={form.title} onChange={(e) => set("title", e.target.value)} className="bg-gray-900 border-gray-800" />
-            </div>
-            <div>
-              <label className="text-xs text-gray-500">Data *</label>
-              <Input type="date" value={form.date} onChange={(e) => set("date", e.target.value)} className="bg-gray-900 border-gray-800" />
-            </div>
-            <div>
-              <label className="text-xs text-gray-500">Início (datetime)</label>
-              <Input type="datetime-local" value={form.starts_at} onChange={(e) => set("starts_at", e.target.value)} className="bg-gray-900 border-gray-800" />
-            </div>
-            <div>
-              <label className="text-xs text-gray-500">Expiração (datetime)</label>
-              <Input type="datetime-local" value={form.expires_at} onChange={(e) => set("expires_at", e.target.value)} className="bg-gray-900 border-gray-800" />
-            </div>
+          {/* Data e Hora */}
+          <div>
+            <label className="text-xs text-gray-500">Data e Hora do Jogo *</label>
+            <Input type="datetime-local" value={form.date} onChange={(e) => set("date", e.target.value)} className="bg-gray-900 border-gray-800" />
           </div>
 
+          {/* Time 1 */}
           <div className="border border-white/10 rounded-lg p-3 space-y-3">
             <span className="text-xs text-gray-400 font-semibold uppercase">Time 1</span>
             <div className="grid grid-cols-2 gap-3">
@@ -194,11 +199,53 @@ export default function AdminTipsCreate() {
                 <SelectTrigger className="bg-gray-900 border-gray-800"><SelectValue /></SelectTrigger>
                 <SelectContent><SelectItem value="solid">Sólida</SelectItem><SelectItem value="stripes">Listrada</SelectItem></SelectContent>
               </Select>
-              <Input type="color" value={form.team1_primary_color} onChange={(e) => set("team1_primary_color", e.target.value)} className="h-10 p-1 bg-gray-900 border-gray-800" />
-              <Input type="color" value={form.team1_secondary_color || "#000000"} onChange={(e) => set("team1_secondary_color", e.target.value)} className="h-10 p-1 bg-gray-900 border-gray-800" />
+              <div>
+                <label className="text-xs text-gray-500">Cor principal</label>
+                <Select value={form.team1_primary_color} onValueChange={(v) => set("team1_primary_color", v)}>
+                  <SelectTrigger className="bg-gray-900 border-gray-800">
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 rounded-full border border-white/20" style={{ backgroundColor: COLOR_OPTIONS[form.team1_primary_color] || "#fff" }} />
+                      <SelectValue />
+                    </div>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {colorNames.map((c) => (
+                      <SelectItem key={c} value={c}>
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 rounded-full border border-white/20" style={{ backgroundColor: COLOR_OPTIONS[c] }} />
+                          {c}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-xs text-gray-500">Cor secundária</label>
+                <Select value={form.team1_secondary_color || "none"} onValueChange={(v) => set("team1_secondary_color", v === "none" ? "" : v)}>
+                  <SelectTrigger className="bg-gray-900 border-gray-800">
+                    <div className="flex items-center gap-2">
+                      {form.team1_secondary_color && <div className="w-4 h-4 rounded-full border border-white/20" style={{ backgroundColor: COLOR_OPTIONS[form.team1_secondary_color] || "#000" }} />}
+                      <SelectValue />
+                    </div>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Nenhuma</SelectItem>
+                    {colorNames.map((c) => (
+                      <SelectItem key={c} value={c}>
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 rounded-full border border-white/20" style={{ backgroundColor: COLOR_OPTIONS[c] }} />
+                          {c}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
 
+          {/* Time 2 */}
           <div className="border border-white/10 rounded-lg p-3 space-y-3">
             <span className="text-xs text-gray-400 font-semibold uppercase">Time 2</span>
             <div className="grid grid-cols-2 gap-3">
@@ -207,60 +254,97 @@ export default function AdminTipsCreate() {
                 <SelectTrigger className="bg-gray-900 border-gray-800"><SelectValue /></SelectTrigger>
                 <SelectContent><SelectItem value="solid">Sólida</SelectItem><SelectItem value="stripes">Listrada</SelectItem></SelectContent>
               </Select>
-              <Input type="color" value={form.team2_primary_color} onChange={(e) => set("team2_primary_color", e.target.value)} className="h-10 p-1 bg-gray-900 border-gray-800" />
-              <Input type="color" value={form.team2_secondary_color || "#000000"} onChange={(e) => set("team2_secondary_color", e.target.value)} className="h-10 p-1 bg-gray-900 border-gray-800" />
+              <div>
+                <label className="text-xs text-gray-500">Cor principal</label>
+                <Select value={form.team2_primary_color} onValueChange={(v) => set("team2_primary_color", v)}>
+                  <SelectTrigger className="bg-gray-900 border-gray-800">
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 rounded-full border border-white/20" style={{ backgroundColor: COLOR_OPTIONS[form.team2_primary_color] || "#fff" }} />
+                      <SelectValue />
+                    </div>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {colorNames.map((c) => (
+                      <SelectItem key={c} value={c}>
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 rounded-full border border-white/20" style={{ backgroundColor: COLOR_OPTIONS[c] }} />
+                          {c}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-xs text-gray-500">Cor secundária</label>
+                <Select value={form.team2_secondary_color || "none"} onValueChange={(v) => set("team2_secondary_color", v === "none" ? "" : v)}>
+                  <SelectTrigger className="bg-gray-900 border-gray-800">
+                    <div className="flex items-center gap-2">
+                      {form.team2_secondary_color && <div className="w-4 h-4 rounded-full border border-white/20" style={{ backgroundColor: COLOR_OPTIONS[form.team2_secondary_color] || "#000" }} />}
+                      <SelectValue />
+                    </div>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Nenhuma</SelectItem>
+                    {colorNames.map((c) => (
+                      <SelectItem key={c} value={c}>
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 rounded-full border border-white/20" style={{ backgroundColor: COLOR_OPTIONS[c] }} />
+                          {c}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
 
+          {/* Categoria, Palpite, Odd */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs text-gray-500">Categoria</label>
-              <Input value={form.category} onChange={(e) => set("category", e.target.value)} className="bg-gray-900 border-gray-800" />
+              <label className="text-xs text-gray-500">Categoria *</label>
+              <Select value={form.categoria} onValueChange={(v) => set("categoria", v)}>
+                <SelectTrigger className="bg-gray-900 border-gray-800"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="free">Free</SelectItem>
+                  <SelectItem value="basico">Básico</SelectItem>
+                  <SelectItem value="pro">Pro</SelectItem>
+                  <SelectItem value="ultra">Ultra</SelectItem>
+                  <SelectItem value="alavancagem">Alavancagem</SelectItem>
+                  <SelectItem value="odds_altas">Odds Altas</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div>
               <label className="text-xs text-gray-500">Odd *</label>
               <Input type="number" step="0.01" value={form.odd} onChange={(e) => set("odd", e.target.value)} className="bg-gray-900 border-gray-800" />
             </div>
-            <div>
-              <label className="text-xs text-gray-500">Classificação</label>
-              <Input value={form.classification} onChange={(e) => set("classification", e.target.value)} className="bg-gray-900 border-gray-800" />
-            </div>
-            <div>
-              <label className="text-xs text-gray-500">Plano *</label>
-              <Select value={form.tier_required} onValueChange={(v) => set("tier_required", v)}>
-                <SelectTrigger className="bg-gray-900 border-gray-800"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="free">Free</SelectItem><SelectItem value="basic">Basic</SelectItem>
-                  <SelectItem value="pro">Pro</SelectItem><SelectItem value="ultra">Ultra</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <label className="text-xs text-gray-500">Add-on</label>
-              <Select value={form.addon_required || "none"} onValueChange={(v) => set("addon_required", v === "none" ? "" : v)}>
-                <SelectTrigger className="bg-gray-900 border-gray-800"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">Nenhum</SelectItem><SelectItem value="alavancagem">Alavancagem</SelectItem><SelectItem value="desaltas">De Altas</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <label className="text-xs text-gray-500">Link</label>
-              <Input value={form.link} onChange={(e) => set("link", e.target.value)} className="bg-gray-900 border-gray-800" />
-            </div>
           </div>
 
           <div>
-            <label className="text-xs text-gray-500">Explicação da categoria</label>
-            <Textarea value={form.category_explanation} onChange={(e) => set("category_explanation", e.target.value)} className="bg-gray-900 border-gray-800" rows={2} />
+            <label className="text-xs text-gray-500">Palpite *</label>
+            <Input value={form.palpite} onChange={(e) => set("palpite", e.target.value)} placeholder="Ex: Mais de 1.5 gols" className="bg-gray-900 border-gray-800" />
           </div>
+
           <div>
-            <label className="text-xs text-gray-500">Condição pra ganhar</label>
-            <Textarea value={form.condition_to_win} onChange={(e) => set("condition_to_win", e.target.value)} className="bg-gray-900 border-gray-800" rows={2} />
+            <label className="text-xs text-gray-500">Mercado</label>
+            <Input value={form.mercado} onChange={(e) => set("mercado", e.target.value)} placeholder="Ex: Over/Under, Resultado Final" className="bg-gray-900 border-gray-800" />
           </div>
+
+          <div>
+            <label className="text-xs text-gray-500">O que é esse mercado?</label>
+            <Textarea value={form.mercado_explicacao} onChange={(e) => set("mercado_explicacao", e.target.value)} className="bg-gray-900 border-gray-800" rows={2} placeholder="Explicação que aparece no tooltip (?)" />
+          </div>
+
           <div>
             <label className="text-xs text-gray-500">Justificativa</label>
-            <Textarea value={form.justification} onChange={(e) => set("justification", e.target.value)} className="bg-gray-900 border-gray-800" rows={3} />
+            <Textarea value={form.justification} onChange={(e) => set("justification", e.target.value)} className="bg-gray-900 border-gray-800" rows={3} placeholder="Texto do modal de justificativa (📊)" />
+          </div>
+
+          <div>
+            <label className="text-xs text-gray-500">Link</label>
+            <Input value={form.link} onChange={(e) => set("link", e.target.value)} className="bg-gray-900 border-gray-800" />
           </div>
 
           <Button type="submit" disabled={saving} className="w-full">
