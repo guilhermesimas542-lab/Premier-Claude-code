@@ -131,6 +131,7 @@ export default function AdminTipsList() {
                 <th className="px-3 py-2">Título</th>
                 <th className="px-3 py-2">Times</th>
                 <th className="px-3 py-2">Data</th>
+                <th className="px-3 py-2">Hora</th>
                 <th className="px-3 py-2">Odd</th>
                 <th className="px-3 py-2">Plano</th>
                 <th className="px-3 py-2">Ativo</th>
@@ -149,6 +150,7 @@ export default function AdminTipsList() {
                   <td className="px-3 py-2 max-w-[150px] truncate">{t.title}</td>
                   <td className="px-3 py-2">{t.team1_name ?? "—"} × {t.team2_name ?? "—"}</td>
                   <td className="px-3 py-2">{t.date}</td>
+                  <td className="px-3 py-2">{t.starts_at ? new Date(t.starts_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : "—"}</td>
                   <td className="px-3 py-2">{t.odd}</td>
                   <td className="px-3 py-2">{t.tier_required}</td>
                   <td className="px-3 py-2"><Switch checked={t.active} onCheckedChange={(v) => toggleActive(t.id, v)} /></td>
@@ -158,7 +160,7 @@ export default function AdminTipsList() {
                   </td>
                 </tr>
               ))}
-              {items.length === 0 && <tr><td colSpan={8} className="px-3 py-6 text-center text-gray-600">Nenhuma tip encontrada</td></tr>}
+              {items.length === 0 && <tr><td colSpan={9} className="px-3 py-6 text-center text-gray-600">Nenhuma tip encontrada</td></tr>}
             </tbody>
           </table>
         </div>

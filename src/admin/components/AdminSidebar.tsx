@@ -14,7 +14,6 @@ const futebolSections = [
       { to: "/admin", icon: LayoutDashboard, label: "Dashboard", end: true },
       { to: "/admin/banners", icon: Image, label: "Banners" },
       { to: "/admin/tips/create", icon: PlusCircle, label: "Tips: Cadastrar" },
-      { to: "/admin/tips/import", icon: Upload, label: "Tips: Importar CSV" },
       { to: "/admin/tips/list", icon: List, label: "Tips: Listar" },
       { to: "/admin/clients", icon: Users, label: "Clientes" },
       { to: "/admin/notifications", icon: Bell, label: "Notificações" },
