@@ -27,7 +27,10 @@ export function LockedTipModal({ isOpen, onClose, tierLabel, tierRequired, addon
           </div>
           <DialogTitle className="text-lg font-bold">Entrada Bloqueada</DialogTitle>
           <DialogDescription className="text-white/70 text-sm">
-            Esta entrada é exclusiva do plano <span className="text-yellow-400 font-bold">{tierLabel}</span>. Adquira já!
+            {addonRequired 
+              ? <>Esta entrada é exclusiva do add-on <span className="text-yellow-400 font-bold">{tierLabel}</span>. Adquira já!</>
+              : <>Esta entrada é exclusiva do plano <span className="text-yellow-400 font-bold">{tierLabel}</span>. Adquira já!</>
+            }
           </DialogDescription>
         </DialogHeader>
         <Button

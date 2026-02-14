@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { HelpCircle, Info, Link2, Clock, Layers, BarChart3 } from "lucide-react";
+import { HelpCircle, Info, Link2, Clock, Layers, BarChart3, Lock } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { ShirtIcon } from "./ShirtIcon";
 
@@ -253,7 +253,9 @@ export const PremiumBettingCard = ({
         w-[min(92vw,420px)] sm:w-[460px] md:w-[500px] lg:w-[332px]
         ${isExpired 
           ? "border-gray-600/50 shadow-none grayscale-[60%]" 
-          : `${config.borderColor} hover:scale-[1.02]`
+          : isLocked
+            ? `${config.borderColor} grayscale`
+            : `${config.borderColor} hover:scale-[1.02]`
       }`}
       style={{
         aspectRatio: '332 / 213',
@@ -283,9 +285,16 @@ export const PremiumBettingCard = ({
         </div>
       )}
       
-      {/* Locked Overlay */}
+      {/* Locked Overlay with Lock Icon */}
       {isLocked && !isExpired && (
-        <div className="absolute inset-0 z-20 bg-black/50 backdrop-blur-sm" />
+        <>
+          <div className="absolute inset-0 z-20 bg-black/40 backdrop-blur-[2px]" />
+          <div className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none">
+            <div className="w-14 h-14 rounded-full bg-black/60 flex items-center justify-center">
+              <Lock className="w-7 h-7 text-white" />
+            </div>
+          </div>
+        </>
       )}
 
       {/* Floating Tier Badge - OUTSIDE the card */}
@@ -329,28 +338,29 @@ export const PremiumBettingCard = ({
           )}
 
           {/* Info Button - Top Right */}
-          <div className="absolute top-0 right-0" ref={marketHelpRef}>
-            <button
-              onClick={() => setShowMarketHelp(!showMarketHelp)}
-              className={`w-7 h-7 rounded-full bg-black/50 backdrop-blur-sm border ${
-                isExpired ? "border-gray-500/50" : config.iconBorderColor
-              } flex items-center justify-center hover:bg-black/70 transition-colors`}
-              aria-label="Ajuda do mercado"
-            >
-              <Info className={`w-3.5 h-3.5 ${isExpired ? "text-gray-400" : config.iconColor}`} />
-            </button>
-            
-            {/* Market Help Tooltip - Now includes market name */}
-            {showMarketHelp && (
-              <div className="absolute right-0 top-8 w-44 bg-black/90 backdrop-blur-md border border-white/20 rounded-lg p-2 shadow-xl z-50">
-                <p className="text-[10px] text-white/60 uppercase tracking-wide mb-1">Mercado</p>
-                <p className="text-[12px] text-white font-bold mb-1">{market}</p>
-                <p className="text-[11px] text-white/90 leading-relaxed">
-                  {marketExplanation}
-                </p>
-              </div>
-            )}
-          </div>
+          {!isLocked && (
+            <div className="absolute top-0 right-0" ref={marketHelpRef}>
+              <button
+                onClick={() => setShowMarketHelp(!showMarketHelp)}
+                className={`w-7 h-7 rounded-full bg-black/50 backdrop-blur-sm border ${
+                  isExpired ? "border-gray-500/50" : config.iconBorderColor
+                } flex items-center justify-center hover:bg-black/70 transition-colors`}
+                aria-label="Ajuda do mercado"
+              >
+                <Info className={`w-3.5 h-3.5 ${isExpired ? "text-gray-400" : config.iconColor}`} />
+              </button>
+              
+              {showMarketHelp && (
+                <div className="absolute right-0 top-8 w-44 bg-black/90 backdrop-blur-md border border-white/20 rounded-lg p-2 shadow-xl z-50">
+                  <p className="text-[10px] text-white/60 uppercase tracking-wide mb-1">Mercado</p>
+                  <p className="text-[12px] text-white font-bold mb-1">{market}</p>
+                  <p className="text-[11px] text-white/90 leading-relaxed">
+                    {marketExplanation}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Match Date - Repositioned */}
@@ -477,67 +487,63 @@ export const PremiumBettingCard = ({
         {/* Spacer to push buttons to bottom */}
         <div className="flex-1 min-h-0.5" />
 
-        {/* Action Buttons Row - Aligned */}
-        <div className="flex items-center gap-2 w-full mt-auto">
-          {/* Main Add Button */}
-          <Button
-            onClick={isExpired ? undefined : onAddTip}
-            disabled={isExpired}
-            size="sm"
-            className={`flex-1 font-extrabold shadow-lg transition-all duration-300 ${
-              isExpired 
-                ? "bg-gray-600 text-gray-400 cursor-not-allowed shadow-none" 
-                : isLocked 
-                  ? "bg-yellow-500 hover:bg-yellow-400 text-black shadow-yellow-500/40 hover:scale-[1.03]" 
+        {/* Action Buttons Row - Aligned (hidden when locked) */}
+        {!isLocked && (
+          <div className="flex items-center gap-2 w-full mt-auto">
+            <Button
+              onClick={isExpired ? undefined : onAddTip}
+              disabled={isExpired}
+              size="sm"
+              className={`flex-1 font-extrabold shadow-lg transition-all duration-300 ${
+                isExpired 
+                  ? "bg-gray-600 text-gray-400 cursor-not-allowed shadow-none" 
                   : "bg-emerald-500 hover:bg-emerald-400 text-white shadow-emerald-500/40 hover:scale-[1.03]"
-            }`}
-            style={{ height: '40px', fontSize: '14px' }}
-          >
-            {isExpired ? "Expirada" : isLocked ? "🔒 Desbloquear" : "Adicionar"}
-          </Button>
+              }`}
+              style={{ height: '40px', fontSize: '14px' }}
+            >
+              {isExpired ? "Expirada" : "Adicionar"}
+            </Button>
 
-          {/* Icon Buttons Group */}
-          <div className="flex items-center gap-1.5">
-            {/* "Como bater?" Icon Button */}
-            <div className="relative" ref={betHelpRef}>
+            <div className="flex items-center gap-1.5">
+              <div className="relative" ref={betHelpRef}>
+                <button
+                  onClick={() => setShowBetHelp(!showBetHelp)}
+                  className={`rounded-lg backdrop-blur-sm border flex items-center justify-center transition-colors ${
+                    isExpired 
+                      ? "bg-gray-700/50 border-gray-600/30 hover:bg-gray-700/70" 
+                      : "bg-white/10 border-white/20 hover:bg-white/20"
+                  }`}
+                  style={{ width: '40px', height: '40px' }}
+                  aria-label="Como bater?"
+                >
+                  <HelpCircle className={`w-5 h-5 ${isExpired ? "text-gray-500" : "text-white/80"}`} />
+                </button>
+                
+                {showBetHelp && (
+                  <div className="absolute right-0 bottom-12 w-44 bg-black/90 backdrop-blur-md border border-white/20 rounded-lg p-2 shadow-xl z-50">
+                    <p className="text-[11px] text-white/90 leading-relaxed">
+                      <strong className="text-emerald-400">{betChoice}:</strong>{" "}
+                      {betExplanation}
+                    </p>
+                  </div>
+                )}
+              </div>
+
               <button
-                onClick={() => setShowBetHelp(!showBetHelp)}
-                className={`rounded-lg backdrop-blur-sm border flex items-center justify-center transition-colors ${
+                onClick={() => onOpenJustificativa?.(justificativa || "Em breve: dados e percentuais do confronto.")}
+                className={`rounded-lg backdrop-blur-sm border flex items-center justify-center transition-colors cursor-pointer ${
                   isExpired 
                     ? "bg-gray-700/50 border-gray-600/30 hover:bg-gray-700/70" 
-                    : "bg-white/10 border-white/20 hover:bg-white/20"
+                    : "bg-white/10 border-white/20 hover:bg-white/20 active:scale-95"
                 }`}
                 style={{ width: '40px', height: '40px' }}
-                aria-label="Como bater?"
+                aria-label="Justificativa da entrada"
               >
-                <HelpCircle className={`w-5 h-5 ${isExpired ? "text-gray-500" : "text-white/80"}`} />
+                <BarChart3 className={`w-5 h-5 ${isExpired ? "text-gray-500" : "text-white/80"}`} />
               </button>
-              
-              {showBetHelp && (
-                <div className="absolute right-0 bottom-12 w-44 bg-black/90 backdrop-blur-md border border-white/20 rounded-lg p-2 shadow-xl z-50">
-                  <p className="text-[11px] text-white/90 leading-relaxed">
-                    <strong className="text-emerald-400">{betChoice}:</strong>{" "}
-                    {betExplanation}
-                  </p>
-                </div>
-              )}
             </div>
-
-            {/* "Dados/Justificativa" Icon Button */}
-            <button
-              onClick={() => onOpenJustificativa?.(justificativa || "Em breve: dados e percentuais do confronto.")}
-              className={`rounded-lg backdrop-blur-sm border flex items-center justify-center transition-colors cursor-pointer ${
-                isExpired 
-                  ? "bg-gray-700/50 border-gray-600/30 hover:bg-gray-700/70" 
-                  : "bg-white/10 border-white/20 hover:bg-white/20 active:scale-95"
-              }`}
-              style={{ width: '40px', height: '40px' }}
-              aria-label="Justificativa da entrada"
-            >
-              <BarChart3 className={`w-5 h-5 ${isExpired ? "text-gray-500" : "text-white/80"}`} />
-            </button>
           </div>
-        </div>
+        )}
       </div>
     </Card>
   );

@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Anchor, Gift, Clock, HelpCircle, BarChart3, Info } from "lucide-react";
+import { Anchor, Gift, Clock, HelpCircle, BarChart3, Info, Lock } from "lucide-react";
 import { useState, useEffect } from "react";
 
 type SpecialCardType = "ALAVANCAGEM" | "ODDS_ALTAS";
@@ -131,10 +131,13 @@ export const SpecialBettingCard = ({
 
   return (
     <Card
-      className={`w-full select-none relative rounded-xl border-2 transition-all duration-300 flex flex-col ${
-        isExpired 
+      className={`select-none relative rounded-xl border-2 transition-all duration-300 flex flex-col
+        w-[min(92vw,420px)] sm:w-[460px] md:w-[500px] lg:w-[332px]
+        ${isExpired 
           ? "border-gray-600/50 shadow-none grayscale-[60%]" 
-          : `${config.borderColor} hover:scale-[1.02]`
+          : isLocked
+            ? `${config.borderColor} grayscale`
+            : `${config.borderColor} hover:scale-[1.02]`
       }`}
       style={{
         aspectRatio: '332 / 213',
@@ -201,9 +204,16 @@ export const SpecialBettingCard = ({
             : "bg-gradient-to-b from-amber-900/60 via-black/60 to-black/80"
       }`} />
       
-      {/* Locked Overlay */}
+      {/* Locked Overlay with Lock Icon */}
       {isLocked && !isExpired && (
-        <div className="absolute inset-0 z-20 bg-black/50 backdrop-blur-sm pointer-events-none rounded-xl overflow-hidden" />
+        <>
+          <div className="absolute inset-0 z-20 bg-black/40 backdrop-blur-[2px] pointer-events-none rounded-xl overflow-hidden" />
+          <div className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none">
+            <div className="w-14 h-14 rounded-full bg-black/60 flex items-center justify-center">
+              <Lock className="w-7 h-7 text-white" />
+            </div>
+          </div>
+        </>
       )}
 
       {/* Countdown Timer - Top Left Corner (smaller) */}
@@ -228,23 +238,25 @@ export const SpecialBettingCard = ({
       )}
 
       {/* Info Button - Top Right Corner */}
-      <button
-        onClick={handleOpenJustificativaClick}
-        className={`absolute z-30 rounded-full backdrop-blur-sm border flex items-center justify-center transition-colors pointer-events-auto ${
-          isExpired 
-            ? "bg-gray-700/70 border-gray-600/50 hover:bg-gray-700/90" 
-            : "bg-black/50 border-white/30 hover:bg-black/70 hover:border-white/50"
-        }`}
-        style={{
-          top: '10px',
-          right: '12px',
-          width: '32px',
-          height: '32px',
-        }}
-        aria-label="Informações"
-      >
-        <Info className={`w-4 h-4 ${isExpired ? "text-gray-500" : "text-white/90"}`} />
-      </button>
+      {!isLocked && (
+        <button
+          onClick={handleOpenJustificativaClick}
+          className={`absolute z-30 rounded-full backdrop-blur-sm border flex items-center justify-center transition-colors pointer-events-auto ${
+            isExpired 
+              ? "bg-gray-700/70 border-gray-600/50 hover:bg-gray-700/90" 
+              : "bg-black/50 border-white/30 hover:bg-black/70 hover:border-white/50"
+          }`}
+          style={{
+            top: '10px',
+            right: '12px',
+            width: '32px',
+            height: '32px',
+          }}
+          aria-label="Informações"
+        >
+          <Info className={`w-4 h-4 ${isExpired ? "text-gray-500" : "text-white/90"}`} />
+        </button>
+      )}
 
       {/* Content */}
       <div className="relative z-10 p-2 flex flex-col flex-1 min-h-0 overflow-hidden">
@@ -338,61 +350,61 @@ export const SpecialBettingCard = ({
         <div className="flex-1 min-h-1" />
 
         {/* Action Buttons Row */}
-        <div className="flex items-center gap-1.5 w-full mt-auto">
-          {/* Main Add Button */}
-          <Button
-            onClick={isExpired ? undefined : onAddTip}
-            disabled={isExpired}
-            size="sm"
-            className={`flex-1 font-extrabold shadow-lg transition-all duration-300 ${
-              isExpired 
-                ? "bg-gray-600 text-gray-400 cursor-not-allowed shadow-none" 
-                : isLocked 
-                  ? "bg-yellow-500 hover:bg-yellow-400 text-black shadow-yellow-500/40 hover:scale-[1.03]" 
+        {!isLocked && (
+          <div className="flex items-center gap-1.5 w-full mt-auto">
+            {/* Main Add Button */}
+            <Button
+              onClick={isExpired ? undefined : onAddTip}
+              disabled={isExpired}
+              size="sm"
+              className={`flex-1 font-extrabold shadow-lg transition-all duration-300 ${
+                isExpired 
+                  ? "bg-gray-600 text-gray-400 cursor-not-allowed shadow-none" 
                   : "bg-emerald-500 hover:bg-emerald-400 text-white shadow-emerald-500/40 hover:scale-[1.03]"
-            }`}
-            style={{
-              height: '40px',
-              fontSize: '14px',
-            }}
-          >
-            {isExpired ? "Expirada" : isLocked ? "🔒 Desbloquear" : "Adicionar"}
-          </Button>
+              }`}
+              style={{
+                height: '40px',
+                fontSize: '14px',
+              }}
+            >
+              {isExpired ? "Expirada" : "Adicionar"}
+            </Button>
 
-          {/* Help Icon Button */}
-          <button
-            onClick={handleOpenJustificativaClick}
-            className={`rounded-lg backdrop-blur-sm border flex items-center justify-center transition-colors pointer-events-auto z-20 ${
-              isExpired 
-                ? "bg-gray-700/50 border-gray-600/30 hover:bg-gray-700/70" 
-                : "bg-white/10 border-white/20 hover:bg-white/20"
-            }`}
-            style={{
-              width: '40px',
-              height: '40px',
-            }}
-            aria-label="Ajuda"
-          >
-            <HelpCircle className={`w-5 h-5 ${isExpired ? "text-gray-500" : "text-white/80"}`} />
-          </button>
+            {/* Help Icon Button */}
+            <button
+              onClick={handleOpenJustificativaClick}
+              className={`rounded-lg backdrop-blur-sm border flex items-center justify-center transition-colors pointer-events-auto z-20 ${
+                isExpired 
+                  ? "bg-gray-700/50 border-gray-600/30 hover:bg-gray-700/70" 
+                  : "bg-white/10 border-white/20 hover:bg-white/20"
+              }`}
+              style={{
+                width: '40px',
+                height: '40px',
+              }}
+              aria-label="Ajuda"
+            >
+              <HelpCircle className={`w-5 h-5 ${isExpired ? "text-gray-500" : "text-white/80"}`} />
+            </button>
 
-          {/* Stats/Justificativa Icon Button */}
-          <button
-            onClick={handleOpenJustificativaClick}
-            className={`rounded-lg backdrop-blur-sm border flex items-center justify-center transition-colors pointer-events-auto z-20 ${
-              isExpired 
-                ? "bg-gray-700/50 border-gray-600/30 hover:bg-gray-700/70" 
-                : "bg-white/10 border-white/20 hover:bg-white/20"
-            }`}
-            style={{
-              width: '40px',
-              height: '40px',
-            }}
-            aria-label="Dados / Justificativa"
-          >
-            <BarChart3 className={`w-5 h-5 ${isExpired ? "text-gray-500" : "text-white/80"}`} />
-          </button>
-        </div>
+            {/* Stats/Justificativa Icon Button */}
+            <button
+              onClick={handleOpenJustificativaClick}
+              className={`rounded-lg backdrop-blur-sm border flex items-center justify-center transition-colors pointer-events-auto z-20 ${
+                isExpired 
+                  ? "bg-gray-700/50 border-gray-600/30 hover:bg-gray-700/70" 
+                  : "bg-white/10 border-white/20 hover:bg-white/20"
+              }`}
+              style={{
+                width: '40px',
+                height: '40px',
+              }}
+              aria-label="Dados / Justificativa"
+            >
+              <BarChart3 className={`w-5 h-5 ${isExpired ? "text-gray-500" : "text-white/80"}`} />
+            </button>
+          </div>
+        )}
       </div>
     </Card>
   );
