@@ -6,7 +6,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { Pencil, Trash2, Loader2 } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import type { AdminContentEntry } from "../types";
 
@@ -15,9 +17,13 @@ export default function AdminTipsList() {
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({ tier: "", addon: "", team: "", active: "", dateFrom: "", dateTo: "" });
   const [editItem, setEditItem] = useState<AdminContentEntry | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [bulkDeleting, setBulkDeleting] = useState(false);
 
   const load = async () => {
     setLoading(true);
+    setSelectedIds(new Set());
     let q = supabase.from("content_entries").select("*").order("created_at", { ascending: false }).limit(200);
     if (filters.tier) q = q.eq("tier_required", filters.tier as any);
     if (filters.addon) q = q.eq("addon_required", filters.addon as any);
@@ -51,6 +57,29 @@ export default function AdminTipsList() {
     if (error) toast.error(error.message); else { toast.success("Atualizada"); setEditItem(null); load(); }
   };
 
+  const handleBulkDelete = async () => {
+    setBulkDeleting(true);
+    const ids = Array.from(selectedIds);
+    const { error } = await supabase.from("content_entries").delete().in("id", ids);
+    setBulkDeleting(false);
+    setShowDeleteConfirm(false);
+    if (error) toast.error(error.message);
+    else { toast.success(`${ids.length} tip(s) excluída(s)`); load(); }
+  };
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === items.length) setSelectedIds(new Set());
+    else setSelectedIds(new Set(items.map((i) => i.id)));
+  };
+
   const setF = (k: string, v: string) => setFilters((f) => ({ ...f, [k]: v }));
 
   return (
@@ -77,13 +106,28 @@ export default function AdminTipsList() {
         <Button size="sm" onClick={load}>Filtrar</Button>
       </div>
 
+      {/* Bulk action bar */}
+      {selectedIds.size > 0 && (
+        <div className="flex items-center gap-3 rounded-lg bg-gray-800 border border-white/10 px-4 py-2 text-sm">
+          <span className="text-gray-300 font-medium">{selectedIds.size} tip(s) selecionada(s)</span>
+          <Button size="sm" variant="destructive" onClick={() => setShowDeleteConfirm(true)}>Excluir selecionados</Button>
+          <Button size="sm" variant="ghost" onClick={() => setSelectedIds(new Set())} className="text-gray-400">Desmarcar todos</Button>
+        </div>
+      )}
+
       {loading ? (
         <div className="text-gray-400">Carregando…</div>
       ) : (
         <div className="bg-gray-900 rounded-xl border border-white/10 overflow-x-auto">
-          <table className="w-full text-sm min-w-[800px]">
+          <table className="w-full text-sm min-w-[850px]">
             <thead>
               <tr className="border-b border-white/10 text-left text-gray-500 text-xs">
+                <th className="px-3 py-2 w-10">
+                  <Checkbox
+                    checked={items.length > 0 && selectedIds.size === items.length}
+                    onCheckedChange={toggleSelectAll}
+                  />
+                </th>
                 <th className="px-3 py-2">Título</th>
                 <th className="px-3 py-2">Times</th>
                 <th className="px-3 py-2">Data</th>
@@ -95,7 +139,13 @@ export default function AdminTipsList() {
             </thead>
             <tbody>
               {items.map((t) => (
-                <tr key={t.id} className="border-b border-white/5 text-gray-300 text-xs">
+                <tr
+                  key={t.id}
+                  className={`border-b border-white/5 text-gray-300 text-xs transition-colors ${selectedIds.has(t.id) ? "bg-white/5" : ""}`}
+                >
+                  <td className="px-3 py-2">
+                    <Checkbox checked={selectedIds.has(t.id)} onCheckedChange={() => toggleSelect(t.id)} />
+                  </td>
                   <td className="px-3 py-2 max-w-[150px] truncate">{t.title}</td>
                   <td className="px-3 py-2">{t.team1_name ?? "—"} × {t.team2_name ?? "—"}</td>
                   <td className="px-3 py-2">{t.date}</td>
@@ -108,7 +158,7 @@ export default function AdminTipsList() {
                   </td>
                 </tr>
               ))}
-              {items.length === 0 && <tr><td colSpan={7} className="px-3 py-6 text-center text-gray-600">Nenhuma tip encontrada</td></tr>}
+              {items.length === 0 && <tr><td colSpan={8} className="px-3 py-6 text-center text-gray-600">Nenhuma tip encontrada</td></tr>}
             </tbody>
           </table>
         </div>
@@ -136,6 +186,24 @@ export default function AdminTipsList() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Bulk Delete Confirmation */}
+      <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <AlertDialogContent className="bg-gray-900 border-gray-800 text-white">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar exclusão em lote</AlertDialogTitle>
+            <AlertDialogDescription className="text-gray-400">
+              Tem certeza que deseja excluir {selectedIds.size} tip(s)? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700">Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleBulkDelete} disabled={bulkDeleting} className="bg-red-600 hover:bg-red-700 text-white">
+              {bulkDeleting ? "Excluindo…" : "Confirmar exclusão"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
