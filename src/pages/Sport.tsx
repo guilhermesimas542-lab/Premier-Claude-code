@@ -16,7 +16,7 @@ import { mockGetUser } from "@/mocks/user";
 // ============ TIPOS ============
 type TierType = "GRÁTIS" | "ALAVANCAGEM" | "ODDS_ALTAS" | "BÁSICO" | "PRO" | "ULTRA" | "MÚLTIPLA";
 
-interface DisplayTip {
+interface ContentEntry {
   id: string;
   date: string;
   title: string;
@@ -41,6 +41,10 @@ interface DisplayTip {
   team2_secondary_color: string | null;
   metadata: any;
   created_at: string;
+  active: boolean;
+}
+
+interface DisplayTip extends ContentEntry {
   display_status: "unlocked" | "locked" | "expired";
 }
 
@@ -57,7 +61,6 @@ function mapTierToDisplay(tierRequired: string, addonRequired: string | null): T
   }
 }
 
-// Map DB tier to display label for locked modal
 function getTierLabel(tierRequired: string, addonRequired: string | null): string {
   if (addonRequired === "alavancagem") return "Alavancagem";
   if (addonRequired === "desaltas") return "Odds Altas";
@@ -67,6 +70,36 @@ function getTierLabel(tierRequired: string, addonRequired: string | null): strin
     case "ultra": return "Ultra";
     default: return "Premium";
   }
+}
+
+function getAllowedTiers(mainTier: string): string[] {
+  switch (mainTier) {
+    case "free": return ["free"];
+    case "basic": return ["basic"];
+    case "pro": return ["basic", "pro"];
+    case "ultra": return ["basic", "pro", "ultra"];
+    default: return ["free"];
+  }
+}
+
+function calculateDisplayStatus(
+  entry: ContentEntry,
+  allowedTiers: string[],
+  activeAddons: string[],
+): "unlocked" | "locked" | "expired" {
+  const now = new Date();
+  // Expiration: starts_at + 10min
+  if (entry.starts_at) {
+    const startsAt = new Date(entry.starts_at);
+    if (now > new Date(startsAt.getTime() + 10 * 60 * 1000)) return "expired";
+  }
+  if (entry.expires_at && now > new Date(entry.expires_at)) return "expired";
+
+  // Addon access
+  if (entry.addon_required && activeAddons.includes(entry.addon_required)) return "unlocked";
+  // Tier access (only for non-addon entries)
+  if (!entry.addon_required && allowedTiers.includes(entry.tier_required)) return "unlocked";
+  return "locked";
 }
 
 const TIER_TABS: { tier: TierType; label: string; labelShort: string }[] = [
@@ -93,13 +126,11 @@ const Sport = () => {
   const [justificativaModalOpen, setJustificativaModalOpen] = useState(false);
   const [justificativaTexto, setJustificativaTexto] = useState("");
   
-  // Locked modal state
   const [lockedModalOpen, setLockedModalOpen] = useState(false);
   const [lockedTierLabel, setLockedTierLabel] = useState("");
   const [lockedTierRequired, setLockedTierRequired] = useState("");
   const [lockedAddonRequired, setLockedAddonRequired] = useState<string | null>(null);
 
-  // Data state
   const [tips, setTips] = useState<DisplayTip[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -112,28 +143,76 @@ const Sport = () => {
   const isAlavancagemRoute = pathname === "/alavancagem";
   const isOddsAltasRoute = pathname === "/odds-altas";
 
-  // Fetch tips from DB
+  // Fetch tips directly from content_entries + user tier
   const fetchTips = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const user = mockGetUser();
-      if (!user) {
+      const mockUser = mockGetUser();
+      if (!mockUser) {
         setError("Usuário não autenticado");
         setIsLoading(false);
         return;
       }
 
-      const { data, error: rpcError } = await supabase.rpc("get_display_tips", {
-        p_email: user.email,
-      });
+      // Get user tier from DB
+      const { data: userData } = await supabase
+        .from("users")
+        .select("id, main_tier")
+        .eq("email", mockUser.email.toLowerCase().trim())
+        .single();
 
-      if (rpcError) {
-        console.error("Erro ao buscar tips:", rpcError);
-        setError("Erro ao carregar tips");
-      } else {
-        setTips((data as DisplayTip[]) || []);
+      const userTier = userData?.main_tier || "free";
+      const userId = userData?.id;
+
+      // Get active addons
+      let activeAddons: string[] = [];
+      if (userId) {
+        const { data: entitlements } = await supabase
+          .from("entitlements")
+          .select("product_key")
+          .eq("user_id", userId)
+          .eq("status", "active");
+        activeAddons = (entitlements || []).map(e => e.product_key);
       }
+
+      const allowedTiers = getAllowedTiers(userTier);
+      const isPaidUser = userTier !== "free";
+      const today = new Date().toISOString().split("T")[0];
+
+      // Fetch today's active entries
+      const { data: entries, error: fetchError } = await supabase
+        .from("content_entries")
+        .select("*")
+        .eq("active", true)
+        .eq("date", today)
+        .order("created_at", { ascending: false });
+
+      if (fetchError) {
+        console.error("Erro ao buscar entries:", fetchError);
+        setError("Erro ao carregar tips");
+        return;
+      }
+
+      // Process entries: filter + calculate display_status
+      const processed: DisplayTip[] = (entries || [])
+        .filter((e: ContentEntry) => {
+          // Paid users don't see free-tier entries (unless addon)
+          if (isPaidUser && e.tier_required === "free" && !e.addon_required) return false;
+          return true;
+        })
+        .map((e: ContentEntry) => ({
+          ...e,
+          display_status: calculateDisplayStatus(e, allowedTiers, activeAddons),
+        }))
+        // Sort: active first, expired last
+        .sort((a, b) => {
+          if (a.display_status === "expired" && b.display_status !== "expired") return 1;
+          if (a.display_status !== "expired" && b.display_status === "expired") return -1;
+          return 0;
+        });
+
+      setTips(processed);
     } catch (err) {
       console.error("Erro inesperado:", err);
       setError("Erro inesperado ao carregar tips");
@@ -271,7 +350,6 @@ const Sport = () => {
     const isLocked = entry.display_status === "locked";
     const isExpired = entry.display_status === "expired";
 
-    // Build team objects from DB fields
     const team1 = {
       name: entry.team1_name || "Time 1",
       shirt: entry.team1_shirt_variant ? {
@@ -289,7 +367,6 @@ const Sport = () => {
       } : undefined,
     };
 
-    // Use category as market display (simplified, no redundancy)
     const market = entry.category || entry.title;
     const betChoice = entry.condition_to_win || entry.title;
     const matchDate = entry.starts_at
@@ -297,20 +374,13 @@ const Sport = () => {
       : undefined;
     const expirationDate = entry.expires_at || entry.starts_at || undefined;
 
-    const handleCardClick = () => {
-      if (isLocked) {
-        handleLockedClick(entry);
-        return;
-      }
-    };
-
     return (
       <div 
         key={entry.id}
         ref={isExpiredSection ? undefined : (el) => { activeCardRefs.current[index] = el; }}
         className={`flex-shrink-0 snap-center ${isLocked ? "cursor-pointer" : ""} ${isExpired ? "pointer-events-none" : ""}`}
         style={{ width: 'min(420px, 92vw)', height: 'calc(min(420px, 92vw) * 213 / 332)', minWidth: '280px', overflow: 'visible' }}
-        onClick={isLocked ? handleCardClick : undefined}
+        onClick={isLocked ? () => handleLockedClick(entry) : undefined}
       >
         {isSpecial ? (
           <SpecialBettingCard
@@ -352,7 +422,6 @@ const Sport = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#0C0F14] to-[#121826] overflow-x-hidden w-full max-w-full pb-20 md:pb-0">
-      {/* Header */}
       <header className="sticky top-0 z-10 bg-[#0C0F14]/80 backdrop-blur-xl border-b border-border/30">
         <div className="container max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
           <div className="flex items-center gap-4">
@@ -410,7 +479,6 @@ const Sport = () => {
           </div>
         )}
 
-        {/* SEÇÃO: TIPS ATIVAS */}
         {!isLoading && !error && activeEntries.length > 0 && (
           <section className="relative w-full">
             <h2 className="text-lg font-bold text-foreground mb-3 px-2">
@@ -444,7 +512,6 @@ const Sport = () => {
           </section>
         )}
 
-        {/* SEÇÃO: TIPS EXPIRADAS */}
         {!isLoading && !error && expiredEntries.length > 0 && (
           <section className="relative w-full mt-8">
             <h2 className="text-lg font-bold text-muted-foreground mb-3 px-2">
@@ -464,7 +531,6 @@ const Sport = () => {
           </div>
         )}
 
-        {/* Iframe Section */}
         <section className="w-full">
           <div className="w-full h-[1000px] bg-gradient-to-br from-muted/40 to-muted/20 rounded-xl overflow-hidden border border-border/30 backdrop-blur-sm">
             {iframeUrl ? (
