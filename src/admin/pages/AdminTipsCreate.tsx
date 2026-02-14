@@ -53,7 +53,7 @@ function parseCSV(text: string) {
 }
 
 export default function AdminTipsCreate() {
-  const [mode, setMode] = useState<"manual" | "csv">("manual");
+  const [mode, setMode] = useState<"manual" | "csv">("csv");
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({ ...EMPTY_FORM });
   const [csvErrors, setCsvErrors] = useState<string[]>([]);
