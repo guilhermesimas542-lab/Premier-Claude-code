@@ -32,6 +32,7 @@ interface PremiumBettingCardProps {
   footer?: string;
   lineAlert?: boolean;
   isLocked?: boolean;
+  lockedLabel?: string;
   isExpired?: boolean;
   justificativa?: string;
   onAddTip?: () => void;
@@ -171,6 +172,7 @@ export const PremiumBettingCard = ({
   expirationDate,
   selectionsCount,
   isLocked = false,
+  lockedLabel,
   isExpired: isExpiredProp = false,
   justificativa,
   onAddTip,
@@ -285,14 +287,25 @@ export const PremiumBettingCard = ({
         </div>
       )}
       
-      {/* Locked Overlay with Lock Icon */}
+      {/* Locked Overlay with Lock Icon + CTA */}
       {isLocked && !isExpired && (
         <>
           <div className="absolute inset-0 z-20 bg-black/40 backdrop-blur-[2px]" />
-          <div className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none">
-            <div className="w-14 h-14 rounded-full bg-black/60 flex items-center justify-center">
-              <Lock className="w-7 h-7 text-white" />
+          <div className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-2">
+            {lockedLabel && (
+              <span className="text-white/80 text-xs font-semibold">
+                Exclusivo do {lockedLabel}
+              </span>
+            )}
+            <div className="w-12 h-12 rounded-full bg-black/60 flex items-center justify-center">
+              <Lock className="w-6 h-6 text-white" />
             </div>
+            <button
+              onClick={(e) => { e.stopPropagation(); window.open('/planos', '_self'); }}
+              className="mt-1 px-5 py-1.5 rounded-full bg-orange-500 hover:bg-orange-400 text-white text-xs font-bold shadow-lg transition-all hover:scale-105"
+            >
+              Adquira já
+            </button>
           </div>
         </>
       )}
