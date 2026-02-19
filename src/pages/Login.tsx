@@ -66,7 +66,6 @@ const MatrixRain = () => {
     const interval = setInterval(draw, 50);
     return () => {
       clearInterval(interval);
-      window.removeEventListener("resize", interval as any);
       window.removeEventListener("resize", resize);
     };
   }, []);
