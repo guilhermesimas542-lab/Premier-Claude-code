@@ -1,4 +1,5 @@
 import { LogOut, Menu, Headphones, X, Gift, Sparkles, ShoppingCart, Crown } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
 import { toast } from "sonner";
@@ -22,6 +23,7 @@ const Home = () => {
   const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [showPromotionsModal, setShowPromotionsModal] = useState(false);
   const [showLifetimeModal, setShowLifetimeModal] = useState(false);
+  const [showTermsModal, setShowTermsModal] = useState(false);
 
   const mockUser = mockGetUser();
   const config = getStoredConfig();
@@ -269,9 +271,23 @@ const Home = () => {
               Dados protegidos • 18+ • Jogue com responsabilidade
             </p>
             <div className="flex items-center justify-center gap-2 text-[11px]" style={{ color: "#AAAAAA" }}>
-              <a href="/termos" className="transition-colors hover:underline" style={{ color: "#CCCCCC" }}>Termos & Privacidade</a>
+              <button
+                onClick={() => setShowTermsModal(true)}
+                className="transition-colors hover:underline"
+                style={{ color: "#CCCCCC" }}
+              >
+                Termos & Privacidade
+              </button>
               <span style={{ color: "#555555" }}>|</span>
-              <a href="/support" className="transition-colors hover:underline" style={{ color: "#CCCCCC" }}>Suporte</a>
+              <a
+                href="https://wa.link/1p68qg"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="transition-colors hover:underline"
+                style={{ color: "#CCCCCC" }}
+              >
+                Suporte
+              </a>
             </div>
           </div>
         </div>
@@ -345,6 +361,59 @@ const Home = () => {
       )}
 
       <BottomNav />
+
+      {/* Modal Termos & Privacidade */}
+      <Dialog open={showTermsModal} onOpenChange={setShowTermsModal}>
+        <DialogContent
+          className="max-w-sm"
+          style={{
+            background: "rgba(0, 8, 0, 0.97)",
+            border: "1px solid rgba(0, 255, 0, 0.3)",
+            backdropFilter: "blur(20px)",
+          }}
+        >
+          <DialogHeader>
+            <DialogTitle className="text-lg font-bold" style={{ color: "#FFFFFF" }}>
+              Termos e Privacidade
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2 max-h-[70vh] overflow-y-auto pr-2">
+            <div className="text-sm space-y-4 leading-relaxed" style={{ color: "#CCCCCC" }}>
+              <p className="font-bold" style={{ color: "#FFFFFF" }}>TERMOS E CONDIÇÕES DE USO — PREMIER ULTRA</p>
+              <p>Estes Termos e Condições ("Termos") regulam o acesso e o uso do aplicativo e/ou plataforma Premier Ultra ("Premier", "Aplicativo", "Plataforma").</p>
+              <p>Ao acessar, cadastrar-se ou utilizar o Premier, você declara que leu, compreendeu e concorda integralmente com estes Termos e com a nossa Política de Privacidade.</p>
+              <p className="font-bold" style={{ color: "#FFFFFF" }}>1. Elegibilidade e Jogo Responsável</p>
+              <p>1.1. O Premier é destinado exclusivamente a maiores de 18 (dezoito) anos.</p>
+              <p>1.2. O Premier apoia e incentiva o jogo responsável. Apostas envolvem risco e podem causar perdas financeiras.</p>
+              <p>1.3. O usuário é o único responsável por decidir se irá apostar e por qualquer consequência decorrente de apostas realizadas.</p>
+              <p className="font-bold" style={{ color: "#FFFFFF" }}>2. O que o Premier é (e o que NÃO é)</p>
+              <p>2.1. O Premier é uma plataforma que fornece conteúdo informativo e/ou sugestões estatísticas com base em dados, modelos e critérios próprios.</p>
+              <p>2.2. O Premier não é: uma casa de apostas; uma instituição financeira; um gestor de investimentos; um serviço de consultoria financeira.</p>
+              <p>2.3. O Premier não realiza apostas em nome do usuário e não garante resultados, lucros ou qualquer desempenho.</p>
+              <p className="font-bold" style={{ color: "#FFFFFF" }}>3. Ausência de Vínculo com Casas de Apostas</p>
+              <p>3.1. O Premier não possui controle sobre sites, políticas, odds, mercados ou qualquer decisão tomada por casas de apostas.</p>
+              <p>3.2. O Premier não tem responsabilidade por saldo, bloqueios, restrições, falhas de pagamento ou problemas de KYC.</p>
+              <p className="font-bold" style={{ color: "#FFFFFF" }}>4. Cadastro, Acesso e Segurança</p>
+              <p>4.1. Você se compromete a fornecer informações verdadeiras e atualizadas.</p>
+              <p>4.2. Você é responsável por manter a segurança do seu acesso e por todas as atividades realizadas em sua conta.</p>
+              <p className="font-bold" style={{ color: "#FFFFFF" }}>5. Limitação de Responsabilidade (Cláusula "Blindagem")</p>
+              <p>5.1. Na máxima extensão permitida pela lei, o Premier e seus sócios não serão responsáveis por quaisquer danos diretos, indiretos ou consequenciais, incluindo perdas financeiras ou decisões do usuário em casas de apostas.</p>
+              <p className="font-bold" style={{ color: "#FFFFFF" }}>6. LGPD e Privacidade</p>
+              <p>6.1. Tratamos dados pessoais conforme a legislação aplicável, incluindo a LGPD (Lei nº 13.709/2018).</p>
+              <p>6.2. Dados podem ser tratados para: autenticação e segurança; prevenção à fraude; suporte; melhoria do produto.</p>
+              <p className="font-bold" style={{ color: "#FFFFFF" }}>7. Contato e Suporte</p>
+              <p>Dúvidas, solicitações e suporte: equipepremierfc@gmail.com</p>
+            </div>
+            <button
+              onClick={() => setShowTermsModal(false)}
+              className="w-full py-2.5 rounded-xl text-sm transition-colors duration-200"
+              style={{ background: "rgba(0,255,0,0.08)", border: "1px solid rgba(0,255,0,0.25)", color: "#FFFFFF" }}
+            >
+              Fechar
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
