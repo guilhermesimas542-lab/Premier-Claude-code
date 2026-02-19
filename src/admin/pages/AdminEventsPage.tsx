@@ -1,23 +1,33 @@
 import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { ClientProfileModal } from "../components/ClientProfileModal";
 
-type SortKey = "event_name" | "user_id" | "created_at";
+type SortKey = "event_name" | "email" | "created_at";
 type SortDir = "asc" | "desc";
 
+interface EventWithUser {
+  id: string;
+  event_name: string;
+  user_id: string | null;
+  created_at: string;
+  users: { email: string } | null;
+}
+
 export default function AdminEventsPage() {
-  const [events, setEvents] = useState<any[]>([]);
+  const [events, setEvents] = useState<EventWithUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortKey, setSortKey] = useState<SortKey>("created_at");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
   useEffect(() => {
     const load = async () => {
       const { data } = await supabase
         .from("events")
-        .select("*")
+        .select("id, event_name, user_id, created_at, users(email)")
         .limit(100);
-      setEvents(data ?? []);
+      setEvents((data as unknown as EventWithUser[]) ?? []);
       setLoading(false);
     };
     load();
@@ -34,14 +44,17 @@ export default function AdminEventsPage() {
 
   const sorted = useMemo(() => {
     return [...events].sort((a, b) => {
-      let aVal = a[sortKey] ?? "";
-      let bVal = b[sortKey] ?? "";
+      let aVal: string | number = "";
+      let bVal: string | number = "";
       if (sortKey === "created_at") {
-        aVal = new Date(aVal).getTime();
-        bVal = new Date(bVal).getTime();
+        aVal = new Date(a.created_at).getTime();
+        bVal = new Date(b.created_at).getTime();
+      } else if (sortKey === "email") {
+        aVal = (a.users?.email ?? "").toLowerCase();
+        bVal = (b.users?.email ?? "").toLowerCase();
       } else {
-        aVal = String(aVal).toLowerCase();
-        bVal = String(bVal).toLowerCase();
+        aVal = String(a[sortKey] ?? "").toLowerCase();
+        bVal = String(b[sortKey] ?? "").toLowerCase();
       }
       if (aVal < bVal) return sortDir === "asc" ? -1 : 1;
       if (aVal > bVal) return sortDir === "asc" ? 1 : -1;
@@ -73,9 +86,9 @@ export default function AdminEventsPage() {
               </th>
               <th
                 className="px-4 py-2 cursor-pointer select-none hover:text-foreground transition-colors"
-                onClick={() => handleSort("user_id")}
+                onClick={() => handleSort("email")}
               >
-                User <SortIcon col="user_id" />
+                Email <SortIcon col="email" />
               </th>
               <th
                 className="px-4 py-2 cursor-pointer select-none hover:text-foreground transition-colors"
@@ -89,7 +102,18 @@ export default function AdminEventsPage() {
             {sorted.map((ev) => (
               <tr key={ev.id} className="border-b border-border/50 text-muted-foreground">
                 <td className="px-4 py-2 font-mono text-xs">{ev.event_name}</td>
-                <td className="px-4 py-2 text-xs">{ev.user_id?.slice(0, 8) ?? "—"}</td>
+                <td className="px-4 py-2 text-xs">
+                  {ev.user_id && ev.users?.email ? (
+                    <button
+                      onClick={() => setSelectedUserId(ev.user_id)}
+                      className="text-blue-400 hover:text-blue-300 underline underline-offset-2 transition-colors text-left"
+                    >
+                      {ev.users.email}
+                    </button>
+                  ) : (
+                    <span className="text-muted-foreground/50">—</span>
+                  )}
+                </td>
                 <td className="px-4 py-2 text-xs">{new Date(ev.created_at).toLocaleString("pt-BR")}</td>
               </tr>
             ))}
@@ -99,7 +123,10 @@ export default function AdminEventsPage() {
           </tbody>
         </table>
       </div>
+
+      <ClientProfileModal userId={selectedUserId} onClose={() => setSelectedUserId(null)} />
     </div>
   );
 }
+
 
