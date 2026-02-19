@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 115" fill="none">
+  <!-- Hexagon shape (flat-top) -->
+  <polygon
+    points="50,4 93,27.5 93,87.5 50,111 7,87.5 7,27.5"
+    stroke="#00DD00"
+    stroke-width="5"
+    fill="rgba(0,200,0,0.08)"
+    stroke-linejoin="round"
+  />
+  <!-- Letter P -->
+  <text
+    x="50"
+    y="75"
+    text-anchor="middle"
+    font-family="Arial, sans-serif"
+    font-size="52"
+    font-weight="700"
+    fill="#00DD00"
+  >P</text>
+</svg>
