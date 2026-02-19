@@ -577,13 +577,13 @@ const CasinoSignalGame = () => {
   // Jogo não encontrado
   if (!gameConfig) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-[#0C0F14] to-[#121826] flex flex-col items-center justify-center p-4">
+      <div className="min-h-screen flex flex-col items-center justify-center p-4" style={{ background: "#000000" }}>
         <div className="text-center space-y-6">
-          <h1 className="text-2xl font-bold text-foreground">Jogo não encontrado</h1>
-          <p className="text-muted-foreground">O jogo solicitado não existe ou foi removido.</p>
+          <h1 className="text-2xl font-bold" style={{ color: "#00FF00" }}>Jogo não encontrado</h1>
+          <p style={{ color: "#00AA00" }}>O jogo solicitado não existe ou foi removido.</p>
           <Button
             onClick={() => navigate("/cassino")}
-            className="bg-vip hover:bg-vip/90 text-white font-bold"
+            style={{ background: "rgba(0,255,0,0.08)", border: "1px solid rgba(0,255,0,0.35)", color: "#00FF00" }}
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Voltar ao Cassino
@@ -600,29 +600,29 @@ const CasinoSignalGame = () => {
   const isButtonDisabled = phase === 'loading' || cooldown > 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0C0F14] to-[#121826] pb-20 md:pb-0">
+    <div className="min-h-screen pb-20 md:pb-0" style={{ background: "#000000" }}>
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-[#0C0F14]/80 backdrop-blur-xl border-b border-border/30">
+      <header className="sticky top-0 z-50 backdrop-blur-xl" style={{ background: "rgba(0,0,0,0.92)", borderBottom: "1px solid rgba(0,255,0,0.15)" }}>
         <div className="container max-w-lg mx-auto px-4 py-4 flex items-center gap-4">
           <button
             onClick={() => navigate("/cassino")}
-            className="p-2 hover:bg-muted/50 rounded-lg transition-colors"
+            className="p-2 rounded-lg transition-colors"
+            style={{ background: "rgba(0,255,0,0.05)", border: "1px solid rgba(0,255,0,0.2)" }}
           >
-            <ArrowLeft className="w-6 h-6 text-foreground" />
+            <ArrowLeft className="w-6 h-6" style={{ color: "#00FF00" }} />
           </button>
           <div className="flex-1">
-            <h1 className="text-xl font-bold text-foreground">{gameConfig.name} - IA</h1>
+            <h1 className="text-xl font-bold" style={{ color: "#00FF00", textShadow: "0 0 10px rgba(0,255,0,0.3)" }}>{gameConfig.name} - IA</h1>
           </div>
-          <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-green-500/20 border border-green-500/40">
-            <Wifi className="w-3 h-3 text-green-500" />
-            <span className="text-xs font-medium text-green-500">Online</span>
+          <div className="flex items-center gap-1.5 px-2 py-1 rounded-full" style={{ background: "rgba(0,255,0,0.1)", border: "1px solid rgba(0,255,0,0.4)" }}>
+            <Wifi className="w-3 h-3" style={{ color: "#00FF00" }} />
+            <span className="text-xs font-medium" style={{ color: "#00FF00" }}>Online</span>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
       <main className="container max-w-lg mx-auto px-4 py-6 space-y-6">
-        {/* Game-specific content */}
         {slug === 'mines' && (
           <MinesGame 
             phase={phase} 
@@ -639,7 +639,6 @@ const CasinoSignalGame = () => {
         {slug === 'roleta' && <RouletteGame phase={phase} stepIndex={stepIndex} result={result} cooldown={cooldown} />}
         {slug === 'football-studio' && <FootballStudioGame phase={phase} stepIndex={stepIndex} result={result} />}
 
-        {/* Button - não mostrar para Mines (já está dentro do card) */}
         {slug !== 'mines' && (
           <Button
             onClick={handleIdentifySignal}
@@ -661,10 +660,9 @@ const CasinoSignalGame = () => {
           </Button>
         )}
 
-        {/* iFrame Section - Mesmo padrão do Sport.tsx */}
         {slug && CASINO_IFRAMES[slug] && (
           <section className="w-full">
-            <div className="w-full h-[1000px] bg-gradient-to-br from-muted/40 to-muted/20 rounded-xl overflow-hidden border border-border/30 backdrop-blur-sm">
+            <div className="w-full h-[1000px] rounded-xl overflow-hidden" style={{ background: "rgba(0,10,0,0.4)", border: "1px solid rgba(0,255,0,0.15)" }}>
               <iframe
                 key={slug}
                 src={CASINO_IFRAMES[slug].url}
@@ -678,7 +676,6 @@ const CasinoSignalGame = () => {
         )}
       </main>
 
-      {/* Bottom Nav - Mobile only */}
       <BottomNav />
     </div>
   );

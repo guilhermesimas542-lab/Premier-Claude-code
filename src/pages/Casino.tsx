@@ -61,38 +61,36 @@ const Casino = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0D0A1A] via-[#1A1030] to-[#0D0A1A] relative overflow-hidden pb-20 md:pb-0">
-      {/* Purple glow effects - igual Home */}
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-600/20 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-1/3 right-1/4 w-80 h-80 bg-purple-500/15 rounded-full blur-[100px] pointer-events-none" />
+    <div className="min-h-screen relative overflow-hidden pb-20 md:pb-0" style={{ background: "#000000" }}>
+      <div className="absolute top-0 left-1/4 w-96 h-96 rounded-full blur-[120px] pointer-events-none" style={{ background: "rgba(0,255,0,0.04)" }} />
 
-      {/* Header - padronizado com Home */}
-      <header className="sticky top-0 z-50 bg-[#0D0A1A]/80 backdrop-blur-xl border-b border-purple-500/20">
+      {/* Header */}
+      <header className="sticky top-0 z-50 backdrop-blur-xl" style={{ background: "rgba(0,0,0,0.92)", borderBottom: "1px solid rgba(0,255,0,0.15)" }}>
         <div className="container max-w-7xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
           <div className="flex items-center justify-between gap-2 sm:gap-4">
-            {/* Left side: Back + Logo + Title */}
             <div className="flex items-center gap-2 sm:gap-3 shrink-0">
               <button
                 onClick={() => navigate("/")}
-                className="p-2 rounded-lg bg-purple-500/10 border border-purple-500/30 hover:bg-purple-500/20 transition-colors"
+                className="p-2 rounded-lg transition-colors"
+                style={{ background: "rgba(0,255,0,0.05)", border: "1px solid rgba(0,255,0,0.25)" }}
               >
-                <ArrowLeft className="w-5 h-5 text-purple-300" />
+                <ArrowLeft className="w-5 h-5" style={{ color: "#00FF00" }} />
               </button>
-              <img src={logoImg} alt="Premier Ultra" className="h-8 sm:h-10 w-auto" />
-              <span className="text-base sm:text-lg font-bold text-white">Cassino</span>
+              <img src={logoImg} alt="Premier Ultra" className="h-8 sm:h-10 w-auto" style={{ filter: "drop-shadow(0 0 6px rgba(0,255,0,0.4))" }} />
+              <span className="text-base sm:text-lg font-bold" style={{ color: "#00FF00", textShadow: "0 0 10px rgba(0,255,0,0.4)" }}>Cassino</span>
             </div>
             
-            {/* Right side: Email (desktop only) + Logout */}
             <div className="flex items-center gap-2 sm:gap-3">
               {config?.user && (
-                <span className="hidden md:block text-xs sm:text-sm font-medium text-white/80 truncate max-w-[180px]">
+                <span className="hidden md:block text-xs sm:text-sm font-medium truncate max-w-[180px]" style={{ color: "#00AA00" }}>
                   {config.user.userMail}
                 </span>
               )}
               
               <button
                 onClick={handleLogout}
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium bg-purple-500/10 border border-purple-500/30 text-purple-300 hover:bg-purple-500/20 transition-colors"
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+                style={{ background: "rgba(0,255,0,0.05)", border: "1px solid rgba(0,255,0,0.25)", color: "#00FF00" }}
               >
                 <LogOut className="w-4 h-4" />
                 <span className="hidden sm:inline">Sair</span>
@@ -106,13 +104,11 @@ const Casino = () => {
       <main className="container max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6 relative z-10">
         <PromoCarousel context="cassino" />
 
-        {/* Título da seção - estilo Home */}
         <section className="space-y-4 sm:space-y-6">
-          <h2 className="text-xl sm:text-2xl font-display font-extrabold text-white tracking-tight">
+          <h2 className="text-xl sm:text-2xl font-display font-extrabold tracking-tight" style={{ color: "#00FF00", textShadow: "0 0 15px rgba(0,255,0,0.3)" }}>
             Jogos Disponíveis
           </h2>
 
-          {/* Lista vertical de jogos - estilo Acesso Rápido */}
           <div className="grid grid-cols-1 gap-3">
             {CASINO_TILES.map((tile) => {
               const IconComponent = tile.icon;
@@ -120,30 +116,27 @@ const Casino = () => {
                 <button
                   key={tile.slug}
                   onClick={() => navigate(`/cassino/jogo/${tile.slug}`)}
-                  className="group relative overflow-hidden rounded-xl border border-gray-300/20 bg-white/90 backdrop-blur-sm p-4 sm:p-5 text-left transition-all hover:scale-[1.02] hover:shadow-lg hover:shadow-gray-900/10"
+                  className="group relative overflow-hidden rounded-xl p-4 sm:p-5 text-left transition-all hover:scale-[1.01]"
+                  style={{ background: "rgba(0,20,0,0.6)", border: "1px solid rgba(0,255,0,0.2)", boxShadow: "0 0 0px rgba(0,255,0,0)" }}
+                  onMouseEnter={e => (e.currentTarget.style.boxShadow = "0 0 20px rgba(0,255,0,0.1)")}
+                  onMouseLeave={e => (e.currentTarget.style.boxShadow = "0 0 0px rgba(0,255,0,0)")}
                 >
-                  {/* Subtle hover glow */}
-                  <div className="absolute top-0 right-0 w-20 h-20 bg-gray-400/5 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                  
                   <div className="relative flex items-center gap-3">
-                    {/* Icon container */}
-                    <div className="shrink-0 w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-gray-100 border border-gray-200/60 flex items-center justify-center text-gray-600">
-                      <IconComponent className="w-5 h-5 sm:w-6 sm:h-6" />
+                    <div className="shrink-0 w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center" style={{ background: "rgba(0,255,0,0.08)", border: "1px solid rgba(0,255,0,0.25)" }}>
+                      <IconComponent className="w-5 h-5 sm:w-6 sm:h-6" style={{ color: "#00FF00" }} />
                     </div>
                     
-                    {/* Content */}
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-sm sm:text-base font-semibold text-gray-800 mb-0.5 truncate">
+                      <h3 className="text-sm sm:text-base font-semibold mb-0.5 truncate" style={{ color: "#00FF00" }}>
                         {tile.name}
                       </h3>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs" style={{ color: "#00AA00" }}>
                         {tile.subtitle}
                       </p>
                     </div>
                     
-                    {/* Chevron */}
-                    <div className="shrink-0 text-gray-400 opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all">
-                      <ChevronRight className="w-4 h-4" />
+                    <div className="shrink-0 group-hover:translate-x-0.5 transition-all">
+                      <ChevronRight className="w-4 h-4" style={{ color: "#00AA00" }} />
                     </div>
                   </div>
                 </button>

@@ -77,17 +77,18 @@ const Bonus = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0A0A0A] via-[#0D0D0D] to-[#0A0A0A]">
+    <div className="min-h-screen" style={{ background: "#000000" }}>
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-[#0A0A0A]/90 backdrop-blur-xl border-b border-white/5">
+      <header className="sticky top-0 z-50 backdrop-blur-xl" style={{ background: "rgba(0,0,0,0.92)", borderBottom: "1px solid rgba(0,255,0,0.15)" }}>
         <div className="container max-w-4xl mx-auto px-4 py-4 flex items-center gap-4">
           <button
             onClick={() => navigate("/")}
-            className="p-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors"
+            className="p-2 rounded-full transition-colors"
+            style={{ background: "rgba(0,255,0,0.05)", border: "1px solid rgba(0,255,0,0.2)" }}
           >
-            <ArrowLeft className="w-5 h-5 text-white" />
+            <ArrowLeft className="w-5 h-5" style={{ color: "#00FF00" }} />
           </button>
-          <span className="text-sm text-white/60">Voltar</span>
+          <span className="text-sm" style={{ color: "#007700" }}>Voltar</span>
         </div>
       </header>
 
