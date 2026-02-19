@@ -141,8 +141,8 @@ const UltimosGreens = () => {
               <ArrowLeft className="w-5 h-5" style={{ color: "#00FF00" }} />
             </button>
             <div>
-              <h1 className="text-xl font-bold" style={{ color: "#00FF00", textShadow: "0 0 10px rgba(0,255,0,0.3)" }}>Últimos Greens</h1>
-              <p className="text-xs" style={{ color: "#007700" }}>Somente entradas green. Histórico por data.</p>
+              <h1 className="text-xl font-bold" style={{ color: "#FFFFFF" }}>Últimos Greens</h1>
+              <p className="text-xs" style={{ color: "#AAAAAA" }}>Somente entradas green. Histórico por data.</p>
             </div>
           </div>
         </div>
@@ -165,7 +165,7 @@ const UltimosGreens = () => {
               <div key={date} className="space-y-2">
                 {/* Date Header */}
                 <div className="sticky top-[73px] z-20 py-2 backdrop-blur-sm" style={{ background: "rgba(0,0,0,0.85)" }}>
-                  <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "#00CC00" }}>
+                  <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "#FFFFFF" }}>
                     {formatDateHeader(date)}
                   </span>
                 </div>
@@ -179,14 +179,14 @@ const UltimosGreens = () => {
                       style={{ background: "rgba(0,20,0,0.5)", border: "1px solid rgba(0,255,0,0.15)" }}
                     >
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold truncate" style={{ color: "#00FF00" }}>
+                        <p className="text-sm font-semibold truncate" style={{ color: "#FFFFFF" }}>
                           {entry.homeTeam} x {entry.awayTeam}
                         </p>
-                        <p className="text-xs truncate" style={{ color: "#00AA00" }}>{entry.market}</p>
+                        <p className="text-xs truncate" style={{ color: "#CCCCCC" }}>{entry.market}</p>
                       </div>
 
                       <div className="flex items-center gap-2 shrink-0">
-                        <span className="text-base font-bold" style={{ color: "#00FF00" }}>
+                        <span className="text-base font-bold" style={{ color: "#FFFFFF" }}>
                           {entry.odd.toFixed(2)}
                         </span>
                         <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{ background: "rgba(0,255,0,0.15)", border: "1px solid rgba(0,255,0,0.4)" }}>
@@ -202,13 +202,13 @@ const UltimosGreens = () => {
             {/* Infinite scroll trigger */}
             <div ref={observerRef} className="h-10 flex items-center justify-center">
               {loadingMore && (
-                <div className="flex items-center gap-2 text-sm" style={{ color: "#007700" }}>
+                <div className="flex items-center gap-2 text-sm" style={{ color: "#AAAAAA" }}>
                   <div className="w-4 h-4 border-2 rounded-full animate-spin" style={{ borderColor: "rgba(0,255,0,0.2)", borderTopColor: "#00FF00" }} />
                   Carregando mais...
                 </div>
               )}
               {!hasMore && greens.length > 0 && (
-                <p className="text-sm" style={{ color: "#005500" }}>Fim do histórico</p>
+                <p className="text-sm" style={{ color: "#888888" }}>Fim do histórico</p>
               )}
             </div>
           </div>

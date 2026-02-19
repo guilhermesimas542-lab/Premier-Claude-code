@@ -48,7 +48,7 @@ const Support = () => {
             >
               <ArrowLeft className="w-5 h-5" style={{ color: "#00FF00" }} />
             </button>
-            <h1 className="text-lg sm:text-xl font-bold" style={{ color: "#00FF00", textShadow: "0 0 10px rgba(0,255,0,0.3)" }}>
+            <h1 className="text-lg sm:text-xl font-bold" style={{ color: "#FFFFFF" }}>
               Configurações da Conta
             </h1>
           </div>
@@ -60,38 +60,38 @@ const Support = () => {
         
         {/* Card: Informações Pessoais */}
         <section className="backdrop-blur-sm rounded-2xl p-4 sm:p-5 space-y-4" style={{ background: "rgba(0,15,0,0.6)", border: "1px solid rgba(0,255,0,0.15)" }}>
-          <h2 className="text-base sm:text-lg font-semibold" style={{ color: "#00FF00" }}>
+          <h2 className="text-base sm:text-lg font-semibold" style={{ color: "#FFFFFF" }}>
             Informações Pessoais
           </h2>
           
           <div className="space-y-3">
             <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: "rgba(0,255,0,0.04)", border: "1px solid rgba(0,255,0,0.1)" }}>
               <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: "rgba(0,255,0,0.08)" }}>
-                <User className="w-4 h-4" style={{ color: "#00CC00" }} />
+                <User className="w-4 h-4" style={{ color: "#00FF00" }} />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs" style={{ color: "#007700" }}>Nome</p>
-                <p className="text-sm font-medium truncate" style={{ color: "#00DD00" }}>{userData?.name || "—"}</p>
+                <p className="text-xs" style={{ color: "#AAAAAA" }}>Nome</p>
+                <p className="text-sm font-medium truncate" style={{ color: "#FFFFFF" }}>{userData?.name || "—"}</p>
               </div>
             </div>
             
             <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: "rgba(0,255,0,0.04)", border: "1px solid rgba(0,255,0,0.1)" }}>
               <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: "rgba(0,255,0,0.08)" }}>
-                <Mail className="w-4 h-4" style={{ color: "#00CC00" }} />
+                <Mail className="w-4 h-4" style={{ color: "#00FF00" }} />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs" style={{ color: "#007700" }}>E-mail</p>
-                <p className="text-sm font-medium truncate" style={{ color: "#00DD00" }}>{userData?.email || "—"}</p>
+                <p className="text-xs" style={{ color: "#AAAAAA" }}>E-mail</p>
+                <p className="text-sm font-medium truncate" style={{ color: "#FFFFFF" }}>{userData?.email || "—"}</p>
               </div>
             </div>
             
             <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: "rgba(0,255,0,0.04)", border: "1px solid rgba(0,255,0,0.1)" }}>
               <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: "rgba(0,255,0,0.08)" }}>
-                <Phone className="w-4 h-4" style={{ color: "#00CC00" }} />
+                <Phone className="w-4 h-4" style={{ color: "#00FF00" }} />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs" style={{ color: "#007700" }}>Telefone</p>
-                <p className="text-sm font-medium truncate" style={{ color: "#00DD00" }}>{userData?.phone || "—"}</p>
+                <p className="text-xs" style={{ color: "#AAAAAA" }}>Telefone</p>
+                <p className="text-sm font-medium truncate" style={{ color: "#FFFFFF" }}>{userData?.phone || "—"}</p>
               </div>
             </div>
           </div>
@@ -100,11 +100,11 @@ const Support = () => {
         {/* Card: Status do Plano */}
         <section className="backdrop-blur-sm rounded-2xl p-4 sm:p-5 space-y-4" style={{ background: "rgba(0,15,0,0.6)", border: "1px solid rgba(0,255,0,0.15)" }}>
           <div className="flex items-center justify-between">
-            <h2 className="text-base sm:text-lg font-semibold" style={{ color: "#00FF00" }}>
+            <h2 className="text-base sm:text-lg font-semibold" style={{ color: "#FFFFFF" }}>
               Status do Plano
             </h2>
             {userData?.plan?.isActive ? (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold" style={{ background: "rgba(0,255,0,0.1)", color: "#00FF00", border: "1px solid rgba(0,255,0,0.4)" }}>
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold" style={{ background: "rgba(0,255,0,0.1)", color: "#FFFFFF", border: "1px solid rgba(0,255,0,0.4)" }}>
                 <CheckCircle className="w-3 h-3" />
                 ATIVO
               </span>
@@ -117,12 +117,12 @@ const Support = () => {
           </div>
           
           <div className="space-y-2">
-            <p className="text-sm" style={{ color: "#00DD00" }}>
-              <span style={{ color: "#007700" }}>Plano:</span>{" "}
+            <p className="text-sm" style={{ color: "#FFFFFF" }}>
+              <span style={{ color: "#AAAAAA" }}>Plano:</span>{" "}
               <span className="font-semibold">{userData?.plan?.name || "—"}</span>
             </p>
             {!userData?.plan?.isActive && (
-              <p className="text-xs" style={{ color: "#006600" }}>
+              <p className="text-xs" style={{ color: "#CCCCCC" }}>
                 Para ter acesso às funcionalidades premium, entre em contato com nosso suporte.
               </p>
             )}
@@ -131,7 +131,7 @@ const Support = () => {
           <button
             onClick={handleOpenSupport}
             className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-medium transition-all"
-            style={{ background: "rgba(0,255,0,0.08)", border: "1px solid rgba(0,255,0,0.35)", color: "#00FF00", boxShadow: "0 0 15px rgba(0,255,0,0.1)" }}
+            style={{ background: "rgba(0,255,0,0.08)", border: "1px solid rgba(0,255,0,0.35)", color: "#FFFFFF", boxShadow: "0 0 15px rgba(0,255,0,0.1)" }}
           >
             <MessageCircle className="w-4 h-4" />
             Falar com Suporte
@@ -140,16 +140,16 @@ const Support = () => {
 
         {/* Card: Suporte */}
         <section className="backdrop-blur-sm rounded-2xl p-4 sm:p-5 space-y-4" style={{ background: "rgba(0,15,0,0.6)", border: "1px solid rgba(0,255,0,0.15)" }}>
-          <h2 className="text-base sm:text-lg font-semibold" style={{ color: "#00FF00" }}>
+          <h2 className="text-base sm:text-lg font-semibold" style={{ color: "#FFFFFF" }}>
             Suporte
           </h2>
-          <p className="text-sm" style={{ color: "#00AA00" }}>
+          <p className="text-sm" style={{ color: "#CCCCCC" }}>
             Precisa de ajuda? Nossa equipe está pronta para atendê-lo. Entre em contato pelo chat de suporte.
           </p>
           <button
             onClick={handleOpenSupport}
             className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-medium transition-all"
-            style={{ background: "rgba(0,255,0,0.08)", border: "1px solid rgba(0,255,0,0.35)", color: "#00FF00" }}
+            style={{ background: "rgba(0,255,0,0.08)", border: "1px solid rgba(0,255,0,0.35)", color: "#FFFFFF" }}
           >
             <Headphones className="w-4 h-4" />
             Abrir Chat de Suporte
@@ -158,10 +158,10 @@ const Support = () => {
 
         {/* Card: Sessão */}
         <section className="backdrop-blur-sm rounded-2xl p-4 sm:p-5 space-y-4" style={{ background: "rgba(0,15,0,0.6)", border: "1px solid rgba(0,255,0,0.15)" }}>
-          <h2 className="text-base sm:text-lg font-semibold" style={{ color: "#00FF00" }}>
+          <h2 className="text-base sm:text-lg font-semibold" style={{ color: "#FFFFFF" }}>
             Sessão
           </h2>
-          <p className="text-sm" style={{ color: "#00AA00" }}>
+          <p className="text-sm" style={{ color: "#CCCCCC" }}>
             Deseja sair da sua conta? Você precisará fazer login novamente para acessar o aplicativo.
           </p>
           <button
