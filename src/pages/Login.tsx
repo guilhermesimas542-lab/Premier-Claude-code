@@ -187,7 +187,6 @@ const Login = () => {
           style={{
             color: "#00FF00",
             textShadow: "0 0 20px rgba(0,255,0,0.6), 0 0 40px rgba(0,255,0,0.3)",
-            fontFamily: "'Courier New', monospace",
           }}
         >
           Premier Ultra
@@ -258,7 +257,6 @@ const Login = () => {
                     : "1px solid rgba(0, 255, 0, 0.3)",
                   color: "#00FF00",
                   caretColor: "#00FF00",
-                  fontFamily: "'Courier New', monospace",
                   boxShadow: emailError
                     ? "0 0 12px rgba(255,68,68,0.2)"
                     : "0 0 0px transparent",
@@ -294,7 +292,6 @@ const Login = () => {
                 background: isDisabled ? "rgba(0, 180, 0, 0.15)" : "#003300",
                 border: "1px solid rgba(0, 255, 0, 0.7)",
                 color: "#00FF00",
-                fontFamily: "'Courier New', monospace",
                 textShadow: "0 0 10px rgba(0, 255, 0, 0.8)",
                 boxShadow: isDisabled ? "none" : "0 0 20px rgba(0, 255, 0, 0.2), inset 0 0 20px rgba(0, 255, 0, 0.05)",
               }}
@@ -348,7 +345,7 @@ const Login = () => {
           {/* Subtext */}
           <p
             className="text-center text-xs mt-3"
-            style={{ color: "#005500", fontFamily: "'Courier New', monospace" }}
+            style={{ color: "#005500" }}
           >
             Acesso rápido • Sem complicação
           </p>
@@ -423,7 +420,7 @@ const Login = () => {
           <DialogHeader>
             <DialogTitle
               className="text-lg font-bold flex items-center gap-2"
-              style={{ color: "#00FF00", fontFamily: "'Courier New', monospace" }}
+              style={{ color: "#00FF00" }}
             >
               <Crown className="w-5 h-5" style={{ color: "#00CC00" }} />
               Acesso Exclusivo Premier Ultra
@@ -480,7 +477,7 @@ const Login = () => {
           <DialogHeader>
             <DialogTitle
               className="text-lg font-bold"
-              style={{ color: "#00FF00", fontFamily: "'Courier New', monospace" }}
+              style={{ color: "#00FF00" }}
             >
               Termos e Privacidade
             </DialogTitle>
