@@ -41,6 +41,7 @@ export interface AdminContentEntry {
 export interface AdminUser {
   id: string;
   email: string;
+  phone: string | null;
   main_tier: string;
   is_vitalicio: boolean;
   created_at: string;
