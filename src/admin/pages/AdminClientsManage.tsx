@@ -18,6 +18,7 @@ import {
 import { Plus, Pencil, Loader2, Trash2, ChevronsUpDown, ChevronUp, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 import type { AdminUser } from "../types";
+import { ClientProfileModal } from "../components/ClientProfileModal";
 
 interface UserWithUpsells extends AdminUser {
   upsells: string[];
@@ -116,6 +117,7 @@ export default function AdminClientsManage() {
   const [editUser, setEditUser] = useState<AdminUser | null>(null);
   const [showCreate, setShowCreate] = useState(false);
   const [deleteUser, setDeleteUser] = useState<UserWithUpsells | null>(null);
+  const [profileUserId, setProfileUserId] = useState<string | null>(null);
   const [newEmail, setNewEmail] = useState("");
   const [newTier, setNewTier] = useState("free");
   const [saving, setSaving] = useState(false);
@@ -308,7 +310,14 @@ export default function AdminClientsManage() {
             <tbody>
               {sortedUsers.map((u) => (
                 <tr key={u.id} className="border-b border-white/5 text-gray-300 text-xs hover:bg-white/5 transition-colors">
-                  <td className="px-3 py-2">{u.email}</td>
+                  <td className="px-3 py-2">
+                    <button
+                      onClick={() => setProfileUserId(u.id)}
+                      className="text-blue-400 hover:text-blue-300 underline underline-offset-2 transition-colors text-left"
+                    >
+                      {u.email}
+                    </button>
+                  </td>
                   <td className="px-3 py-2 text-gray-500">{u.phone ?? "—"}</td>
                   <td className="px-3 py-2">
                     <span className={`capitalize font-medium ${TIER_COLORS[u.main_tier] ?? "text-gray-300"}`}>
@@ -414,6 +423,9 @@ export default function AdminClientsManage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Client Profile Modal */}
+      <ClientProfileModal userId={profileUserId} onClose={() => setProfileUserId(null)} />
     </div>
   );
 }
