@@ -610,7 +610,11 @@ export default function AdminBanners() {
               </div>
 
               <div>
-                <Label className="text-gray-400 text-xs">Imagem de Fundo (1280 x 720px — 16:9)</Label>
+                <Label className="text-gray-400 text-xs">Imagem de Fundo</Label>
+                <div className="flex items-center gap-1.5 mb-1.5 mt-0.5 px-2.5 py-1.5 rounded-lg text-[11px]" style={{ background: "rgba(234,179,8,0.08)", border: "1px solid rgba(234,179,8,0.25)", color: "#ca8a04" }}>
+                  <span>📐</span>
+                  <span><strong>Mobile:</strong> 1080 × 200px &nbsp;•&nbsp; <strong>Desktop:</strong> 1920 × 400px &nbsp;•&nbsp; Proporção recomendada: 16:9 ou 5.4:1</span>
+                </div>
                 <div className="flex gap-2 items-center">
                   <Input placeholder="URL da imagem" value={form.image_url ?? ""} onChange={(e) => setForm({ ...form, image_url: e.target.value })} className="bg-gray-800 border-gray-700 flex-1" />
                   <label className="cursor-pointer shrink-0">

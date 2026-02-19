@@ -141,10 +141,12 @@ const Home = () => {
   });
 
   return (
-    <div className="min-h-screen relative overflow-hidden pb-20 md:pb-0" style={{ background: "#000000" }}>
-      {/* Matrix green glow orbs */}
-      <div className="absolute top-0 left-1/4 w-96 h-96 rounded-full blur-[120px] pointer-events-none" style={{ background: "rgba(0,255,0,0.04)" }} />
-      <div className="absolute bottom-1/3 right-1/4 w-80 h-80 rounded-full blur-[100px] pointer-events-none" style={{ background: "rgba(0,200,0,0.03)" }} />
+    <div className="min-h-screen relative overflow-hidden pb-20 md:pb-0" style={{
+      background: "linear-gradient(135deg, rgba(0,255,0,0.04) 0%, #000000 35%, #000000 65%, rgba(0,255,0,0.03) 100%)",
+    }}>
+      {/* Subtle matrix glow orbs */}
+      <div className="absolute top-0 left-1/4 w-96 h-96 rounded-full blur-[140px] pointer-events-none" style={{ background: "rgba(0,255,0,0.035)" }} />
+      <div className="absolute bottom-1/3 right-1/4 w-80 h-80 rounded-full blur-[120px] pointer-events-none" style={{ background: "rgba(0,200,0,0.025)" }} />
 
       {/* Header */}
       <header className="sticky top-0 z-50 backdrop-blur-xl border-b" style={{ background: "rgba(0,0,0,0.92)", borderColor: "rgba(0,255,0,0.15)" }}>
@@ -222,7 +224,7 @@ const Home = () => {
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
             {loading ? (
               <div className="col-span-full text-center py-12">
                 <p className="text-purple-300/60">Carregando esportes...</p>

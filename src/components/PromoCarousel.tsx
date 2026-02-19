@@ -42,7 +42,6 @@ export const PromoCarousel = ({ context = "futebol" }: PromoCarouselProps) => {
 
       const allBanners = (data as unknown as BannerItem[]) ?? [];
 
-      // Filter by audience based on current user
       const user = mockGetUser();
       const userEmail = user?.email;
 
@@ -50,7 +49,6 @@ export const PromoCarousel = ({ context = "futebol" }: PromoCarouselProps) => {
       let activeEntitlements: string[] = [];
 
       if (userEmail) {
-        // Fetch user tier
         const { data: userData } = await supabase
           .from("users")
           .select("id, main_tier")
@@ -59,7 +57,6 @@ export const PromoCarousel = ({ context = "futebol" }: PromoCarouselProps) => {
 
         if (userData) {
           userTier = userData.main_tier;
-          // Fetch active entitlements
           const { data: ents } = await supabase
             .from("entitlements")
             .select("product_key")
@@ -86,7 +83,6 @@ export const PromoCarousel = ({ context = "futebol" }: PromoCarouselProps) => {
     fetchBanners();
   }, [context]);
 
-  // Track impressions once per session per banner
   useEffect(() => {
     if (banners.length === 0) return;
     const user = mockGetUser();
@@ -157,42 +153,60 @@ export const PromoCarousel = ({ context = "futebol" }: PromoCarouselProps) => {
     else navigate(link);
   };
 
-  if (loading) return <div className="w-full aspect-video rounded-xl bg-gray-800/50 animate-pulse" />;
+  if (loading) return (
+    <div
+      className="w-full rounded-xl"
+      style={{ height: "clamp(160px, 26vw, 300px)", background: "rgba(0,255,0,0.04)", animation: "pulse 2s cubic-bezier(0.4,0,0.6,1) infinite" }}
+    />
+  );
   if (banners.length === 0) return null;
 
   return (
     <div className="relative w-full">
-      <div className="overflow-hidden rounded-xl sm:rounded-2xl" ref={emblaRef}>
+      <div className="overflow-hidden rounded-xl" ref={emblaRef}>
         <div className="flex">
           {banners.map((b) => (
             <div key={b.id} className="flex-[0_0_100%] min-w-0">
               <div
-                className="relative overflow-hidden rounded-xl sm:rounded-2xl border border-purple-500/30 shadow-lg shadow-purple-900/30 cursor-pointer group aspect-video"
+                className="relative overflow-hidden rounded-xl cursor-pointer group"
+                style={{
+                  /* Mobile: ~190px, desktop: ~300px */
+                  height: "clamp(160px, 26vw, 300px)",
+                  border: "1px solid rgba(0,255,0,0.2)",
+                  boxShadow: "0 0 20px rgba(0,255,0,0.06)",
+                }}
                 onClick={() => handleClick(b.id, b.button_link)}
               >
                 {b.image_url ? (
-                  <img src={b.image_url} alt="" className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                  <img
+                    src={b.image_url}
+                    alt=""
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
                 ) : (
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#1A0D2E] via-[#2D1B4E] to-[#0D0A1A]" />
+                  <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, #001400, #002800)" }} />
                 )}
 
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
-                <div className="absolute top-0 left-1/4 w-40 h-40 bg-purple-500/30 rounded-full blur-[80px] pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-transparent" />
 
-                <div className="relative h-full flex flex-col justify-end px-5 sm:px-8 py-5 sm:py-8">
+                <div className="relative h-full flex flex-col justify-end px-4 sm:px-8 py-3 sm:py-6">
                   {b.tag && (
-                    <span className="inline-flex w-fit items-center gap-2 px-3 py-1.5 mb-3 rounded-full bg-purple-500/20 border border-purple-400/30 text-purple-300 text-xs font-medium uppercase tracking-wider backdrop-blur-sm">
+                    <span className="inline-flex w-fit items-center gap-1.5 px-2.5 py-1 mb-2 rounded-full text-[11px] font-medium uppercase tracking-wider"
+                      style={{ background: "rgba(0,255,0,0.15)", border: "1px solid rgba(0,255,0,0.3)", color: "#00DD00" }}>
                       {b.tag}
                     </span>
                   )}
-                  <h3 className="text-xl sm:text-3xl font-bold text-white mb-1 sm:mb-2 group-hover:text-purple-100 transition-colors">
+                  <h3 className="text-base sm:text-2xl font-bold text-white mb-0.5 sm:mb-1.5">
                     {b.title}
                   </h3>
-                  <p className="text-sm sm:text-base text-purple-200/70 mb-3 sm:mb-5">{b.subtitle}</p>
+                  <p className="text-xs sm:text-sm mb-2 sm:mb-4" style={{ color: "rgba(0,255,0,0.6)" }}>{b.subtitle}</p>
                   {b.button_text && (
-                    <button className="inline-flex items-center gap-2 w-fit px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-sm font-semibold transition-all shadow-lg shadow-purple-900/40 group-hover:shadow-purple-700/50 group-hover:scale-[1.02]">
+                    <button
+                      className="inline-flex items-center gap-1.5 w-fit px-3 sm:px-5 py-1.5 sm:py-2.5 rounded-lg text-xs sm:text-sm font-semibold transition-all"
+                      style={{ background: "#003300", border: "1px solid rgba(0,255,0,0.6)", color: "#00FF00", boxShadow: "0 0 12px rgba(0,255,0,0.2)" }}
+                    >
                       {b.button_text}
-                      <ChevronRight className="w-4 h-4" />
+                      <ChevronRight className="w-3.5 h-3.5" />
                     </button>
                   )}
                 </div>
@@ -206,22 +220,29 @@ export const PromoCarousel = ({ context = "futebol" }: PromoCarouselProps) => {
         <>
           <button
             onClick={() => emblaApi?.scrollPrev()}
-            className="hidden md:flex absolute left-3 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-black/40 border border-purple-500/40 hover:bg-purple-500/20 transition-colors backdrop-blur-sm"
+            className="hidden md:flex absolute left-3 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full transition-colors"
+            style={{ background: "rgba(0,0,0,0.6)", border: "1px solid rgba(0,255,0,0.3)" }}
           >
-            <ChevronLeft className="w-5 h-5 text-white" />
+            <ChevronLeft className="w-4 h-4" style={{ color: "#00FF00" }} />
           </button>
           <button
             onClick={() => emblaApi?.scrollNext()}
-            className="hidden md:flex absolute right-3 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-black/40 border border-purple-500/40 hover:bg-purple-500/20 transition-colors backdrop-blur-sm"
+            className="hidden md:flex absolute right-3 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full transition-colors"
+            style={{ background: "rgba(0,0,0,0.6)", border: "1px solid rgba(0,255,0,0.3)" }}
           >
-            <ChevronRight className="w-5 h-5 text-white" />
+            <ChevronRight className="w-4 h-4" style={{ color: "#00FF00" }} />
           </button>
-          <div className="flex justify-center gap-2 mt-3">
+          <div className="flex justify-center gap-1.5 mt-2.5">
             {banners.map((_, i) => (
               <button
                 key={i}
                 onClick={() => emblaApi?.scrollTo(i)}
-                className={`w-2 h-2 rounded-full transition-all ${i === selectedIndex ? "bg-purple-500 w-6" : "bg-purple-500/30 hover:bg-purple-500/50"}`}
+                className="rounded-full transition-all"
+                style={{
+                  width: i === selectedIndex ? "20px" : "6px",
+                  height: "6px",
+                  background: i === selectedIndex ? "#00FF00" : "rgba(0,255,0,0.25)",
+                }}
               />
             ))}
           </div>
