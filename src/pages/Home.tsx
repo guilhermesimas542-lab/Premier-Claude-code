@@ -155,8 +155,8 @@ const Home = () => {
         <div className="container max-w-7xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
           <div className="flex items-center justify-between gap-2 sm:gap-4">
             <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-              <img src={logoImg} alt="Premier Ultra" className="h-14 sm:h-16 w-auto" style={{ filter: "drop-shadow(0 0 6px rgba(0,255,0,0.4))" }} />
-              <span className="text-base sm:text-lg font-bold" style={{ color: "#FFFFFF", textShadow: "0 0 10px rgba(0,255,0,0.3)" }}>Premier Ultra</span>
+              <img src={logoImg} alt="Premier Ultra" className="h-20 sm:h-24 w-auto" style={{ filter: "drop-shadow(0 0 10px rgba(0,255,0,0.5))" }} />
+              <span className="text-2xl sm:text-4xl font-bold" style={{ color: "#FFFFFF", textShadow: "0 0 14px rgba(0,255,0,0.3)" }}>Premier Ultra</span>
             </div>
             
             <div className="flex items-center gap-2 sm:gap-3">
