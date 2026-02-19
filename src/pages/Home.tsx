@@ -141,35 +141,37 @@ const Home = () => {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0D0A1A] via-[#1A1030] to-[#0D0A1A] relative overflow-hidden pb-20 md:pb-0">
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-600/20 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-1/3 right-1/4 w-80 h-80 bg-purple-500/15 rounded-full blur-[100px] pointer-events-none" />
+    <div className="min-h-screen relative overflow-hidden pb-20 md:pb-0" style={{ background: "#000000" }}>
+      {/* Matrix green glow orbs */}
+      <div className="absolute top-0 left-1/4 w-96 h-96 rounded-full blur-[120px] pointer-events-none" style={{ background: "rgba(0,255,0,0.04)" }} />
+      <div className="absolute bottom-1/3 right-1/4 w-80 h-80 rounded-full blur-[100px] pointer-events-none" style={{ background: "rgba(0,200,0,0.03)" }} />
 
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-[#0D0A1A]/80 backdrop-blur-xl border-b border-purple-500/20">
+      <header className="sticky top-0 z-50 backdrop-blur-xl border-b" style={{ background: "rgba(0,0,0,0.92)", borderColor: "rgba(0,255,0,0.15)" }}>
         <div className="container max-w-7xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
           <div className="flex items-center justify-between gap-2 sm:gap-4">
             <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-              <img src={logoImg} alt="Premier Ultra" className="h-8 sm:h-10 w-auto" />
-              <span className="text-base sm:text-lg font-bold text-white">Premier Ultra</span>
+              <img src={logoImg} alt="Premier Ultra" className="h-8 sm:h-10 w-auto" style={{ filter: "drop-shadow(0 0 6px rgba(0,255,0,0.4))" }} />
+              <span className="text-base sm:text-lg font-bold" style={{ color: "#00FF00", textShadow: "0 0 10px rgba(0,255,0,0.5)" }}>Premier Ultra</span>
             </div>
             
             <div className="flex items-center gap-2 sm:gap-3">
               {mockUser && (
-                <span className="hidden md:block text-xs sm:text-sm font-medium text-white/80 truncate max-w-[180px]">
+                <span className="hidden md:block text-xs sm:text-sm font-medium truncate max-w-[180px]" style={{ color: "#00AA00" }}>
                   {mockUser.email}
                 </span>
               )}
               
               {hasLifetimeAccess ? (
-                <span className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-semibold bg-gradient-to-r from-amber-500/30 to-yellow-500/30 text-amber-300 border border-amber-500/50 shadow-[0_0_12px_rgba(245,158,11,0.25)]">
+                <span className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-semibold" style={{ background: "rgba(0,255,0,0.1)", color: "#00FF00", border: "1px solid rgba(0,255,0,0.4)", boxShadow: "0 0 10px rgba(0,255,0,0.2)" }}>
                   <Crown className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                   <span className="hidden sm:inline">Acesso</span> vitalício
                 </span>
               ) : (
                 <button
                   onClick={() => setShowLifetimeModal(true)}
-                  className="inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-semibold bg-red-500/20 text-red-300 border border-red-500/40 hover:bg-red-500/30 transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-semibold transition-colors cursor-pointer"
+                  style={{ background: "rgba(255,0,0,0.1)", color: "#FF4444", border: "1px solid rgba(255,0,0,0.3)" }}
                 >
                   <span className="hidden sm:inline">Sem</span> vitalício
                   <ShoppingCart className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
@@ -179,23 +181,24 @@ const Home = () => {
               <div className="relative" ref={menuRef}>
                 <button
                   onClick={() => setMenuOpen(!menuOpen)}
-                  className="p-2 rounded-lg bg-purple-500/10 border border-purple-500/30 hover:bg-purple-500/20 transition-colors"
+                  className="p-2 rounded-lg transition-colors"
+                  style={{ background: "rgba(0,255,0,0.05)", border: "1px solid rgba(0,255,0,0.25)" }}
                 >
-                  {menuOpen ? <X className="w-5 h-5 text-purple-300" /> : <Menu className="w-5 h-5 text-purple-300" />}
+                  {menuOpen ? <X className="w-5 h-5" style={{ color: "#00FF00" }} /> : <Menu className="w-5 h-5" style={{ color: "#00FF00" }} />}
                 </button>
 
                 {menuOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-52 sm:w-56 bg-[#0D0A1A]/95 backdrop-blur-xl border border-purple-500/30 rounded-xl shadow-xl shadow-purple-900/30 overflow-hidden z-50">
+                  <div className="absolute right-0 top-full mt-2 w-52 sm:w-56 backdrop-blur-xl rounded-xl shadow-xl overflow-hidden z-50" style={{ background: "rgba(0,8,0,0.97)", border: "1px solid rgba(0,255,0,0.2)", boxShadow: "0 0 30px rgba(0,255,0,0.1)" }}>
                     <div className="py-2">
-                      <button onClick={handlePromotions} className="w-full px-4 py-3 flex items-center gap-3 text-left text-purple-200 hover:bg-purple-500/15 transition-colors">
-                        <Gift className="w-4 h-4 text-purple-400" />
-                        <span className="text-sm font-medium">Promoções</span>
+                      <button onClick={handlePromotions} className="w-full px-4 py-3 flex items-center gap-3 text-left transition-colors hover:bg-[rgba(0,255,0,0.07)]">
+                        <Gift className="w-4 h-4" style={{ color: "#00CC00" }} />
+                        <span className="text-sm font-medium" style={{ color: "#00DD00" }}>Promoções</span>
                       </button>
-                      <button onClick={handleSupport} className="w-full px-4 py-3 flex items-center gap-3 text-left text-purple-200 hover:bg-purple-500/15 transition-colors">
-                        <Headphones className="w-4 h-4 text-purple-400" />
-                        <span className="text-sm font-medium">Suporte</span>
+                      <button onClick={handleSupport} className="w-full px-4 py-3 flex items-center gap-3 text-left transition-colors hover:bg-[rgba(0,255,0,0.07)]">
+                        <Headphones className="w-4 h-4" style={{ color: "#00CC00" }} />
+                        <span className="text-sm font-medium" style={{ color: "#00DD00" }}>Suporte</span>
                       </button>
-                      <div className="my-2 border-t border-purple-500/20" />
+                      <div className="my-2 border-t" style={{ borderColor: "rgba(0,255,0,0.15)" }} />
                       <button onClick={() => { setMenuOpen(false); handleLogout(); }} className="w-full px-4 py-3 flex items-center gap-3 text-left text-red-400 hover:bg-red-500/10 transition-colors">
                         <LogOut className="w-4 h-4" />
                         <span className="text-sm font-medium">Sair</span>
@@ -214,7 +217,7 @@ const Home = () => {
 
         <section className="space-y-4 sm:space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl sm:text-2xl font-display font-extrabold text-white tracking-tight">
+            <h2 className="text-xl sm:text-2xl font-display font-extrabold tracking-tight" style={{ color: "#00FF00", textShadow: "0 0 15px rgba(0,255,0,0.3)" }}>
               Entradas Disponíveis
             </h2>
           </div>
@@ -257,16 +260,16 @@ const Home = () => {
       {/* Footer */}
       <footer className="mt-12 pb-8">
         <div className="container max-w-7xl mx-auto px-4">
-          <div className="border-t border-purple-500/20 pt-6 text-center space-y-2">
-            <p className="text-sm text-purple-300/60 font-medium">Premier Ultra ©</p>
-            <p className="text-xs text-purple-300/50">Análises processadas continuamente</p>
-            <p className="text-[11px] text-purple-300/40 pt-2">
+          <div className="pt-6 text-center space-y-2" style={{ borderTop: "1px solid rgba(0,255,0,0.1)" }}>
+            <p className="text-sm font-medium" style={{ color: "#00AA00" }}>Premier Ultra ©</p>
+            <p className="text-xs" style={{ color: "#007700" }}>Análises processadas continuamente</p>
+            <p className="text-[11px] pt-2" style={{ color: "#005500" }}>
               Dados protegidos • 18+ • Jogue com responsabilidade
             </p>
-            <div className="flex items-center justify-center gap-2 text-[11px] text-purple-300/50">
-              <a href="/termos" className="hover:text-purple-400 transition-colors">Termos & Privacidade</a>
-              <span className="text-purple-500/30">|</span>
-              <a href="/support" className="hover:text-purple-400 transition-colors">Suporte</a>
+            <div className="flex items-center justify-center gap-2 text-[11px]" style={{ color: "#007700" }}>
+              <a href="/termos" className="transition-colors hover:underline" style={{ color: "#00AA00" }}>Termos & Privacidade</a>
+              <span style={{ color: "#003300" }}>|</span>
+              <a href="/support" className="transition-colors hover:underline" style={{ color: "#00AA00" }}>Suporte</a>
             </div>
           </div>
         </div>
@@ -276,31 +279,30 @@ const Home = () => {
 
       {/* Modal Promoções */}
       {showPromotionsModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onClick={() => setShowPromotionsModal(false)}>
-          <div className="w-full max-w-md bg-gradient-to-br from-[#0D0A1A] via-[#1A1030] to-[#0D0A1A] border border-purple-500/30 rounded-2xl shadow-2xl shadow-purple-900/40 overflow-hidden" onClick={(e) => e.stopPropagation()}>
-            <div className="relative px-6 py-5 border-b border-purple-500/20">
-              <div className="absolute top-0 right-0 w-24 h-24 bg-purple-500/20 rounded-full blur-3xl" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={() => setShowPromotionsModal(false)}>
+          <div className="w-full max-w-md rounded-2xl shadow-2xl overflow-hidden" style={{ background: "rgba(0,8,0,0.97)", border: "1px solid rgba(0,255,0,0.25)", boxShadow: "0 0 40px rgba(0,255,0,0.1)" }} onClick={(e) => e.stopPropagation()}>
+            <div className="relative px-6 py-5" style={{ borderBottom: "1px solid rgba(0,255,0,0.15)" }}>
               <div className="relative flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-purple-500/30 border border-purple-400/40 flex items-center justify-center">
-                  <Gift className="w-5 h-5 text-purple-300" />
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(0,255,0,0.1)", border: "1px solid rgba(0,255,0,0.3)" }}>
+                  <Gift className="w-5 h-5" style={{ color: "#00FF00" }} />
                 </div>
-                <div><h2 className="text-lg font-bold text-white">Promoções do Premier Ultra</h2></div>
+                <div><h2 className="text-lg font-bold" style={{ color: "#00FF00" }}>Promoções do Premier Ultra</h2></div>
               </div>
-              <button onClick={() => setShowPromotionsModal(false)} className="absolute top-4 right-4 p-1.5 rounded-lg hover:bg-purple-500/20 transition-colors">
-                <X className="w-5 h-5 text-purple-300" />
+              <button onClick={() => setShowPromotionsModal(false)} className="absolute top-4 right-4 p-1.5 rounded-lg transition-colors hover:bg-[rgba(0,255,0,0.08)]">
+                <X className="w-5 h-5" style={{ color: "#00FF00" }} />
               </button>
             </div>
             <div className="px-6 py-8 text-center">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center">
-                <Sparkles className="w-8 h-8 text-purple-400" />
+              <div className="w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center" style={{ background: "rgba(0,255,0,0.08)", border: "1px solid rgba(0,255,0,0.2)" }}>
+                <Sparkles className="w-8 h-8" style={{ color: "#00CC00" }} />
               </div>
-              <h3 className="text-lg font-semibold text-white mb-2">Em breve!</h3>
-              <p className="text-sm text-purple-300/70 leading-relaxed">
+              <h3 className="text-lg font-semibold mb-2" style={{ color: "#00FF00" }}>Em breve!</h3>
+              <p className="text-sm leading-relaxed" style={{ color: "#00AA00" }}>
                 Bônus, condições especiais e liberações exclusivas para membros do Premier Ultra.
               </p>
             </div>
             <div className="px-6 pb-6">
-              <button onClick={() => setShowPromotionsModal(false)} className="w-full py-3 rounded-xl bg-purple-500/20 border border-purple-500/40 text-purple-200 font-medium hover:bg-purple-500/30 transition-colors">
+              <button onClick={() => setShowPromotionsModal(false)} className="w-full py-3 rounded-xl font-medium transition-colors" style={{ background: "rgba(0,255,0,0.08)", border: "1px solid rgba(0,255,0,0.3)", color: "#00FF00" }}>
                 Entendi
               </button>
             </div>
@@ -310,30 +312,29 @@ const Home = () => {
 
       {/* Modal Compra Vitalício */}
       {showLifetimeModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onClick={() => setShowLifetimeModal(false)}>
-          <div className="w-full max-w-sm bg-gradient-to-br from-[#0D0A1A] via-[#1A1030] to-[#0D0A1A] border border-purple-500/30 rounded-2xl shadow-2xl shadow-purple-900/40 overflow-hidden" onClick={(e) => e.stopPropagation()}>
-            <div className="relative px-6 py-5 border-b border-purple-500/20">
-              <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/10 rounded-full blur-3xl" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={() => setShowLifetimeModal(false)}>
+          <div className="w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden" style={{ background: "rgba(0,8,0,0.97)", border: "1px solid rgba(0,255,0,0.25)", boxShadow: "0 0 40px rgba(0,255,0,0.1)" }} onClick={(e) => e.stopPropagation()}>
+            <div className="relative px-6 py-5" style={{ borderBottom: "1px solid rgba(0,255,0,0.15)" }}>
               <div className="relative flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/30 to-yellow-500/30 border border-amber-500/50 flex items-center justify-center">
-                  <Crown className="w-5 h-5 text-amber-300" />
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(0,255,0,0.1)", border: "1px solid rgba(0,255,0,0.3)" }}>
+                  <Crown className="w-5 h-5" style={{ color: "#00FF00" }} />
                 </div>
-                <div><h2 className="text-lg font-bold text-white">Acesso vitalício</h2></div>
+                <div><h2 className="text-lg font-bold" style={{ color: "#00FF00" }}>Acesso vitalício</h2></div>
               </div>
-              <button onClick={() => setShowLifetimeModal(false)} className="absolute top-4 right-4 p-1.5 rounded-lg hover:bg-purple-500/20 transition-colors">
-                <X className="w-5 h-5 text-purple-300" />
+              <button onClick={() => setShowLifetimeModal(false)} className="absolute top-4 right-4 p-1.5 rounded-lg transition-colors hover:bg-[rgba(0,255,0,0.08)]">
+                <X className="w-5 h-5" style={{ color: "#00FF00" }} />
               </button>
             </div>
             <div className="px-6 py-6 text-center">
-              <p className="text-sm text-purple-200/80 leading-relaxed">
+              <p className="text-sm leading-relaxed" style={{ color: "#00AA00" }}>
                 Desbloqueie acesso total e continue usando sem limitações.
               </p>
             </div>
             <div className="px-6 pb-6 space-y-3">
-              <button onClick={handleBuyLifetime} className="w-full py-3 rounded-xl bg-gradient-to-r from-purple-600 to-purple-500 text-white font-semibold hover:from-purple-500 hover:to-purple-400 transition-all shadow-lg shadow-purple-900/40">
+              <button onClick={handleBuyLifetime} className="w-full py-3 rounded-xl font-semibold transition-all" style={{ background: "#003300", border: "1px solid rgba(0,255,0,0.6)", color: "#00FF00", boxShadow: "0 0 20px rgba(0,255,0,0.2)" }}>
                 Adquirir vitalício
               </button>
-              <button onClick={() => setShowLifetimeModal(false)} className="w-full py-2.5 rounded-xl bg-transparent border border-purple-500/30 text-purple-300 font-medium hover:bg-purple-500/10 transition-colors">
+              <button onClick={() => setShowLifetimeModal(false)} className="w-full py-2.5 rounded-xl font-medium transition-colors" style={{ background: "transparent", border: "1px solid rgba(0,255,0,0.2)", color: "#00AA00" }}>
                 Fechar
               </button>
             </div>

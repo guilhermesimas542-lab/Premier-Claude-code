@@ -430,19 +430,19 @@ const Sport = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0C0F14] to-[#121826] overflow-x-hidden w-full max-w-full pb-20 md:pb-0">
-      <header className="sticky top-0 z-10 bg-[#0C0F14]/80 backdrop-blur-xl border-b border-border/30">
+    <div className="min-h-screen overflow-x-hidden w-full max-w-full pb-20 md:pb-0" style={{ background: "#000000" }}>
+      <header className="sticky top-0 z-10 backdrop-blur-xl" style={{ background: "rgba(0,0,0,0.92)", borderBottom: "1px solid rgba(0,255,0,0.15)" }}>
         <div className="container max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <button className="p-2 hover:bg-muted/50 rounded-lg transition-colors" onClick={() => navigate("/")}>
-              <ArrowLeft className="w-6 h-6 text-foreground" />
+            <button className="p-2 rounded-lg transition-colors hover:bg-[rgba(0,255,0,0.08)]" onClick={() => navigate("/")}>
+              <ArrowLeft className="w-6 h-6" style={{ color: "#00FF00" }} />
             </button>
-            <h1 className="text-xl font-display font-extrabold text-foreground tracking-tight">
+            <h1 className="text-xl font-display font-extrabold tracking-tight" style={{ color: "#00FF00", textShadow: "0 0 12px rgba(0,255,0,0.3)" }}>
               Futebol - Tips do Dia
             </h1>
           </div>
           <div className="flex items-center gap-4">
-            <Button onClick={handleLogout} variant="outline" size="sm" className="bg-muted/20 border-border/50 hover:bg-muted/40">
+            <Button onClick={handleLogout} size="sm" style={{ background: "rgba(0,255,0,0.08)", border: "1px solid rgba(0,255,0,0.3)", color: "#00FF00" }}>
               <LogOut className="w-4 h-4 mr-2" />
               Sair
             </Button>

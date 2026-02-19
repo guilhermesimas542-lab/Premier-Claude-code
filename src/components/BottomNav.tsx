@@ -37,10 +37,13 @@ export const BottomNav = () => {
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-50 bg-[#0D0A1A]/90 backdrop-blur-xl border-t border-purple-500/20 shadow-lg shadow-purple-900/30"
+      className="fixed bottom-0 left-0 right-0 z-50 backdrop-blur-xl"
       style={{
         height: "64px",
         paddingBottom: "env(safe-area-inset-bottom, 0px)",
+        background: "rgba(0,0,0,0.95)",
+        borderTop: "1px solid rgba(0,255,0,0.2)",
+        boxShadow: "0 -4px 20px rgba(0,255,0,0.05)",
       }}
     >
       <div className="h-full flex items-center justify-around max-w-md mx-auto px-4">
@@ -53,24 +56,19 @@ export const BottomNav = () => {
               key={item.path}
               onClick={() => navigate(item.path)}
               aria-label={item.label}
-              className={`
-                relative flex flex-col items-center justify-center gap-1 px-4 py-2 rounded-xl transition-all duration-200
-                ${active 
-                  ? "text-purple-400" 
-                  : "text-gray-400 hover:text-gray-300"
-                }
-              `}
+              className="relative flex flex-col items-center justify-center gap-1 px-4 py-2 rounded-xl transition-all duration-200"
             >
-              {/* Pill/highlight atrás do ícone quando ativo */}
               {active && (
-                <div className="absolute inset-0 bg-purple-500/15 rounded-xl" />
+                <div className="absolute inset-0 rounded-xl" style={{ background: "rgba(0,255,0,0.08)" }} />
               )}
               
-              <Icon 
-                className={`relative z-10 w-5 h-5 transition-colors ${active ? "text-purple-400" : ""}`} 
+              <Icon
+                className="relative z-10 w-5 h-5 transition-colors"
+                style={{ color: active ? "#00FF00" : "#007700" }}
               />
-              <span 
-                className={`relative z-10 text-[10px] font-medium transition-colors ${active ? "text-purple-400" : ""}`}
+              <span
+                className="relative z-10 text-[10px] font-medium transition-colors"
+                style={{ color: active ? "#00FF00" : "#007700" }}
               >
                 {item.label}
               </span>

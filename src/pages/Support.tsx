@@ -34,22 +34,21 @@ const Support = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0D0A1A] via-[#1A1030] to-[#0D0A1A] relative overflow-hidden pb-24">
-      {/* Purple glow effects */}
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-600/20 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-1/3 right-1/4 w-80 h-80 bg-purple-500/15 rounded-full blur-[100px] pointer-events-none" />
+    <div className="min-h-screen relative overflow-hidden pb-24" style={{ background: "#000000" }}>
+      <div className="absolute top-0 left-1/4 w-96 h-96 rounded-full blur-[120px] pointer-events-none" style={{ background: "rgba(0,255,0,0.03)" }} />
 
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-[#0D0A1A]/80 backdrop-blur-xl border-b border-purple-500/20">
+      <header className="sticky top-0 z-40 backdrop-blur-xl" style={{ background: "rgba(0,0,0,0.92)", borderBottom: "1px solid rgba(0,255,0,0.15)" }}>
         <div className="container max-w-7xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
           <div className="flex items-center gap-3">
             <button
               onClick={() => navigate(-1)}
-              className="p-2 rounded-lg bg-purple-500/10 border border-purple-500/30 hover:bg-purple-500/20 transition-colors"
+              className="p-2 rounded-lg transition-colors"
+              style={{ background: "rgba(0,255,0,0.05)", border: "1px solid rgba(0,255,0,0.25)" }}
             >
-              <ArrowLeft className="w-5 h-5 text-purple-300" />
+              <ArrowLeft className="w-5 h-5" style={{ color: "#00FF00" }} />
             </button>
-            <h1 className="text-lg sm:text-xl font-bold text-white">
+            <h1 className="text-lg sm:text-xl font-bold" style={{ color: "#00FF00", textShadow: "0 0 10px rgba(0,255,0,0.3)" }}>
               Configurações da Conta
             </h1>
           </div>
@@ -60,63 +59,52 @@ const Support = () => {
       <main className="container max-w-2xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 relative z-10">
         
         {/* Card: Informações Pessoais */}
-        <section className="bg-[#1A1030]/60 backdrop-blur-sm border border-purple-500/20 rounded-2xl p-4 sm:p-5 space-y-4">
-          <h2 className="text-base sm:text-lg font-semibold text-white">
+        <section className="backdrop-blur-sm rounded-2xl p-4 sm:p-5 space-y-4" style={{ background: "rgba(0,15,0,0.6)", border: "1px solid rgba(0,255,0,0.15)" }}>
+          <h2 className="text-base sm:text-lg font-semibold" style={{ color: "#00FF00" }}>
             Informações Pessoais
           </h2>
           
           <div className="space-y-3">
-            {/* Nome */}
-            <div className="flex items-center gap-3 p-3 bg-purple-500/5 rounded-xl border border-purple-500/10">
-              <div className="w-9 h-9 rounded-lg bg-purple-500/15 flex items-center justify-center">
-                <User className="w-4 h-4 text-purple-400" />
+            <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: "rgba(0,255,0,0.04)", border: "1px solid rgba(0,255,0,0.1)" }}>
+              <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: "rgba(0,255,0,0.08)" }}>
+                <User className="w-4 h-4" style={{ color: "#00CC00" }} />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs text-purple-300/70">Nome</p>
-                <p className="text-sm font-medium text-white truncate">
-                  {userData?.name || "—"}
-                </p>
+                <p className="text-xs" style={{ color: "#007700" }}>Nome</p>
+                <p className="text-sm font-medium truncate" style={{ color: "#00DD00" }}>{userData?.name || "—"}</p>
               </div>
             </div>
             
-            {/* E-mail */}
-            <div className="flex items-center gap-3 p-3 bg-purple-500/5 rounded-xl border border-purple-500/10">
-              <div className="w-9 h-9 rounded-lg bg-purple-500/15 flex items-center justify-center">
-                <Mail className="w-4 h-4 text-purple-400" />
+            <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: "rgba(0,255,0,0.04)", border: "1px solid rgba(0,255,0,0.1)" }}>
+              <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: "rgba(0,255,0,0.08)" }}>
+                <Mail className="w-4 h-4" style={{ color: "#00CC00" }} />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs text-purple-300/70">E-mail</p>
-                <p className="text-sm font-medium text-white truncate">
-                  {userData?.email || "—"}
-                </p>
+                <p className="text-xs" style={{ color: "#007700" }}>E-mail</p>
+                <p className="text-sm font-medium truncate" style={{ color: "#00DD00" }}>{userData?.email || "—"}</p>
               </div>
             </div>
             
-            {/* Telefone */}
-            <div className="flex items-center gap-3 p-3 bg-purple-500/5 rounded-xl border border-purple-500/10">
-              <div className="w-9 h-9 rounded-lg bg-purple-500/15 flex items-center justify-center">
-                <Phone className="w-4 h-4 text-purple-400" />
+            <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: "rgba(0,255,0,0.04)", border: "1px solid rgba(0,255,0,0.1)" }}>
+              <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: "rgba(0,255,0,0.08)" }}>
+                <Phone className="w-4 h-4" style={{ color: "#00CC00" }} />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs text-purple-300/70">Telefone</p>
-                <p className="text-sm font-medium text-white truncate">
-                  {userData?.phone || "—"}
-                </p>
+                <p className="text-xs" style={{ color: "#007700" }}>Telefone</p>
+                <p className="text-sm font-medium truncate" style={{ color: "#00DD00" }}>{userData?.phone || "—"}</p>
               </div>
             </div>
           </div>
         </section>
 
         {/* Card: Status do Plano */}
-        <section className="bg-[#1A1030]/60 backdrop-blur-sm border border-purple-500/20 rounded-2xl p-4 sm:p-5 space-y-4">
+        <section className="backdrop-blur-sm rounded-2xl p-4 sm:p-5 space-y-4" style={{ background: "rgba(0,15,0,0.6)", border: "1px solid rgba(0,255,0,0.15)" }}>
           <div className="flex items-center justify-between">
-            <h2 className="text-base sm:text-lg font-semibold text-white">
+            <h2 className="text-base sm:text-lg font-semibold" style={{ color: "#00FF00" }}>
               Status do Plano
             </h2>
-            
-            {/* Badge de status */}
             {userData?.plan?.isActive ? (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-green-500/20 text-green-400 border border-green-500/40">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold" style={{ background: "rgba(0,255,0,0.1)", color: "#00FF00", border: "1px solid rgba(0,255,0,0.4)" }}>
                 <CheckCircle className="w-3 h-3" />
                 ATIVO
               </span>
@@ -129,13 +117,12 @@ const Support = () => {
           </div>
           
           <div className="space-y-2">
-            <p className="text-sm text-white">
-              <span className="text-purple-300/70">Plano:</span>{" "}
+            <p className="text-sm" style={{ color: "#00DD00" }}>
+              <span style={{ color: "#007700" }}>Plano:</span>{" "}
               <span className="font-semibold">{userData?.plan?.name || "—"}</span>
             </p>
-            
             {!userData?.plan?.isActive && (
-              <p className="text-xs text-purple-300/60">
+              <p className="text-xs" style={{ color: "#006600" }}>
                 Para ter acesso às funcionalidades premium, entre em contato com nosso suporte.
               </p>
             )}
@@ -143,7 +130,8 @@ const Support = () => {
           
           <button
             onClick={handleOpenSupport}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-purple-600 hover:bg-purple-700 text-white transition-colors font-medium"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-medium transition-all"
+            style={{ background: "rgba(0,255,0,0.08)", border: "1px solid rgba(0,255,0,0.35)", color: "#00FF00", boxShadow: "0 0 15px rgba(0,255,0,0.1)" }}
           >
             <MessageCircle className="w-4 h-4" />
             Falar com Suporte
@@ -151,18 +139,17 @@ const Support = () => {
         </section>
 
         {/* Card: Suporte */}
-        <section className="bg-[#1A1030]/60 backdrop-blur-sm border border-purple-500/20 rounded-2xl p-4 sm:p-5 space-y-4">
-          <h2 className="text-base sm:text-lg font-semibold text-white">
+        <section className="backdrop-blur-sm rounded-2xl p-4 sm:p-5 space-y-4" style={{ background: "rgba(0,15,0,0.6)", border: "1px solid rgba(0,255,0,0.15)" }}>
+          <h2 className="text-base sm:text-lg font-semibold" style={{ color: "#00FF00" }}>
             Suporte
           </h2>
-          
-          <p className="text-sm text-purple-300/70">
+          <p className="text-sm" style={{ color: "#00AA00" }}>
             Precisa de ajuda? Nossa equipe está pronta para atendê-lo. Entre em contato pelo chat de suporte.
           </p>
-          
           <button
             onClick={handleOpenSupport}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-purple-600 hover:bg-purple-700 text-white transition-colors font-medium"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-medium transition-all"
+            style={{ background: "rgba(0,255,0,0.08)", border: "1px solid rgba(0,255,0,0.35)", color: "#00FF00" }}
           >
             <Headphones className="w-4 h-4" />
             Abrir Chat de Suporte
@@ -170,15 +157,13 @@ const Support = () => {
         </section>
 
         {/* Card: Sessão */}
-        <section className="bg-[#1A1030]/60 backdrop-blur-sm border border-purple-500/20 rounded-2xl p-4 sm:p-5 space-y-4">
-          <h2 className="text-base sm:text-lg font-semibold text-white">
+        <section className="backdrop-blur-sm rounded-2xl p-4 sm:p-5 space-y-4" style={{ background: "rgba(0,15,0,0.6)", border: "1px solid rgba(0,255,0,0.15)" }}>
+          <h2 className="text-base sm:text-lg font-semibold" style={{ color: "#00FF00" }}>
             Sessão
           </h2>
-          
-          <p className="text-sm text-purple-300/70">
+          <p className="text-sm" style={{ color: "#00AA00" }}>
             Deseja sair da sua conta? Você precisará fazer login novamente para acessar o aplicativo.
           </p>
-          
           <button
             onClick={handleLogout}
             className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-red-500/50 text-red-400 hover:bg-red-500/10 transition-colors font-medium"

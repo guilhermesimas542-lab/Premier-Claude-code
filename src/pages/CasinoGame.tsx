@@ -30,13 +30,13 @@ const CasinoGame = () => {
   // Jogo não encontrado
   if (!game) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-[#0C0F14] to-[#121826] flex flex-col items-center justify-center p-4">
+      <div className="min-h-screen flex flex-col items-center justify-center p-4" style={{ background: "#000000" }}>
         <div className="text-center space-y-6">
-          <h1 className="text-2xl font-bold text-foreground">Jogo não encontrado</h1>
-          <p className="text-muted-foreground">O jogo solicitado não existe ou foi removido.</p>
+          <h1 className="text-2xl font-bold" style={{ color: "#00FF00" }}>Jogo não encontrado</h1>
+          <p style={{ color: "#00AA00" }}>O jogo solicitado não existe ou foi removido.</p>
           <Button
             onClick={() => navigate("/cassino")}
-            className="bg-vip hover:bg-vip/90 text-white font-bold"
+            style={{ background: "rgba(0,255,0,0.08)", border: "1px solid rgba(0,255,0,0.35)", color: "#00FF00" }}
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Voltar ao Cassino
@@ -47,25 +47,21 @@ const CasinoGame = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0C0F14] to-[#121826]">
+    <div className="min-h-screen" style={{ background: "#000000" }}>
       {/* Topbar */}
-      <header className="sticky top-0 z-50 bg-[#0C0F14]/80 backdrop-blur-xl border-b border-border/30">
+      <header className="sticky top-0 z-50 backdrop-blur-xl" style={{ background: "rgba(0,0,0,0.92)", borderBottom: "1px solid rgba(0,255,0,0.15)" }}>
         <div className="container max-w-7xl mx-auto px-4 py-4 flex items-center gap-4">
           <Button
             onClick={() => navigate("/cassino")}
-            variant="outline"
             size="sm"
-            className="bg-muted/20 border-vip/50 hover:bg-vip/20 hover:border-vip"
+            style={{ background: "rgba(0,255,0,0.05)", border: "1px solid rgba(0,255,0,0.3)", color: "#00FF00" }}
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Voltar
           </Button>
-          <h1 
+          <h1
             className="text-xl font-display font-extrabold tracking-tight"
-            style={{ 
-              color: 'hsl(280 100% 60%)',
-              textShadow: '0 0 20px hsl(280 100% 60% / 0.4)'
-            }}
+            style={{ color: "#00FF00", textShadow: "0 0 15px rgba(0,255,0,0.4)" }}
           >
             {game.name}
           </h1>
@@ -74,11 +70,12 @@ const CasinoGame = () => {
 
       {/* iFrame Container */}
       <main className="container max-w-7xl mx-auto px-4 py-6">
-        <div 
-          className="w-full min-h-[70vh] md:min-h-[75vh] bg-gradient-to-br from-muted/40 to-muted/20 rounded-xl overflow-hidden backdrop-blur-sm"
+        <div
+          className="w-full min-h-[70vh] md:min-h-[75vh] rounded-xl overflow-hidden"
           style={{
-            border: '1.5px solid hsl(280 100% 60% / 0.3)',
-            boxShadow: '0 0 30px hsl(280 100% 60% / 0.1), inset 0 0 20px rgba(0,0,0,0.3)'
+            border: "1.5px solid rgba(0,255,0,0.2)",
+            boxShadow: "0 0 30px rgba(0,255,0,0.08), inset 0 0 20px rgba(0,0,0,0.3)",
+            background: "rgba(0,10,0,0.4)",
           }}
         >
           <iframe

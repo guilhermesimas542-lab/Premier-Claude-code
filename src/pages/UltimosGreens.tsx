@@ -126,24 +126,23 @@ const UltimosGreens = () => {
   const sortedDates = Object.keys(groupedGreens).sort((a, b) => b.localeCompare(a));
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0D0A1A] via-[#1A1030] to-[#0D0A1A] relative overflow-hidden">
-      {/* Purple glow effects */}
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-600/20 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-1/3 right-1/4 w-80 h-80 bg-purple-500/15 rounded-full blur-[100px] pointer-events-none" />
+    <div className="min-h-screen relative overflow-hidden" style={{ background: "#000000" }}>
+      <div className="absolute top-0 left-1/4 w-96 h-96 rounded-full blur-[120px] pointer-events-none" style={{ background: "rgba(0,255,0,0.03)" }} />
 
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-[#0D0A1A]/80 backdrop-blur-xl border-b border-purple-500/20">
+      <header className="sticky top-0 z-50 backdrop-blur-xl" style={{ background: "rgba(0,0,0,0.92)", borderBottom: "1px solid rgba(0,255,0,0.15)" }}>
         <div className="container max-w-3xl mx-auto px-4 py-4">
           <div className="flex items-center gap-3">
             <button
               onClick={() => navigate("/")}
-              className="p-2 rounded-lg bg-purple-500/10 border border-purple-500/30 hover:bg-purple-500/20 transition-colors"
+              className="p-2 rounded-lg transition-colors"
+              style={{ background: "rgba(0,255,0,0.05)", border: "1px solid rgba(0,255,0,0.25)" }}
             >
-              <ArrowLeft className="w-5 h-5 text-purple-300" />
+              <ArrowLeft className="w-5 h-5" style={{ color: "#00FF00" }} />
             </button>
             <div>
-              <h1 className="text-xl font-bold text-white">Últimos Greens</h1>
-              <p className="text-xs text-purple-300/70">Somente entradas green. Histórico por data.</p>
+              <h1 className="text-xl font-bold" style={{ color: "#00FF00", textShadow: "0 0 10px rgba(0,255,0,0.3)" }}>Últimos Greens</h1>
+              <p className="text-xs" style={{ color: "#007700" }}>Somente entradas green. Histórico por data.</p>
             </div>
           </div>
         </div>
@@ -153,20 +152,20 @@ const UltimosGreens = () => {
         {loading ? (
           <div className="space-y-4">
             {[...Array(6)].map((_, i) => (
-              <Skeleton key={i} className="h-16 w-full rounded-xl bg-white/5" />
+              <Skeleton key={i} className="h-16 w-full rounded-xl" style={{ background: "rgba(0,255,0,0.05)" }} />
             ))}
           </div>
         ) : greens.length === 0 ? (
           <div className="text-center py-16">
-            <p className="text-purple-300/60">Sem greens registrados ainda.</p>
+            <p style={{ color: "#007700" }}>Sem greens registrados ainda.</p>
           </div>
         ) : (
           <div className="space-y-6">
             {sortedDates.map((date) => (
               <div key={date} className="space-y-2">
                 {/* Date Header */}
-                <div className="sticky top-[73px] z-20 py-2 bg-[#0D0A1A]/90 backdrop-blur-sm">
-                  <span className="text-xs font-bold text-purple-400 uppercase tracking-wider">
+                <div className="sticky top-[73px] z-20 py-2 backdrop-blur-sm" style={{ background: "rgba(0,0,0,0.85)" }}>
+                  <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "#00CC00" }}>
                     {formatDateHeader(date)}
                   </span>
                 </div>
@@ -176,21 +175,22 @@ const UltimosGreens = () => {
                   {groupedGreens[date].map((entry) => (
                     <div
                       key={entry.id}
-                      className="flex items-center justify-between gap-3 p-3 rounded-xl bg-white/90 backdrop-blur-sm border border-gray-200/50"
+                      className="flex items-center justify-between gap-3 p-3 rounded-xl"
+                      style={{ background: "rgba(0,20,0,0.5)", border: "1px solid rgba(0,255,0,0.15)" }}
                     >
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-gray-800 truncate">
+                        <p className="text-sm font-semibold truncate" style={{ color: "#00FF00" }}>
                           {entry.homeTeam} x {entry.awayTeam}
                         </p>
-                        <p className="text-xs text-gray-500 truncate">{entry.market}</p>
+                        <p className="text-xs truncate" style={{ color: "#00AA00" }}>{entry.market}</p>
                       </div>
 
                       <div className="flex items-center gap-2 shrink-0">
-                        <span className="text-base font-bold text-gray-800">
+                        <span className="text-base font-bold" style={{ color: "#00FF00" }}>
                           {entry.odd.toFixed(2)}
                         </span>
-                        <div className="w-6 h-6 rounded-full bg-green-500/20 border border-green-500/40 flex items-center justify-center">
-                          <Check className="w-3.5 h-3.5 text-green-500" />
+                        <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{ background: "rgba(0,255,0,0.15)", border: "1px solid rgba(0,255,0,0.4)" }}>
+                          <Check className="w-3.5 h-3.5" style={{ color: "#00FF00" }} />
                         </div>
                       </div>
                     </div>
@@ -202,13 +202,13 @@ const UltimosGreens = () => {
             {/* Infinite scroll trigger */}
             <div ref={observerRef} className="h-10 flex items-center justify-center">
               {loadingMore && (
-                <div className="flex items-center gap-2 text-purple-300/60 text-sm">
-                  <div className="w-4 h-4 border-2 border-purple-400/30 border-t-purple-400 rounded-full animate-spin" />
+                <div className="flex items-center gap-2 text-sm" style={{ color: "#007700" }}>
+                  <div className="w-4 h-4 border-2 rounded-full animate-spin" style={{ borderColor: "rgba(0,255,0,0.2)", borderTopColor: "#00FF00" }} />
                   Carregando mais...
                 </div>
               )}
               {!hasMore && greens.length > 0 && (
-                <p className="text-purple-300/50 text-sm">Fim do histórico</p>
+                <p className="text-sm" style={{ color: "#005500" }}>Fim do histórico</p>
               )}
             </div>
           </div>
