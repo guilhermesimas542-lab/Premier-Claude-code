@@ -50,17 +50,21 @@ const TIER_COLORS: Record<string, string> = {
 };
 
 function UpsellBadges({ upsells }: { upsells: string[] }) {
+  const allActive = UPSELL_BADGES.every(({ key }) => upsells.includes(UPSELL_LABELS[key]));
   return (
     <div className="flex items-center gap-1">
       {UPSELL_BADGES.map(({ key, letter, activeColor, title }) => {
         const active = upsells.includes(UPSELL_LABELS[key]);
+        const colorClass = active
+          ? allActive
+            ? "bg-green-500 text-white"
+            : activeColor
+          : "bg-gray-700 text-gray-500";
         return (
           <span
             key={key}
             title={title}
-            className={`inline-flex items-center justify-center w-5 h-5 rounded text-[10px] font-bold select-none ${
-              active ? activeColor : "bg-gray-700 text-gray-500"
-            }`}
+            className={`inline-flex items-center justify-center w-5 h-5 rounded text-[10px] font-bold select-none ${colorClass}`}
           >
             {letter}
           </span>
