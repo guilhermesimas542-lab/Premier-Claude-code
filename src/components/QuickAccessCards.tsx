@@ -9,7 +9,6 @@ interface QuickCard {
   icon: React.ReactNode;
 }
 
-// Ordem: Odds Altas, Alavancagem, Últimos Bilhetes
 const cards: QuickCard[] = [
   {
     id: "odds-altas",
@@ -38,41 +37,55 @@ export const QuickAccessCards = () => {
   const navigate = useNavigate();
 
   return (
-    <section className="space-y-3 sm:space-y-4">
-      <h2 className="text-lg sm:text-xl font-bold text-white">
+    <section className="space-y-2.5">
+      <h2 className="text-base sm:text-lg font-bold" style={{ color: "#00FF00", textShadow: "0 0 12px rgba(0,255,0,0.3)" }}>
         Acesso Rápido
       </h2>
-      
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5">
         {cards.map((card) => (
           <button
             key={card.id}
             onClick={() => navigate(card.route)}
-            className="group relative overflow-hidden rounded-xl border border-gray-300/20 bg-white/90 backdrop-blur-sm p-4 sm:p-5 text-left transition-all hover:scale-[1.02] hover:shadow-lg hover:shadow-gray-900/10"
+            className="group relative overflow-hidden rounded-xl text-left transition-all active:scale-[0.98]"
+            style={{
+              background: "rgba(0, 15, 0, 0.7)",
+              border: "1px solid rgba(0,255,0,0.2)",
+              padding: "14px 16px",
+              minHeight: "64px",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = "rgba(0,255,0,0.45)";
+              e.currentTarget.style.background = "rgba(0,20,0,0.85)";
+              e.currentTarget.style.boxShadow = "0 0 16px rgba(0,255,0,0.1)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = "rgba(0,255,0,0.2)";
+              e.currentTarget.style.background = "rgba(0, 15, 0, 0.7)";
+              e.currentTarget.style.boxShadow = "none";
+            }}
           >
-            {/* Subtle hover glow */}
-            <div className="absolute top-0 right-0 w-20 h-20 bg-gray-400/5 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
-            
-            <div className="relative flex items-start gap-3">
+            <div className="flex items-center gap-3">
               {/* Icon */}
-              <div className="shrink-0 w-10 h-10 rounded-lg bg-gray-100 border border-gray-200/60 flex items-center justify-center text-gray-600">
+              <div
+                className="shrink-0 w-9 h-9 rounded-lg flex items-center justify-center"
+                style={{ background: "rgba(0,255,0,0.08)", border: "1px solid rgba(0,255,0,0.2)", color: "#00CC00" }}
+              >
                 {card.icon}
               </div>
-              
+
               {/* Content */}
               <div className="flex-1 min-w-0">
-                <h3 className="text-sm sm:text-base font-semibold text-gray-800 mb-0.5 truncate">
+                <h3 className="text-sm font-semibold truncate" style={{ color: "#00DD00" }}>
                   {card.title}
                 </h3>
-                <p className="text-xs text-gray-500">
+                <p className="text-[11px]" style={{ color: "#006600" }}>
                   {card.subtitle}
                 </p>
               </div>
-              
+
               {/* Arrow */}
-              <div className="shrink-0 text-gray-400 opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all">
-                <ChevronRight className="w-4 h-4" />
-              </div>
+              <ChevronRight className="shrink-0 w-4 h-4 opacity-40 group-hover:opacity-80 group-hover:translate-x-0.5 transition-all" style={{ color: "#00AA00" }} />
             </div>
           </button>
         ))}
