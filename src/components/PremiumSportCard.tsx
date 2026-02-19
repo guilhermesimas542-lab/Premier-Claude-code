@@ -117,14 +117,13 @@ export const PremiumSportCard = ({
         : premiumTexts.subtitles[textIndex];
 
     return (
-      <div className="flex flex-col justify-center space-y-1">
+      <div className="flex flex-col space-y-0.5">
         <h4
-          className="text-xs font-bold tracking-wide leading-tight"
-          style={{ color: colors.primary, textShadow: `0 0 12px ${colors.glow}` }}
+          className="text-sm font-bold tracking-wide leading-tight text-white"
         >
           {displayTitle}
         </h4>
-        <p className="text-[10px] text-[#A1A1A1] leading-relaxed">{displaySubtitle}</p>
+        <p className="text-[11px] leading-relaxed" style={{ color: '#888888' }}>{displaySubtitle}</p>
       </div>
     );
   };
@@ -210,7 +209,7 @@ export const PremiumSportCard = ({
       style={{
         background: isLocked ? '#070707' : '#060606',
         border: '2px solid',
-        minHeight: '140px',
+        minHeight: '110px',
         ...getBorderStyle()
       }}
     >
@@ -244,16 +243,16 @@ export const PremiumSportCard = ({
         </div>
       )}
 
-      <div className="flex items-center h-full gap-3 px-4 py-3" style={{ minHeight: '140px' }}>
-        {/* Icon + Name (left side) */}
-        <div className="flex flex-col items-center gap-1.5 shrink-0">
+      <div className="flex items-center gap-3 px-4 py-3" style={{ minHeight: '110px' }}>
+        {/* Icon (left side) */}
+        <div className="shrink-0">
           <div className="relative">
             <div
               className="absolute inset-0 blur-xl opacity-40"
               style={{ backgroundColor: isLocked ? '#FBBF24' : isDevelopment ? '#00D4FF' : colors.primary }}
             />
             <div
-              className="relative w-11 h-11 rounded-full flex items-center justify-center"
+              className="relative w-[50px] h-[50px] rounded-full flex items-center justify-center"
               style={{
                 background: isLocked
                   ? 'rgba(251,191,36,0.12)'
@@ -268,7 +267,7 @@ export const PremiumSportCard = ({
               }}
             >
               <span
-                className="text-xl"
+                className="text-2xl"
                 style={{
                   filter: isLocked
                     ? 'drop-shadow(0 0 6px rgba(251,191,36,0.6)) grayscale(0.3)'
@@ -281,19 +280,18 @@ export const PremiumSportCard = ({
               </span>
             </div>
           </div>
-          <h3 className="text-[11px] font-bold text-white tracking-wide text-center max-w-[72px] leading-tight">
-            {name}
-          </h3>
         </div>
 
-        {/* Content (center) */}
-        <div className="flex-1 min-w-0">
-          {renderContent()}
-        </div>
-
-        {/* Button (right side) */}
-        <div className="shrink-0">
-          {renderButtonCompact()}
+        {/* Content + Button (right side) */}
+        <div className="flex-1 min-w-0 flex flex-col justify-between" style={{ minHeight: '80px' }}>
+          {/* Title + Description on top */}
+          <div className="flex-1">
+            {renderContent()}
+          </div>
+          {/* Button on bottom-right */}
+          <div className="flex justify-end mt-2">
+            {renderButtonCompact()}
+          </div>
         </div>
       </div>
     </div>
