@@ -15,7 +15,8 @@ import type { AdminContentEntry } from "../types";
 export default function AdminTipsList() {
   const [items, setItems] = useState<AdminContentEntry[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState({ tier: "", addon: "", team: "", active: "", dateFrom: "", dateTo: "" });
+  const today = new Date().toISOString().split("T")[0];
+  const [filters, setFilters] = useState({ tier: "", addon: "", team: "", active: "", dateFrom: today, dateTo: today });
   const [editItem, setEditItem] = useState<AdminContentEntry | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
