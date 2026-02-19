@@ -77,7 +77,7 @@ const Casino = () => {
                 <ArrowLeft className="w-5 h-5" style={{ color: "#00FF00" }} />
               </button>
               <img src={logoImg} alt="Premier Ultra" className="h-8 sm:h-10 w-auto" style={{ filter: "drop-shadow(0 0 6px rgba(0,255,0,0.4))" }} />
-              <span className="text-base sm:text-lg font-bold" style={{ color: "#00FF00", textShadow: "0 0 10px rgba(0,255,0,0.4)" }}>Cassino</span>
+              <span className="text-base sm:text-lg font-bold" style={{ color: "#FFFFFF" }}>Cassino</span>
             </div>
             
             <div className="flex items-center gap-2 sm:gap-3">
@@ -105,7 +105,7 @@ const Casino = () => {
         <PromoCarousel context="cassino" />
 
         <section className="space-y-4 sm:space-y-6">
-          <h2 className="text-xl sm:text-2xl font-display font-extrabold tracking-tight" style={{ color: "#00FF00", textShadow: "0 0 15px rgba(0,255,0,0.3)" }}>
+          <h2 className="text-xl sm:text-2xl font-display font-extrabold tracking-tight" style={{ color: "#FFFFFF" }}>
             Jogos Disponíveis
           </h2>
 
@@ -127,16 +127,16 @@ const Casino = () => {
                     </div>
                     
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-sm sm:text-base font-semibold mb-0.5 truncate" style={{ color: "#00FF00" }}>
+                    <h3 className="text-sm sm:text-base font-semibold mb-0.5 truncate" style={{ color: "#FFFFFF" }}>
                         {tile.name}
                       </h3>
-                      <p className="text-xs" style={{ color: "#00AA00" }}>
+                      <p className="text-xs" style={{ color: "#CCCCCC" }}>
                         {tile.subtitle}
                       </p>
                     </div>
                     
                     <div className="shrink-0 group-hover:translate-x-0.5 transition-all">
-                      <ChevronRight className="w-4 h-4" style={{ color: "#00AA00" }} />
+                      <ChevronRight className="w-4 h-4" style={{ color: "#CCCCCC" }} />
                     </div>
                   </div>
                 </button>

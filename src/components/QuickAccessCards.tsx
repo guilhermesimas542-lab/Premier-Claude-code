@@ -38,7 +38,7 @@ export const QuickAccessCards = () => {
 
   return (
     <section className="space-y-2.5">
-      <h2 className="text-base sm:text-lg font-bold" style={{ color: "#00FF00", textShadow: "0 0 12px rgba(0,255,0,0.3)" }}>
+      <h2 className="text-base sm:text-lg font-bold" style={{ color: "#FFFFFF" }}>
         Acesso Rápido
       </h2>
 
@@ -76,16 +76,16 @@ export const QuickAccessCards = () => {
 
               {/* Content */}
               <div className="flex-1 min-w-0">
-                <h3 className="text-sm font-semibold truncate" style={{ color: "#00DD00" }}>
+                <h3 className="text-sm font-semibold truncate" style={{ color: "#FFFFFF" }}>
                   {card.title}
                 </h3>
-                <p className="text-[11px]" style={{ color: "#006600" }}>
+                <p className="text-[11px]" style={{ color: "#AAAAAA" }}>
                   {card.subtitle}
                 </p>
               </div>
 
               {/* Arrow */}
-              <ChevronRight className="shrink-0 w-4 h-4 opacity-40 group-hover:opacity-80 group-hover:translate-x-0.5 transition-all" style={{ color: "#00AA00" }} />
+              <ChevronRight className="shrink-0 w-4 h-4 opacity-40 group-hover:opacity-80 group-hover:translate-x-0.5 transition-all" style={{ color: "#CCCCCC" }} />
             </div>
           </button>
         ))}

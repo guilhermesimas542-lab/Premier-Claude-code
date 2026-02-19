@@ -154,18 +154,18 @@ const Home = () => {
           <div className="flex items-center justify-between gap-2 sm:gap-4">
             <div className="flex items-center gap-2 sm:gap-3 shrink-0">
               <img src={logoImg} alt="Premier Ultra" className="h-8 sm:h-10 w-auto" style={{ filter: "drop-shadow(0 0 6px rgba(0,255,0,0.4))" }} />
-              <span className="text-base sm:text-lg font-bold" style={{ color: "#00FF00", textShadow: "0 0 10px rgba(0,255,0,0.5)" }}>Premier Ultra</span>
+              <span className="text-base sm:text-lg font-bold" style={{ color: "#FFFFFF", textShadow: "0 0 10px rgba(0,255,0,0.3)" }}>Premier Ultra</span>
             </div>
             
             <div className="flex items-center gap-2 sm:gap-3">
               {mockUser && (
-                <span className="hidden md:block text-xs sm:text-sm font-medium truncate max-w-[180px]" style={{ color: "#00AA00" }}>
+                <span className="hidden md:block text-xs sm:text-sm font-medium truncate max-w-[180px]" style={{ color: "#CCCCCC" }}>
                   {mockUser.email}
                 </span>
               )}
               
               {hasLifetimeAccess ? (
-                <span className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-semibold" style={{ background: "rgba(0,255,0,0.1)", color: "#00FF00", border: "1px solid rgba(0,255,0,0.4)", boxShadow: "0 0 10px rgba(0,255,0,0.2)" }}>
+                <span className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-semibold" style={{ background: "rgba(0,255,0,0.1)", color: "#FFFFFF", border: "1px solid rgba(0,255,0,0.4)", boxShadow: "0 0 10px rgba(0,255,0,0.2)" }}>
                   <Crown className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                   <span className="hidden sm:inline">Acesso</span> vitalício
                 </span>
@@ -193,12 +193,12 @@ const Home = () => {
                   <div className="absolute right-0 top-full mt-2 w-52 sm:w-56 backdrop-blur-xl rounded-xl shadow-xl overflow-hidden z-50" style={{ background: "rgba(0,8,0,0.97)", border: "1px solid rgba(0,255,0,0.2)", boxShadow: "0 0 30px rgba(0,255,0,0.1)" }}>
                     <div className="py-2">
                       <button onClick={handlePromotions} className="w-full px-4 py-3 flex items-center gap-3 text-left transition-colors hover:bg-[rgba(0,255,0,0.07)]">
-                        <Gift className="w-4 h-4" style={{ color: "#00CC00" }} />
-                        <span className="text-sm font-medium" style={{ color: "#00DD00" }}>Promoções</span>
+                      <Gift className="w-4 h-4" style={{ color: "#00FF00" }} />
+                        <span className="text-sm font-medium" style={{ color: "#FFFFFF" }}>Promoções</span>
                       </button>
                       <button onClick={handleSupport} className="w-full px-4 py-3 flex items-center gap-3 text-left transition-colors hover:bg-[rgba(0,255,0,0.07)]">
-                        <Headphones className="w-4 h-4" style={{ color: "#00CC00" }} />
-                        <span className="text-sm font-medium" style={{ color: "#00DD00" }}>Suporte</span>
+                        <Headphones className="w-4 h-4" style={{ color: "#00FF00" }} />
+                        <span className="text-sm font-medium" style={{ color: "#FFFFFF" }}>Suporte</span>
                       </button>
                       <div className="my-2 border-t" style={{ borderColor: "rgba(0,255,0,0.15)" }} />
                       <button onClick={() => { setMenuOpen(false); handleLogout(); }} className="w-full px-4 py-3 flex items-center gap-3 text-left text-red-400 hover:bg-red-500/10 transition-colors">
@@ -219,7 +219,7 @@ const Home = () => {
 
         <section className="space-y-4 sm:space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl sm:text-2xl font-display font-extrabold tracking-tight" style={{ color: "#00FF00", textShadow: "0 0 15px rgba(0,255,0,0.3)" }}>
+            <h2 className="text-xl sm:text-2xl font-display font-extrabold tracking-tight" style={{ color: "#FFFFFF" }}>
               Entradas Disponíveis
             </h2>
           </div>
@@ -263,15 +263,15 @@ const Home = () => {
       <footer className="mt-12 pb-8">
         <div className="container max-w-7xl mx-auto px-4">
           <div className="pt-6 text-center space-y-2" style={{ borderTop: "1px solid rgba(0,255,0,0.1)" }}>
-            <p className="text-sm font-medium" style={{ color: "#00AA00" }}>Premier Ultra ©</p>
-            <p className="text-xs" style={{ color: "#007700" }}>Análises processadas continuamente</p>
-            <p className="text-[11px] pt-2" style={{ color: "#005500" }}>
+            <p className="text-sm font-medium" style={{ color: "#FFFFFF" }}>Premier Ultra ©</p>
+            <p className="text-xs" style={{ color: "#AAAAAA" }}>Análises processadas continuamente</p>
+            <p className="text-[11px] pt-2" style={{ color: "#888888" }}>
               Dados protegidos • 18+ • Jogue com responsabilidade
             </p>
-            <div className="flex items-center justify-center gap-2 text-[11px]" style={{ color: "#007700" }}>
-              <a href="/termos" className="transition-colors hover:underline" style={{ color: "#00AA00" }}>Termos & Privacidade</a>
-              <span style={{ color: "#003300" }}>|</span>
-              <a href="/support" className="transition-colors hover:underline" style={{ color: "#00AA00" }}>Suporte</a>
+            <div className="flex items-center justify-center gap-2 text-[11px]" style={{ color: "#AAAAAA" }}>
+              <a href="/termos" className="transition-colors hover:underline" style={{ color: "#CCCCCC" }}>Termos & Privacidade</a>
+              <span style={{ color: "#555555" }}>|</span>
+              <a href="/support" className="transition-colors hover:underline" style={{ color: "#CCCCCC" }}>Suporte</a>
             </div>
           </div>
         </div>
@@ -288,7 +288,7 @@ const Home = () => {
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(0,255,0,0.1)", border: "1px solid rgba(0,255,0,0.3)" }}>
                   <Gift className="w-5 h-5" style={{ color: "#00FF00" }} />
                 </div>
-                <div><h2 className="text-lg font-bold" style={{ color: "#00FF00" }}>Promoções do Premier Ultra</h2></div>
+                <div><h2 className="text-lg font-bold" style={{ color: "#FFFFFF" }}>Promoções do Premier Ultra</h2></div>
               </div>
               <button onClick={() => setShowPromotionsModal(false)} className="absolute top-4 right-4 p-1.5 rounded-lg transition-colors hover:bg-[rgba(0,255,0,0.08)]">
                 <X className="w-5 h-5" style={{ color: "#00FF00" }} />
@@ -296,15 +296,15 @@ const Home = () => {
             </div>
             <div className="px-6 py-8 text-center">
               <div className="w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center" style={{ background: "rgba(0,255,0,0.08)", border: "1px solid rgba(0,255,0,0.2)" }}>
-                <Sparkles className="w-8 h-8" style={{ color: "#00CC00" }} />
+                <Sparkles className="w-8 h-8" style={{ color: "#00FF00" }} />
               </div>
-              <h3 className="text-lg font-semibold mb-2" style={{ color: "#00FF00" }}>Em breve!</h3>
-              <p className="text-sm leading-relaxed" style={{ color: "#00AA00" }}>
+              <h3 className="text-lg font-semibold mb-2" style={{ color: "#FFFFFF" }}>Em breve!</h3>
+              <p className="text-sm leading-relaxed" style={{ color: "#CCCCCC" }}>
                 Bônus, condições especiais e liberações exclusivas para membros do Premier Ultra.
               </p>
             </div>
             <div className="px-6 pb-6">
-              <button onClick={() => setShowPromotionsModal(false)} className="w-full py-3 rounded-xl font-medium transition-colors" style={{ background: "rgba(0,255,0,0.08)", border: "1px solid rgba(0,255,0,0.3)", color: "#00FF00" }}>
+              <button onClick={() => setShowPromotionsModal(false)} className="w-full py-3 rounded-xl font-medium transition-colors" style={{ background: "rgba(0,255,0,0.08)", border: "1px solid rgba(0,255,0,0.3)", color: "#FFFFFF" }}>
                 Entendi
               </button>
             </div>
@@ -321,22 +321,22 @@ const Home = () => {
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(0,255,0,0.1)", border: "1px solid rgba(0,255,0,0.3)" }}>
                   <Crown className="w-5 h-5" style={{ color: "#00FF00" }} />
                 </div>
-                <div><h2 className="text-lg font-bold" style={{ color: "#00FF00" }}>Acesso vitalício</h2></div>
+                <div><h2 className="text-lg font-bold" style={{ color: "#FFFFFF" }}>Acesso vitalício</h2></div>
               </div>
               <button onClick={() => setShowLifetimeModal(false)} className="absolute top-4 right-4 p-1.5 rounded-lg transition-colors hover:bg-[rgba(0,255,0,0.08)]">
                 <X className="w-5 h-5" style={{ color: "#00FF00" }} />
               </button>
             </div>
             <div className="px-6 py-6 text-center">
-              <p className="text-sm leading-relaxed" style={{ color: "#00AA00" }}>
+              <p className="text-sm leading-relaxed" style={{ color: "#CCCCCC" }}>
                 Desbloqueie acesso total e continue usando sem limitações.
               </p>
             </div>
             <div className="px-6 pb-6 space-y-3">
-              <button onClick={handleBuyLifetime} className="w-full py-3 rounded-xl font-semibold transition-all" style={{ background: "#003300", border: "1px solid rgba(0,255,0,0.6)", color: "#00FF00", boxShadow: "0 0 20px rgba(0,255,0,0.2)" }}>
+              <button onClick={handleBuyLifetime} className="w-full py-3 rounded-xl font-semibold transition-all" style={{ background: "#003300", border: "1px solid rgba(0,255,0,0.6)", color: "#FFFFFF", boxShadow: "0 0 20px rgba(0,255,0,0.2)" }}>
                 Adquirir vitalício
               </button>
-              <button onClick={() => setShowLifetimeModal(false)} className="w-full py-2.5 rounded-xl font-medium transition-colors" style={{ background: "transparent", border: "1px solid rgba(0,255,0,0.2)", color: "#00AA00" }}>
+              <button onClick={() => setShowLifetimeModal(false)} className="w-full py-2.5 rounded-xl font-medium transition-colors" style={{ background: "transparent", border: "1px solid rgba(0,255,0,0.2)", color: "#CCCCCC" }}>
                 Fechar
               </button>
             </div>

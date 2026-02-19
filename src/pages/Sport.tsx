@@ -437,12 +437,12 @@ const Sport = () => {
             <button className="p-2 rounded-lg transition-colors hover:bg-[rgba(0,255,0,0.08)]" onClick={() => navigate("/")}>
               <ArrowLeft className="w-6 h-6" style={{ color: "#00FF00" }} />
             </button>
-            <h1 className="text-xl font-display font-extrabold tracking-tight" style={{ color: "#00FF00", textShadow: "0 0 12px rgba(0,255,0,0.3)" }}>
+            <h1 className="text-xl font-display font-extrabold tracking-tight" style={{ color: "#FFFFFF" }}>
               Futebol - Tips do Dia
             </h1>
           </div>
           <div className="flex items-center gap-4">
-            <Button onClick={handleLogout} size="sm" style={{ background: "rgba(0,255,0,0.08)", border: "1px solid rgba(0,255,0,0.3)", color: "#00FF00" }}>
+            <Button onClick={handleLogout} size="sm" style={{ background: "rgba(0,255,0,0.08)", border: "1px solid rgba(0,255,0,0.3)", color: "#FFFFFF" }}>
               <LogOut className="w-4 h-4 mr-2" />
               Sair
             </Button>
