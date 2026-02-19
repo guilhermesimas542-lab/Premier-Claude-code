@@ -1,4 +1,6 @@
 import { Sparkles } from "lucide-react";
+import AnimatedFootballIcon from "@/components/AnimatedFootballIcon";
+import AnimatedSlotIcon from "@/components/AnimatedSlotIcon";
 
 
 interface SportColors {
@@ -266,18 +268,24 @@ export const PremiumSportCard = ({
                   : `0 0 14px ${colors.glow}`
               }}
             >
-              <span
-                className="text-2xl"
-                style={{
-                  filter: isLocked
-                    ? 'drop-shadow(0 0 6px rgba(251,191,36,0.6)) grayscale(0.3)'
-                    : isDevelopment
-                    ? 'drop-shadow(0 0 6px rgba(0,212,255,0.6)) grayscale(0.2)'
-                    : `drop-shadow(0 0 6px ${colors.glow})`
-                }}
-              >
-                {emoji}
-              </span>
+              {id === 1 && isPremium ? (
+                <AnimatedFootballIcon />
+              ) : id === 11 && isPremium ? (
+                <AnimatedSlotIcon />
+              ) : (
+                <span
+                  className="text-2xl"
+                  style={{
+                    filter: isLocked
+                      ? 'drop-shadow(0 0 6px rgba(251,191,36,0.6)) grayscale(0.3)'
+                      : isDevelopment
+                      ? 'drop-shadow(0 0 6px rgba(0,212,255,0.6)) grayscale(0.2)'
+                      : `drop-shadow(0 0 6px ${colors.glow})`
+                  }}
+                >
+                  {emoji}
+                </span>
+              )}
             </div>
           </div>
         </div>
