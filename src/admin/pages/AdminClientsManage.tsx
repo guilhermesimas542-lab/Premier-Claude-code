@@ -15,7 +15,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, Pencil, Loader2, Trash2 } from "lucide-react";
+import { Plus, Pencil, Loader2, Trash2, ChevronsUpDown, ChevronUp, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 import type { AdminUser } from "../types";
 
@@ -23,11 +23,77 @@ interface UserWithUpsells extends AdminUser {
   upsells: string[];
 }
 
+type SortKey = "email" | "phone" | "main_tier" | "upsells" | "created_at" | "last_seen_at";
+type SortDir = "asc" | "desc";
+
+const UPSELL_KEYS = ["alavancagem", "desaltas", "acesso_vitalicio", "live_telegram"];
+
 const UPSELL_LABELS: Record<string, string> = {
   alavancagem: "Alavancagem",
   desaltas: "Odds Altas",
   acesso_vitalicio: "Vitalício",
+  live_telegram: "Live",
 };
+
+const UPSELL_BADGES = [
+  { key: "alavancagem", letter: "A", activeColor: "bg-blue-500 text-white", title: "Alavancagem" },
+  { key: "desaltas", letter: "O", activeColor: "bg-yellow-500 text-white", title: "Odds Altas" },
+  { key: "acesso_vitalicio", letter: "V", activeColor: "bg-purple-500 text-white", title: "Vitalício" },
+  { key: "live_telegram", letter: "L", activeColor: "bg-green-500 text-white", title: "Live" },
+];
+
+const TIER_COLORS: Record<string, string> = {
+  free: "text-blue-400",
+  basic: "text-green-400",
+  pro: "text-orange-400",
+  ultra: "text-purple-400",
+};
+
+function UpsellBadges({ upsells }: { upsells: string[] }) {
+  return (
+    <div className="flex items-center gap-1">
+      {UPSELL_BADGES.map(({ key, letter, activeColor, title }) => {
+        const active = upsells.includes(UPSELL_LABELS[key]);
+        return (
+          <span
+            key={key}
+            title={title}
+            className={`inline-flex items-center justify-center w-5 h-5 rounded text-[10px] font-bold select-none ${
+              active ? activeColor : "bg-gray-700 text-gray-500"
+            }`}
+          >
+            {letter}
+          </span>
+        );
+      })}
+    </div>
+  );
+}
+
+function SortIcon({ col, sortKey, sortDir }: { col: SortKey; sortKey: SortKey; sortDir: SortDir }) {
+  if (col !== sortKey) return <ChevronsUpDown className="w-3 h-3 ml-1 opacity-40" />;
+  return sortDir === "asc"
+    ? <ChevronUp className="w-3 h-3 ml-1 text-white" />
+    : <ChevronDown className="w-3 h-3 ml-1 text-white" />;
+}
+
+function sortUsers(users: UserWithUpsells[], key: SortKey, dir: SortDir): UserWithUpsells[] {
+  return [...users].sort((a, b) => {
+    let av: string | number = "";
+    let bv: string | number = "";
+
+    if (key === "email") { av = a.email ?? ""; bv = b.email ?? ""; }
+    else if (key === "phone") { av = a.phone ?? ""; bv = b.phone ?? ""; }
+    else if (key === "main_tier") { av = a.main_tier ?? ""; bv = b.main_tier ?? ""; }
+    else if (key === "upsells") { av = a.upsells.join(","); bv = b.upsells.join(","); }
+    else if (key === "created_at") { av = a.created_at ?? ""; bv = b.created_at ?? ""; }
+    else if (key === "last_seen_at") { av = a.last_seen_at ?? ""; bv = b.last_seen_at ?? ""; }
+
+    if (av < bv) return dir === "asc" ? -1 : 1;
+    if (av > bv) return dir === "asc" ? 1 : -1;
+    return 0;
+  });
+}
 
 export default function AdminClientsManage() {
   const [users, setUsers] = useState<UserWithUpsells[]>([]);
@@ -35,11 +101,13 @@ export default function AdminClientsManage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
 
-  // Date filters
   const [createdFrom, setCreatedFrom] = useState("");
   const [createdTo, setCreatedTo] = useState("");
   const [lastSeenFrom, setLastSeenFrom] = useState("");
   const [lastSeenTo, setLastSeenTo] = useState("");
+
+  const [sortKey, setSortKey] = useState<SortKey>("created_at");
+  const [sortDir, setSortDir] = useState<SortDir>("desc");
 
   const [editUser, setEditUser] = useState<AdminUser | null>(null);
   const [showCreate, setShowCreate] = useState(false);
@@ -49,10 +117,14 @@ export default function AdminClientsManage() {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
+  const handleSort = (col: SortKey) => {
+    if (col === sortKey) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    else { setSortKey(col); setSortDir("asc"); }
+  };
+
   const load = async () => {
     setLoading(true);
 
-    // Build users query
     let q = supabase
       .from("users")
       .select("*", { count: "exact" })
@@ -75,7 +147,6 @@ export default function AdminClientsManage() {
       return;
     }
 
-    // Fetch active entitlements for displayed users
     const userIds = rawUsers.map((u) => u.id);
     const { data: entData } = await supabase
       .from("entitlements")
@@ -83,7 +154,6 @@ export default function AdminClientsManage() {
       .in("user_id", userIds)
       .eq("status", "active");
 
-    // Build upsell map
     const upsellMap: Record<string, string[]> = {};
     (entData ?? []).forEach((e) => {
       const label = UPSELL_LABELS[e.product_key];
@@ -103,9 +173,9 @@ export default function AdminClientsManage() {
     setLoading(false);
   };
 
-  useEffect(() => {
-    load();
-  }, []);
+  useEffect(() => { load(); }, []);
+
+  const sortedUsers = sortUsers(users, sortKey, sortDir);
 
   const handleCreate = async () => {
     if (!newEmail) { toast.error("Email obrigatório"); return; }
@@ -143,6 +213,8 @@ export default function AdminClientsManage() {
   const fmt = (d: string | null) =>
     d ? new Date(d).toLocaleDateString("pt-BR") : "—";
 
+  const thClass = "px-3 py-2 cursor-pointer select-none hover:text-gray-300 transition-colors";
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -154,7 +226,6 @@ export default function AdminClientsManage() {
 
       {/* Filters */}
       <div className="bg-gray-900 border border-white/10 rounded-xl p-4 space-y-3">
-        {/* Email search */}
         <div className="flex gap-2 flex-wrap">
           <Input
             placeholder="Buscar email"
@@ -171,42 +242,21 @@ export default function AdminClientsManage() {
           </Button>
         </div>
 
-        {/* Date filters */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1">
             <p className="text-xs text-gray-500 font-medium">Primeiro Acesso</p>
             <div className="flex gap-2 items-center">
-              <Input
-                type="date"
-                value={createdFrom}
-                onChange={(e) => setCreatedFrom(e.target.value)}
-                className="bg-gray-800 border-gray-700 text-xs h-8"
-              />
+              <Input type="date" value={createdFrom} onChange={(e) => setCreatedFrom(e.target.value)} className="bg-gray-800 border-gray-700 text-xs h-8" />
               <span className="text-gray-600 text-xs">até</span>
-              <Input
-                type="date"
-                value={createdTo}
-                onChange={(e) => setCreatedTo(e.target.value)}
-                className="bg-gray-800 border-gray-700 text-xs h-8"
-              />
+              <Input type="date" value={createdTo} onChange={(e) => setCreatedTo(e.target.value)} className="bg-gray-800 border-gray-700 text-xs h-8" />
             </div>
           </div>
           <div className="space-y-1">
             <p className="text-xs text-gray-500 font-medium">Último Acesso</p>
             <div className="flex gap-2 items-center">
-              <Input
-                type="date"
-                value={lastSeenFrom}
-                onChange={(e) => setLastSeenFrom(e.target.value)}
-                className="bg-gray-800 border-gray-700 text-xs h-8"
-              />
+              <Input type="date" value={lastSeenFrom} onChange={(e) => setLastSeenFrom(e.target.value)} className="bg-gray-800 border-gray-700 text-xs h-8" />
               <span className="text-gray-600 text-xs">até</span>
-              <Input
-                type="date"
-                value={lastSeenTo}
-                onChange={(e) => setLastSeenTo(e.target.value)}
-                className="bg-gray-800 border-gray-700 text-xs h-8"
-              />
+              <Input type="date" value={lastSeenTo} onChange={(e) => setLastSeenTo(e.target.value)} className="bg-gray-800 border-gray-700 text-xs h-8" />
             </div>
           </div>
         </div>
@@ -230,27 +280,39 @@ export default function AdminClientsManage() {
           <table className="w-full text-sm min-w-[850px]">
             <thead>
               <tr className="border-b border-white/10 text-left text-gray-500 text-xs">
-                <th className="px-3 py-2">Email</th>
-                <th className="px-3 py-2">Telefone</th>
-                <th className="px-3 py-2">Plano</th>
-                <th className="px-3 py-2">Upsell</th>
-                <th className="px-3 py-2">Primeiro Acesso</th>
-                <th className="px-3 py-2">Último Acesso</th>
+                <th className={thClass} onClick={() => handleSort("email")}>
+                  <span className="flex items-center">Email <SortIcon col="email" sortKey={sortKey} sortDir={sortDir} /></span>
+                </th>
+                <th className={thClass} onClick={() => handleSort("phone")}>
+                  <span className="flex items-center">Telefone <SortIcon col="phone" sortKey={sortKey} sortDir={sortDir} /></span>
+                </th>
+                <th className={thClass} onClick={() => handleSort("main_tier")}>
+                  <span className="flex items-center">Plano <SortIcon col="main_tier" sortKey={sortKey} sortDir={sortDir} /></span>
+                </th>
+                <th className={thClass} onClick={() => handleSort("upsells")}>
+                  <span className="flex items-center">Upsell <SortIcon col="upsells" sortKey={sortKey} sortDir={sortDir} /></span>
+                </th>
+                <th className={thClass} onClick={() => handleSort("created_at")}>
+                  <span className="flex items-center">Primeiro Acesso <SortIcon col="created_at" sortKey={sortKey} sortDir={sortDir} /></span>
+                </th>
+                <th className={thClass} onClick={() => handleSort("last_seen_at")}>
+                  <span className="flex items-center">Último Acesso <SortIcon col="last_seen_at" sortKey={sortKey} sortDir={sortDir} /></span>
+                </th>
                 <th className="px-3 py-2">Ações</th>
               </tr>
             </thead>
             <tbody>
-              {users.map((u) => (
+              {sortedUsers.map((u) => (
                 <tr key={u.id} className="border-b border-white/5 text-gray-300 text-xs hover:bg-white/5 transition-colors">
                   <td className="px-3 py-2">{u.email}</td>
                   <td className="px-3 py-2 text-gray-500">{u.phone ?? "—"}</td>
                   <td className="px-3 py-2">
-                    <span className="capitalize">{u.main_tier}</span>
+                    <span className={`capitalize font-medium ${TIER_COLORS[u.main_tier] ?? "text-gray-300"}`}>
+                      {u.main_tier}
+                    </span>
                   </td>
                   <td className="px-3 py-2">
-                    {u.upsells.length > 0 ? (
-                      <span className="text-amber-400">{u.upsells.join(", ")}</span>
-                    ) : "—"}
+                    <UpsellBadges upsells={u.upsells} />
                   </td>
                   <td className="px-3 py-2">{fmt(u.created_at)}</td>
                   <td className="px-3 py-2">{fmt(u.last_seen_at)}</td>
@@ -266,7 +328,7 @@ export default function AdminClientsManage() {
                   </td>
                 </tr>
               ))}
-              {users.length === 0 && (
+              {sortedUsers.length === 0 && (
                 <tr>
                   <td colSpan={7} className="px-3 py-8 text-center text-gray-600">
                     Nenhum cliente encontrado
@@ -283,12 +345,7 @@ export default function AdminClientsManage() {
         <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-sm">
           <DialogHeader><DialogTitle>Novo Cliente</DialogTitle></DialogHeader>
           <div className="space-y-3">
-            <Input
-              placeholder="Email"
-              value={newEmail}
-              onChange={(e) => setNewEmail(e.target.value)}
-              className="bg-gray-800 border-gray-700"
-            />
+            <Input placeholder="Email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} className="bg-gray-800 border-gray-700" />
             <Select value={newTier} onValueChange={setNewTier}>
               <SelectTrigger className="bg-gray-800 border-gray-700"><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -324,10 +381,7 @@ export default function AdminClientsManage() {
                 </Select>
               </div>
               <div className="flex items-center gap-3">
-                <Switch
-                  checked={editUser.is_vitalicio}
-                  onCheckedChange={(v) => setEditUser({ ...editUser, is_vitalicio: v })}
-                />
+                <Switch checked={editUser.is_vitalicio} onCheckedChange={(v) => setEditUser({ ...editUser, is_vitalicio: v })} />
                 <label className="text-sm">Vitalício</label>
               </div>
               <Button onClick={handleUpdate} disabled={saving} className="w-full">
@@ -349,14 +403,8 @@ export default function AdminClientsManage() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-gray-800 border-gray-700 text-white hover:bg-gray-700">
-              Cancelar
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              disabled={deleting}
-              className="bg-red-600 hover:bg-red-700 text-white"
-            >
+            <AlertDialogCancel className="bg-gray-800 border-gray-700 text-white hover:bg-gray-700">Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} disabled={deleting} className="bg-red-600 hover:bg-red-700 text-white">
               {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Excluir"}
             </AlertDialogAction>
           </AlertDialogFooter>
