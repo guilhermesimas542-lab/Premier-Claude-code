@@ -398,6 +398,7 @@ export type Database = {
           last_event_at: string | null
           last_seen_at: string | null
           main_tier: Database["public"]["Enums"]["main_tier"]
+          phone: string | null
           vitalicio_since: string | null
         }
         Insert: {
@@ -408,6 +409,7 @@ export type Database = {
           last_event_at?: string | null
           last_seen_at?: string | null
           main_tier?: Database["public"]["Enums"]["main_tier"]
+          phone?: string | null
           vitalicio_since?: string | null
         }
         Update: {
@@ -418,6 +420,7 @@ export type Database = {
           last_event_at?: string | null
           last_seen_at?: string | null
           main_tier?: Database["public"]["Enums"]["main_tier"]
+          phone?: string | null
           vitalicio_since?: string | null
         }
         Relationships: []
@@ -472,6 +475,7 @@ export type Database = {
           last_event_at: string | null
           last_seen_at: string | null
           main_tier: Database["public"]["Enums"]["main_tier"]
+          phone: string | null
           vitalicio_since: string | null
         }
         SetofOptions: {
