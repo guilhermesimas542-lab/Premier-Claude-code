@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { mockLogin } from "@/mocks/user";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { CHECKOUT_LINKS } from "@/lib/checkoutLinks";
 import { Copy, RefreshCw, Target, Crown, Loader2, ShoppingCart, Users } from "lucide-react";
 import logo from "@/assets/premier-logo-new.png";
@@ -21,6 +22,7 @@ const Login = () => {
   const [showAcquireModal, setShowAcquireModal] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
   const navigate = useNavigate();
+  const { subscribe } = usePushNotifications();
 
   const validateEmail = (value: string) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
@@ -43,10 +45,25 @@ const Login = () => {
         // É admin → redireciona para tela de chave de acesso
         navigate("/admin/verify", { state: { email: email.toLowerCase().trim() } });
       } else {
-        // Usuário comum → login normal via mock
+        // Usuário comum → login normal via mock + busca user_id para push
         mockLogin(email);
         toast.success("Login realizado com sucesso!");
         navigate("/", { replace: true });
+
+        // Pede permissão de push em background após login
+        try {
+          const { data: userData } = await supabase
+            .from('users')
+            .select('id')
+            .eq('email', email.toLowerCase().trim())
+            .maybeSingle();
+          if (userData?.id) {
+            // Fire-and-forget: não bloqueia o fluxo de login
+            subscribe(userData.id);
+          }
+        } catch {
+          // Silently ignore push subscription errors
+        }
       }
     } catch (err) {
       mockLogin(email);
