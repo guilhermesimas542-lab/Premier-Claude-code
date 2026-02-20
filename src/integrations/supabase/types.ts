@@ -189,7 +189,7 @@ export type Database = {
           subtitle?: string
           tag?: string
           target_audience?: string
-          title: string
+          title?: string
           updated_at?: string
         }
         Update: {
