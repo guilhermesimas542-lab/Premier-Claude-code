@@ -261,6 +261,72 @@ const Home = () => {
               ))
             )}
           </div>
+
+          {/* Card Painel de Apostas IA — abaixo do Futebol */}
+          {!loading && (
+            <div
+              className="relative rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.02]"
+              style={{
+                background: '#060606',
+                border: '2px solid rgba(168,85,247,0.45)',
+                boxShadow: '0 0 14px rgba(168,85,247,0.2)',
+                minHeight: '110px',
+              }}
+              onClick={() => navigate('/cassino')}
+            >
+              {/* Subtle purple gradient */}
+              <div className="absolute inset-0 opacity-30 pointer-events-none" style={{ background: 'linear-gradient(45deg, transparent 0%, rgba(168,85,247,0.08) 50%, transparent 100%)' }} />
+
+              {/* Badge BETA */}
+              <div className="absolute top-2 right-2 z-20">
+                <div
+                  className="flex items-center gap-1 px-1.5 py-0.5 rounded-full backdrop-blur-sm"
+                  style={{
+                    background: 'rgba(0,0,0,0.65)',
+                    border: '1px solid rgba(251,146,60,0.55)',
+                    boxShadow: '0 0 8px rgba(251,146,60,0.3)',
+                  }}
+                >
+                  <Sparkles className="w-2 h-2" style={{ color: '#FB923C' }} />
+                  <span className="text-[8px] font-bold tracking-wider" style={{ color: '#FB923C' }}>BETA</span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 px-4 py-3" style={{ minHeight: '110px' }}>
+                {/* Vídeo quadrado — mesmas proporções do robô de futebol */}
+                <div className="shrink-0 relative" style={{ width: 90, height: 90 }}>
+                  <video
+                    src="/images/casino_video.mp4"
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                  />
+                </div>
+
+                {/* Conteúdo + Botão */}
+                <div className="flex-1 min-w-0 flex flex-col justify-between" style={{ minHeight: '80px' }}>
+                  <div className="flex-1">
+                    <h4 className="text-sm font-extrabold tracking-wide leading-tight text-white">Painel de Apostas IA</h4>
+                    <p className="text-[11px] leading-relaxed mt-0.5" style={{ color: '#888888' }}>Recomendações em tempo real</p>
+                  </div>
+                  <div className="flex justify-end mt-2">
+                    <button
+                      className="relative overflow-hidden px-3 py-2 text-[10px] font-bold tracking-wider transition-all duration-300 rounded-full border-0 whitespace-nowrap"
+                      style={{
+                        background: 'linear-gradient(135deg, #A855F7 0%, #8644C5 100%)',
+                        boxShadow: '0 0 16px rgba(168,85,247,0.4)',
+                        color: '#FFFFFF',
+                      }}
+                    >
+                      ABRIR PAINEL
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </section>
 
         <QuickAccessCards />
