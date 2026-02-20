@@ -115,31 +115,34 @@ const Casino = () => {
             {CASINO_TILES.map((tile) => {
               const IconComponent = tile.icon;
               return (
-                <button
+                <div
                   key={tile.slug}
-                  onClick={() => navigate(`/cassino/jogo/${tile.slug}`)}
-                  className="group relative overflow-hidden rounded-xl px-4 pb-4 pt-10 sm:px-5 sm:pb-5 sm:pt-10 text-left transition-all hover:scale-[1.01]"
+                  className="group relative overflow-hidden rounded-xl transition-all hover:scale-[1.01]"
                   style={{ background: "rgba(0,20,0,0.6)", border: "1px solid rgba(0,255,0,0.2)", boxShadow: "0 0 0px rgba(0,255,0,0)" }}
                   onMouseEnter={e => (e.currentTarget.style.boxShadow = "0 0 20px rgba(0,255,0,0.15)")}
                   onMouseLeave={e => (e.currentTarget.style.boxShadow = "0 0 0px rgba(0,255,0,0)")}
                 >
-                  <div className="relative flex items-center gap-3">
-                    {/* Badges no topo do card */}
-                    <div className="absolute -top-8 right-0 flex items-center gap-1.5">
-                      <span
-                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wide"
-                        style={{ background: "#FF8C00", color: "#000000" }}
-                      >
-                        ⚙️ BETA
-                      </span>
-                      <span
-                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wide"
-                        style={{ background: "#A855F7", color: "#FFFFFF" }}
-                      >
-                        🤖 IA ATIVADA
-                      </span>
-                    </div>
+                  {/* Badges no topo direito DENTRO do card */}
+                  <div className="flex justify-end gap-1.5 px-4 pt-3 pb-0">
+                    <span
+                      className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wide border"
+                      style={{ background: "rgba(255,140,0,0.15)", color: "#FF8C00", borderColor: "rgba(255,140,0,0.5)" }}
+                    >
+                      ⚙️ BETA
+                    </span>
+                    <span
+                      className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wide border"
+                      style={{ background: "rgba(168,85,247,0.15)", color: "#A855F7", borderColor: "rgba(168,85,247,0.5)" }}
+                    >
+                      🤖 IA ATIVADA
+                    </span>
+                  </div>
 
+                  {/* Conteúdo principal */}
+                  <button
+                    onClick={() => navigate(`/cassino/jogo/${tile.slug}`)}
+                    className="w-full flex items-center gap-3 px-4 pb-4 pt-2 text-left"
+                  >
                     {/* Ícone */}
                     <div className="shrink-0 w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center" style={{ background: "rgba(0,255,0,0.08)", border: "1px solid rgba(0,255,0,0.25)" }}>
                       <IconComponent className="w-6 h-6 sm:w-7 sm:h-7" style={{ color: "#00FF00" }} />
@@ -170,8 +173,8 @@ const Casino = () => {
                         Jogar Agora
                       </span>
                     </div>
-                  </div>
-                </button>
+                  </button>
+                </div>
               );
             })}
           </div>
