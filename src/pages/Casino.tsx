@@ -176,9 +176,16 @@ const Casino = () => {
                     onClick={() => navigate(`/cassino/jogo/${tile.slug}`)}
                     className="w-full flex items-center gap-3 px-4 pb-4 pt-2 text-left"
                   >
-                    {/* Ícone */}
-                    <div className="shrink-0 w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center" style={{ background: "rgba(0,255,0,0.08)", border: "1px solid rgba(0,255,0,0.25)" }}>
-                      <IconComponent className="w-6 h-6 sm:w-7 sm:h-7" style={{ color: "#00FF00" }} />
+                    {/* Vídeo - igual ao robô do futebol */}
+                    <div className="shrink-0 rounded-xl overflow-hidden" style={{ width: 90, height: 90 }}>
+                      <video
+                        src="/images/casino_video.mp4"
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                      />
                     </div>
 
                     {/* Textos */}
