@@ -305,6 +305,7 @@ const Sport = () => {
     const scrollTimeout = setTimeout(() => {
       if (isAlavancagemRoute) scrollToTier("ALAVANCAGEM");
       else if (isOddsAltasRoute) scrollToTier("ODDS_ALTAS");
+      else scrollToTier("BÁSICO");
     }, 500);
     return () => clearTimeout(scrollTimeout);
   }, [isLoading, activeEntries.length, isAlavancagemRoute, isOddsAltasRoute]);
