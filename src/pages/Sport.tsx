@@ -418,7 +418,8 @@ const Sport = () => {
     const matchDate = entry.starts_at
       ? new Date(entry.starts_at).toLocaleString("pt-BR", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit" })
       : undefined;
-    const expirationDate = entry.expires_at || entry.starts_at || undefined;
+    const expirationDate = entry.expires_at || undefined;
+    const startsAt = entry.starts_at || undefined;
 
     return (
       <div 
@@ -436,6 +437,7 @@ const Sport = () => {
             betChoice={betChoice}
             odds={entry.odd || 0}
             matchDate={matchDate}
+            startsAt={startsAt}
             expirationDate={expirationDate}
             isLocked={isLocked}
             lockedLabel={lockedLabel}
@@ -454,6 +456,7 @@ const Sport = () => {
             betChoice={betChoice}
             odds={entry.odd || 0}
             matchDate={matchDate}
+            startsAt={startsAt}
             expirationDate={expirationDate}
             selectionsCount={displayTier === "ULTRA" ? 3 : undefined}
             justificativa={entry.justification || undefined}

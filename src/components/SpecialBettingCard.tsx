@@ -13,6 +13,7 @@ interface SpecialBettingCardProps {
   betChoice: string;
   odds: number;
   matchDate?: string;
+  startsAt?: string;
   expirationDate?: string;
   isLocked?: boolean;
   lockedLabel?: string;
@@ -71,6 +72,7 @@ export const SpecialBettingCard = ({
   betChoice,
   odds,
   matchDate,
+  startsAt,
   expirationDate,
   isLocked = false,
   lockedLabel,
@@ -99,30 +101,31 @@ export const SpecialBettingCard = ({
     onOpenJustificativa?.(getFixedJustificativaTexto());
   };
 
-  // Countdown timer effect
+  // Countdown timer: counts down to startsAt (game start time)
   useEffect(() => {
-    if (!expirationDate || isExpiredProp) return;
+    const countdownTarget = startsAt;
+    if (!countdownTarget || isExpiredProp) {
+      setCountdown("");
+      return;
+    }
 
     const calculateRemaining = () => {
       const now = new Date().getTime();
-      const expireAt = new Date(expirationDate).getTime();
-      const diff = Math.floor((expireAt - now) / 1000);
-      return diff;
+      const target = new Date(countdownTarget).getTime();
+      return Math.max(0, Math.floor((target - now) / 1000));
     };
 
-    const initialRemaining = calculateRemaining();
-    if (initialRemaining <= 0) {
-      setIsExpiredLocal(true);
-      setCountdown("00:00:00");
+    const initial = calculateRemaining();
+    if (initial <= 0) {
+      setCountdown("");
       return;
     }
-    setCountdown(formatCountdown(initialRemaining));
+    setCountdown(formatCountdown(initial));
 
     const interval = setInterval(() => {
       const remaining = calculateRemaining();
       if (remaining <= 0) {
-        setIsExpiredLocal(true);
-        setCountdown("00:00:00");
+        setCountdown("");
         clearInterval(interval);
       } else {
         setCountdown(formatCountdown(remaining));
@@ -130,7 +133,7 @@ export const SpecialBettingCard = ({
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [expirationDate, isExpiredProp]);
+  }, [startsAt, isExpiredProp]);
 
 
   return (

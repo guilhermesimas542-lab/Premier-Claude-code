@@ -27,6 +27,7 @@ interface PremiumBettingCardProps {
   betChoice: string;
   odds: number;
   matchDate?: string;
+  startsAt?: string;
   expirationDate?: string;
   selectionsCount?: number;
   insights?: string;
@@ -170,6 +171,7 @@ export const PremiumBettingCard = ({
   betChoice,
   odds,
   matchDate,
+  startsAt,
   expirationDate,
   selectionsCount,
   isLocked = false,
@@ -202,30 +204,32 @@ export const PremiumBettingCard = ({
   // For ULTRA, always show at least 3 selections as fallback
   const displaySelectionsCount = selectionsCount || (tier === "ULTRA" ? 3 : 2);
 
-  // Countdown timer effect
+  // Countdown timer: counts down to startsAt (game start time)
   useEffect(() => {
-    if (!expirationDate || isExpiredProp) return;
+    // Use startsAt for countdown; if not available, no countdown shown
+    const countdownTarget = startsAt;
+    if (!countdownTarget || isExpiredProp) {
+      setCountdown("");
+      return;
+    }
 
     const calculateRemaining = () => {
       const now = new Date().getTime();
-      const expireAt = new Date(expirationDate).getTime();
-      const diff = Math.floor((expireAt - now) / 1000);
-      return diff;
+      const target = new Date(countdownTarget).getTime();
+      return Math.max(0, Math.floor((target - now) / 1000));
     };
 
-    const initialRemaining = calculateRemaining();
-    if (initialRemaining <= 0) {
-      setIsExpiredLocal(true);
-      setCountdown("00:00:00");
+    const initial = calculateRemaining();
+    if (initial <= 0) {
+      setCountdown(""); // Game already started, hide countdown
       return;
     }
-    setCountdown(formatCountdown(initialRemaining));
+    setCountdown(formatCountdown(initial));
 
     const interval = setInterval(() => {
       const remaining = calculateRemaining();
       if (remaining <= 0) {
-        setIsExpiredLocal(true);
-        setCountdown("00:00:00");
+        setCountdown("");
         clearInterval(interval);
       } else {
         setCountdown(formatCountdown(remaining));
@@ -233,7 +237,7 @@ export const PremiumBettingCard = ({
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [expirationDate, isExpiredProp]);
+  }, [startsAt, isExpiredProp]);
 
   // Close tooltips when clicking outside
   useEffect(() => {
