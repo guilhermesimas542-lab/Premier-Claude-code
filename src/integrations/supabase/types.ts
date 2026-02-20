@@ -80,6 +80,20 @@ export type Database = {
           logo_url: string | null
           mines_url: string | null
           name: string
+          popup_alavancagem_image: string | null
+          popup_alavancagem_link: string | null
+          popup_basic_image: string | null
+          popup_basic_link: string | null
+          popup_live_telegram_image: string | null
+          popup_live_telegram_link: string | null
+          popup_odds_altas_image: string | null
+          popup_odds_altas_link: string | null
+          popup_pro_image: string | null
+          popup_pro_link: string | null
+          popup_ultra_image: string | null
+          popup_ultra_link: string | null
+          popup_welcome_image: string | null
+          popup_welcome_link: string | null
           roleta_url: string | null
           slug: string
         }
@@ -94,6 +108,20 @@ export type Database = {
           logo_url?: string | null
           mines_url?: string | null
           name: string
+          popup_alavancagem_image?: string | null
+          popup_alavancagem_link?: string | null
+          popup_basic_image?: string | null
+          popup_basic_link?: string | null
+          popup_live_telegram_image?: string | null
+          popup_live_telegram_link?: string | null
+          popup_odds_altas_image?: string | null
+          popup_odds_altas_link?: string | null
+          popup_pro_image?: string | null
+          popup_pro_link?: string | null
+          popup_ultra_image?: string | null
+          popup_ultra_link?: string | null
+          popup_welcome_image?: string | null
+          popup_welcome_link?: string | null
           roleta_url?: string | null
           slug: string
         }
@@ -108,6 +136,20 @@ export type Database = {
           logo_url?: string | null
           mines_url?: string | null
           name?: string
+          popup_alavancagem_image?: string | null
+          popup_alavancagem_link?: string | null
+          popup_basic_image?: string | null
+          popup_basic_link?: string | null
+          popup_live_telegram_image?: string | null
+          popup_live_telegram_link?: string | null
+          popup_odds_altas_image?: string | null
+          popup_odds_altas_link?: string | null
+          popup_pro_image?: string | null
+          popup_pro_link?: string | null
+          popup_ultra_image?: string | null
+          popup_ultra_link?: string | null
+          popup_welcome_image?: string | null
+          popup_welcome_link?: string | null
           roleta_url?: string | null
           slug?: string
         }

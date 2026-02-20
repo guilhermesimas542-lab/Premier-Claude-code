@@ -2,7 +2,7 @@ import { NavLink } from "react-router-dom";
 import {
   LayoutDashboard, Image, PlusCircle, List,
   Users, Bell, BarChart3, ChevronLeft, ChevronRight,
-  DollarSign, Activity, Home,
+  DollarSign, Activity, Home, Link, Layers,
 } from "lucide-react";
 import { useState } from "react";
 import { useAdminMode } from "../context/AdminModeContext";
@@ -18,6 +18,13 @@ const futebolSections = [
       { to: "/admin/tips/list", icon: List, label: "Tips: Listar" },
       { to: "/admin/clients", icon: Users, label: "Clientes" },
       { to: "/admin/notifications", icon: Bell, label: "Notificações" },
+    ],
+  },
+  {
+    label: "Links e Pop-ups",
+    items: [
+      { to: "/admin/default-links", icon: Link, label: "Links Padrão" },
+      { to: "/admin/popups", icon: Layers, label: "Pop-ups" },
     ],
   },
   {
