@@ -12,6 +12,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { BottomNav } from "@/components/BottomNav";
 import { supabase } from "@/integrations/supabase/client";
 import { mockGetUser } from "@/mocks/user";
+import MatrixRain from "@/components/MatrixRain";
 
 // ============ TIPOS ============
 type TierType = "GRÁTIS" | "ALAVANCAGEM" | "ODDS_ALTAS" | "BÁSICO" | "PRO" | "ULTRA" | "MÚLTIPLA";
@@ -430,7 +431,8 @@ const Sport = () => {
   };
 
   return (
-    <div className="min-h-screen overflow-x-hidden w-full max-w-full pb-20 md:pb-0" style={{ background: "#000000" }}>
+    <div className="min-h-screen overflow-x-hidden w-full max-w-full pb-20 md:pb-0 relative" style={{ background: "#000000" }}>
+      <MatrixRain opacity={0.22} />
       <header className="sticky top-0 z-10 backdrop-blur-xl" style={{ background: "rgba(0,0,0,0.92)", borderBottom: "1px solid rgba(0,255,0,0.15)" }}>
         <div className="container max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
           <div className="flex items-center gap-4">
