@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { AppConfig } from "@/types/auth";
 import { BottomNav } from "@/components/BottomNav";
 import { PromoCarousel } from "@/components/PromoCarousel";
-import logoImg from "@/assets/premier-logo.svg";
+import logoImg from "@/assets/premier-logo-custom.png";
 import MatrixRain from "@/components/MatrixRain";
 
 // Configuração dos tiles - estilo Acesso Rápido
