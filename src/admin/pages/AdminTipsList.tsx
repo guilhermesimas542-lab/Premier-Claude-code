@@ -8,9 +8,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { toast } from "sonner";
 import type { AdminContentEntry } from "../types";
+
+type SortColumn = "title" | "teams" | "date" | "starts_at" | "odd" | "tier_required";
+type SortDir = "asc" | "desc";
+
+const TIER_ORDER: Record<string, number> = { free: 0, alavancagem: 1, desaltas: 2, basic: 3, pro: 4, ultra: 5 };
 
 export default function AdminTipsList() {
   const [items, setItems] = useState<AdminContentEntry[]>([]);
@@ -21,6 +26,8 @@ export default function AdminTipsList() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [bulkDeleting, setBulkDeleting] = useState(false);
+  const [sortCol, setSortCol] = useState<SortColumn | null>(null);
+  const [sortDir, setSortDir] = useState<SortDir>("asc");
 
   const load = async () => {
     setLoading(true);
@@ -83,6 +90,43 @@ export default function AdminTipsList() {
 
   const setF = (k: string, v: string) => setFilters((f) => ({ ...f, [k]: v }));
 
+  const handleSort = (col: SortColumn) => {
+    if (sortCol === col) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    else { setSortCol(col); setSortDir("asc"); }
+  };
+
+  const sortedItems = [...items].sort((a, b) => {
+    if (!sortCol) return 0;
+    const dir = sortDir === "asc" ? 1 : -1;
+    if (sortCol === "title") return dir * a.title.localeCompare(b.title);
+    if (sortCol === "teams") {
+      const aT = `${a.team1_name ?? ""} ${a.team2_name ?? ""}`;
+      const bT = `${b.team1_name ?? ""} ${b.team2_name ?? ""}`;
+      return dir * aT.localeCompare(bT);
+    }
+    if (sortCol === "date") return dir * a.date.localeCompare(b.date);
+    if (sortCol === "starts_at") {
+      const aS = a.starts_at ?? "";
+      const bS = b.starts_at ?? "";
+      return dir * aS.localeCompare(bS);
+    }
+    if (sortCol === "odd") return dir * ((a.odd ?? 0) - (b.odd ?? 0));
+    if (sortCol === "tier_required") {
+      return dir * ((TIER_ORDER[a.tier_required] ?? 99) - (TIER_ORDER[b.tier_required] ?? 99));
+    }
+    return 0;
+  });
+
+  const SortIcon = ({ col }: { col: SortColumn }) => {
+    if (sortCol !== col) return <ArrowUpDown className="w-3 h-3 opacity-40" />;
+    return sortDir === "asc"
+      ? <ArrowUp className="w-3 h-3 text-secondary" />
+      : <ArrowDown className="w-3 h-3 text-secondary" />;
+  };
+
+  const thClass = (col: SortColumn) =>
+    `px-3 py-2 cursor-pointer select-none hover:text-foreground transition-colors ${sortCol === col ? "text-secondary" : ""}`;
+
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-bold">Listar Tips</h2>
@@ -129,18 +173,30 @@ export default function AdminTipsList() {
                     onCheckedChange={toggleSelectAll}
                   />
                 </th>
-                <th className="px-3 py-2">Título</th>
-                <th className="px-3 py-2">Times</th>
-                <th className="px-3 py-2">Data</th>
-                <th className="px-3 py-2">Hora</th>
-                <th className="px-3 py-2">Odd</th>
-                <th className="px-3 py-2">Plano</th>
+                <th className={thClass("title")} onClick={() => handleSort("title")}>
+                  <span className="flex items-center gap-1">Título <SortIcon col="title" /></span>
+                </th>
+                <th className={thClass("teams")} onClick={() => handleSort("teams")}>
+                  <span className="flex items-center gap-1">Times <SortIcon col="teams" /></span>
+                </th>
+                <th className={thClass("date")} onClick={() => handleSort("date")}>
+                  <span className="flex items-center gap-1">Data <SortIcon col="date" /></span>
+                </th>
+                <th className={thClass("starts_at")} onClick={() => handleSort("starts_at")}>
+                  <span className="flex items-center gap-1">Hora <SortIcon col="starts_at" /></span>
+                </th>
+                <th className={thClass("odd")} onClick={() => handleSort("odd")}>
+                  <span className="flex items-center gap-1">Odd <SortIcon col="odd" /></span>
+                </th>
+                <th className={thClass("tier_required")} onClick={() => handleSort("tier_required")}>
+                  <span className="flex items-center gap-1">Plano <SortIcon col="tier_required" /></span>
+                </th>
                 <th className="px-3 py-2">Ativo</th>
                 <th className="px-3 py-2">Ações</th>
               </tr>
             </thead>
             <tbody>
-              {items.map((t) => (
+              {sortedItems.map((t) => (
                 <tr
                   key={t.id}
                   className={`border-b border-white/5 text-gray-300 text-xs transition-colors ${selectedIds.has(t.id) ? "bg-white/5" : ""}`}
