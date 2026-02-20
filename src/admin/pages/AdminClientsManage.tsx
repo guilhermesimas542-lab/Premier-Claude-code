@@ -20,9 +20,13 @@ import { toast } from "sonner";
 import type { AdminUser } from "../types";
 import { ClientProfileModal } from "../components/ClientProfileModal";
 
+interface BettingHouseOption { id: string; name: string; }
+
 interface UserWithUpsells extends AdminUser {
   upsells: string[];
+  betting_house_id: string | null;
 }
+
 
 type SortKey = "email" | "phone" | "main_tier" | "upsells" | "created_at" | "last_seen_at";
 type SortDir = "asc" | "desc";
@@ -121,6 +125,7 @@ export default function AdminClientsManage() {
   const [sortDir, setSortDir] = useState<SortDir>("desc");
 
   const [editUser, setEditUser] = useState<AdminUser | null>(null);
+  const [editHouseId, setEditHouseId] = useState<string>("");
   const [editAddons, setEditAddons] = useState<Record<string, boolean>>({});
   const [loadingAddons, setLoadingAddons] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
@@ -128,16 +133,21 @@ export default function AdminClientsManage() {
   const [profileUserId, setProfileUserId] = useState<string | null>(null);
   const [newEmail, setNewEmail] = useState("");
   const [newTier, setNewTier] = useState("free");
+  const [newHouseId, setNewHouseId] = useState<string>("");
+  const [houses, setHouses] = useState<BettingHouseOption[]>([]);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+
+
 
   const handleSort = (col: SortKey) => {
     if (col === sortKey) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
     else { setSortKey(col); setSortDir("asc"); }
   };
 
-  const openEdit = async (u: AdminUser) => {
+  const openEdit = async (u: AdminUser & { betting_house_id?: string | null }) => {
     setEditUser(u);
+    setEditHouseId(u.betting_house_id ?? "");
     setLoadingAddons(true);
     const { data } = await supabase
       .from("entitlements")
@@ -150,6 +160,8 @@ export default function AdminClientsManage() {
     setEditAddons(addonState);
     setLoadingAddons(false);
   };
+
+
 
   const load = async () => {
     setLoading(true);
@@ -194,26 +206,36 @@ export default function AdminClientsManage() {
     });
 
     setUsers(
-      rawUsers.map((u) => ({
+      rawUsers.map((u: any) => ({
         ...u,
         upsells: upsellMap[u.id] ?? [],
+        betting_house_id: u.betting_house_id ?? null,
       }))
     );
     setLoading(false);
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+    supabase.from("betting_houses").select("id, name").eq("is_active", true).order("created_at").then(({ data }) => {
+      setHouses((data as BettingHouseOption[]) ?? []);
+    });
+  }, []);
+
 
   const sortedUsers = sortUsers(users, sortKey, sortDir);
 
   const handleCreate = async () => {
     if (!newEmail) { toast.error("Email obrigatório"); return; }
     setSaving(true);
+    // Pick default house if none selected
+    let houseId = newHouseId;
+    if (!houseId && houses.length > 0) houseId = houses[0].id;
     const { error } = await supabase
       .from("users")
-      .insert({ email: newEmail.toLowerCase().trim(), main_tier: newTier as any });
+      .insert({ email: newEmail.toLowerCase().trim(), main_tier: newTier as any, betting_house_id: houseId || null });
     if (error) toast.error(error.message);
-    else { toast.success("Cliente criado"); setShowCreate(false); setNewEmail(""); load(); }
+    else { toast.success("Cliente criado"); setShowCreate(false); setNewEmail(""); setNewHouseId(""); load(); }
     setSaving(false);
   };
 
@@ -221,14 +243,16 @@ export default function AdminClientsManage() {
     if (!editUser) return;
     setSaving(true);
 
-    // 1. Update user tier + vitalicio
+    // 1. Update user tier + vitalicio + house
     const { error } = await supabase.from("users").update({
       main_tier: editUser.main_tier as any,
       is_vitalicio: editUser.is_vitalicio,
       vitalicio_since: editUser.is_vitalicio ? editUser.vitalicio_since || new Date().toISOString() : null,
+      betting_house_id: editHouseId || null,
     }).eq("id", editUser.id);
 
     if (error) { toast.error(error.message); setSaving(false); return; }
+
 
     // 2. Sync add-ons via entitlements
     for (const { key } of ADDON_TOGGLES) {
@@ -450,6 +474,19 @@ export default function AdminClientsManage() {
                   </SelectContent>
                 </Select>
               </div>
+
+              {houses.length > 0 && (
+                <div>
+                  <label className="text-xs text-gray-500">Casa de Apostas</label>
+                  <Select value={editHouseId} onValueChange={setEditHouseId}>
+                    <SelectTrigger className="bg-gray-800 border-gray-700"><SelectValue placeholder="Selecionar casa" /></SelectTrigger>
+                    <SelectContent>
+                      {houses.map((h) => <SelectItem key={h.id} value={h.id}>{h.name}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
 
               <div className="border-t border-white/10 pt-3 space-y-3">
                 <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Acesso</p>

@@ -68,6 +68,51 @@ export type Database = {
           },
         ]
       }
+      betting_houses: {
+        Row: {
+          aviator_url: string | null
+          created_at: string
+          football_studio_url: string | null
+          id: string
+          iframe_url: string
+          is_active: boolean
+          is_default: boolean
+          logo_url: string | null
+          mines_url: string | null
+          name: string
+          roleta_url: string | null
+          slug: string
+        }
+        Insert: {
+          aviator_url?: string | null
+          created_at?: string
+          football_studio_url?: string | null
+          id?: string
+          iframe_url?: string
+          is_active?: boolean
+          is_default?: boolean
+          logo_url?: string | null
+          mines_url?: string | null
+          name: string
+          roleta_url?: string | null
+          slug: string
+        }
+        Update: {
+          aviator_url?: string | null
+          created_at?: string
+          football_studio_url?: string | null
+          id?: string
+          iframe_url?: string
+          is_active?: boolean
+          is_default?: boolean
+          logo_url?: string | null
+          mines_url?: string | null
+          name?: string
+          roleta_url?: string | null
+          slug?: string
+        }
+        Relationships: []
+      }
       content_banners: {
         Row: {
           button_link: string | null
@@ -136,6 +181,9 @@ export type Database = {
           id: string
           justification: string | null
           link: string | null
+          link_house_1: string | null
+          link_house_2: string | null
+          link_house_3: string | null
           market: string | null
           metadata: Json | null
           odd: number | null
@@ -164,6 +212,9 @@ export type Database = {
           id?: string
           justification?: string | null
           link?: string | null
+          link_house_1?: string | null
+          link_house_2?: string | null
+          link_house_3?: string | null
           market?: string | null
           metadata?: Json | null
           odd?: number | null
@@ -192,6 +243,9 @@ export type Database = {
           id?: string
           justification?: string | null
           link?: string | null
+          link_house_1?: string | null
+          link_house_2?: string | null
+          link_house_3?: string | null
           market?: string | null
           metadata?: Json | null
           odd?: number | null
@@ -412,6 +466,7 @@ export type Database = {
       }
       users: {
         Row: {
+          betting_house_id: string | null
           created_at: string
           email: string
           id: string
@@ -423,6 +478,7 @@ export type Database = {
           vitalicio_since: string | null
         }
         Insert: {
+          betting_house_id?: string | null
           created_at?: string
           email: string
           id?: string
@@ -434,6 +490,7 @@ export type Database = {
           vitalicio_since?: string | null
         }
         Update: {
+          betting_house_id?: string | null
           created_at?: string
           email?: string
           id?: string
@@ -444,7 +501,15 @@ export type Database = {
           phone?: string | null
           vitalicio_since?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "users_betting_house_id_fkey"
+            columns: ["betting_house_id"]
+            isOneToOne: false
+            referencedRelation: "betting_houses"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
@@ -489,6 +554,7 @@ export type Database = {
       get_or_create_user: {
         Args: { p_email: string }
         Returns: {
+          betting_house_id: string | null
           created_at: string
           email: string
           id: string
