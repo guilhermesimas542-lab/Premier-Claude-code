@@ -502,7 +502,7 @@ export const PremiumBettingCard = ({
             className={`font-black ${isExpired ? "text-gray-500" : "text-white"}`}
             style={{ fontSize: '20px' }}
           >
-            {odds.toFixed(1)}
+            {odds.toFixed(2)}
           </span>
         </div>
 
