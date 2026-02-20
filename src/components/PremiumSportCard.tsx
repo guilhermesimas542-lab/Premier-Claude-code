@@ -126,7 +126,7 @@ export const PremiumSportCard = ({
             50% { opacity: 0.3; transform: scale(0.7); }
           }
         `}</style>
-        <h4 className="text-sm font-extrabold tracking-wide leading-tight text-white">
+        <h4 className="text-sm font-extrabold tracking-wide leading-tight" style={{ color: isFutebol ? '#111111' : '#FFFFFF' }}>
           {displayTitle}
         </h4>
         {isFutebol ? (
@@ -137,13 +137,13 @@ export const PremiumSportCard = ({
                 width: 6,
                 height: 6,
                 borderRadius: "50%",
-                background: "#00FF00",
-                boxShadow: "0 0 6px rgba(0,255,0,0.8)",
+                background: "#00CC00",
+                boxShadow: "0 0 6px rgba(0,200,0,0.8)",
                 animation: "live-pulse 1.4s ease-in-out infinite",
                 flexShrink: 0,
               }}
             />
-            <span className="text-[10px] font-medium" style={{ color: "#00CC00" }}>
+            <span className="text-[10px] font-medium" style={{ color: "#009900" }}>
               Atualizado agora
             </span>
           </div>
@@ -233,7 +233,7 @@ export const PremiumSportCard = ({
       `}
       onClick={!isDevelopment ? onClick : undefined}
       style={{
-        background: isLocked ? '#070707' : '#060606',
+        background: (id === 1 && isPremium && !isLocked && !isDevelopment && !isPreSale) ? '#F5F5F5' : isLocked ? '#070707' : '#060606',
         border: '2px solid',
         minHeight: '110px',
         ...getBorderStyle()
@@ -243,12 +243,14 @@ export const PremiumSportCard = ({
       <div
         className="absolute inset-0 opacity-30 pointer-events-none"
         style={{
-          background: `linear-gradient(45deg, transparent 0%, ${
-            isLocked ? 'rgba(251,191,36,0.05)' :
-            isDevelopment ? 'rgba(0,212,255,0.05)' :
-            isPreSale ? 'rgba(0,255,127,0.05)' :
-            `${colors.primary}08`
-          } 50%, transparent 100%)`
+          background: id === 1 && isPremium && !isLocked && !isDevelopment && !isPreSale
+            ? 'transparent'
+            : `linear-gradient(45deg, transparent 0%, ${
+                isLocked ? 'rgba(251,191,36,0.05)' :
+                isDevelopment ? 'rgba(0,212,255,0.05)' :
+                isPreSale ? 'rgba(0,255,127,0.05)' :
+                `${colors.primary}08`
+              } 50%, transparent 100%)`
         }}
       />
 
@@ -320,8 +322,8 @@ export const PremiumSportCard = ({
             <div
               className="relative flex items-center justify-center"
               style={{
-                width: id === 1 && isPremium ? 90 : 50,
-                height: id === 1 && isPremium ? 90 : 50,
+              width: id === 1 && isPremium ? 120 : 50,
+                height: id === 1 && isPremium ? 120 : 50,
                 borderRadius: id === 1 && isPremium ? 0 : '50%',
                 background: id === 1 && isPremium
                   ? 'transparent'
