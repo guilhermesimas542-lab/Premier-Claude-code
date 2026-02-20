@@ -448,7 +448,6 @@ const Sport = () => {
               <img src={logoImg} alt="Premier" className="h-10 sm:h-12 w-auto" style={{ filter: "drop-shadow(0 0 10px rgba(0,255,0,0.5))" }} />
               <span className="text-2xl sm:text-4xl font-bold" style={{ color: "#FFFFFF", textShadow: "0 0 14px rgba(0,255,0,0.3)" }}>Futebol</span>
             </div>
-
             <div className="flex items-center gap-2 sm:gap-3">
               {hasLifetimeAccess ? (
                 <span className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-semibold" style={{ background: "rgba(0,255,0,0.1)", color: "#FFFFFF", border: "1px solid rgba(0,255,0,0.4)", boxShadow: "0 0 10px rgba(0,255,0,0.2)" }}>
@@ -462,32 +461,6 @@ const Sport = () => {
                   <ShoppingCart className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                 </button>
               )}
-
-              <div className="relative" ref={menuRef}>
-                <button
-                  onClick={() => setMenuOpen(!menuOpen)}
-                  className="p-2 rounded-lg transition-colors"
-                  style={{ background: "rgba(0,255,0,0.05)", border: "1px solid rgba(0,255,0,0.25)" }}
-                >
-                  {menuOpen ? <X className="w-5 h-5" style={{ color: "#00FF00" }} /> : <Menu className="w-5 h-5" style={{ color: "#00FF00" }} />}
-                </button>
-
-                {menuOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-52 sm:w-56 backdrop-blur-xl rounded-xl shadow-xl overflow-hidden z-50" style={{ background: "rgba(0,8,0,0.97)", border: "1px solid rgba(0,255,0,0.2)", boxShadow: "0 0 30px rgba(0,255,0,0.1)" }}>
-                    <div className="py-2">
-                      <button onClick={() => navigate("/support")} className="w-full px-4 py-3 flex items-center gap-3 text-left transition-colors hover:bg-[rgba(0,255,0,0.07)]">
-                        <Headphones className="w-4 h-4" style={{ color: "#00FF00" }} />
-                        <span className="text-sm font-medium" style={{ color: "#FFFFFF" }}>Suporte</span>
-                      </button>
-                      <div className="my-2 border-t" style={{ borderColor: "rgba(0,255,0,0.15)" }} />
-                      <button onClick={() => { setMenuOpen(false); handleLogout(); }} className="w-full px-4 py-3 flex items-center gap-3 text-left text-red-400 hover:bg-red-500/10 transition-colors">
-                        <LogOut className="w-4 h-4" />
-                        <span className="text-sm font-medium">Sair</span>
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
             </div>
           </div>
         </div>
