@@ -136,7 +136,7 @@ export const SpecialBettingCard = ({
   return (
     <Card
       className={`select-none relative rounded-xl border-2 transition-all duration-300 flex flex-col
-        w-[min(92vw,420px)] sm:w-[460px] md:w-[500px] lg:w-[332px]
+        w-[min(85vw,360px)] sm:w-[400px] md:w-[420px] lg:w-[332px]
         ${isExpired 
           ? "border-gray-600/50 shadow-none grayscale-[60%]" 
           : isLocked

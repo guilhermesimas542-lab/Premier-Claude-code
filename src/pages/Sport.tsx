@@ -506,10 +506,6 @@ const Sport = () => {
 
         {!isLoading && !error && activeEntries.length > 0 && (
           <section className="relative w-full">
-            <h2 className="text-lg font-bold text-foreground mb-3 px-2">
-              🔥 Tips Ativas ({activeEntries.length})
-            </h2>
-            
             {canScrollLeft && (
               <button onClick={() => scrollByArrow('left')} className="absolute left-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full bg-primary hover:bg-primary/80 text-white flex items-center justify-center shadow-lg transition-all hover:scale-105 -ml-2 md:-ml-4" aria-label="Anterior">
                 <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
