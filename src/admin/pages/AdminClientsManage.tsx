@@ -100,6 +100,12 @@ function sortUsers(users: UserWithUpsells[], key: SortKey, dir: SortDir): UserWi
   });
 }
 
+const ADDON_TOGGLES = [
+  { key: "alavancagem", label: "Alavancagem" },
+  { key: "desaltas", label: "Odds Altas" },
+  { key: "live_telegram", label: "Live Telegram" },
+] as const;
+
 export default function AdminClientsManage() {
   const [users, setUsers] = useState<UserWithUpsells[]>([]);
   const [totalCount, setTotalCount] = useState(0);
@@ -115,6 +121,8 @@ export default function AdminClientsManage() {
   const [sortDir, setSortDir] = useState<SortDir>("desc");
 
   const [editUser, setEditUser] = useState<AdminUser | null>(null);
+  const [editAddons, setEditAddons] = useState<Record<string, boolean>>({});
+  const [loadingAddons, setLoadingAddons] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
   const [deleteUser, setDeleteUser] = useState<UserWithUpsells | null>(null);
   const [profileUserId, setProfileUserId] = useState<string | null>(null);
@@ -126,6 +134,21 @@ export default function AdminClientsManage() {
   const handleSort = (col: SortKey) => {
     if (col === sortKey) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
     else { setSortKey(col); setSortDir("asc"); }
+  };
+
+  const openEdit = async (u: AdminUser) => {
+    setEditUser(u);
+    setLoadingAddons(true);
+    const { data } = await supabase
+      .from("entitlements")
+      .select("product_key")
+      .eq("user_id", u.id)
+      .eq("status", "active");
+    const activeKeys = (data ?? []).map((e) => e.product_key as string);
+    const addonState: Record<string, boolean> = {};
+    ADDON_TOGGLES.forEach(({ key }) => { addonState[key] = activeKeys.includes(key); });
+    setEditAddons(addonState);
+    setLoadingAddons(false);
   };
 
   const load = async () => {
@@ -197,13 +220,47 @@ export default function AdminClientsManage() {
   const handleUpdate = async () => {
     if (!editUser) return;
     setSaving(true);
+
+    // 1. Update user tier + vitalicio
     const { error } = await supabase.from("users").update({
       main_tier: editUser.main_tier as any,
       is_vitalicio: editUser.is_vitalicio,
       vitalicio_since: editUser.is_vitalicio ? editUser.vitalicio_since || new Date().toISOString() : null,
     }).eq("id", editUser.id);
-    if (error) toast.error(error.message);
-    else { toast.success("Atualizado"); setEditUser(null); load(); }
+
+    if (error) { toast.error(error.message); setSaving(false); return; }
+
+    // 2. Sync add-ons via entitlements
+    for (const { key } of ADDON_TOGGLES) {
+      const wantsActive = editAddons[key] ?? false;
+      const { data: existing } = await supabase
+        .from("entitlements")
+        .select("id, status")
+        .eq("user_id", editUser.id)
+        .eq("product_key", key as any)
+        .limit(1);
+
+      if (wantsActive) {
+        if (!existing || existing.length === 0) {
+          await supabase.from("entitlements").insert({
+            user_id: editUser.id,
+            product_key: key as any,
+            source: "admin",
+            status: "active",
+          });
+        } else if (existing[0].status !== "active") {
+          await supabase.from("entitlements").update({ status: "active" }).eq("id", existing[0].id);
+        }
+      } else {
+        if (existing && existing.length > 0 && existing[0].status === "active") {
+          await supabase.from("entitlements").update({ status: "revoked" }).eq("id", existing[0].id);
+        }
+      }
+    }
+
+    toast.success("Atualizado");
+    setEditUser(null);
+    load();
     setSaving(false);
   };
 
@@ -331,7 +388,7 @@ export default function AdminClientsManage() {
                   <td className="px-3 py-2">{fmt(u.last_seen_at)}</td>
                   <td className="px-3 py-2">
                     <div className="flex items-center gap-2">
-                      <button onClick={() => setEditUser(u)} className="text-blue-400 hover:text-blue-300 transition-colors">
+                      <button onClick={() => openEdit(u)} className="text-blue-400 hover:text-blue-300 transition-colors">
                         <Pencil className="w-3.5 h-3.5" />
                       </button>
                       <button onClick={() => setDeleteUser(u)} className="text-red-400 hover:text-red-300 transition-colors">
@@ -380,7 +437,7 @@ export default function AdminClientsManage() {
         <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-sm">
           <DialogHeader><DialogTitle>Editar: {editUser?.email}</DialogTitle></DialogHeader>
           {editUser && (
-            <div className="space-y-3">
+            <div className="space-y-4">
               <div>
                 <label className="text-xs text-gray-500">Plano</label>
                 <Select value={editUser.main_tier} onValueChange={(v) => setEditUser({ ...editUser, main_tier: v })}>
@@ -393,10 +450,34 @@ export default function AdminClientsManage() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="flex items-center gap-3">
-                <Switch checked={editUser.is_vitalicio} onCheckedChange={(v) => setEditUser({ ...editUser, is_vitalicio: v })} />
-                <label className="text-sm">Vitalício</label>
+
+              <div className="border-t border-white/10 pt-3 space-y-3">
+                <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Acesso</p>
+                <div className="flex items-center gap-3">
+                  <Switch checked={editUser.is_vitalicio} onCheckedChange={(v) => setEditUser({ ...editUser, is_vitalicio: v })} />
+                  <label className="text-sm">Vitalício</label>
+                </div>
               </div>
+
+              <div className="border-t border-white/10 pt-3 space-y-3">
+                <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Add-ons</p>
+                {loadingAddons ? (
+                  <div className="flex items-center gap-2 text-gray-500 text-xs">
+                    <Loader2 className="w-3 h-3 animate-spin" /> Carregando add-ons…
+                  </div>
+                ) : (
+                  ADDON_TOGGLES.map(({ key, label }) => (
+                    <div key={key} className="flex items-center gap-3">
+                      <Switch
+                        checked={editAddons[key] ?? false}
+                        onCheckedChange={(v) => setEditAddons((prev) => ({ ...prev, [key]: v }))}
+                      />
+                      <label className="text-sm">{label}</label>
+                    </div>
+                  ))
+                )}
+              </div>
+
               <Button onClick={handleUpdate} disabled={saving} className="w-full">
                 {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Salvar"}
               </Button>
