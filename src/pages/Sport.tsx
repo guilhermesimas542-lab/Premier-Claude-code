@@ -663,19 +663,21 @@ const Sport = () => {
         )}
 
         {!isLoading && !error && activeEntries.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-24 gap-3 text-center px-6">
-            <span className="text-6xl">🕐</span>
-            <p className="text-xl font-semibold" style={{ color: "rgba(255,255,255,0.85)" }}>
-              As entradas de hoje expiraram.
-            </p>
-            <p className="text-lg" style={{ color: "#00FF00" }}>
-              Amanhã teremos novas entradas!
-            </p>
-            <div className="mt-4 flex flex-col items-center gap-1">
-              <p className="text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>Próximas entradas em</p>
+          <div className="flex items-center justify-center px-6 py-4">
+            <div
+              className="w-full max-w-[420px] h-[210px] rounded-xl border border-dashed flex flex-col items-center justify-center text-center p-4 gap-1"
+              style={{ background: "rgba(255,255,255,0.03)", borderColor: "rgba(255,255,255,0.15)" }}
+            >
+              <p className="text-base" style={{ color: "rgba(255,255,255,0.6)" }}>
+                As entradas de hoje expiraram.
+              </p>
+              <p className="text-lg font-bold mb-2" style={{ color: "#00FF00" }}>
+                Amanhã teremos novas entradas!
+              </p>
+              <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>Próximas entradas em</p>
               <span
-                className="text-4xl font-mono font-bold tabular-nums"
-                style={{ color: "#00FF00", textShadow: "0 0 18px rgba(0,255,0,0.5)" }}
+                className="text-3xl font-mono font-bold tabular-nums"
+                style={{ color: "#FFFFFF", textShadow: "0 0 14px rgba(0,255,0,0.4)" }}
               >
                 {timerString}
               </span>
