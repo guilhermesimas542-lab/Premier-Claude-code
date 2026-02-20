@@ -1,4 +1,4 @@
-import { ArrowLeft, Wifi, Lightbulb, Plane, CircleDot, Gem, Dices } from "lucide-react";
+import { ArrowLeft, Lightbulb, Plane, CircleDot, Gem, Dices } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
@@ -381,9 +381,15 @@ const CasinoGame = () => {
               {gameConfig.name} - IA
             </h1>
           </div>
-          <div className="flex items-center gap-1.5 px-2 py-1 rounded-full" style={{ background: "rgba(0,255,0,0.1)", border: "1px solid rgba(0,255,0,0.4)" }}>
-            <Wifi className="w-3 h-3" style={{ color: "#00FF00" }} />
-            <span className="text-xs font-medium" style={{ color: "#00FF00" }}>Online</span>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 px-2 py-0.5 rounded-full" style={{ background: "rgba(0,0,0,0.65)", border: "1px solid rgba(255,140,0,0.7)", boxShadow: "0 0 6px rgba(255,140,0,0.4)" }}>
+              <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#FF8C00", boxShadow: "0 0 4px rgba(255,140,0,0.9)", display: "inline-block", flexShrink: 0 }} />
+              <span className="text-[9px] font-bold tracking-wider" style={{ color: "#FF8C00" }}>BETA</span>
+            </div>
+            <div className="flex items-center gap-1 px-2 py-0.5 rounded-full" style={{ background: "rgba(0,0,0,0.65)", border: "1px solid rgba(168,85,247,0.7)", boxShadow: "0 0 6px rgba(168,85,247,0.4)" }}>
+              <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#A855F7", boxShadow: "0 0 4px rgba(168,85,247,0.9)", display: "inline-block", flexShrink: 0 }} />
+              <span className="text-[9px] font-bold tracking-wider" style={{ color: "#A855F7" }}>IA ATIVADA</span>
+            </div>
           </div>
         </div>
       </header>
