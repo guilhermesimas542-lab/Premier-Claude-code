@@ -279,15 +279,25 @@ const Sport = () => {
   }, []);
 
   // Derived data — re-filter on every tick so expired tips disappear in real-time
+  // Both conditions are checked independently (AND logic, not OR):
+  // 1. If starts_at is set → hide 1 hour after game starts (regardless of expires_at)
+  // 2. If expires_at is set → hide when it passes
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const activeEntries = tips.filter(entry => {
     const now = new Date();
-    if (entry.expires_at) return now <= new Date(entry.expires_at);
-    if (entry.starts_at) return now <= new Date(new Date(entry.starts_at).getTime() + 60 * 60 * 1000);
+
+    // starts_at check: entries expire 1h after match starts
+    if (entry.starts_at) {
+      const expiryFromStart = new Date(new Date(entry.starts_at).getTime() + 60 * 60 * 1000);
+      if (now > expiryFromStart) return false;
+    }
+
+    // explicit expires_at check
+    if (entry.expires_at && now > new Date(entry.expires_at)) return false;
+
     return true;
   });
-  // tick is referenced to force re-evaluation every second
-  void tick;
+  void tick; // referenced to force re-evaluation every second
 
   const tipsByTier = activeEntries.reduce((acc, entry) => {
     const tier = mapTierToDisplay(entry.tier_required, entry.addon_required);
