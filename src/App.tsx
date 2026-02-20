@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import MatrixRain from "./components/MatrixRain";
 import Home from "./pages/Home";
 import Sport from "./pages/Sport";
 import Login from "./pages/Login";
@@ -44,6 +45,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
+      <MatrixRain />
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login />} />
