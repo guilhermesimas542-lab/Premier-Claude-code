@@ -1,4 +1,4 @@
-import { ArrowLeft, LogOut, Plane, CircleDot, Gem, Dices } from "lucide-react";
+import { ArrowLeft, Plane, CircleDot, Gem, Dices } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { getStoredConfig, clearAuth, isAuthenticated } from "@/lib/auth";
 import { useEffect, useState } from "react";
@@ -97,22 +97,11 @@ const Casino = () => {
               <span className="text-base sm:text-lg font-bold" style={{ color: "#FFFFFF" }}>Cassino</span>
             </div>
             
-            <div className="flex items-center gap-2 sm:gap-3">
-              {config?.user && (
-                <span className="hidden md:block text-xs sm:text-sm font-medium truncate max-w-[180px]" style={{ color: "#00AA00" }}>
-                  {config.user.userMail}
-                </span>
-              )}
-              
-              <button
-                onClick={handleLogout}
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
-                style={{ background: "rgba(0,255,0,0.05)", border: "1px solid rgba(0,255,0,0.25)", color: "#00FF00" }}
-              >
-                <LogOut className="w-4 h-4" />
-                <span className="hidden sm:inline">Sair</span>
-              </button>
-            </div>
+            {config?.user && (
+              <span className="hidden md:block text-xs sm:text-sm font-medium truncate max-w-[180px]" style={{ color: "#00AA00" }}>
+                {config.user.userMail}
+              </span>
+            )}
           </div>
         </div>
       </header>
