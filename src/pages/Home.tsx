@@ -12,7 +12,7 @@ import { PromoCarousel } from "@/components/PromoCarousel";
 import { QuickAccessCards } from "@/components/QuickAccessCards";
 import { BottomNav } from "@/components/BottomNav";
 import { CHECKOUT_LINKS } from "@/lib/checkoutLinks";
-import logoImg from "@/assets/premier-logo.svg";
+import logoImg from "@/assets/premier-logo-custom.png";
 import MatrixRain from "@/components/MatrixRain";
 
 
