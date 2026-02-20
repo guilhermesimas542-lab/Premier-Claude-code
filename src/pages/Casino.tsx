@@ -7,6 +7,7 @@ import { AppConfig } from "@/types/auth";
 import { BottomNav } from "@/components/BottomNav";
 import { PromoCarousel } from "@/components/PromoCarousel";
 import logoImg from "@/assets/premier-logo.svg";
+import MatrixRain from "@/components/MatrixRain";
 
 // Configuração dos tiles - estilo Acesso Rápido
 const CASINO_TILES = [
@@ -62,6 +63,7 @@ const Casino = () => {
 
   return (
     <div className="min-h-screen relative overflow-hidden pb-20 md:pb-0" style={{ background: "#000000" }}>
+      <MatrixRain opacity={0.18} />
       <div className="absolute top-0 left-1/4 w-96 h-96 rounded-full blur-[120px] pointer-events-none" style={{ background: "rgba(0,255,0,0.04)" }} />
 
       {/* Header */}

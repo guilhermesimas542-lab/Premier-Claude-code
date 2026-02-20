@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { clearAuth, isAuthenticated } from "@/lib/auth";
 import { getMockUserData, MockUserData, SUPPORT_WHATSAPP_URL } from "@/lib/userMock";
 import { BottomNav } from "@/components/BottomNav";
+import MatrixRain from "@/components/MatrixRain";
 
 const Support = () => {
   const navigate = useNavigate();
@@ -35,6 +36,7 @@ const Support = () => {
 
   return (
     <div className="min-h-screen relative overflow-hidden pb-24" style={{ background: "#000000" }}>
+      <MatrixRain opacity={0.18} />
       <div className="absolute top-0 left-1/4 w-96 h-96 rounded-full blur-[120px] pointer-events-none" style={{ background: "rgba(0,255,0,0.03)" }} />
 
       {/* Header */}

@@ -1,6 +1,11 @@
 import { useEffect, useRef } from "react";
 
-const MatrixRain = () => {
+interface MatrixRainProps {
+  opacity?: number;
+  fixed?: boolean;
+}
+
+const MatrixRain = ({ opacity = 0.13, fixed = true }: MatrixRainProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -37,7 +42,7 @@ const MatrixRain = () => {
         const y = drops[i] * fontSize;
         ctx.fillStyle = "#00FF00";
         ctx.shadowColor = "#00FF00";
-        ctx.shadowBlur = 4;
+        ctx.shadowBlur = 6;
         ctx.fillText(char, i * fontSize, y);
         ctx.shadowBlur = 0;
 
@@ -60,10 +65,10 @@ const MatrixRain = () => {
     <canvas
       ref={canvasRef}
       style={{
-        position: "fixed",
+        position: fixed ? "fixed" : "absolute",
         inset: 0,
         zIndex: 0,
-        opacity: 0.13,
+        opacity,
         pointerEvents: "none",
       }}
     />
