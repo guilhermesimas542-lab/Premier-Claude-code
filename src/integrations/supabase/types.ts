@@ -458,6 +458,74 @@ export type Database = {
         }
         Relationships: []
       }
+      popups: {
+        Row: {
+          betting_house_id: string | null
+          checkout_link: string | null
+          created_at: string
+          final_benefits: Json | null
+          final_title: string | null
+          id: string
+          image_url: string | null
+          is_active: boolean
+          question_1_options: Json | null
+          question_1_text: string | null
+          question_2_options: Json | null
+          question_2_text: string | null
+          question_3_options: Json | null
+          question_3_text: string | null
+          target_audience: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          betting_house_id?: string | null
+          checkout_link?: string | null
+          created_at?: string
+          final_benefits?: Json | null
+          final_title?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          question_1_options?: Json | null
+          question_1_text?: string | null
+          question_2_options?: Json | null
+          question_2_text?: string | null
+          question_3_options?: Json | null
+          question_3_text?: string | null
+          target_audience?: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          betting_house_id?: string | null
+          checkout_link?: string | null
+          created_at?: string
+          final_benefits?: Json | null
+          final_title?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          question_1_options?: Json | null
+          question_1_text?: string | null
+          question_2_options?: Json | null
+          question_2_text?: string | null
+          question_3_options?: Json | null
+          question_3_text?: string | null
+          target_audience?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "popups_betting_house_id_fkey"
+            columns: ["betting_house_id"]
+            isOneToOne: false
+            referencedRelation: "betting_houses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       push_subscriptions: {
         Row: {
           created_at: string
