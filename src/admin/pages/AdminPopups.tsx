@@ -51,12 +51,12 @@ const EMPTY_FORM: PopupForm = {
 
 const POPUP_SECTIONS = [
   { key: "popup_welcome" as PopupKey, title: "🎉 Pop-up de Boas-Vindas", description: "Exibido na primeira visita do usuário" },
-  { key: "popup_basic" as PopupKey, title: "🔓 Free → Basic", description: "Exibido quando usuário Free tenta ver conteúdo Basic" },
-  { key: "popup_pro" as PopupKey, title: "🔓 Basic → Pro", description: "Exibido quando usuário Basic tenta ver conteúdo Pro" },
-  { key: "popup_ultra" as PopupKey, title: "🔓 Pro → Ultra", description: "Exibido quando usuário Pro tenta ver conteúdo Ultra" },
-  { key: "popup_alavancagem" as PopupKey, title: "📈 Add-on Alavancagem", description: "Exibido quando usuário tenta ver tips de Alavancagem" },
-  { key: "popup_odds_altas" as PopupKey, title: "🎯 Add-on Odds Altas", description: "Exibido quando usuário tenta ver tips de Odds Altas" },
-  { key: "popup_live_telegram" as PopupKey, title: "📱 Add-on Live Telegram", description: "Exibido quando usuário tenta ver tips Live Telegram" },
+  { key: "popup_basic" as PopupKey, title: "🔓 Upgrade para Basic", description: "Exibido quando usuário sem plano Basic tenta acessar conteúdo Basic" },
+  { key: "popup_pro" as PopupKey, title: "🔓 Upgrade para Pro", description: "Exibido quando usuário sem plano Pro tenta acessar conteúdo Pro (Free e Basic)" },
+  { key: "popup_ultra" as PopupKey, title: "🔓 Upgrade para Ultra", description: "Exibido quando usuário sem plano Ultra tenta acessar conteúdo Ultra (Free, Basic e Pro)" },
+  { key: "popup_alavancagem" as PopupKey, title: "⚓ Add-on Alavancagem", description: "Exibido quando usuário sem add-on Alavancagem tenta acessar tips de Alavancagem" },
+  { key: "popup_odds_altas" as PopupKey, title: "🎯 Add-on Odds Altas", description: "Exibido quando usuário sem add-on Odds Altas tenta acessar tips de Odds Altas" },
+  { key: "popup_live_telegram" as PopupKey, title: "📱 Add-on Live Telegram", description: "Exibido quando usuário sem add-on Live Telegram tenta acessar Live Telegram" },
 ];
 
 function ImageUpload({
