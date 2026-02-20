@@ -157,6 +157,7 @@ export type Database = {
       }
       content_banners: {
         Row: {
+          betting_house_id: string | null
           button_link: string | null
           button_text: string | null
           context: string
@@ -174,6 +175,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          betting_house_id?: string | null
           button_link?: string | null
           button_text?: string | null
           context?: string
@@ -191,6 +193,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          betting_house_id?: string | null
           button_link?: string | null
           button_text?: string | null
           context?: string
@@ -207,7 +210,15 @@ export type Database = {
           title?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "content_banners_betting_house_id_fkey"
+            columns: ["betting_house_id"]
+            isOneToOne: false
+            referencedRelation: "betting_houses"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       content_entries: {
         Row: {

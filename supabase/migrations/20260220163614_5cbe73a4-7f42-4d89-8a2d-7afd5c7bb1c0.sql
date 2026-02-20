@@ -1,0 +1,1 @@
+ALTER TABLE public.content_banners ADD COLUMN IF NOT EXISTS betting_house_id UUID REFERENCES public.betting_houses(id);
