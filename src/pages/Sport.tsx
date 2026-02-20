@@ -466,7 +466,7 @@ const Sport = () => {
         </div>
       </header>
 
-      <main className="w-full max-w-7xl mx-auto px-4 py-6 space-y-6 overflow-x-hidden">
+      <main className="w-full max-w-7xl mx-auto px-4 pt-2 pb-6 space-y-2 overflow-x-hidden">
         {/* Tier Tabs */}
         <div className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-2 px-1 sm:justify-center" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
           {TIER_TABS.map((tab) => {
@@ -534,7 +534,7 @@ const Sport = () => {
         )}
 
         {!isLoading && !error && expiredEntries.length > 0 && (
-          <section className="relative w-full mt-8">
+          <section className="relative w-full mt-2">
             <h2 className="text-lg font-bold text-muted-foreground mb-3 px-2">
               ⏱️ Encerradas Hoje ({expiredEntries.length})
             </h2>
@@ -552,7 +552,7 @@ const Sport = () => {
           </div>
         )}
 
-        <section className="w-full">
+        <section className="w-full mt-2">
           <div className="w-full h-[1000px] bg-gradient-to-br from-muted/40 to-muted/20 rounded-xl overflow-hidden border border-border/30 backdrop-blur-sm">
             {iframeUrl ? (
               <iframe key={iframeUrl} src={iframeUrl} title="Bet Site" className="w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
