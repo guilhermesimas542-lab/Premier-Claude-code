@@ -1,3 +1,5 @@
+import roboPremier from "@/assets/robo-premier.png";
+
 const AnimatedFootballIcon = () => {
   return (
     <div
@@ -11,12 +13,9 @@ const AnimatedFootballIcon = () => {
         overflow: "hidden",
       }}
     >
-      <video
-        src="/images/robo_premier_bola_fogo.mp4"
-        autoPlay
-        loop
-        muted
-        playsInline
+      <img
+        src={roboPremier}
+        alt="Premier Robot"
         style={{
           width: "100%",
           height: "100%",
