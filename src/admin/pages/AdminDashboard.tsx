@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { format, startOfDay, endOfDay, startOfWeek, startOfMonth, subDays } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
+import { useBettingHouseAdmin } from "@/admin/context/BettingHouseContext";
 import { Users, UserPlus, AlertTriangle, Wifi, Info, CalendarIcon, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -78,6 +79,7 @@ function InfoPopup({ title, text }: { title: string; text: string }) {
 
 export default function AdminDashboard() {
   const now = new Date();
+  const { selectedHouseId } = useBettingHouseAdmin();
 
   // Period filter
   const [dateFrom, setDateFrom] = useState<Date>(subDays(now, 7));
@@ -118,9 +120,21 @@ export default function AdminDashboard() {
   // Online polling
   const fetchOnline = useCallback(async () => {
     const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
-    const { data } = await supabase.from("sessions").select("user_id").gte("session_start_at", fiveMinAgo);
+    let q = supabase.from("sessions").select("user_id").gte("session_start_at", fiveMinAgo);
+    if (selectedHouseId) {
+      // Get user_ids that belong to this house
+      const { data: houseUsers } = await supabase.from("users").select("id").eq("betting_house_id", selectedHouseId);
+      const houseUserIds = (houseUsers ?? []).map((u) => u.id);
+      if (houseUserIds.length > 0) {
+        q = (q as any).in("user_id", houseUserIds);
+      } else {
+        setOnlineUserIds(new Set());
+        return;
+      }
+    }
+    const { data } = await q;
     setOnlineUserIds(new Set((data ?? []).map((s) => s.user_id)));
-  }, []);
+  }, [selectedHouseId]);
 
   useEffect(() => {
     fetchOnline();
@@ -136,28 +150,53 @@ export default function AdminDashboard() {
       const until = dateTo.toISOString();
       const fifteenDaysAgo = new Date(Date.now() - 15 * 86400000).toISOString();
 
-      const [sessionsRes, newUsersRes, usersRes, entitlementsRes, paidUsersRes] = await Promise.all([
-        supabase.from("sessions").select("user_id, session_start_at").gte("session_start_at", since).lte("session_start_at", until),
-        supabase.from("users").select("id", { count: "exact", head: true }).gte("created_at", since).lte("created_at", until),
-        supabase.from("users").select("id, main_tier"),
-        supabase.from("entitlements").select("product_key, user_id").eq("status", "active"),
-        supabase.from("users").select("id").neq("main_tier", "free"),
-      ]);
+      // Build user queries filtered by house
+      let usersQ = supabase.from("users").select("id, main_tier") as any;
+      let newUsersQ = supabase.from("users").select("id", { count: "exact", head: true }).gte("created_at", since).lte("created_at", until) as any;
+      let paidQ = supabase.from("users").select("id").neq("main_tier", "free") as any;
+
+      if (selectedHouseId) {
+        usersQ = usersQ.eq("betting_house_id", selectedHouseId);
+        newUsersQ = newUsersQ.eq("betting_house_id", selectedHouseId);
+        paidQ = paidQ.eq("betting_house_id", selectedHouseId);
+      }
+
+      const [newUsersRes, usersRes, paidUsersRes] = await Promise.all([newUsersQ, usersQ, paidQ]);
 
       const users = usersRes.data ?? [];
-      const sessions = sessionsRes.data ?? [];
-      const entitlements = entitlementsRes.data ?? [];
       const paid = paidUsersRes.data ?? [];
 
+      // Filter sessions by house user IDs
+      const houseUserIds = users.map((u: any) => u.id);
+      let sessionsData: any[] = [];
+      let entitlementsData: any[] = [];
+
+      if (houseUserIds.length > 0) {
+        const [sessionsRes, entitlementsRes] = await Promise.all([
+          supabase.from("sessions").select("user_id, session_start_at").gte("session_start_at", since).lte("session_start_at", until).in("user_id", houseUserIds.slice(0, 500)),
+          supabase.from("entitlements").select("product_key, user_id").eq("status", "active").in("user_id", houseUserIds.slice(0, 500)),
+        ]);
+        sessionsData = sessionsRes.data ?? [];
+        entitlementsData = entitlementsRes.data ?? [];
+      } else if (!selectedHouseId) {
+        // No house filter — load all
+        const [sessionsRes, entitlementsRes] = await Promise.all([
+          supabase.from("sessions").select("user_id, session_start_at").gte("session_start_at", since).lte("session_start_at", until),
+          supabase.from("entitlements").select("product_key, user_id").eq("status", "active"),
+        ]);
+        sessionsData = sessionsRes.data ?? [];
+        entitlementsData = entitlementsRes.data ?? [];
+      }
+
       setAllUsers(users);
-      setAllSessions(sessions);
-      setAllEntitlements(entitlements);
+      setAllSessions(sessionsData);
+      setAllEntitlements(entitlementsData);
       setNewSignups(newUsersRes.count ?? 0);
-      setPaidIds(paid.map((u) => u.id));
+      setPaidIds(paid.map((u: any) => u.id));
 
       // Churn
       if (paid.length > 0) {
-        const ids = paid.map((u) => u.id);
+        const ids = paid.map((u: any) => u.id);
         const { data: recentSessions } = await supabase
           .from("sessions").select("user_id")
           .gte("session_start_at", fifteenDaysAgo)
@@ -171,7 +210,7 @@ export default function AdminDashboard() {
       setLoading(false);
     };
     load();
-  }, [dateFrom, dateTo]);
+  }, [dateFrom, dateTo, selectedHouseId]);
 
   if (loading) return <div className="text-gray-400">Carregando…</div>;
 

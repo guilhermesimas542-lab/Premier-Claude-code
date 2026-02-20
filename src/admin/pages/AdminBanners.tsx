@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, Pencil, Trash2, Loader2, ChevronRight, Upload, X, Pause, Play, RotateCcw, Copy, GripVertical, CheckCircle, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { useAdminMode } from "@/admin/context/AdminModeContext";
+import { useBettingHouseAdmin } from "@/admin/context/BettingHouseContext";
 import { format } from "date-fns";
 
 type BannerStatus = "active" | "inactive" | "deleted";
@@ -92,6 +93,7 @@ const emptyForm = {
 
 export default function AdminBanners() {
   const { mode } = useAdminMode();
+  const { selectedHouseId } = useBettingHouseAdmin();
   const ctx = mode === "cassino" ? "cassino" : "futebol";
 
   const [allItems, setAllItems] = useState<Banner[]>([]);
@@ -114,11 +116,17 @@ export default function AdminBanners() {
 
   const load = async () => {
     setLoading(true);
-    const { data } = await supabase
+    let q = supabase
       .from("content_banners")
       .select("*")
       .eq("context", ctx)
-      .order("display_order", { ascending: true });
+      .order("display_order", { ascending: true }) as any;
+
+    if (selectedHouseId) {
+      q = q.eq("betting_house_id", selectedHouseId);
+    }
+
+    const { data } = await q;
     const banners = (data as unknown as Banner[]) ?? [];
     setAllItems(banners);
 
@@ -142,7 +150,7 @@ export default function AdminBanners() {
     setLoading(false);
   };
 
-  useEffect(() => { load(); }, [ctx]);
+  useEffect(() => { load(); }, [ctx, selectedHouseId]);
 
   const items = allItems.filter((b) => {
     if (b.status !== tab) return false;
@@ -201,6 +209,7 @@ export default function AdminBanners() {
       starts_at: scheduleEnabled && form.starts_at ? form.starts_at : new Date().toISOString(),
       ends_at: scheduleEnabled && form.ends_at ? form.ends_at : null,
       target_audience: form.target_audience || "all",
+      betting_house_id: selectedHouseId || null,
     };
     if ((form as Banner).id) {
       const { error } = await supabase.from("content_banners").update(payload).eq("id", (form as Banner).id);
