@@ -11,13 +11,18 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Pencil, Trash2, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { toast } from "sonner";
 import type { AdminContentEntry } from "../types";
+import { useBettingHouseAdmin } from "../context/BettingHouseContext";
 
 type SortColumn = "title" | "teams" | "date" | "starts_at" | "odd" | "tier_required";
 type SortDir = "asc" | "desc";
 
 const TIER_ORDER: Record<string, number> = { free: 0, alavancagem: 1, desaltas: 2, basic: 3, pro: 4, ultra: 5 };
 
+// House index → link column
+const HOUSE_LINK_COLS = ["link_house_1", "link_house_2", "link_house_3"] as const;
+
 export default function AdminTipsList() {
+  const { selectedHouseId, houses } = useBettingHouseAdmin();
   const [items, setItems] = useState<AdminContentEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const today = new Date().toISOString().split("T")[0];
@@ -40,12 +45,22 @@ export default function AdminTipsList() {
     if (filters.dateFrom) q = q.gte("date", filters.dateFrom);
     if (filters.dateTo) q = q.lte("date", filters.dateTo);
     if (filters.team) q = q.or(`team1_name.ilike.%${filters.team}%,team2_name.ilike.%${filters.team}%`);
+
+    // Filter by selected house — only show tips that have a link for the house
+    if (selectedHouseId) {
+      const houseIdx = houses.findIndex((h) => h.id === selectedHouseId);
+      if (houseIdx >= 0 && houseIdx < HOUSE_LINK_COLS.length) {
+        const col = HOUSE_LINK_COLS[houseIdx];
+        q = (q as any).not(col, "is", null);
+      }
+    }
+
     const { data } = await q;
     setItems((data as unknown as AdminContentEntry[]) ?? []);
     setLoading(false);
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, [selectedHouseId]);
 
   const handleDelete = async (id: string) => {
     if (!confirm("Excluir tip?")) return;

@@ -15,6 +15,7 @@ import { mockGetUser } from "@/mocks/user";
 import MatrixRain from "@/components/MatrixRain";
 import logoImg from "@/assets/premier-logo-custom.png";
 import { useUserBettingHouse } from "@/hooks/useUserBettingHouse";
+import { WelcomePopup, UpgradePopup } from "@/components/HousePopups";
 
 
 // ============ TIPOS ============
@@ -633,6 +634,7 @@ const Sport = () => {
         tierRequired={lockedTierRequired}
         addonRequired={lockedAddonRequired}
       />
+      <WelcomePopup house={userHouse as any} />
       <BottomNav />
     </div>
   );

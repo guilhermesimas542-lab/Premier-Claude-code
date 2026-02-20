@@ -19,6 +19,7 @@ import { Plus, Pencil, Loader2, Trash2, ChevronsUpDown, ChevronUp, ChevronDown }
 import { toast } from "sonner";
 import type { AdminUser } from "../types";
 import { ClientProfileModal } from "../components/ClientProfileModal";
+import { useBettingHouseAdmin } from "../context/BettingHouseContext";
 
 interface BettingHouseOption { id: string; name: string; }
 
@@ -26,6 +27,15 @@ interface UserWithUpsells extends AdminUser {
   upsells: string[];
   betting_house_id: string | null;
 }
+
+// Colors per house (cycling through a palette)
+const HOUSE_BADGE_COLORS = [
+  "bg-green-500/20 text-green-400 border-green-400/30",
+  "bg-blue-500/20 text-blue-400 border-blue-400/30",
+  "bg-purple-500/20 text-purple-400 border-purple-400/30",
+  "bg-orange-500/20 text-orange-400 border-orange-400/30",
+  "bg-pink-500/20 text-pink-400 border-pink-400/30",
+];
 
 
 type SortKey = "email" | "phone" | "main_tier" | "upsells" | "created_at" | "last_seen_at";
@@ -111,6 +121,7 @@ const ADDON_TOGGLES = [
 ] as const;
 
 export default function AdminClientsManage() {
+  const { selectedHouseId, houses: adminHouses } = useBettingHouseAdmin();
   const [users, setUsers] = useState<UserWithUpsells[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -137,6 +148,12 @@ export default function AdminClientsManage() {
   const [houses, setHouses] = useState<BettingHouseOption[]>([]);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+
+  // Build a map of house id → badge color
+  const houseColorMap: Record<string, string> = {};
+  adminHouses.forEach((h, i) => {
+    houseColorMap[h.id] = HOUSE_BADGE_COLORS[i % HOUSE_BADGE_COLORS.length];
+  });
 
 
 
@@ -177,6 +194,8 @@ export default function AdminClientsManage() {
     if (createdTo) q = q.lte("created_at", createdTo + "T23:59:59");
     if (lastSeenFrom) q = q.gte("last_seen_at", lastSeenFrom);
     if (lastSeenTo) q = q.lte("last_seen_at", lastSeenTo + "T23:59:59");
+    // Filter by selected house
+    if (selectedHouseId) q = q.eq("betting_house_id", selectedHouseId);
 
     const { data, count } = await q;
     const rawUsers = (data as unknown as AdminUser[]) ?? [];
@@ -220,7 +239,7 @@ export default function AdminClientsManage() {
     supabase.from("betting_houses").select("id, name").eq("is_active", true).order("created_at").then(({ data }) => {
       setHouses((data as BettingHouseOption[]) ?? []);
     });
-  }, []);
+  }, [selectedHouseId]);
 
 
   const sortedUsers = sortUsers(users, sortKey, sortDir);
@@ -370,6 +389,7 @@ export default function AdminClientsManage() {
                 <th className={thClass} onClick={() => handleSort("email")}>
                   <span className="flex items-center">Email <SortIcon col="email" sortKey={sortKey} sortDir={sortDir} /></span>
                 </th>
+                <th className="px-3 py-2 text-xs">Casa</th>
                 <th className={thClass} onClick={() => handleSort("phone")}>
                   <span className="flex items-center">Telefone <SortIcon col="phone" sortKey={sortKey} sortDir={sortDir} /></span>
                 </th>
@@ -399,6 +419,19 @@ export default function AdminClientsManage() {
                       {u.email}
                     </button>
                   </td>
+                  <td className="px-3 py-2">
+                    {u.betting_house_id ? (
+                      (() => {
+                        const house = adminHouses.find((h) => h.id === u.betting_house_id);
+                        const colorClass = houseColorMap[u.betting_house_id] ?? "bg-gray-700/40 text-gray-400 border-gray-600/30";
+                        return house ? (
+                          <span className={`text-[10px] px-1.5 py-0.5 rounded-full border font-medium whitespace-nowrap ${colorClass}`}>
+                            {house.name}
+                          </span>
+                        ) : <span className="text-gray-600">—</span>;
+                      })()
+                    ) : <span className="text-gray-600">—</span>}
+                  </td>
                   <td className="px-3 py-2 text-gray-500">{u.phone ?? "—"}</td>
                   <td className="px-3 py-2">
                     <span className={`capitalize font-medium ${TIER_COLORS[u.main_tier] ?? "text-gray-300"}`}>
@@ -424,7 +457,7 @@ export default function AdminClientsManage() {
               ))}
               {sortedUsers.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-3 py-8 text-center text-gray-600">
+                  <td colSpan={8} className="px-3 py-8 text-center text-gray-600">
                     Nenhum cliente encontrado
                   </td>
                 </tr>

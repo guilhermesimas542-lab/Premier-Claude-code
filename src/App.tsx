@@ -30,6 +30,8 @@ import AdminOverview from "./admin/pages/AdminOverview";
 import AdminRevenue from "./admin/pages/AdminRevenue";
 import AdminCassinoPlaceholder from "./admin/pages/AdminCassinoPlaceholder";
 import AdminBettingHouses from "./admin/pages/AdminBettingHouses";
+import AdminDefaultLinks from "./admin/pages/AdminDefaultLinks";
+import AdminPopups from "./admin/pages/AdminPopups";
 
 const queryClient = new QueryClient();
 
@@ -73,6 +75,8 @@ const App = () => (
             <Route path="analytics" element={<AdminAnalytics />} />
             <Route path="analytics/events" element={<AdminEventsPage />} />
             <Route path="revenue" element={<AdminRevenue />} />
+            <Route path="default-links" element={<AdminDefaultLinks />} />
+            <Route path="popups" element={<AdminPopups />} />
             {/* Cassino placeholders */}
             <Route path="cassino" element={<AdminCassinoPlaceholder />} />
             <Route path="cassino/analytics" element={<AdminCassinoPlaceholder />} />

@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { ClientProfileModal } from "../components/ClientProfileModal";
+import { useBettingHouseAdmin } from "../context/BettingHouseContext";
 
 type SortKey = "event_name" | "email" | "created_at";
 type SortDir = "asc" | "desc";
@@ -15,6 +16,7 @@ interface EventWithUser {
 }
 
 export default function AdminEventsPage() {
+  const { selectedHouseId } = useBettingHouseAdmin();
   const [events, setEvents] = useState<EventWithUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortKey, setSortKey] = useState<SortKey>("created_at");
@@ -23,15 +25,33 @@ export default function AdminEventsPage() {
 
   useEffect(() => {
     const load = async () => {
-      const { data } = await supabase
+      let q = supabase
         .from("events")
-        .select("id, event_name, user_id, created_at, users(email)")
+        .select("id, event_name, user_id, created_at, users(email, betting_house_id)")
         .limit(100);
+
+      // If a house is selected, only show events from users of that house
+      if (selectedHouseId) {
+        const { data: houseUsers } = await supabase
+          .from("users")
+          .select("id")
+          .eq("betting_house_id", selectedHouseId);
+        const userIds = (houseUsers ?? []).map((u) => u.id);
+        if (userIds.length > 0) {
+          q = q.in("user_id", userIds);
+        } else {
+          setEvents([]);
+          setLoading(false);
+          return;
+        }
+      }
+
+      const { data } = await q;
       setEvents((data as unknown as EventWithUser[]) ?? []);
       setLoading(false);
     };
     load();
-  }, []);
+  }, [selectedHouseId]);
 
   const handleSort = (key: SortKey) => {
     if (sortKey === key) {
