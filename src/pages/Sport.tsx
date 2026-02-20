@@ -1,4 +1,4 @@
-import { ArrowLeft, LogOut, ChevronLeft, ChevronRight, Loader2, Lock } from "lucide-react";
+import { ArrowLeft, LogOut, ChevronLeft, ChevronRight, Loader2, Lock, Menu, X, Gift, Headphones, Crown, ShoppingCart } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState, useRef, useCallback } from "react";
 import { PremiumBettingCard } from "@/components/PremiumBettingCard";
@@ -13,6 +13,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { supabase } from "@/integrations/supabase/client";
 import { mockGetUser } from "@/mocks/user";
 import MatrixRain from "@/components/MatrixRain";
+import logoImg from "@/assets/premier-logo-custom.png";
 
 // ============ TIPOS ============
 type TierType = "GRÁTIS" | "ALAVANCAGEM" | "ODDS_ALTAS" | "BÁSICO" | "PRO" | "ULTRA" | "MÚLTIPLA";
@@ -125,6 +126,8 @@ const Sport = () => {
   const [startX, setStartX] = useState(0);
   const [scrollLeftStart, setScrollLeftStart] = useState(0);
   const isMobile = useIsMobile();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
   
   const [justificativaModalOpen, setJustificativaModalOpen] = useState(false);
   const [justificativaTexto, setJustificativaTexto] = useState("");
@@ -137,6 +140,8 @@ const Sport = () => {
   const [tips, setTips] = useState<DisplayTip[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const hasLifetimeAccess = true;
+  const mockUser = mockGetUser();
   
   const activeCarouselRef = useRef<HTMLDivElement>(null);
   const expiredCarouselRef = useRef<HTMLDivElement>(null);
@@ -433,21 +438,57 @@ const Sport = () => {
   return (
     <div className="min-h-screen overflow-x-hidden w-full max-w-full pb-20 md:pb-0 relative" style={{ background: "#000000" }}>
       <MatrixRain opacity={0.22} />
-      <header className="sticky top-0 z-10 backdrop-blur-xl" style={{ background: "rgba(0,0,0,0.92)", borderBottom: "1px solid rgba(0,255,0,0.15)" }}>
-        <div className="container max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <button className="p-2 rounded-lg transition-colors hover:bg-[rgba(0,255,0,0.08)]" onClick={() => navigate("/")}>
-              <ArrowLeft className="w-6 h-6" style={{ color: "#00FF00" }} />
-            </button>
-            <h1 className="text-xl font-display font-extrabold tracking-tight" style={{ color: "#FFFFFF" }}>
-              Futebol - Tips do Dia
-            </h1>
-          </div>
-          <div className="flex items-center gap-4">
-            <Button onClick={handleLogout} size="sm" style={{ background: "rgba(0,255,0,0.08)", border: "1px solid rgba(0,255,0,0.3)", color: "#FFFFFF" }}>
-              <LogOut className="w-4 h-4 mr-2" />
-              Sair
-            </Button>
+      <header className="sticky top-0 z-50 backdrop-blur-xl border-b" style={{ background: "rgba(0,0,0,0.92)", borderColor: "rgba(0,255,0,0.15)" }}>
+        <div className="container max-w-7xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
+          <div className="flex items-center justify-between gap-2 sm:gap-4">
+            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+              <button className="p-1.5 rounded-lg transition-colors hover:bg-[rgba(0,255,0,0.08)]" onClick={() => navigate("/")}>
+                <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6" style={{ color: "#00FF00" }} />
+              </button>
+              <img src={logoImg} alt="Premier" className="h-10 sm:h-12 w-auto" style={{ filter: "drop-shadow(0 0 10px rgba(0,255,0,0.5))" }} />
+              <span className="text-2xl sm:text-4xl font-bold" style={{ color: "#FFFFFF", textShadow: "0 0 14px rgba(0,255,0,0.3)" }}>Futebol</span>
+            </div>
+
+            <div className="flex items-center gap-2 sm:gap-3">
+              {hasLifetimeAccess ? (
+                <span className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-semibold" style={{ background: "rgba(0,255,0,0.1)", color: "#FFFFFF", border: "1px solid rgba(0,255,0,0.4)", boxShadow: "0 0 10px rgba(0,255,0,0.2)" }}>
+                  <Crown className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                  <span className="hidden sm:inline">Acesso</span> vitalício
+                </span>
+              ) : (
+                <button className="inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-semibold transition-colors cursor-pointer"
+                  style={{ background: "rgba(255,0,0,0.1)", color: "#FF4444", border: "1px solid rgba(255,0,0,0.3)" }}>
+                  <span className="hidden sm:inline">Sem</span> vitalício
+                  <ShoppingCart className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                </button>
+              )}
+
+              <div className="relative" ref={menuRef}>
+                <button
+                  onClick={() => setMenuOpen(!menuOpen)}
+                  className="p-2 rounded-lg transition-colors"
+                  style={{ background: "rgba(0,255,0,0.05)", border: "1px solid rgba(0,255,0,0.25)" }}
+                >
+                  {menuOpen ? <X className="w-5 h-5" style={{ color: "#00FF00" }} /> : <Menu className="w-5 h-5" style={{ color: "#00FF00" }} />}
+                </button>
+
+                {menuOpen && (
+                  <div className="absolute right-0 top-full mt-2 w-52 sm:w-56 backdrop-blur-xl rounded-xl shadow-xl overflow-hidden z-50" style={{ background: "rgba(0,8,0,0.97)", border: "1px solid rgba(0,255,0,0.2)", boxShadow: "0 0 30px rgba(0,255,0,0.1)" }}>
+                    <div className="py-2">
+                      <button onClick={() => navigate("/support")} className="w-full px-4 py-3 flex items-center gap-3 text-left transition-colors hover:bg-[rgba(0,255,0,0.07)]">
+                        <Headphones className="w-4 h-4" style={{ color: "#00FF00" }} />
+                        <span className="text-sm font-medium" style={{ color: "#FFFFFF" }}>Suporte</span>
+                      </button>
+                      <div className="my-2 border-t" style={{ borderColor: "rgba(0,255,0,0.15)" }} />
+                      <button onClick={() => { setMenuOpen(false); handleLogout(); }} className="w-full px-4 py-3 flex items-center gap-3 text-left text-red-400 hover:bg-red-500/10 transition-colors">
+                        <LogOut className="w-4 h-4" />
+                        <span className="text-sm font-medium">Sair</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </header>
