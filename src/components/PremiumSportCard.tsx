@@ -311,7 +311,7 @@ export const PremiumSportCard = ({
         {/* Icon (left side) */}
         <div className="shrink-0">
           <div className="relative">
-            {!(id === 1 && isPremium) && (
+            {!((id === 1 || id === 11) && isPremium) && (
               <div
                 className="absolute inset-0 blur-xl opacity-40"
                 style={{ backgroundColor: isLocked ? '#FBBF24' : isDevelopment ? '#00D4FF' : colors.primary }}
@@ -320,17 +320,17 @@ export const PremiumSportCard = ({
             <div
               className="relative flex items-center justify-center"
               style={{
-                width: id === 1 && isPremium ? 90 : 50,
-                height: id === 1 && isPremium ? 90 : 50,
-                borderRadius: id === 1 && isPremium ? 0 : '50%',
-                background: id === 1 && isPremium
+                width: (id === 1 || id === 11) && isPremium ? 90 : 50,
+                height: (id === 1 || id === 11) && isPremium ? 90 : 50,
+                borderRadius: (id === 1 || id === 11) && isPremium ? 0 : '50%',
+                background: (id === 1 || id === 11) && isPremium
                   ? 'transparent'
                   : isLocked
                   ? 'rgba(251,191,36,0.12)'
                   : isDevelopment
                   ? 'rgba(0,212,255,0.12)'
                   : `${colors.primary}15`,
-                boxShadow: id === 1 && isPremium
+                boxShadow: (id === 1 || id === 11) && isPremium
                   ? 'none'
                   : isLocked
                   ? '0 0 14px rgba(251,191,36,0.25)'
