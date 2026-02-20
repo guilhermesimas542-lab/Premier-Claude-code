@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,76 +13,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-
-// Matrix rain canvas component
-const MatrixRain = () => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
-    resize();
-    window.addEventListener("resize", resize);
-
-    const chars = "アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン01010110100111".split("");
-    const fontSize = 14;
-    const cols = Math.floor(canvas.width / fontSize);
-    const drops: number[] = Array(cols).fill(1);
-
-    const draw = () => {
-      ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      ctx.font = `${fontSize}px monospace`;
-      for (let i = 0; i < drops.length; i++) {
-        const char = chars[Math.floor(Math.random() * chars.length)];
-        // Leading char brighter
-        const y = drops[i] * fontSize;
-        if (drops[i] * fontSize === y) {
-          ctx.fillStyle = "#00FF00";
-          ctx.shadowColor = "#00FF00";
-          ctx.shadowBlur = 8;
-        } else {
-          ctx.fillStyle = `rgba(0, ${Math.floor(Math.random() * 80 + 120)}, 0, ${Math.random() * 0.5 + 0.3})`;
-          ctx.shadowBlur = 0;
-        }
-        ctx.fillText(char, i * fontSize, y);
-        ctx.shadowBlur = 0;
-
-        if (y > canvas.height && Math.random() > 0.975) {
-          drops[i] = 0;
-        }
-        drops[i]++;
-      }
-    };
-
-    const interval = setInterval(draw, 50);
-    return () => {
-      clearInterval(interval);
-      window.removeEventListener("resize", resize);
-    };
-  }, []);
-
-  return (
-    <canvas
-      ref={canvasRef}
-      style={{
-        position: "absolute",
-        inset: 0,
-        zIndex: 0,
-        opacity: 0.18,
-        pointerEvents: "none",
-      }}
-    />
-  );
-};
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -147,8 +77,6 @@ const Login = () => {
 
   return (
     <div className="relative min-h-screen overflow-hidden" style={{ background: "#000000" }}>
-      {/* Matrix Rain Canvas */}
-      <MatrixRain />
 
       {/* Radial vignette to improve card readability */}
       <div
