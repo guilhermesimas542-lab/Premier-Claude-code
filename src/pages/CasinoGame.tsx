@@ -388,31 +388,6 @@ const CasinoGame = () => {
         </div>
       </header>
 
-      {/* Info card */}
-      <div className="container max-w-lg mx-auto px-4 pt-4">
-        <div
-          className="rounded-xl p-4 flex items-center gap-3"
-          style={{ background: "rgba(0,20,0,0.6)", border: "1px solid rgba(0,255,0,0.2)" }}
-        >
-          <div className="shrink-0 w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: "rgba(0,255,0,0.08)", border: "1px solid rgba(0,255,0,0.25)" }}>
-            <IconComponent className="w-6 h-6" style={{ color: "#00FF00" }} />
-          </div>
-          <div className="flex-1 min-w-0">
-            <h2 className="text-sm font-bold text-white">{gameConfig.name}</h2>
-            <p className="text-xs text-gray-400">{gameConfig.subtitle}</p>
-          </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <div className="flex items-center gap-1 px-2 py-0.5 rounded-full" style={{ background: "rgba(0,0,0,0.65)", border: "1px solid rgba(255,140,0,0.7)", boxShadow: "0 0 6px rgba(255,140,0,0.4)" }}>
-              <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#FF8C00", boxShadow: "0 0 4px rgba(255,140,0,0.9)", display: "inline-block" }} />
-              <span className="text-[9px] font-bold tracking-wider" style={{ color: "#FF8C00" }}>BETA</span>
-            </div>
-            <div className="flex items-center gap-1 px-2 py-0.5 rounded-full" style={{ background: "rgba(0,0,0,0.65)", border: "1px solid rgba(168,85,247,0.7)", boxShadow: "0 0 6px rgba(168,85,247,0.4)" }}>
-              <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#A855F7", boxShadow: "0 0 4px rgba(168,85,247,0.9)", display: "inline-block" }} />
-              <span className="text-[9px] font-bold tracking-wider" style={{ color: "#A855F7" }}>IA ATIVADA</span>
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* Main Content */}
       <main className="container max-w-lg mx-auto px-4 py-6 space-y-6">
