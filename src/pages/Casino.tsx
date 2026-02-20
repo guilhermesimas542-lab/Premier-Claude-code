@@ -188,7 +188,7 @@ const Casino = () => {
 
                   {/* Conteúdo principal */}
                   <button
-                    onClick={() => { const url = getGameUrl(tile.slug); if (url) window.open(url, "_blank"); else navigate(`/cassino/jogo/${tile.slug}`); }}
+                    onClick={() => navigate(`/cassino/${tile.slug}`)}
                     className="w-full flex items-center gap-3 px-4 pb-4 pt-2 text-left"
                   >
                     {/* Ícone */}
