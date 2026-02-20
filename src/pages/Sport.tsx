@@ -91,12 +91,12 @@ function calculateDisplayStatus(
 ): "unlocked" | "locked" | "expired" {
   const now = new Date();
 
-  // Expiration check: prefer expires_at; fallback to starts_at + 10min
+  // Expiration check: prefer expires_at; fallback to starts_at + 1 hour
   if (entry.expires_at) {
     if (now > new Date(entry.expires_at)) return "expired";
   } else if (entry.starts_at) {
     const startsAt = new Date(entry.starts_at);
-    if (now > new Date(startsAt.getTime() + 10 * 60 * 1000)) return "expired";
+    if (now > new Date(startsAt.getTime() + 60 * 60 * 1000)) return "expired";
   }
 
   // Addon access
@@ -154,7 +154,6 @@ const Sport = () => {
   const mockUser = mockGetUser();
   
   const activeCarouselRef = useRef<HTMLDivElement>(null);
-  const expiredCarouselRef = useRef<HTMLDivElement>(null);
   const activeCardRefs = useRef<(HTMLDivElement | null)[]>([]);
   
   const pathname = window.location.pathname;
@@ -223,10 +222,10 @@ const Sport = () => {
           ...e,
           display_status: calculateDisplayStatus(e, allowedTiers, activeAddons),
         }))
-        // Sort: active first, expired last; within each group sort by fixed tier order
+        // Remove expired tips completely — they don't appear at all
+        .filter((e) => e.display_status !== "expired")
+        // Sort by fixed tier order: Grátis → Alavancagem → Odds Altas → Básico → Pro → Ultra
         .sort((a, b) => {
-          if (a.display_status === "expired" && b.display_status !== "expired") return 1;
-          if (a.display_status !== "expired" && b.display_status === "expired") return -1;
           const tierA = TIER_DISPLAY_ORDER[mapTierToDisplay(a.tier_required, a.addon_required)] ?? 99;
           const tierB = TIER_DISPLAY_ORDER[mapTierToDisplay(b.tier_required, b.addon_required)] ?? 99;
           return tierA - tierB;
@@ -241,9 +240,8 @@ const Sport = () => {
     }
   }, []);
 
-  // Derived data
-  const activeEntries = tips.filter(t => t.display_status !== "expired");
-  const expiredEntries = tips.filter(t => t.display_status === "expired");
+  // Derived data — expired tips are already removed; tips array contains only active ones
+  const activeEntries = tips;
 
   const tipsByTier = activeEntries.reduce((acc, entry) => {
     const tier = mapTierToDisplay(entry.tier_required, entry.addon_required);
@@ -546,22 +544,15 @@ const Sport = () => {
           </section>
         )}
 
-        {!isLoading && !error && expiredEntries.length > 0 && (
-          <section className="relative w-full mt-2">
-            <h2 className="text-lg font-bold text-muted-foreground mb-3 px-2">
-              ⏱️ Encerradas Hoje ({expiredEntries.length})
-            </h2>
-            <div ref={expiredCarouselRef} className="w-full overflow-x-auto snap-x snap-mandatory scroll-smooth px-6 md:px-8 select-none" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', cursor: 'grab' }}>
-              <div className="flex gap-4 md:gap-5 py-4" style={{ paddingTop: '18px' }}>
-                {expiredEntries.map((entry, index) => renderEntryCard(entry, index, true))}
-              </div>
-            </div>
-          </section>
-        )}
-
-        {!isLoading && !error && activeEntries.length === 0 && expiredEntries.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-20 gap-4">
-            <p className="text-muted-foreground text-lg">Nenhuma tip disponível hoje</p>
+        {!isLoading && !error && activeEntries.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-24 gap-3 text-center px-6">
+            <span className="text-6xl">🕐</span>
+            <p className="text-xl font-semibold" style={{ color: "rgba(255,255,255,0.85)" }}>
+              As entradas de hoje expiraram.
+            </p>
+            <p className="text-lg" style={{ color: "#00FF00" }}>
+              Amanhã teremos novas entradas!
+            </p>
           </div>
         )}
 
