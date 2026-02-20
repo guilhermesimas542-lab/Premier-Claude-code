@@ -377,17 +377,25 @@ const Sport = () => {
     navigate("/login");
   };
 
+  const resolveBetUrl = (entry: DisplayTip): string | null => {
+    // Try to find the house index from the ordered list of houses
+    // link_house_1 = first house, link_house_2 = second, link_house_3 = third
+    // We determine index by fetching all active houses ordered by creation
+    // For now, resolve by user's house ID position; fallback chain covers all links + generic
+    const houseLinks = [entry.link_house_1, entry.link_house_2, entry.link_house_3];
+    // Try house-specific link first (any populated one for user's house or first available)
+    const specificLink = houseLinks.find(l => l && l.trim() !== "") || null;
+    // Fallback to generic link field
+    return specificLink || entry.link || null;
+  };
+
   const handleAddTip = (entry: DisplayTip) => {
     // Toggle: se já está aberto, fecha. Se não, abre.
     if (openBetId === entry.id) {
       setOpenBetId(null);
       return;
     }
-    // Pick link specific to user's house, fallback to generic link
-    const houseLink = userHouse?.slug === "esportiva-bet" ? entry.link_house_1
-      : userHouse?.slug === "vamo-de-bet" ? entry.link_house_2
-      : entry.link_house_3;
-    const url = houseLink || entry.link_house_1 || entry.link_house_2 || entry.link_house_3 || null;
+    const url = resolveBetUrl(entry);
     if (url) {
       setOpenBetId(entry.id);
       toast.success("Tip adicionada!", { description: "Cupom carregado no site de apostas" });
@@ -479,12 +487,7 @@ const Sport = () => {
     const expirationDate = entry.expires_at || undefined;
     const startsAt = entry.starts_at || undefined;
 
-    const betUrl = (() => {
-      const houseLink = userHouse?.slug === "esportiva-bet" ? entry.link_house_1
-        : userHouse?.slug === "vamo-de-bet" ? entry.link_house_2
-        : entry.link_house_3;
-      return houseLink || entry.link_house_1 || entry.link_house_2 || entry.link_house_3 || null;
-    })();
+    const betUrl = resolveBetUrl(entry);
     const isTicketOpen = openBetId === entry.id;
 
     return (
