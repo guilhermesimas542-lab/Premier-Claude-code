@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { HelpCircle, Info, Link2, Clock, Layers, BarChart3, Lock } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { ShirtIcon } from "./ShirtIcon";
+import { useMatrixCanvas } from "@/hooks/useMatrixCanvas";
 
 export interface ShirtConfig {
   variant: "solid" | "stripes";
@@ -184,6 +185,7 @@ export const PremiumBettingCard = ({
   const [isExpiredLocal, setIsExpiredLocal] = useState(false);
   const marketHelpRef = useRef<HTMLDivElement>(null);
   const betHelpRef = useRef<HTMLDivElement>(null);
+  const matrixCanvasRef = useMatrixCanvas();
 
   // Get display tier (never MÚLTIPLA)
   const displayTier = getDisplayTier(tier);
@@ -271,6 +273,13 @@ export const PremiumBettingCard = ({
         style={{
           backgroundImage: `url('/images/futsal-arena.jpg')`,
         }}
+      />
+
+      {/* Matrix Rain overlay inside card */}
+      <canvas
+        ref={matrixCanvasRef}
+        className="absolute inset-0 rounded-xl"
+        style={{ zIndex: 1, opacity: 0.18, pointerEvents: "none" }}
       />
       
       {/* Dark Overlay for readability */}
