@@ -159,6 +159,13 @@ const Sport = () => {
   const [tips, setTips] = useState<DisplayTip[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Tick every second so expired tips disappear in real-time
+  const [tick, setTick] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setTick(t => t + 1), 1000);
+    return () => clearInterval(id);
+  }, []);
+
   // Countdown to midnight
   const getTimeUntilMidnight = () => {
     const now = new Date();
@@ -271,8 +278,16 @@ const Sport = () => {
     }
   }, []);
 
-  // Derived data — expired tips are already removed; tips array contains only active ones
-  const activeEntries = tips;
+  // Derived data — re-filter on every tick so expired tips disappear in real-time
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const activeEntries = tips.filter(entry => {
+    const now = new Date();
+    if (entry.expires_at) return now <= new Date(entry.expires_at);
+    if (entry.starts_at) return now <= new Date(new Date(entry.starts_at).getTime() + 60 * 60 * 1000);
+    return true;
+  });
+  // tick is referenced to force re-evaluation every second
+  void tick;
 
   const tipsByTier = activeEntries.reduce((acc, entry) => {
     const tier = mapTierToDisplay(entry.tier_required, entry.addon_required);
