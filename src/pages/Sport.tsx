@@ -154,6 +154,8 @@ const Sport = () => {
   const [upgradePopupImage, setUpgradePopupImage] = useState<string | null>(null);
   const [upgradePopupLink, setUpgradePopupLink] = useState<string | null>(null);
 
+  const [openBetId, setOpenBetId] = useState<string | null>(null);
+
   const [tips, setTips] = useState<DisplayTip[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -376,13 +378,22 @@ const Sport = () => {
   };
 
   const handleAddTip = (entry: DisplayTip) => {
+    // Toggle: se já está aberto, fecha. Se não, abre.
+    if (openBetId === entry.id) {
+      setOpenBetId(null);
+      return;
+    }
     // Pick link specific to user's house, fallback to generic link
     const houseLink = userHouse?.slug === "esportiva-bet" ? entry.link_house_1
       : userHouse?.slug === "vamo-de-bet" ? entry.link_house_2
       : entry.link_house_3;
     const url = houseLink || entry.link_house_1 || entry.link_house_2 || entry.link_house_3 || null;
-    if (url) setIframeUrl(url);
-    toast.success("Tip adicionada!", { description: "Cupom carregado no site de apostas" });
+    if (url) {
+      setOpenBetId(entry.id);
+      toast.success("Tip adicionada!", { description: "Cupom carregado no site de apostas" });
+    } else {
+      toast.info("Nenhum link de bilhete configurado para esta tip.");
+    }
   };
 
 
@@ -468,51 +479,91 @@ const Sport = () => {
     const expirationDate = entry.expires_at || undefined;
     const startsAt = entry.starts_at || undefined;
 
+    const betUrl = (() => {
+      const houseLink = userHouse?.slug === "esportiva-bet" ? entry.link_house_1
+        : userHouse?.slug === "vamo-de-bet" ? entry.link_house_2
+        : entry.link_house_3;
+      return houseLink || entry.link_house_1 || entry.link_house_2 || entry.link_house_3 || null;
+    })();
+    const isTicketOpen = openBetId === entry.id;
+
     return (
-      <div 
+      <div
         key={entry.id}
         ref={isExpiredSection ? undefined : (el) => { activeCardRefs.current[index] = el; }}
         className={`flex-shrink-0 snap-center ${isLocked ? "cursor-pointer" : ""} ${isExpired ? "pointer-events-none" : ""}`}
-        style={{ width: 'min(420px, 92vw)', height: 'calc(min(420px, 92vw) * 213 / 332)', minWidth: '280px', overflow: 'visible' }}
+        style={{ width: 'min(420px, 92vw)', minWidth: '280px', overflow: 'visible' }}
         onClick={isLocked ? () => handleLockedClick(entry) : undefined}
       >
-        {isSpecial ? (
-          <SpecialBettingCard
-            tipId={0}
-            type={entry.addon_required === "alavancagem" ? "ALAVANCAGEM" : "ODDS_ALTAS"}
-            market={market}
-            betChoice={betChoice}
-            odds={entry.odd || 0}
-            matchDate={matchDate}
-            startsAt={startsAt}
-            expirationDate={expirationDate}
-            isLocked={isLocked}
-            lockedLabel={lockedLabel}
-            isExpired={isExpired}
-            justificativa={entry.justification || undefined}
-            onAddTip={() => handleAddTip(entry)}
-            onOpenJustificativa={handleOpenJustificativa}
-          />
-        ) : (
-          <PremiumBettingCard
-            tipId={0}
-            tier={displayTier as "BÁSICO" | "PRO" | "GRÁTIS" | "MÚLTIPLA" | "ULTRA"}
-            team1={team1}
-            team2={team2}
-            market={market}
-            betChoice={betChoice}
-            odds={entry.odd || 0}
-            matchDate={matchDate}
-            startsAt={startsAt}
-            expirationDate={expirationDate}
-            selectionsCount={displayTier === "ULTRA" ? 3 : undefined}
-            justificativa={entry.justification || undefined}
-            isLocked={isLocked}
-            lockedLabel={lockedLabel}
-            isExpired={isExpired}
-            onAddTip={() => handleAddTip(entry)}
-            onOpenJustificativa={handleOpenJustificativa}
-          />
+        <div style={{ height: 'calc(min(420px, 92vw) * 213 / 332)' }}>
+          {isSpecial ? (
+            <SpecialBettingCard
+              tipId={0}
+              type={entry.addon_required === "alavancagem" ? "ALAVANCAGEM" : "ODDS_ALTAS"}
+              market={market}
+              betChoice={betChoice}
+              odds={entry.odd || 0}
+              matchDate={matchDate}
+              startsAt={startsAt}
+              expirationDate={expirationDate}
+              isLocked={isLocked}
+              lockedLabel={lockedLabel}
+              isExpired={isExpired}
+              justificativa={entry.justification || undefined}
+              onAddTip={() => handleAddTip(entry)}
+              onOpenJustificativa={handleOpenJustificativa}
+            />
+          ) : (
+            <PremiumBettingCard
+              tipId={0}
+              tier={displayTier as "BÁSICO" | "PRO" | "GRÁTIS" | "MÚLTIPLA" | "ULTRA"}
+              team1={team1}
+              team2={team2}
+              market={market}
+              betChoice={betChoice}
+              odds={entry.odd || 0}
+              matchDate={matchDate}
+              startsAt={startsAt}
+              expirationDate={expirationDate}
+              selectionsCount={displayTier === "ULTRA" ? 3 : undefined}
+              justificativa={entry.justification || undefined}
+              isLocked={isLocked}
+              lockedLabel={lockedLabel}
+              isExpired={isExpired}
+              onAddTip={() => handleAddTip(entry)}
+              onOpenJustificativa={handleOpenJustificativa}
+            />
+          )}
+        </div>
+
+        {/* Iframe do bilhete — aparece abaixo do card */}
+        {isTicketOpen && betUrl && (
+          <div
+            className="mt-3 rounded-xl overflow-hidden"
+            style={{ border: "1.5px solid rgba(0,255,0,0.35)", boxShadow: "0 0 20px rgba(0,255,0,0.12)", background: "rgba(0,10,0,0.5)" }}
+          >
+            {/* Header do bilhete */}
+            <div className="flex items-center justify-between px-3 py-2" style={{ borderBottom: "1px solid rgba(0,255,0,0.15)" }}>
+              <span className="text-xs font-bold" style={{ color: "#00FF00" }}>📋 Bilhete de Aposta</span>
+              <button
+                onClick={(e) => { e.stopPropagation(); setOpenBetId(null); }}
+                className="text-xs px-2 py-0.5 rounded-full transition-colors"
+                style={{ color: "#FF4444", border: "1px solid rgba(255,68,68,0.3)", background: "rgba(255,68,68,0.08)" }}
+              >
+                Fechar ✕
+              </button>
+            </div>
+            <div style={{ height: "60vh" }}>
+              <iframe
+                key={entry.id}
+                src={betUrl}
+                title={`Bilhete - ${entry.title}`}
+                className="w-full h-full"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture payment"
+                sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+              />
+            </div>
+          </div>
         )}
       </div>
     );
