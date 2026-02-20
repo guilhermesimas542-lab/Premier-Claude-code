@@ -106,6 +106,16 @@ function calculateDisplayStatus(
   return "locked";
 }
 
+const TIER_DISPLAY_ORDER: Record<TierType, number> = {
+  "GRÁTIS": 0,
+  "ALAVANCAGEM": 1,
+  "ODDS_ALTAS": 2,
+  "BÁSICO": 3,
+  "PRO": 4,
+  "ULTRA": 5,
+  "MÚLTIPLA": 6,
+};
+
 const TIER_TABS: { tier: TierType; label: string; labelShort: string }[] = [
   { tier: "GRÁTIS", label: "Grátis", labelShort: "Grátis" },
   { tier: "ALAVANCAGEM", label: "Alavancagem", labelShort: "Alav." },
@@ -213,11 +223,13 @@ const Sport = () => {
           ...e,
           display_status: calculateDisplayStatus(e, allowedTiers, activeAddons),
         }))
-        // Sort: active first, expired last
+        // Sort: active first, expired last; within each group sort by fixed tier order
         .sort((a, b) => {
           if (a.display_status === "expired" && b.display_status !== "expired") return 1;
           if (a.display_status !== "expired" && b.display_status === "expired") return -1;
-          return 0;
+          const tierA = TIER_DISPLAY_ORDER[mapTierToDisplay(a.tier_required, a.addon_required)] ?? 99;
+          const tierB = TIER_DISPLAY_ORDER[mapTierToDisplay(b.tier_required, b.addon_required)] ?? 99;
+          return tierA - tierB;
         });
 
       setTips(processed);
