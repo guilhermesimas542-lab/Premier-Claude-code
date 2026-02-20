@@ -46,12 +46,13 @@ export default function AdminTipsList() {
     if (filters.dateTo) q = q.lte("date", filters.dateTo);
     if (filters.team) q = q.or(`team1_name.ilike.%${filters.team}%,team2_name.ilike.%${filters.team}%`);
 
-    // Filter by selected house — only show tips that have a link for the house
+    // Filter by selected house — show tips that have a link for the house OR have NO links at all (backward compat)
     if (selectedHouseId) {
       const houseIdx = houses.findIndex((h) => h.id === selectedHouseId);
       if (houseIdx >= 0 && houseIdx < HOUSE_LINK_COLS.length) {
         const col = HOUSE_LINK_COLS[houseIdx];
-        q = (q as any).not(col, "is", null);
+        // Show tips that have the house link OR tips that have NO house links at all (legacy tips)
+        q = (q as any).or(`${col}.not.is.null,and(link_house_1.is.null,link_house_2.is.null,link_house_3.is.null)`);
       }
     }
 
