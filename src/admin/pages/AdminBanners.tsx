@@ -190,8 +190,8 @@ export default function AdminBanners() {
   };
 
   const handleSave = async () => {
-    if (!form.tag || !form.title || !form.subtitle || !form.button_text || !form.button_link) {
-      toast.error("Preencha todos os campos obrigatórios");
+    if (!form.button_link) {
+      toast.error("Preencha o link do botão");
       return;
     }
     setSaving(true);
@@ -199,10 +199,10 @@ export default function AdminBanners() {
     const payload: Record<string, unknown> = {
       context: form.context || ctx,
       image_url: form.image_url || "",
-      tag: form.tag!,
-      title: form.title!,
-      subtitle: form.subtitle!,
-      button_text: form.button_text || null,
+      tag: "",
+      title: "",
+      subtitle: "",
+      button_text: form.button_text || "Acesse aqui",
       button_link: form.button_link || null,
       status: form.status ?? "active",
       display_order: (form as Banner).id ? form.display_order ?? 0 : nextOrder,
@@ -233,9 +233,9 @@ export default function AdminBanners() {
     const payload = {
       context: b.context,
       image_url: b.image_url,
-      tag: b.tag,
-      title: (b.title + " (cópia)").slice(0, 60),
-      subtitle: b.subtitle,
+      tag: "",
+      title: "",
+      subtitle: "",
       button_text: b.button_text,
       button_link: b.button_link,
       status: "inactive" as const,
@@ -246,7 +246,7 @@ export default function AdminBanners() {
     };
     const { error } = await supabase.from("content_banners").insert(payload as any);
     if (error) { toast.error(error.message); return; }
-    toast.success("Banner duplicado com sucesso! Ele está na aba Inativos.");
+    toast.success("Banner duplicado! Está na aba Inativos.");
     load();
   };
 
@@ -307,7 +307,6 @@ export default function AdminBanners() {
       dragOverItem.current = null;
       return;
     }
-    // Reorder active items
     const activeList = allItems.filter((b) => b.status === "active");
     const reordered = [...activeList];
     const [removed] = reordered.splice(dragItem.current, 1);
@@ -315,7 +314,6 @@ export default function AdminBanners() {
     dragItem.current = null;
     dragOverItem.current = null;
 
-    // Optimistic update
     const updatedAll = allItems.map((b) => {
       if (b.status !== "active") return b;
       const newIdx = reordered.findIndex((r) => r.id === b.id);
@@ -323,7 +321,6 @@ export default function AdminBanners() {
     });
     setAllItems(updatedAll);
 
-    // Save to DB
     const updates = reordered.map((b, i) =>
       supabase.from("content_banners").update({ display_order: i + 1 }).eq("id", b.id)
     );
@@ -360,7 +357,6 @@ export default function AdminBanners() {
 
   const renderTable = (list: Banner[], tabStatus: BannerStatus) => {
     const isActiveTab = tabStatus === "active";
-    // For drag-and-drop we need the unfiltered active list order
     const activeListForDrag = isActiveTab ? allItems.filter((b) => b.status === "active") : [];
 
     return (
@@ -370,8 +366,7 @@ export default function AdminBanners() {
             <tr className="border-b border-white/10 text-left text-gray-500">
               {isActiveTab && viewAs === "admin" && <th className="px-1 py-2 w-8"></th>}
               <th className="px-3 py-2">Preview</th>
-              <th className="px-3 py-2">Título</th>
-              <th className="px-3 py-2">Tag</th>
+              <th className="px-3 py-2">Botão</th>
               <th className="px-3 py-2">Público</th>
               {isActiveTab && <th className="px-3 py-2">Programado</th>}
               <th className="px-3 py-2 text-center">Impressões</th>
@@ -402,11 +397,17 @@ export default function AdminBanners() {
                     {b.image_url ? (
                       <img src={b.image_url} alt="" className="w-20 h-11 object-cover rounded-md border border-white/10" />
                     ) : (
-                      <div className="w-20 h-11 rounded-md bg-gradient-to-br from-purple-700 to-purple-900 border border-white/10" />
+                      <div className="w-20 h-11 rounded-md bg-gradient-to-br from-green-900 to-green-950 border border-white/10 flex items-center justify-center">
+                        <span className="text-[10px] text-gray-500">Sem imagem</span>
+                      </div>
                     )}
                   </td>
-                  <td className="px-3 py-2 max-w-[160px] truncate">{b.title}</td>
-                  <td className="px-3 py-2"><span className="px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 text-xs">{b.tag}</span></td>
+                  <td className="px-3 py-2 max-w-[160px]">
+                    <div className="flex flex-col gap-0.5">
+                      {b.button_text && <span className="text-xs text-white truncate">{b.button_text}</span>}
+                      {b.button_link && <span className="text-[10px] text-gray-500 truncate">{b.button_link}</span>}
+                    </div>
+                  </td>
                   <td className="px-3 py-2"><span className="text-xs text-gray-400">{audienceLabel(b.target_audience)}</span></td>
                   {isActiveTab && <td className="px-3 py-2">{renderScheduleInfo(b)}</td>}
                   <td className="px-3 py-2 text-center">{analytics[b.id]?.impressions ?? 0}</td>
@@ -417,7 +418,6 @@ export default function AdminBanners() {
                       {tabStatus !== "deleted" && (
                         <button onClick={() => openEdit(b)} className="text-blue-400 hover:text-blue-300" title="Editar"><Pencil className="w-4 h-4" /></button>
                       )}
-                      {/* Duplicate - available on all tabs */}
                       <button onClick={() => duplicateBanner(b)} className="text-cyan-400 hover:text-cyan-300" title="Duplicar"><Copy className="w-4 h-4" /></button>
                       {tabStatus === "active" && (
                         <button onClick={() => setConfirmAction({ title: "Desativar banner?", description: "Ele não aparecerá mais no carrossel.", onConfirm: () => { changeStatus(b.id, "inactive"); setConfirmAction(null); } })} className="text-yellow-400 hover:text-yellow-300" title="Desativar"><Pause className="w-4 h-4" /></button>
@@ -431,7 +431,7 @@ export default function AdminBanners() {
                       {tabStatus === "deleted" && (
                         <>
                           <button onClick={() => setConfirmAction({ title: "Restaurar banner?", description: "Ele voltará para a aba Inativos.", onConfirm: () => { changeStatus(b.id, "inactive"); setConfirmAction(null); } })} className="text-blue-400 hover:text-blue-300" title="Restaurar"><RotateCcw className="w-4 h-4" /></button>
-                          <button onClick={() => setConfirmAction({ title: "Excluir permanentemente?", description: "Esta ação é irreversível. O banner será apagado permanentemente.", onConfirm: () => { permanentDelete(b); setConfirmAction(null); } })} className="text-red-500 hover:text-red-400" title="Excluir permanentemente"><Trash2 className="w-4 h-4" /></button>
+                          <button onClick={() => setConfirmAction({ title: "Excluir permanentemente?", description: "Esta ação é irreversível.", onConfirm: () => { permanentDelete(b); setConfirmAction(null); } })} className="text-red-500 hover:text-red-400" title="Excluir permanentemente"><Trash2 className="w-4 h-4" /></button>
                         </>
                       )}
                     </div>
@@ -440,7 +440,7 @@ export default function AdminBanners() {
               );
             })}
             {list.length === 0 && (
-              <tr><td colSpan={isActiveTab ? (viewAs === "admin" ? 11 : 10) : (viewAs === "admin" ? 9 : 9)} className="px-4 py-6 text-center text-gray-600">Nenhum banner</td></tr>
+              <tr><td colSpan={9} className="px-4 py-6 text-center text-gray-600">Nenhum banner</td></tr>
             )}
           </tbody>
         </table>
@@ -455,7 +455,6 @@ export default function AdminBanners() {
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold">Banners — {ctx === "futebol" ? "Futebol" : "Cassino"}</h2>
         <div className="flex items-center gap-3">
-          {/* Limit semaphore */}
           <button
             onClick={() => setLimitModalOpen(true)}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
@@ -553,7 +552,7 @@ export default function AdminBanners() {
 
       {/* Form Dialog */}
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{(form as Banner).id ? "Editar" : "Novo"} Banner</DialogTitle></DialogHeader>
 
           {(form as Banner).id && editAnalytics && (
@@ -583,7 +582,7 @@ export default function AdminBanners() {
                     const h = Math.max((d.count / max) * 100, 4);
                     return (
                       <div key={d.date} className="flex-1 flex flex-col items-center gap-0.5">
-                        <div className="w-full rounded-sm bg-purple-500/60" style={{ height: `${h}%` }} title={`${d.date}: ${d.count}`} />
+                        <div className="w-full rounded-sm bg-green-500/60" style={{ height: `${h}%` }} title={`${d.date}: ${d.count}`} />
                         <span className="text-[9px] text-gray-600">{d.date}</span>
                       </div>
                     );
@@ -594,7 +593,7 @@ export default function AdminBanners() {
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-3">
+            <div className="space-y-4">
               <div>
                 <Label className="text-gray-400 text-xs">Contexto</Label>
                 <Select value={form.context || ctx} onValueChange={(v) => setForm({ ...form, context: v })}>
@@ -622,13 +621,13 @@ export default function AdminBanners() {
                 <Label className="text-gray-400 text-xs">Imagem de Fundo</Label>
                 <div className="flex items-center gap-1.5 mb-1.5 mt-0.5 px-2.5 py-1.5 rounded-lg text-[11px]" style={{ background: "rgba(234,179,8,0.08)", border: "1px solid rgba(234,179,8,0.25)", color: "#ca8a04" }}>
                   <span>📐</span>
-                  <span><strong>Mobile:</strong> 1080 × 200px &nbsp;•&nbsp; <strong>Desktop:</strong> 1920 × 400px &nbsp;•&nbsp; Proporção recomendada: 16:9 ou 5.4:1</span>
+                  <span><strong>Mobile:</strong> 1080 × 200px &nbsp;•&nbsp; <strong>Desktop:</strong> 1920 × 400px</span>
                 </div>
                 <div className="flex gap-2 items-center">
                   <Input placeholder="URL da imagem" value={form.image_url ?? ""} onChange={(e) => setForm({ ...form, image_url: e.target.value })} className="bg-gray-800 border-gray-700 flex-1" />
                   <label className="cursor-pointer shrink-0">
                     <input type="file" accept="image/*" className="hidden" onChange={(e) => { if (e.target.files?.[0]) handleUpload(e.target.files[0]); }} />
-                    <span className="inline-flex items-center gap-1 px-3 py-2 rounded-md bg-purple-600 hover:bg-purple-500 text-sm text-white transition-colors">
+                    <span className="inline-flex items-center gap-1 px-3 py-2 rounded-md bg-green-700 hover:bg-green-600 text-sm text-white transition-colors">
                       {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
                     </span>
                   </label>
@@ -642,23 +641,12 @@ export default function AdminBanners() {
               </div>
 
               <div>
-                <Label className="text-gray-400 text-xs">Tag / Glass (máx 30)</Label>
-                <Input placeholder="PREMIER ULTRA" maxLength={30} value={form.tag ?? ""} onChange={(e) => setForm({ ...form, tag: e.target.value })} className="bg-gray-800 border-gray-700" />
-              </div>
-              <div>
-                <Label className="text-gray-400 text-xs">Título (máx 60)</Label>
-                <Input placeholder="Desbloqueie Alavancagem" maxLength={60} value={form.title ?? ""} onChange={(e) => setForm({ ...form, title: e.target.value })} className="bg-gray-800 border-gray-700" />
-              </div>
-              <div>
-                <Label className="text-gray-400 text-xs">Subtítulo (máx 100)</Label>
-                <Input placeholder="Sequências estratégicas de entradas" maxLength={100} value={form.subtitle ?? ""} onChange={(e) => setForm({ ...form, subtitle: e.target.value })} className="bg-gray-800 border-gray-700" />
-              </div>
-              <div>
                 <Label className="text-gray-400 text-xs">Texto do Botão (máx 25)</Label>
                 <Input placeholder="Acesse aqui" maxLength={25} value={form.button_text ?? ""} onChange={(e) => setForm({ ...form, button_text: e.target.value })} className="bg-gray-800 border-gray-700" />
               </div>
+
               <div>
-                <Label className="text-gray-400 text-xs">Link do Botão</Label>
+                <Label className="text-gray-400 text-xs">Link do Botão <span className="text-red-400">*</span></Label>
                 <Input placeholder="https://... ou /rota" value={form.button_link ?? ""} onChange={(e) => setForm({ ...form, button_link: e.target.value })} className="bg-gray-800 border-gray-700" />
               </div>
 
@@ -668,16 +656,16 @@ export default function AdminBanners() {
                   <Label className="text-gray-300 text-sm cursor-pointer" onClick={() => setScheduleEnabled(!scheduleEnabled)}>Programar publicação</Label>
                 </div>
                 {!scheduleEnabled && (form as Banner).id && form.starts_at && (
-                  <p className="text-xs text-gray-500">Publicado imediatamente em {format(new Date((form as Banner).created_at || form.starts_at!), "dd/MM/yyyy HH:mm")}</p>
+                  <p className="text-xs text-gray-500">Publicado em {format(new Date((form as Banner).created_at || form.starts_at!), "dd/MM/yyyy HH:mm")}</p>
                 )}
                 {scheduleEnabled && (
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <Label className="text-gray-400 text-xs">Programar Início (Brasília)</Label>
+                      <Label className="text-gray-400 text-xs">Início (Brasília)</Label>
                       <Input type="datetime-local" value={form.starts_at ?? ""} onChange={(e) => setForm({ ...form, starts_at: e.target.value })} className="bg-gray-800 border-gray-700" />
                     </div>
                     <div>
-                      <Label className="text-gray-400 text-xs">Programar Fim (opcional)</Label>
+                      <Label className="text-gray-400 text-xs">Fim (opcional)</Label>
                       <Input type="datetime-local" value={form.ends_at ?? ""} onChange={(e) => setForm({ ...form, ends_at: e.target.value })} className="bg-gray-800 border-gray-700" />
                     </div>
                   </div>
@@ -685,38 +673,36 @@ export default function AdminBanners() {
               </div>
 
               <Button onClick={handleSave} disabled={saving} className="w-full">
-                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Salvar"}
+                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Salvar Banner"}
               </Button>
             </div>
 
             {/* Right: Live preview */}
             <div>
               <Label className="text-gray-400 text-xs mb-2 block">Preview</Label>
-              <div className="relative overflow-hidden rounded-xl border border-purple-500/30 shadow-lg shadow-purple-900/30 aspect-video">
+              <div
+                className="relative overflow-hidden rounded-xl border aspect-video"
+                style={{ borderColor: "rgba(0,255,0,0.2)", boxShadow: "0 0 20px rgba(0,255,0,0.06)" }}
+              >
                 {form.image_url ? (
                   <img src={form.image_url} alt="" className="absolute inset-0 w-full h-full object-cover" />
                 ) : (
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#1A0D2E] via-[#2D1B4E] to-[#0D0A1A]" />
+                  <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, #001400, #002800)" }} />
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
-                <div className="absolute top-0 left-1/4 w-40 h-40 bg-purple-500/30 rounded-full blur-[80px] pointer-events-none" />
-
-                <div className="relative h-full flex flex-col justify-end p-4">
-                  {form.tag && (
-                    <span className="inline-flex w-fit items-center gap-1 px-2 py-1 mb-2 rounded-full bg-purple-500/20 border border-purple-400/30 text-purple-200 text-[10px] font-medium uppercase tracking-wider backdrop-blur-sm">
-                      {form.tag}
-                    </span>
-                  )}
-                  <h3 className="text-lg font-bold text-white leading-tight mb-1">{form.title || "Título"}</h3>
-                  <p className="text-xs text-purple-200/70 mb-2">{form.subtitle || "Subtítulo"}</p>
+                <div className="absolute inset-0 bg-black/40" />
+                <div className="absolute inset-0 flex items-center justify-center">
                   {form.button_text && (
-                    <span className="inline-flex items-center gap-1 w-fit px-3 py-1.5 rounded-lg bg-purple-600 text-white text-xs font-semibold">
+                    <span
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold"
+                      style={{ background: "#003300", border: "1px solid rgba(0,255,0,0.6)", color: "#00FF00", boxShadow: "0 0 12px rgba(0,255,0,0.2)" }}
+                    >
                       {form.button_text}
-                      <ChevronRight className="w-3 h-3" />
+                      <ChevronRight className="w-3.5 h-3.5" />
                     </span>
                   )}
                 </div>
               </div>
+              <p className="text-[11px] text-gray-500 mt-2 text-center">A imagem será exibida com apenas o botão centralizado</p>
             </div>
           </div>
         </DialogContent>

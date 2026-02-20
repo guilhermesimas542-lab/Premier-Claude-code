@@ -187,23 +187,13 @@ export const PromoCarousel = ({ context = "futebol" }: PromoCarouselProps) => {
                   <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, #001400, #002800)" }} />
                 )}
 
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-transparent" />
+                <div className="absolute inset-0 bg-black/40" />
 
-                <div className="relative h-full flex flex-col justify-end px-4 sm:px-8 py-3 sm:py-6">
-                  {b.tag && (
-                    <span className="inline-flex w-fit items-center gap-1.5 px-2.5 py-1 mb-2 rounded-full text-[11px] font-medium uppercase tracking-wider"
-                      style={{ background: "rgba(0,255,0,0.15)", border: "1px solid rgba(0,255,0,0.3)", color: "#00DD00" }}>
-                      {b.tag}
-                    </span>
-                  )}
-                  <h3 className="text-base sm:text-2xl font-bold text-white mb-0.5 sm:mb-1.5">
-                    {b.title}
-                  </h3>
-                  <p className="text-xs sm:text-sm mb-2 sm:mb-4" style={{ color: "rgba(0,255,0,0.6)" }}>{b.subtitle}</p>
+                <div className="absolute inset-0 flex items-center justify-center">
                   {b.button_text && (
                     <button
-                      className="inline-flex items-center gap-1.5 w-fit px-3 sm:px-5 py-1.5 sm:py-2.5 rounded-lg text-xs sm:text-sm font-semibold transition-all"
-                      style={{ background: "#003300", border: "1px solid rgba(0,255,0,0.6)", color: "#00FF00", boxShadow: "0 0 12px rgba(0,255,0,0.2)" }}
+                      className="inline-flex items-center gap-1.5 px-4 sm:px-6 py-2 sm:py-3 rounded-lg text-xs sm:text-sm font-semibold transition-all hover:scale-105"
+                      style={{ background: "#003300", border: "1px solid rgba(0,255,0,0.6)", color: "#00FF00", boxShadow: "0 0 16px rgba(0,255,0,0.25)" }}
                     >
                       {b.button_text}
                       <ChevronRight className="w-3.5 h-3.5" />
