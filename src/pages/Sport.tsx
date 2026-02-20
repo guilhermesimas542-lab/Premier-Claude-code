@@ -149,6 +149,28 @@ const Sport = () => {
 
   const [tips, setTips] = useState<DisplayTip[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Countdown to midnight
+  const getTimeUntilMidnight = () => {
+    const now = new Date();
+    const tomorrow = new Date(now);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
+    const diff = tomorrow.getTime() - now.getTime();
+    return {
+      hours: Math.floor(diff / (1000 * 60 * 60)),
+      minutes: Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)),
+      seconds: Math.floor((diff % (1000 * 60)) / 1000),
+    };
+  };
+  const [timeLeft, setTimeLeft] = useState(getTimeUntilMidnight);
+  useEffect(() => {
+    const interval = setInterval(() => setTimeLeft(getTimeUntilMidnight()), 1000);
+    return () => clearInterval(interval);
+  }, []);
+  const timerString = [timeLeft.hours, timeLeft.minutes, timeLeft.seconds]
+    .map((v) => String(v).padStart(2, "0"))
+    .join(":");
   const [error, setError] = useState<string | null>(null);
   const hasLifetimeAccess = true;
   const mockUser = mockGetUser();
@@ -553,6 +575,15 @@ const Sport = () => {
             <p className="text-lg" style={{ color: "#00FF00" }}>
               Amanhã teremos novas entradas!
             </p>
+            <div className="mt-4 flex flex-col items-center gap-1">
+              <p className="text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>Próximas entradas em</p>
+              <span
+                className="text-4xl font-mono font-bold tabular-nums"
+                style={{ color: "#00FF00", textShadow: "0 0 18px rgba(0,255,0,0.5)" }}
+              >
+                {timerString}
+              </span>
+            </div>
           </div>
         )}
 
