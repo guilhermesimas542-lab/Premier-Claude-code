@@ -21,15 +21,15 @@ const AnimatedFootballIcon = () => {
             transform: translateX(16px) rotate(200deg) scale(1);
             opacity: 1;
           }
-          68% {
+          65% {
             transform: translateX(22px) rotate(240deg) scale(0.5);
             opacity: 0;
           }
-          69% {
+          66% {
             transform: translateX(-14px) rotate(0deg) scale(1);
             opacity: 0;
           }
-          85% {
+          83% {
             transform: translateX(-14px) rotate(0deg) scale(1);
             opacity: 0;
           }
@@ -40,22 +40,22 @@ const AnimatedFootballIcon = () => {
         }
 
         @keyframes goal-pop {
-          0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.2); }
-          68%  { opacity: 0; transform: translate(-50%, -50%) scale(0.2); }
-          72%  { opacity: 1; transform: translate(-50%, -50%) scale(1.3); }
-          77%  { opacity: 1; transform: translate(-50%, -50%) scale(0.95); }
-          80%  { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
-          85%  { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-          93%  { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-          99%  { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
-          100% { opacity: 0; transform: translate(-50%, -50%) scale(0.2); }
+          0%   { opacity: 0; transform: scale(0.2); }
+          65%  { opacity: 0; transform: scale(0.2); }
+          70%  { opacity: 1; transform: scale(1.25); }
+          74%  { opacity: 1; transform: scale(0.92); }
+          78%  { opacity: 1; transform: scale(1.08); }
+          82%  { opacity: 1; transform: scale(1); }
+          88%  { opacity: 1; transform: scale(1); }
+          96%  { opacity: 0; transform: scale(0.8); }
+          100% { opacity: 0; transform: scale(0.2); }
         }
 
         @keyframes swoosh-kick {
           0%   { width: 0; opacity: 0; }
           20%  { width: 0; opacity: 0; }
           55%  { width: 20px; opacity: 0.5; }
-          68%  { width: 0; opacity: 0; }
+          65%  { width: 0; opacity: 0; }
           100% { width: 0; opacity: 0; }
         }
       `}</style>
@@ -70,7 +70,7 @@ const AnimatedFootballIcon = () => {
           borderRadius: 4,
           background: "linear-gradient(90deg, transparent, rgba(0,255,80,0.7))",
           transform: "translateY(-50%)",
-          animation: "swoosh-kick 2s ease-in-out infinite",
+          animation: "swoosh-kick 3s ease-in-out infinite",
           pointerEvents: "none",
         }}
       />
@@ -82,7 +82,7 @@ const AnimatedFootballIcon = () => {
           left: "50%",
           top: "50%",
           transform: "translate(-50%, -50%)",
-          animation: "ball-kick 2s ease-in-out infinite",
+          animation: "ball-kick 3s ease-in-out infinite",
         }}
       >
         <svg
@@ -123,7 +123,8 @@ const AnimatedFootballIcon = () => {
           position: "absolute",
           left: "50%",
           top: "50%",
-          animation: "goal-pop 2s ease-out infinite",
+          transform: "translate(-50%, -50%)",
+          animation: "goal-pop 3s ease-out infinite",
           pointerEvents: "none",
           zIndex: 10,
           whiteSpace: "nowrap",
