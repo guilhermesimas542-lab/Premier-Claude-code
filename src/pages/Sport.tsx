@@ -4,7 +4,6 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { PremiumBettingCard } from "@/components/PremiumBettingCard";
 import { SpecialBettingCard } from "@/components/SpecialBettingCard";
 import { JustificativaModal } from "@/components/JustificativaModal";
-import { LockedTipModal } from "@/components/LockedTipModal";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { isAuthenticated, clearAuth } from "@/lib/auth";
@@ -151,10 +150,9 @@ const Sport = () => {
   const [justificativaModalOpen, setJustificativaModalOpen] = useState(false);
   const [justificativaTexto, setJustificativaTexto] = useState("");
   
-  const [lockedModalOpen, setLockedModalOpen] = useState(false);
-  const [lockedTierLabel, setLockedTierLabel] = useState("");
-  const [lockedTierRequired, setLockedTierRequired] = useState("");
-  const [lockedAddonRequired, setLockedAddonRequired] = useState<string | null>(null);
+  const [upgradePopupOpen, setUpgradePopupOpen] = useState(false);
+  const [upgradePopupImage, setUpgradePopupImage] = useState<string | null>(null);
+  const [upgradePopupLink, setUpgradePopupLink] = useState<string | null>(null);
 
   const [tips, setTips] = useState<DisplayTip[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -389,10 +387,36 @@ const Sport = () => {
 
 
   const handleLockedClick = (entry: DisplayTip) => {
-    setLockedTierLabel(getTierLabel(entry.tier_required, entry.addon_required));
-    setLockedTierRequired(entry.tier_required);
-    setLockedAddonRequired(entry.addon_required);
-    setLockedModalOpen(true);
+    const h = userHouse as any;
+    let image: string | null = null;
+    let link: string | null = null;
+
+    if (entry.addon_required === "alavancagem") {
+      image = h?.popup_alavancagem_image ?? null;
+      link = h?.popup_alavancagem_link ?? null;
+    } else if (entry.addon_required === "desaltas") {
+      image = h?.popup_odds_altas_image ?? null;
+      link = h?.popup_odds_altas_link ?? null;
+    } else if (entry.addon_required === "live_telegram") {
+      image = h?.popup_live_telegram_image ?? null;
+      link = h?.popup_live_telegram_link ?? null;
+    } else if (entry.tier_required === "basic") {
+      image = h?.popup_basic_image ?? null;
+      link = h?.popup_basic_link ?? null;
+    } else if (entry.tier_required === "pro") {
+      image = h?.popup_pro_image ?? null;
+      link = h?.popup_pro_link ?? null;
+    } else if (entry.tier_required === "ultra") {
+      image = h?.popup_ultra_image ?? null;
+      link = h?.popup_ultra_link ?? null;
+    }
+
+    if (image) {
+      setUpgradePopupImage(image);
+      setUpgradePopupLink(link);
+      setUpgradePopupOpen(true);
+    }
+    // If no popup image configured, do nothing (silently ignore)
   };
 
   const handleOpenJustificativa = useCallback((texto: string) => {
@@ -627,12 +651,11 @@ const Sport = () => {
       </main>
 
       <JustificativaModal isOpen={justificativaModalOpen} onClose={handleCloseJustificativa} texto={justificativaTexto} />
-      <LockedTipModal 
-        isOpen={lockedModalOpen} 
-        onClose={() => setLockedModalOpen(false)} 
-        tierLabel={lockedTierLabel}
-        tierRequired={lockedTierRequired}
-        addonRequired={lockedAddonRequired}
+      <UpgradePopup
+        open={upgradePopupOpen}
+        onClose={() => setUpgradePopupOpen(false)}
+        image={upgradePopupImage}
+        link={upgradePopupLink}
       />
       <WelcomePopup house={userHouse as any} />
       <BottomNav />
