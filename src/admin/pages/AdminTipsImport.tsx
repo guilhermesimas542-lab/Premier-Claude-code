@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Upload, Loader2, CheckCircle, AlertCircle } from "lucide-react";
@@ -38,10 +38,16 @@ export default function AdminTipsImport() {
   const [errors, setErrors] = useState<string[]>([]);
   const [importing, setImporting] = useState(false);
   const [result, setResult] = useState<{ ok: number; fail: number } | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [fileName, setFileName] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const processFile = useCallback((file: File) => {
+    if (file.type !== "text/csv" && !file.name.endsWith(".csv")) {
+      toast.error("Apenas arquivos CSV são aceitos");
+      return;
+    }
+    setFileName(file.name);
     const reader = new FileReader();
     reader.onload = (ev) => {
       const text = ev.target?.result as string;
@@ -56,6 +62,38 @@ export default function AdminTipsImport() {
       setResult(null);
     };
     reader.readAsText(file);
+  }, []);
+
+  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    processFile(file);
+  };
+
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) processFile(file);
   };
 
   const handleImport = async () => {
@@ -92,20 +130,42 @@ export default function AdminTipsImport() {
     <div className="max-w-3xl space-y-4">
       <h2 className="text-xl font-bold">Importar CSV</h2>
 
-      <div className="bg-gray-900 border border-dashed border-gray-700 rounded-xl p-8 text-center">
-        <Upload className="w-8 h-8 text-gray-500 mx-auto mb-2" />
-        <p className="text-gray-400 text-sm mb-3">Arraste ou selecione um arquivo CSV</p>
-        <input type="file" accept=".csv" onChange={handleFile} className="text-sm text-gray-400" />
+      <div
+        className={`relative rounded-xl p-8 text-center cursor-pointer transition-all duration-200 border-2 border-dashed
+          ${isDragging
+            ? "border-secondary bg-secondary/10 shadow-[0_0_24px_hsl(var(--secondary)/0.4)]"
+            : "border-border bg-muted/30 hover:border-muted-foreground/50 hover:bg-muted/50"
+          }`}
+        onDragEnter={handleDragEnter}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        onClick={() => inputRef.current?.click()}
+      >
+        <Upload className={`w-8 h-8 mx-auto mb-2 transition-colors ${isDragging ? "text-secondary" : "text-muted-foreground"}`} />
+        <p className={`text-sm font-medium mb-1 transition-colors ${isDragging ? "text-secondary" : "text-foreground"}`}>
+          {isDragging ? "Solte o arquivo aqui!" : "Arraste um CSV aqui ou clique para selecionar"}
+        </p>
+        <p className={`text-xs transition-colors ${isDragging ? "text-secondary/70" : "text-muted-foreground"}`}>
+          {fileName ? `📄 ${fileName}` : "Apenas arquivos .csv são aceitos"}
+        </p>
+        <input
+          ref={inputRef}
+          type="file"
+          accept=".csv"
+          onChange={handleFile}
+          className="hidden"
+        />
       </div>
 
-      <div className="text-xs text-gray-500">
+      <div className="text-xs text-muted-foreground">
         <span className="font-semibold">Cabeçalhos esperados:</span> {CSV_HEADERS.join(", ")}
       </div>
 
       {errors.length > 0 && (
-        <div className="bg-red-400/10 border border-red-400/30 rounded-lg p-3 space-y-1 max-h-40 overflow-auto">
+        <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-3 space-y-1 max-h-40 overflow-auto">
           {errors.map((err, i) => (
-            <div key={i} className="flex items-center gap-1 text-red-400 text-xs">
+            <div key={i} className="flex items-center gap-1 text-destructive text-xs">
               <AlertCircle className="w-3 h-3 shrink-0" /> {err}
             </div>
           ))}
@@ -114,13 +174,13 @@ export default function AdminTipsImport() {
 
       {rows.length > 0 && (
         <>
-          <div className="text-sm text-gray-400">
+          <div className="text-sm text-muted-foreground">
             {rows.length} linhas detectadas • {errors.length} com erro • {rows.length - errors.length} válidas
           </div>
-          <div className="bg-gray-900 rounded-xl border border-white/10 overflow-x-auto max-h-60">
+          <div className="bg-muted/30 rounded-xl border border-border overflow-x-auto max-h-60">
             <table className="text-xs w-max">
               <thead>
-                <tr className="border-b border-white/10 text-gray-500">
+                <tr className="border-b border-border text-muted-foreground">
                   {Object.keys(rows[0]).slice(0, 8).map((h) => (
                     <th key={h} className="px-3 py-1.5 text-left">{h}</th>
                   ))}
@@ -129,11 +189,11 @@ export default function AdminTipsImport() {
               </thead>
               <tbody>
                 {rows.slice(0, 10).map((r, i) => (
-                  <tr key={i} className="border-b border-white/5 text-gray-300">
+                  <tr key={i} className="border-b border-border/50 text-foreground/80">
                     {Object.values(r).slice(0, 8).map((v: any, j) => (
                       <td key={j} className="px-3 py-1 max-w-[120px] truncate">{v}</td>
                     ))}
-                    <td className="px-3 py-1 text-gray-600">…</td>
+                    <td className="px-3 py-1 text-muted-foreground/50">…</td>
                   </tr>
                 ))}
               </tbody>
@@ -147,7 +207,7 @@ export default function AdminTipsImport() {
       )}
 
       {result && (
-        <div className="bg-green-400/10 border border-green-400/30 rounded-lg p-3 text-green-400 text-sm">
+        <div className="bg-secondary/10 border border-secondary/30 rounded-lg p-3 text-secondary text-sm">
           ✅ {result.ok} importadas, {result.fail} com erro
         </div>
       )}
