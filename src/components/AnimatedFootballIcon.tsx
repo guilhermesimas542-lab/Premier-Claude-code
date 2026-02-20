@@ -4,11 +4,9 @@ const AnimatedFootballIcon = () => {
   return (
     <div
       style={{
-        width: 50,
-        height: 50,
+        width: 90,
+        height: 90,
         position: "relative",
-        overflow: "hidden",
-        borderRadius: "50%",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
