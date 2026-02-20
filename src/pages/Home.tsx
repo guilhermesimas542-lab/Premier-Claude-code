@@ -12,7 +12,7 @@ import { PromoCarousel } from "@/components/PromoCarousel";
 import { QuickAccessCards } from "@/components/QuickAccessCards";
 import { BottomNav } from "@/components/BottomNav";
 import { CHECKOUT_LINKS } from "@/lib/checkoutLinks";
-
+import logoImg from "@/assets/premier-logo.svg";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -155,15 +155,7 @@ const Home = () => {
         <div className="container max-w-7xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
           <div className="flex items-center justify-between gap-2 sm:gap-4">
             <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-              <video
-                src="/images/logo_premier_video.mp4"
-                autoPlay
-                loop
-                muted
-                playsInline
-                className="h-10 sm:h-12 w-auto"
-                style={{ filter: "drop-shadow(0 0 10px rgba(0,255,0,0.5))" }}
-              />
+              <img src={logoImg} alt="Premier Ultra" className="h-10 sm:h-12 w-auto" style={{ filter: "drop-shadow(0 0 10px rgba(0,255,0,0.5))" }} />
               <span className="text-2xl sm:text-4xl font-bold" style={{ color: "#FFFFFF", textShadow: "0 0 14px rgba(0,255,0,0.3)" }}>Premier Ultra</span>
             </div>
             
