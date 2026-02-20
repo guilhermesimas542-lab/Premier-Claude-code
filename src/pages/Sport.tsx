@@ -154,7 +154,7 @@ const Sport = () => {
   const [upgradePopupImage, setUpgradePopupImage] = useState<string | null>(null);
   const [upgradePopupLink, setUpgradePopupLink] = useState<string | null>(null);
 
-  const [openBetId, setOpenBetId] = useState<string | null>(null);
+  
 
   const [tips, setTips] = useState<DisplayTip[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -390,15 +390,14 @@ const Sport = () => {
   };
 
   const handleAddTip = (entry: DisplayTip) => {
-    // Toggle: se já está aberto, fecha. Se não, abre.
-    if (openBetId === entry.id) {
-      setOpenBetId(null);
-      return;
-    }
     const url = resolveBetUrl(entry);
     if (url) {
-      setOpenBetId(entry.id);
-      toast.success("Tip adicionada!", { description: "Cupom carregado no site de apostas" });
+      setIframeUrl(url);
+      toast.success("Tip adicionada!", { description: "Cupom carregado no site de apostas abaixo" });
+      // Scroll suave até o iframe
+      setTimeout(() => {
+        document.getElementById("bet-iframe-section")?.scrollIntoView({ behavior: "smooth" });
+      }, 100);
     } else {
       toast.info("Nenhum link de bilhete configurado para esta tip.");
     }
@@ -487,8 +486,6 @@ const Sport = () => {
     const expirationDate = entry.expires_at || undefined;
     const startsAt = entry.starts_at || undefined;
 
-    const betUrl = resolveBetUrl(entry);
-    const isTicketOpen = openBetId === entry.id;
 
     return (
       <div
@@ -538,36 +535,6 @@ const Sport = () => {
             />
           )}
         </div>
-
-        {/* Iframe do bilhete — aparece abaixo do card */}
-        {isTicketOpen && betUrl && (
-          <div
-            className="mt-3 rounded-xl overflow-hidden"
-            style={{ border: "1.5px solid rgba(0,255,0,0.35)", boxShadow: "0 0 20px rgba(0,255,0,0.12)", background: "rgba(0,10,0,0.5)" }}
-          >
-            {/* Header do bilhete */}
-            <div className="flex items-center justify-between px-3 py-2" style={{ borderBottom: "1px solid rgba(0,255,0,0.15)" }}>
-              <span className="text-xs font-bold" style={{ color: "#00FF00" }}>📋 Bilhete de Aposta</span>
-              <button
-                onClick={(e) => { e.stopPropagation(); setOpenBetId(null); }}
-                className="text-xs px-2 py-0.5 rounded-full transition-colors"
-                style={{ color: "#FF4444", border: "1px solid rgba(255,68,68,0.3)", background: "rgba(255,68,68,0.08)" }}
-              >
-                Fechar ✕
-              </button>
-            </div>
-            <div style={{ height: "60vh" }}>
-              <iframe
-                key={entry.id}
-                src={betUrl}
-                title={`Bilhete - ${entry.title}`}
-                className="w-full h-full"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture payment"
-                sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
-              />
-            </div>
-          </div>
-        )}
       </div>
     );
   };
@@ -691,7 +658,7 @@ const Sport = () => {
           </div>
         )}
 
-        <section className="w-full mt-2">
+        <section id="bet-iframe-section" className="w-full mt-2">
           <div className="w-full h-[1000px] bg-gradient-to-br from-muted/40 to-muted/20 rounded-xl overflow-hidden border border-border/30 backdrop-blur-sm">
             {iframeUrl ? (
               <iframe key={iframeUrl} src={iframeUrl} title="Bet Site" className="w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
