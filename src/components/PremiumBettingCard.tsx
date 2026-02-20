@@ -204,38 +204,28 @@ export const PremiumBettingCard = ({
   // For ULTRA, always show at least 3 selections as fallback
   const displaySelectionsCount = selectionsCount || (tier === "ULTRA" ? 3 : 2);
 
-  // Countdown timer: counts down to startsAt (game start time)
+  // Countdown timer: counts down to startsAt; shows "EM JOGO" after game starts
   useEffect(() => {
-    // Use startsAt for countdown; if not available, no countdown shown
-    const countdownTarget = startsAt;
-    if (!countdownTarget || isExpiredProp) {
+    if (!startsAt || isExpiredProp) {
       setCountdown("");
       return;
     }
 
-    const calculateRemaining = () => {
+    const updateCountdown = () => {
       const now = new Date().getTime();
-      const target = new Date(countdownTarget).getTime();
-      return Math.max(0, Math.floor((target - now) / 1000));
+      const target = new Date(startsAt).getTime();
+      const remaining = Math.floor((target - now) / 1000);
+
+      if (remaining > 0) {
+        setCountdown(formatCountdown(remaining));
+      } else {
+        // Game already started — show "EM JOGO" indicator
+        setCountdown("AO VIVO");
+      }
     };
 
-    const initial = calculateRemaining();
-    if (initial <= 0) {
-      setCountdown(""); // Game already started, hide countdown
-      return;
-    }
-    setCountdown(formatCountdown(initial));
-
-    const interval = setInterval(() => {
-      const remaining = calculateRemaining();
-      if (remaining <= 0) {
-        setCountdown("");
-        clearInterval(interval);
-      } else {
-        setCountdown(formatCountdown(remaining));
-      }
-    }, 1000);
-
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
     return () => clearInterval(interval);
   }, [startsAt, isExpiredProp]);
 
@@ -353,10 +343,18 @@ export const PremiumBettingCard = ({
           {/* Timer - Top Left Corner - SMALLER */}
           {!isExpired && countdown && (
             <div 
-              className="absolute flex items-center gap-1 bg-black/70 backdrop-blur-sm rounded-full z-40"
+              className={`absolute flex items-center gap-1 backdrop-blur-sm rounded-full z-40 ${
+                countdown === "AO VIVO"
+                  ? "bg-red-600/80"
+                  : "bg-black/70"
+              }`}
               style={{ top: '0px', left: '0px', height: '28px', padding: '0 10px' }}
             >
-              <Clock className="w-3.5 h-3.5 text-white/80" />
+              {countdown === "AO VIVO" ? (
+                <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
+              ) : (
+                <Clock className="w-3.5 h-3.5 text-white/80" />
+              )}
               <span className="text-[13px] text-white font-bold tabular-nums">
                 {countdown}
               </span>

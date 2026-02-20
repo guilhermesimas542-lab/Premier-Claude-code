@@ -101,37 +101,22 @@ export const SpecialBettingCard = ({
     onOpenJustificativa?.(getFixedJustificativaTexto());
   };
 
-  // Countdown timer: counts down to startsAt (game start time)
+  // Countdown timer: counts down to startsAt; shows "AO VIVO" after game starts
   useEffect(() => {
-    const countdownTarget = startsAt;
-    if (!countdownTarget || isExpiredProp) {
+    if (!startsAt || isExpiredProp) {
       setCountdown("");
       return;
     }
 
-    const calculateRemaining = () => {
+    const updateCountdown = () => {
       const now = new Date().getTime();
-      const target = new Date(countdownTarget).getTime();
-      return Math.max(0, Math.floor((target - now) / 1000));
+      const target = new Date(startsAt).getTime();
+      const remaining = Math.floor((target - now) / 1000);
+      setCountdown(remaining > 0 ? formatCountdown(remaining) : "AO VIVO");
     };
 
-    const initial = calculateRemaining();
-    if (initial <= 0) {
-      setCountdown("");
-      return;
-    }
-    setCountdown(formatCountdown(initial));
-
-    const interval = setInterval(() => {
-      const remaining = calculateRemaining();
-      if (remaining <= 0) {
-        setCountdown("");
-        clearInterval(interval);
-      } else {
-        setCountdown(formatCountdown(remaining));
-      }
-    }, 1000);
-
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
     return () => clearInterval(interval);
   }, [startsAt, isExpiredProp]);
 
