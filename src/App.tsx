@@ -32,7 +32,7 @@ import AdminCassinoPlaceholder from "./admin/pages/AdminCassinoPlaceholder";
 import AdminBettingHouses from "./admin/pages/AdminBettingHouses";
 import AdminDefaultLinks from "./admin/pages/AdminDefaultLinks";
 import AdminPopups from "./admin/pages/AdminPopups";
-import AdminFunnelPopups from "./admin/pages/AdminFunnelPopups";
+import { Navigate } from "react-router-dom";
 import { FunnelPopupProvider } from "./context/FunnelPopupContext";
 
 const queryClient = new QueryClient();
@@ -79,7 +79,7 @@ const App = () => (
               <Route path="revenue" element={<AdminRevenue />} />
               <Route path="default-links" element={<AdminDefaultLinks />} />
               <Route path="popups" element={<AdminPopups />} />
-              <Route path="funis" element={<AdminFunnelPopups />} />
+              <Route path="funis" element={<Navigate to="/admin/popups" replace />} />
               {/* Cassino placeholders */}
               <Route path="cassino" element={<AdminCassinoPlaceholder />} />
               <Route path="cassino/analytics" element={<AdminCassinoPlaceholder />} />
