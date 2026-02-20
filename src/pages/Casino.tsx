@@ -1,4 +1,4 @@
-import { ArrowLeft, LogOut, Plane, CircleDot, Gem, Dices, ChevronRight } from "lucide-react";
+import { ArrowLeft, LogOut, Plane, CircleDot, Gem, Dices } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { getStoredConfig, clearAuth, isAuthenticated } from "@/lib/auth";
 import { useEffect, useState } from "react";
@@ -14,25 +14,25 @@ const CASINO_TILES = [
   {
     slug: "aviator",
     name: "Aviator",
-    subtitle: "Entrar no jogo",
+    subtitle: "Decole antes do crash! Multiplique seus ganhos",
     icon: Plane,
   },
   {
     slug: "roleta",
     name: "Roleta",
-    subtitle: "Jogar agora",
+    subtitle: "Vermelho ou preto? Aposte e gire a sorte",
     icon: CircleDot,
   },
   {
     slug: "mines",
     name: "Mines",
-    subtitle: "Jogar agora",
+    subtitle: "Desvie das bombas e acumule prêmios",
     icon: Gem,
   },
   {
     slug: "football-studio",
     name: "Football Studio",
-    subtitle: "Dice (Casa x Visitante)",
+    subtitle: "Casa ou Visitante? Aposte no resultado",
     icon: Dices,
   },
 ];
@@ -120,25 +120,39 @@ const Casino = () => {
                   onClick={() => navigate(`/cassino/jogo/${tile.slug}`)}
                   className="group relative overflow-hidden rounded-xl p-4 sm:p-5 text-left transition-all hover:scale-[1.01]"
                   style={{ background: "rgba(0,20,0,0.6)", border: "1px solid rgba(0,255,0,0.2)", boxShadow: "0 0 0px rgba(0,255,0,0)" }}
-                  onMouseEnter={e => (e.currentTarget.style.boxShadow = "0 0 20px rgba(0,255,0,0.1)")}
+                  onMouseEnter={e => (e.currentTarget.style.boxShadow = "0 0 20px rgba(0,255,0,0.15)")}
                   onMouseLeave={e => (e.currentTarget.style.boxShadow = "0 0 0px rgba(0,255,0,0)")}
                 >
                   <div className="relative flex items-center gap-3">
-                    <div className="shrink-0 w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center" style={{ background: "rgba(0,255,0,0.08)", border: "1px solid rgba(0,255,0,0.25)" }}>
-                      <IconComponent className="w-5 h-5 sm:w-6 sm:h-6" style={{ color: "#00FF00" }} />
+                    {/* Ícone */}
+                    <div className="shrink-0 w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center" style={{ background: "rgba(0,255,0,0.08)", border: "1px solid rgba(0,255,0,0.25)" }}>
+                      <IconComponent className="w-6 h-6 sm:w-7 sm:h-7" style={{ color: "#00FF00" }} />
                     </div>
-                    
+
+                    {/* Textos */}
                     <div className="flex-1 min-w-0">
-                    <h3 className="text-sm sm:text-base font-semibold mb-0.5 truncate" style={{ color: "#FFFFFF" }}>
+                      <h3 className="text-sm sm:text-base font-bold mb-1 truncate" style={{ color: "#FFFFFF" }}>
                         {tile.name}
                       </h3>
-                      <p className="text-xs" style={{ color: "#CCCCCC" }}>
+                      <p className="text-xs sm:text-sm leading-snug" style={{ color: "#AAAAAA" }}>
                         {tile.subtitle}
                       </p>
                     </div>
-                    
-                    <div className="shrink-0 group-hover:translate-x-0.5 transition-all">
-                      <ChevronRight className="w-4 h-4" style={{ color: "#CCCCCC" }} />
+
+                    {/* Botão JOGAR AGORA */}
+                    <div className="shrink-0 ml-2">
+                      <span
+                        className="inline-flex items-center justify-center px-3 py-2 rounded-lg text-xs font-black uppercase tracking-wide transition-all group-hover:scale-105"
+                        style={{
+                          background: "#00FF00",
+                          color: "#000000",
+                          boxShadow: "0 0 12px rgba(0,255,0,0.5)",
+                          minWidth: "90px",
+                          letterSpacing: "0.04em",
+                        }}
+                      >
+                        Jogar Agora
+                      </span>
                     </div>
                   </div>
                 </button>
