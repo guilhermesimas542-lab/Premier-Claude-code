@@ -1,4 +1,4 @@
-import { Sparkles } from "lucide-react";
+import { Sparkles, ArrowRight } from "lucide-react";
 import AnimatedFootballIcon from "@/components/AnimatedFootballIcon";
 import AnimatedSlotIcon from "@/components/AnimatedSlotIcon";
 
@@ -120,12 +120,36 @@ export const PremiumSportCard = ({
 
     return (
       <div className="flex flex-col space-y-0.5">
-        <h4
-          className="text-sm font-bold tracking-wide leading-tight text-white"
-        >
+        <style>{`
+          @keyframes live-pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.3; transform: scale(0.7); }
+          }
+        `}</style>
+        <h4 className="text-sm font-extrabold tracking-wide leading-tight text-white">
           {displayTitle}
         </h4>
-        <p className="text-[11px] leading-relaxed" style={{ color: '#888888' }}>{displaySubtitle}</p>
+        {isFutebol ? (
+          <div className="flex items-center gap-1.5 mt-0.5">
+            <span
+              style={{
+                display: "inline-block",
+                width: 6,
+                height: 6,
+                borderRadius: "50%",
+                background: "#00FF00",
+                boxShadow: "0 0 6px rgba(0,255,0,0.8)",
+                animation: "live-pulse 1.4s ease-in-out infinite",
+                flexShrink: 0,
+              }}
+            />
+            <span className="text-[10px] font-medium" style={{ color: "#00CC00" }}>
+              Atualizado agora
+            </span>
+          </div>
+        ) : (
+          <p className="text-[11px] leading-relaxed" style={{ color: '#888888' }}>{displaySubtitle}</p>
+        )}
       </div>
     );
   };
@@ -228,20 +252,58 @@ export const PremiumSportCard = ({
         }}
       />
 
-      {/* IA Badge */}
+      {/* Badge LIVE / BETA */}
       {isPremium && !isLocked && !isDevelopment && !isPreSale && (
         <div className="absolute top-2 right-2 z-20">
-          <div
-            className="flex items-center gap-1 px-1.5 py-0.5 rounded-full backdrop-blur-sm"
-            style={{
-              background: 'rgba(0,0,0,0.6)',
-              border: `1px solid ${colors.primary}44`,
-              boxShadow: `0 0 8px ${colors.glow}`
-            }}
-          >
-            <Sparkles className="w-2 h-2" style={{ color: colors.primary }} />
-            <span className="text-[8px] font-bold tracking-wider" style={{ color: colors.primary }}>IA ATIVADA</span>
-          </div>
+          {id === 1 ? (
+            /* LIVE badge — futebol */
+            <div
+              className="flex items-center gap-1 px-1.5 py-0.5 rounded-full backdrop-blur-sm"
+              style={{
+                background: 'rgba(0,0,0,0.65)',
+                border: '1px solid rgba(0,255,0,0.45)',
+                boxShadow: '0 0 8px rgba(0,255,0,0.35)',
+              }}
+            >
+              <span
+                style={{
+                  width: 5, height: 5, borderRadius: '50%',
+                  background: '#00FF00',
+                  boxShadow: '0 0 4px rgba(0,255,0,0.9)',
+                  display: 'inline-block',
+                  animation: 'live-pulse 1.4s ease-in-out infinite',
+                  flexShrink: 0,
+                }}
+              />
+              <span className="text-[8px] font-bold tracking-wider" style={{ color: '#00FF00' }}>LIVE</span>
+            </div>
+          ) : id === 11 ? (
+            /* BETA badge — cassino */
+            <div
+              className="flex items-center gap-1 px-1.5 py-0.5 rounded-full backdrop-blur-sm"
+              style={{
+                background: 'rgba(0,0,0,0.65)',
+                border: '1px solid rgba(251,146,60,0.55)',
+                boxShadow: '0 0 8px rgba(251,146,60,0.3)',
+              }}
+            >
+              <Sparkles className="w-2 h-2" style={{ color: '#FB923C' }} />
+              <span className="text-[8px] font-bold tracking-wider" style={{ color: '#FB923C' }}>BETA</span>
+            </div>
+          ) : (
+            /* Padrão — outros cards premium */
+            <div
+              className="flex items-center gap-1 px-1.5 py-0.5 rounded-full backdrop-blur-sm"
+              style={{
+                background: 'rgba(0,0,0,0.6)',
+                border: `1px solid ${colors.primary}44`,
+                boxShadow: `0 0 8px ${colors.glow}`,
+              }}
+            >
+              <Sparkles className="w-2 h-2" style={{ color: colors.primary }} />
+              <span className="text-[8px] font-bold tracking-wider" style={{ color: colors.primary }}>IA ATIVADA</span>
+            </div>
+          )}
         </div>
       )}
 

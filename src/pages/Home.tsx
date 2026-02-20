@@ -245,8 +245,8 @@ const Home = () => {
                   colors={sport.colors}
                   countdown={sport.isPreSale ? countdown : undefined}
                   sportSubheadline={sport.id === 1 ? "Entradas Ativas no Premier Ultra" : undefined}
-                  casinoTitle={sport.id === 11 ? "Painel IA em Execução" : undefined}
-                  casinoSubheadline={sport.id === 11 ? "Dados processados continuamente para decisões rápidas" : undefined}
+                  casinoTitle={sport.id === 11 ? "Painel de Apostas IA" : undefined}
+                  casinoSubheadline={sport.id === 11 ? "Recomendações em tempo real" : undefined}
                   onClick={() => {
                     if (sport.isPremium && sport.route !== "#") {
                       navigate(sport.route);
