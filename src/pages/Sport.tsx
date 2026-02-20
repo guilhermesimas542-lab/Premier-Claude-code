@@ -14,6 +14,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { mockGetUser } from "@/mocks/user";
 import MatrixRain from "@/components/MatrixRain";
 import logoImg from "@/assets/premier-logo-custom.png";
+import { useUserBettingHouse } from "@/hooks/useUserBettingHouse";
+
 
 // ============ TIPOS ============
 type TierType = "GRÁTIS" | "ALAVANCAGEM" | "ODDS_ALTAS" | "BÁSICO" | "PRO" | "ULTRA" | "MÚLTIPLA";
@@ -33,6 +35,9 @@ interface ContentEntry {
   starts_at: string | null;
   expires_at: string | null;
   link: string | null;
+  link_house_1: string | null;
+  link_house_2: string | null;
+  link_house_3: string | null;
   team1_name: string | null;
   team1_shirt_variant: string | null;
   team1_primary_color: string | null;
@@ -45,6 +50,7 @@ interface ContentEntry {
   created_at: string;
   active: boolean;
 }
+
 
 interface DisplayTip extends ContentEntry {
   display_status: "unlocked" | "locked" | "expired";
@@ -128,7 +134,9 @@ const TIER_TABS: { tier: TierType; label: string; labelShort: string }[] = [
 const Sport = () => {
   const navigate = useNavigate();
   const { sportId } = useParams<{ sportId: string }>();
-  const [iframeUrl, setIframeUrl] = useState<string>("https://example.com");
+  const { house: userHouse } = useUserBettingHouse();
+  const [iframeUrl, setIframeUrl] = useState<string>("");
+
   const [activeTierHighlight, setActiveTierHighlight] = useState<TierType | null>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
@@ -332,6 +340,14 @@ const Sport = () => {
     fetchTips();
   }, [navigate, sportId, fetchTips]);
 
+  // Set iframe URL from user's house when house is loaded
+  useEffect(() => {
+    if (userHouse?.iframe_url) {
+      setIframeUrl(userHouse.iframe_url);
+    }
+  }, [userHouse]);
+
+
   useEffect(() => {
     if (isLoading || activeEntries.length === 0) return;
     const scrollTimeout = setTimeout(() => {
@@ -361,9 +377,15 @@ const Sport = () => {
   };
 
   const handleAddTip = (entry: DisplayTip) => {
-    if (entry.link) setIframeUrl(entry.link);
+    // Pick link specific to user's house, fallback to generic link
+    const houseLink = userHouse?.slug === "esportiva-bet" ? entry.link_house_1
+      : userHouse?.slug === "vamo-de-bet" ? entry.link_house_2
+      : entry.link_house_3;
+    const url = houseLink || entry.link_house_1 || entry.link_house_2 || entry.link_house_3 || null;
+    if (url) setIframeUrl(url);
     toast.success("Tip adicionada!", { description: "Cupom carregado no site de apostas" });
   };
+
 
   const handleLockedClick = (entry: DisplayTip) => {
     setLockedTierLabel(getTierLabel(entry.tier_required, entry.addon_required));

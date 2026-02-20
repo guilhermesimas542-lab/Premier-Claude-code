@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,6 +6,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, CheckCircle, Upload, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
+
+interface BettingHouseOption {
+  id: string;
+  name: string;
+  slug: string;
+}
 
 const COLOR_OPTIONS: Record<string, string> = {
   Preto: "#000000",
@@ -38,7 +44,9 @@ const EMPTY_FORM = {
   mercado: "",
   mercado_explicacao: "",
   justification: "",
-  link: "",
+  link_house_1: "",
+  link_house_2: "",
+  link_house_3: "",
 };
 
 function parseCSV(text: string) {
@@ -57,8 +65,16 @@ export default function AdminTipsCreate() {
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({ ...EMPTY_FORM });
   const [csvErrors, setCsvErrors] = useState<string[]>([]);
+  const [houses, setHouses] = useState<BettingHouseOption[]>([]);
+
+  useEffect(() => {
+    supabase.from("betting_houses").select("id, name, slug").eq("is_active", true).order("created_at").then(({ data }) => {
+      setHouses((data as BettingHouseOption[]) ?? []);
+    });
+  }, []);
 
   const set = (key: string, val: string) => setForm((f) => ({ ...f, [key]: val }));
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -93,7 +109,10 @@ export default function AdminTipsCreate() {
       category: form.mercado || null,
       category_explanation: form.mercado_explicacao || null,
       justification: form.justification || null,
-      link: form.link || null,
+      link: form.link_house_1 || form.link_house_2 || form.link_house_3 || null,
+      link_house_1: form.link_house_1 || null,
+      link_house_2: form.link_house_2 || null,
+      link_house_3: form.link_house_3 || null,
       classification: null,
     };
 
@@ -141,7 +160,9 @@ export default function AdminTipsCreate() {
         mercado: row.mercado || row.market || "",
         mercado_explicacao: row.mercado_explicacao || row.category_explanation || "",
         justification: row.justification || row.justificativa || "",
-        link: "",
+        link_house_1: "",
+        link_house_2: "",
+        link_house_3: "",
       });
       setMode("manual");
       toast.success("Dados importados do CSV. Revise e preencha o Link antes de salvar.");
@@ -342,10 +363,28 @@ export default function AdminTipsCreate() {
             <Textarea value={form.justification} onChange={(e) => set("justification", e.target.value)} className="bg-gray-900 border-gray-800" rows={3} placeholder="Texto do modal de justificativa (📊)" />
           </div>
 
-          <div>
-            <label className="text-xs text-gray-500">Link</label>
-            <Input value={form.link} onChange={(e) => set("link", e.target.value)} className="bg-gray-900 border-gray-800" />
-          </div>
+          {/* Links por Casa de Apostas */}
+          {houses.length > 0 && (
+            <div className="border border-white/10 rounded-lg p-3 space-y-2">
+              <span className="text-xs text-gray-400 font-semibold uppercase">Links por Casa de Apostas (opcional)</span>
+              {houses.slice(0, 3).map((h, idx) => {
+                const key = `link_house_${idx + 1}` as "link_house_1" | "link_house_2" | "link_house_3";
+                return (
+                  <div key={h.id}>
+                    <label className="text-xs text-gray-500">🏠 {h.name}</label>
+                    <Input
+                      value={form[key] ?? ""}
+                      onChange={(e) => set(key, e.target.value)}
+                      placeholder={`https://.../${h.slug}/tip`}
+                      className="bg-gray-900 border-gray-800"
+                    />
+                  </div>
+                );
+              })}
+              <p className="text-[10px] text-gray-600">A tip aparece apenas para clientes da casa com link preenchido.</p>
+            </div>
+          )}
+
 
           <Button type="submit" disabled={saving} className="w-full">
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}

@@ -21,7 +21,6 @@ import AdminVerify from "./admin/pages/AdminVerify";
 import AdminDashboard from "./admin/pages/AdminDashboard";
 import AdminBanners from "./admin/pages/AdminBanners";
 import AdminTipsCreate from "./admin/pages/AdminTipsCreate";
-// AdminTipsImport removed — CSV import is now part of AdminTipsCreate
 import AdminTipsList from "./admin/pages/AdminTipsList";
 import AdminClientsManage from "./admin/pages/AdminClientsManage";
 import AdminNotifications from "./admin/pages/AdminNotifications";
@@ -30,6 +29,7 @@ import AdminEventsPage from "./admin/pages/AdminEventsPage";
 import AdminOverview from "./admin/pages/AdminOverview";
 import AdminRevenue from "./admin/pages/AdminRevenue";
 import AdminCassinoPlaceholder from "./admin/pages/AdminCassinoPlaceholder";
+import AdminBettingHouses from "./admin/pages/AdminBettingHouses";
 
 const queryClient = new QueryClient();
 
@@ -65,8 +65,8 @@ const App = () => (
           <Route path="/admin" element={<AdminGuard><AdminLayout /></AdminGuard>}>
             <Route index element={<AdminDashboard />} />
             <Route path="banners" element={<AdminBanners />} />
+            <Route path="betting-houses" element={<AdminBettingHouses />} />
             <Route path="tips/create" element={<AdminTipsCreate />} />
-            {/* tips/import route removed — CSV import merged into tips/create */}
             <Route path="tips/list" element={<AdminTipsList />} />
             <Route path="clients" element={<AdminClientsManage />} />
             <Route path="notifications" element={<AdminNotifications />} />
@@ -86,3 +86,4 @@ const App = () => (
 );
 
 export default App;
+

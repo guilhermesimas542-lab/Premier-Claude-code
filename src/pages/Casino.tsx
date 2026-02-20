@@ -8,6 +8,8 @@ import { BottomNav } from "@/components/BottomNav";
 import { PromoCarousel } from "@/components/PromoCarousel";
 import logoImg from "@/assets/premier-logo-custom.png";
 import MatrixRain from "@/components/MatrixRain";
+import { useUserBettingHouse } from "@/hooks/useUserBettingHouse";
+
 
 // Configuração dos tiles - estilo Acesso Rápido
 const CASINO_TILES = [
@@ -40,6 +42,7 @@ const CASINO_TILES = [
 const Casino = () => {
   const navigate = useNavigate();
   const [config, setConfig] = useState<AppConfig | null>(null);
+  const { house: userHouse } = useUserBettingHouse();
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -60,6 +63,18 @@ const Casino = () => {
     toast.success("Logout realizado com sucesso");
     navigate("/login");
   };
+
+  const getGameUrl = (slug: string): string | null => {
+    if (!userHouse) return null;
+    const map: Record<string, string | null> = {
+      aviator: userHouse.aviator_url,
+      roleta: userHouse.roleta_url,
+      mines: userHouse.mines_url,
+      "football-studio": userHouse.football_studio_url,
+    };
+    return map[slug] ?? null;
+  };
+
 
   return (
     <div className="min-h-screen relative overflow-hidden pb-20 md:pb-0" style={{ background: "#000000" }}>
@@ -173,7 +188,7 @@ const Casino = () => {
 
                   {/* Conteúdo principal */}
                   <button
-                    onClick={() => navigate(`/cassino/jogo/${tile.slug}`)}
+                    onClick={() => { const url = getGameUrl(tile.slug); if (url) window.open(url, "_blank"); else navigate(`/cassino/jogo/${tile.slug}`); }}
                     className="w-full flex items-center gap-3 px-4 pb-4 pt-2 text-left"
                   >
                     {/* Ícone */}
