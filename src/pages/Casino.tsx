@@ -122,20 +122,53 @@ const Casino = () => {
                   onMouseEnter={e => (e.currentTarget.style.boxShadow = "0 0 20px rgba(0,255,0,0.15)")}
                   onMouseLeave={e => (e.currentTarget.style.boxShadow = "0 0 0px rgba(0,255,0,0)")}
                 >
-                  {/* Badges no topo direito DENTRO do card */}
+                  {/* Badges no topo direito DENTRO do card — mesmo estilo do badge LIVE */}
                   <div className="flex justify-end gap-1.5 px-4 pt-3 pb-0">
-                    <span
-                      className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wide border"
-                      style={{ background: "rgba(255,140,0,0.15)", color: "#FF8C00", borderColor: "rgba(255,140,0,0.5)" }}
+                    {/* Badge BETA — estilo LIVE mas laranja */}
+                    <div
+                      className="flex items-center gap-1 px-2 py-0.5 rounded-full backdrop-blur-sm"
+                      style={{
+                        background: 'rgba(0,0,0,0.65)',
+                        border: '1px solid rgba(255,140,0,0.7)',
+                        boxShadow: '0 0 6px rgba(255,140,0,0.4)',
+                      }}
                     >
-                      ⚙️ BETA
-                    </span>
-                    <span
-                      className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wide border"
-                      style={{ background: "rgba(168,85,247,0.15)", color: "#A855F7", borderColor: "rgba(168,85,247,0.5)" }}
+                      <span
+                        style={{
+                          width: 5,
+                          height: 5,
+                          borderRadius: '50%',
+                          background: '#FF8C00',
+                          boxShadow: '0 0 4px rgba(255,140,0,0.9)',
+                          display: 'inline-block',
+                          flexShrink: 0,
+                        }}
+                      />
+                      <span className="text-[9px] font-bold tracking-wider" style={{ color: '#FF8C00' }}>BETA</span>
+                    </div>
+
+                    {/* Badge IA ATIVADA — estilo LIVE mas roxo */}
+                    <div
+                      className="flex items-center gap-1 px-2 py-0.5 rounded-full backdrop-blur-sm"
+                      style={{
+                        background: 'rgba(0,0,0,0.65)',
+                        border: '1px solid rgba(168,85,247,0.7)',
+                        boxShadow: '0 0 6px rgba(168,85,247,0.4)',
+                      }}
                     >
-                      🤖 IA ATIVADA
-                    </span>
+                      <span
+                        style={{
+                          width: 5,
+                          height: 5,
+                          borderRadius: '50%',
+                          background: '#A855F7',
+                          boxShadow: '0 0 4px rgba(168,85,247,0.9)',
+                          display: 'inline-block',
+                          flexShrink: 0,
+                        }}
+                      />
+                      <span className="text-[9px] font-bold tracking-wider" style={{ color: '#A855F7' }}>IA ATIVADA</span>
+                    </div>
                   </div>
 
                   {/* Conteúdo principal */}
