@@ -60,7 +60,6 @@ export default function AdminTipsCreate() {
     e.preventDefault();
     const combinedDate = form.gameDate ? `${form.gameDate}T${form.gameHour}:${form.gameMinute}:00` : "";
     if (!form.gameDate || !form.team1_name || !form.team2_name || !form.odd || !form.palpite) {
-    if (!form.gameDate || !form.team1_name || !form.team2_name || !form.odd || !form.palpite) {
       toast.error("Preencha os campos obrigatórios");
       return;
     }
