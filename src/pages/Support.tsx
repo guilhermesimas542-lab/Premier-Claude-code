@@ -1,4 +1,4 @@
-import { ArrowLeft, MessageCircle, Headphones, Star, Flame, Trophy, Users, Calendar, Share2, Copy } from "lucide-react";
+import { ArrowLeft, MessageCircle, Headphones, Star, Flame, Trophy, Users, Calendar, Share2, Copy, Rocket, Crown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -11,6 +11,61 @@ import { getAvatarById, LEVEL_TITLES } from "@/lib/avatars";
 import { BottomNav } from "@/components/BottomNav";
 import MatrixRain from "@/components/MatrixRain";
 import ProfileModal from "@/components/ProfileModal";
+import { useUserAccess } from "@/hooks/useUserAccess";
+import { getUpgradeLinkForTier } from "@/lib/checkoutLinks";
+
+const TIER_LABELS: Record<string, string> = {
+  free: 'Gratuito', basic: 'Basic', pro: 'Pro', ultra: 'Ultra',
+};
+const NEXT_TIER: Record<string, string> = {
+  free: 'basic', basic: 'pro', pro: 'ultra',
+};
+
+const PlanUpgradeCard = () => {
+  const { mainTier, loading } = useUserAccess();
+  if (loading) return null;
+  const isMaxTier = mainTier === 'ultra';
+  const nextTier = NEXT_TIER[mainTier] || '';
+
+  return (
+    <section
+      className="backdrop-blur-sm rounded-2xl p-4 sm:p-5"
+      style={{
+        background: isMaxTier
+          ? 'linear-gradient(135deg, rgba(255,215,0,0.1), rgba(200,160,0,0.08))'
+          : 'linear-gradient(135deg, rgba(0,255,0,0.06), rgba(0,100,0,0.1))',
+        border: isMaxTier ? '1px solid rgba(255,215,0,0.3)' : '1px solid rgba(0,255,0,0.15)',
+      }}
+    >
+      <div className="flex items-center gap-3 mb-3">
+        <Crown className="w-5 h-5" style={{ color: isMaxTier ? '#FFD700' : '#00FF00' }} />
+        <h3 className="font-bold" style={{ color: '#FFFFFF' }}>Seu Plano</h3>
+      </div>
+      <div className="flex items-center justify-between">
+        <p className="text-sm" style={{ color: '#CCCCCC' }}>
+          Plano atual:{' '}
+          <span className="font-bold" style={{ color: isMaxTier ? '#FFD700' : '#00FF00' }}>
+            {TIER_LABELS[mainTier] || 'Gratuito'}
+          </span>
+        </p>
+        {!isMaxTier && (
+          <button
+            onClick={() => window.open(getUpgradeLinkForTier(nextTier), '_blank')}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all hover:scale-[1.03]"
+            style={{
+              background: 'linear-gradient(135deg, #00FF00, #00CC00)',
+              color: '#000000',
+              boxShadow: '0 4px 15px rgba(0,255,0,0.25)',
+            }}
+          >
+            <Rocket className="w-4 h-4" />
+            Upgrade
+          </button>
+        )}
+      </div>
+    </section>
+  );
+};
 
 const Support = () => {
   const navigate = useNavigate();
@@ -173,6 +228,9 @@ const Support = () => {
             </div>
           ))}
         </div>
+
+        {/* Plan & Upgrade Card */}
+        <PlanUpgradeCard />
 
         {/* Invite Friends Card */}
         <section
