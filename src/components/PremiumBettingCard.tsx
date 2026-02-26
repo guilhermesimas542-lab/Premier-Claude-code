@@ -403,25 +403,25 @@ export const PremiumBettingCard = ({
         <div className="flex items-center justify-center gap-4 sm:gap-6 w-full" style={{ height: '70px', marginTop: '4px' }}>
           {/* Team 1 */}
           <div className="flex flex-col items-center gap-1">
-            <div className={`rounded-lg backdrop-blur-sm flex items-center justify-center ring-1 shadow-lg ${
+            <div className={`rounded-full backdrop-blur-sm flex items-center justify-center ring-1 shadow-lg ${
               isExpired ? "bg-gray-800/50 ring-gray-600/30" : "bg-white/10 ring-white/20"
-            }`} style={{ width: '52px', height: '52px' }}>
-              {team1.shirt ? (
-                <ShirtIcon
-                  variant={team1.shirt.variant}
-                  primaryColor={team1.shirt.primaryColor}
-                  secondaryColor={team1.shirt.secondaryColor}
-                  size={40}
-                />
-              ) : team1.logo ? (
+            }`} style={{ width: '48px', height: '48px' }}>
+              {team1.logo ? (
                 <img
                   src={team1.logo}
                   alt={team1.name}
                   className={`object-contain ${isExpired ? "opacity-50" : ""}`}
-                  style={{ width: '36px', height: '36px' }}
+                  style={{ width: '32px', height: '32px' }}
+                />
+              ) : team1.shirt ? (
+                <ShirtIcon
+                  variant={team1.shirt.variant}
+                  primaryColor={team1.shirt.primaryColor}
+                  secondaryColor={team1.shirt.secondaryColor}
+                  size={36}
                 />
               ) : (
-                <ShirtIcon variant="solid" primaryColor="#6B7280" size={40} />
+                <ShirtIcon variant="solid" primaryColor="#6B7280" size={36} />
               )}
             </div>
             <span 
@@ -438,25 +438,25 @@ export const PremiumBettingCard = ({
 
           {/* Team 2 */}
           <div className="flex flex-col items-center gap-1">
-            <div className={`rounded-lg backdrop-blur-sm flex items-center justify-center ring-1 shadow-lg ${
+            <div className={`rounded-full backdrop-blur-sm flex items-center justify-center ring-1 shadow-lg ${
               isExpired ? "bg-gray-800/50 ring-gray-600/30" : "bg-white/10 ring-white/20"
-            }`} style={{ width: '52px', height: '52px' }}>
-              {team2.shirt ? (
-                <ShirtIcon
-                  variant={team2.shirt.variant}
-                  primaryColor={team2.shirt.primaryColor}
-                  secondaryColor={team2.shirt.secondaryColor}
-                  size={40}
-                />
-              ) : team2.logo ? (
+            }`} style={{ width: '48px', height: '48px' }}>
+              {team2.logo ? (
                 <img
                   src={team2.logo}
                   alt={team2.name}
                   className={`object-contain ${isExpired ? "opacity-50" : ""}`}
-                  style={{ width: '36px', height: '36px' }}
+                  style={{ width: '32px', height: '32px' }}
+                />
+              ) : team2.shirt ? (
+                <ShirtIcon
+                  variant={team2.shirt.variant}
+                  primaryColor={team2.shirt.primaryColor}
+                  secondaryColor={team2.shirt.secondaryColor}
+                  size={36}
                 />
               ) : (
-                <ShirtIcon variant="solid" primaryColor="#6B7280" size={40} />
+                <ShirtIcon variant="solid" primaryColor="#6B7280" size={36} />
               )}
             </div>
             <span 

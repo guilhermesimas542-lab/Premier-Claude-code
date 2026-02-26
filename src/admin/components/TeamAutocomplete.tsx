@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
-import { Plus, Loader2, Upload } from "lucide-react";
+import { Plus, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { LogoInput } from "./LogoInput";
 
 interface Team {
   id: string;
@@ -28,8 +29,7 @@ export function TeamAutocomplete({ label, value, logoUrl, onChange }: TeamAutoco
   const [allTeams, setAllTeams] = useState<Team[]>([]);
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [newName, setNewName] = useState("");
-  const [newFile, setNewFile] = useState<File | null>(null);
-  const [newPreview, setNewPreview] = useState<string | null>(null);
+  const [newLogoUrl, setNewLogoUrl] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
@@ -72,26 +72,13 @@ export function TeamAutocomplete({ label, value, logoUrl, onChange }: TeamAutoco
     setShowSuggestions(false);
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setNewFile(file);
-    setNewPreview(URL.createObjectURL(file));
-  };
-
   const handleAddTeam = async () => {
-    if (!newName.trim() || !newFile) { toast.error("Preencha nome e logo"); return; }
+    if (!newName.trim() || !newLogoUrl) { toast.error("Preencha nome e logo"); return; }
     setSaving(true);
-    const ext = newFile.name.split(".").pop();
-    const fileName = `${newName.toLowerCase().replace(/\s+/g, "-")}-${Date.now()}.${ext}`;
-    const { error: upErr } = await supabase.storage.from("team_logos").upload(fileName, newFile);
-    if (upErr) { toast.error("Erro no upload"); setSaving(false); return; }
-    const { data: urlData } = supabase.storage.from("team_logos").getPublicUrl(fileName);
-    const publicUrl = urlData.publicUrl;
 
     const { data: inserted, error: insErr } = await (supabase as any)
       .from("teams")
-      .insert({ name: newName.trim(), logo_url: publicUrl })
+      .insert({ name: newName.trim(), logo_url: newLogoUrl })
       .select()
       .single();
 
@@ -104,8 +91,7 @@ export function TeamAutocomplete({ label, value, logoUrl, onChange }: TeamAutoco
     toast.success("Time adicionado!");
     setAddModalOpen(false);
     setNewName("");
-    setNewFile(null);
-    setNewPreview(null);
+    setNewLogoUrl(null);
     setSaving(false);
   };
 
@@ -162,18 +148,13 @@ export function TeamAutocomplete({ label, value, logoUrl, onChange }: TeamAutoco
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <label className="text-xs text-gray-500">Nome</label>
-              <Input value={newName} onChange={(e) => setNewName(e.target.value)} className="bg-gray-800 border-gray-700" />
+              <label className="text-xs text-muted-foreground">Nome</label>
+              <Input value={newName} onChange={(e) => setNewName(e.target.value)} className="bg-muted/30 border-border" />
             </div>
             <div>
-              <label className="text-xs text-gray-500">Logo (PNG/JPG)</label>
-              <div className="mt-1 flex items-center gap-4">
-                {newPreview && <img src={newPreview} alt="Preview" className="w-14 h-14 object-contain rounded bg-gray-800 p-1" />}
-                <label className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 cursor-pointer text-sm text-gray-300 border border-gray-700">
-                  <Upload className="w-4 h-4" />
-                  {newFile ? newFile.name : "Selecionar"}
-                  <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
-                </label>
+              <label className="text-xs text-muted-foreground">Logo (PNG/JPG/WebP)</label>
+              <div className="mt-1">
+                <LogoInput onUploadComplete={(url) => setNewLogoUrl(url)} currentPreview={newLogoUrl} />
               </div>
             </div>
           </div>
