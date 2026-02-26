@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, CheckCircle, Upload, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
+import { TeamAutocomplete } from "../components/TeamAutocomplete";
 
 interface BettingHouseOption {
   id: string;
@@ -36,8 +37,8 @@ const CATEGORIA_MAP: Record<string, { tier: string; addon: string | null }> = {
 
 const EMPTY_FORM = {
   date: "",
-  team1_name: "", team1_shirt_variant: "solid", team1_primary_color: "Branco", team1_secondary_color: "",
-  team2_name: "", team2_shirt_variant: "solid", team2_primary_color: "Branco", team2_secondary_color: "",
+  team1_name: "", team1_logo_url: "", team1_shirt_variant: "solid", team1_primary_color: "Branco", team1_secondary_color: "",
+  team2_name: "", team2_logo_url: "", team2_shirt_variant: "solid", team2_primary_color: "Branco", team2_secondary_color: "",
   categoria: "free",
   palpite: "",
   odd: "",
@@ -97,13 +98,15 @@ export default function AdminTipsCreate() {
       addon_required: cat.addon,
       active: true,
       team1_name: form.team1_name,
-      team1_shirt_variant: form.team1_shirt_variant,
-      team1_primary_color: COLOR_OPTIONS[form.team1_primary_color] || form.team1_primary_color,
-      team1_secondary_color: form.team1_secondary_color ? (COLOR_OPTIONS[form.team1_secondary_color] || form.team1_secondary_color) : null,
+      team1_logo_url: form.team1_logo_url || null,
+      team1_shirt_variant: form.team1_logo_url ? null : form.team1_shirt_variant,
+      team1_primary_color: form.team1_logo_url ? null : (COLOR_OPTIONS[form.team1_primary_color] || form.team1_primary_color),
+      team1_secondary_color: form.team1_logo_url ? null : (form.team1_secondary_color ? (COLOR_OPTIONS[form.team1_secondary_color] || form.team1_secondary_color) : null),
       team2_name: form.team2_name,
-      team2_shirt_variant: form.team2_shirt_variant,
-      team2_primary_color: COLOR_OPTIONS[form.team2_primary_color] || form.team2_primary_color,
-      team2_secondary_color: form.team2_secondary_color ? (COLOR_OPTIONS[form.team2_secondary_color] || form.team2_secondary_color) : null,
+      team2_logo_url: form.team2_logo_url || null,
+      team2_shirt_variant: form.team2_logo_url ? null : form.team2_shirt_variant,
+      team2_primary_color: form.team2_logo_url ? null : (COLOR_OPTIONS[form.team2_primary_color] || form.team2_primary_color),
+      team2_secondary_color: form.team2_logo_url ? null : (form.team2_secondary_color ? (COLOR_OPTIONS[form.team2_secondary_color] || form.team2_secondary_color) : null),
       condition_to_win: form.palpite || null,
       market: form.mercado || null,
       category: form.mercado || null,
@@ -147,10 +150,12 @@ export default function AdminTipsCreate() {
       setForm({
         date: row.date || row.data || "",
         team1_name: row.team1_name || row.time1 || "",
+        team1_logo_url: "",
         team1_shirt_variant: row.team1_shirt_variant || row.camisa1 || "solid",
         team1_primary_color: row.team1_primary_color || row.cor1 || "Branco",
         team1_secondary_color: row.team1_secondary_color || row.cor1_sec || "",
         team2_name: row.team2_name || row.time2 || "",
+        team2_logo_url: "",
         team2_shirt_variant: row.team2_shirt_variant || row.camisa2 || "solid",
         team2_primary_color: row.team2_primary_color || row.cor2 || "Branco",
         team2_secondary_color: row.team2_secondary_color || row.cor2_sec || "",
@@ -214,111 +219,131 @@ export default function AdminTipsCreate() {
           {/* Time 1 */}
           <div className="border border-white/10 rounded-lg p-3 space-y-3">
             <span className="text-xs text-gray-400 font-semibold uppercase">Time 1</span>
-            <div className="grid grid-cols-2 gap-3">
-              <Input placeholder="Nome *" value={form.team1_name} onChange={(e) => set("team1_name", e.target.value)} className="bg-gray-900 border-gray-800" />
-              <Select value={form.team1_shirt_variant} onValueChange={(v) => set("team1_shirt_variant", v)}>
-                <SelectTrigger className="bg-gray-900 border-gray-800"><SelectValue /></SelectTrigger>
-                <SelectContent><SelectItem value="solid">Sólida</SelectItem><SelectItem value="stripes">Listrada</SelectItem></SelectContent>
-              </Select>
-              <div>
-                <label className="text-xs text-gray-500">Cor principal</label>
-                <Select value={form.team1_primary_color} onValueChange={(v) => set("team1_primary_color", v)}>
-                  <SelectTrigger className="bg-gray-900 border-gray-800">
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded-full border border-white/20" style={{ backgroundColor: COLOR_OPTIONS[form.team1_primary_color] || "#fff" }} />
-                      <SelectValue />
-                    </div>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {colorNames.map((c) => (
-                      <SelectItem key={c} value={c}>
-                        <div className="flex items-center gap-2">
-                          <div className="w-4 h-4 rounded-full border border-white/20" style={{ backgroundColor: COLOR_OPTIONS[c] }} />
-                          {c}
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
+            <TeamAutocomplete
+              label="Time 1"
+              value={form.team1_name}
+              logoUrl={form.team1_logo_url}
+              onChange={(name, logoUrl) => setForm(f => ({ ...f, team1_name: name, team1_logo_url: logoUrl }))}
+            />
+            {!form.team1_logo_url && (
+              <div className="grid grid-cols-2 gap-3">
+                <Select value={form.team1_shirt_variant} onValueChange={(v) => set("team1_shirt_variant", v)}>
+                  <SelectTrigger className="bg-gray-900 border-gray-800"><SelectValue /></SelectTrigger>
+                  <SelectContent><SelectItem value="solid">Sólida</SelectItem><SelectItem value="stripes">Listrada</SelectItem></SelectContent>
                 </Select>
+                <div>
+                  <label className="text-xs text-gray-500">Cor principal</label>
+                  <Select value={form.team1_primary_color} onValueChange={(v) => set("team1_primary_color", v)}>
+                    <SelectTrigger className="bg-gray-900 border-gray-800">
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 rounded-full border border-white/20" style={{ backgroundColor: COLOR_OPTIONS[form.team1_primary_color] || "#fff" }} />
+                        <SelectValue />
+                      </div>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {colorNames.map((c) => (
+                        <SelectItem key={c} value={c}>
+                          <div className="flex items-center gap-2">
+                            <div className="w-4 h-4 rounded-full border border-white/20" style={{ backgroundColor: COLOR_OPTIONS[c] }} />
+                            {c}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="text-xs text-gray-500">Cor secundária</label>
+                  <Select value={form.team1_secondary_color || "none"} onValueChange={(v) => set("team1_secondary_color", v === "none" ? "" : v)}>
+                    <SelectTrigger className="bg-gray-900 border-gray-800">
+                      <div className="flex items-center gap-2">
+                        {form.team1_secondary_color && <div className="w-4 h-4 rounded-full border border-white/20" style={{ backgroundColor: COLOR_OPTIONS[form.team1_secondary_color] || "#000" }} />}
+                        <SelectValue />
+                      </div>
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">Nenhuma</SelectItem>
+                      {colorNames.map((c) => (
+                        <SelectItem key={c} value={c}>
+                          <div className="flex items-center gap-2">
+                            <div className="w-4 h-4 rounded-full border border-white/20" style={{ backgroundColor: COLOR_OPTIONS[c] }} />
+                            {c}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
-              <div>
-                <label className="text-xs text-gray-500">Cor secundária</label>
-                <Select value={form.team1_secondary_color || "none"} onValueChange={(v) => set("team1_secondary_color", v === "none" ? "" : v)}>
-                  <SelectTrigger className="bg-gray-900 border-gray-800">
-                    <div className="flex items-center gap-2">
-                      {form.team1_secondary_color && <div className="w-4 h-4 rounded-full border border-white/20" style={{ backgroundColor: COLOR_OPTIONS[form.team1_secondary_color] || "#000" }} />}
-                      <SelectValue />
-                    </div>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">Nenhuma</SelectItem>
-                    {colorNames.map((c) => (
-                      <SelectItem key={c} value={c}>
-                        <div className="flex items-center gap-2">
-                          <div className="w-4 h-4 rounded-full border border-white/20" style={{ backgroundColor: COLOR_OPTIONS[c] }} />
-                          {c}
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
+            )}
+            {form.team1_logo_url && (
+              <p className="text-xs text-emerald-400">✓ Logo selecionado — cores de camisa serão ignoradas</p>
+            )}
           </div>
 
           {/* Time 2 */}
           <div className="border border-white/10 rounded-lg p-3 space-y-3">
             <span className="text-xs text-gray-400 font-semibold uppercase">Time 2</span>
-            <div className="grid grid-cols-2 gap-3">
-              <Input placeholder="Nome *" value={form.team2_name} onChange={(e) => set("team2_name", e.target.value)} className="bg-gray-900 border-gray-800" />
-              <Select value={form.team2_shirt_variant} onValueChange={(v) => set("team2_shirt_variant", v)}>
-                <SelectTrigger className="bg-gray-900 border-gray-800"><SelectValue /></SelectTrigger>
-                <SelectContent><SelectItem value="solid">Sólida</SelectItem><SelectItem value="stripes">Listrada</SelectItem></SelectContent>
-              </Select>
-              <div>
-                <label className="text-xs text-gray-500">Cor principal</label>
-                <Select value={form.team2_primary_color} onValueChange={(v) => set("team2_primary_color", v)}>
-                  <SelectTrigger className="bg-gray-900 border-gray-800">
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded-full border border-white/20" style={{ backgroundColor: COLOR_OPTIONS[form.team2_primary_color] || "#fff" }} />
-                      <SelectValue />
-                    </div>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {colorNames.map((c) => (
-                      <SelectItem key={c} value={c}>
-                        <div className="flex items-center gap-2">
-                          <div className="w-4 h-4 rounded-full border border-white/20" style={{ backgroundColor: COLOR_OPTIONS[c] }} />
-                          {c}
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
+            <TeamAutocomplete
+              label="Time 2"
+              value={form.team2_name}
+              logoUrl={form.team2_logo_url}
+              onChange={(name, logoUrl) => setForm(f => ({ ...f, team2_name: name, team2_logo_url: logoUrl }))}
+            />
+            {!form.team2_logo_url && (
+              <div className="grid grid-cols-2 gap-3">
+                <Select value={form.team2_shirt_variant} onValueChange={(v) => set("team2_shirt_variant", v)}>
+                  <SelectTrigger className="bg-gray-900 border-gray-800"><SelectValue /></SelectTrigger>
+                  <SelectContent><SelectItem value="solid">Sólida</SelectItem><SelectItem value="stripes">Listrada</SelectItem></SelectContent>
                 </Select>
+                <div>
+                  <label className="text-xs text-gray-500">Cor principal</label>
+                  <Select value={form.team2_primary_color} onValueChange={(v) => set("team2_primary_color", v)}>
+                    <SelectTrigger className="bg-gray-900 border-gray-800">
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 rounded-full border border-white/20" style={{ backgroundColor: COLOR_OPTIONS[form.team2_primary_color] || "#fff" }} />
+                        <SelectValue />
+                      </div>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {colorNames.map((c) => (
+                        <SelectItem key={c} value={c}>
+                          <div className="flex items-center gap-2">
+                            <div className="w-4 h-4 rounded-full border border-white/20" style={{ backgroundColor: COLOR_OPTIONS[c] }} />
+                            {c}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="text-xs text-gray-500">Cor secundária</label>
+                  <Select value={form.team2_secondary_color || "none"} onValueChange={(v) => set("team2_secondary_color", v === "none" ? "" : v)}>
+                    <SelectTrigger className="bg-gray-900 border-gray-800">
+                      <div className="flex items-center gap-2">
+                        {form.team2_secondary_color && <div className="w-4 h-4 rounded-full border border-white/20" style={{ backgroundColor: COLOR_OPTIONS[form.team2_secondary_color] || "#000" }} />}
+                        <SelectValue />
+                      </div>
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">Nenhuma</SelectItem>
+                      {colorNames.map((c) => (
+                        <SelectItem key={c} value={c}>
+                          <div className="flex items-center gap-2">
+                            <div className="w-4 h-4 rounded-full border border-white/20" style={{ backgroundColor: COLOR_OPTIONS[c] }} />
+                            {c}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
-              <div>
-                <label className="text-xs text-gray-500">Cor secundária</label>
-                <Select value={form.team2_secondary_color || "none"} onValueChange={(v) => set("team2_secondary_color", v === "none" ? "" : v)}>
-                  <SelectTrigger className="bg-gray-900 border-gray-800">
-                    <div className="flex items-center gap-2">
-                      {form.team2_secondary_color && <div className="w-4 h-4 rounded-full border border-white/20" style={{ backgroundColor: COLOR_OPTIONS[form.team2_secondary_color] || "#000" }} />}
-                      <SelectValue />
-                    </div>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">Nenhuma</SelectItem>
-                    {colorNames.map((c) => (
-                      <SelectItem key={c} value={c}>
-                        <div className="flex items-center gap-2">
-                          <div className="w-4 h-4 rounded-full border border-white/20" style={{ backgroundColor: COLOR_OPTIONS[c] }} />
-                          {c}
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
+            )}
+            {form.team2_logo_url && (
+              <p className="text-xs text-emerald-400">✓ Logo selecionado — cores de camisa serão ignoradas</p>
+            )}
           </div>
 
           {/* Categoria, Palpite, Odd */}

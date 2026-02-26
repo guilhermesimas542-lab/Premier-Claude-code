@@ -784,10 +784,12 @@ export type Database = {
           metadata: Json
           odd: number
           starts_at: string
+          team1_logo_url: string
           team1_name: string
           team1_primary_color: string
           team1_secondary_color: string
           team1_shirt_variant: string
+          team2_logo_url: string
           team2_name: string
           team2_primary_color: string
           team2_secondary_color: string
