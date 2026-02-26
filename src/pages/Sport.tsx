@@ -42,10 +42,12 @@ interface ContentEntry {
   team1_shirt_variant: string | null;
   team1_primary_color: string | null;
   team1_secondary_color: string | null;
+  team1_logo_url: string | null;
   team2_name: string | null;
   team2_shirt_variant: string | null;
   team2_primary_color: string | null;
   team2_secondary_color: string | null;
+  team2_logo_url: string | null;
   metadata: any;
   created_at: string;
   active: boolean;
@@ -250,7 +252,8 @@ const Sport = () => {
       }
 
       // Process entries: filter + calculate display_status
-      const processed: DisplayTip[] = (entries || [])
+      const rawEntries = (entries || []) as unknown as ContentEntry[];
+      const processed: DisplayTip[] = rawEntries
         .filter((e: ContentEntry) => {
           // Paid users don't see free-tier entries (unless addon)
           if (isPaidUser && e.tier_required === "free" && !e.addon_required) return false;
@@ -488,7 +491,8 @@ const Sport = () => {
 
     const team1 = {
       name: entry.team1_name || "Time 1",
-      shirt: entry.team1_shirt_variant ? {
+      logo: entry.team1_logo_url || undefined,
+      shirt: (!entry.team1_logo_url && entry.team1_shirt_variant) ? {
         variant: entry.team1_shirt_variant as "solid" | "stripes",
         primaryColor: entry.team1_primary_color || "#6B7280",
         secondaryColor: entry.team1_secondary_color || undefined,
@@ -496,7 +500,8 @@ const Sport = () => {
     };
     const team2 = {
       name: entry.team2_name || "Time 2",
-      shirt: entry.team2_shirt_variant ? {
+      logo: entry.team2_logo_url || undefined,
+      shirt: (!entry.team2_logo_url && entry.team2_shirt_variant) ? {
         variant: entry.team2_shirt_variant as "solid" | "stripes",
         primaryColor: entry.team2_primary_color || "#6B7280",
         secondaryColor: entry.team2_secondary_color || undefined,
