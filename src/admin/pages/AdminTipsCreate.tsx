@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,7 +24,8 @@ const CATEGORIA_MAP: Record<string, { tier: string; addon: string | null }> = {
 };
 
 const EMPTY_FORM = {
-  date: "",
+  gameDate: "",
+  gameTime: "20:00",
   team1_name: "", team1_logo_url: "",
   team2_name: "", team2_logo_url: "",
   categoria: "free",
@@ -51,21 +52,32 @@ export default function AdminTipsCreate() {
 
   const set = (key: string, val: string) => setForm((f) => ({ ...f, [key]: val }));
 
+  const timeOptions = useMemo(() => {
+    const opts: string[] = [];
+    for (let h = 0; h < 24; h++) {
+      for (let m = 0; m < 60; m += 5) {
+        opts.push(`${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`);
+      }
+    }
+    return opts;
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.date || !form.team1_name || !form.team2_name || !form.odd || !form.palpite) {
+    const combinedDate = form.gameDate && form.gameTime ? `${form.gameDate}T${form.gameTime}:00` : "";
+    if (!form.gameDate || !form.team1_name || !form.team2_name || !form.odd || !form.palpite) {
       toast.error("Preencha os campos obrigatórios");
       return;
     }
     setSaving(true);
 
     const cat = CATEGORIA_MAP[form.categoria] || CATEGORIA_MAP.free;
-    const dateOnly = form.date.split("T")[0];
+    const dateOnly = form.gameDate;
 
     const payload: any = {
       title: `${form.team1_name} x ${form.team2_name}`,
       date: dateOnly,
-      starts_at: form.date ? new Date(form.date).toISOString() : null,
+      starts_at: combinedDate ? new Date(combinedDate).toISOString() : null,
       expires_at: dateOnly ? `${dateOnly}T23:59:00` : null,
       odd: parseFloat(form.odd),
       tier_required: cat.tier,
@@ -101,15 +113,27 @@ export default function AdminTipsCreate() {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Data e Hora */}
-        <div>
-          <label className="text-xs text-muted-foreground">Data e Hora do Jogo *</label>
-          <Input
-            type="datetime-local"
-            value={form.date}
-            onChange={(e) => set("date", e.target.value)}
-            step="300"
-            className="bg-muted/30 border-border"
-          />
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="text-xs text-muted-foreground">Data do Jogo *</label>
+            <Input
+              type="date"
+              value={form.gameDate}
+              onChange={(e) => set("gameDate", e.target.value)}
+              className="bg-muted/30 border-border"
+            />
+          </div>
+          <div>
+            <label className="text-xs text-muted-foreground">Hora do Jogo *</label>
+            <Select value={form.gameTime} onValueChange={(v) => set("gameTime", v)}>
+              <SelectTrigger className="bg-muted/30 border-border"><SelectValue /></SelectTrigger>
+              <SelectContent className="max-h-60">
+                {timeOptions.map((t) => (
+                  <SelectItem key={t} value={t}>{t}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         {/* Time 1 */}
