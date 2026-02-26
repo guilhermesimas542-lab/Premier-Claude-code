@@ -550,6 +550,45 @@ export type Database = {
         }
         Relationships: []
       }
+      referrals: {
+        Row: {
+          created_at: string
+          id: string
+          referred_user_id: string | null
+          referrer_user_id: string | null
+          xp_awarded: boolean | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          referred_user_id?: string | null
+          referrer_user_id?: string | null
+          xp_awarded?: boolean | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          referred_user_id?: string | null
+          referrer_user_id?: string | null
+          xp_awarded?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referrals_referred_user_id_fkey"
+            columns: ["referred_user_id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referrals_referrer_user_id_fkey"
+            columns: ["referrer_user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sessions: {
         Row: {
           created_at: string
@@ -588,8 +627,53 @@ export type Database = {
           },
         ]
       }
+      user_gamification: {
+        Row: {
+          created_at: string
+          current_level: number
+          current_streak: number
+          friends_invited: number
+          last_login_date: string | null
+          longest_streak: number
+          total_logins: number
+          total_xp: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_level?: number
+          current_streak?: number
+          friends_invited?: number
+          last_login_date?: string | null
+          longest_streak?: number
+          total_logins?: number
+          total_xp?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_level?: number
+          current_streak?: number
+          friends_invited?: number
+          last_login_date?: string | null
+          longest_streak?: number
+          total_logins?: number
+          total_xp?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_gamification_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       users: {
         Row: {
+          avatar_id: string | null
           betting_house_id: string | null
           created_at: string
           email: string
@@ -598,10 +682,12 @@ export type Database = {
           last_event_at: string | null
           last_seen_at: string | null
           main_tier: Database["public"]["Enums"]["main_tier"]
+          nickname: string | null
           phone: string | null
           vitalicio_since: string | null
         }
         Insert: {
+          avatar_id?: string | null
           betting_house_id?: string | null
           created_at?: string
           email: string
@@ -610,10 +696,12 @@ export type Database = {
           last_event_at?: string | null
           last_seen_at?: string | null
           main_tier?: Database["public"]["Enums"]["main_tier"]
+          nickname?: string | null
           phone?: string | null
           vitalicio_since?: string | null
         }
         Update: {
+          avatar_id?: string | null
           betting_house_id?: string | null
           created_at?: string
           email?: string
@@ -622,6 +710,7 @@ export type Database = {
           last_event_at?: string | null
           last_seen_at?: string | null
           main_tier?: Database["public"]["Enums"]["main_tier"]
+          nickname?: string | null
           phone?: string | null
           vitalicio_since?: string | null
         }
@@ -631,6 +720,38 @@ export type Database = {
             columns: ["betting_house_id"]
             isOneToOne: false
             referencedRelation: "betting_houses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      xp_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          user_id: string
+          xp_amount: number
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          user_id: string
+          xp_amount: number
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          user_id?: string
+          xp_amount?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xp_events_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
@@ -678,6 +799,7 @@ export type Database = {
       get_or_create_user: {
         Args: { p_email: string }
         Returns: {
+          avatar_id: string | null
           betting_house_id: string | null
           created_at: string
           email: string
@@ -686,6 +808,7 @@ export type Database = {
           last_event_at: string | null
           last_seen_at: string | null
           main_tier: Database["public"]["Enums"]["main_tier"]
+          nickname: string | null
           phone: string | null
           vitalicio_since: string | null
         }
