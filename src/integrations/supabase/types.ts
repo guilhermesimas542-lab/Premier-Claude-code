@@ -240,6 +240,7 @@ export type Database = {
           market: string | null
           metadata: Json | null
           odd: number | null
+          result: string
           starts_at: string | null
           team1_name: string | null
           team1_primary_color: string | null
@@ -271,6 +272,7 @@ export type Database = {
           market?: string | null
           metadata?: Json | null
           odd?: number | null
+          result?: string
           starts_at?: string | null
           team1_name?: string | null
           team1_primary_color?: string | null
@@ -302,6 +304,7 @@ export type Database = {
           market?: string | null
           metadata?: Json | null
           odd?: number | null
+          result?: string
           starts_at?: string | null
           team1_name?: string | null
           team1_primary_color?: string | null

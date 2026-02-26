@@ -13,7 +13,7 @@ import { toast } from "sonner";
 import type { AdminContentEntry } from "../types";
 import { useBettingHouseAdmin } from "../context/BettingHouseContext";
 
-type SortColumn = "title" | "teams" | "date" | "starts_at" | "odd" | "tier_required";
+type SortColumn = "title" | "teams" | "date" | "starts_at" | "odd" | "tier_required" | "result";
 type SortDir = "asc" | "desc";
 
 const TIER_ORDER: Record<string, number> = { free: 0, alavancagem: 1, desaltas: 2, basic: 3, pro: 4, ultra: 5 };
@@ -26,7 +26,7 @@ export default function AdminTipsList() {
   const [items, setItems] = useState<AdminContentEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const today = new Date().toISOString().split("T")[0];
-  const [filters, setFilters] = useState({ tier: "", addon: "", team: "", active: "", dateFrom: today, dateTo: today });
+  const [filters, setFilters] = useState({ tier: "", addon: "", team: "", active: "", dateFrom: today, dateTo: today, result: "" });
   const [editItem, setEditItem] = useState<AdminContentEntry | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -42,6 +42,7 @@ export default function AdminTipsList() {
     if (filters.addon) q = q.eq("addon_required", filters.addon as any);
     if (filters.active === "true") q = q.eq("active", true);
     if (filters.active === "false") q = q.eq("active", false);
+    if (filters.result) q = q.eq("result", filters.result);
     if (filters.dateFrom) q = q.gte("date", filters.dateFrom);
     if (filters.dateTo) q = q.lte("date", filters.dateTo);
     if (filters.team) q = q.or(`team1_name.ilike.%${filters.team}%,team2_name.ilike.%${filters.team}%`);
@@ -72,6 +73,12 @@ export default function AdminTipsList() {
   const toggleActive = async (id: string, active: boolean) => {
     await supabase.from("content_entries").update({ active }).eq("id", id);
     load();
+  };
+
+  const handleUpdateResult = async (id: string, result: "green" | "red") => {
+    const { error } = await supabase.from("content_entries").update({ result } as any).eq("id", id);
+    if (error) toast.error(error.message);
+    else { toast.success(result === "green" ? "✅ Marcado como Green" : "❌ Marcado como Red"); load(); }
   };
 
   const saveEdit = async () => {
@@ -130,6 +137,10 @@ export default function AdminTipsList() {
     if (sortCol === "tier_required") {
       return dir * ((TIER_ORDER[a.tier_required] ?? 99) - (TIER_ORDER[b.tier_required] ?? 99));
     }
+    if (sortCol === "result") {
+      const rOrder: Record<string, number> = { pending: 0, green: 1, red: 2 };
+      return dir * ((rOrder[(a as any).result] ?? 99) - (rOrder[(b as any).result] ?? 99));
+    }
     return 0;
   });
 
@@ -163,6 +174,10 @@ export default function AdminTipsList() {
         <Select value={filters.active || "all"} onValueChange={(v) => setF("active", v === "all" ? "" : v)}>
           <SelectTrigger className="w-28 bg-gray-900 border-gray-800 text-sm"><SelectValue placeholder="Status" /></SelectTrigger>
           <SelectContent><SelectItem value="all">Todos</SelectItem><SelectItem value="true">Ativas</SelectItem><SelectItem value="false">Inativas</SelectItem></SelectContent>
+        </Select>
+        <Select value={filters.result || "all"} onValueChange={(v) => setF("result", v === "all" ? "" : v)}>
+          <SelectTrigger className="w-28 bg-gray-900 border-gray-800 text-sm"><SelectValue placeholder="Resultado" /></SelectTrigger>
+          <SelectContent><SelectItem value="all">Todos</SelectItem><SelectItem value="pending">Pendente</SelectItem><SelectItem value="green">Green</SelectItem><SelectItem value="red">Red</SelectItem></SelectContent>
         </Select>
         <Button size="sm" onClick={load}>Filtrar</Button>
       </div>
@@ -208,6 +223,9 @@ export default function AdminTipsList() {
                   <span className="flex items-center gap-1">Plano <SortIcon col="tier_required" /></span>
                 </th>
                 <th className="px-3 py-2">Ativo</th>
+                <th className={thClass("result")} onClick={() => handleSort("result")}>
+                  <span className="flex items-center gap-1">Resultado <SortIcon col="result" /></span>
+                </th>
                 <th className="px-3 py-2">Ações</th>
               </tr>
             </thead>
@@ -227,13 +245,27 @@ export default function AdminTipsList() {
                   <td className="px-3 py-2">{t.odd != null ? t.odd.toFixed(2) : "—"}</td>
                   <td className="px-3 py-2">{t.tier_required}</td>
                   <td className="px-3 py-2"><Switch checked={t.active} onCheckedChange={(v) => toggleActive(t.id, v)} /></td>
+                  <td className="px-3 py-2">
+                    {(t as any).result === "pending" ? (
+                      <div className="flex gap-1">
+                        <button onClick={() => handleUpdateResult(t.id, "green")} className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-green-600/20 text-green-400 hover:bg-green-600/40 transition-colors">✅ Green</button>
+                        <button onClick={() => handleUpdateResult(t.id, "red")} className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-red-600/20 text-red-400 hover:bg-red-600/40 transition-colors">❌ Red</button>
+                      </div>
+                    ) : (t as any).result === "green" ? (
+                      <span className="text-green-400 font-bold text-xs">✅ Green</span>
+                    ) : (t as any).result === "red" ? (
+                      <span className="text-red-400 font-bold text-xs">❌ Red</span>
+                    ) : (
+                      <span className="text-gray-500 text-xs">—</span>
+                    )}
+                  </td>
                   <td className="px-3 py-2 flex gap-1">
                     <button onClick={() => setEditItem(t)} className="text-blue-400"><Pencil className="w-3.5 h-3.5" /></button>
                     <button onClick={() => handleDelete(t.id)} className="text-red-400"><Trash2 className="w-3.5 h-3.5" /></button>
                   </td>
                 </tr>
               ))}
-              {items.length === 0 && <tr><td colSpan={9} className="px-3 py-6 text-center text-gray-600">Nenhuma tip encontrada</td></tr>}
+              {items.length === 0 && <tr><td colSpan={11} className="px-3 py-6 text-center text-gray-600">Nenhuma tip encontrada</td></tr>}
             </tbody>
           </table>
         </div>
