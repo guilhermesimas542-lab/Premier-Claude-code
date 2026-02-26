@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, Plus, Trash2, Pencil, Upload, X, Search } from "lucide-react";
+import { Loader2, Plus, Trash2, Pencil, Search } from "lucide-react";
 import { toast } from "sonner";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
@@ -10,6 +10,7 @@ import {
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
+import { LogoInput } from "../components/LogoInput";
 
 interface Team {
   id: string;
@@ -25,8 +26,7 @@ export default function AdminTeams() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingTeam, setEditingTeam] = useState<Team | null>(null);
   const [formName, setFormName] = useState("");
-  const [formFile, setFormFile] = useState<File | null>(null);
-  const [formPreview, setFormPreview] = useState<string | null>(null);
+  const [formLogoUrl, setFormLogoUrl] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
   const fetchTeams = async () => {
@@ -45,47 +45,23 @@ export default function AdminTeams() {
   const openCreate = () => {
     setEditingTeam(null);
     setFormName("");
-    setFormFile(null);
-    setFormPreview(null);
+    setFormLogoUrl(null);
     setModalOpen(true);
   };
 
   const openEdit = (team: Team) => {
     setEditingTeam(team);
     setFormName(team.name);
-    setFormFile(null);
-    setFormPreview(team.logo_url);
+    setFormLogoUrl(team.logo_url);
     setModalOpen(true);
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setFormFile(file);
-    setFormPreview(URL.createObjectURL(file));
-  };
-
-  const uploadLogo = async (file: File, teamName: string): Promise<string | null> => {
-    const ext = file.name.split(".").pop();
-    const fileName = `${teamName.toLowerCase().replace(/\s+/g, "-")}-${Date.now()}.${ext}`;
-    const { error } = await supabase.storage.from("team_logos").upload(fileName, file);
-    if (error) { toast.error("Erro no upload: " + error.message); return null; }
-    const { data } = supabase.storage.from("team_logos").getPublicUrl(fileName);
-    return data.publicUrl;
   };
 
   const handleSave = async () => {
     if (!formName.trim()) { toast.error("Nome é obrigatório"); return; }
-    if (!editingTeam && !formFile) { toast.error("Selecione um logo"); return; }
+    if (!editingTeam && !formLogoUrl) { toast.error("Envie um logo"); return; }
     setSaving(true);
 
-    let logoUrl = editingTeam?.logo_url || "";
-
-    if (formFile) {
-      const url = await uploadLogo(formFile, formName);
-      if (!url) { setSaving(false); return; }
-      logoUrl = url;
-    }
+    const logoUrl = formLogoUrl || editingTeam?.logo_url || "";
 
     if (editingTeam) {
       const { error } = await (supabase as any)
@@ -191,25 +167,21 @@ export default function AdminTeams() {
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <label className="text-xs text-gray-500">Nome do Time *</label>
+              <label className="text-xs text-muted-foreground">Nome do Time *</label>
               <Input
                 value={formName}
                 onChange={(e) => setFormName(e.target.value)}
                 placeholder="Ex: Flamengo"
-                className="bg-gray-800 border-gray-700"
+                className="bg-muted/30 border-border"
               />
             </div>
             <div>
-              <label className="text-xs text-gray-500">Logo (PNG/JPG) *</label>
-              <div className="mt-1 flex items-center gap-4">
-                {formPreview && (
-                  <img src={formPreview} alt="Preview" className="w-16 h-16 object-contain rounded bg-gray-800 p-1" />
-                )}
-                <label className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 cursor-pointer text-sm text-gray-300 border border-gray-700">
-                  <Upload className="w-4 h-4" />
-                  {formFile ? formFile.name : "Selecionar arquivo"}
-                  <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
-                </label>
+              <label className="text-xs text-muted-foreground">Logo (PNG/JPG/WebP) *</label>
+              <div className="mt-1">
+                <LogoInput
+                  onUploadComplete={(url) => setFormLogoUrl(url)}
+                  currentPreview={formLogoUrl}
+                />
               </div>
             </div>
           </div>

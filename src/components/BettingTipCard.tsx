@@ -60,11 +60,11 @@ export const BettingTipCard = ({
           <div className="flex flex-col items-center gap-3 flex-1">
             <div className="relative group">
               <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl group-hover:blur-2xl transition-all" />
-              <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center overflow-hidden ring-2 ring-border/50 group-hover:ring-primary/50 transition-all">
+              <div className="relative w-12 h-12 rounded-full bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center overflow-hidden ring-2 ring-border/50 group-hover:ring-primary/50 transition-all">
                 <img 
                   src={team1.logo} 
                   alt={team1.name} 
-                  className="w-14 h-14 object-contain group-hover:scale-110 transition-transform duration-300" 
+                  className="w-8 h-8 object-contain group-hover:scale-110 transition-transform duration-300" 
                 />
               </div>
             </div>
@@ -82,11 +82,11 @@ export const BettingTipCard = ({
           <div className="flex flex-col items-center gap-3 flex-1">
             <div className="relative group">
               <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl group-hover:blur-2xl transition-all" />
-              <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center overflow-hidden ring-2 ring-border/50 group-hover:ring-primary/50 transition-all">
+              <div className="relative w-12 h-12 rounded-full bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center overflow-hidden ring-2 ring-border/50 group-hover:ring-primary/50 transition-all">
                 <img 
                   src={team2.logo} 
                   alt={team2.name} 
-                  className="w-14 h-14 object-contain group-hover:scale-110 transition-transform duration-300" 
+                  className="w-8 h-8 object-contain group-hover:scale-110 transition-transform duration-300" 
                 />
               </div>
             </div>
