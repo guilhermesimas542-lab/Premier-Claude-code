@@ -101,7 +101,7 @@ const ProfileModal = ({ isOpen, onClose }: ProfileModalProps) => {
     <>
       <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
         <DialogContent
-          className="max-w-md max-h-[90vh] overflow-y-auto p-0 border-0"
+          className="max-w-md max-h-[90vh] overflow-y-auto p-0 border-0 [&>button]:bg-white/10 [&>button]:backdrop-blur-sm [&>button]:rounded-full [&>button]:w-8 [&>button]:h-8 [&>button]:flex [&>button]:items-center [&>button]:justify-center [&>button]:border [&>button]:border-white/20 [&>button]:opacity-100 [&>button]:top-3 [&>button]:right-3 [&>button]:text-white [&>button:hover]:bg-white/20"
           style={{ background: '#0a0a0a', border: '1px solid rgba(0,255,0,0.2)' }}
         >
           <div className="p-5 space-y-5">
