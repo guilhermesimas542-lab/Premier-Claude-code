@@ -206,28 +206,7 @@ const Support = () => {
           </p>
         </section>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-2 gap-3">
-          {[
-            { icon: Flame, label: 'Streak', value: `${gamification?.current_streak || 0} dias`, color: '#FF6B35' },
-            { icon: Trophy, label: 'Maior Streak', value: `${gamification?.longest_streak || 0} dias`, color: '#FFD700' },
-            { icon: Calendar, label: 'Total Logins', value: `${gamification?.total_logins || 0}`, color: '#00BFFF' },
-            { icon: Users, label: 'Convidados', value: `${gamification?.friends_invited || 0}`, color: '#A855F7' },
-          ].map(({ icon: Icon, label, value, color }) => (
-            <div
-              key={label}
-              className="rounded-xl p-4 backdrop-blur-sm"
-              style={{
-                background: `linear-gradient(135deg, ${color}10, ${color}05)`,
-                border: `1px solid ${color}30`,
-              }}
-            >
-              <Icon className="w-5 h-5 mb-2" style={{ color }} />
-              <p className="text-xs opacity-60" style={{ color: '#CCCCCC' }}>{label}</p>
-              <p className="text-lg font-bold" style={{ color }}>{value}</p>
-            </div>
-          ))}
-        </div>
+
 
         {/* Plan & Upgrade Card */}
         <PlanUpgradeCard />
