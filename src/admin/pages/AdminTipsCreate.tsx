@@ -25,7 +25,8 @@ const CATEGORIA_MAP: Record<string, { tier: string; addon: string | null }> = {
 
 const EMPTY_FORM = {
   gameDate: "",
-  gameTime: "20:00",
+  gameHour: "20",
+  gameMinute: "00",
   team1_name: "", team1_logo_url: "",
   team2_name: "", team2_logo_url: "",
   categoria: "free",
@@ -52,19 +53,13 @@ export default function AdminTipsCreate() {
 
   const set = (key: string, val: string) => setForm((f) => ({ ...f, [key]: val }));
 
-  const timeOptions = useMemo(() => {
-    const opts: string[] = [];
-    for (let h = 0; h < 24; h++) {
-      for (let m = 0; m < 60; m += 5) {
-        opts.push(`${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`);
-      }
-    }
-    return opts;
-  }, []);
+  const hourOptions = useMemo(() => Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, "0")), []);
+  const minuteOptions = useMemo(() => Array.from({ length: 12 }, (_, i) => (i * 5).toString().padStart(2, "0")), []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const combinedDate = form.gameDate && form.gameTime ? `${form.gameDate}T${form.gameTime}:00` : "";
+    const combinedDate = form.gameDate ? `${form.gameDate}T${form.gameHour}:${form.gameMinute}:00` : "";
+    if (!form.gameDate || !form.team1_name || !form.team2_name || !form.odd || !form.palpite) {
     if (!form.gameDate || !form.team1_name || !form.team2_name || !form.odd || !form.palpite) {
       toast.error("Preencha os campos obrigatórios");
       return;
@@ -113,7 +108,7 @@ export default function AdminTipsCreate() {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Data e Hora */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-[1fr_auto_auto] gap-3 items-end">
           <div>
             <label className="text-xs text-muted-foreground">Data do Jogo *</label>
             <Input
@@ -124,12 +119,23 @@ export default function AdminTipsCreate() {
             />
           </div>
           <div>
-            <label className="text-xs text-muted-foreground">Hora do Jogo *</label>
-            <Select value={form.gameTime} onValueChange={(v) => set("gameTime", v)}>
-              <SelectTrigger className="bg-muted/30 border-border"><SelectValue /></SelectTrigger>
+            <label className="text-xs text-muted-foreground">Hora *</label>
+            <Select value={form.gameHour} onValueChange={(v) => set("gameHour", v)}>
+              <SelectTrigger className="bg-muted/30 border-border w-20"><SelectValue /></SelectTrigger>
               <SelectContent className="max-h-60">
-                {timeOptions.map((t) => (
-                  <SelectItem key={t} value={t}>{t}</SelectItem>
+                {hourOptions.map((h) => (
+                  <SelectItem key={h} value={h}>{h}h</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <label className="text-xs text-muted-foreground">Min *</label>
+            <Select value={form.gameMinute} onValueChange={(v) => set("gameMinute", v)}>
+              <SelectTrigger className="bg-muted/30 border-border w-20"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {minuteOptions.map((m) => (
+                  <SelectItem key={m} value={m}>{m}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
