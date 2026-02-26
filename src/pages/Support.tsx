@@ -1,10 +1,10 @@
-import { ArrowLeft, MessageCircle, Headphones, Star, Flame, Trophy, Users, Calendar, Share2, Copy, Rocket, Crown } from "lucide-react";
+import { ArrowLeft, MessageCircle, Headphones, Star, Flame, Trophy, Users, Calendar, Share2, Copy, Rocket, Crown, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { isAuthenticated } from "@/lib/auth";
 import { SUPPORT_WHATSAPP_URL } from "@/lib/userMock";
-import { mockGetUser } from "@/mocks/user";
+import { mockGetUser, mockLogout } from "@/mocks/user";
 import { supabase } from "@/integrations/supabase/client";
 import { useGamification, getXpProgress } from "@/hooks/useGamification";
 import { getAvatarById, LEVEL_TITLES } from "@/lib/avatars";
@@ -257,6 +257,20 @@ const Support = () => {
           >
             <MessageCircle className="w-4 h-4" />
             Falar com Suporte
+          </button>
+        </section>
+
+        {/* Logout */}
+        <section className="backdrop-blur-sm rounded-2xl p-4 sm:p-5 space-y-3" style={{ background: "rgba(0,15,0,0.6)", border: "1px solid rgba(0,255,0,0.15)" }}>
+          <p className="text-sm" style={{ color: "#CCCCCC" }}>
+            Deseja sair da sua conta? Você precisará fazer login novamente.
+          </p>
+          <button
+            onClick={() => { mockLogout(); navigate("/login", { replace: true }); }}
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-medium transition-colors border border-red-500/50 text-red-400 hover:bg-red-500/10"
+          >
+            <LogOut className="w-4 h-4" />
+            Sair da Conta
           </button>
         </section>
       </main>
