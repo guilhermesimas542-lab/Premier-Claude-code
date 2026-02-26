@@ -13,12 +13,17 @@ const futebolSections = [
     items: [
       { to: "/admin", icon: LayoutDashboard, label: "Dashboard", end: true },
       { to: "/admin/banners", icon: Image, label: "Banners" },
-      { to: "/admin/teams", icon: Shield, label: "Times (Logos)" },
       { to: "/admin/betting-houses", icon: Home, label: "Casas Parceiras" },
-      { to: "/admin/tips/create", icon: PlusCircle, label: "Tips: Cadastrar" },
-      { to: "/admin/tips/list", icon: List, label: "Tips: Listar" },
       { to: "/admin/clients", icon: Users, label: "Clientes" },
       { to: "/admin/notifications", icon: Bell, label: "Notificações" },
+    ],
+  },
+  {
+    label: "Entradas",
+    items: [
+      { to: "/admin/tips/create", icon: PlusCircle, label: "Tips: Cadastrar" },
+      { to: "/admin/tips/list", icon: List, label: "Tips: Listar" },
+      { to: "/admin/teams", icon: Shield, label: "Times (Logos)" },
     ],
   },
   {
