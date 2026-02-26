@@ -103,7 +103,13 @@ export default function AdminTipsCreate() {
         {/* Data e Hora */}
         <div>
           <label className="text-xs text-muted-foreground">Data e Hora do Jogo *</label>
-          <Input type="datetime-local" value={form.date} onChange={(e) => set("date", e.target.value)} className="bg-muted/30 border-border" />
+          <Input
+            type="datetime-local"
+            value={form.date}
+            onChange={(e) => set("date", e.target.value)}
+            step="300"
+            className="bg-muted/30 border-border"
+          />
         </div>
 
         {/* Time 1 */}
