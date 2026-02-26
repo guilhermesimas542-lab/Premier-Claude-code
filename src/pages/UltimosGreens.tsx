@@ -1,4 +1,4 @@
-import { ArrowLeft, Check, Calendar } from "lucide-react";
+import { ArrowLeft, Check, Calendar, X, Trophy } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -6,18 +6,31 @@ import { supabase } from "@/integrations/supabase/client";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import MatrixRain from "@/components/MatrixRain";
+import { ShirtIcon } from "@/components/ShirtIcon";
 
 interface GreenEntry {
   id: string;
   date: string;
   team1_name: string | null;
   team2_name: string | null;
+  team1_shirt_variant: string | null;
+  team1_primary_color: string | null;
+  team1_secondary_color: string | null;
+  team2_shirt_variant: string | null;
+  team2_primary_color: string | null;
+  team2_secondary_color: string | null;
   market: string | null;
   odd: number | null;
   tier_required: string;
   addon_required: string | null;
   category: string | null;
+  category_explanation: string | null;
+  condition_to_win: string | null;
+  classification: string | null;
+  justification: string | null;
   title: string;
+  starts_at: string | null;
 }
 
 type FilterKey = "all_time" | "today" | "yesterday" | "last_7" | "last_30" | "custom";
@@ -40,20 +53,190 @@ const formatDateHeader = (dateStr: string): string => {
   return `${day}/${month}/${year}`;
 };
 
-const getPlanBadge = (tier: string, addon: string | null) => {
-  if (addon === "alavancagem") return { label: "ALAVANCAGEM", color: "#FF8800" };
-  if (addon === "desaltas") return { label: "ODDS ALTAS", color: "#00CC66" };
-  const map: Record<string, { label: string; color: string }> = {
-    free: { label: "FREE", color: "#888888" },
-    basic: { label: "BASIC", color: "#3B82F6" },
-    pro: { label: "PRO", color: "#A855F7" },
-    ultra: { label: "ULTRA", color: "#EAB308" },
+interface TierStyle {
+  label: string;
+  color: string;
+  bg: string;
+  border: string;
+  glow: string;
+}
+
+const getTierStyle = (tier: string, addon: string | null): TierStyle => {
+  if (addon === "alavancagem") return {
+    label: "ALAVANCAGEM", color: "#F97316",
+    bg: "linear-gradient(135deg, rgba(249,115,22,0.12), rgba(234,88,12,0.06))",
+    border: "rgba(249,115,22,0.4)", glow: "0 0 15px rgba(249,115,22,0.15)",
   };
-  return map[tier] || { label: tier.toUpperCase(), color: "#888888" };
+  if (addon === "desaltas") return {
+    label: "ODDS ALTAS", color: "#16A34A",
+    bg: "linear-gradient(135deg, rgba(22,163,74,0.12), rgba(21,128,61,0.06))",
+    border: "rgba(22,163,74,0.4)", glow: "0 0 15px rgba(22,163,74,0.15)",
+  };
+  const map: Record<string, TierStyle> = {
+    free: {
+      label: "FREE", color: "#888888",
+      bg: "linear-gradient(135deg, rgba(136,136,136,0.08), rgba(100,100,100,0.04))",
+      border: "rgba(136,136,136,0.3)", glow: "none",
+    },
+    basic: {
+      label: "BASIC", color: "#3B82F6",
+      bg: "linear-gradient(135deg, rgba(59,130,246,0.12), rgba(30,64,175,0.06))",
+      border: "rgba(59,130,246,0.4)", glow: "0 0 15px rgba(59,130,246,0.15)",
+    },
+    pro: {
+      label: "PRO", color: "#A855F7",
+      bg: "linear-gradient(135deg, rgba(168,85,247,0.12), rgba(126,34,206,0.06))",
+      border: "rgba(168,85,247,0.4)", glow: "0 0 15px rgba(168,85,247,0.15)",
+    },
+    ultra: {
+      label: "ULTRA", color: "#EAB308",
+      bg: "linear-gradient(135deg, rgba(234,179,8,0.12), rgba(202,138,4,0.06))",
+      border: "rgba(234,179,8,0.4)", glow: "0 0 15px rgba(234,179,8,0.15)",
+    },
+  };
+  return map[tier] || map.free;
 };
 
 const PER_PAGE = 50;
 
+// ─── Detail Modal ───
+const GreenDetailModal = ({ entry, onClose }: { entry: GreenEntry | null; onClose: () => void }) => {
+  if (!entry) return null;
+  const style = getTierStyle(entry.tier_required, entry.addon_required);
+
+  return (
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-fade-in"
+      style={{ background: "rgba(0,0,0,0.85)" }}
+      onClick={onClose}
+    >
+      <div
+        className="relative w-full max-w-md rounded-2xl p-5 space-y-5 animate-scale-in"
+        style={{
+          background: "#0A0A0A",
+          border: `2px solid ${style.border}`,
+          boxShadow: `0 0 30px ${style.color}22, inset 0 1px 0 rgba(255,255,255,0.05)`,
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Close */}
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-3 p-1.5 rounded-full transition-colors"
+          style={{ background: "rgba(255,255,255,0.05)" }}
+        >
+          <X className="w-4 h-4" style={{ color: "#888" }} />
+        </button>
+
+        {/* Badge */}
+        <div className="flex items-center gap-2">
+          <span
+            className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+            style={{ background: `${style.color}22`, color: style.color, border: `1px solid ${style.color}44` }}
+          >
+            {style.label}
+          </span>
+          <div className="flex items-center gap-1 px-2 py-0.5 rounded-full" style={{ background: "rgba(0,255,0,0.1)", border: "1px solid rgba(0,255,0,0.3)" }}>
+            <Check className="w-3 h-3" style={{ color: "#00FF00" }} />
+            <span className="text-[10px] font-bold" style={{ color: "#00FF00" }}>GREEN</span>
+          </div>
+        </div>
+
+        {/* Teams with Shirts */}
+        {entry.team1_name && entry.team2_name ? (
+          <div className="flex items-center justify-center gap-6 py-3">
+            <div className="flex flex-col items-center gap-1.5">
+              <div className="w-14 h-14 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}>
+                <ShirtIcon
+                  variant={(entry.team1_shirt_variant as "solid" | "stripes") || "solid"}
+                  primaryColor={entry.team1_primary_color || "#3B82F6"}
+                  secondaryColor={entry.team1_secondary_color || "#FFFFFF"}
+                  size={36}
+                />
+              </div>
+              <span className="text-xs font-semibold text-center max-w-[80px] truncate" style={{ color: "#FFFFFF" }}>
+                {entry.team1_name}
+              </span>
+            </div>
+
+            <span className="text-lg font-black" style={{ color: "rgba(255,255,255,0.3)" }}>VS</span>
+
+            <div className="flex flex-col items-center gap-1.5">
+              <div className="w-14 h-14 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}>
+                <ShirtIcon
+                  variant={(entry.team2_shirt_variant as "solid" | "stripes") || "solid"}
+                  primaryColor={entry.team2_primary_color || "#EF4444"}
+                  secondaryColor={entry.team2_secondary_color || "#FFFFFF"}
+                  size={36}
+                />
+              </div>
+              <span className="text-xs font-semibold text-center max-w-[80px] truncate" style={{ color: "#FFFFFF" }}>
+                {entry.team2_name}
+              </span>
+            </div>
+          </div>
+        ) : (
+          <h3 className="text-lg font-bold text-center" style={{ color: "#FFFFFF" }}>{entry.title}</h3>
+        )}
+
+        {/* Info Grid */}
+        <div className="grid grid-cols-2 gap-2">
+          {entry.market && (
+            <div className="rounded-lg p-2.5" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+              <p className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: "#666" }}>Mercado</p>
+              <p className="text-xs font-semibold" style={{ color: "#FFFFFF" }}>{entry.market}</p>
+            </div>
+          )}
+          {entry.odd != null && (
+            <div className="rounded-lg p-2.5" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+              <p className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: "#666" }}>Odd</p>
+              <p className="text-base font-black" style={{ color: style.color }}>{entry.odd.toFixed(2)}</p>
+            </div>
+          )}
+          {entry.category && (
+            <div className="rounded-lg p-2.5" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+              <p className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: "#666" }}>Categoria</p>
+              <p className="text-xs font-semibold" style={{ color: "#FFFFFF" }}>{entry.category}</p>
+            </div>
+          )}
+          {entry.classification && (
+            <div className="rounded-lg p-2.5" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+              <p className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: "#666" }}>Confiança</p>
+              <p className="text-xs font-semibold" style={{ color: "#FFFFFF" }}>{entry.classification}</p>
+            </div>
+          )}
+        </div>
+
+        {/* Condition */}
+        {entry.condition_to_win && (
+          <div className="rounded-lg p-3" style={{ background: `${style.color}08`, border: `1px solid ${style.color}22` }}>
+            <p className="text-[10px] uppercase tracking-wider mb-1" style={{ color: style.color }}>Condição para Green</p>
+            <p className="text-xs" style={{ color: "#CCCCCC" }}>{entry.condition_to_win}</p>
+          </div>
+        )}
+
+        {/* Justification */}
+        {entry.justification && (
+          <div className="rounded-lg p-3" style={{ background: "rgba(0,255,0,0.03)", border: "1px solid rgba(0,255,0,0.1)" }}>
+            <p className="text-[10px] uppercase tracking-wider mb-1" style={{ color: "#00CC00" }}>📝 Justificativa</p>
+            <p className="text-xs leading-relaxed" style={{ color: "#AAAAAA" }}>{entry.justification}</p>
+          </div>
+        )}
+
+        {/* Result banner */}
+        <div
+          className="flex items-center justify-center gap-2 py-3 rounded-xl"
+          style={{ background: "rgba(0,255,0,0.08)", border: "1px solid rgba(0,255,0,0.25)" }}
+        >
+          <Trophy className="w-5 h-5" style={{ color: "#00FF00" }} />
+          <span className="text-sm font-black tracking-wider" style={{ color: "#00FF00" }}>GREEN CONFIRMADO ✅</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ─── Main Page ───
 const UltimosGreens = () => {
   const navigate = useNavigate();
   const [greens, setGreens] = useState<GreenEntry[]>([]);
@@ -63,13 +246,16 @@ const UltimosGreens = () => {
   const [filter, setFilter] = useState<FilterKey>("all_time");
   const [customFrom, setCustomFrom] = useState("");
   const [customTo, setCustomTo] = useState("");
+  const [selectedEntry, setSelectedEntry] = useState<GreenEntry | null>(null);
   const offsetRef = useRef(0);
   const observerRef = useRef<HTMLDivElement>(null);
+
+  const SELECT_FIELDS = "id, date, team1_name, team2_name, team1_shirt_variant, team1_primary_color, team1_secondary_color, team2_shirt_variant, team2_primary_color, team2_secondary_color, market, odd, tier_required, addon_required, category, category_explanation, condition_to_win, classification, justification, title, starts_at";
 
   const buildQuery = useCallback((offset: number) => {
     let q = (supabase
       .from("content_entries")
-      .select("id, date, team1_name, team2_name, market, odd, tier_required, addon_required, category, title") as any)
+      .select(SELECT_FIELDS) as any)
       .eq("result", "green")
       .eq("active", true)
       .order("date", { ascending: false })
@@ -82,16 +268,13 @@ const UltimosGreens = () => {
     if (filter === "today") q = q.eq("date", today);
     else if (filter === "yesterday") q = q.eq("date", yesterday);
     else if (filter === "last_7") {
-      const d = new Date(Date.now() - 7 * 86400000).toISOString().split("T")[0];
-      q = q.gte("date", d);
+      q = q.gte("date", new Date(Date.now() - 7 * 86400000).toISOString().split("T")[0]);
     } else if (filter === "last_30") {
-      const d = new Date(Date.now() - 30 * 86400000).toISOString().split("T")[0];
-      q = q.gte("date", d);
+      q = q.gte("date", new Date(Date.now() - 30 * 86400000).toISOString().split("T")[0]);
     } else if (filter === "custom") {
       if (customFrom) q = q.gte("date", customFrom);
       if (customTo) q = q.lte("date", customTo);
     }
-
     return q;
   }, [filter, customFrom, customTo]);
 
@@ -106,18 +289,15 @@ const UltimosGreens = () => {
     setLoading(false);
   }, [buildQuery]);
 
-  useEffect(() => {
-    loadInitial();
-  }, [loadInitial]);
+  useEffect(() => { loadInitial(); }, [loadInitial]);
 
   const loadMore = useCallback(async () => {
     if (loadingMore || !hasMore) return;
     setLoadingMore(true);
     const { data } = await buildQuery(offsetRef.current);
     const entries = (data as unknown as GreenEntry[]) ?? [];
-    if (entries.length === 0) {
-      setHasMore(false);
-    } else {
+    if (entries.length === 0) setHasMore(false);
+    else {
       setGreens((prev) => [...prev, ...entries]);
       offsetRef.current += entries.length;
       setHasMore(entries.length === PER_PAGE);
@@ -125,21 +305,15 @@ const UltimosGreens = () => {
     setLoadingMore(false);
   }, [buildQuery, loadingMore, hasMore]);
 
-  // Infinite scroll observer
   useEffect(() => {
     const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasMore && !loadingMore) {
-          loadMore();
-        }
-      },
+      (entries) => { if (entries[0].isIntersecting && hasMore && !loadingMore) loadMore(); },
       { threshold: 0.1 }
     );
     if (observerRef.current) observer.observe(observerRef.current);
     return () => observer.disconnect();
   }, [loadMore, hasMore, loadingMore]);
 
-  // Group by date
   const groupedGreens = greens.reduce((acc, entry) => {
     if (!acc[entry.date]) acc[entry.date] = [];
     acc[entry.date].push(entry);
@@ -149,7 +323,8 @@ const UltimosGreens = () => {
 
   return (
     <div className="min-h-screen relative overflow-hidden" style={{ background: "#000000" }}>
-      <div className="absolute top-0 left-1/4 w-96 h-96 rounded-full blur-[120px] pointer-events-none" style={{ background: "rgba(0,255,0,0.03)" }} />
+      {/* Matrix Rain Background */}
+      <MatrixRain opacity={0.18} fixed={false} />
 
       {/* Header */}
       <header className="sticky top-0 z-50 backdrop-blur-xl" style={{ background: "rgba(0,0,0,0.92)", borderBottom: "1px solid rgba(0,255,0,0.15)" }}>
@@ -199,9 +374,7 @@ const UltimosGreens = () => {
                       <label className="text-xs text-gray-400">Até</label>
                       <Input type="date" value={customTo} onChange={(e) => setCustomTo(e.target.value)} className="bg-gray-800 border-gray-700 text-white text-xs h-8" />
                     </div>
-                    <Button size="sm" className="w-full text-xs" onClick={() => setFilter("custom")}>
-                      Aplicar
-                    </Button>
+                    <Button size="sm" className="w-full text-xs" onClick={() => setFilter("custom")}>Aplicar</Button>
                   </PopoverContent>
                 </Popover>
               );
@@ -224,9 +397,9 @@ const UltimosGreens = () => {
         </div>
 
         {loading ? (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {[...Array(6)].map((_, i) => (
-              <Skeleton key={i} className="h-16 w-full rounded-xl" style={{ background: "rgba(0,255,0,0.05)" }} />
+              <Skeleton key={i} className="h-20 w-full rounded-xl" style={{ background: "rgba(0,255,0,0.05)" }} />
             ))}
           </div>
         ) : greens.length === 0 ? (
@@ -236,7 +409,7 @@ const UltimosGreens = () => {
         ) : (
           <div className="space-y-6">
             {sortedDates.map((date) => (
-              <div key={date} className="space-y-2">
+              <div key={date} className="space-y-2.5">
                 {/* Date Header */}
                 <div className="sticky top-[73px] z-20 py-2 backdrop-blur-sm" style={{ background: "rgba(0,0,0,0.85)" }}>
                   <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "#FFFFFF" }}>
@@ -245,15 +418,47 @@ const UltimosGreens = () => {
                 </div>
 
                 {/* Green entries */}
-                <div className="space-y-2">
-                  {groupedGreens[date].map((entry) => {
-                    const badge = getPlanBadge(entry.tier_required, entry.addon_required);
+                <div className="space-y-2.5">
+                  {groupedGreens[date].map((entry, idx) => {
+                    const style = getTierStyle(entry.tier_required, entry.addon_required);
                     return (
                       <div
                         key={entry.id}
-                        className="flex items-center justify-between gap-3 p-3 rounded-xl"
-                        style={{ background: "rgba(0,20,0,0.5)", border: "1px solid rgba(0,255,0,0.15)" }}
+                        onClick={() => setSelectedEntry(entry)}
+                        className="flex items-center gap-3 p-3.5 rounded-xl cursor-pointer transition-all duration-200 hover:scale-[1.01] active:scale-[0.99]"
+                        style={{
+                          background: style.bg,
+                          border: `1.5px solid ${style.border}`,
+                          boxShadow: style.glow,
+                          animationDelay: `${idx * 50}ms`,
+                        }}
                       >
+                        {/* Team shirts or icon */}
+                        {entry.team1_name && entry.team2_name ? (
+                          <div className="flex items-center -space-x-1 shrink-0">
+                            <ShirtIcon
+                              variant={(entry.team1_shirt_variant as "solid" | "stripes") || "solid"}
+                              primaryColor={entry.team1_primary_color || "#3B82F6"}
+                              secondaryColor={entry.team1_secondary_color || "#FFFFFF"}
+                              size={24}
+                            />
+                            <ShirtIcon
+                              variant={(entry.team2_shirt_variant as "solid" | "stripes") || "solid"}
+                              primaryColor={entry.team2_primary_color || "#EF4444"}
+                              secondaryColor={entry.team2_secondary_color || "#FFFFFF"}
+                              size={24}
+                            />
+                          </div>
+                        ) : (
+                          <div
+                            className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
+                            style={{ background: `${style.color}15`, border: `1px solid ${style.color}30` }}
+                          >
+                            <Trophy className="w-4 h-4" style={{ color: style.color }} />
+                          </div>
+                        )}
+
+                        {/* Content */}
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-semibold truncate" style={{ color: "#FFFFFF" }}>
                             {entry.team1_name && entry.team2_name
@@ -261,28 +466,28 @@ const UltimosGreens = () => {
                               : entry.title}
                           </p>
                           <div className="flex items-center gap-2 mt-0.5">
-                            <p className="text-xs truncate" style={{ color: "#CCCCCC" }}>
+                            <p className="text-xs truncate" style={{ color: "#BBBBBB" }}>
                               {entry.market || entry.category || "—"}
                             </p>
                             <span
                               className="text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0"
-                              style={{
-                                background: `${badge.color}22`,
-                                color: badge.color,
-                                border: `1px solid ${badge.color}44`,
-                              }}
+                              style={{ background: `${style.color}22`, color: style.color, border: `1px solid ${style.color}44` }}
                             >
-                              {badge.label}
+                              {style.label}
                             </span>
                           </div>
                         </div>
 
+                        {/* Odd + Check */}
                         <div className="flex items-center gap-2 shrink-0">
-                          <span className="text-base font-bold" style={{ color: "#FFFFFF" }}>
+                          <span className="text-base font-black" style={{ color: style.color }}>
                             {entry.odd != null ? entry.odd.toFixed(2) : "—"}
                           </span>
-                          <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{ background: "rgba(0,255,0,0.15)", border: "1px solid rgba(0,255,0,0.4)" }}>
-                            <Check className="w-3.5 h-3.5" style={{ color: "#00FF00" }} />
+                          <div
+                            className="w-7 h-7 rounded-full flex items-center justify-center"
+                            style={{ background: "rgba(0,255,0,0.15)", border: "1px solid rgba(0,255,0,0.4)" }}
+                          >
+                            <Check className="w-4 h-4" style={{ color: "#00FF00" }} />
                           </div>
                         </div>
                       </div>
@@ -307,6 +512,9 @@ const UltimosGreens = () => {
           </div>
         )}
       </main>
+
+      {/* Detail Modal */}
+      <GreenDetailModal entry={selectedEntry} onClose={() => setSelectedEntry(null)} />
     </div>
   );
 };
