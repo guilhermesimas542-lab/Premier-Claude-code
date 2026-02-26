@@ -13,7 +13,6 @@ const futebolSections = [
     items: [
       { to: "/admin", icon: LayoutDashboard, label: "Dashboard", end: true },
       { to: "/admin/banners", icon: Image, label: "Banners" },
-      { to: "/admin/betting-houses", icon: Home, label: "Casas Parceiras" },
       { to: "/admin/clients", icon: Users, label: "Clientes" },
       { to: "/admin/notifications", icon: Bell, label: "Notificações" },
     ],
@@ -44,6 +43,12 @@ const futebolSections = [
     label: "Finanças",
     items: [
       { to: "/admin/revenue", icon: DollarSign, label: "Receita" },
+    ],
+  },
+  {
+    label: "Configurações",
+    items: [
+      { to: "/admin/betting-houses", icon: Home, label: "Casas Parceiras" },
     ],
   },
 ];
