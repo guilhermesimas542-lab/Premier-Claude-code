@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { CircleDot, Dices, Settings, User } from "lucide-react";
+import { CircleDot, Dices, User } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const NAV_ITEMS = [
@@ -16,15 +16,9 @@ const NAV_ITEMS = [
     matchPaths: ["/cassino", "/casino"],
   },
   {
-    path: "/profile",
+    path: "/support",
     label: "Perfil",
     icon: User,
-    matchPaths: ["/profile"],
-  },
-  {
-    path: "/support",
-    label: "Suporte",
-    icon: Settings,
     matchPaths: ["/support"],
   },
 ];

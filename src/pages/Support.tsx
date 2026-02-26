@@ -1,37 +1,66 @@
-import { ArrowLeft, User, Mail, Phone, LogOut, CheckCircle, XCircle, MessageCircle, Headphones } from "lucide-react";
+import { ArrowLeft, MessageCircle, Headphones, Star, Flame, Trophy, Users, Calendar, Share2, Copy } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { clearAuth, isAuthenticated } from "@/lib/auth";
-import { getMockUserData, MockUserData, SUPPORT_WHATSAPP_URL } from "@/lib/userMock";
+import { isAuthenticated } from "@/lib/auth";
+import { SUPPORT_WHATSAPP_URL } from "@/lib/userMock";
+import { mockGetUser } from "@/mocks/user";
+import { supabase } from "@/integrations/supabase/client";
+import { useGamification, getXpProgress } from "@/hooks/useGamification";
+import { getAvatarById, LEVEL_TITLES } from "@/lib/avatars";
 import { BottomNav } from "@/components/BottomNav";
 import MatrixRain from "@/components/MatrixRain";
+import ProfileModal from "@/components/ProfileModal";
 
 const Support = () => {
   const navigate = useNavigate();
-  const [userData, setUserData] = useState<MockUserData | null>(null);
+  const mockUser = mockGetUser();
+  const { data: gamification, userId, sendXpEvent } = useGamification();
+  const [nickname, setNickname] = useState("");
+  const [currentAvatarId, setCurrentAvatarId] = useState("avatar_default_1");
+  const [isProfileModalOpen, setProfileModalOpen] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
-
-    if (!isAuthenticated()) {
-      navigate("/login");
-      return;
-    }
-
-    // Carrega dados do usuário (mock centralizado)
-    const data = getMockUserData();
-    setUserData(data);
+    if (!isAuthenticated()) { navigate("/login"); return; }
   }, [navigate]);
 
-  const handleLogout = () => {
-    clearAuth();
-    toast.success("Logout realizado com sucesso");
-    navigate("/login");
-  };
+  // Fetch user profile
+  useEffect(() => {
+    if (!userId) return;
+    const fetchProfile = async () => {
+      const { data } = await supabase
+        .from('users')
+        .select('nickname, avatar_id')
+        .eq('id', userId)
+        .maybeSingle();
+      if (data) {
+        setNickname((data as any).nickname || "");
+        setCurrentAvatarId((data as any).avatar_id || "avatar_default_1");
+      }
+    };
+    fetchProfile();
+  }, [userId]);
+
+  // Daily login XP
+  useEffect(() => {
+    if (userId) sendXpEvent('DAILY_LOGIN');
+  }, [userId, sendXpEvent]);
+
+  const level = gamification?.current_level || 1;
+  const totalXp = gamification?.total_xp || 0;
+  const { xpInLevel, xpNeeded, progress } = getXpProgress(totalXp, level);
+  const currentAvatar = getAvatarById(currentAvatarId);
+  const levelTitle = LEVEL_TITLES[level] || 'Novato';
+  const referralLink = userId ? `${window.location.origin}/login?ref=${userId}` : '';
 
   const handleOpenSupport = () => {
     window.open(SUPPORT_WHATSAPP_URL, "_blank");
+  };
+
+  const copyReferralLink = () => {
+    navigator.clipboard.writeText(referralLink);
+    toast.success("Link copiado!");
   };
 
   return (
@@ -51,7 +80,7 @@ const Support = () => {
               <ArrowLeft className="w-5 h-5" style={{ color: "#00FF00" }} />
             </button>
             <h1 className="text-lg sm:text-xl font-bold" style={{ color: "#FFFFFF" }}>
-              Configurações da Conta
+              Meu Perfil
             </h1>
           </div>
         </div>
@@ -59,124 +88,145 @@ const Support = () => {
 
       {/* Main Content */}
       <main className="container max-w-2xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 relative z-10">
-        
-        {/* Card: Informações Pessoais */}
-        <section className="backdrop-blur-sm rounded-2xl p-4 sm:p-5 space-y-4" style={{ background: "rgba(0,15,0,0.6)", border: "1px solid rgba(0,255,0,0.15)" }}>
-          <h2 className="text-base sm:text-lg font-semibold" style={{ color: "#FFFFFF" }}>
-            Informações Pessoais
-          </h2>
-          
-          <div className="space-y-3">
-            <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: "rgba(0,255,0,0.04)", border: "1px solid rgba(0,255,0,0.1)" }}>
-              <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: "rgba(0,255,0,0.08)" }}>
-                <User className="w-4 h-4" style={{ color: "#00FF00" }} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs" style={{ color: "#AAAAAA" }}>Nome</p>
-                <p className="text-sm font-medium truncate" style={{ color: "#FFFFFF" }}>{userData?.name || "—"}</p>
-              </div>
+
+        {/* Compact Profile Card - Clickable */}
+        <section
+          onClick={() => setProfileModalOpen(true)}
+          className="backdrop-blur-sm rounded-2xl p-4 sm:p-5 cursor-pointer transition-all hover:scale-[1.01] active:scale-[0.99]"
+          style={{
+            background: "linear-gradient(135deg, rgba(0,255,0,0.08), rgba(0,100,0,0.15))",
+            border: "1px solid rgba(0,255,0,0.2)",
+            boxShadow: "0 0 20px rgba(0,255,0,0.05)",
+          }}
+        >
+          <div className="flex items-center gap-4">
+            {/* Avatar */}
+            <div
+              className="w-16 h-16 rounded-full flex items-center justify-center text-3xl shrink-0"
+              style={{
+                background: 'linear-gradient(135deg, rgba(0,255,0,0.2), rgba(0,200,0,0.1))',
+                border: '3px solid rgba(0,255,0,0.4)',
+                boxShadow: '0 0 15px rgba(0,255,0,0.2)',
+              }}
+            >
+              {currentAvatar.emoji}
             </div>
-            
-            <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: "rgba(0,255,0,0.04)", border: "1px solid rgba(0,255,0,0.1)" }}>
-              <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: "rgba(0,255,0,0.08)" }}>
-                <Mail className="w-4 h-4" style={{ color: "#00FF00" }} />
+
+            <div className="flex-1 min-w-0">
+              {/* Nickname & Email */}
+              <h2 className="text-base font-bold truncate" style={{ color: '#00FF00' }}>
+                {nickname ? `@${nickname}` : mockUser?.email || '—'}
+              </h2>
+              {nickname && (
+                <p className="text-xs opacity-60 truncate" style={{ color: '#CCCCCC' }}>{mockUser?.email}</p>
+              )}
+
+              {/* Level Badge */}
+              <div className="mt-1.5 inline-flex items-center gap-1.5 px-3 py-1 rounded-full" style={{ background: 'rgba(0,255,0,0.12)', border: '1px solid rgba(0,255,0,0.25)' }}>
+                <Star className="w-3 h-3" style={{ color: '#FFD700' }} />
+                <span className="text-xs font-bold" style={{ color: '#FFD700' }}>Nível {level} — {levelTitle}</span>
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs" style={{ color: "#AAAAAA" }}>E-mail</p>
-                <p className="text-sm font-medium truncate" style={{ color: "#FFFFFF" }}>{userData?.email || "—"}</p>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: "rgba(0,255,0,0.04)", border: "1px solid rgba(0,255,0,0.1)" }}>
-              <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: "rgba(0,255,0,0.08)" }}>
-                <Phone className="w-4 h-4" style={{ color: "#00FF00" }} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs" style={{ color: "#AAAAAA" }}>Telefone</p>
-                <p className="text-sm font-medium truncate" style={{ color: "#FFFFFF" }}>{userData?.phone || "—"}</p>
+
+              {/* XP Bar */}
+              <div className="mt-2">
+                <div className="flex justify-between text-[10px] mb-1">
+                  <span style={{ color: '#00FF00' }}>{totalXp} XP</span>
+                  <span className="opacity-50" style={{ color: '#fff' }}>{xpInLevel}/{xpNeeded}</span>
+                </div>
+                <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: 'rgba(0,255,0,0.1)' }}>
+                  <div
+                    className="h-full rounded-full transition-all duration-700"
+                    style={{
+                      width: `${progress}%`,
+                      background: 'linear-gradient(90deg, #00FF00, #00CC00)',
+                      boxShadow: '0 0 8px rgba(0,255,0,0.4)',
+                    }}
+                  />
+                </div>
               </div>
             </div>
           </div>
+          <p className="text-center text-[10px] mt-3 opacity-40" style={{ color: '#fff' }}>
+            Toque para ver detalhes completos
+          </p>
         </section>
 
-        {/* Card: Status do Plano */}
-        <section className="backdrop-blur-sm rounded-2xl p-4 sm:p-5 space-y-4" style={{ background: "rgba(0,15,0,0.6)", border: "1px solid rgba(0,255,0,0.15)" }}>
-          <div className="flex items-center justify-between">
-            <h2 className="text-base sm:text-lg font-semibold" style={{ color: "#FFFFFF" }}>
-              Status do Plano
-            </h2>
-            {userData?.plan?.isActive ? (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold" style={{ background: "rgba(0,255,0,0.1)", color: "#FFFFFF", border: "1px solid rgba(0,255,0,0.4)" }}>
-                <CheckCircle className="w-3 h-3" />
-                ATIVO
-              </span>
-            ) : (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-red-500/20 text-red-400 border border-red-500/40">
-                <XCircle className="w-3 h-3" />
-                INATIVO
-              </span>
-            )}
+        {/* Stats Grid */}
+        <div className="grid grid-cols-2 gap-3">
+          {[
+            { icon: Flame, label: 'Streak', value: `${gamification?.current_streak || 0} dias`, color: '#FF6B35' },
+            { icon: Trophy, label: 'Maior Streak', value: `${gamification?.longest_streak || 0} dias`, color: '#FFD700' },
+            { icon: Calendar, label: 'Total Logins', value: `${gamification?.total_logins || 0}`, color: '#00BFFF' },
+            { icon: Users, label: 'Convidados', value: `${gamification?.friends_invited || 0}`, color: '#A855F7' },
+          ].map(({ icon: Icon, label, value, color }) => (
+            <div
+              key={label}
+              className="rounded-xl p-4 backdrop-blur-sm"
+              style={{
+                background: `linear-gradient(135deg, ${color}10, ${color}05)`,
+                border: `1px solid ${color}30`,
+              }}
+            >
+              <Icon className="w-5 h-5 mb-2" style={{ color }} />
+              <p className="text-xs opacity-60" style={{ color: '#CCCCCC' }}>{label}</p>
+              <p className="text-lg font-bold" style={{ color }}>{value}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Invite Friends Card */}
+        <section
+          className="backdrop-blur-sm rounded-2xl p-4 sm:p-5"
+          style={{
+            background: 'linear-gradient(135deg, rgba(168,85,247,0.1), rgba(126,34,206,0.08))',
+            border: '1px solid rgba(168,85,247,0.25)',
+          }}
+        >
+          <div className="flex items-center gap-3 mb-3">
+            <Share2 className="w-5 h-5" style={{ color: '#A855F7' }} />
+            <h3 className="font-bold" style={{ color: '#A855F7' }}>Convide Amigos</h3>
           </div>
-          
-          <div className="space-y-2">
-            <p className="text-sm" style={{ color: "#FFFFFF" }}>
-              <span style={{ color: "#AAAAAA" }}>Plano:</span>{" "}
-              <span className="font-semibold">{userData?.plan?.name || "—"}</span>
-            </p>
-            {!userData?.plan?.isActive && (
-              <p className="text-xs" style={{ color: "#CCCCCC" }}>
-                Para ter acesso às funcionalidades premium, entre em contato com nosso suporte.
-              </p>
-            )}
-          </div>
-          
+          <p className="text-sm opacity-70 mb-3" style={{ color: '#CCCCCC' }}>
+            Ganhe <span className="font-bold" style={{ color: '#00FF00' }}>+100 XP</span> para cada amigo convidado!
+          </p>
           <button
-            onClick={handleOpenSupport}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-medium transition-all"
-            style={{ background: "rgba(0,255,0,0.08)", border: "1px solid rgba(0,255,0,0.35)", color: "#FFFFFF", boxShadow: "0 0 15px rgba(0,255,0,0.1)" }}
+            onClick={copyReferralLink}
+            className="w-full py-3 rounded-xl flex items-center justify-center gap-2 font-bold text-sm transition-all hover:scale-[1.02]"
+            style={{
+              background: 'linear-gradient(135deg, #A855F7, #7C3AED)',
+              color: '#FFFFFF',
+              boxShadow: '0 4px 15px rgba(168,85,247,0.3)',
+            }}
           >
-            <MessageCircle className="w-4 h-4" />
-            Falar com Suporte
+            <Copy className="w-4 h-4" /> Copiar Link de Convite
           </button>
         </section>
 
-        {/* Card: Suporte */}
+        {/* Support Card */}
         <section className="backdrop-blur-sm rounded-2xl p-4 sm:p-5 space-y-4" style={{ background: "rgba(0,15,0,0.6)", border: "1px solid rgba(0,255,0,0.15)" }}>
-          <h2 className="text-base sm:text-lg font-semibold" style={{ color: "#FFFFFF" }}>
-            Suporte
-          </h2>
+          <div className="flex items-center gap-3">
+            <Headphones className="w-5 h-5" style={{ color: '#00FF00' }} />
+            <h2 className="text-base sm:text-lg font-semibold" style={{ color: "#FFFFFF" }}>
+              Suporte
+            </h2>
+          </div>
           <p className="text-sm" style={{ color: "#CCCCCC" }}>
-            Precisa de ajuda? Nossa equipe está pronta para atendê-lo. Entre em contato pelo chat de suporte.
+            Precisa de ajuda? Nossa equipe está pronta para atendê-lo.
           </p>
           <button
             onClick={handleOpenSupport}
             className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-medium transition-all"
             style={{ background: "rgba(0,255,0,0.08)", border: "1px solid rgba(0,255,0,0.35)", color: "#FFFFFF" }}
           >
-            <Headphones className="w-4 h-4" />
-            Abrir Chat de Suporte
-          </button>
-        </section>
-
-        {/* Card: Sessão */}
-        <section className="backdrop-blur-sm rounded-2xl p-4 sm:p-5 space-y-4" style={{ background: "rgba(0,15,0,0.6)", border: "1px solid rgba(0,255,0,0.15)" }}>
-          <h2 className="text-base sm:text-lg font-semibold" style={{ color: "#FFFFFF" }}>
-            Sessão
-          </h2>
-          <p className="text-sm" style={{ color: "#CCCCCC" }}>
-            Deseja sair da sua conta? Você precisará fazer login novamente para acessar o aplicativo.
-          </p>
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-red-500/50 text-red-400 hover:bg-red-500/10 transition-colors font-medium"
-          >
-            <LogOut className="w-4 h-4" />
-            Sair da Conta
+            <MessageCircle className="w-4 h-4" />
+            Falar com Suporte
           </button>
         </section>
       </main>
 
-      {/* Bottom Nav */}
+      {/* Profile Modal */}
+      <ProfileModal isOpen={isProfileModalOpen} onClose={() => setProfileModalOpen(false)} />
+
       <BottomNav />
     </div>
   );
