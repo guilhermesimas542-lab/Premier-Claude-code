@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { mockLogin } from "@/mocks/user";
+import { storeToken, trackEvent } from "@/lib/events";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { CHECKOUT_LINKS } from "@/lib/checkoutLinks";
 import { Copy, RefreshCw, Target, Crown, Loader2, ShoppingCart, Users } from "lucide-react";
@@ -56,6 +57,10 @@ const Login = () => {
               id: loginData.user.id,
               main_tier: loginData.user.main_tier,
             };
+            // Store auth token for event tracking
+            if (loginData.token) {
+              storeToken(loginData.token);
+            }
             // Store paywall info if free user
             if (loginData.show_paywall_popup && loginData.checkout) {
               localStorage.setItem('premier_show_paywall', 'true');
@@ -67,6 +72,7 @@ const Login = () => {
         }
 
         mockLogin(email, dbUser.id, dbUser.main_tier);
+        trackEvent("user_login");
         toast.success("Login realizado com sucesso!");
         navigate("/", { replace: true });
 

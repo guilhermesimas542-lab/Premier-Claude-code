@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { isAuthenticated, clearAuth, getStoredConfig, getBackgroundImageUrl } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { mockGetUser } from "@/mocks/user";
+import { trackEvent } from "@/lib/events";
 import BasicPlanModal from "@/components/BasicPlanModal";
 import { PromoCarousel } from "@/components/PromoCarousel";
 import { BottomNav } from "@/components/BottomNav";
@@ -50,6 +51,11 @@ const Home = () => {
       setIsLifetime(!!data?.is_vitalicio);
     };
     checkLifetime();
+  }, []);
+
+  // Track app_open event once on mount
+  useEffect(() => {
+    trackEvent("app_open");
   }, []);
 
   useEffect(() => {
