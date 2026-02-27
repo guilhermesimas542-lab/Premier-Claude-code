@@ -158,6 +158,48 @@ export type Database = {
         }
         Relationships: []
       }
+      cards: {
+        Row: {
+          card_type: string
+          checkout_url: string | null
+          created_at: string
+          display_order: number
+          id: string
+          image_url: string | null
+          is_active: boolean
+          name: string
+          subtitle: string | null
+          target_audience: string
+          title: string
+        }
+        Insert: {
+          card_type?: string
+          checkout_url?: string | null
+          created_at?: string
+          display_order?: number
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          name: string
+          subtitle?: string | null
+          target_audience?: string
+          title: string
+        }
+        Update: {
+          card_type?: string
+          checkout_url?: string | null
+          created_at?: string
+          display_order?: number
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          name?: string
+          subtitle?: string | null
+          target_audience?: string
+          title?: string
+        }
+        Relationships: []
+      }
       content_banners: {
         Row: {
           betting_house_id: string | null
@@ -397,6 +439,50 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      funnel_steps: {
+        Row: {
+          card_id: string
+          created_at: string
+          id: string
+          option_a: string
+          option_b: string
+          option_c: string | null
+          option_d: string | null
+          question: string
+          step_order: number
+        }
+        Insert: {
+          card_id: string
+          created_at?: string
+          id?: string
+          option_a: string
+          option_b: string
+          option_c?: string | null
+          option_d?: string | null
+          question: string
+          step_order?: number
+        }
+        Update: {
+          card_id?: string
+          created_at?: string
+          id?: string
+          option_a?: string
+          option_b?: string
+          option_c?: string | null
+          option_d?: string | null
+          question?: string
+          step_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "funnel_steps_card_id_fkey"
+            columns: ["card_id"]
+            isOneToOne: false
+            referencedRelation: "cards"
             referencedColumns: ["id"]
           },
         ]

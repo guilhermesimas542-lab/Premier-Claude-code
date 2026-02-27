@@ -35,6 +35,7 @@ import AdminDefaultLinks from "./admin/pages/AdminDefaultLinks";
 import AdminPopups from "./admin/pages/AdminPopups";
 import AdminTeams from "./admin/pages/AdminTeams";
 import AdminPredictions from "./admin/pages/AdminPredictions";
+import AdminCards from "./admin/pages/AdminCards";
 import { Navigate } from "react-router-dom";
 import { FunnelPopupProvider } from "./context/FunnelPopupContext";
 
@@ -86,6 +87,7 @@ const App = () => (
               <Route path="default-links" element={<AdminDefaultLinks />} />
               <Route path="popups" element={<AdminPopups />} />
               <Route path="funis" element={<Navigate to="/admin/popups" replace />} />
+              <Route path="cards" element={<AdminCards />} />
               {/* Cassino placeholders */}
               <Route path="cassino" element={<AdminCassinoPlaceholder />} />
               <Route path="cassino/analytics" element={<AdminCassinoPlaceholder />} />

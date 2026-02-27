@@ -10,6 +10,7 @@ import { PremiumSportCard } from "@/components/PremiumSportCard";
 import BasicPlanModal from "@/components/BasicPlanModal";
 import { PromoCarousel } from "@/components/PromoCarousel";
 import { QuickAccessCards } from "@/components/QuickAccessCards";
+import { MarketingCards } from "@/components/MarketingCards";
 import { BottomNav } from "@/components/BottomNav";
 import { CHECKOUT_LINKS } from "@/lib/checkoutLinks";
 import logoImg from "@/assets/premier-logo-custom.png";
@@ -263,6 +264,7 @@ const Home = () => {
           </div>
         </section>
 
+        <MarketingCards />
         <QuickAccessCards />
       </main>
 
