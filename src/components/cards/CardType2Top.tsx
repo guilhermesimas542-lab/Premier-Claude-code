@@ -30,12 +30,12 @@ export function CardType2Top({ card, hasAccess, onAction }: Props) {
       )}
 
       {/* Image area */}
-      <div className="relative h-32">
+      <div className="relative" style={{ height: "180px" }}>
         {card.image_url ? (
           <img src={card.image_url} alt={card.name} className="w-full h-full object-cover rounded-t-xl" />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-4xl rounded-t-xl" style={{ background: "hsl(0 0% 10%)" }}>
-            {card.icon || "📦"}
+          <div className="w-full h-full flex items-center justify-center rounded-t-xl" style={{ background: "hsl(0 0% 10%)" }}>
+            <span className="text-4xl text-muted-foreground">📦</span>
           </div>
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-[hsl(0_0%_7%)] via-transparent to-transparent" />
@@ -56,12 +56,24 @@ export function CardType2Top({ card, hasAccess, onAction }: Props) {
         )}
 
         {showLocked ? (
-          <span className="w-full h-9 text-sm font-bold bg-orange-500 text-white rounded-lg flex items-center justify-center gap-1.5">
+          <span
+            className="w-full h-9 text-sm font-bold rounded-lg flex items-center justify-center gap-1.5"
+            style={{
+              background: card.button_bg_color || "#f97316",
+              color: card.button_font_color || "#fff",
+            }}
+          >
             <Lock className="w-3.5 h-3.5" />
             {card.button_text_acquire || "Adquirir Agora"}
           </span>
         ) : (
-          <span className="w-full h-9 text-sm font-bold bg-primary text-primary-foreground rounded-lg flex items-center justify-center group-hover:bg-primary/90 transition-colors">
+          <span
+            className="w-full h-9 text-sm font-bold rounded-lg flex items-center justify-center group-hover:opacity-90 transition-colors"
+            style={{
+              background: card.button_bg_color || "hsl(var(--primary))",
+              color: card.button_font_color || "hsl(var(--primary-foreground))",
+            }}
+          >
             {card.button_text_access || "Acessar"}
           </span>
         )}

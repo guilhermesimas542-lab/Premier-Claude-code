@@ -166,6 +166,8 @@ export type Database = {
           access_field: string | null
           badge_color: string | null
           badge_text: string | null
+          button_bg_color: string | null
+          button_font_color: string | null
           button_text_access: string | null
           button_text_acquire: string | null
           card_type: string
@@ -174,7 +176,6 @@ export type Database = {
           created_at: string
           description: string | null
           display_order: number
-          icon: string | null
           id: string
           image_url: string | null
           is_active: boolean
@@ -192,6 +193,8 @@ export type Database = {
           access_field?: string | null
           badge_color?: string | null
           badge_text?: string | null
+          button_bg_color?: string | null
+          button_font_color?: string | null
           button_text_access?: string | null
           button_text_acquire?: string | null
           card_type?: string
@@ -200,7 +203,6 @@ export type Database = {
           created_at?: string
           description?: string | null
           display_order?: number
-          icon?: string | null
           id?: string
           image_url?: string | null
           is_active?: boolean
@@ -218,6 +220,8 @@ export type Database = {
           access_field?: string | null
           badge_color?: string | null
           badge_text?: string | null
+          button_bg_color?: string | null
+          button_font_color?: string | null
           button_text_access?: string | null
           button_text_acquire?: string | null
           card_type?: string
@@ -226,7 +230,6 @@ export type Database = {
           created_at?: string
           description?: string | null
           display_order?: number
-          icon?: string | null
           id?: string
           image_url?: string | null
           is_active?: boolean

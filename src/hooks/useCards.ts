@@ -9,13 +9,14 @@ export interface CardData {
   subtitle: string | null;
   description: string | null;
   image_url: string | null;
-  icon: string | null;
   card_type: string;
   category: string;
   badge_text: string | null;
   badge_color: string | null;
   button_text_access: string | null;
   button_text_acquire: string | null;
+  button_bg_color: string | null;
+  button_font_color: string | null;
   requires_access: boolean;
   access_field: string | null;
   checkout_url: string | null;
