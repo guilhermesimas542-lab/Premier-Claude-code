@@ -38,9 +38,15 @@ const typeLabel  = (t: string) => POPUP_TYPES.find((p) => p.value === t)?.label 
 interface PopupRow {
   id: string;
   type: string;
+  name: string | null;
   is_active: boolean;
   target_audience: string;
   image_url: string | null;
+  subtitle: string | null;
+  button_text: string | null;
+  button_url: string | null;
+  trigger_type: string;
+  trigger_delay_seconds: number | null;
   question_1_text: string | null;
   question_1_options: string[] | null;
   question_2_text: string | null;
@@ -55,9 +61,15 @@ interface PopupRow {
 
 type FormState = {
   type: string;
+  name: string;
   is_active: boolean;
   target_audience: string;
   image_url: string;
+  subtitle: string;
+  button_text: string;
+  button_url: string;
+  trigger_type: string;
+  trigger_delay_seconds: number;
   question_1_text: string;
   question_1_options: string;
   question_2_text: string;
@@ -71,9 +83,15 @@ type FormState = {
 
 const emptyForm: FormState = {
   type: "upgrade_pro",
+  name: "",
   is_active: true,
   target_audience: "all",
   image_url: "",
+  subtitle: "",
+  button_text: "",
+  button_url: "",
+  trigger_type: "manual",
+  trigger_delay_seconds: 0,
   question_1_text: "",
   question_1_options: "",
   question_2_text: "",
@@ -84,6 +102,7 @@ const emptyForm: FormState = {
   final_benefits: "",
   checkout_link: "",
 };
+
 
 function toArray(csv: string): string[] {
   return csv.split(",").map((s) => s.trim()).filter(Boolean);
@@ -172,6 +191,7 @@ function PopupSummaryCard({
   onToggle: () => void;
 }) {
   const qCount = [popup.question_1_text, popup.question_2_text, popup.question_3_text].filter(Boolean).length;
+  const triggerLabel = popup.trigger_type === "on_load" ? "Auto" : popup.trigger_type === "timed" ? `${popup.trigger_delay_seconds}s` : "Manual";
 
   return (
     <div className="bg-gray-900 border border-white/10 rounded-xl overflow-hidden flex flex-col">
@@ -198,7 +218,7 @@ function PopupSummaryCard({
 
       {/* Body */}
       <div className="p-3 flex flex-col flex-1 gap-2">
-        <p className="text-sm font-semibold text-white leading-tight">{typeLabel(popup.type)}</p>
+        <p className="text-sm font-semibold text-white leading-tight">{popup.name || typeLabel(popup.type)}</p>
 
         <div className="flex flex-wrap gap-1.5">
           {qCount > 0 && (
@@ -213,6 +233,9 @@ function PopupSummaryCard({
           )}
           <span className="text-[10px] px-2 py-0.5 rounded-full bg-gray-700 text-gray-400">
             {AUDIENCE_OPTIONS.find((a) => a.value === popup.target_audience)?.label ?? popup.target_audience}
+          </span>
+          <span className="text-[10px] px-2 py-0.5 rounded-full bg-yellow-500/20 text-yellow-300 border border-yellow-500/20">
+            {triggerLabel}
           </span>
         </div>
 
@@ -274,9 +297,15 @@ export default function AdminPopups() {
     setEditId(row.id);
     setForm({
       type: row.type,
+      name: row.name ?? "",
       is_active: row.is_active,
       target_audience: row.target_audience,
       image_url: row.image_url ?? "",
+      subtitle: row.subtitle ?? "",
+      button_text: row.button_text ?? "",
+      button_url: row.button_url ?? "",
+      trigger_type: row.trigger_type ?? "manual",
+      trigger_delay_seconds: row.trigger_delay_seconds ?? 0,
       question_1_text: row.question_1_text ?? "",
       question_1_options: toCsv(row.question_1_options),
       question_2_text: row.question_2_text ?? "",
@@ -310,9 +339,15 @@ export default function AdminPopups() {
     setSaving(true);
     const payload: Record<string, unknown> = {
       type: form.type,
+      name: form.name || null,
       is_active: form.is_active,
       target_audience: form.target_audience,
       image_url: form.image_url || null,
+      subtitle: form.subtitle || null,
+      button_text: form.button_text || null,
+      button_url: form.button_url || null,
+      trigger_type: form.trigger_type,
+      trigger_delay_seconds: form.trigger_delay_seconds || null,
       question_1_text: form.question_1_text || null,
       question_1_options: form.question_1_options ? toArray(form.question_1_options) : null,
       question_2_text: form.question_2_text || null,
@@ -352,7 +387,7 @@ export default function AdminPopups() {
     load();
   };
 
-  const f = (k: keyof FormState, v: string | boolean) => setForm((prev) => ({ ...prev, [k]: v }));
+  const f = (k: keyof FormState, v: string | boolean | number) => setForm((prev) => ({ ...prev, [k]: v }));
 
   if (houseLoading) return (
     <div className="flex items-center gap-2 text-gray-400 py-20">
@@ -448,6 +483,12 @@ export default function AdminPopups() {
                 </Select>
               </div>
 
+              {/* Name */}
+              <div>
+                <Label className="text-gray-400 text-xs">Nome Interno</Label>
+                <Input value={form.name} onChange={(e) => f("name", e.target.value)} placeholder="Ex: Promo Black Friday" className="bg-gray-800 border-gray-700" />
+              </div>
+
               {/* Audience */}
               {form.type === "promotional" && (
                 <div>
@@ -467,6 +508,46 @@ export default function AdminPopups() {
               <div className="flex items-center gap-3">
                 <Switch checked={form.is_active} onCheckedChange={(v) => f("is_active", v)} />
                 <Label className="text-gray-300 text-sm">Ativo</Label>
+              </div>
+
+              {/* Trigger */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="text-gray-400 text-xs">Gatilho</Label>
+                  <Select value={form.trigger_type} onValueChange={(v) => f("trigger_type", v)}>
+                    <SelectTrigger className="bg-gray-800 border-gray-700"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="manual">Manual</SelectItem>
+                      <SelectItem value="on_load">Ao carregar</SelectItem>
+                      <SelectItem value="timed">Temporizado</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                {form.trigger_type === "timed" && (
+                  <div>
+                    <Label className="text-gray-400 text-xs">Delay (segundos)</Label>
+                    <Input type="number" value={form.trigger_delay_seconds} onChange={(e) => f("trigger_delay_seconds", parseInt(e.target.value) || 0)} className="bg-gray-800 border-gray-700" />
+                  </div>
+                )}
+              </div>
+
+              {/* Marketing fields */}
+              <div className="space-y-2 border border-dashed border-gray-700 rounded-lg p-3">
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Conteúdo do Pop-up</p>
+                <div>
+                  <Label className="text-gray-400 text-xs">Subtítulo</Label>
+                  <Input value={form.subtitle} onChange={(e) => f("subtitle", e.target.value)} placeholder="Texto de apoio" className="bg-gray-800 border-gray-700" />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <Label className="text-gray-400 text-xs">Texto do Botão</Label>
+                    <Input value={form.button_text} onChange={(e) => f("button_text", e.target.value)} placeholder="Ex: Quero agora!" className="bg-gray-800 border-gray-700" />
+                  </div>
+                  <div>
+                    <Label className="text-gray-400 text-xs">URL do Botão</Label>
+                    <Input value={form.button_url} onChange={(e) => f("button_url", e.target.value)} placeholder="https://..." className="bg-gray-800 border-gray-700" />
+                  </div>
+                </div>
               </div>
 
               {/* Image */}

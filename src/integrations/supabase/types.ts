@@ -168,6 +168,7 @@ export type Database = {
           image_url: string | null
           is_active: boolean
           name: string
+          product_id: string | null
           subtitle: string | null
           target_audience: string
           title: string
@@ -181,6 +182,7 @@ export type Database = {
           image_url?: string | null
           is_active?: boolean
           name: string
+          product_id?: string | null
           subtitle?: string | null
           target_audience?: string
           title: string
@@ -194,6 +196,7 @@ export type Database = {
           image_url?: string | null
           is_active?: boolean
           name?: string
+          product_id?: string | null
           subtitle?: string | null
           target_audience?: string
           title?: string
@@ -583,6 +586,8 @@ export type Database = {
       popups: {
         Row: {
           betting_house_id: string | null
+          button_text: string | null
+          button_url: string | null
           checkout_link: string | null
           created_at: string
           final_benefits: Json | null
@@ -590,18 +595,24 @@ export type Database = {
           id: string
           image_url: string | null
           is_active: boolean
+          name: string | null
           question_1_options: Json | null
           question_1_text: string | null
           question_2_options: Json | null
           question_2_text: string | null
           question_3_options: Json | null
           question_3_text: string | null
+          subtitle: string | null
           target_audience: string
+          trigger_delay_seconds: number | null
+          trigger_type: string
           type: string
           updated_at: string
         }
         Insert: {
           betting_house_id?: string | null
+          button_text?: string | null
+          button_url?: string | null
           checkout_link?: string | null
           created_at?: string
           final_benefits?: Json | null
@@ -609,18 +620,24 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_active?: boolean
+          name?: string | null
           question_1_options?: Json | null
           question_1_text?: string | null
           question_2_options?: Json | null
           question_2_text?: string | null
           question_3_options?: Json | null
           question_3_text?: string | null
+          subtitle?: string | null
           target_audience?: string
+          trigger_delay_seconds?: number | null
+          trigger_type?: string
           type: string
           updated_at?: string
         }
         Update: {
           betting_house_id?: string | null
+          button_text?: string | null
+          button_url?: string | null
           checkout_link?: string | null
           created_at?: string
           final_benefits?: Json | null
@@ -628,13 +645,17 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_active?: boolean
+          name?: string | null
           question_1_options?: Json | null
           question_1_text?: string | null
           question_2_options?: Json | null
           question_2_text?: string | null
           question_3_options?: Json | null
           question_3_text?: string | null
+          subtitle?: string | null
           target_audience?: string
+          trigger_delay_seconds?: number | null
+          trigger_type?: string
           type?: string
           updated_at?: string
         }
