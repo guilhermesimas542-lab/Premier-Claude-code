@@ -41,7 +41,10 @@ interface ClientProfileModalProps {
 }
 
 const fmt = (d: string | null | undefined) =>
-  d ? new Date(d).toLocaleDateString("pt-BR") : "—";
+  d ? new Date(d).toLocaleString("pt-BR", {
+    year: "numeric", month: "2-digit", day: "2-digit",
+    hour: "2-digit", minute: "2-digit", second: "2-digit",
+  }) : "—";
 
 const fmtDatetime = (d: string | null | undefined) =>
   d ? new Date(d).toLocaleString("pt-BR") : "—";
