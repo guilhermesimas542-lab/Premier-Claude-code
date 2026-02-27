@@ -5,54 +5,61 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2, Loader2, GripVertical, Image } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, Image } from "lucide-react";
 import { toast } from "sonner";
+import FunnelBuilder from "@/admin/components/funnel-popup/FunnelBuilder";
+import type { PopupFormState, FunnelQuestion } from "@/admin/components/funnel-popup/types";
 
 interface Card {
   id: string;
+  slug: string | null;
   name: string;
-  image_url: string | null;
   title: string;
   subtitle: string | null;
+  description: string | null;
+  image_url: string | null;
+  icon: string | null;
   card_type: string;
+  category: string;
+  badge_text: string | null;
+  badge_color: string | null;
+  button_text_access: string | null;
+  button_text_acquire: string | null;
+  requires_access: boolean;
+  access_field: string | null;
   checkout_url: string | null;
-  product_id: string | null;
-  is_active: boolean;
+  questions: any;
   display_order: number;
-  target_audience: string;
+  is_active: boolean;
   created_at: string;
 }
 
-interface FunnelStep {
-  id: string;
-  card_id: string;
-  step_order: number;
-  question: string;
-  option_a: string;
-  option_b: string;
-  option_c: string | null;
-  option_d: string | null;
-}
-
-const EMPTY_CARD = {
+const EMPTY_FORM = {
+  slug: "",
   name: "",
-  image_url: "",
   title: "",
   subtitle: "",
-  card_type: "info",
+  description: "",
+  image_url: "",
+  icon: "",
+  card_type: "type2_top",
+  category: "sport",
+  badge_text: "",
+  badge_color: "primary",
+  button_text_access: "Acessar",
+  button_text_acquire: "Adquirir Agora",
+  requires_access: false,
+  access_field: "",
   checkout_url: "",
-  product_id: "",
-  is_active: true,
   display_order: 0,
-  target_audience: "all",
+  is_active: true,
 };
 
-const EMPTY_STEP = {
-  question: "",
-  option_a: "",
-  option_b: "",
-  option_c: "",
-  option_d: "",
+const CATEGORY_LABELS: Record<string, string> = {
+  sport: "Esporte",
+  casino: "Cassino",
+  quick_access: "Acesso Rápido",
+  blocked: "Bloqueado",
 };
 
 export default function AdminCards() {
@@ -60,9 +67,9 @@ export default function AdminCards() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
-  const [form, setForm] = useState({ ...EMPTY_CARD });
+  const [form, setForm] = useState({ ...EMPTY_FORM });
   const [saving, setSaving] = useState(false);
-  const [steps, setSteps] = useState<(typeof EMPTY_STEP & { id?: string })[]>([]);
+  const [questions, setQuestions] = useState<FunnelQuestion[]>([]);
 
   const set = (key: string, val: any) => setForm((f) => ({ ...f, [key]: val }));
 
@@ -80,45 +87,39 @@ export default function AdminCards() {
 
   const openCreate = () => {
     setEditId(null);
-    setForm({ ...EMPTY_CARD });
-    setSteps([]);
+    setForm({ ...EMPTY_FORM });
+    setQuestions([]);
     setShowForm(true);
   };
 
-  const openEdit = async (c: Card) => {
+  const openEdit = (c: Card) => {
     setEditId(c.id);
     setForm({
+      slug: c.slug ?? "",
       name: c.name,
-      image_url: c.image_url ?? "",
       title: c.title,
       subtitle: c.subtitle ?? "",
+      description: c.description ?? "",
+      image_url: c.image_url ?? "",
+      icon: c.icon ?? "",
       card_type: c.card_type,
+      category: c.category ?? "sport",
+      badge_text: c.badge_text ?? "",
+      badge_color: c.badge_color ?? "primary",
+      button_text_access: c.button_text_access ?? "Acessar",
+      button_text_acquire: c.button_text_acquire ?? "Adquirir Agora",
+      requires_access: c.requires_access ?? false,
+      access_field: c.access_field ?? "",
       checkout_url: c.checkout_url ?? "",
-      product_id: c.product_id ?? "",
-      is_active: c.is_active,
       display_order: c.display_order,
-      target_audience: c.target_audience,
+      is_active: c.is_active,
     });
-
-    if (c.card_type === "funnel") {
-      const { data } = await supabase
-        .from("funnel_steps" as any)
-        .select("*")
-        .eq("card_id", c.id)
-        .order("step_order", { ascending: true });
-      setSteps(
-        (data as any as FunnelStep[])?.map((s) => ({
-          id: s.id,
-          question: s.question,
-          option_a: s.option_a,
-          option_b: s.option_b,
-          option_c: s.option_c ?? "",
-          option_d: s.option_d ?? "",
-        })) ?? []
-      );
-    } else {
-      setSteps([]);
-    }
+    // Parse questions from JSONB
+    const q = Array.isArray(c.questions) ? c.questions : [];
+    setQuestions(q.map((item: any) => ({
+      text: item.text || "",
+      options: Array.isArray(item.options) ? item.options : ["", ""],
+    })));
     setShowForm(true);
   };
 
@@ -129,49 +130,35 @@ export default function AdminCards() {
     }
     setSaving(true);
 
-    const payload = {
+    const payload: any = {
+      slug: form.slug || null,
       name: form.name,
-      image_url: form.image_url || null,
       title: form.title,
       subtitle: form.subtitle || null,
+      description: form.description || null,
+      image_url: form.image_url || null,
+      icon: form.icon || null,
       card_type: form.card_type,
+      category: form.category,
+      badge_text: form.badge_text || null,
+      badge_color: form.badge_color || "primary",
+      button_text_access: form.button_text_access || "Acessar",
+      button_text_acquire: form.button_text_acquire || "Adquirir Agora",
+      requires_access: form.requires_access,
+      access_field: form.access_field || null,
       checkout_url: form.checkout_url || null,
-      product_id: form.product_id || null,
-      is_active: form.is_active,
+      questions: questions.filter(q => q.text && q.options.some(o => o)),
       display_order: form.display_order,
-      target_audience: form.target_audience,
+      is_active: form.is_active,
+      updated_at: new Date().toISOString(),
     };
-
-    let cardId = editId;
 
     if (editId) {
       const { error } = await supabase.from("cards" as any).update(payload).eq("id", editId);
       if (error) { toast.error(error.message); setSaving(false); return; }
     } else {
-      const { data, error } = await (supabase.from("cards" as any).insert(payload).select("id").single() as any);
+      const { error } = await supabase.from("cards" as any).insert(payload);
       if (error) { toast.error(error.message); setSaving(false); return; }
-      cardId = (data as any).id;
-    }
-
-    // Save funnel steps if type is funnel
-    if (form.card_type === "funnel" && cardId) {
-      // Delete existing steps
-      await supabase.from("funnel_steps" as any).delete().eq("card_id", cardId);
-      // Insert new
-      const stepsToInsert = steps
-        .filter((s) => s.question && s.option_a && s.option_b)
-        .map((s, i) => ({
-          card_id: cardId,
-          step_order: i + 1,
-          question: s.question,
-          option_a: s.option_a,
-          option_b: s.option_b,
-          option_c: s.option_c || null,
-          option_d: s.option_d || null,
-        }));
-      if (stepsToInsert.length > 0) {
-        await supabase.from("funnel_steps" as any).insert(stepsToInsert);
-      }
     }
 
     toast.success(editId ? "Card atualizado" : "Card criado");
@@ -187,17 +174,20 @@ export default function AdminCards() {
     load();
   };
 
-  const addStep = () => {
-    if (steps.length >= 5) { toast.error("Máximo de 5 etapas"); return; }
-    setSteps([...steps, { ...EMPTY_STEP }]);
+  // Adapter for FunnelBuilder: it expects PopupFormState
+  const funnelForm: PopupFormState = {
+    type: "card",
+    is_active: form.is_active,
+    target_audience: "all",
+    image_url: form.image_url,
+    checkout_link: form.checkout_url,
+    questions,
+    final_title: "",
+    final_benefits: [],
   };
 
-  const updateStep = (idx: number, key: string, val: string) => {
-    setSteps((prev) => prev.map((s, i) => (i === idx ? { ...s, [key]: val } : s)));
-  };
-
-  const removeStep = (idx: number) => {
-    setSteps((prev) => prev.filter((_, i) => i !== idx));
+  const handleFunnelChange = (updated: PopupFormState) => {
+    setQuestions(updated.questions);
   };
 
   return (
@@ -220,6 +210,8 @@ export default function AdminCards() {
               <div className="w-14 h-10 rounded-lg bg-gray-800 flex items-center justify-center shrink-0 overflow-hidden">
                 {c.image_url ? (
                   <img src={c.image_url} alt={c.name} className="w-full h-full object-cover" />
+                ) : c.icon ? (
+                  <span className="text-lg">{c.icon}</span>
                 ) : (
                   <Image className="w-5 h-5 text-gray-500" />
                 )}
@@ -227,14 +219,29 @@ export default function AdminCards() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="font-semibold text-white text-sm">{c.title}</span>
-                  <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${c.card_type === "funnel" ? "bg-purple-500/20 text-purple-400 border border-purple-400/30" : "bg-blue-500/20 text-blue-400 border border-blue-400/30"}`}>
-                    {c.card_type === "funnel" ? "FUNIL" : "INFO"}
+                  <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
+                    c.category === "casino" ? "bg-purple-500/20 text-purple-400 border border-purple-400/30" :
+                    c.category === "quick_access" ? "bg-orange-500/20 text-orange-400 border border-orange-400/30" :
+                    "bg-blue-500/20 text-blue-400 border border-blue-400/30"
+                  }`}>
+                    {CATEGORY_LABELS[c.category] || c.category}
+                  </span>
+                  <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
+                    c.card_type === "type1_lateral" ? "bg-cyan-500/20 text-cyan-400 border border-cyan-400/30" :
+                    "bg-indigo-500/20 text-indigo-400 border border-indigo-400/30"
+                  }`}>
+                    {c.card_type === "type1_lateral" ? "LATERAL" : "TOP"}
                   </span>
                   <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${c.is_active ? "bg-green-500/20 text-green-400 border border-green-400/30" : "bg-red-500/20 text-red-400 border border-red-400/30"}`}>
                     {c.is_active ? "ATIVO" : "INATIVO"}
                   </span>
                 </div>
-                <p className="text-xs text-gray-500 truncate mt-0.5">{c.name} · Ordem: {c.display_order}</p>
+                <p className="text-xs text-gray-500 truncate mt-0.5">
+                  {c.slug && <span className="font-mono text-gray-600">{c.slug}</span>}
+                  {c.slug && " · "}
+                  Ordem: {c.display_order}
+                  {c.requires_access && " · 🔒 Requer acesso"}
+                </p>
               </div>
               <div className="flex items-center gap-2 shrink-0">
                 <button onClick={() => openEdit(c)} className="text-blue-400 hover:text-blue-300 p-1.5">
@@ -260,17 +267,28 @@ export default function AdminCards() {
           </DialogHeader>
 
           <div className="space-y-3">
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs text-gray-500">Slug (identificador)</label>
+                <Input value={form.slug} onChange={(e) => set("slug", e.target.value)} placeholder="ex: futebol" className="bg-gray-900 border-gray-800 font-mono text-xs" />
+              </div>
+              <div>
+                <label className="text-xs text-gray-500">Ícone (emoji)</label>
+                <Input value={form.icon} onChange={(e) => set("icon", e.target.value)} placeholder="⚽" className="bg-gray-900 border-gray-800" />
+              </div>
+            </div>
+
             <div>
               <label className="text-xs text-gray-500">Nome interno *</label>
-              <Input value={form.name} onChange={(e) => set("name", e.target.value)} placeholder="Ex: Upsell Pro" className="bg-gray-900 border-gray-800" />
+              <Input value={form.name} onChange={(e) => set("name", e.target.value)} placeholder="Ex: Futebol" className="bg-gray-900 border-gray-800" />
             </div>
             <div>
               <label className="text-xs text-gray-500">Título *</label>
-              <Input value={form.title} onChange={(e) => set("title", e.target.value)} placeholder="Ex: Desbloqueie o Plano Pro" className="bg-gray-900 border-gray-800" />
+              <Input value={form.title} onChange={(e) => set("title", e.target.value)} placeholder="Ex: Futebol" className="bg-gray-900 border-gray-800" />
             </div>
             <div>
               <label className="text-xs text-gray-500">Subtítulo</label>
-              <Input value={form.subtitle} onChange={(e) => set("subtitle", e.target.value)} placeholder="Ex: Acesse tips exclusivas" className="bg-gray-900 border-gray-800" />
+              <Input value={form.subtitle} onChange={(e) => set("subtitle", e.target.value)} placeholder="Ex: Champions League, Brasileirão" className="bg-gray-900 border-gray-800" />
             </div>
             <div>
               <label className="text-xs text-gray-500">Imagem URL</label>
@@ -279,29 +297,24 @@ export default function AdminCards() {
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-xs text-gray-500">Tipo</label>
+                <label className="text-xs text-gray-500">Tipo visual</label>
                 <Select value={form.card_type} onValueChange={(v) => set("card_type", v)}>
-                  <SelectTrigger className="bg-gray-900 border-gray-800">
-                    <SelectValue />
-                  </SelectTrigger>
+                  <SelectTrigger className="bg-gray-900 border-gray-800"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="info">Info</SelectItem>
-                    <SelectItem value="funnel">Funil</SelectItem>
+                    <SelectItem value="type1_lateral">Imagem Lateral</SelectItem>
+                    <SelectItem value="type2_top">Imagem em Cima</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div>
-                <label className="text-xs text-gray-500">Público-alvo</label>
-                <Select value={form.target_audience} onValueChange={(v) => set("target_audience", v)}>
-                  <SelectTrigger className="bg-gray-900 border-gray-800">
-                    <SelectValue />
-                  </SelectTrigger>
+                <label className="text-xs text-gray-500">Categoria</label>
+                <Select value={form.category} onValueChange={(v) => set("category", v)}>
+                  <SelectTrigger className="bg-gray-900 border-gray-800"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Todos</SelectItem>
-                    <SelectItem value="free">Free</SelectItem>
-                    <SelectItem value="basic">Basic</SelectItem>
-                    <SelectItem value="pro">Pro</SelectItem>
-                    <SelectItem value="ultra">Ultra</SelectItem>
+                    <SelectItem value="sport">Esporte</SelectItem>
+                    <SelectItem value="casino">Cassino</SelectItem>
+                    <SelectItem value="quick_access">Acesso Rápido</SelectItem>
+                    <SelectItem value="blocked">Bloqueado</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -309,60 +322,76 @@ export default function AdminCards() {
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-xs text-gray-500">Ordem de exibição</label>
+                <label className="text-xs text-gray-500">Badge texto</label>
+                <Input value={form.badge_text} onChange={(e) => set("badge_text", e.target.value)} placeholder="Ex: BETA" className="bg-gray-900 border-gray-800" />
+              </div>
+              <div>
+                <label className="text-xs text-gray-500">Badge cor</label>
+                <Select value={form.badge_color} onValueChange={(v) => set("badge_color", v)}>
+                  <SelectTrigger className="bg-gray-900 border-gray-800"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="primary">Primary (verde)</SelectItem>
+                    <SelectItem value="gold">Gold (dourado)</SelectItem>
+                    <SelectItem value="green">Green</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs text-gray-500">Texto botão acesso</label>
+                <Input value={form.button_text_access} onChange={(e) => set("button_text_access", e.target.value)} className="bg-gray-900 border-gray-800" />
+              </div>
+              <div>
+                <label className="text-xs text-gray-500">Texto botão aquisição</label>
+                <Input value={form.button_text_acquire} onChange={(e) => set("button_text_acquire", e.target.value)} className="bg-gray-900 border-gray-800" />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs text-gray-500">Ordem exibição</label>
                 <Input type="number" value={form.display_order} onChange={(e) => set("display_order", parseInt(e.target.value) || 0)} className="bg-gray-900 border-gray-800" />
               </div>
               <div>
                 <label className="text-xs text-gray-500">Checkout URL</label>
-                <Input value={form.checkout_url} onChange={(e) => set("checkout_url", e.target.value)} placeholder="https://checkout..." className="bg-gray-900 border-gray-800" />
+                <Input value={form.checkout_url} onChange={(e) => set("checkout_url", e.target.value)} placeholder="https://..." className="bg-gray-900 border-gray-800" />
               </div>
             </div>
 
-            <div>
-              <label className="text-xs text-gray-500">Product ID (opcional)</label>
-              <Input value={form.product_id} onChange={(e) => set("product_id", e.target.value)} placeholder="UUID do produto" className="bg-gray-900 border-gray-800 font-mono text-xs" />
+            <div className="flex items-center justify-between p-3 rounded-lg bg-gray-800">
+              <div>
+                <label className="text-sm font-medium">Requer acesso especial</label>
+                <p className="text-[10px] text-gray-500">Exibe botão "Adquirir" para quem não tem acesso</p>
+              </div>
+              <Switch checked={form.requires_access} onCheckedChange={(v) => set("requires_access", v)} />
             </div>
+
+            {form.requires_access && (
+              <div>
+                <label className="text-xs text-gray-500">Campo de acesso (useUserAccess)</label>
+                <Select value={form.access_field} onValueChange={(v) => set("access_field", v)}>
+                  <SelectTrigger className="bg-gray-900 border-gray-800"><SelectValue placeholder="Selecione..." /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="hasAlavancagem">hasAlavancagem</SelectItem>
+                    <SelectItem value="hasOddsAltas">hasOddsAltas</SelectItem>
+                    <SelectItem value="hasLiveTelegram">hasLiveTelegram</SelectItem>
+                    <SelectItem value="isBasic">isBasic</SelectItem>
+                    <SelectItem value="isPro">isPro</SelectItem>
+                    <SelectItem value="isUltra">isUltra</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
             <div className="flex items-center justify-between">
               <label className="text-sm">Ativo</label>
               <Switch checked={form.is_active} onCheckedChange={(v) => set("is_active", v)} />
             </div>
 
-            {/* Funnel Steps */}
-            {form.card_type === "funnel" && (
-              <div className="border-t border-white/10 pt-3">
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-xs text-gray-400 font-semibold uppercase tracking-wide">Etapas do Funil ({steps.length}/5)</p>
-                  <Button size="sm" variant="outline" onClick={addStep} disabled={steps.length >= 5}>
-                    <Plus className="w-3 h-3" /> Etapa
-                  </Button>
-                </div>
-                <div className="space-y-3">
-                  {steps.map((step, idx) => (
-                    <div key={idx} className="bg-gray-800 rounded-lg p-3 space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-semibold text-gray-400 flex items-center gap-1">
-                          <GripVertical className="w-3 h-3" /> Etapa {idx + 1}
-                        </span>
-                        <button onClick={() => removeStep(idx)} className="text-red-400 hover:text-red-300 text-xs">Remover</button>
-                      </div>
-                      <Input
-                        value={step.question}
-                        onChange={(e) => updateStep(idx, "question", e.target.value)}
-                        placeholder="Pergunta"
-                        className="bg-gray-900 border-gray-700 text-sm"
-                      />
-                      <div className="grid grid-cols-2 gap-2">
-                        <Input value={step.option_a} onChange={(e) => updateStep(idx, "option_a", e.target.value)} placeholder="Opção A *" className="bg-gray-900 border-gray-700 text-xs" />
-                        <Input value={step.option_b} onChange={(e) => updateStep(idx, "option_b", e.target.value)} placeholder="Opção B *" className="bg-gray-900 border-gray-700 text-xs" />
-                        <Input value={step.option_c} onChange={(e) => updateStep(idx, "option_c", e.target.value)} placeholder="Opção C" className="bg-gray-900 border-gray-700 text-xs" />
-                        <Input value={step.option_d} onChange={(e) => updateStep(idx, "option_d", e.target.value)} placeholder="Opção D" className="bg-gray-900 border-gray-700 text-xs" />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+            {/* Funnel Builder */}
+            <FunnelBuilder form={funnelForm} onChange={handleFunnelChange} />
 
             <Button onClick={handleSave} disabled={saving} className="w-full">
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : editId ? "Salvar alterações" : "Criar card"}
