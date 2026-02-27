@@ -5,10 +5,18 @@ const MOCK_USER_KEY = 'mock_user';
 export interface MockUser {
   email: string;
   plan: 'ULTRA';
+  dbId?: string;
+  mainTier?: string;
+  bettingHouseId?: string | null;
 }
 
-export function mockLogin(email: string): MockUser {
-  const user: MockUser = { email: email.toLowerCase().trim(), plan: 'ULTRA' };
+export function mockLogin(email: string, dbId?: string, mainTier?: string): MockUser {
+  const user: MockUser = {
+    email: email.toLowerCase().trim(),
+    plan: 'ULTRA',
+    dbId,
+    mainTier: mainTier || 'free',
+  };
   localStorage.setItem(MOCK_USER_KEY, JSON.stringify(user));
   return user;
 }
