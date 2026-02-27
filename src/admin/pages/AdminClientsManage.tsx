@@ -15,7 +15,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, Pencil, Loader2, Trash2, ChevronsUpDown, ChevronUp, ChevronDown } from "lucide-react";
+import { Plus, Pencil, Loader2, Trash2, ChevronsUpDown, ChevronUp, ChevronDown, Copy, Check } from "lucide-react";
 import { toast } from "sonner";
 import type { AdminUser } from "../types";
 import { ClientProfileModal } from "../components/ClientProfileModal";
@@ -412,12 +412,25 @@ export default function AdminClientsManage() {
               {sortedUsers.map((u) => (
                 <tr key={u.id} className="border-b border-white/5 text-gray-300 text-xs hover:bg-white/5 transition-colors">
                   <td className="px-3 py-2">
-                    <button
-                      onClick={() => setProfileUserId(u.id)}
-                      className="text-blue-400 hover:text-blue-300 underline underline-offset-2 transition-colors text-left"
-                    >
-                      {u.email}
-                    </button>
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={() => setProfileUserId(u.id)}
+                        className="text-blue-400 hover:text-blue-300 underline underline-offset-2 transition-colors text-left truncate max-w-[200px]"
+                      >
+                        {u.email}
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigator.clipboard.writeText(u.email);
+                          toast.success("Email copiado!");
+                        }}
+                        className="text-gray-500 hover:text-white transition-colors flex-shrink-0"
+                        title="Copiar email"
+                      >
+                        <Copy className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </td>
                   <td className="px-3 py-2">
                     {u.betting_house_id ? (
