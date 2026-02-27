@@ -11,12 +11,12 @@ import BasicPlanModal from "@/components/BasicPlanModal";
 import { PromoCarousel } from "@/components/PromoCarousel";
 import { QuickAccessCards } from "@/components/QuickAccessCards";
 import { MarketingCards } from "@/components/MarketingCards";
-import { MarketingPopup } from "@/components/MarketingPopup";
+
 import { BottomNav } from "@/components/BottomNav";
 import { CHECKOUT_LINKS } from "@/lib/checkoutLinks";
 import logoImg from "@/assets/premier-logo-custom.png";
 import MatrixRain from "@/components/MatrixRain";
-import { supabase } from "@/integrations/supabase/client";
+
 import { WelcomePopup } from "@/components/HousePopups";
 import { useUserBettingHouse } from "@/hooks/useUserBettingHouse";
 
@@ -31,7 +31,6 @@ const Home = () => {
   const [showPromotionsModal, setShowPromotionsModal] = useState(false);
   const [showLifetimeModal, setShowLifetimeModal] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
-  const [marketingPopup, setMarketingPopup] = useState<{ imageUrl: string | null; title: string | null; subtitle: string | null; buttonText: string | null; buttonUrl: string | null } | null>(null);
 
   const mockUser = mockGetUser();
   const config = getStoredConfig();
@@ -63,32 +62,6 @@ const Home = () => {
       }
     });
 
-    // Fetch trigger-based popups (on_load / timed)
-    const fetchTriggerPopups = async () => {
-      const { data } = await supabase
-        .from("popups" as any)
-        .select("*")
-        .eq("is_active", true)
-        .in("trigger_type", ["on_load", "timed"])
-        .limit(1) as any;
-      if (data && data.length > 0) {
-        const p = data[0];
-        const shownKey = `popup_shown_${p.id}`;
-        if (localStorage.getItem(shownKey)) return;
-        const delay = p.trigger_type === "timed" ? (p.trigger_delay_seconds || 0) * 1000 : 0;
-        setTimeout(() => {
-          setMarketingPopup({
-            imageUrl: p.image_url,
-            title: p.final_title || p.name,
-            subtitle: p.subtitle,
-            buttonText: p.button_text,
-            buttonUrl: p.button_url || p.checkout_link,
-          });
-          localStorage.setItem(shownKey, "true");
-        }, delay);
-      }
-    };
-    fetchTriggerPopups();
   }, [navigate]);
 
   // Countdown timer
@@ -462,17 +435,6 @@ const Home = () => {
         </DialogContent>
       </Dialog>
 
-      {marketingPopup && (
-        <MarketingPopup
-          open={!!marketingPopup}
-          onClose={() => setMarketingPopup(null)}
-          imageUrl={marketingPopup.imageUrl}
-          title={marketingPopup.title}
-          subtitle={marketingPopup.subtitle}
-          buttonText={marketingPopup.buttonText}
-          buttonUrl={marketingPopup.buttonUrl}
-        />
-      )}
 
       <WelcomePopup house={userHouse as any} />
     </div>

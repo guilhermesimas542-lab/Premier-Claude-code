@@ -35,12 +35,22 @@ async function hasViewedPopup(userId: string, popupId: string): Promise<boolean>
 }
 
 async function markPopupViewed(userId: string, popupId: string) {
-  await supabase.from("user_popup_views" as any).insert({
-    user_id: userId,
-    popup_id: popupId,
-  });
+  try {
+    await supabase.from("user_popup_views" as any).insert({
+      user_id: userId,
+      popup_id: popupId,
+    });
+  } catch {
+    // UNIQUE constraint — already tracked
+  }
 }
 
+/**
+ * AutoPopup — unified component for ALL on_load popups.
+ * Fetches all active on_load popups, finds the first one
+ * the user hasn't seen yet, and displays it.
+ * Tracks views in user_popup_views (DB), not localStorage.
+ */
 export function WelcomePopup({ house }: { house: HousePopupData | null }) {
   const [open, setOpen] = useState(false);
   const [popupData, setPopupData] = useState<FunnelPopupData | null>(null);
@@ -48,7 +58,6 @@ export function WelcomePopup({ house }: { house: HousePopupData | null }) {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
 
-  // Detect if popup has quiz questions
   const hasQuiz = popupData && [
     popupData.question_1_text,
     popupData.question_2_text,
@@ -63,35 +72,40 @@ export function WelcomePopup({ house }: { house: HousePopupData | null }) {
   }, [currentUserId, currentPopupId]);
 
   useEffect(() => {
-    const fetchWelcomePopup = async () => {
+    const fetchFirstUnseenPopup = async () => {
       const userId = await getUserId();
       if (!userId) return;
       setCurrentUserId(userId);
 
-      const { data } = await supabase
+      // Fetch ALL active on_load popups, ordered by newest first
+      const { data: popups } = await supabase
         .from("popups")
         .select("id, type, image_url, button_url, checkout_link, question_1_text, question_1_options, question_2_text, question_2_options, question_3_text, question_3_options, final_title, final_benefits")
-        .eq("type", "welcome")
         .eq("is_active", true)
         .eq("trigger_type", "on_load")
-        .limit(1)
-        .maybeSingle();
+        .order("created_at", { ascending: false });
 
-      if (data?.image_url) {
-        const alreadyViewed = await hasViewedPopup(userId, data.id);
-        if (alreadyViewed) return;
-        setCurrentPopupId(data.id);
-        setPopupData(data as unknown as FunnelPopupData);
-        setOpen(true);
+      if (!popups || popups.length === 0) return;
+
+      // Find the FIRST popup this user hasn't seen yet
+      for (const popup of popups) {
+        if (!popup.image_url) continue;
+        const alreadyViewed = await hasViewedPopup(userId, popup.id);
+        if (!alreadyViewed) {
+          setCurrentPopupId(popup.id);
+          setPopupData(popup as unknown as FunnelPopupData);
+          setOpen(true);
+          return; // Show only ONE popup
+        }
       }
     };
 
-    fetchWelcomePopup();
+    fetchFirstUnseenPopup();
   }, [house]);
 
   if (!popupData || !open) return null;
 
-  // If has quiz → delegate to FunnelPopup (handles image → quiz → checkout flow)
+  // If has quiz → delegate to FunnelPopup
   if (hasQuiz) {
     return (
       <FunnelPopup
@@ -122,7 +136,7 @@ export function WelcomePopup({ house }: { house: HousePopupData | null }) {
             }}
             className="w-full cursor-pointer focus:outline-none"
           >
-            <img src={popupData.image_url!} alt="Bem-vindo" className="w-full rounded-xl" />
+            <img src={popupData.image_url!} alt="Popup" className="w-full rounded-xl" />
           </button>
         </DialogContent>
       </Dialog>
