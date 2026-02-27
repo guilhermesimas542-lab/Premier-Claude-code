@@ -11,7 +11,7 @@ export function LogoInput({ onUploadComplete, currentPreview }: LogoInputProps) 
   const [preview, setPreview] = useState<string | null>(currentPreview || null);
   const [isUploading, setIsUploading] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
-  const [statusText, setStatusText] = useState("Arraste e solte, cole (Ctrl+V), ou clique para enviar o logo");
+  const [statusText, setStatusText] = useState("Arraste, cole (Ctrl+V), ou clique para enviar o logo");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -49,55 +49,15 @@ export function LogoInput({ onUploadComplete, currentPreview }: LogoInputProps) 
     setStatusText("Logo enviado com sucesso!");
   }, [onUploadComplete]);
 
-  const fetchImageAsFile = useCallback(async (url: string) => {
-    try {
-      setStatusText("Buscando imagem da web...");
-      setIsUploading(true);
-      const response = await fetch(url);
-      const blob = await response.blob();
-      const name = url.substring(url.lastIndexOf("/") + 1).split("?")[0] || "logo.png";
-      const file = new File([blob], name, { type: blob.type });
-      await uploadFile(file);
-    } catch (e) {
-      console.error("Failed to fetch image from URL:", e);
-      setStatusText("Não foi possível buscar a imagem. Tente salvar o arquivo primeiro.");
-      setIsUploading(false);
-      setPreview(null);
-    }
-  }, [uploadFile]);
-
   const handleDrop = useCallback(async (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragOver(false);
 
-    // 1. Local files first
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       await uploadFile(e.dataTransfer.files[0]);
-      return;
     }
-
-    // 2. Extract image URL from dropped HTML (drag from browser)
-    const html = e.dataTransfer.getData("text/html");
-    if (html) {
-      const tempDiv = document.createElement("div");
-      tempDiv.innerHTML = html;
-      const img = tempDiv.querySelector("img");
-      if (img?.src) {
-        await fetchImageAsFile(img.src);
-        return;
-      }
-    }
-
-    // 3. Plain text URL
-    const textUrl = e.dataTransfer.getData("text/plain");
-    if (textUrl && (textUrl.startsWith("http://") || textUrl.startsWith("https://"))) {
-      await fetchImageAsFile(textUrl);
-      return;
-    }
-
-    setStatusText("Não foi possível processar o item arrastado.");
-  }, [uploadFile, fetchImageAsFile]);
+  }, [uploadFile]);
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -107,10 +67,21 @@ export function LogoInput({ onUploadComplete, currentPreview }: LogoInputProps) 
 
   const handleDragLeave = () => setIsDragOver(false);
 
+  // Global paste listener - works when container is focused or contains focus
   useEffect(() => {
     const handler = (e: ClipboardEvent) => {
-      if (!containerRef.current?.contains(document.activeElement) && document.activeElement !== containerRef.current) return;
-      if (e.clipboardData?.files?.[0]) uploadFile(e.clipboardData.files[0]);
+      // Check if our container has focus or contains the focused element
+      const container = containerRef.current;
+      if (!container) return;
+      
+      const active = document.activeElement;
+      if (active !== container && !container.contains(active)) return;
+
+      const files = e.clipboardData?.files;
+      if (files && files.length > 0 && files[0].type.startsWith("image/")) {
+        e.preventDefault();
+        uploadFile(files[0]);
+      }
     };
     document.addEventListener("paste", handler);
     return () => document.removeEventListener("paste", handler);
@@ -120,7 +91,7 @@ export function LogoInput({ onUploadComplete, currentPreview }: LogoInputProps) 
     <div
       ref={containerRef}
       tabIndex={0}
-      className={`w-full h-32 border-2 border-dashed rounded-lg flex items-center justify-center text-center cursor-pointer transition-all outline-none ${
+      className={`w-full h-32 border-2 border-dashed rounded-lg flex items-center justify-center text-center cursor-pointer transition-all outline-none focus:ring-2 focus:ring-primary/50 ${
         isDragOver
           ? "border-primary bg-primary/10"
           : "border-border/50 hover:border-border"
@@ -128,7 +99,10 @@ export function LogoInput({ onUploadComplete, currentPreview }: LogoInputProps) 
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
-      onClick={() => fileInputRef.current?.click()}
+      onClick={() => {
+        containerRef.current?.focus();
+        fileInputRef.current?.click();
+      }}
     >
       <input
         type="file"
