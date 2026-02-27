@@ -36,6 +36,7 @@ import AdminPopups from "./admin/pages/AdminFunnelPopups";
 import AdminTeams from "./admin/pages/AdminTeams";
 import AdminPredictions from "./admin/pages/AdminPredictions";
 import AdminCards from "./admin/pages/AdminCards";
+import AdminPayCards from "./admin/pages/AdminPayCards";
 import { Navigate } from "react-router-dom";
 import { FunnelPopupProvider } from "./context/FunnelPopupContext";
 
@@ -88,6 +89,7 @@ const App = () => (
               <Route path="popups" element={<AdminPopups />} />
               <Route path="funis" element={<Navigate to="/admin/popups" replace />} />
               <Route path="cards" element={<AdminCards />} />
+              <Route path="pay-cards" element={<AdminPayCards />} />
               {/* Cassino placeholders */}
               <Route path="cassino" element={<AdminCassinoPlaceholder />} />
               <Route path="cassino/analytics" element={<AdminCassinoPlaceholder />} />

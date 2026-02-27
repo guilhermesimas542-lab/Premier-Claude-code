@@ -17,6 +17,8 @@ import MatrixRain from "@/components/MatrixRain";
 import logoImg from "@/assets/premier-logo-custom.png";
 import { useUserBettingHouse } from "@/hooks/useUserBettingHouse";
 import { UpgradePopup } from "@/components/HousePopups";
+import { usePayCardByPlan, type PayCardData } from "@/hooks/usePayCards";
+import { PayCardFunnelModal } from "@/components/PayCardFunnelModal";
 
 
 // ============ TIPOS ============
@@ -158,7 +160,9 @@ const Sport = () => {
   const [upgradePopupImage, setUpgradePopupImage] = useState<string | null>(null);
   const [upgradePopupLink, setUpgradePopupLink] = useState<string | null>(null);
 
-  
+  const [payCardData, setPayCardData] = useState<PayCardData | null>(null);
+  const [payCardModalOpen, setPayCardModalOpen] = useState(false);
+  const { fetchByPlan } = usePayCardByPlan();
 
   const [tips, setTips] = useState<DisplayTip[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -440,7 +444,26 @@ const Sport = () => {
   };
 
 
-  const handleLockedClick = (entry: DisplayTip) => {
+  const handleLockedClick = async (entry: DisplayTip) => {
+    // Determine the plan key for pay_cards lookup
+    let planKey: string | null = null;
+    if (entry.addon_required === "alavancagem") planKey = "alavancagem";
+    else if (entry.addon_required === "desaltas") planKey = "desaltas";
+    else if (entry.tier_required === "basic") planKey = "basic";
+    else if (entry.tier_required === "pro") planKey = "pro";
+    else if (entry.tier_required === "ultra") planKey = "ultra";
+
+    // Try to find a pay card funnel first
+    if (planKey) {
+      const pc = await fetchByPlan(planKey);
+      if (pc) {
+        setPayCardData(pc);
+        setPayCardModalOpen(true);
+        return;
+      }
+    }
+
+    // Fallback to legacy upgrade popup
     const h = userHouse as any;
     let image: string | null = null;
     let link: string | null = null;
@@ -470,7 +493,6 @@ const Sport = () => {
       setUpgradePopupLink(link);
       setUpgradePopupOpen(true);
     }
-    // If no popup image configured, do nothing (silently ignore)
   };
 
   const handleOpenJustificativa = useCallback((texto: string) => {
@@ -729,6 +751,13 @@ const Sport = () => {
         image={upgradePopupImage}
         link={upgradePopupLink}
       />
+      {payCardData && (
+        <PayCardFunnelModal
+          payCard={payCardData}
+          open={payCardModalOpen}
+          onClose={() => { setPayCardModalOpen(false); setPayCardData(null); }}
+        />
+      )}
       <BottomNav />
     </div>
   );
