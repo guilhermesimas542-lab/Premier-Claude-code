@@ -179,13 +179,10 @@ export const SpecialBettingCard = ({
         )}
       </div>
 
-      {/* Stadium Background Image - grayscale when locked */}
+      {/* Stadium Background Image */}
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat pointer-events-none rounded-xl overflow-hidden"
-        style={{
-          backgroundImage: `url('/images/futsal-arena.jpg')`,
-          ...(isLocked && !isExpired ? { filter: 'grayscale(1)', opacity: 0.5 } : {}),
-        }}
+        style={{ backgroundImage: `url('/images/futsal-arena.jpg')` }}
       />
 
       {/* Matrix Rain overlay inside card */}
@@ -203,27 +200,33 @@ export const SpecialBettingCard = ({
             ? "bg-gradient-to-b from-teal-900/60 via-black/60 to-black/80"
             : "bg-gradient-to-b from-amber-900/60 via-black/60 to-black/80"
       }`} />
-      
-      {/* Locked Overlay with Lock Icon + CTA */}
+
+      {/* Saturation overlay — makes everything below it grayscale */}
       {isLocked && !isExpired && (
-        <>
-          <div className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-3 rounded-xl">
-            {lockedLabel && (
-              <span className="text-white/80 text-sm font-semibold">
-                Exclusivo do {lockedLabel}
-              </span>
-            )}
-            <div className="w-14 h-14 rounded-full bg-black/60 flex items-center justify-center">
-              <Lock className="w-7 h-7 text-white" />
-            </div>
-            <button
-              onClick={(e) => { e.stopPropagation(); window.open('/planos', '_self'); }}
-              className="mt-1 px-6 py-3 rounded-full bg-orange-500 hover:bg-orange-400 text-white text-sm font-bold shadow-lg transition-all hover:scale-105"
-            >
-              Adquira já
-            </button>
+        <div 
+          className="absolute inset-0 rounded-xl pointer-events-none"
+          style={{ backgroundColor: 'black', mixBlendMode: 'saturation', zIndex: 15 }}
+        />
+      )}
+      
+      {/* Locked Overlay with Lock Icon + CTA — above saturation overlay */}
+      {isLocked && !isExpired && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-xl" style={{ zIndex: 20 }}>
+          {lockedLabel && (
+            <span className="text-white/80 text-sm font-semibold">
+              Exclusivo do {lockedLabel}
+            </span>
+          )}
+          <div className="w-14 h-14 rounded-full bg-black/60 flex items-center justify-center">
+            <Lock className="w-7 h-7 text-white" />
           </div>
-        </>
+          <button
+            onClick={(e) => { e.stopPropagation(); window.open('/planos', '_self'); }}
+            className="mt-1 px-6 py-3 rounded-full bg-orange-500 hover:bg-orange-400 text-white text-sm font-bold shadow-lg transition-all hover:scale-105"
+          >
+            Adquira já
+          </button>
+        </div>
       )}
 
       {/* Countdown Timer - Top Left Corner - Always visible */}
