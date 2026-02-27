@@ -94,11 +94,10 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
 
   // Raw data
-  const [allUsers, setAllUsers] = useState<{ id: string; main_tier: string }[]>([]);
-  const [allSessions, setAllSessions] = useState<{ user_id: string; session_start_at: string }[]>([]);
+  const [allUsers, setAllUsers] = useState<{ id: string; main_tier: string; last_seen_at: string | null }[]>([]);
   const [allEntitlements, setAllEntitlements] = useState<{ product_key: string; user_id: string }[]>([]);
   const [newSignups, setNewSignups] = useState(0);
-  const [onlineUserIds, setOnlineUserIds] = useState<Set<string>>(new Set());
+  const [onlineCount, setOnlineCount] = useState(0);
   const [churnIds, setChurnIds] = useState<string[]>([]);
   const [paidIds, setPaidIds] = useState<string[]>([]);
 
@@ -117,22 +116,13 @@ export default function AdminDashboard() {
     setDateTo(to);
   };
 
-  // Online polling — use events table
+  // Online polling — use users.last_seen_at
   const fetchOnline = useCallback(async () => {
     const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
-    let q = supabase.from("events").select("user_id").gte("created_at", fiveMinAgo);
-    if (selectedHouseId) {
-      const { data: houseUsers } = await supabase.from("users").select("id").eq("betting_house_id", selectedHouseId);
-      const houseUserIds = (houseUsers ?? []).map((u) => u.id);
-      if (houseUserIds.length > 0) {
-        q = (q as any).in("user_id", houseUserIds);
-      } else {
-        setOnlineUserIds(new Set());
-        return;
-      }
-    }
-    const { data } = await q;
-    setOnlineUserIds(new Set((data ?? []).map((s: any) => s.user_id)));
+    let q = supabase.from("users").select("id", { count: "exact", head: true }).gte("last_seen_at", fiveMinAgo);
+    if (selectedHouseId) q = q.eq("betting_house_id", selectedHouseId);
+    const { count } = await q;
+    setOnlineCount(count ?? 0);
   }, [selectedHouseId]);
 
   useEffect(() => {
@@ -150,7 +140,7 @@ export default function AdminDashboard() {
       const fifteenDaysAgo = new Date(Date.now() - 15 * 86400000).toISOString();
 
       // Build user queries filtered by house
-      let usersQ = supabase.from("users").select("id, main_tier") as any;
+      let usersQ = supabase.from("users").select("id, main_tier, last_seen_at") as any;
       let newUsersQ = supabase.from("users").select("id", { count: "exact", head: true }).gte("created_at", since).lte("created_at", until) as any;
       let paidQ = supabase.from("users").select("id").neq("main_tier", "free") as any;
 
@@ -165,42 +155,31 @@ export default function AdminDashboard() {
       const users = usersRes.data ?? [];
       const paid = paidUsersRes.data ?? [];
 
-      // Filter sessions by house user IDs
+      // Entitlements
       const houseUserIds = users.map((u: any) => u.id);
-      let sessionsData: any[] = [];
       let entitlementsData: any[] = [];
 
       if (houseUserIds.length > 0) {
-        const [eventsRes, entitlementsRes] = await Promise.all([
-          supabase.from("events").select("user_id, created_at").gte("created_at", since).lte("created_at", until).in("user_id", houseUserIds.slice(0, 500)),
-          supabase.from("entitlements").select("product_key, user_id").eq("status", "active").in("user_id", houseUserIds.slice(0, 500)),
-        ]);
-        sessionsData = (eventsRes.data ?? []).map((e: any) => ({ user_id: e.user_id, session_start_at: e.created_at }));
-        entitlementsData = entitlementsRes.data ?? [];
+        const { data } = await supabase.from("entitlements").select("product_key, user_id").eq("status", "active").in("user_id", houseUserIds.slice(0, 500));
+        entitlementsData = data ?? [];
       } else if (!selectedHouseId) {
-        // No house filter — load all
-        const [eventsRes, entitlementsRes] = await Promise.all([
-          supabase.from("events").select("user_id, created_at").gte("created_at", since).lte("created_at", until),
-          supabase.from("entitlements").select("product_key, user_id").eq("status", "active"),
-        ]);
-        sessionsData = (eventsRes.data ?? []).map((e: any) => ({ user_id: e.user_id, session_start_at: e.created_at }));
-        entitlementsData = entitlementsRes.data ?? [];
+        const { data } = await supabase.from("entitlements").select("product_key, user_id").eq("status", "active");
+        entitlementsData = data ?? [];
       }
 
       setAllUsers(users);
-      setAllSessions(sessionsData);
       setAllEntitlements(entitlementsData);
       setNewSignups(newUsersRes.count ?? 0);
       setPaidIds(paid.map((u: any) => u.id));
 
-      // Churn — use events table
+      // Churn — paid users whose last_seen_at is older than 15 days
       if (paid.length > 0) {
         const ids = paid.map((u: any) => u.id);
-        const { data: recentEvents } = await supabase
-          .from("events").select("user_id")
-          .gte("created_at", fifteenDaysAgo)
-          .in("user_id", ids.slice(0, 500));
-        const recentIds = new Set((recentEvents ?? []).map((s: any) => s.user_id));
+        const { data: recentUsers } = await supabase
+          .from("users").select("id")
+          .gte("last_seen_at", fifteenDaysAgo)
+          .in("id", ids.slice(0, 500));
+        const recentIds = new Set((recentUsers ?? []).map((u: any) => u.id));
         setChurnIds(ids.filter((id) => !recentIds.has(id)));
       } else {
         setChurnIds([]);
@@ -224,17 +203,31 @@ export default function AdminDashboard() {
     }
   }
 
-  const filterSet = (ids: Iterable<string>) => {
-    if (!filteredUserIds) return new Set(ids);
-    const result = new Set<string>();
-    for (const id of ids) { if (filteredUserIds.has(id)) result.add(id); }
-    return result;
-  };
-
   const totalUsers = filteredUserIds ? filteredUserIds.size : allUsers.length;
-  const activeIds = filterSet(allSessions.map((s) => s.user_id));
-  const activeUsers = activeIds.size;
-  const onlineUsers = filterSet(onlineUserIds).size;
+
+  // Active users = users whose last_seen_at falls within the selected period
+  const since = dateFrom.toISOString();
+  const until = dateTo.toISOString();
+  const activeUsersList = allUsers.filter((u) => {
+    if (!u.last_seen_at) return false;
+    if (filteredUserIds && !filteredUserIds.has(u.id)) return false;
+    return u.last_seen_at >= since && u.last_seen_at <= until;
+  });
+  const activeUsers = activeUsersList.length;
+
+  // Online — already a simple count, apply plan filter
+  const onlineUsers = onlineCount; // plan filter not applicable to count-only query
+
+  // DAU based on last_seen_at (one point per user per day)
+  const dauMap: Record<string, Set<string>> = {};
+  activeUsersList.forEach((u) => {
+    const day = u.last_seen_at!.slice(0, 10);
+    if (!dauMap[day]) dauMap[day] = new Set();
+    dauMap[day].add(u.id);
+  });
+  const dauData = Object.entries(dauMap)
+    .map(([date, set]) => ({ date, users: set.size }))
+    .sort((a, b) => a.date.localeCompare(b.date));
 
   const relevantPaidIds = filteredUserIds
     ? paidIds.filter((id) => filteredUserIds!.has(id))
@@ -250,19 +243,6 @@ export default function AdminDashboard() {
   const pctOnlineActive = activeUsers > 0 ? (onlineUsers / activeUsers) * 100 : 0;
   const pctChurnPaid = paidUsersCount > 0 ? (churnRisk / paidUsersCount) * 100 : 0;
 
-  // DAU (filtered)
-  const dauMap: Record<string, Set<string>> = {};
-  allSessions.forEach((s) => {
-    if (filteredUserIds && !filteredUserIds.has(s.user_id)) return;
-    const day = s.session_start_at.slice(0, 10);
-    if (!dauMap[day]) dauMap[day] = new Set();
-    dauMap[day].add(s.user_id);
-  });
-  const dauData = Object.entries(dauMap)
-    .map(([date, set]) => ({ date, users: set.size }))
-    .sort((a, b) => a.date.localeCompare(b.date));
-
-  // Plan distribution (filtered)
   const relevantUsers = filteredUserIds
     ? allUsers.filter((u) => filteredUserIds!.has(u.id))
     : allUsers;
