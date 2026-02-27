@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { getTodayInBrazil } from "@/lib/timezone";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -25,8 +26,9 @@ export default function AdminTipsList() {
   const { selectedHouseId, houses } = useBettingHouseAdmin();
   const [items, setItems] = useState<AdminContentEntry[]>([]);
   const [loading, setLoading] = useState(true);
-  const today = new Date().toISOString().split("T")[0];
+  const today = getTodayInBrazil();
   const [filters, setFilters] = useState({ tier: "", addon: "", team: "", active: "", dateFrom: today, dateTo: today, result: "" });
+  const [activePeriod, setActivePeriod] = useState<string>("hoje");
   const [editItem, setEditItem] = useState<AdminContentEntry | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -111,7 +113,29 @@ export default function AdminTipsList() {
     else setSelectedIds(new Set(items.map((i) => i.id)));
   };
 
-  const setF = (k: string, v: string) => setFilters((f) => ({ ...f, [k]: v }));
+  const setF = (k: string, v: string) => {
+    setFilters((f) => ({ ...f, [k]: v }));
+    if (k === "dateFrom" || k === "dateTo") setActivePeriod("");
+  };
+
+  const handleDateShortcut = (period: string) => {
+    const todayDate = getTodayInBrazil();
+    const d = new Date(todayDate + "T12:00:00");
+    let from = new Date(d);
+    let to = new Date(d);
+
+    switch (period) {
+      case "hoje": break;
+      case "ontem": from.setDate(d.getDate() - 1); to.setDate(d.getDate() - 1); break;
+      case "amanha": from.setDate(d.getDate() + 1); to.setDate(d.getDate() + 1); break;
+      case "prox_7": to.setDate(d.getDate() + 6); break;
+      case "ult_7": from.setDate(d.getDate() - 6); break;
+    }
+
+    const fmt = (dt: Date) => dt.toISOString().split("T")[0];
+    setFilters((f) => ({ ...f, dateFrom: fmt(from), dateTo: fmt(to) }));
+    setActivePeriod(period);
+  };
 
   const handleSort = (col: SortColumn) => {
     if (sortCol === col) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
@@ -180,6 +204,27 @@ export default function AdminTipsList() {
           <SelectContent><SelectItem value="all">Todos</SelectItem><SelectItem value="pending">Pendente</SelectItem><SelectItem value="green">Green</SelectItem><SelectItem value="red">Red</SelectItem></SelectContent>
         </Select>
         <Button size="sm" onClick={load}>Filtrar</Button>
+      </div>
+
+      {/* Date shortcut buttons */}
+      <div className="flex flex-wrap gap-1.5">
+        {[
+          { key: "hoje", label: "Hoje" },
+          { key: "ontem", label: "Ontem" },
+          { key: "amanha", label: "Amanhã" },
+          { key: "prox_7", label: "Próximos 7 dias" },
+          { key: "ult_7", label: "Últimos 7 dias" },
+        ].map((btn) => (
+          <Button
+            key={btn.key}
+            size="sm"
+            variant={activePeriod === btn.key ? "default" : "outline"}
+            className={`text-xs h-7 ${activePeriod === btn.key ? "" : "border-gray-700 text-gray-400 hover:text-white"}`}
+            onClick={() => { handleDateShortcut(btn.key); }}
+          >
+            {btn.label}
+          </Button>
+        ))}
       </div>
 
       {/* Bulk action bar */}
