@@ -12,6 +12,8 @@ import type { PopupFormState, FunnelQuestion } from "@/admin/components/funnel-p
 import { LogoInput } from "@/admin/components/LogoInput";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
+import { PayCardMiniaturePreview } from "@/admin/components/pay-cards/PayCardMiniaturePreview";
+import { PayCardInteractivePreview } from "@/admin/components/pay-cards/PayCardInteractivePreview";
 
 interface PayCard {
   id: string;
@@ -179,6 +181,22 @@ export default function AdminPayCards() {
     setQuestions(updated.questions);
   };
 
+  // Preview data adapter
+  const previewData = {
+    has_intro_popup: form.has_intro_popup,
+    popup_title: form.popup_title,
+    popup_text: form.popup_text,
+    popup_image_url: form.popup_image_url,
+    popup_cta_text: form.popup_cta_text,
+    checkout_title: form.checkout_title,
+    checkout_url: form.checkout_url,
+    checkout_url_2: form.checkout_url_2,
+    checkout_label_1: form.checkout_label_1,
+    checkout_label_2: form.checkout_label_2,
+    checkout_benefits: form.checkout_benefits,
+    questions,
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -196,6 +214,7 @@ export default function AdminPayCards() {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-[100px]">Preview</TableHead>
               <TableHead>Nome</TableHead>
               <TableHead>Plano</TableHead>
               <TableHead>Popup Intro</TableHead>
@@ -209,6 +228,9 @@ export default function AdminPayCards() {
               const qCount = Array.isArray(c.quiz_questions) ? c.quiz_questions.filter((q: any) => q.text).length : 0;
               return (
                 <TableRow key={c.id} className="border-b border-white/10">
+                  <TableCell>
+                    <PayCardMiniaturePreview plan={c.associated_plan} />
+                  </TableCell>
                   <TableCell className="font-medium text-sm">{c.name}</TableCell>
                   <TableCell>
                     <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-400/30 font-medium">
@@ -238,7 +260,7 @@ export default function AdminPayCards() {
             })}
             {payCards.length === 0 && (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-8 text-gray-600">
+                <TableCell colSpan={7} className="text-center py-8 text-gray-600">
                   Nenhum Pay Card cadastrado
                 </TableCell>
               </TableRow>
@@ -247,116 +269,124 @@ export default function AdminPayCards() {
         </Table>
       )}
 
-      {/* Form Dialog */}
+      {/* Form Dialog - Two Column Layout */}
       <Dialog open={showForm} onOpenChange={(o) => !o && setShowForm(false)}>
-        <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-5xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editId ? "Editar Pay Card" : "Novo Pay Card"}</DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-4">
-            <div>
-              <label className="text-xs text-gray-500">Nome do funil *</label>
-              <Input value={form.name} onChange={(e) => set("name", e.target.value)} placeholder="Ex: Funil de Aquisição - Plano Pro" className="bg-gray-900 border-gray-800" />
-            </div>
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-6">
+            {/* Left Column: Form */}
+            <div className="space-y-4">
+              <div>
+                <label className="text-xs text-gray-500">Nome do funil *</label>
+                <Input value={form.name} onChange={(e) => set("name", e.target.value)} placeholder="Ex: Funil de Aquisição - Plano Pro" className="bg-gray-900 border-gray-800" />
+              </div>
 
-            <div>
-              <label className="text-xs text-gray-500">Plano associado *</label>
-              <Select value={form.associated_plan} onValueChange={(v) => set("associated_plan", v)}>
-                <SelectTrigger className="bg-gray-900 border-gray-800"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {PLAN_OPTIONS.map(p => (
-                    <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+              <div>
+                <label className="text-xs text-gray-500">Plano associado *</label>
+                <Select value={form.associated_plan} onValueChange={(v) => set("associated_plan", v)}>
+                  <SelectTrigger className="bg-gray-900 border-gray-800"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {PLAN_OPTIONS.map(p => (
+                      <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-            <div>
-              <label className="text-xs text-gray-500">Casa de Apostas</label>
-              <Select value={form.betting_house_id} onValueChange={(v) => set("betting_house_id", v)}>
-                <SelectTrigger className="bg-gray-900 border-gray-800"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="__none__">Geral (Padrão)</SelectItem>
-                  {houses.map(h => (
-                    <SelectItem key={h.id} value={h.id}>{h.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+              <div>
+                <label className="text-xs text-gray-500">Casa de Apostas</label>
+                <Select value={form.betting_house_id} onValueChange={(v) => set("betting_house_id", v)}>
+                  <SelectTrigger className="bg-gray-900 border-gray-800"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__none__">Geral (Padrão)</SelectItem>
+                    {houses.map(h => (
+                      <SelectItem key={h.id} value={h.id}>{h.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-            <div className="flex items-center justify-between">
-              <label className="text-sm">Ativo</label>
-              <Switch checked={form.is_active} onCheckedChange={(v) => set("is_active", v)} />
-            </div>
-
-            {/* Intro Popup Section */}
-            <div className="p-3 rounded-lg bg-gray-800 space-y-3">
               <div className="flex items-center justify-between">
-                <label className="text-sm font-medium">🖼️ Popup Introdutório</label>
-                <Switch checked={form.has_intro_popup} onCheckedChange={(v) => set("has_intro_popup", v)} />
+                <label className="text-sm">Ativo</label>
+                <Switch checked={form.is_active} onCheckedChange={(v) => set("is_active", v)} />
               </div>
 
-              {form.has_intro_popup && (
-                <div className="space-y-3 pt-2 border-t border-white/5">
-                  <div>
-                    <label className="text-xs text-gray-500">Título</label>
-                    <Input value={form.popup_title} onChange={(e) => set("popup_title", e.target.value)} placeholder="Ex: Desbloqueie o poder total!" className="bg-gray-900 border-gray-800" />
-                  </div>
-                  <div>
-                    <label className="text-xs text-gray-500">Texto</label>
-                    <Textarea value={form.popup_text} onChange={(e) => set("popup_text", e.target.value)} placeholder="Descrição do popup..." className="bg-gray-900 border-gray-800 text-sm" rows={3} />
-                  </div>
-                  <div>
-                    <label className="text-xs text-gray-500">Imagem</label>
-                    <LogoInput
-                      currentPreview={form.popup_image_url || null}
-                      onUploadComplete={(url) => set("popup_image_url", url)}
-                    />
-                  </div>
-                  <div>
-                    <label className="text-xs text-gray-500">Texto do botão CTA</label>
-                    <Input value={form.popup_cta_text} onChange={(e) => set("popup_cta_text", e.target.value)} placeholder="Ex: Continuar" className="bg-gray-900 border-gray-800" />
-                  </div>
+              {/* Intro Popup Section */}
+              <div className="p-3 rounded-lg bg-gray-800 space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium">🖼️ Popup Introdutório</label>
+                  <Switch checked={form.has_intro_popup} onCheckedChange={(v) => set("has_intro_popup", v)} />
                 </div>
-              )}
+
+                {form.has_intro_popup && (
+                  <div className="space-y-3 pt-2 border-t border-white/5">
+                    <div>
+                      <label className="text-xs text-gray-500">Título</label>
+                      <Input value={form.popup_title} onChange={(e) => set("popup_title", e.target.value)} placeholder="Ex: Desbloqueie o poder total!" className="bg-gray-900 border-gray-800" />
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-500">Texto</label>
+                      <Textarea value={form.popup_text} onChange={(e) => set("popup_text", e.target.value)} placeholder="Descrição do popup..." className="bg-gray-900 border-gray-800 text-sm" rows={3} />
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-500">Imagem</label>
+                      <LogoInput
+                        currentPreview={form.popup_image_url || null}
+                        onUploadComplete={(url) => set("popup_image_url", url)}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-500">Texto do botão CTA</label>
+                      <Input value={form.popup_cta_text} onChange={(e) => set("popup_cta_text", e.target.value)} placeholder="Ex: Continuar" className="bg-gray-900 border-gray-800" />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Quiz Section */}
+              <FunnelBuilder form={funnelForm} onChange={handleFunnelChange} />
+
+              {/* Checkout Section */}
+              <div className="p-3 rounded-lg bg-gray-800 space-y-3">
+                <label className="text-sm font-medium">💳 Checkout</label>
+                <div>
+                  <label className="text-xs text-gray-500">Título da oferta</label>
+                  <Input value={form.checkout_title} onChange={(e) => set("checkout_title", e.target.value)} placeholder="Ex: Assine o Plano Pro" className="bg-gray-900 border-gray-800" />
+                </div>
+                <div>
+                  <label className="text-xs text-gray-500">URL de checkout (Botão 1)</label>
+                  <Input value={form.checkout_url} onChange={(e) => set("checkout_url", e.target.value)} placeholder="https://..." className="bg-gray-900 border-gray-800" />
+                </div>
+                <div>
+                  <label className="text-xs text-gray-500">Label do Botão 1 (opcional)</label>
+                  <Input value={form.checkout_label_1} onChange={(e) => set("checkout_label_1", e.target.value)} placeholder="Ex: Comprar somente Pro" className="bg-gray-900 border-gray-800" />
+                </div>
+                <div>
+                  <label className="text-xs text-gray-500">URL de checkout (Botão 2 - opcional)</label>
+                  <Input value={form.checkout_url_2} onChange={(e) => set("checkout_url_2", e.target.value)} placeholder="https://... (pacote completo)" className="bg-gray-900 border-gray-800" />
+                </div>
+                <div>
+                  <label className="text-xs text-gray-500">Label do Botão 2 (opcional)</label>
+                  <Input value={form.checkout_label_2} onChange={(e) => set("checkout_label_2", e.target.value)} placeholder="Ex: Comprar Pacote Completo" className="bg-gray-900 border-gray-800" />
+                </div>
+                <div>
+                  <label className="text-xs text-gray-500">Benefícios (um por linha)</label>
+                  <Textarea value={form.checkout_benefits} onChange={(e) => set("checkout_benefits", e.target.value)} placeholder={"Acesso a todas as tips Pro\nSuporte prioritário\nGrupo exclusivo"} className="bg-gray-900 border-gray-800 text-sm" rows={4} />
+                </div>
+              </div>
+
+              <Button onClick={handleSave} disabled={saving} className="w-full">
+                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : editId ? "Salvar alterações" : "Criar Pay Card"}
+              </Button>
             </div>
 
-            {/* Quiz Section */}
-            <FunnelBuilder form={funnelForm} onChange={handleFunnelChange} />
-
-            {/* Checkout Section */}
-            <div className="p-3 rounded-lg bg-gray-800 space-y-3">
-              <label className="text-sm font-medium">💳 Checkout</label>
-              <div>
-                <label className="text-xs text-gray-500">Título da oferta</label>
-                <Input value={form.checkout_title} onChange={(e) => set("checkout_title", e.target.value)} placeholder="Ex: Assine o Plano Pro" className="bg-gray-900 border-gray-800" />
-              </div>
-              <div>
-                <label className="text-xs text-gray-500">URL de checkout (Botão 1)</label>
-                <Input value={form.checkout_url} onChange={(e) => set("checkout_url", e.target.value)} placeholder="https://..." className="bg-gray-900 border-gray-800" />
-              </div>
-              <div>
-                <label className="text-xs text-gray-500">Label do Botão 1 (opcional)</label>
-                <Input value={form.checkout_label_1} onChange={(e) => set("checkout_label_1", e.target.value)} placeholder="Ex: Comprar somente Pro" className="bg-gray-900 border-gray-800" />
-              </div>
-              <div>
-                <label className="text-xs text-gray-500">URL de checkout (Botão 2 - opcional)</label>
-                <Input value={form.checkout_url_2} onChange={(e) => set("checkout_url_2", e.target.value)} placeholder="https://... (pacote completo)" className="bg-gray-900 border-gray-800" />
-              </div>
-              <div>
-                <label className="text-xs text-gray-500">Label do Botão 2 (opcional)</label>
-                <Input value={form.checkout_label_2} onChange={(e) => set("checkout_label_2", e.target.value)} placeholder="Ex: Comprar Pacote Completo" className="bg-gray-900 border-gray-800" />
-              </div>
-              <div>
-                <label className="text-xs text-gray-500">Benefícios (um por linha)</label>
-                <Textarea value={form.checkout_benefits} onChange={(e) => set("checkout_benefits", e.target.value)} placeholder={"Acesso a todas as tips Pro\nSuporte prioritário\nGrupo exclusivo"} className="bg-gray-900 border-gray-800 text-sm" rows={4} />
-              </div>
+            {/* Right Column: Interactive Preview */}
+            <div className="hidden lg:block sticky top-0">
+              <PayCardInteractivePreview data={previewData} />
             </div>
-
-            <Button onClick={handleSave} disabled={saving} className="w-full">
-              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : editId ? "Salvar alterações" : "Criar Pay Card"}
-            </Button>
           </div>
         </DialogContent>
       </Dialog>
