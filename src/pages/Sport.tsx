@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { isAuthenticated, clearAuth } from "@/lib/auth";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { getTodayInBrazil, formatDateTimeBR, BRAZIL_TZ } from "@/lib/timezone";
+import { toZonedTime } from "date-fns-tz";
 import { BottomNav } from "@/components/BottomNav";
 import { supabase } from "@/integrations/supabase/client";
 import { mockGetUser } from "@/mocks/user";
@@ -92,19 +94,19 @@ function getAllowedTiers(mainTier: string): string[] {
   }
 }
 
-function calculateDisplayStatus(
+  function calculateDisplayStatus(
   entry: ContentEntry,
   allowedTiers: string[],
   activeAddons: string[],
 ): "unlocked" | "locked" | "expired" {
-  const now = new Date();
+  const now = toZonedTime(new Date(), BRAZIL_TZ);
 
   // Expiration check: prefer expires_at; fallback to starts_at + 1 hour
   if (entry.expires_at) {
-    if (now > new Date(entry.expires_at)) return "expired";
+    if (now > toZonedTime(new Date(entry.expires_at), BRAZIL_TZ)) return "expired";
   } else if (entry.starts_at) {
     const startsAt = new Date(entry.starts_at);
-    if (now > new Date(startsAt.getTime() + 60 * 60 * 1000)) return "expired";
+    if (now > toZonedTime(new Date(startsAt.getTime() + 60 * 60 * 1000), BRAZIL_TZ)) return "expired";
   }
 
   // Addon access
@@ -235,7 +237,7 @@ const Sport = () => {
 
       const allowedTiers = getAllowedTiers(userTier);
       const isPaidUser = userTier !== "free";
-      const today = new Date().toISOString().split("T")[0];
+      const today = getTodayInBrazil();
 
       // Fetch today's active entries
       const { data: entries, error: fetchError } = await supabase
@@ -282,21 +284,19 @@ const Sport = () => {
   }, []);
 
   // Derived data — re-filter on every tick so expired tips disappear in real-time
-  // Both conditions are checked independently (AND logic, not OR):
-  // 1. If starts_at is set → hide 1 hour after game starts (regardless of expires_at)
-  // 2. If expires_at is set → hide when it passes
+  // Uses São Paulo timezone for all comparisons
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const activeEntries = tips.filter(entry => {
-    const now = new Date();
+    const now = toZonedTime(new Date(), BRAZIL_TZ);
 
     // starts_at check: entries expire 1h after match starts
     if (entry.starts_at) {
       const expiryFromStart = new Date(new Date(entry.starts_at).getTime() + 60 * 60 * 1000);
-      if (now > expiryFromStart) return false;
+      if (now > toZonedTime(expiryFromStart, BRAZIL_TZ)) return false;
     }
 
     // explicit expires_at check
-    if (entry.expires_at && now > new Date(entry.expires_at)) return false;
+    if (entry.expires_at && now > toZonedTime(new Date(entry.expires_at), BRAZIL_TZ)) return false;
 
     return true;
   });
@@ -511,7 +511,7 @@ const Sport = () => {
     const market = entry.category || entry.title;
     const betChoice = entry.condition_to_win || entry.title;
     const matchDate = entry.starts_at
-      ? new Date(entry.starts_at).toLocaleString("pt-BR", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit" })
+      ? formatDateTimeBR(entry.starts_at, 'HH:mm dd/MM')
       : undefined;
     const expirationDate = entry.expires_at || undefined;
     const startsAt = entry.starts_at || undefined;

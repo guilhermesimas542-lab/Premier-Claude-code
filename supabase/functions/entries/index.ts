@@ -85,10 +85,13 @@ serve(async (req) => {
       .filter(e => !e.ends_at || new Date(e.ends_at) > new Date())
       .map(e => e.product_key);
 
-    // Parâmetro de data
+    // Parâmetro de data - usar timezone de São Paulo
     const url = new URL(req.url);
     const dateParam = url.searchParams.get('date');
-    const filterDate = dateParam || new Date().toISOString().split('T')[0];
+    // Get today's date in São Paulo timezone
+    const spNow = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
+    const spToday = spNow.toISOString().split('T')[0];
+    const filterDate = dateParam || spToday;
 
     // Calcular tiers permitidos (para UNLOCK)
     const allowedTiers = getAllowedTiers(user.main_tier);
