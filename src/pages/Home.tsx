@@ -17,6 +17,8 @@ import { CHECKOUT_LINKS } from "@/lib/checkoutLinks";
 import logoImg from "@/assets/premier-logo-custom.png";
 import MatrixRain from "@/components/MatrixRain";
 import { supabase } from "@/integrations/supabase/client";
+import { WelcomePopup } from "@/components/HousePopups";
+import { useUserBettingHouse } from "@/hooks/useUserBettingHouse";
 
 
 const Home = () => {
@@ -34,6 +36,7 @@ const Home = () => {
   const mockUser = mockGetUser();
   const config = getStoredConfig();
   const hasLifetimeAccess = true; // Mock: always ULTRA
+  const { house: userHouse } = useUserBettingHouse();
 
   // Fecha menu ao clicar fora
   useEffect(() => {
@@ -463,6 +466,8 @@ const Home = () => {
           buttonUrl={marketingPopup.buttonUrl}
         />
       )}
+
+      <WelcomePopup house={userHouse as any} />
     </div>
   );
 };
