@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { LogOut, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useRef, useEffect } from "react";
+import { RealTimeClock } from "./RealTimeClock";
 
 function HouseSelector() {
   const { houses, selectedHouse, setSelectedHouseId } = useBettingHouseAdmin();
@@ -68,7 +69,10 @@ export function AdminLayout() {
           <AdminSidebar />
           <div className="flex-1 flex flex-col overflow-hidden">
             <header className="h-14 border-b border-white/10 flex items-center justify-between px-6 shrink-0 gap-4">
-              <span className="text-sm text-gray-400 truncate">{user?.email}</span>
+              <div className="flex items-center gap-4 truncate">
+                <span className="text-sm text-gray-400 truncate">{user?.email}</span>
+                <RealTimeClock />
+              </div>
               <div className="flex items-center gap-3 shrink-0">
                 <HouseSelector />
                 <Button variant="ghost" size="sm" onClick={handleLogout} className="text-gray-400 hover:text-white gap-1.5">
