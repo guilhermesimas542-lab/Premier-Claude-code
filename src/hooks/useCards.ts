@@ -1,6 +1,12 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
+export interface CardImageUrls {
+  mobile?: string | null;
+  tablet?: string | null;
+  desktop?: string | null;
+}
+
 export interface CardData {
   id: string;
   slug: string | null;
@@ -8,10 +14,10 @@ export interface CardData {
   title: string;
   subtitle: string | null;
   description: string | null;
-  image_url: string | null;
+  image_urls: CardImageUrls | null;
   card_type: string;
   category: string;
-  badge_text: string | null;
+  badges: string[] | null;
   badge_color: string | null;
   button_text_access: string | null;
   button_text_acquire: string | null;

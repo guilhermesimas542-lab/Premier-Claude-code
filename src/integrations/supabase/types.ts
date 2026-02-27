@@ -165,7 +165,7 @@ export type Database = {
         Row: {
           access_field: string | null
           badge_color: string | null
-          badge_text: string | null
+          badges: string[] | null
           button_bg_color: string | null
           button_font_color: string | null
           button_text_access: string | null
@@ -177,7 +177,7 @@ export type Database = {
           description: string | null
           display_order: number
           id: string
-          image_url: string | null
+          image_urls: Json | null
           is_active: boolean
           name: string
           product_id: string | null
@@ -192,7 +192,7 @@ export type Database = {
         Insert: {
           access_field?: string | null
           badge_color?: string | null
-          badge_text?: string | null
+          badges?: string[] | null
           button_bg_color?: string | null
           button_font_color?: string | null
           button_text_access?: string | null
@@ -204,7 +204,7 @@ export type Database = {
           description?: string | null
           display_order?: number
           id?: string
-          image_url?: string | null
+          image_urls?: Json | null
           is_active?: boolean
           name: string
           product_id?: string | null
@@ -219,7 +219,7 @@ export type Database = {
         Update: {
           access_field?: string | null
           badge_color?: string | null
-          badge_text?: string | null
+          badges?: string[] | null
           button_bg_color?: string | null
           button_font_color?: string | null
           button_text_access?: string | null
@@ -231,7 +231,7 @@ export type Database = {
           description?: string | null
           display_order?: number
           id?: string
-          image_url?: string | null
+          image_urls?: Json | null
           is_active?: boolean
           name?: string
           product_id?: string | null
