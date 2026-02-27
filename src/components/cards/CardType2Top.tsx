@@ -36,8 +36,8 @@ export function CardType2Top({ card, hasAccess, onAction }: Props) {
         </div>
       )}
 
-      {/* Image area */}
-      <div className="relative" style={{ height: "180px" }}>
+      {/* Image area — panoramic 16/7 aspect ratio */}
+      <div className="relative w-full overflow-hidden" style={{ height: "180px" }}>
         {mobileImg ? (
           <picture>
             {imgs?.desktop && <source media="(min-width: 1024px)" srcSet={imgs.desktop} />}
