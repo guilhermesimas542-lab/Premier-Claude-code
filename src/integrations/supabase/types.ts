@@ -625,6 +625,45 @@ export type Database = {
         }
         Relationships: []
       }
+      pay_cards: {
+        Row: {
+          associated_plan: string
+          checkout_config: Json | null
+          created_at: string | null
+          has_intro_popup: boolean | null
+          id: string
+          is_active: boolean | null
+          name: string
+          popup_config: Json | null
+          quiz_questions: Json | null
+          updated_at: string | null
+        }
+        Insert: {
+          associated_plan: string
+          checkout_config?: Json | null
+          created_at?: string | null
+          has_intro_popup?: boolean | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          popup_config?: Json | null
+          quiz_questions?: Json | null
+          updated_at?: string | null
+        }
+        Update: {
+          associated_plan?: string
+          checkout_config?: Json | null
+          created_at?: string | null
+          has_intro_popup?: boolean | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          popup_config?: Json | null
+          quiz_questions?: Json | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       popups: {
         Row: {
           betting_house_id: string | null
