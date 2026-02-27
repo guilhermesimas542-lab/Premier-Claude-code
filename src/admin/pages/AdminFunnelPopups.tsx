@@ -91,7 +91,7 @@ function toCsv(arr: string[] | null): string {
   return (arr ?? []).join(", ");
 }
 
-function PopupPreview({ form }: { form: FormState }) {
+function PopupPreview({ form, previewMode }: { form: FormState; previewMode: "mobile" | "desktop" }) {
   const questions = [
     { text: form.question_1_text, opts: toArray(form.question_1_options) },
     { text: form.question_2_text, opts: toArray(form.question_2_options) },
@@ -102,15 +102,17 @@ function PopupPreview({ form }: { form: FormState }) {
 
   return (
     <div
-      className="rounded-2xl overflow-hidden"
+      className="rounded-2xl overflow-hidden mx-auto transition-all duration-200"
       style={{
+        width: previewMode === "mobile" ? 380 : 420,
+        maxWidth: "100%",
         background: "linear-gradient(145deg, #0a1a0a, #0f2410)",
         border: "1px solid rgba(0,255,0,0.2)",
         boxShadow: "0 0 20px rgba(0,255,0,0.06)",
       }}
     >
       {form.image_url && (
-        <img src={form.image_url} alt="" className="w-full h-28 object-cover" />
+        <img src={form.image_url} alt="" className="w-full h-auto max-h-48 object-contain bg-black/30" />
       )}
       <div className="p-4 space-y-3">
         {questions.length > 0 && (
@@ -165,6 +167,7 @@ export default function AdminFunnelPopups() {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<PopupRow | null>(null);
+  const [previewMode, setPreviewMode] = useState<"mobile" | "desktop">("mobile");
 
   const load = async () => {
     setLoading(true);
@@ -217,8 +220,10 @@ export default function AdminFunnelPopups() {
   };
 
   const handleSave = async () => {
-    if (!form.checkout_link && !form.question_1_text) {
-      toast.error("Adicione pelo menos um link de checkout ou uma pergunta do funil");
+    const hasButton = form.checkout_link.trim() && form.final_title.trim();
+    const hasFunnel = form.question_1_text.trim();
+    if (!hasButton && !hasFunnel) {
+      toast.error("Erro: O pop-up precisa ter um 'Botão com URL' ou, no mínimo, a 'Pergunta 1' do funil preenchida.");
       return;
     }
     setSaving(true);
@@ -479,8 +484,26 @@ export default function AdminFunnelPopups() {
 
             {/* Right: preview */}
             <div>
-              <Label className="text-gray-400 text-xs mb-2 block">Preview</Label>
-              <PopupPreview form={form} />
+              <div className="flex items-center justify-between mb-2">
+                <Label className="text-gray-400 text-xs">Preview</Label>
+                <div className="flex gap-1 bg-gray-800 rounded-lg p-0.5">
+                  <button
+                    type="button"
+                    onClick={() => setPreviewMode("mobile")}
+                    className={`px-2.5 py-1 text-[11px] rounded-md transition-colors ${previewMode === "mobile" ? "bg-green-600 text-white" : "text-gray-400 hover:text-white"}`}
+                  >
+                    📱 Mobile
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPreviewMode("desktop")}
+                    className={`px-2.5 py-1 text-[11px] rounded-md transition-colors ${previewMode === "desktop" ? "bg-green-600 text-white" : "text-gray-400 hover:text-white"}`}
+                  >
+                    🖥️ Desktop
+                  </button>
+                </div>
+              </div>
+              <PopupPreview form={form} previewMode={previewMode} />
               <p className="text-[11px] text-gray-600 mt-2 text-center">Preview aproximado — as perguntas avançam com o clique</p>
             </div>
           </div>
