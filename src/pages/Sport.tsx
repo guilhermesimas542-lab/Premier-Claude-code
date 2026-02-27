@@ -14,6 +14,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { supabase } from "@/integrations/supabase/client";
 import { mockGetUser } from "@/mocks/user";
 import MatrixRain from "@/components/MatrixRain";
+import { trackEvent } from "@/lib/events";
 import logoImg from "@/assets/premier-logo-custom.png";
 import { useUserBettingHouse } from "@/hooks/useUserBettingHouse";
 import { UpgradePopup } from "@/components/HousePopups";
@@ -382,6 +383,7 @@ const Sport = () => {
     window.scrollTo(0, 0);
     if (!isAuthenticated()) { navigate("/login"); return; }
     fetchTips();
+    trackEvent("view_entries", { sport: sportId ?? "futebol" });
   }, [navigate, sportId, fetchTips]);
 
   // Set iframe URL from user's house when house is loaded
@@ -433,6 +435,7 @@ const Sport = () => {
   };
 
   const handleAddTip = (entry: DisplayTip) => {
+    trackEvent("card_click", { tier: entry.tier_required, addon: entry.addon_required, title: entry.title });
     const url = resolveBetUrl(entry);
     if (url) {
       // If force_sports_link_new_tab is enabled, open in new tab instead of iframe
@@ -453,6 +456,7 @@ const Sport = () => {
 
 
   const handleLockedClick = async (entry: DisplayTip) => {
+    trackEvent("click_locked_entry", { tier: entry.tier_required, addon: entry.addon_required, title: entry.title });
     // Determine the plan key for pay_cards lookup
     let planKey: string | null = null;
     if (entry.addon_required === "alavancagem") planKey = "alavancagem";

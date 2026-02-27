@@ -317,7 +317,10 @@ export default function AdminClientsManage() {
   };
 
   const fmt = (d: string | null) =>
-    d ? new Date(d).toLocaleDateString("pt-BR") : "—";
+    d ? new Date(d).toLocaleString("pt-BR", {
+      year: "numeric", month: "2-digit", day: "2-digit",
+      hour: "2-digit", minute: "2-digit", second: "2-digit",
+    }) : "—";
 
   const thClass = "px-3 py-2 cursor-pointer select-none hover:text-gray-300 transition-colors";
 

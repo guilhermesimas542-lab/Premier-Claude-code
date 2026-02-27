@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { EmbeddedCheckout } from "@/components/EmbeddedCheckout";
 import QuizStep from "@/components/funnel/QuizStep";
 import { ChevronRight, X, Check } from "lucide-react";
 import type { PayCardData } from "@/hooks/usePayCards";
+import { trackEvent } from "@/lib/events";
 
 interface Props {
   payCard: PayCardData;
@@ -34,6 +35,12 @@ export function PayCardFunnelModal({ payCard, open, onClose }: Props) {
   const [step, setStep] = useState<Step>(getInitialStep);
   const [quizIndex, setQuizIndex] = useState(0);
   const [embeddedUrl, setEmbeddedUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (open) {
+      trackEvent("funnel_entry", { funnel_name: payCard.name, plan: payCard.associated_plan });
+    }
+  }, [open]);
 
   if (!open) return null;
 

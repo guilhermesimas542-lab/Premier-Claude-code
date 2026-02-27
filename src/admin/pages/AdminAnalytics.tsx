@@ -68,38 +68,36 @@ export default function AdminAnalytics() {
 
     // Parallel fetches
     const [
-      { data: sessions },
+      { data: allEvents },
       { data: allUsers },
       { data: newUsersData },
-      { data: events },
+      { data: funnelEvents },
       { data: notifs },
-      { data: todaySessions },
+      { data: todayEvents },
       { data: entitlements },
       { data: tips },
     ] = await Promise.all([
-      supabase.from("sessions").select("user_id, duration_seconds, session_start_at").gte("session_start_at", since).lte("session_start_at", until),
+      supabase.from("events").select("user_id, event_name, created_at").gte("created_at", since).lte("created_at", until),
       supabase.from("users").select("id, email, main_tier, last_seen_at"),
       supabase.from("users").select("id").gte("created_at", since).lte("created_at", until),
-      supabase.from("events").select("event_name, created_at").gte("created_at", since).lte("created_at", until).in("event_name", ["app_open", "view_entries", "click_locked_entry", "click_buy_from_popup"]),
+      supabase.from("events").select("event_name, created_at").gte("created_at", since).lte("created_at", until).in("event_name", ["app_open", "view_entries", "click_locked_entry", "click_buy_from_popup", "page_view", "card_click", "funnel_entry"]),
       supabase.from("notifications").select("id").not("sent_at", "is", null).gte("sent_at", since).lte("sent_at", until),
-      supabase.from("sessions").select("user_id").gte("session_start_at", todayStart),
+      supabase.from("events").select("user_id").gte("created_at", todayStart),
       supabase.from("entitlements").select("user_id, product_key").eq("status", "active"),
       supabase.from("content_entries").select("id").gte("created_at", since).lte("created_at", until),
     ]);
 
-    const s = sessions ?? [];
+    const s = allEvents ?? [];
     const uniqueUsers = new Set(s.map((r) => r.user_id)).size;
     const totalSessions = s.length;
-    const avgDuration = totalSessions > 0
-      ? Math.round(s.reduce((a, r) => a + (r.duration_seconds ?? 0), 0) / totalSessions)
-      : 0;
+    const avgDuration = 0; // Duration not available from events table
 
-    // Conversion rate: buy clicks / sessions
-    const buyClicks = (events ?? []).filter((e) => e.event_name === "click_buy_from_popup").length;
-    const conversionRate = totalSessions > 0 ? Math.round((buyClicks / totalSessions) * 100 * 10) / 10 : 0;
+    // Conversion rate: buy clicks / unique users
+    const buyClicks = (funnelEvents ?? []).filter((e) => e.event_name === "click_buy_from_popup").length;
+    const conversionRate = uniqueUsers > 0 ? Math.round((buyClicks / uniqueUsers) * 100 * 10) / 10 : 0;
 
     // Active today
-    const activeToday = new Set((todaySessions ?? []).map((r) => r.user_id)).size;
+    const activeToday = new Set((todayEvents ?? []).map((r: any) => r.user_id)).size;
 
     setKpis({
       uniqueUsers,
@@ -111,12 +109,12 @@ export default function AdminAnalytics() {
       notificationsSent: (notifs ?? []).length,
     });
 
-    // Sessions by day
+    // Events by day
     const days = eachDayOfInterval({ start: from, end: to });
     const dayMap: Record<string, number> = {};
     days.forEach((d) => { dayMap[format(d, "yyyy-MM-dd")] = 0; });
     s.forEach((r) => {
-      const day = r.session_start_at?.slice(0, 10);
+      const day = r.created_at?.slice(0, 10);
       if (day && dayMap[day] !== undefined) dayMap[day]++;
     });
     setSessionsByDay(days.map((d) => ({
@@ -145,18 +143,17 @@ export default function AdminAnalytics() {
     ]);
 
     // Funnel
-    const funnelEvents = ["app_open", "view_entries", "click_locked_entry", "click_buy_from_popup"];
+    const funnelEventNames = ["app_open", "page_view", "view_entries", "card_click", "funnel_entry", "click_locked_entry", "click_buy_from_popup"];
     const counts: Record<string, number> = {};
-    funnelEvents.forEach((e) => { counts[e] = 0; });
-    (events ?? []).forEach((ev) => { counts[ev.event_name] = (counts[ev.event_name] ?? 0) + 1; });
-    setFunnel(funnelEvents.map((name) => ({ name, count: counts[name] })));
+    funnelEventNames.forEach((e) => { counts[e] = 0; });
+    (funnelEvents ?? []).forEach((ev) => { counts[ev.event_name] = (counts[ev.event_name] ?? 0) + 1; });
+    setFunnel(funnelEventNames.map((name) => ({ name, count: counts[name] })));
 
     // User table
     const userMap: Record<string, { sessions: number; totalTime: number }> = {};
     s.forEach((r) => {
       if (!userMap[r.user_id]) userMap[r.user_id] = { sessions: 0, totalTime: 0 };
       userMap[r.user_id].sessions++;
-      userMap[r.user_id].totalTime += r.duration_seconds ?? 0;
     });
     const userIds = Object.keys(userMap);
     if (userIds.length > 0) {
@@ -183,7 +180,7 @@ export default function AdminAnalytics() {
   const kpiCards = [
     { label: "Usuários únicos", value: kpis.uniqueUsers, icon: <Users className="w-4 h-4" />, color: "text-blue-400" },
     { label: "Sessões", value: kpis.totalSessions, icon: <Activity className="w-4 h-4" />, color: "text-purple-400" },
-    { label: "Tempo médio (seg)", value: kpis.avgDuration, icon: <Clock className="w-4 h-4" />, color: "text-yellow-400" },
+    { label: "Tempo médio (seg)", value: "—", icon: <Clock className="w-4 h-4" />, color: "text-yellow-400" },
     { label: "Novos cadastros", value: kpis.newUsers, icon: <UserPlus className="w-4 h-4" />, color: "text-green-400" },
     { label: "Taxa de conversão", value: `${kpis.conversionRate}%`, icon: <TrendingUp className="w-4 h-4" />, color: "text-orange-400" },
     { label: "Ativos hoje", value: kpis.activeToday, icon: <Target className="w-4 h-4" />, color: "text-pink-400" },
@@ -279,7 +276,7 @@ export default function AdminAnalytics() {
 
       {/* ── Sessions by Day ──────────────────────────────────────────── */}
       <div className="bg-gray-900 rounded-xl border border-white/10 p-4">
-        <h3 className="text-sm font-semibold text-gray-400 mb-4">Sessões por dia</h3>
+        <h3 className="text-sm font-semibold text-gray-400 mb-4">Eventos por dia</h3>
         <ResponsiveContainer width="100%" height={200}>
           <LineChart data={sessionsByDay} margin={{ top: 4, right: 8, bottom: 4, left: -20 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
