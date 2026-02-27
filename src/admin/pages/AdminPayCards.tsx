@@ -227,6 +227,8 @@ export default function AdminPayCards() {
     checkout_label_2: form.checkout_label_2,
     checkout_benefits: form.checkout_benefits,
     questions,
+    associated_plan: form.associated_plan,
+    name: form.name,
   };
 
   return (

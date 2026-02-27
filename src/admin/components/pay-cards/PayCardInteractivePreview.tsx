@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, X, Check, RotateCcw } from "lucide-react";
+import { ChevronRight, Check, RotateCcw, MousePointerClick } from "lucide-react";
 import QuizStep from "@/components/funnel/QuizStep";
+import { PayCardMiniaturePreview } from "./PayCardMiniaturePreview";
 import type { FunnelQuestion } from "@/admin/components/funnel-popup/types";
 
 interface PreviewData {
@@ -17,9 +18,12 @@ interface PreviewData {
   checkout_label_2: string;
   checkout_benefits: string;
   questions: FunnelQuestion[];
+  // form-level fields for the trigger preview
+  associated_plan?: string;
+  name?: string;
 }
 
-type Step = "intro" | "quiz" | "checkout";
+type Step = "trigger" | "intro" | "quiz" | "checkout";
 
 export function PayCardInteractivePreview({ data }: { data: PreviewData }) {
   const hasIntro = data.has_intro_popup && (data.popup_image_url || data.popup_title);
@@ -28,24 +32,23 @@ export function PayCardInteractivePreview({ data }: { data: PreviewData }) {
   const benefits = data.checkout_benefits ? data.checkout_benefits.split("\n").filter(Boolean) : [];
   const hasDualCheckout = !!data.checkout_url && !!data.checkout_url_2;
 
-  const getInitialStep = (): Step => {
-    if (hasIntro) return "intro";
-    if (hasQuiz) return "quiz";
-    return "checkout";
-  };
-
-  const [step, setStep] = useState<Step>(getInitialStep);
+  const [step, setStep] = useState<Step>("trigger");
   const [quizIndex, setQuizIndex] = useState(0);
 
-  // Reset step when form data changes structure
   useEffect(() => {
-    setStep(getInitialStep());
+    setStep("trigger");
     setQuizIndex(0);
-  }, [data.has_intro_popup, questions.length]);
+  }, [data.associated_plan, data.has_intro_popup, questions.length]);
 
   const reset = () => {
-    setStep(getInitialStep());
+    setStep("trigger");
     setQuizIndex(0);
+  };
+
+  const advanceFromTrigger = () => {
+    if (hasIntro) setStep("intro");
+    else if (hasQuiz) setStep("quiz");
+    else setStep("checkout");
   };
 
   const advanceFromIntro = () => {
@@ -58,16 +61,39 @@ export function PayCardInteractivePreview({ data }: { data: PreviewData }) {
     else setStep("checkout");
   };
 
+  const stepLabels: { key: Step; label: string }[] = [
+    { key: "trigger", label: "Gatilho" },
+    ...(hasIntro ? [{ key: "intro" as Step, label: "Intro" }] : []),
+    ...(hasQuiz ? [{ key: "quiz" as Step, label: "Quiz" }] : []),
+    { key: "checkout", label: "Checkout" },
+  ];
+
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <span className="text-xs text-gray-400 font-medium">Preview do Funil</span>
+        <span className="text-xs text-zinc-400 font-medium">Simulação da Experiência</span>
         <button onClick={reset} className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1">
           <RotateCcw className="w-3 h-3" /> Reiniciar
         </button>
       </div>
 
       <div className="bg-gradient-to-b from-zinc-900 to-zinc-950 border border-white/10 rounded-xl overflow-hidden" style={{ maxWidth: 380 }}>
+
+        {/* TRIGGER */}
+        {step === "trigger" && (
+          <div className="p-6 flex flex-col items-center gap-3">
+            <p className="text-[10px] text-zinc-500 uppercase tracking-wider font-medium">Visão do usuário</p>
+            <div onClick={advanceFromTrigger} className="cursor-pointer hover:scale-105 transition-transform">
+              <PayCardMiniaturePreview
+                payCard={{ associated_plan: data.associated_plan || "basic", name: data.name }}
+              />
+            </div>
+            <div className="flex items-center gap-1 text-[10px] text-zinc-500 animate-pulse">
+              <MousePointerClick className="w-3 h-3" /> Clique para simular
+            </div>
+          </div>
+        )}
+
         {/* INTRO */}
         {step === "intro" && (
           <div className="flex flex-col items-center">
@@ -76,7 +102,7 @@ export function PayCardInteractivePreview({ data }: { data: PreviewData }) {
             )}
             <div className="p-4 text-center space-y-2">
               {data.popup_title && <h3 className="text-sm font-bold text-white">{data.popup_title}</h3>}
-              {data.popup_text && <p className="text-xs text-gray-300">{data.popup_text}</p>}
+              {data.popup_text && <p className="text-xs text-zinc-300">{data.popup_text}</p>}
               <Button onClick={advanceFromIntro} size="sm" className="w-full mt-1">
                 {data.popup_cta_text || "Continuar"} <ChevronRight className="w-3 h-3 ml-1" />
               </Button>
@@ -109,8 +135,8 @@ export function PayCardInteractivePreview({ data }: { data: PreviewData }) {
             {benefits.length > 0 && (
               <ul className="text-left space-y-1.5">
                 {benefits.map((b, i) => (
-                  <li key={i} className="flex items-start gap-1.5 text-xs text-gray-200">
-                    <Check className="w-3 h-3 text-green-400 mt-0.5 shrink-0" />
+                  <li key={i} className="flex items-start gap-1.5 text-xs text-zinc-200">
+                    <Check className="w-3 h-3 text-emerald-400 mt-0.5 shrink-0" />
                     <span>{b}</span>
                   </li>
                 ))}
@@ -131,26 +157,20 @@ export function PayCardInteractivePreview({ data }: { data: PreviewData }) {
               </Button>
             )}
             {(!data.checkout_title && benefits.length === 0) && (
-              <p className="text-xs text-gray-500 italic">Configure o checkout para ver o preview</p>
+              <p className="text-xs text-zinc-500 italic">Configure o checkout para ver o preview</p>
             )}
-          </div>
-        )}
-
-        {/* Empty state */}
-        {!hasIntro && !hasQuiz && !data.checkout_title && benefits.length === 0 && (
-          <div className="p-6 text-center">
-            <p className="text-xs text-gray-500 italic">Preencha os campos do formulário para ver o preview</p>
           </div>
         )}
       </div>
 
-      {/* Step indicator */}
-      <div className="flex items-center gap-2 text-[10px] text-gray-500">
-        <span className={step === "intro" ? "text-blue-400 font-bold" : ""}>Intro</span>
-        <span>→</span>
-        <span className={step === "quiz" ? "text-blue-400 font-bold" : ""}>Quiz</span>
-        <span>→</span>
-        <span className={step === "checkout" ? "text-blue-400 font-bold" : ""}>Checkout</span>
+      {/* Step breadcrumb */}
+      <div className="flex items-center gap-1.5 text-[10px] text-zinc-500">
+        {stepLabels.map((s, i) => (
+          <span key={s.key} className="flex items-center gap-1.5">
+            {i > 0 && <span>→</span>}
+            <span className={step === s.key ? "text-blue-400 font-bold" : ""}>{s.label}</span>
+          </span>
+        ))}
       </div>
     </div>
   );
