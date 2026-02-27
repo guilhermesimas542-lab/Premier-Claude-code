@@ -23,13 +23,14 @@ const futebolSections = [
       { to: "/admin/tips/create", icon: PlusCircle, label: "Tips: Cadastrar" },
       { to: "/admin/tips/list", icon: List, label: "Tips: Listar" },
       { to: "/admin/teams", icon: Shield, label: "Times (Logos)" },
+      { to: "/admin/predictions", icon: Layers, label: "Palpites/Mercado" },
     ],
   },
   {
     label: "Links e Pop-ups",
     items: [
       { to: "/admin/default-links", icon: Link, label: "Links Padrão" },
-      { to: "/admin/popups", icon: Layers, label: "Pop-ups e Funis" },
+      { to: "/admin/popups", icon: Layers, label: "Pop-ups" },
     ],
   },
   {

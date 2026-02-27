@@ -398,6 +398,30 @@ export type Database = {
           },
         ]
       }
+      market_predictions: {
+        Row: {
+          created_at: string | null
+          id: string
+          market: string
+          market_explanation: string | null
+          prediction: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          market: string
+          market_explanation?: string | null
+          prediction: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          market?: string
+          market_explanation?: string | null
+          prediction?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string

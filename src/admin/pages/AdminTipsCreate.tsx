@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Loader2, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 import { TeamAutocomplete } from "../components/TeamAutocomplete";
+import { PredictionAutocomplete } from "../components/PredictionAutocomplete";
 
 interface BettingHouseOption {
   id: string;
@@ -100,6 +101,22 @@ export default function AdminTipsCreate() {
       link_house_2: form.link_house_2 || null,
       link_house_3: form.link_house_3 || null,
     };
+
+    // Auto-save new prediction if palpite is filled
+    if (form.palpite && form.mercado) {
+      const { data: existing } = await supabase
+        .from("market_predictions")
+        .select("id")
+        .eq("prediction", form.palpite)
+        .maybeSingle();
+      if (!existing) {
+        await supabase.from("market_predictions").insert({
+          prediction: form.palpite,
+          market: form.mercado,
+          market_explanation: form.mercado_explicacao || null,
+        });
+      }
+    }
 
     const { error } = await supabase.from("content_entries").insert(payload);
     if (error) toast.error(error.message);
@@ -194,10 +211,17 @@ export default function AdminTipsCreate() {
           </div>
         </div>
 
-        <div>
-          <label className="text-xs text-muted-foreground">Palpite *</label>
-          <Input value={form.palpite} onChange={(e) => set("palpite", e.target.value)} placeholder="Ex: Mais de 1.5 gols" className="bg-muted/30 border-border" />
-        </div>
+        <PredictionAutocomplete
+          value={form.palpite}
+          onChange={(prediction, market, explanation) => {
+            setForm(f => ({
+              ...f,
+              palpite: prediction,
+              ...(market ? { mercado: market } : {}),
+              ...(explanation ? { mercado_explicacao: explanation } : {}),
+            }));
+          }}
+        />
 
         <div>
           <label className="text-xs text-muted-foreground">Mercado</label>
