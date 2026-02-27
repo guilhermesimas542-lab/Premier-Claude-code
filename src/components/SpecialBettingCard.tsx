@@ -179,17 +179,14 @@ export const SpecialBettingCard = ({
         )}
       </div>
 
-      {/* Stadium Background Image - Hidden when locked (solid black instead) */}
-      {isLocked && !isExpired ? (
-        <div className="absolute inset-0 bg-black pointer-events-none rounded-xl overflow-hidden" />
-      ) : (
-        <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat pointer-events-none rounded-xl overflow-hidden"
-          style={{
-            backgroundImage: `url('/images/futsal-arena.jpg')`,
-          }}
-        />
-      )}
+      {/* Stadium Background Image - grayscale+blur when locked */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat pointer-events-none rounded-xl overflow-hidden"
+        style={{
+          backgroundImage: `url('/images/futsal-arena.jpg')`,
+          ...(isLocked && !isExpired ? { filter: 'grayscale(1) blur(2px)', opacity: 0.3 } : {}),
+        }}
+      />
 
       {/* Matrix Rain overlay inside card */}
       <canvas
