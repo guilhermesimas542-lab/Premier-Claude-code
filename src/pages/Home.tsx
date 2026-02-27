@@ -17,7 +17,7 @@ import { CHECKOUT_LINKS } from "@/lib/checkoutLinks";
 import logoImg from "@/assets/premier-logo-custom.png";
 import MatrixRain from "@/components/MatrixRain";
 import { supabase } from "@/integrations/supabase/client";
-import { WelcomePopup, _debugPopupInfo } from "@/components/HousePopups";
+import { WelcomePopup } from "@/components/HousePopups";
 import { useUserBettingHouse } from "@/hooks/useUserBettingHouse";
 
 
@@ -55,6 +55,13 @@ const Home = () => {
       return;
     }
     setLoading(false);
+
+    // Limpar chaves antigas de popup do localStorage (migração para banco)
+    Object.keys(localStorage).forEach(key => {
+      if (key.startsWith('popup_shown_') || key === 'welcome_popup_shown') {
+        localStorage.removeItem(key);
+      }
+    });
 
     // Fetch trigger-based popups (on_load / timed)
     const fetchTriggerPopups = async () => {
@@ -468,20 +475,6 @@ const Home = () => {
       )}
 
       <WelcomePopup house={userHouse as any} />
-
-      {/* DEBUG TEMPORARIO - REMOVER APOS DIAGNOSTICO */}
-      <div style={{
-        position: 'fixed', bottom: 0, left: 0, right: 0,
-        background: 'rgba(0,0,0,0.95)', color: '#0f0', padding: '8px',
-        fontSize: '10px', zIndex: 9999, maxHeight: '150px', overflow: 'auto',
-        borderTop: '1px solid #0f0'
-      }}>
-        <strong>DEBUG POPUP:</strong>
-        <pre>{JSON.stringify({
-          debugPopupInfo: _debugPopupInfo,
-          userHouse: userHouse ? { id: (userHouse as any).id, popup_welcome_image: (userHouse as any).popup_welcome_image } : null,
-        }, null, 2)}</pre>
-      </div>
     </div>
   );
 };

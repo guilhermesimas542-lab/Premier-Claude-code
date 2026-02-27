@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { mockGetUser } from "@/mocks/user";
 
 interface HousePopupData {
   popup_welcome_image?: string | null;
@@ -9,35 +10,58 @@ interface HousePopupData {
   [key: string]: any;
 }
 
-// DEBUG: exported state for debug panel
-export let _debugPopupInfo: any = {};
+async function getUserId(): Promise<string | null> {
+  const mockUser = mockGetUser();
+  if (!mockUser?.email) return null;
+  if (mockUser.dbId) return mockUser.dbId;
+  const { data } = await supabase
+    .from("users")
+    .select("id")
+    .eq("email", mockUser.email.toLowerCase().trim())
+    .maybeSingle();
+  return data?.id || null;
+}
+
+async function hasViewedPopup(userId: string, popupId: string): Promise<boolean> {
+  const { data } = await supabase
+    .from("user_popup_views" as any)
+    .select("id")
+    .eq("user_id", userId)
+    .eq("popup_id", popupId)
+    .maybeSingle();
+  return !!data;
+}
+
+async function markPopupViewed(userId: string, popupId: string) {
+  await supabase.from("user_popup_views" as any).insert({
+    user_id: userId,
+    popup_id: popupId,
+  });
+}
 
 export function WelcomePopup({ house }: { house: HousePopupData | null }) {
-  console.log("WelcomePopup montado", { house });
   const [open, setOpen] = useState(false);
   const [welcomeImage, setWelcomeImage] = useState<string | null>(null);
   const [welcomeLink, setWelcomeLink] = useState<string | null>(null);
+  const [currentPopupId, setCurrentPopupId] = useState<string | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
+  const handleClose = useCallback(async () => {
+    setOpen(false);
+    // Registra visualização ao fechar
+    if (currentUserId && currentPopupId) {
+      await markPopupViewed(currentUserId, currentPopupId);
+    }
+  }, [currentUserId, currentPopupId]);
 
   useEffect(() => {
-    console.log("[WelcomePopup] useEffect disparado, house:", house);
-    // Fallback: fetch active welcome popup from popups table
     const fetchWelcomePopup = async () => {
-      // If house has welcome popup configured, use house popup ID as key
-      if (house?.popup_welcome_image) {
-        const houseKey = `popup_shown_house_welcome`;
-        const lsValue = localStorage.getItem(houseKey);
-        console.log("[WelcomePopup] House popup encontrado", { houseKey, lsValue, image: house.popup_welcome_image });
-        _debugPopupInfo = { source: "house", houseKey, lsValue, image: house.popup_welcome_image, showPopup: !lsValue };
-        if (lsValue) return;
-        setWelcomeImage(house.popup_welcome_image);
-        setWelcomeLink(house.popup_welcome_link || null);
-        setOpen(true);
-        localStorage.setItem(houseKey, "true");
-        return;
-      }
+      const userId = await getUserId();
+      if (!userId) return;
+      setCurrentUserId(userId);
 
-      console.log("[WelcomePopup] Buscando popup do banco...");
-      const { data, error } = await supabase
+      // Buscar popup welcome ativo do banco
+      const { data } = await supabase
         .from("popups")
         .select("id, image_url, button_url, checkout_link")
         .eq("type", "welcome")
@@ -46,21 +70,13 @@ export function WelcomePopup({ house }: { house: HousePopupData | null }) {
         .limit(1)
         .maybeSingle();
 
-      console.log("[WelcomePopup] Resultado da query:", { data, error });
-
       if (data?.image_url) {
-        const key = `popup_shown_${data.id}`;
-        const lsValue = localStorage.getItem(key);
-        console.log("[WelcomePopup] Popup encontrado", { key, lsValue, showPopup: !lsValue });
-        _debugPopupInfo = { source: "popups_table", popupId: data.id, key, lsValue, image: data.image_url, showPopup: !lsValue };
-        if (lsValue) return;
+        const alreadyViewed = await hasViewedPopup(userId, data.id);
+        if (alreadyViewed) return;
+        setCurrentPopupId(data.id);
         setWelcomeImage(data.image_url);
         setWelcomeLink(data.button_url || data.checkout_link || null);
         setOpen(true);
-        localStorage.setItem(key, "true");
-      } else {
-        console.log("[WelcomePopup] Nenhum popup welcome encontrado no banco");
-        _debugPopupInfo = { source: "popups_table", data, error: error?.message || null, showPopup: false };
       }
     };
 
@@ -70,10 +86,10 @@ export function WelcomePopup({ house }: { house: HousePopupData | null }) {
   if (!welcomeImage) return null;
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={(o) => { if (!o) handleClose(); }}>
       <DialogContent className="p-0 border-0 bg-transparent max-w-sm overflow-hidden">
         <button
-          onClick={() => setOpen(false)}
+          onClick={handleClose}
           className="absolute top-2 right-2 z-10 bg-black/60 rounded-full p-1 text-white hover:bg-black/80 transition-colors"
         >
           <X className="w-4 h-4" />
@@ -82,7 +98,7 @@ export function WelcomePopup({ house }: { house: HousePopupData | null }) {
           href={welcomeLink || "#"}
           target="_blank"
           rel="noopener noreferrer"
-          onClick={() => setOpen(false)}
+          onClick={handleClose}
         >
           <img src={welcomeImage} alt="Bem-vindo" className="w-full rounded-xl" />
         </a>
