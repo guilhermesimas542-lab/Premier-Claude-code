@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Check, ChevronRight, X, RotateCcw } from "lucide-react";
+import { Check, X, RotateCcw } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import QuizOptionCard from "@/components/funnel/QuizOptionCard";
 import type { PopupFormState } from "./types";
 
 interface Props {
@@ -12,93 +14,114 @@ interface Props {
 export default function TestPopupModal({ form, open, onClose }: Props) {
   const validQuestions = form.questions.filter((q) => q.text && q.options.some(Boolean));
   const benefits = form.final_benefits.filter(Boolean);
+  const hasImage = !!form.image_url;
   const [step, setStep] = useState(0);
 
-  const showFinal = step >= validQuestions.length;
-  const currentQ = !showFinal ? validQuestions[step] : null;
+  const firstQuestionStep = hasImage ? 1 : 0;
+  const finalStep = firstQuestionStep + validQuestions.length;
 
-  const handleOptionClick = () => {
-    setStep((s) => s + 1);
-  };
+  const isOnImage = hasImage && step === 0;
+  const isOnQuestion = step >= firstQuestionStep && step < finalStep;
+  const isOnFinal = step >= finalStep;
+  const currentQuestionIndex = step - firstQuestionStep;
 
+  const advance = () => setStep((s) => s + 1);
   const reset = () => setStep(0);
 
   return (
     <Dialog open={open} onOpenChange={(o) => { if (!o) { onClose(); setStep(0); } }}>
       <DialogContent
-        className="p-0 border-0 overflow-hidden w-full max-w-[400px] bg-transparent"
-        style={{ boxShadow: "none" }}
+        className="p-0 border border-white/10 overflow-hidden w-full max-w-[calc(100vw-2rem)] sm:max-w-md bg-transparent"
+        style={{
+          background: "linear-gradient(180deg, hsl(0,0%,8%), hsl(0,0%,4%))",
+          borderRadius: "20px",
+          boxShadow: "0 24px 48px rgba(0,0,0,0.6)",
+        }}
       >
-        <div
-          className="rounded-2xl overflow-hidden relative"
-          style={{
-            background: "linear-gradient(145deg, #0a1a0a, #0f2410)",
-            border: "1px solid rgba(0,255,0,0.25)",
-            boxShadow: "0 0 40px rgba(0,255,0,0.1)",
-          }}
+        {/* Close */}
+        <button
+          onClick={() => { onClose(); setStep(0); }}
+          className="absolute top-3 right-3 z-10 p-1.5 rounded-full bg-black/60 border border-white/10 hover:bg-black/80 transition-colors"
         >
-          {/* Close */}
+          <X className="w-3.5 h-3.5 text-white/70" />
+        </button>
+
+        {/* Step 0: Image */}
+        {isOnImage && form.image_url && (
           <button
-            onClick={() => { onClose(); setStep(0); }}
-            className="absolute top-3 right-3 z-10 p-1 rounded-full bg-black/50 hover:bg-black/80 transition-colors"
+            type="button"
+            onClick={advance}
+            className="w-full cursor-pointer group focus:outline-none"
           >
-            <X className="w-4 h-4 text-white/60" />
+            <img src={form.image_url} alt="" className="w-full h-auto max-h-52 object-contain bg-black/30 transition-transform group-hover:scale-[1.02]" />
           </button>
+        )}
 
-          {form.image_url && (
-            <img src={form.image_url} alt="" className="w-full h-auto max-h-52 object-contain bg-black/30" />
-          )}
+        {/* Question steps */}
+        {isOnQuestion && validQuestions[currentQuestionIndex] && (
+          <div>
+            <div className="p-4 pb-0">
+              <Progress
+                value={((currentQuestionIndex + 1) / validQuestions.length) * 100}
+                className="h-2 bg-zinc-800 [&>div]:bg-primary"
+              />
+              <p className="text-xs text-muted-foreground mt-2 text-center">
+                Etapa {currentQuestionIndex + 1} de {validQuestions.length}
+              </p>
+            </div>
+            <div className="p-4 sm:p-6">
+              <h3 className="text-lg sm:text-xl font-bold text-center mb-6">
+                {validQuestions[currentQuestionIndex].text}
+              </h3>
+              <div className="space-y-3">
+                {validQuestions[currentQuestionIndex].options.filter(Boolean).map((o, i) => (
+                  <QuizOptionCard key={i} index={i} text={o} onClick={advance} />
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
 
+        {/* Final screen */}
+        {isOnFinal && (
           <div className="p-5 space-y-4">
-            {currentQ && !showFinal ? (
-              <>
-                <p className="text-[10px] uppercase tracking-widest font-bold" style={{ color: "#00FF00" }}>
-                  Pergunta {step + 1} de {validQuestions.length}
-                </p>
-                <p className="text-base font-bold text-white">{currentQ.text}</p>
-                <div className="space-y-2">
-                  {currentQ.options.filter(Boolean).map((o, i) => (
-                    <button
-                      key={i}
-                      type="button"
-                      onClick={handleOptionClick}
-                      className="flex items-center justify-between px-4 py-3 rounded-xl text-sm text-white/80 w-full text-left hover:bg-green-500/15 transition-all cursor-pointer"
-                      style={{ background: "rgba(0,255,0,0.06)", border: "1px solid rgba(0,255,0,0.15)" }}
-                    >
-                      {o} <ChevronRight className="w-4 h-4 text-white/30" />
-                    </button>
-                  ))}
-                </div>
-              </>
-            ) : (
-              <>
-                <p className="text-lg font-bold text-white text-center">{form.final_title || "Título Final"}</p>
-                <div className="space-y-2">
-                  {benefits.map((b, i) => (
-                    <div key={i} className="flex items-center gap-2 text-sm text-white/70">
-                      <Check className="w-4 h-4 shrink-0" style={{ color: "#00FF00" }} />{b}
-                    </div>
-                  ))}
-                </div>
-                {form.checkout_link && (
-                  <button
-                    type="button"
-                    className="w-full py-3 text-center text-sm font-bold text-black rounded-xl hover:opacity-90 transition-opacity"
-                    style={{ background: "linear-gradient(135deg, #00FF00, #00CC00)" }}
-                    onClick={() => window.open(form.checkout_link, "_blank")}
-                  >
-                    QUERO ACESSAR →
-                  </button>
-                )}
-                {validQuestions.length > 0 && (
-                  <button type="button" onClick={reset} className="text-xs text-gray-500 hover:text-white flex items-center gap-1 mx-auto">
-                    <RotateCcw className="w-3 h-3" /> Reiniciar funil
-                  </button>
-                )}
-              </>
+            <div className="text-center">
+              <div className="w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center bg-primary/15 border border-primary/30">
+                <Check className="w-6 h-6 text-primary" />
+              </div>
+              <h2 className="text-xl font-bold text-foreground leading-snug">
+                {form.final_title || "Título Final"}
+              </h2>
+            </div>
+            {benefits.length > 0 && (
+              <ul className="space-y-2.5">
+                {benefits.map((b, i) => (
+                  <li key={i} className="flex items-start gap-2.5 text-sm text-foreground/80">
+                    <span className="shrink-0 w-5 h-5 rounded-full flex items-center justify-center mt-0.5 bg-primary/15">
+                      <Check className="w-3 h-3 text-primary" />
+                    </span>
+                    {b}
+                  </li>
+                ))}
+              </ul>
+            )}
+            {form.checkout_link && (
+              <button
+                type="button"
+                className="w-full py-3 text-center text-sm font-bold text-primary-foreground rounded-xl bg-primary hover:opacity-90 transition-opacity"
+                style={{ boxShadow: "0 0 20px hsl(var(--primary) / 0.3)" }}
+                onClick={() => window.open(form.checkout_link, "_blank")}
+              >
+                QUERO ACESSAR →
+              </button>
+            )}
+            {validQuestions.length > 0 && (
+              <button type="button" onClick={reset} className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 mx-auto">
+                <RotateCcw className="w-3 h-3" /> Reiniciar funil
+              </button>
             )}
           </div>
-        </div>
+        )}
       </DialogContent>
     </Dialog>
   );
