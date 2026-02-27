@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { X } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface HousePopupData {
   popup_welcome_image?: string | null;
@@ -10,17 +11,44 @@ interface HousePopupData {
 
 export function WelcomePopup({ house }: { house: HousePopupData | null }) {
   const [open, setOpen] = useState(false);
+  const [welcomeImage, setWelcomeImage] = useState<string | null>(null);
+  const [welcomeLink, setWelcomeLink] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!house?.popup_welcome_image) return;
     const key = "welcome_popup_shown";
-    if (!localStorage.getItem(key)) {
+    if (localStorage.getItem(key)) return;
+
+    // If house has welcome popup configured, use it
+    if (house?.popup_welcome_image) {
+      setWelcomeImage(house.popup_welcome_image);
+      setWelcomeLink(house.popup_welcome_link || null);
       setOpen(true);
       localStorage.setItem(key, "true");
+      return;
     }
+
+    // Fallback: fetch active welcome popup from popups table
+    const fetchWelcomePopup = async () => {
+      const { data } = await supabase
+        .from("popups")
+        .select("image_url, button_url, checkout_link")
+        .eq("type", "welcome")
+        .eq("is_active", true)
+        .limit(1)
+        .maybeSingle();
+
+      if (data?.image_url) {
+        setWelcomeImage(data.image_url);
+        setWelcomeLink(data.button_url || data.checkout_link || null);
+        setOpen(true);
+        localStorage.setItem(key, "true");
+      }
+    };
+
+    fetchWelcomePopup();
   }, [house]);
 
-  if (!house?.popup_welcome_image) return null;
+  if (!welcomeImage) return null;
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -32,12 +60,12 @@ export function WelcomePopup({ house }: { house: HousePopupData | null }) {
           <X className="w-4 h-4" />
         </button>
         <a
-          href={house.popup_welcome_link || "#"}
+          href={welcomeLink || "#"}
           target="_blank"
           rel="noopener noreferrer"
           onClick={() => setOpen(false)}
         >
-          <img src={house.popup_welcome_image} alt="Bem-vindo" className="w-full rounded-xl" />
+          <img src={welcomeImage} alt="Bem-vindo" className="w-full rounded-xl" />
         </a>
       </DialogContent>
     </Dialog>

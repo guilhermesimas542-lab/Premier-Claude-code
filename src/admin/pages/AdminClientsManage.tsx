@@ -194,8 +194,8 @@ export default function AdminClientsManage() {
     if (createdTo) q = q.lte("created_at", createdTo + "T23:59:59");
     if (lastSeenFrom) q = q.gte("last_seen_at", lastSeenFrom);
     if (lastSeenTo) q = q.lte("last_seen_at", lastSeenTo + "T23:59:59");
-    // Filter by selected house
-    if (selectedHouseId) q = q.eq("betting_house_id", selectedHouseId);
+    // Filter by selected house (include users without a house when filtering)
+    if (selectedHouseId) q = q.or(`betting_house_id.eq.${selectedHouseId},betting_house_id.is.null`);
 
     const { data, count } = await q;
     const rawUsers = (data as unknown as AdminUser[]) ?? [];
