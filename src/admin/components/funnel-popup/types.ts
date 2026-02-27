@@ -66,10 +66,13 @@ export const emptyForm: PopupFormState = {
 
 export function formToPayload(form: PopupFormState, selectedHouseId: string | null): Record<string, unknown> {
   const q = form.questions;
+  // Welcome popups always use on_load trigger
+  const triggerType = form.type === "welcome" ? "on_load" : "manual";
   return {
     type: form.type,
     is_active: form.is_active,
     target_audience: form.target_audience,
+    trigger_type: triggerType,
     image_url: form.image_url || null,
     question_1_text: q[0]?.text || null,
     question_1_options: q[0]?.options.filter(Boolean).length ? q[0].options.filter(Boolean) : null,

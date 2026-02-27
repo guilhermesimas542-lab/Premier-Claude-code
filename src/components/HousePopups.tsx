@@ -15,29 +15,31 @@ export function WelcomePopup({ house }: { house: HousePopupData | null }) {
   const [welcomeLink, setWelcomeLink] = useState<string | null>(null);
 
   useEffect(() => {
-    const key = "welcome_popup_shown";
-    if (localStorage.getItem(key)) return;
-
-    // If house has welcome popup configured, use it
-    if (house?.popup_welcome_image) {
-      setWelcomeImage(house.popup_welcome_image);
-      setWelcomeLink(house.popup_welcome_link || null);
-      setOpen(true);
-      localStorage.setItem(key, "true");
-      return;
-    }
-
     // Fallback: fetch active welcome popup from popups table
     const fetchWelcomePopup = async () => {
+      // If house has welcome popup configured, use house popup ID as key
+      if (house?.popup_welcome_image) {
+        const houseKey = `popup_shown_house_welcome`;
+        if (localStorage.getItem(houseKey)) return;
+        setWelcomeImage(house.popup_welcome_image);
+        setWelcomeLink(house.popup_welcome_link || null);
+        setOpen(true);
+        localStorage.setItem(houseKey, "true");
+        return;
+      }
+
       const { data } = await supabase
         .from("popups")
-        .select("image_url, button_url, checkout_link")
+        .select("id, image_url, button_url, checkout_link")
         .eq("type", "welcome")
         .eq("is_active", true)
+        .eq("trigger_type", "on_load")
         .limit(1)
         .maybeSingle();
 
       if (data?.image_url) {
+        const key = `popup_shown_${data.id}`;
+        if (localStorage.getItem(key)) return;
         setWelcomeImage(data.image_url);
         setWelcomeLink(data.button_url || data.checkout_link || null);
         setOpen(true);
