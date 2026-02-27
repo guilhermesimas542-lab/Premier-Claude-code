@@ -22,7 +22,7 @@ export function CardFunnelModal({ card, open, onClose }: Props) {
     const popupData: FunnelPopupData = {
       id: card.id,
       type: "card_funnel",
-      image_url: card.image_url,
+      image_url: card.image_urls?.mobile || null,
       button_url: card.checkout_url,
       question_1_text: questions[0]?.text || null,
       question_1_options: questions[0]?.options || null,

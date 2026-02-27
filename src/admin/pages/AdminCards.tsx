@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, Pencil, Loader2, Image, Monitor, Smartphone } from "lucide-react";
+import { Plus, Pencil, Loader2, Monitor, Smartphone, Tablet } from "lucide-react";
 import { toast } from "sonner";
 import FunnelBuilder from "@/admin/components/funnel-popup/FunnelBuilder";
 import type { PopupFormState, FunnelQuestion } from "@/admin/components/funnel-popup/types";
@@ -13,7 +13,8 @@ import { LogoInput } from "@/admin/components/LogoInput";
 import { CardType1Lateral } from "@/components/cards/CardType1Lateral";
 import { CardType2Top } from "@/components/cards/CardType2Top";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import type { CardData } from "@/hooks/useCards";
+import { Checkbox } from "@/components/ui/checkbox";
+import type { CardData, CardImageUrls } from "@/hooks/useCards";
 
 interface Card {
   id: string;
@@ -22,10 +23,10 @@ interface Card {
   title: string;
   subtitle: string | null;
   description: string | null;
-  image_url: string | null;
+  image_urls: CardImageUrls | null;
   card_type: string;
   category: string;
-  badge_text: string | null;
+  badges: string[] | null;
   badge_color: string | null;
   button_text_access: string | null;
   button_text_acquire: string | null;
@@ -40,16 +41,20 @@ interface Card {
   created_at: string;
 }
 
+const BADGE_OPTIONS = ["IA ATIVADA", "META", "BETA", "AO VIVO", "ATUALIZADO", "NOVO"];
+
 const EMPTY_FORM = {
   slug: "",
   name: "",
   title: "",
   subtitle: "",
   description: "",
-  image_url: "",
+  image_mobile: "",
+  image_tablet: "",
+  image_desktop: "",
   card_type: "type2_top",
   category: "sport",
-  badge_text: "",
+  badges: [] as string[],
   badge_color: "primary",
   button_text_access: "Acessar",
   button_text_acquire: "Adquirir Agora",
@@ -77,7 +82,7 @@ export default function AdminCards() {
   const [form, setForm] = useState({ ...EMPTY_FORM });
   const [saving, setSaving] = useState(false);
   const [questions, setQuestions] = useState<FunnelQuestion[]>([]);
-  const [previewMode, setPreviewMode] = useState<"mobile" | "desktop">("mobile");
+  const [previewMode, setPreviewMode] = useState<"mobile" | "tablet" | "desktop">("mobile");
 
   const set = (key: string, val: any) => setForm((f) => ({ ...f, [key]: val }));
 
@@ -95,16 +100,19 @@ export default function AdminCards() {
 
   const openEdit = (c: Card) => {
     setEditId(c.id);
+    const imgs = (c.image_urls || {}) as CardImageUrls;
     setForm({
       slug: c.slug ?? "",
       name: c.name,
       title: c.title,
       subtitle: c.subtitle ?? "",
       description: c.description ?? "",
-      image_url: c.image_url ?? "",
+      image_mobile: imgs.mobile ?? "",
+      image_tablet: imgs.tablet ?? "",
+      image_desktop: imgs.desktop ?? "",
       card_type: c.card_type,
       category: c.category ?? "sport",
-      badge_text: c.badge_text ?? "",
+      badges: c.badges ?? [],
       badge_color: c.badge_color ?? "primary",
       button_text_access: c.button_text_access ?? "Acessar",
       button_text_acquire: c.button_text_acquire ?? "Adquirir Agora",
@@ -131,6 +139,16 @@ export default function AdminCards() {
     setShowForm(true);
   };
 
+  const toggleBadge = (badge: string) => {
+    setForm((f) => {
+      const current = f.badges;
+      return {
+        ...f,
+        badges: current.includes(badge) ? current.filter((b) => b !== badge) : [...current, badge],
+      };
+    });
+  };
+
   const handleSave = async () => {
     if (!form.name || !form.title) {
       toast.error("Nome e título são obrigatórios");
@@ -138,16 +156,21 @@ export default function AdminCards() {
     }
     setSaving(true);
 
+    const imageUrls: CardImageUrls = {};
+    if (form.image_mobile) imageUrls.mobile = form.image_mobile;
+    if (form.image_tablet) imageUrls.tablet = form.image_tablet;
+    if (form.image_desktop) imageUrls.desktop = form.image_desktop;
+
     const payload: any = {
       slug: form.slug || null,
       name: form.name,
       title: form.title,
       subtitle: form.subtitle || null,
       description: form.description || null,
-      image_url: form.image_url || null,
+      image_urls: Object.keys(imageUrls).length > 0 ? imageUrls : null,
       card_type: form.card_type,
       category: form.category,
-      badge_text: form.badge_text || null,
+      badges: form.badges.length > 0 ? form.badges : null,
       badge_color: form.badge_color || "primary",
       button_text_access: form.button_text_access || "Acessar",
       button_text_acquire: form.button_text_acquire || "Adquirir Agora",
@@ -177,6 +200,18 @@ export default function AdminCards() {
   };
 
   // Build a CardData object from current form for live preview
+  const previewImageUrls: CardImageUrls = {};
+  if (form.image_mobile) previewImageUrls.mobile = form.image_mobile;
+  if (form.image_tablet) previewImageUrls.tablet = form.image_tablet;
+  if (form.image_desktop) previewImageUrls.desktop = form.image_desktop;
+
+  // Pick image based on preview mode
+  const previewImageForMode: CardImageUrls = {
+    mobile: previewMode === "mobile" ? (previewImageUrls.mobile || previewImageUrls.tablet || previewImageUrls.desktop || null) :
+            previewMode === "tablet" ? (previewImageUrls.tablet || previewImageUrls.mobile || previewImageUrls.desktop || null) :
+            (previewImageUrls.desktop || previewImageUrls.tablet || previewImageUrls.mobile || null),
+  };
+
   const previewCard: CardData = {
     id: "preview",
     slug: form.slug,
@@ -184,10 +219,10 @@ export default function AdminCards() {
     title: form.title || "Título do Card",
     subtitle: form.subtitle || null,
     description: form.description || null,
-    image_url: form.image_url || null,
+    image_urls: previewImageForMode,
     card_type: form.card_type,
     category: form.category,
-    badge_text: form.badge_text || null,
+    badges: form.badges.length > 0 ? form.badges : null,
     badge_color: form.badge_color || null,
     button_text_access: form.button_text_access || "Acessar",
     button_text_acquire: form.button_text_acquire || "Adquirir Agora",
@@ -206,7 +241,7 @@ export default function AdminCards() {
     type: "card",
     is_active: form.is_active,
     target_audience: "all",
-    image_url: form.image_url,
+    image_url: form.image_mobile,
     checkout_link: form.checkout_url,
     questions,
     final_title: "",
@@ -225,10 +260,10 @@ export default function AdminCards() {
     title: c.title,
     subtitle: c.subtitle,
     description: c.description,
-    image_url: c.image_url,
+    image_urls: c.image_urls,
     card_type: c.card_type,
     category: c.category,
-    badge_text: c.badge_text,
+    badges: c.badges,
     badge_color: c.badge_color,
     button_text_access: c.button_text_access,
     button_text_acquire: c.button_text_acquire,
@@ -294,7 +329,12 @@ export default function AdminCards() {
                   </TableCell>
                   <TableCell>
                     <div className="flex flex-col gap-1">
-                      <span className="font-semibold text-sm">{c.title}</span>
+                      <span className="font-semibold text-sm">
+                        {c.title}
+                        <span className="ml-2 font-normal text-xs text-muted-foreground">
+                          {c.card_type === "type1_lateral" ? "(200 x 240 px)" : "(800 x 360 px)"}
+                        </span>
+                      </span>
                       <div className="flex items-center gap-1.5 flex-wrap">
                         <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
                           c.category === "casino" ? "bg-purple-500/20 text-purple-400 border border-purple-400/30" :
@@ -371,13 +411,36 @@ export default function AdminCards() {
                 <Input value={form.subtitle} onChange={(e) => set("subtitle", e.target.value)} placeholder="Ex: Champions League, Brasileirão" className="bg-gray-900 border-gray-800" />
               </div>
 
-              {/* Image Upload */}
-              <div>
-                <label className="text-xs text-gray-500 mb-1 block">Imagem do Card</label>
-                <LogoInput
-                  currentPreview={form.image_url || null}
-                  onUploadComplete={(url) => set("image_url", url)}
-                />
+              {/* Responsive Image Uploads */}
+              <div className="p-3 rounded-lg bg-gray-800 space-y-3">
+                <label className="text-sm font-medium">📱 Imagens Responsivas</label>
+                <div>
+                  <label className="text-xs text-gray-500 mb-1 block">
+                    Imagem Mobile <span className="text-muted-foreground">(800 x 450 px)</span>
+                  </label>
+                  <LogoInput
+                    currentPreview={form.image_mobile || null}
+                    onUploadComplete={(url) => set("image_mobile", url)}
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-gray-500 mb-1 block">
+                    Imagem Tablet <span className="text-muted-foreground">(800 x 600 px)</span>
+                  </label>
+                  <LogoInput
+                    currentPreview={form.image_tablet || null}
+                    onUploadComplete={(url) => set("image_tablet", url)}
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-gray-500 mb-1 block">
+                    Imagem Desktop <span className="text-muted-foreground">(1200 x 600 px)</span>
+                  </label>
+                  <LogoInput
+                    currentPreview={form.image_desktop || null}
+                    onUploadComplete={(url) => set("image_desktop", url)}
+                  />
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
@@ -405,24 +468,22 @@ export default function AdminCards() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs text-gray-500">Badge texto</label>
-                  <Select value={form.badge_text || "__none__"} onValueChange={(v) => set("badge_text", v === "__none__" ? "" : v)}>
-                    <SelectTrigger className="bg-gray-900 border-gray-800"><SelectValue placeholder="Selecione..." /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="__none__">Nenhum</SelectItem>
-                      <SelectItem value="IA ATIVADA">IA ATIVADA</SelectItem>
-                      <SelectItem value="META">META</SelectItem>
-                      <SelectItem value="BETA">BETA</SelectItem>
-                      <SelectItem value="AO VIVO">AO VIVO</SelectItem>
-                      <SelectItem value="ATUALIZADO">ATUALIZADO</SelectItem>
-                      <SelectItem value="NOVO">NOVO</SelectItem>
-                    </SelectContent>
-                  </Select>
+              {/* Multi-badge selector */}
+              <div className="p-3 rounded-lg bg-gray-800 space-y-2">
+                <label className="text-sm font-medium">🏷️ Badges</label>
+                <div className="flex flex-wrap gap-2">
+                  {BADGE_OPTIONS.map((badge) => (
+                    <label key={badge} className="flex items-center gap-1.5 cursor-pointer">
+                      <Checkbox
+                        checked={form.badges.includes(badge)}
+                        onCheckedChange={() => toggleBadge(badge)}
+                      />
+                      <span className="text-xs">{badge}</span>
+                    </label>
+                  ))}
                 </div>
                 <div>
-                  <label className="text-xs text-gray-500">Badge cor</label>
+                  <label className="text-xs text-gray-500">Cor dos badges</label>
                   <Select value={form.badge_color} onValueChange={(v) => set("badge_color", v)}>
                     <SelectTrigger className="bg-gray-900 border-gray-800"><SelectValue /></SelectTrigger>
                     <SelectContent>
@@ -541,6 +602,12 @@ export default function AdminCards() {
                     <Smartphone className="w-4 h-4" />
                   </button>
                   <button
+                    onClick={() => setPreviewMode("tablet")}
+                    className={`p-1.5 rounded-md transition-colors ${previewMode === "tablet" ? "bg-primary text-primary-foreground" : "text-gray-400 hover:text-white"}`}
+                  >
+                    <Tablet className="w-4 h-4" />
+                  </button>
+                  <button
                     onClick={() => setPreviewMode("desktop")}
                     className={`p-1.5 rounded-md transition-colors ${previewMode === "desktop" ? "bg-primary text-primary-foreground" : "text-gray-400 hover:text-white"}`}
                   >
@@ -553,7 +620,7 @@ export default function AdminCards() {
                 className="rounded-xl border border-gray-800 p-4 flex justify-center"
                 style={{ background: "hsl(0 0% 4%)" }}
               >
-                <div style={{ width: previewMode === "mobile" ? "340px" : "100%" }}>
+                <div style={{ width: previewMode === "mobile" ? "340px" : previewMode === "tablet" ? "500px" : "100%" }}>
                   {form.card_type === "type1_lateral" ? (
                     <CardType1Lateral card={previewCard} onAction={() => {}} />
                   ) : (
@@ -570,7 +637,7 @@ export default function AdminCards() {
                     className="rounded-xl border border-gray-800 p-4 flex justify-center"
                     style={{ background: "hsl(0 0% 4%)" }}
                   >
-                    <div style={{ width: previewMode === "mobile" ? "340px" : "100%" }}>
+                    <div style={{ width: previewMode === "mobile" ? "340px" : previewMode === "tablet" ? "500px" : "100%" }}>
                       {form.card_type === "type1_lateral" ? (
                         <CardType1Lateral card={previewCard} onAction={() => {}} />
                       ) : (
