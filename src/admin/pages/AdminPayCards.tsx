@@ -27,6 +27,8 @@ interface PayCard {
   created_at: string;
   updated_at: string | null;
   betting_house_id: string | null;
+  location: string | null;
+  target_audience: string | null;
 }
 
 const PLAN_OPTIONS = [
@@ -56,6 +58,8 @@ const EMPTY_FORM = {
   checkout_benefits: "",
   is_active: true,
   betting_house_id: "__none__",
+  location: "",
+  target_audience: "",
 };
 
 export default function AdminPayCards() {
@@ -107,6 +111,8 @@ export default function AdminPayCards() {
       checkout_benefits: (checkout.benefits || []).join("\n"),
       is_active: c.is_active,
       betting_house_id: c.betting_house_id || "__none__",
+      location: c.location ?? "",
+      target_audience: c.target_audience ?? "",
     });
     const q = Array.isArray(c.quiz_questions) ? c.quiz_questions : [];
     setQuestions(q.map((item: any) => ({
@@ -132,6 +138,8 @@ export default function AdminPayCards() {
       associated_plan: form.associated_plan,
       has_intro_popup: form.has_intro_popup,
       betting_house_id: form.betting_house_id === "__none__" ? null : form.betting_house_id,
+      location: form.location || null,
+      target_audience: form.target_audience || null,
       popup_config: form.has_intro_popup ? {
         title: form.popup_title || null,
         text: form.popup_text || null,
@@ -213,10 +221,12 @@ export default function AdminPayCards() {
       ) : (
         <Table>
           <TableHeader>
-            <TableRow>
+           <TableRow>
               <TableHead className="w-[100px]">Preview</TableHead>
               <TableHead>Nome</TableHead>
               <TableHead>Plano</TableHead>
+              <TableHead>Localização</TableHead>
+              <TableHead>Público-alvo</TableHead>
               <TableHead>Popup Intro</TableHead>
               <TableHead>Quiz</TableHead>
               <TableHead className="w-[80px]">Status</TableHead>
@@ -229,13 +239,19 @@ export default function AdminPayCards() {
               return (
                 <TableRow key={c.id} className="border-b border-white/10">
                   <TableCell>
-                    <PayCardMiniaturePreview plan={c.associated_plan} />
+                    <PayCardMiniaturePreview plan={c.associated_plan} onClick={() => openEdit(c)} />
                   </TableCell>
                   <TableCell className="font-medium text-sm">{c.name}</TableCell>
                   <TableCell>
                     <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-400/30 font-medium">
                       {PLAN_LABELS[c.associated_plan] || c.associated_plan}
                     </span>
+                  </TableCell>
+                  <TableCell>
+                    <span className="text-xs text-gray-400">{c.location || "—"}</span>
+                  </TableCell>
+                  <TableCell>
+                    <span className="text-xs text-gray-400">{c.target_audience || "—"}</span>
                   </TableCell>
                   <TableCell>
                     <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${c.has_intro_popup ? "bg-green-500/20 text-green-400 border border-green-400/30" : "bg-gray-500/20 text-gray-400 border border-gray-400/30"}`}>
@@ -260,7 +276,7 @@ export default function AdminPayCards() {
             })}
             {payCards.length === 0 && (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8 text-gray-600">
+                <TableCell colSpan={9} className="text-center py-8 text-gray-600">
                   Nenhum Pay Card cadastrado
                 </TableCell>
               </TableRow>
@@ -282,6 +298,17 @@ export default function AdminPayCards() {
               <div>
                 <label className="text-xs text-gray-500">Nome do funil *</label>
                 <Input value={form.name} onChange={(e) => set("name", e.target.value)} placeholder="Ex: Funil de Aquisição - Plano Pro" className="bg-gray-900 border-gray-800" />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-gray-500">Localização</label>
+                  <Input value={form.location} onChange={(e) => set("location", e.target.value)} placeholder="Ex: Home, Sports Tips, Suporte" className="bg-gray-900 border-gray-800" />
+                </div>
+                <div>
+                  <label className="text-xs text-gray-500">Público-alvo</label>
+                  <Input value={form.target_audience} onChange={(e) => set("target_audience", e.target.value)} placeholder="Ex: Usuário Gratuito" className="bg-gray-900 border-gray-800" />
+                </div>
               </div>
 
               <div>
