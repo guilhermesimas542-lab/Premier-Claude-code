@@ -217,8 +217,8 @@ export const SpecialBettingCard = ({
                 Exclusivo do {lockedLabel}
               </span>
             )}
-            <div className="w-14 h-14 rounded-full bg-white flex items-center justify-center" style={{ boxShadow: '0 4px 20px rgba(255,255,255,0.35)' }}>
-              <Lock className="w-7 h-7 text-black" />
+            <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center" style={{ boxShadow: '0 2px 8px rgba(255,255,255,0.15)' }}>
+              <Lock className="w-6 h-6 text-black" />
             </div>
             <button
               onClick={(e) => { e.stopPropagation(); window.open('/planos', '_self'); }}
