@@ -16,6 +16,7 @@ interface Card {
   subtitle: string | null;
   card_type: string;
   checkout_url: string | null;
+  product_id: string | null;
   is_active: boolean;
   display_order: number;
   target_audience: string;
@@ -40,6 +41,7 @@ const EMPTY_CARD = {
   subtitle: "",
   card_type: "info",
   checkout_url: "",
+  product_id: "",
   is_active: true,
   display_order: 0,
   target_audience: "all",
@@ -92,6 +94,7 @@ export default function AdminCards() {
       subtitle: c.subtitle ?? "",
       card_type: c.card_type,
       checkout_url: c.checkout_url ?? "",
+      product_id: c.product_id ?? "",
       is_active: c.is_active,
       display_order: c.display_order,
       target_audience: c.target_audience,
@@ -133,6 +136,7 @@ export default function AdminCards() {
       subtitle: form.subtitle || null,
       card_type: form.card_type,
       checkout_url: form.checkout_url || null,
+      product_id: form.product_id || null,
       is_active: form.is_active,
       display_order: form.display_order,
       target_audience: form.target_audience,
@@ -312,6 +316,11 @@ export default function AdminCards() {
                 <label className="text-xs text-gray-500">Checkout URL</label>
                 <Input value={form.checkout_url} onChange={(e) => set("checkout_url", e.target.value)} placeholder="https://checkout..." className="bg-gray-900 border-gray-800" />
               </div>
+            </div>
+
+            <div>
+              <label className="text-xs text-gray-500">Product ID (opcional)</label>
+              <Input value={form.product_id} onChange={(e) => set("product_id", e.target.value)} placeholder="UUID do produto" className="bg-gray-900 border-gray-800 font-mono text-xs" />
             </div>
 
             <div className="flex items-center justify-between">
