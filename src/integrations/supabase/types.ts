@@ -242,10 +242,12 @@ export type Database = {
           odd: number | null
           result: string
           starts_at: string | null
+          team1_logo_url: string | null
           team1_name: string | null
           team1_primary_color: string | null
           team1_secondary_color: string | null
           team1_shirt_variant: string | null
+          team2_logo_url: string | null
           team2_name: string | null
           team2_primary_color: string | null
           team2_secondary_color: string | null
@@ -274,10 +276,12 @@ export type Database = {
           odd?: number | null
           result?: string
           starts_at?: string | null
+          team1_logo_url?: string | null
           team1_name?: string | null
           team1_primary_color?: string | null
           team1_secondary_color?: string | null
           team1_shirt_variant?: string | null
+          team2_logo_url?: string | null
           team2_name?: string | null
           team2_primary_color?: string | null
           team2_secondary_color?: string | null
@@ -306,10 +310,12 @@ export type Database = {
           odd?: number | null
           result?: string
           starts_at?: string | null
+          team1_logo_url?: string | null
           team1_name?: string | null
           team1_primary_color?: string | null
           team1_secondary_color?: string | null
           team1_shirt_variant?: string | null
+          team2_logo_url?: string | null
           team2_name?: string | null
           team2_primary_color?: string | null
           team2_secondary_color?: string | null
