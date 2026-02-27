@@ -34,6 +34,7 @@ import AdminBettingHouses from "./admin/pages/AdminBettingHouses";
 import AdminDefaultLinks from "./admin/pages/AdminDefaultLinks";
 import AdminPopups from "./admin/pages/AdminPopups";
 import AdminTeams from "./admin/pages/AdminTeams";
+import AdminPredictions from "./admin/pages/AdminPredictions";
 import { Navigate } from "react-router-dom";
 import { FunnelPopupProvider } from "./context/FunnelPopupContext";
 
@@ -74,6 +75,7 @@ const App = () => (
               <Route path="banners" element={<AdminBanners />} />
               <Route path="betting-houses" element={<AdminBettingHouses />} />
               <Route path="teams" element={<AdminTeams />} />
+              <Route path="predictions" element={<AdminPredictions />} />
               <Route path="tips/create" element={<AdminTipsCreate />} />
               <Route path="tips/list" element={<AdminTipsList />} />
               <Route path="clients" element={<AdminClientsManage />} />
