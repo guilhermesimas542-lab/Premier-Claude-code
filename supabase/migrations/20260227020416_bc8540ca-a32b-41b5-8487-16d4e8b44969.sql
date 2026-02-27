@@ -1,0 +1,1 @@
+ALTER TABLE public.betting_houses ADD COLUMN open_in_new_tab BOOLEAN NOT NULL DEFAULT FALSE;

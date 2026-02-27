@@ -694,15 +694,26 @@ const Sport = () => {
         )}
 
         <section id="bet-iframe-section" className="w-full mt-2">
-          <div className="w-full h-[1000px] bg-gradient-to-br from-muted/40 to-muted/20 rounded-xl overflow-hidden border border-border/30 backdrop-blur-sm">
-            {iframeUrl ? (
-              <iframe key={iframeUrl} src={iframeUrl} title="Bet Site" className="w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <p className="text-muted-foreground">Carregando...</p>
-              </div>
-            )}
-          </div>
+          {userHouse?.open_in_new_tab ? (
+            <a
+              href={iframeUrl || userHouse.iframe_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center w-full h-20 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 border border-primary/30 text-primary font-semibold hover:from-primary/30 hover:to-primary/20 transition-colors"
+            >
+              Abrir site de apostas ↗
+            </a>
+          ) : (
+            <div className="w-full h-[1000px] bg-gradient-to-br from-muted/40 to-muted/20 rounded-xl overflow-hidden border border-border/30 backdrop-blur-sm">
+              {iframeUrl ? (
+                <iframe key={iframeUrl} src={iframeUrl} title="Bet Site" className="w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <p className="text-muted-foreground">Carregando...</p>
+                </div>
+              )}
+            </div>
+          )}
         </section>
       </main>
 
