@@ -179,12 +179,12 @@ export const SpecialBettingCard = ({
         )}
       </div>
 
-      {/* Stadium Background Image - grayscale+blur when locked */}
+      {/* Stadium Background Image - grayscale when locked */}
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat pointer-events-none rounded-xl overflow-hidden"
         style={{
           backgroundImage: `url('/images/futsal-arena.jpg')`,
-          ...(isLocked && !isExpired ? { filter: 'grayscale(1) blur(2px)', opacity: 0.3 } : {}),
+          ...(isLocked && !isExpired ? { filter: 'grayscale(1)', opacity: 0.5 } : {}),
         }}
       />
 
@@ -286,28 +286,30 @@ export const SpecialBettingCard = ({
           )}
         </div>
 
-        {/* Special Icon Section (replaces teams) */}
-        <div className="flex flex-col items-center justify-center gap-1 w-full" style={{ height: '60px' }}>
-          <div className={`w-11 h-11 rounded-full ${config.iconBg} backdrop-blur-sm flex items-center justify-center ring-1 shadow-lg ${
-            isExpired ? "ring-gray-600/30" : "ring-white/20"
-          }`}>
-            <IconComponent className={`w-6 h-6 ${isExpired ? "text-gray-500" : config.iconColor}`} />
+        {/* Special Icon Section - Hidden when locked */}
+        {!isLocked && (
+          <div className="flex flex-col items-center justify-center gap-1 w-full" style={{ height: '60px' }}>
+            <div className={`w-11 h-11 rounded-full ${config.iconBg} backdrop-blur-sm flex items-center justify-center ring-1 shadow-lg ${
+              isExpired ? "ring-gray-600/30" : "ring-white/20"
+            }`}>
+              <IconComponent className={`w-6 h-6 ${isExpired ? "text-gray-500" : config.iconColor}`} />
+            </div>
+            <div className="text-center">
+              <h3 
+                className={`font-bold ${isExpired ? "text-gray-400" : "text-white"}`}
+                style={{ fontSize: '14px' }}
+              >
+                {config.title}
+              </h3>
+              <p 
+                className={`${isExpired ? "text-gray-500" : "text-white/60"}`}
+                style={{ fontSize: '9px' }}
+              >
+                {config.subtitle}
+              </p>
+            </div>
           </div>
-          <div className="text-center">
-            <h3 
-              className={`font-bold ${isExpired ? "text-gray-400" : "text-white"}`}
-              style={{ fontSize: '14px' }}
-            >
-              {config.title}
-            </h3>
-            <p 
-              className={`${isExpired ? "text-gray-500" : "text-white/60"}`}
-              style={{ fontSize: '9px' }}
-            >
-              {config.subtitle}
-            </p>
-          </div>
-        </div>
+        )}
 
         {/* Market Name and Bet Details - Hidden when locked */}
         {!isLocked && (
