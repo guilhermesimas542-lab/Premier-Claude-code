@@ -52,8 +52,8 @@ export const TipsCarousel = ({ tips, onAddTip }: TipsCarouselProps) => {
           </CarouselItem>
         ))}
       </CarouselContent>
-      <CarouselPrevious className="hidden md:flex" />
-      <CarouselNext className="hidden md:flex" />
+      <CarouselPrevious className="hidden md:flex h-10 w-10 bg-green-500/20 border-2 border-green-400 shadow-[0_0_15px_rgba(74,222,128,0.8)] hover:bg-green-500/40 text-green-300 hover:text-green-200 -left-5" />
+      <CarouselNext className="hidden md:flex h-10 w-10 bg-green-500/20 border-2 border-green-400 shadow-[0_0_15px_rgba(74,222,128,0.8)] hover:bg-green-500/40 text-green-300 hover:text-green-200 -right-5" />
     </Carousel>
   );
 };
