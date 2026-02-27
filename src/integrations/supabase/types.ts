@@ -73,6 +73,7 @@ export type Database = {
           aviator_url: string | null
           created_at: string
           football_studio_url: string | null
+          force_sports_link_new_tab: boolean
           id: string
           iframe_url: string
           is_active: boolean
@@ -102,6 +103,7 @@ export type Database = {
           aviator_url?: string | null
           created_at?: string
           football_studio_url?: string | null
+          force_sports_link_new_tab?: boolean
           id?: string
           iframe_url?: string
           is_active?: boolean
@@ -131,6 +133,7 @@ export type Database = {
           aviator_url?: string | null
           created_at?: string
           football_studio_url?: string | null
+          force_sports_link_new_tab?: boolean
           id?: string
           iframe_url?: string
           is_active?: boolean

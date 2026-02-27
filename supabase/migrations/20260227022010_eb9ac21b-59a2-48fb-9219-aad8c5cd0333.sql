@@ -1,0 +1,1 @@
+ALTER TABLE public.betting_houses ADD COLUMN force_sports_link_new_tab boolean NOT NULL DEFAULT false;

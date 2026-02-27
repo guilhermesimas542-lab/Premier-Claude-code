@@ -13,6 +13,7 @@ export interface BettingHouseData {
   football_studio_url: string | null;
   is_default: boolean;
   open_in_new_tab: boolean;
+  force_sports_link_new_tab: boolean;
 }
 
 export function useUserBettingHouse() {
@@ -47,7 +48,7 @@ export function useUserBettingHouse() {
       if (houseId) {
         const { data: houseData } = await supabase
           .from("betting_houses")
-          .select("id, name, slug, iframe_url, aviator_url, roleta_url, mines_url, football_studio_url, is_default, open_in_new_tab")
+          .select("id, name, slug, iframe_url, aviator_url, roleta_url, mines_url, football_studio_url, is_default, open_in_new_tab, force_sports_link_new_tab")
           .eq("id", houseId)
           .single();
         setHouse(houseData as BettingHouseData);
