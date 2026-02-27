@@ -13,7 +13,7 @@ import logoImg from "@/assets/premier-logo-custom.png";
 import MatrixRain from "@/components/MatrixRain";
 import { WelcomePopup } from "@/components/HousePopups";
 import { useUserBettingHouse } from "@/hooks/useUserBettingHouse";
-import { useCards, CardData } from "@/hooks/useCards";
+import { useCards, useCardsBySlugs, CardData } from "@/hooks/useCards";
 import { useUserAccess } from "@/hooks/useUserAccess";
 import { CardType1Lateral } from "@/components/cards/CardType1Lateral";
 import { CardType2Top } from "@/components/cards/CardType2Top";
@@ -34,7 +34,7 @@ const Home = () => {
   const config = getStoredConfig();
   const hasLifetimeAccess = true;
   const { house: userHouse } = useUserBettingHouse();
-  const { cards: sportCards } = useCards("sport");
+  const { cards: mainCards } = useCardsBySlugs(["futebol", "cassino"]);
   const { cards: quickCards } = useCards("quick_access");
   const access = useUserAccess();
 
@@ -155,13 +155,13 @@ const Home = () => {
       <main className="container max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6 relative z-10">
         <PromoCarousel />
 
-        {/* Sport Cards */}
+        {/* Main Entry Cards */}
         <section className="space-y-4 sm:space-y-6">
           <h2 className="text-xl sm:text-2xl font-display font-extrabold tracking-tight" style={{ color: "#FFFFFF" }}>
             Entradas Disponíveis
           </h2>
           <div className="space-y-3">
-            {sportCards.map(renderCard)}
+            {mainCards.map(renderCard)}
           </div>
         </section>
 
@@ -176,6 +176,29 @@ const Home = () => {
             </div>
           </section>
         )}
+
+        {/* Últimos Bilhetes */}
+        <section className="space-y-2.5">
+          <h2 className="text-base sm:text-lg font-bold" style={{ color: "#FFFFFF" }}>
+            🎫 Últimos Bilhetes
+          </h2>
+          <button
+            onClick={() => navigate("/ultimos-greens")}
+            className="w-full flex items-center gap-3 p-4 rounded-xl border transition-all hover:-translate-y-0.5"
+            style={{ background: "hsl(0 0% 7%)", borderColor: "rgba(255,255,255,0.1)" }}
+          >
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0" style={{ background: "rgba(0,255,0,0.1)", border: "1px solid rgba(0,255,0,0.3)" }}>
+              <span className="text-lg">🏆</span>
+            </div>
+            <div className="flex-1 text-left">
+              <h3 className="text-sm font-bold" style={{ color: "#FFFFFF" }}>Histórico de Greens</h3>
+              <p className="text-xs" style={{ color: "#AAAAAA" }}>Veja os últimos bilhetes vencedores</p>
+            </div>
+            <span className="text-xs font-bold px-3 py-1.5 rounded-lg" style={{ background: "rgba(0,255,0,0.1)", color: "#00FF00", border: "1px solid rgba(0,255,0,0.3)" }}>
+              Ver todos
+            </span>
+          </button>
+        </section>
       </main>
 
       {/* Footer */}

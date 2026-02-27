@@ -20,7 +20,6 @@ const Casino = () => {
   const [config, setConfig] = useState<AppConfig | null>(null);
   const { house: userHouse } = useUserBettingHouse();
   const { cards: casinoCards, loading } = useCards("casino");
-  const { cards: quickCards } = useCards("quick_access");
   const access = useUserAccess();
   const [funnelCard, setFunnelCard] = useState<CardData | null>(null);
 
@@ -116,21 +115,9 @@ const Casino = () => {
             Jogos Disponíveis
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {casinoCards.map(renderCard)}
+            {casinoCards.filter(c => c.slug !== "cassino").map(renderCard)}
           </div>
         </section>
-
-        {/* Quick Access Section */}
-        {quickCards.length > 0 && (
-          <section className="space-y-3">
-            <h2 className="text-base sm:text-lg font-bold" style={{ color: "#FFFFFF" }}>
-              ⚡ Acesso Rápido
-            </h2>
-            <div className="space-y-3">
-              {quickCards.map(renderCard)}
-            </div>
-          </section>
-        )}
       </main>
 
       <BottomNav />

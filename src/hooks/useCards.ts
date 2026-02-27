@@ -50,3 +50,25 @@ export function useCards(category?: string) {
 
   return { cards, loading };
 }
+
+export function useCardsBySlugs(slugs: string[]) {
+  const [cards, setCards] = useState<CardData[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCards = async () => {
+      setLoading(true);
+      const { data } = await supabase
+        .from("cards" as any)
+        .select("*")
+        .eq("is_active", true)
+        .in("slug", slugs)
+        .order("display_order", { ascending: true });
+      setCards((data as any as CardData[]) ?? []);
+      setLoading(false);
+    };
+    fetchCards();
+  }, [slugs.join(",")]);
+
+  return { cards, loading };
+}
