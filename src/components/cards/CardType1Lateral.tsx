@@ -33,14 +33,10 @@ export function CardType1Lateral({ card, onAction }: Props) {
         </div>
       )}
 
-      {/* Image */}
-      <div className="relative shrink-0" style={{ width: "100px", height: "120px" }}>
+      {/* Image — fixed 100x120 portrait container */}
+      <div className="relative shrink-0 w-[100px] h-[120px]">
         {mobileImg ? (
-          <picture>
-            {imgs?.desktop && <source media="(min-width: 1024px)" srcSet={imgs.desktop} />}
-            {imgs?.tablet && <source media="(min-width: 768px)" srcSet={imgs.tablet} />}
-            <img src={mobileImg} alt={card.name} className="w-full h-full object-cover rounded-l-xl" />
-          </picture>
+          <img src={mobileImg} alt={card.name} className="w-full h-full object-cover rounded-l-xl" />
         ) : (
           <div className="w-full h-full flex items-center justify-center rounded-l-xl" style={{ background: "hsl(0 0% 10%)" }}>
             <span className="text-3xl text-muted-foreground">📦</span>

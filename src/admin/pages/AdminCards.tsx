@@ -149,15 +149,20 @@ export default function AdminCards() {
     });
   };
 
+  const isLateral = form.card_type === "type1_lateral";
+
   const handleSave = async () => {
     if (!form.name || !form.title) {
       toast.error("Nome e título são obrigatórios");
       return;
     }
+    if (!form.image_mobile) {
+      toast.error("A imagem mobile é obrigatória");
+      return;
+    }
     setSaving(true);
 
-    const imageUrls: CardImageUrls = {};
-    if (form.image_mobile) imageUrls.mobile = form.image_mobile;
+    const imageUrls: CardImageUrls = { mobile: form.image_mobile };
     if (form.image_tablet) imageUrls.tablet = form.image_tablet;
     if (form.image_desktop) imageUrls.desktop = form.image_desktop;
 
@@ -167,7 +172,7 @@ export default function AdminCards() {
       title: form.title,
       subtitle: form.subtitle || null,
       description: form.description || null,
-      image_urls: Object.keys(imageUrls).length > 0 ? imageUrls : null,
+      image_urls: imageUrls,
       card_type: form.card_type,
       category: form.category,
       badges: form.badges.length > 0 ? form.badges : null,
@@ -205,11 +210,15 @@ export default function AdminCards() {
   if (form.image_tablet) previewImageUrls.tablet = form.image_tablet;
   if (form.image_desktop) previewImageUrls.desktop = form.image_desktop;
 
-  // Pick image based on preview mode
+  // Pick image based on preview mode with mobile fallback
+  const pickImage = (mode: "mobile" | "tablet" | "desktop") => {
+    if (mode === "desktop") return previewImageUrls.desktop || previewImageUrls.tablet || previewImageUrls.mobile || null;
+    if (mode === "tablet") return previewImageUrls.tablet || previewImageUrls.mobile || null;
+    return previewImageUrls.mobile || null;
+  };
+
   const previewImageForMode: CardImageUrls = {
-    mobile: previewMode === "mobile" ? (previewImageUrls.mobile || previewImageUrls.tablet || previewImageUrls.desktop || null) :
-            previewMode === "tablet" ? (previewImageUrls.tablet || previewImageUrls.mobile || previewImageUrls.desktop || null) :
-            (previewImageUrls.desktop || previewImageUrls.tablet || previewImageUrls.mobile || null),
+    mobile: pickImage(previewMode),
   };
 
   const previewCard: CardData = {
@@ -411,38 +420,6 @@ export default function AdminCards() {
                 <Input value={form.subtitle} onChange={(e) => set("subtitle", e.target.value)} placeholder="Ex: Champions League, Brasileirão" className="bg-gray-900 border-gray-800" />
               </div>
 
-              {/* Responsive Image Uploads */}
-              <div className="p-3 rounded-lg bg-gray-800 space-y-3">
-                <label className="text-sm font-medium">📱 Imagens Responsivas</label>
-                <div>
-                  <label className="text-xs text-gray-500 mb-1 block">
-                    Imagem Mobile <span className="text-muted-foreground">(800 x 450 px)</span>
-                  </label>
-                  <LogoInput
-                    currentPreview={form.image_mobile || null}
-                    onUploadComplete={(url) => set("image_mobile", url)}
-                  />
-                </div>
-                <div>
-                  <label className="text-xs text-gray-500 mb-1 block">
-                    Imagem Tablet <span className="text-muted-foreground">(800 x 600 px)</span>
-                  </label>
-                  <LogoInput
-                    currentPreview={form.image_tablet || null}
-                    onUploadComplete={(url) => set("image_tablet", url)}
-                  />
-                </div>
-                <div>
-                  <label className="text-xs text-gray-500 mb-1 block">
-                    Imagem Desktop <span className="text-muted-foreground">(1200 x 600 px)</span>
-                  </label>
-                  <LogoInput
-                    currentPreview={form.image_desktop || null}
-                    onUploadComplete={(url) => set("image_desktop", url)}
-                  />
-                </div>
-              </div>
-
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-gray-500">Tipo visual</label>
@@ -466,6 +443,52 @@ export default function AdminCards() {
                     </SelectContent>
                   </Select>
                 </div>
+              </div>
+
+              {/* Image Uploads — conditional on card type */}
+              <div className="p-3 rounded-lg bg-gray-800 space-y-3">
+                <label className="text-sm font-medium">📱 Imagens</label>
+                {isLateral ? (
+                  <div>
+                    <label className="text-xs text-gray-500 mb-1 block">
+                      Imagem <span className="text-red-400">*</span> <span className="text-muted-foreground">(200 x 240 px)</span>
+                    </label>
+                    <LogoInput
+                      currentPreview={form.image_mobile || null}
+                      onUploadComplete={(url) => set("image_mobile", url)}
+                    />
+                  </div>
+                ) : (
+                  <>
+                    <div>
+                      <label className="text-xs text-gray-500 mb-1 block">
+                        Imagem Mobile <span className="text-red-400">*</span> <span className="text-muted-foreground">(800 x 360 px)</span>
+                      </label>
+                      <LogoInput
+                        currentPreview={form.image_mobile || null}
+                        onUploadComplete={(url) => set("image_mobile", url)}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-500 mb-1 block">
+                        Imagem Tablet <span className="text-muted-foreground">(1024 x 400 px) — opcional</span>
+                      </label>
+                      <LogoInput
+                        currentPreview={form.image_tablet || null}
+                        onUploadComplete={(url) => set("image_tablet", url)}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-500 mb-1 block">
+                        Imagem Desktop <span className="text-muted-foreground">(1200 x 400 px) — opcional</span>
+                      </label>
+                      <LogoInput
+                        currentPreview={form.image_desktop || null}
+                        onUploadComplete={(url) => set("image_desktop", url)}
+                      />
+                    </div>
+                  </>
+                )}
               </div>
 
               {/* Multi-badge selector */}
