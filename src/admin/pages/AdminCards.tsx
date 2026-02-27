@@ -269,15 +269,20 @@ export default function AdminCards() {
             {cards.map((c) => {
               const cd = toCardData(c);
               return (
-                <TableRow key={c.id}>
+                <TableRow key={c.id} className="border-b border-white/10">
                   <TableCell className="p-2">
-                    <div className="pointer-events-none" style={{
-                      width: c.card_type === "type1_lateral" ? "180px" : "140px",
-                      transform: "scale(0.55)",
-                      transformOrigin: "top left",
-                      height: c.card_type === "type1_lateral" ? "66px" : "120px",
-                    }}>
-                      <div style={{ width: c.card_type === "type1_lateral" ? "327px" : "254px" }}>
+                    <div
+                      className="pointer-events-none overflow-hidden relative"
+                      style={{
+                        width: c.card_type === "type1_lateral" ? "130px" : "110px",
+                        height: c.card_type === "type1_lateral" ? "44px" : "85px",
+                      }}
+                    >
+                      <div style={{
+                        transform: "scale(0.36)",
+                        transformOrigin: "top left",
+                        width: c.card_type === "type1_lateral" ? "360px" : "300px",
+                      }}>
                         {c.card_type === "type1_lateral" ? (
                           <CardType1Lateral card={cd} onAction={() => {}} />
                         ) : (
