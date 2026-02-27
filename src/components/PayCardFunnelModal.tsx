@@ -18,7 +18,12 @@ export function PayCardFunnelModal({ payCard, open, onClose }: Props) {
   const hasIntro = payCard.has_intro_popup && payCard.popup_config?.image_url;
   const questions = Array.isArray(payCard.quiz_questions) ? payCard.quiz_questions.filter((q: any) => q.text) : [];
   const hasQuiz = questions.length > 0;
-  const checkoutUrl = payCard.checkout_config?.checkout_url;
+  const checkout = payCard.checkout_config;
+  const checkoutUrl = checkout?.checkout_url;
+  const checkoutUrl2 = checkout?.checkout_url_2;
+  const label1 = checkout?.checkout_label_1 || "Assinar Agora";
+  const label2 = checkout?.checkout_label_2 || "Comprar Pacote Completo";
+  const hasDualCheckout = !!checkoutUrl && !!checkoutUrl2;
 
   const getInitialStep = (): Step => {
     if (hasIntro) return "intro";
@@ -28,40 +33,37 @@ export function PayCardFunnelModal({ payCard, open, onClose }: Props) {
 
   const [step, setStep] = useState<Step>(getInitialStep);
   const [quizIndex, setQuizIndex] = useState(0);
-  const [showCheckout, setShowCheckout] = useState(false);
+  const [embeddedUrl, setEmbeddedUrl] = useState<string | null>(null);
 
   if (!open) return null;
 
-  // If we reached checkout, show embedded checkout
-  if (showCheckout && checkoutUrl) {
-    return <EmbeddedCheckout open={true} onClose={onClose} url={checkoutUrl} />;
+  // If we opened embedded checkout
+  if (embeddedUrl) {
+    return <EmbeddedCheckout open={true} onClose={onClose} url={embeddedUrl} />;
   }
 
   const advanceFromIntro = () => {
     if (hasQuiz) { setStep("quiz"); }
-    else { setShowCheckout(true); }
+    else { setStep("checkout"); }
   };
 
   const advanceFromQuiz = () => {
     if (quizIndex < questions.length - 1) {
       setQuizIndex(i => i + 1);
     } else {
-      // Quiz done → show final offer or checkout
       setStep("checkout");
     }
   };
 
-  const goToCheckout = () => {
-    setShowCheckout(true);
+  const goToCheckout = (url: string) => {
+    setEmbeddedUrl(url);
   };
 
   const popup = payCard.popup_config;
-  const checkout = payCard.checkout_config;
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="bg-gradient-to-b from-zinc-900 to-zinc-950 border-white/10 text-white max-w-md p-0 overflow-hidden">
-        {/* Close button */}
         <button onClick={onClose} className="absolute top-3 right-3 z-10 text-gray-400 hover:text-white">
           <X className="w-5 h-5" />
         </button>
@@ -90,7 +92,6 @@ export function PayCardFunnelModal({ payCard, open, onClose }: Props) {
         {/* QUIZ STEP */}
         {step === "quiz" && questions.length > 0 && (
           <div className="p-6">
-            {/* Progress */}
             <div className="flex gap-1 mb-4">
               {questions.map((_, i) => (
                 <div
@@ -123,9 +124,20 @@ export function PayCardFunnelModal({ payCard, open, onClose }: Props) {
                 ))}
               </ul>
             )}
-            <Button onClick={goToCheckout} className="w-full" size="lg">
-              Assinar Agora <ChevronRight className="w-4 h-4 ml-1" />
-            </Button>
+            {hasDualCheckout ? (
+              <div className="space-y-3">
+                <Button onClick={() => goToCheckout(checkoutUrl!)} className="w-full" size="lg">
+                  {label1} <ChevronRight className="w-4 h-4 ml-1" />
+                </Button>
+                <Button onClick={() => goToCheckout(checkoutUrl2!)} className="w-full" size="lg" variant="outline">
+                  {label2} <ChevronRight className="w-4 h-4 ml-1" />
+                </Button>
+              </div>
+            ) : checkoutUrl ? (
+              <Button onClick={() => goToCheckout(checkoutUrl)} className="w-full" size="lg">
+                {label1} <ChevronRight className="w-4 h-4 ml-1" />
+              </Button>
+            ) : null}
           </div>
         )}
       </DialogContent>

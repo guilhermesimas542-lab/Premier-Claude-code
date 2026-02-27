@@ -13,6 +13,8 @@ import MatrixRain from "@/components/MatrixRain";
 import ProfileModal from "@/components/ProfileModal";
 import { useUserAccess } from "@/hooks/useUserAccess";
 import { getUpgradeLinkForTier } from "@/lib/checkoutLinks";
+import { usePayCardTrigger } from "@/hooks/usePayCardTrigger";
+import { PayCardFunnelModal } from "@/components/PayCardFunnelModal";
 
 const TIER_LABELS: Record<string, string> = {
   free: 'Gratuito', basic: 'Basic', pro: 'Pro', ultra: 'Ultra',
@@ -23,9 +25,22 @@ const NEXT_TIER: Record<string, string> = {
 
 const PlanUpgradeCard = () => {
   const { mainTier, loading } = useUserAccess();
+  const { triggerPayCard, payCard, open: payCardOpen, closePayCard } = usePayCardTrigger();
   if (loading) return null;
   const isMaxTier = mainTier === 'ultra';
   const nextTier = NEXT_TIER[mainTier] || '';
+
+  const handleUpgrade = async () => {
+    // Smart upgrade: trigger pay card based on next tier
+    const planMap: Record<string, string> = { basic: 'basic', pro: 'pro', ultra: 'ultra' };
+    const planKey = planMap[nextTier];
+    if (planKey) {
+      const found = await triggerPayCard(planKey);
+      if (found) return;
+    }
+    // Fallback to direct link
+    window.open(getUpgradeLinkForTier(nextTier), '_blank');
+  };
 
   return (
     <section
@@ -50,7 +65,7 @@ const PlanUpgradeCard = () => {
         </p>
         {!isMaxTier && (
           <button
-            onClick={() => window.open(getUpgradeLinkForTier(nextTier), '_blank')}
+            onClick={handleUpgrade}
             className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all hover:scale-[1.03]"
             style={{
               background: 'linear-gradient(135deg, #00FF00, #00CC00)',
@@ -63,6 +78,9 @@ const PlanUpgradeCard = () => {
           </button>
         )}
       </div>
+      {payCard && (
+        <PayCardFunnelModal payCard={payCard} open={payCardOpen} onClose={closePayCard} />
+      )}
     </section>
   );
 };

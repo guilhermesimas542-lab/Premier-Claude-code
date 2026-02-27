@@ -20,10 +20,11 @@ interface PayCard {
   has_intro_popup: boolean;
   popup_config: { title?: string; text?: string; image_url?: string; cta_text?: string } | null;
   quiz_questions: FunnelQuestion[] | null;
-  checkout_config: { product_id?: string; title?: string; benefits?: string[]; checkout_url?: string } | null;
+  checkout_config: { product_id?: string; title?: string; benefits?: string[]; checkout_url?: string; checkout_url_2?: string; checkout_label_1?: string; checkout_label_2?: string } | null;
   is_active: boolean;
   created_at: string;
   updated_at: string | null;
+  betting_house_id: string | null;
 }
 
 const PLAN_OPTIONS = [
@@ -32,6 +33,7 @@ const PLAN_OPTIONS = [
   { value: "ultra", label: "Ultra" },
   { value: "alavancagem", label: "Alavancagem" },
   { value: "desaltas", label: "Odds Altas" },
+  { value: "vitalicio", label: "Vitalício" },
 ];
 
 const PLAN_LABELS: Record<string, string> = Object.fromEntries(PLAN_OPTIONS.map(p => [p.value, p.label]));
@@ -46,8 +48,12 @@ const EMPTY_FORM = {
   popup_cta_text: "",
   checkout_title: "",
   checkout_url: "",
+  checkout_url_2: "",
+  checkout_label_1: "",
+  checkout_label_2: "",
   checkout_benefits: "",
   is_active: true,
+  betting_house_id: "__none__",
 };
 
 export default function AdminPayCards() {
@@ -58,6 +64,7 @@ export default function AdminPayCards() {
   const [form, setForm] = useState({ ...EMPTY_FORM });
   const [saving, setSaving] = useState(false);
   const [questions, setQuestions] = useState<FunnelQuestion[]>([]);
+  const [houses, setHouses] = useState<{ id: string; name: string }[]>([]);
 
   const set = (key: string, val: any) => setForm((f) => ({ ...f, [key]: val }));
 
@@ -71,7 +78,12 @@ export default function AdminPayCards() {
     setLoading(false);
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+    supabase.from("betting_houses").select("id, name").eq("is_active", true).order("name").then(({ data }) => {
+      setHouses((data || []) as { id: string; name: string }[]);
+    });
+  }, []);
 
   const openEdit = (c: PayCard) => {
     setEditId(c.id);
@@ -87,8 +99,12 @@ export default function AdminPayCards() {
       popup_cta_text: popup.cta_text ?? "",
       checkout_title: checkout.title ?? "",
       checkout_url: checkout.checkout_url ?? "",
+      checkout_url_2: checkout.checkout_url_2 ?? "",
+      checkout_label_1: checkout.checkout_label_1 ?? "",
+      checkout_label_2: checkout.checkout_label_2 ?? "",
       checkout_benefits: (checkout.benefits || []).join("\n"),
       is_active: c.is_active,
+      betting_house_id: c.betting_house_id || "__none__",
     });
     const q = Array.isArray(c.quiz_questions) ? c.quiz_questions : [];
     setQuestions(q.map((item: any) => ({
@@ -113,6 +129,7 @@ export default function AdminPayCards() {
       name: form.name,
       associated_plan: form.associated_plan,
       has_intro_popup: form.has_intro_popup,
+      betting_house_id: form.betting_house_id === "__none__" ? null : form.betting_house_id,
       popup_config: form.has_intro_popup ? {
         title: form.popup_title || null,
         text: form.popup_text || null,
@@ -123,6 +140,9 @@ export default function AdminPayCards() {
       checkout_config: {
         title: form.checkout_title || null,
         checkout_url: form.checkout_url || null,
+        checkout_url_2: form.checkout_url_2 || null,
+        checkout_label_1: form.checkout_label_1 || null,
+        checkout_label_2: form.checkout_label_2 || null,
         benefits: form.checkout_benefits ? form.checkout_benefits.split("\n").filter(Boolean) : [],
       },
       is_active: form.is_active,
@@ -252,6 +272,19 @@ export default function AdminPayCards() {
               </Select>
             </div>
 
+            <div>
+              <label className="text-xs text-gray-500">Casa de Apostas</label>
+              <Select value={form.betting_house_id} onValueChange={(v) => set("betting_house_id", v)}>
+                <SelectTrigger className="bg-gray-900 border-gray-800"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__">Geral (Padrão)</SelectItem>
+                  {houses.map(h => (
+                    <SelectItem key={h.id} value={h.id}>{h.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             <div className="flex items-center justify-between">
               <label className="text-sm">Ativo</label>
               <Switch checked={form.is_active} onCheckedChange={(v) => set("is_active", v)} />
@@ -300,8 +333,20 @@ export default function AdminPayCards() {
                 <Input value={form.checkout_title} onChange={(e) => set("checkout_title", e.target.value)} placeholder="Ex: Assine o Plano Pro" className="bg-gray-900 border-gray-800" />
               </div>
               <div>
-                <label className="text-xs text-gray-500">URL de checkout</label>
+                <label className="text-xs text-gray-500">URL de checkout (Botão 1)</label>
                 <Input value={form.checkout_url} onChange={(e) => set("checkout_url", e.target.value)} placeholder="https://..." className="bg-gray-900 border-gray-800" />
+              </div>
+              <div>
+                <label className="text-xs text-gray-500">Label do Botão 1 (opcional)</label>
+                <Input value={form.checkout_label_1} onChange={(e) => set("checkout_label_1", e.target.value)} placeholder="Ex: Comprar somente Pro" className="bg-gray-900 border-gray-800" />
+              </div>
+              <div>
+                <label className="text-xs text-gray-500">URL de checkout (Botão 2 - opcional)</label>
+                <Input value={form.checkout_url_2} onChange={(e) => set("checkout_url_2", e.target.value)} placeholder="https://... (pacote completo)" className="bg-gray-900 border-gray-800" />
+              </div>
+              <div>
+                <label className="text-xs text-gray-500">Label do Botão 2 (opcional)</label>
+                <Input value={form.checkout_label_2} onChange={(e) => set("checkout_label_2", e.target.value)} placeholder="Ex: Comprar Pacote Completo" className="bg-gray-900 border-gray-800" />
               </div>
               <div>
                 <label className="text-xs text-gray-500">Benefícios (um por linha)</label>

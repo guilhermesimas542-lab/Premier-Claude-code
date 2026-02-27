@@ -628,6 +628,7 @@ export type Database = {
       pay_cards: {
         Row: {
           associated_plan: string
+          betting_house_id: string | null
           checkout_config: Json | null
           created_at: string | null
           has_intro_popup: boolean | null
@@ -640,6 +641,7 @@ export type Database = {
         }
         Insert: {
           associated_plan: string
+          betting_house_id?: string | null
           checkout_config?: Json | null
           created_at?: string | null
           has_intro_popup?: boolean | null
@@ -652,6 +654,7 @@ export type Database = {
         }
         Update: {
           associated_plan?: string
+          betting_house_id?: string | null
           checkout_config?: Json | null
           created_at?: string | null
           has_intro_popup?: boolean | null
@@ -662,7 +665,15 @@ export type Database = {
           quiz_questions?: Json | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "pay_cards_betting_house_id_fkey"
+            columns: ["betting_house_id"]
+            isOneToOne: false
+            referencedRelation: "betting_houses"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       popups: {
         Row: {

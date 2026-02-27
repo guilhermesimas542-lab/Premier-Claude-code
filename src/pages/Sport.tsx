@@ -196,8 +196,16 @@ const Sport = () => {
     .map((v) => String(v).padStart(2, "0"))
     .join(":");
   const [error, setError] = useState<string | null>(null);
-  const hasLifetimeAccess = true;
   const mockUser = mockGetUser();
+  const [isLifetime, setIsLifetime] = useState(false);
+  useEffect(() => {
+    const checkLifetime = async () => {
+      if (!mockUser) return;
+      const { data } = await supabase.from("users").select("is_vitalicio").eq("email", mockUser.email.toLowerCase().trim()).maybeSingle();
+      setIsLifetime(!!data?.is_vitalicio);
+    };
+    checkLifetime();
+  }, []);
   
   const activeCarouselRef = useRef<HTMLDivElement>(null);
   const activeCardRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -453,9 +461,23 @@ const Sport = () => {
     else if (entry.tier_required === "pro") planKey = "pro";
     else if (entry.tier_required === "ultra") planKey = "ultra";
 
-    // Try to find a pay card funnel first
+    // Try house-specific pay card first, then generic
     if (planKey) {
-      const pc = await fetchByPlan(planKey);
+      let pc: PayCardData | null = null;
+      if (userHouse?.id) {
+        const { data } = await supabase
+          .from("pay_cards" as any)
+          .select("*")
+          .eq("associated_plan", planKey)
+          .eq("betting_house_id", userHouse.id)
+          .eq("is_active", true)
+          .limit(1)
+          .maybeSingle();
+        pc = data as any;
+      }
+      if (!pc) {
+        pc = await fetchByPlan(planKey);
+      }
       if (pc) {
         setPayCardData(pc);
         setPayCardModalOpen(true);
@@ -613,13 +635,13 @@ const Sport = () => {
               <span className="text-2xl sm:text-4xl font-bold" style={{ color: "#FFFFFF", textShadow: "0 0 14px rgba(0,255,0,0.3)" }}>Futebol</span>
             </div>
             <div className="flex items-center gap-2 sm:gap-3">
-              {hasLifetimeAccess ? (
+              {isLifetime ? (
                 <span className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-semibold" style={{ background: "rgba(0,255,0,0.1)", color: "#FFFFFF", border: "1px solid rgba(0,255,0,0.4)", boxShadow: "0 0 10px rgba(0,255,0,0.2)" }}>
                   <Crown className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                   <span className="hidden sm:inline">Acesso</span> vitalício
                 </span>
               ) : (
-                <button className="inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-semibold transition-colors cursor-pointer"
+                <button onClick={async () => { const pc = await fetchByPlan('vitalicio'); if (pc) { setPayCardData(pc); setPayCardModalOpen(true); } }} className="inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-semibold transition-colors cursor-pointer"
                   style={{ background: "rgba(255,0,0,0.1)", color: "#FF4444", border: "1px solid rgba(255,0,0,0.3)" }}>
                   <span className="hidden sm:inline">Sem</span> vitalício
                   <ShoppingCart className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
