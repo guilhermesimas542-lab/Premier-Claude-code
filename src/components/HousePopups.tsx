@@ -3,6 +3,8 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { mockGetUser } from "@/mocks/user";
+import { FunnelPopup, FunnelPopupData } from "@/components/FunnelPopup";
+import { EmbeddedCheckout } from "@/components/EmbeddedCheckout";
 
 interface HousePopupData {
   popup_welcome_image?: string | null;
@@ -41,14 +43,20 @@ async function markPopupViewed(userId: string, popupId: string) {
 
 export function WelcomePopup({ house }: { house: HousePopupData | null }) {
   const [open, setOpen] = useState(false);
-  const [welcomeImage, setWelcomeImage] = useState<string | null>(null);
-  const [welcomeLink, setWelcomeLink] = useState<string | null>(null);
+  const [popupData, setPopupData] = useState<FunnelPopupData | null>(null);
   const [currentPopupId, setCurrentPopupId] = useState<string | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
+
+  // Detect if popup has quiz questions
+  const hasQuiz = popupData && [
+    popupData.question_1_text,
+    popupData.question_2_text,
+    popupData.question_3_text,
+  ].some((q) => !!q);
 
   const handleClose = useCallback(async () => {
     setOpen(false);
-    // Registra visualização ao fechar
     if (currentUserId && currentPopupId) {
       await markPopupViewed(currentUserId, currentPopupId);
     }
@@ -60,10 +68,9 @@ export function WelcomePopup({ house }: { house: HousePopupData | null }) {
       if (!userId) return;
       setCurrentUserId(userId);
 
-      // Buscar popup welcome ativo do banco
       const { data } = await supabase
         .from("popups")
-        .select("id, image_url, button_url, checkout_link")
+        .select("id, type, image_url, button_url, checkout_link, question_1_text, question_1_options, question_2_text, question_2_options, question_3_text, question_3_options, final_title, final_benefits")
         .eq("type", "welcome")
         .eq("is_active", true)
         .eq("trigger_type", "on_load")
@@ -74,8 +81,7 @@ export function WelcomePopup({ house }: { house: HousePopupData | null }) {
         const alreadyViewed = await hasViewedPopup(userId, data.id);
         if (alreadyViewed) return;
         setCurrentPopupId(data.id);
-        setWelcomeImage(data.image_url);
-        setWelcomeLink(data.button_url || data.checkout_link || null);
+        setPopupData(data as unknown as FunnelPopupData);
         setOpen(true);
       }
     };
@@ -83,27 +89,52 @@ export function WelcomePopup({ house }: { house: HousePopupData | null }) {
     fetchWelcomePopup();
   }, [house]);
 
-  if (!welcomeImage) return null;
+  if (!popupData || !open) return null;
 
+  // If has quiz → delegate to FunnelPopup (handles image → quiz → checkout flow)
+  if (hasQuiz) {
+    return (
+      <FunnelPopup
+        popup={popupData}
+        onClose={handleClose}
+      />
+    );
+  }
+
+  // No quiz: simple image popup with embedded checkout on click
   return (
-    <Dialog open={open} onOpenChange={(o) => { if (!o) handleClose(); }}>
-      <DialogContent className="p-0 border-0 bg-transparent max-w-sm overflow-hidden">
-        <button
-          onClick={handleClose}
-          className="absolute top-2 right-2 z-10 bg-black/60 rounded-full p-1 text-white hover:bg-black/80 transition-colors"
-        >
-          <X className="w-4 h-4" />
-        </button>
-        <a
-          href={welcomeLink || "#"}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={handleClose}
-        >
-          <img src={welcomeImage} alt="Bem-vindo" className="w-full rounded-xl" />
-        </a>
-      </DialogContent>
-    </Dialog>
+    <>
+      <Dialog open={open} onOpenChange={(o) => { if (!o) handleClose(); }}>
+        <DialogContent className="p-0 border-0 bg-transparent max-w-sm overflow-hidden">
+          <button
+            onClick={handleClose}
+            className="absolute top-2 right-2 z-10 bg-black/60 rounded-full p-1 text-white hover:bg-black/80 transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => {
+              const link = popupData.button_url || popupData.checkout_link;
+              if (link) {
+                handleClose();
+                setCheckoutUrl(link);
+              }
+            }}
+            className="w-full cursor-pointer focus:outline-none"
+          >
+            <img src={popupData.image_url!} alt="Bem-vindo" className="w-full rounded-xl" />
+          </button>
+        </DialogContent>
+      </Dialog>
+
+      {checkoutUrl && (
+        <EmbeddedCheckout
+          open={!!checkoutUrl}
+          onClose={() => setCheckoutUrl(null)}
+          url={checkoutUrl}
+        />
+      )}
+    </>
   );
 }
 
