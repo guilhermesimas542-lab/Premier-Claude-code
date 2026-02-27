@@ -7,6 +7,23 @@ interface Props {
   onAction: () => void;
 }
 
+function getBadgeStyle(color: string | null) {
+  switch (color) {
+    case "gold":
+      return { background: "hsl(48 96% 53%)", color: "#000", border: "none" };
+    case "green":
+      return { background: "#22c55e", color: "#fff", border: "none" };
+    case "black_green":
+      return { background: "#000", color: "#00FF00", border: "1px solid #00FF00" };
+    case "tron":
+      return { background: "#000", color: "#00FFFF", border: "1px solid #00FFFF", boxShadow: "0 0 5px #00FFFF" };
+    case "white":
+      return { background: "#fff", color: "#000", border: "none" };
+    default: // "primary"
+      return { background: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))", border: "none" };
+  }
+}
+
 export function CardType2Top({ card, hasAccess, onAction }: Props) {
   const showLocked = card.requires_access && !hasAccess;
   const imgs = card.image_urls;
@@ -21,18 +38,18 @@ export function CardType2Top({ card, hasAccess, onAction }: Props) {
       {/* Badges */}
       {card.badges && card.badges.length > 0 && (
         <div className="absolute top-2 right-2 z-20 flex gap-1 flex-wrap justify-end">
-          {card.badges.map((badge) => (
-            <span
-              key={badge}
-              className="px-2 py-0.5 rounded-md text-[9px] font-bold"
-              style={{
-                background: card.badge_color === "gold" ? "hsl(48 96% 53%)" : "hsl(var(--primary))",
-                color: card.badge_color === "gold" ? "#000" : "hsl(var(--primary-foreground))",
-              }}
-            >
-              {badge}
-            </span>
-          ))}
+          {card.badges.map((badge) => {
+            const style = getBadgeStyle(card.badge_color);
+            return (
+              <span
+                key={badge}
+                className="px-2 py-0.5 rounded-md text-[9px] font-bold"
+                style={style}
+              >
+                {badge}
+              </span>
+            );
+          })}
         </div>
       )}
 

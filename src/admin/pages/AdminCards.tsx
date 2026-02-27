@@ -510,9 +510,12 @@ export default function AdminCards() {
                   <Select value={form.badge_color} onValueChange={(v) => set("badge_color", v)}>
                     <SelectTrigger className="bg-gray-900 border-gray-800"><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="primary">Primary (verde)</SelectItem>
+                      <SelectItem value="primary">Primary (laranja)</SelectItem>
                       <SelectItem value="gold">Gold (dourado)</SelectItem>
-                      <SelectItem value="green">Green</SelectItem>
+                      <SelectItem value="green">Green (verde)</SelectItem>
+                      <SelectItem value="black_green">Preto (fonte verde)</SelectItem>
+                      <SelectItem value="tron">Tron (azul/preto)</SelectItem>
+                      <SelectItem value="white">Branco (fonte preta)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -639,6 +642,9 @@ export default function AdminCards() {
                 </div>
               </div>
 
+              {form.requires_access && (
+                <label className="text-xs text-green-400">✅ Preview (com acesso)</label>
+              )}
               <div
                 className="rounded-xl border border-gray-800 p-4 flex justify-center"
                 style={{ background: "hsl(0 0% 4%)" }}
@@ -647,7 +653,7 @@ export default function AdminCards() {
                   {form.card_type === "type1_lateral" ? (
                     <CardType1Lateral card={previewCard} onAction={() => {}} />
                   ) : (
-                    <CardType2Top card={previewCard} hasAccess={!form.requires_access} onAction={() => {}} />
+                    <CardType2Top card={previewCard} hasAccess={true} onAction={() => {}} />
                   )}
                 </div>
               </div>
