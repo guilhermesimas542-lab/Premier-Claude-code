@@ -163,46 +163,82 @@ export type Database = {
       }
       cards: {
         Row: {
+          access_field: string | null
+          badge_color: string | null
+          badge_text: string | null
+          button_text_access: string | null
+          button_text_acquire: string | null
           card_type: string
+          category: string
           checkout_url: string | null
           created_at: string
+          description: string | null
           display_order: number
+          icon: string | null
           id: string
           image_url: string | null
           is_active: boolean
           name: string
           product_id: string | null
+          questions: Json | null
+          requires_access: boolean | null
+          slug: string | null
           subtitle: string | null
           target_audience: string
           title: string
+          updated_at: string | null
         }
         Insert: {
+          access_field?: string | null
+          badge_color?: string | null
+          badge_text?: string | null
+          button_text_access?: string | null
+          button_text_acquire?: string | null
           card_type?: string
+          category?: string
           checkout_url?: string | null
           created_at?: string
+          description?: string | null
           display_order?: number
+          icon?: string | null
           id?: string
           image_url?: string | null
           is_active?: boolean
           name: string
           product_id?: string | null
+          questions?: Json | null
+          requires_access?: boolean | null
+          slug?: string | null
           subtitle?: string | null
           target_audience?: string
           title: string
+          updated_at?: string | null
         }
         Update: {
+          access_field?: string | null
+          badge_color?: string | null
+          badge_text?: string | null
+          button_text_access?: string | null
+          button_text_acquire?: string | null
           card_type?: string
+          category?: string
           checkout_url?: string | null
           created_at?: string
+          description?: string | null
           display_order?: number
+          icon?: string | null
           id?: string
           image_url?: string | null
           is_active?: boolean
           name?: string
           product_id?: string | null
+          questions?: Json | null
+          requires_access?: boolean | null
+          slug?: string | null
           subtitle?: string | null
           target_audience?: string
           title?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
