@@ -80,6 +80,7 @@ export type Database = {
           logo_url: string | null
           mines_url: string | null
           name: string
+          open_in_new_tab: boolean
           popup_alavancagem_image: string | null
           popup_alavancagem_link: string | null
           popup_basic_image: string | null
@@ -108,6 +109,7 @@ export type Database = {
           logo_url?: string | null
           mines_url?: string | null
           name: string
+          open_in_new_tab?: boolean
           popup_alavancagem_image?: string | null
           popup_alavancagem_link?: string | null
           popup_basic_image?: string | null
@@ -136,6 +138,7 @@ export type Database = {
           logo_url?: string | null
           mines_url?: string | null
           name?: string
+          open_in_new_tab?: boolean
           popup_alavancagem_image?: string | null
           popup_alavancagem_link?: string | null
           popup_basic_image?: string | null

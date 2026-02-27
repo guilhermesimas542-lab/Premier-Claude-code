@@ -19,6 +19,7 @@ export interface BettingHouse {
   football_studio_url: string | null;
   is_active: boolean;
   is_default: boolean;
+  open_in_new_tab: boolean;
   created_at: string;
 }
 
@@ -33,6 +34,7 @@ const EMPTY_FORM = {
   football_studio_url: "",
   is_active: true,
   is_default: false,
+  open_in_new_tab: false,
 };
 
 type HouseForm = typeof EMPTY_FORM;
@@ -83,6 +85,7 @@ export default function AdminBettingHouses() {
       football_studio_url: h.football_studio_url ?? "",
       is_active: h.is_active,
       is_default: h.is_default,
+      open_in_new_tab: h.open_in_new_tab ?? false,
     });
     setShowForm(true);
   };
@@ -105,6 +108,7 @@ export default function AdminBettingHouses() {
       football_studio_url: form.football_studio_url || null,
       is_active: form.is_active,
       is_default: form.is_default,
+      open_in_new_tab: form.open_in_new_tab,
     };
 
     if (editId) {
@@ -285,6 +289,13 @@ export default function AdminBettingHouses() {
                   <p className="text-xs text-gray-500">Novos usuários serão atribuídos a esta casa</p>
                 </div>
                 <Switch checked={form.is_default} onCheckedChange={(v) => set("is_default", v)} />
+              </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <label className="text-sm">Forçar nova aba</label>
+                  <p className="text-xs text-gray-500">Casa não permite iframe (abre link em nova aba)</p>
+                </div>
+                <Switch checked={form.open_in_new_tab} onCheckedChange={(v) => set("open_in_new_tab", v)} />
               </div>
             </div>
 
