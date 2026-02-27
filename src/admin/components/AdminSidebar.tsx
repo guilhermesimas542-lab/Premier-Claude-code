@@ -31,6 +31,7 @@ const futebolSections = [
     items: [
       { to: "/admin/default-links", icon: Link, label: "Links Padrão" },
       { to: "/admin/popups", icon: Layers, label: "Pop-ups" },
+      { to: "/admin/cards", icon: Layers, label: "Cards e Funis" },
     ],
   },
   {
