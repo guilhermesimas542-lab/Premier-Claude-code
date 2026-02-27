@@ -271,7 +271,7 @@ export default function AdminPayCards() {
               return (
                 <TableRow key={c.id} className="border-b border-white/10">
                   <TableCell>
-                    <PayCardMiniaturePreview plan={c.associated_plan} location={c.location} onClick={() => openEdit(c)} />
+                    <PayCardMiniaturePreview payCard={c} onClick={() => openEdit(c)} />
                   </TableCell>
                   <TableCell className="font-medium text-sm">{c.name}</TableCell>
                   <TableCell>
