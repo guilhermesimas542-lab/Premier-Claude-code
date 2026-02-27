@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,155 +7,18 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Plus, Pencil, Trash2, Loader2, Upload, X, Check, ChevronRight } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, Upload, X, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { useBettingHouseAdmin } from "@/admin/context/BettingHouseContext";
 import { Textarea } from "@/components/ui/textarea";
-
-const POPUP_TYPES = [
-  { value: "welcome", label: "🎉 Boas-Vindas", desc: "Exibido na primeira visita" },
-  { value: "upgrade_basic", label: "🔓 Upgrade Básico", desc: "Para usuários Free" },
-  { value: "upgrade_pro", label: "⭐ Upgrade Pro", desc: "Para Free e Básico" },
-  { value: "upgrade_ultra", label: "👑 Upgrade Ultra", desc: "Para todos abaixo de Ultra" },
-  { value: "addon_alavancagem", label: "⚓ Add-on Alavancagem", desc: "Sem add-on Alavancagem" },
-  { value: "addon_odds", label: "🎯 Add-on Odds Altas", desc: "Sem add-on Odds Altas" },
-  { value: "addon_telegram", label: "📱 Add-on Live Telegram", desc: "Sem Live Telegram" },
-  { value: "promotional", label: "📣 Promocional", desc: "Pop-up avulso com alvo configurável" },
-] as const;
-
-const AUDIENCE_OPTIONS = [
-  { value: "all", label: "Todos" },
-  { value: "free", label: "Só Free" },
-  { value: "basic", label: "Só Básico" },
-  { value: "pro", label: "Só Pro" },
-  { value: "ultra", label: "Só Ultra" },
-];
-
-const typeLabel = (t: string) => POPUP_TYPES.find((p) => p.value === t)?.label ?? t;
-
-interface PopupRow {
-  id: string;
-  type: string;
-  is_active: boolean;
-  target_audience: string;
-  image_url: string | null;
-  question_1_text: string | null;
-  question_1_options: string[] | null;
-  question_2_text: string | null;
-  question_2_options: string[] | null;
-  question_3_text: string | null;
-  question_3_options: string[] | null;
-  final_title: string | null;
-  final_benefits: string[] | null;
-  checkout_link: string | null;
-  created_at: string;
-}
-
-type FormState = {
-  type: string;
-  is_active: boolean;
-  target_audience: string;
-  image_url: string;
-  question_1_text: string;
-  question_1_options: string;
-  question_2_text: string;
-  question_2_options: string;
-  question_3_text: string;
-  question_3_options: string;
-  final_title: string;
-  final_benefits: string;
-  checkout_link: string;
-};
-
-const emptyForm: FormState = {
-  type: "upgrade_pro",
-  is_active: true,
-  target_audience: "all",
-  image_url: "",
-  question_1_text: "",
-  question_1_options: "",
-  question_2_text: "",
-  question_2_options: "",
-  question_3_text: "",
-  question_3_options: "",
-  final_title: "",
-  final_benefits: "",
-  checkout_link: "",
-};
-
-function toArray(csv: string): string[] {
-  return csv.split(",").map((s) => s.trim()).filter(Boolean);
-}
-
-function toCsv(arr: string[] | null): string {
-  return (arr ?? []).join(", ");
-}
-
-function PopupPreview({ form, previewMode }: { form: FormState; previewMode: "mobile" | "desktop" }) {
-  const questions = [
-    { text: form.question_1_text, opts: toArray(form.question_1_options) },
-    { text: form.question_2_text, opts: toArray(form.question_2_options) },
-    { text: form.question_3_text, opts: toArray(form.question_3_options) },
-  ].filter((q) => q.text && q.opts.length > 0);
-
-  const benefits = toArray(form.final_benefits);
-
-  return (
-    <div
-      className="rounded-2xl overflow-hidden mx-auto transition-all duration-200"
-      style={{
-        width: previewMode === "mobile" ? 380 : 420,
-        maxWidth: "100%",
-        background: "linear-gradient(145deg, #0a1a0a, #0f2410)",
-        border: "1px solid rgba(0,255,0,0.2)",
-        boxShadow: "0 0 20px rgba(0,255,0,0.06)",
-      }}
-    >
-      {form.image_url && (
-        <img src={form.image_url} alt="" className="w-full h-auto max-h-48 object-contain bg-black/30" />
-      )}
-      <div className="p-4 space-y-3">
-        {questions.length > 0 && (
-          <>
-            <p className="text-[10px] uppercase tracking-widest font-bold" style={{ color: "#00FF00" }}>
-              Pergunta 1 de {questions.length}
-            </p>
-            <p className="text-sm font-bold text-white">{questions[0].text}</p>
-            <div className="space-y-1.5">
-              {questions[0].opts.slice(0, 3).map((o) => (
-                <div
-                  key={o}
-                  className="flex items-center justify-between px-3 py-2 rounded-lg text-xs text-white/70"
-                  style={{ background: "rgba(0,255,0,0.05)", border: "1px solid rgba(0,255,0,0.12)" }}
-                >
-                  {o} <ChevronRight className="w-3 h-3 text-white/30" />
-                </div>
-              ))}
-            </div>
-          </>
-        )}
-        {questions.length === 0 && (
-          <>
-            <p className="text-sm font-bold text-white text-center">{form.final_title || "Título Final"}</p>
-            {benefits.slice(0, 3).map((b, i) => (
-              <div key={i} className="flex items-center gap-2 text-xs text-white/70">
-                <Check className="w-3 h-3 shrink-0" style={{ color: "#00FF00" }} />{b}
-              </div>
-            ))}
-            {form.checkout_link && (
-              <div
-                className="w-full py-2 text-center text-xs font-bold text-black rounded-lg"
-                style={{ background: "linear-gradient(135deg, #00FF00, #00CC00)" }}
-              >
-                QUERO ACESSAR →
-              </div>
-            )}
-          </>
-        )}
-      </div>
-    </div>
-  );
-}
+import FunnelBuilder from "@/admin/components/funnel-popup/FunnelBuilder";
+import InteractivePreview from "@/admin/components/funnel-popup/InteractivePreview";
+import TestPopupModal from "@/admin/components/funnel-popup/TestPopupModal";
+import {
+  type PopupRow, type PopupFormState,
+  POPUP_TYPES, AUDIENCE_OPTIONS, typeLabel,
+  emptyForm, formToPayload, rowToForm,
+} from "@/admin/components/funnel-popup/types";
 
 export default function AdminFunnelPopups() {
   const { selectedHouseId, selectedHouse, loading: houseLoading } = useBettingHouseAdmin();
@@ -163,11 +26,12 @@ export default function AdminFunnelPopups() {
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
-  const [form, setForm] = useState<FormState>({ ...emptyForm });
+  const [form, setForm] = useState<PopupFormState>({ ...emptyForm });
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<PopupRow | null>(null);
   const [previewMode, setPreviewMode] = useState<"mobile" | "desktop">("mobile");
+  const [testOpen, setTestOpen] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -181,31 +45,8 @@ export default function AdminFunnelPopups() {
 
   useEffect(() => { load(); }, [selectedHouseId]);
 
-  const openNew = () => {
-    setEditId(null);
-    setForm({ ...emptyForm });
-    setOpen(true);
-  };
-
-  const openEdit = (row: PopupRow) => {
-    setEditId(row.id);
-    setForm({
-      type: row.type,
-      is_active: row.is_active,
-      target_audience: row.target_audience,
-      image_url: row.image_url ?? "",
-      question_1_text: row.question_1_text ?? "",
-      question_1_options: toCsv(row.question_1_options),
-      question_2_text: row.question_2_text ?? "",
-      question_2_options: toCsv(row.question_2_options),
-      question_3_text: row.question_3_text ?? "",
-      question_3_options: toCsv(row.question_3_options),
-      final_title: row.final_title ?? "",
-      final_benefits: toCsv(row.final_benefits),
-      checkout_link: row.checkout_link ?? "",
-    });
-    setOpen(true);
-  };
+  const openNew = () => { setEditId(null); setForm({ ...emptyForm }); setOpen(true); };
+  const openEdit = (row: PopupRow) => { setEditId(row.id); setForm(rowToForm(row)); setOpen(true); };
 
   const handleUpload = async (file: File) => {
     setUploading(true);
@@ -221,37 +62,19 @@ export default function AdminFunnelPopups() {
 
   const handleSave = async () => {
     const hasButton = form.checkout_link.trim() && form.final_title.trim();
-    const hasFunnel = form.question_1_text.trim();
+    const hasFunnel = form.questions.some((q) => q.text.trim());
     if (!hasButton && !hasFunnel) {
       toast.error("Erro: O pop-up precisa ter um 'Botão com URL' ou, no mínimo, a 'Pergunta 1' do funil preenchida.");
       return;
     }
     setSaving(true);
-    const payload: Record<string, unknown> = {
-      type: form.type,
-      is_active: form.is_active,
-      target_audience: form.target_audience,
-      image_url: form.image_url || null,
-      question_1_text: form.question_1_text || null,
-      question_1_options: form.question_1_options ? toArray(form.question_1_options) : null,
-      question_2_text: form.question_2_text || null,
-      question_2_options: form.question_2_options ? toArray(form.question_2_options) : null,
-      question_3_text: form.question_3_text || null,
-      question_3_options: form.question_3_options ? toArray(form.question_3_options) : null,
-      final_title: form.final_title || null,
-      final_benefits: form.final_benefits ? toArray(form.final_benefits) : null,
-      checkout_link: form.checkout_link || null,
-      betting_house_id: selectedHouseId || null,
-      updated_at: new Date().toISOString(),
-    };
-
+    const payload = formToPayload(form, selectedHouseId);
     let error: any;
     if (editId) {
       ({ error } = await (supabase.from("popups" as any) as any).update(payload).eq("id", editId));
     } else {
       ({ error } = await (supabase.from("popups" as any) as any).insert(payload));
     }
-
     if (error) toast.error(error.message);
     else toast.success(editId ? "Pop-up atualizado!" : "Pop-up criado!");
     setSaving(false);
@@ -271,12 +94,13 @@ export default function AdminFunnelPopups() {
     load();
   };
 
-  const f = (k: keyof FormState, v: string | boolean) => setForm((prev) => ({ ...prev, [k]: v }));
+  const f = (k: keyof PopupFormState, v: any) => setForm((prev) => ({ ...prev, [k]: v }));
 
   if (houseLoading) return <div className="flex items-center gap-2 text-gray-400 py-20"><Loader2 className="w-4 h-4 animate-spin" /> Carregando…</div>;
 
   return (
     <div className="space-y-4">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-bold">Pop-ups de Funil</h2>
@@ -287,6 +111,7 @@ export default function AdminFunnelPopups() {
         <Button size="sm" onClick={openNew}><Plus className="w-4 h-4" /> Novo</Button>
       </div>
 
+      {/* Table */}
       {loading ? (
         <div className="flex items-center gap-2 text-gray-400 py-10"><Loader2 className="w-4 h-4 animate-spin" /> Carregando…</div>
       ) : (
@@ -317,9 +142,7 @@ export default function AdminFunnelPopups() {
                       </span>
                     </td>
                     <td className="px-4 py-3 max-w-[140px] truncate text-xs text-gray-500">
-                      {row.checkout_link ? (
-                        <span className="text-green-400 truncate">{row.checkout_link}</span>
-                      ) : "—"}
+                      {row.checkout_link ? <span className="text-green-400 truncate">{row.checkout_link}</span> : "—"}
                     </td>
                     <td className="px-4 py-3 text-center">
                       <Switch checked={row.is_active} onCheckedChange={() => toggleActive(row)} />
@@ -400,7 +223,7 @@ export default function AdminFunnelPopups() {
                 </div>
               )}
 
-              {/* Active toggle */}
+              {/* Active */}
               <div className="flex items-center gap-3">
                 <Switch checked={form.is_active} onCheckedChange={(v) => f("is_active", v)} />
                 <Label className="text-gray-300 text-sm">Ativo</Label>
@@ -425,34 +248,14 @@ export default function AdminFunnelPopups() {
                 </div>
                 {form.image_url && (
                   <div className="mt-2 relative">
-                    <img src={form.image_url} alt="" className="w-full h-24 object-cover rounded-lg border border-white/10" />
+                    <img src={form.image_url} alt="" className="w-full h-24 object-contain rounded-lg border border-white/10 bg-black/30" />
                     <button onClick={() => f("image_url", "")} className="absolute top-1 right-1 p-1 rounded-full bg-black/60"><X className="w-3 h-3 text-white" /></button>
                   </div>
                 )}
               </div>
 
-              {/* Questions */}
-              <div className="space-y-3 p-3 rounded-xl" style={{ background: "rgba(0,255,0,0.03)", border: "1px dashed rgba(0,255,0,0.15)" }}>
-                <p className="text-xs font-semibold text-white">Funil de Perguntas <span className="text-gray-500 font-normal">(opcional)</span></p>
-
-                {([1, 2, 3] as const).map((n) => (
-                  <div key={n} className="space-y-1.5">
-                    <Label className="text-gray-500 text-[11px]">Pergunta {n}</Label>
-                    <Input
-                      placeholder={`Texto da pergunta ${n}`}
-                      value={(form as any)[`question_${n}_text`]}
-                      onChange={(e) => f(`question_${n}_text` as keyof FormState, e.target.value)}
-                      className="bg-gray-800 border-gray-700 text-sm"
-                    />
-                    <Input
-                      placeholder="Opções separadas por vírgula: Opção A, Opção B"
-                      value={(form as any)[`question_${n}_options`]}
-                      onChange={(e) => f(`question_${n}_options` as keyof FormState, e.target.value)}
-                      className="bg-gray-800 border-gray-700 text-xs"
-                    />
-                  </div>
-                ))}
-              </div>
+              {/* Dynamic Funnel Builder */}
+              <FunnelBuilder form={form} onChange={setForm} />
 
               {/* Final screen */}
               <div className="space-y-3 p-3 rounded-xl" style={{ background: "rgba(0,200,255,0.03)", border: "1px dashed rgba(0,200,255,0.15)" }}>
@@ -462,24 +265,47 @@ export default function AdminFunnelPopups() {
                   <Input placeholder="O Plano PRO é perfeito para você!" value={form.final_title} onChange={(e) => f("final_title", e.target.value)} className="bg-gray-800 border-gray-700 text-sm" />
                 </div>
                 <div>
-                  <Label className="text-gray-500 text-[11px]">Benefícios (separados por vírgula)</Label>
-                  <Textarea
-                    placeholder="Entradas exclusivas Pro, Suporte via Telegram, Análises de IA"
-                    value={form.final_benefits}
-                    onChange={(e) => f("final_benefits", e.target.value)}
-                    className="bg-gray-800 border-gray-700 text-xs resize-none"
-                    rows={2}
-                  />
+                  <Label className="text-gray-500 text-[11px]">Benefícios</Label>
+                  {form.final_benefits.map((b, i) => (
+                    <div key={i} className="flex items-center gap-2 mt-1">
+                      <Input
+                        placeholder={`Benefício ${i + 1}`}
+                        value={b}
+                        onChange={(e) => {
+                          const arr = [...form.final_benefits];
+                          arr[i] = e.target.value;
+                          f("final_benefits", arr);
+                        }}
+                        className="bg-gray-800 border-gray-700 text-xs flex-1"
+                      />
+                      <button type="button" onClick={() => f("final_benefits", form.final_benefits.filter((_, j) => j !== i))} className="text-gray-500 hover:text-red-400">
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => f("final_benefits", [...form.final_benefits, ""])}
+                    className="text-[11px] text-blue-400 hover:text-blue-300 flex items-center gap-1 mt-1.5"
+                  >
+                    <Plus className="w-3 h-3" /> Adicionar Benefício
+                  </button>
                 </div>
                 <div>
-                  <Label className="text-gray-500 text-[11px]">Link de Checkout <span className="text-red-400">*</span></Label>
+                  <Label className="text-gray-500 text-[11px]">Link de Checkout</Label>
                   <Input placeholder="https://pay.hotmart.com/..." value={form.checkout_link} onChange={(e) => f("checkout_link", e.target.value)} className="bg-gray-800 border-gray-700 text-sm" />
                 </div>
               </div>
 
-              <Button onClick={handleSave} disabled={saving} className="w-full">
-                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Salvar Pop-up"}
-              </Button>
+              {/* Actions */}
+              <div className="flex gap-2">
+                <Button onClick={handleSave} disabled={saving} className="flex-1">
+                  {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Salvar Pop-up"}
+                </Button>
+                <Button type="button" variant="outline" onClick={() => setTestOpen(true)} className="border-green-600/40 text-green-400 hover:bg-green-900/20">
+                  <Eye className="w-4 h-4 mr-1" /> Testar
+                </Button>
+              </div>
             </div>
 
             {/* Right: preview */}
@@ -503,12 +329,14 @@ export default function AdminFunnelPopups() {
                   </button>
                 </div>
               </div>
-              <PopupPreview form={form} previewMode={previewMode} />
-              <p className="text-[11px] text-gray-600 mt-2 text-center">Preview aproximado — as perguntas avançam com o clique</p>
+              <InteractivePreview form={form} previewMode={previewMode} />
             </div>
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Test Popup */}
+      <TestPopupModal form={form} open={testOpen} onClose={() => setTestOpen(false)} />
     </div>
   );
 }
