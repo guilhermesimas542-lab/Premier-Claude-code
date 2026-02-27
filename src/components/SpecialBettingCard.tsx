@@ -179,13 +179,17 @@ export const SpecialBettingCard = ({
         )}
       </div>
 
-      {/* Stadium Background Image */}
-      <div 
-        className={`absolute inset-0 bg-cover bg-center bg-no-repeat pointer-events-none rounded-xl overflow-hidden ${isLocked ? "grayscale blur-[4px]" : ""}`}
-        style={{
-          backgroundImage: `url('/images/futsal-arena.jpg')`,
-        }}
-      />
+      {/* Stadium Background Image - Hidden when locked (solid black instead) */}
+      {isLocked && !isExpired ? (
+        <div className="absolute inset-0 bg-black pointer-events-none rounded-xl overflow-hidden" />
+      ) : (
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat pointer-events-none rounded-xl overflow-hidden"
+          style={{
+            backgroundImage: `url('/images/futsal-arena.jpg')`,
+          }}
+        />
+      )}
 
       {/* Matrix Rain overlay inside card */}
       <canvas
@@ -206,19 +210,18 @@ export const SpecialBettingCard = ({
       {/* Locked Overlay with Lock Icon + CTA */}
       {isLocked && !isExpired && (
         <>
-          <div className="absolute inset-0 z-20 bg-black/30 pointer-events-none rounded-xl overflow-hidden" />
-          <div className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-2 rounded-xl">
+          <div className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-3 rounded-xl">
             {lockedLabel && (
-              <span className="text-white/80 text-xs font-semibold">
+              <span className="text-white/80 text-sm font-semibold">
                 Exclusivo do {lockedLabel}
               </span>
             )}
-            <div className="w-12 h-12 rounded-full bg-black/60 flex items-center justify-center">
-              <Lock className="w-6 h-6 text-white" />
+            <div className="w-14 h-14 rounded-full bg-black/60 flex items-center justify-center">
+              <Lock className="w-7 h-7 text-white" />
             </div>
             <button
               onClick={(e) => { e.stopPropagation(); window.open('/planos', '_self'); }}
-              className="mt-1 px-5 py-1.5 rounded-full bg-orange-500 hover:bg-orange-400 text-white text-xs font-bold shadow-lg transition-all hover:scale-105"
+              className="mt-1 px-6 py-3 rounded-full bg-orange-500 hover:bg-orange-400 text-white text-sm font-bold shadow-lg transition-all hover:scale-105"
             >
               Adquira já
             </button>
@@ -274,9 +277,9 @@ export const SpecialBettingCard = ({
         {/* Spacer for floating badge */}
         <div style={{ height: '16px' }} />
 
-        {/* Match Date - Below floating badge */}
+        {/* Match Date - Hidden when locked */}
         <div className="flex items-center justify-center" style={{ height: '18px' }}>
-          {matchDate && (
+          {matchDate && !isLocked && (
             <p 
               className={`font-bold ${isExpired ? "text-gray-400" : "text-white/90"}`}
               style={{ fontSize: '12px' }}
@@ -309,52 +312,50 @@ export const SpecialBettingCard = ({
           </div>
         </div>
 
-        {/* Market Name - Smaller */}
-        <div className="flex items-center justify-center" style={{ height: '24px' }}>
-          <div 
-            className={`rounded-full backdrop-blur-sm border ${
-              isExpired 
-                ? "bg-gray-800/60 border-gray-600/30" 
-                : "bg-black/60 border-white/10"
-            }`}
-            style={{
-              padding: '5px 12px',
-            }}
-          >
-            <p 
-              className={`font-extrabold line-clamp-1 ${isExpired ? "text-gray-400" : isLocked ? "text-white/50" : "text-white"}`}
-              style={{ fontSize: '12px' }}
+        {/* Market Name and Bet Details - Hidden when locked */}
+        {!isLocked && (
+          <>
+            <div className="flex items-center justify-center" style={{ height: '24px' }}>
+              <div 
+                className={`rounded-full backdrop-blur-sm border ${
+                  isExpired 
+                    ? "bg-gray-800/60 border-gray-600/30" 
+                    : "bg-black/60 border-white/10"
+                }`}
+                style={{ padding: '5px 12px' }}
+              >
+                <p 
+                  className={`font-extrabold line-clamp-1 ${isExpired ? "text-gray-400" : "text-white"}`}
+                  style={{ fontSize: '12px' }}
+                >
+                  {market}
+                </p>
+              </div>
+            </div>
+
+            <div className="h-1" />
+
+            <div 
+              className={`w-full backdrop-blur-sm rounded-lg px-3 flex items-center justify-between ${
+                isExpired ? "bg-gray-800/50" : "bg-black/50"
+              }`}
+              style={{ height: '36px' }}
             >
-              {market}
-            </p>
-          </div>
-        </div>
-
-        {/* Spacer */}
-        <div className="h-1" />
-
-        {/* Bet Details Row */}
-        <div 
-          className={`w-full backdrop-blur-sm rounded-lg px-3 flex items-center justify-between ${
-            isExpired 
-              ? "bg-gray-800/50" 
-              : "bg-black/50"
-          }`}
-          style={{ height: '36px' }}
-        >
-          <span 
-            className={`font-extrabold line-clamp-1 ${isExpired ? "text-gray-500" : "text-emerald-400"}`}
-            style={{ fontSize: '14px' }}
-          >
-            {betChoice}
-          </span>
-          <span 
-            className={`font-black ${isExpired ? "text-gray-500" : "text-white"}`}
-            style={{ fontSize: '18px' }}
-          >
-            {odds.toFixed(2)}
-          </span>
-        </div>
+              <span 
+                className={`font-extrabold line-clamp-1 ${isExpired ? "text-gray-500" : "text-emerald-400"}`}
+                style={{ fontSize: '14px' }}
+              >
+                {betChoice}
+              </span>
+              <span 
+                className={`font-black ${isExpired ? "text-gray-500" : "text-white"}`}
+                style={{ fontSize: '18px' }}
+              >
+                {odds.toFixed(2)}
+              </span>
+            </div>
+          </>
+        )}
 
         {/* Spacer to push buttons to bottom */}
         <div className="flex-1 min-h-1" />
