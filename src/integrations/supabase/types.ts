@@ -634,9 +634,11 @@ export type Database = {
           has_intro_popup: boolean | null
           id: string
           is_active: boolean | null
+          location: string | null
           name: string
           popup_config: Json | null
           quiz_questions: Json | null
+          target_audience: string | null
           updated_at: string | null
         }
         Insert: {
@@ -647,9 +649,11 @@ export type Database = {
           has_intro_popup?: boolean | null
           id?: string
           is_active?: boolean | null
+          location?: string | null
           name: string
           popup_config?: Json | null
           quiz_questions?: Json | null
+          target_audience?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -660,9 +664,11 @@ export type Database = {
           has_intro_popup?: boolean | null
           id?: string
           is_active?: boolean | null
+          location?: string | null
           name?: string
           popup_config?: Json | null
           quiz_questions?: Json | null
+          target_audience?: string | null
           updated_at?: string | null
         }
         Relationships: [
