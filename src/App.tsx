@@ -32,7 +32,7 @@ import AdminRevenue from "./admin/pages/AdminRevenue";
 import AdminCassinoPlaceholder from "./admin/pages/AdminCassinoPlaceholder";
 import AdminBettingHouses from "./admin/pages/AdminBettingHouses";
 import AdminDefaultLinks from "./admin/pages/AdminDefaultLinks";
-import AdminPopups from "./admin/pages/AdminPopups";
+import AdminPopups from "./admin/pages/AdminFunnelPopups";
 import AdminTeams from "./admin/pages/AdminTeams";
 import AdminPredictions from "./admin/pages/AdminPredictions";
 import AdminCards from "./admin/pages/AdminCards";
