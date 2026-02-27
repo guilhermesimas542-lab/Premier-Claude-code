@@ -238,6 +238,7 @@ const Sport = () => {
       const allowedTiers = getAllowedTiers(userTier);
       const isPaidUser = userTier !== "free";
       const today = getTodayInBrazil();
+      console.log("[Sport] getTodayInBrazil() =", today, "| UTC now =", new Date().toISOString());
 
       // Fetch today's active entries
       const { data: entries, error: fetchError } = await supabase
@@ -246,6 +247,8 @@ const Sport = () => {
         .eq("active", true)
         .eq("date", today)
         .order("created_at", { ascending: false });
+
+      console.log("[Sport] Query result:", { count: entries?.length, error: fetchError, today });
 
       if (fetchError) {
         console.error("Erro ao buscar entries:", fetchError);
