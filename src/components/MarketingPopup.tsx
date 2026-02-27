@@ -23,11 +23,7 @@ export function MarketingPopup({
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent
-        className="p-0 border-0 overflow-hidden w-full max-w-[380px] sm:max-w-[420px] animate-in fade-in-0 zoom-in-95 duration-200"
-        style={{
-          background: "rgba(0, 0, 0, 0.7)",
-          backdropFilter: "blur(4px)",
-        }}
+        className="p-0 border-0 overflow-hidden w-full max-w-[380px] sm:max-w-[420px] bg-transparent animate-in fade-in-0 zoom-in-95 duration-200"
       >
         {/* Close */}
         <button
