@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, Pencil, Loader2 } from "lucide-react";
+import { Plus, Pencil, Loader2, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
 import { toast } from "sonner";
 import FunnelBuilder from "@/admin/components/funnel-popup/FunnelBuilder";
 import type { PopupFormState, FunnelQuestion } from "@/admin/components/funnel-popup/types";
@@ -71,6 +71,30 @@ export default function AdminPayCards() {
   const [saving, setSaving] = useState(false);
   const [questions, setQuestions] = useState<FunnelQuestion[]>([]);
   const [houses, setHouses] = useState<{ id: string; name: string }[]>([]);
+  const [sortCol, setSortCol] = useState<string>("name");
+  const [sortDesc, setSortDesc] = useState(false);
+
+  const handleSort = (col: string) => {
+    if (sortCol === col) setSortDesc(!sortDesc);
+    else { setSortCol(col); setSortDesc(false); }
+  };
+
+  const sortedPayCards = useMemo(() => {
+    return [...payCards].sort((a, b) => {
+      const va = (a as any)[sortCol] || "";
+      const vb = (b as any)[sortCol] || "";
+      if (va < vb) return sortDesc ? 1 : -1;
+      if (va > vb) return sortDesc ? -1 : 1;
+      return 0;
+    });
+  }, [payCards, sortCol, sortDesc]);
+
+  const SortIcon = ({ col }: { col: string }) => {
+    if (sortCol !== col) return <ArrowUpDown className="w-3 h-3 ml-1 opacity-30" />;
+    return sortDesc
+      ? <ArrowDown className="w-3 h-3 ml-1 text-emerald-400" />
+      : <ArrowUp className="w-3 h-3 ml-1 text-emerald-400" />;
+  };
 
   const set = (key: string, val: any) => setForm((f) => ({ ...f, [key]: val }));
 
@@ -223,10 +247,18 @@ export default function AdminPayCards() {
           <TableHeader>
            <TableRow>
               <TableHead className="w-[100px]">Preview</TableHead>
-              <TableHead>Nome</TableHead>
-              <TableHead>Plano</TableHead>
-              <TableHead>Localização</TableHead>
-              <TableHead>Público-alvo</TableHead>
+              <TableHead className="cursor-pointer select-none" onClick={() => handleSort("name")}>
+                <span className="flex items-center">Nome <SortIcon col="name" /></span>
+              </TableHead>
+              <TableHead className="cursor-pointer select-none" onClick={() => handleSort("associated_plan")}>
+                <span className="flex items-center">Plano <SortIcon col="associated_plan" /></span>
+              </TableHead>
+              <TableHead className="cursor-pointer select-none" onClick={() => handleSort("location")}>
+                <span className="flex items-center">Localização <SortIcon col="location" /></span>
+              </TableHead>
+              <TableHead className="cursor-pointer select-none" onClick={() => handleSort("target_audience")}>
+                <span className="flex items-center">Público-alvo <SortIcon col="target_audience" /></span>
+              </TableHead>
               <TableHead>Popup Intro</TableHead>
               <TableHead>Quiz</TableHead>
               <TableHead className="w-[80px]">Status</TableHead>
@@ -234,12 +266,12 @@ export default function AdminPayCards() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {payCards.map((c) => {
+            {sortedPayCards.map((c) => {
               const qCount = Array.isArray(c.quiz_questions) ? c.quiz_questions.filter((q: any) => q.text).length : 0;
               return (
                 <TableRow key={c.id} className="border-b border-white/10">
                   <TableCell>
-                    <PayCardMiniaturePreview plan={c.associated_plan} onClick={() => openEdit(c)} />
+                    <PayCardMiniaturePreview plan={c.associated_plan} location={c.location} onClick={() => openEdit(c)} />
                   </TableCell>
                   <TableCell className="font-medium text-sm">{c.name}</TableCell>
                   <TableCell>

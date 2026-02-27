@@ -1,4 +1,4 @@
-import { Lock, Anchor, Gift, Crown, Zap, ArrowUpCircle } from "lucide-react";
+import { Lock, Anchor, Gift, Crown, Zap, ArrowUpCircle, LogIn, Headset } from "lucide-react";
 
 const PLAN_CONFIG: Record<string, { label: string; borderColor: string; bgColor: string; icon?: any }> = {
   basic: { label: "BÁSICO", borderColor: "border-emerald-500", bgColor: "bg-gradient-to-r from-emerald-500 to-emerald-600" },
@@ -9,22 +9,34 @@ const PLAN_CONFIG: Record<string, { label: string; borderColor: string; bgColor:
   desaltas: { label: "ODDS ALTAS", borderColor: "border-red-500", bgColor: "bg-gradient-to-r from-amber-600 to-orange-700", icon: Zap },
   odds_altas: { label: "ODDS ALTAS", borderColor: "border-red-500", bgColor: "bg-gradient-to-r from-amber-600 to-orange-700", icon: Zap },
   vitalicio: { label: "VITALÍCIO", borderColor: "border-yellow-400", bgColor: "bg-gradient-to-r from-yellow-500 to-amber-600", icon: Crown },
-  login_aquisicao: { label: "AQUISIÇÃO", borderColor: "border-cyan-400", bgColor: "bg-gradient-to-r from-cyan-500 to-blue-600" },
+  login_aquisicao: { label: "AQUISIÇÃO", borderColor: "border-cyan-400", bgColor: "bg-gradient-to-r from-cyan-500 to-blue-600", icon: LogIn },
   upgrade_basico: { label: "↑ BÁSICO", borderColor: "border-emerald-500", bgColor: "bg-emerald-600", icon: ArrowUpCircle },
   upgrade_pro: { label: "↑ PRO", borderColor: "border-orange-500", bgColor: "bg-orange-600", icon: ArrowUpCircle },
   upgrade_ultra: { label: "↑ ULTRA", borderColor: "border-purple-500", bgColor: "bg-purple-600", icon: ArrowUpCircle },
-  suporte_upgrade: { label: "SUPORTE", borderColor: "border-sky-500", bgColor: "bg-sky-600", icon: ArrowUpCircle },
+  suporte_upgrade: { label: "SUPORTE", borderColor: "border-sky-500", bgColor: "bg-sky-600", icon: Headset },
 };
 
 interface Props {
   plan: string;
+  location?: string | null;
   onClick?: () => void;
 }
 
-export function PayCardMiniaturePreview({ plan, onClick }: Props) {
+export function PayCardMiniaturePreview({ plan, location, onClick }: Props) {
   const key = plan.toLowerCase();
   const config = PLAN_CONFIG[key] || { label: plan.toUpperCase(), borderColor: "border-gray-500", bgColor: "bg-gray-600" };
   const IconComponent = config.icon || Gift;
+
+  // Special button-style previews
+  const isButtonType = ["login_aquisicao", "vitalicio", "suporte_upgrade"].includes(key);
+  const isUpgrade = key.startsWith("upgrade_");
+
+  // Determine center label
+  let centerLabel = "Adquira já";
+  if (key === "login_aquisicao") centerLabel = "Adquirir";
+  else if (key === "vitalicio") centerLabel = "Vitalício";
+  else if (key === "suporte_upgrade") centerLabel = "Upgrade";
+  else if (isUpgrade) centerLabel = "Upgrade";
 
   return (
     <div
@@ -42,13 +54,22 @@ export function PayCardMiniaturePreview({ plan, onClick }: Props) {
         </div>
       </div>
 
-      {/* Center icon */}
+      {/* Center */}
       <div className="absolute inset-0 flex flex-col items-center justify-center gap-0.5 z-10">
-        <IconComponent className="w-3 h-3 text-white/40" />
-        <div className="w-4 h-4 rounded-full bg-white flex items-center justify-center">
-          <Lock className="w-2.5 h-2.5 text-black" />
-        </div>
-        <span className="text-[5px] text-emerald-400 font-bold">Adquira já</span>
+        {(isButtonType || isUpgrade) ? (
+          <>
+            <IconComponent className="w-3.5 h-3.5 text-white/50" />
+            <span className="text-[5px] text-white font-bold">{centerLabel}</span>
+          </>
+        ) : (
+          <>
+            <IconComponent className="w-3 h-3 text-white/40" />
+            <div className="w-4 h-4 rounded-full bg-white flex items-center justify-center">
+              <Lock className="w-2.5 h-2.5 text-black" />
+            </div>
+            <span className="text-[5px] text-emerald-400 font-bold">{centerLabel}</span>
+          </>
+        )}
       </div>
     </div>
   );
