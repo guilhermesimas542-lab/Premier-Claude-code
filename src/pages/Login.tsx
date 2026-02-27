@@ -42,24 +42,42 @@ const Login = () => {
       if (isAdminEmail) {
         navigate("/admin/verify", { state: { email: email.toLowerCase().trim() } });
       } else {
-        mockLogin(email);
+        // Call auth-login edge function to create/fetch user in DB
+        let dbUser: { id?: string; main_tier?: string; betting_house_id?: string | null } = {};
+        try {
+          const { data: loginData, error: loginError } = await supabase.functions.invoke('auth-login', {
+            body: { email: email.toLowerCase().trim() },
+          });
+          if (!loginError && loginData?.success && loginData?.user) {
+            dbUser = {
+              id: loginData.user.id,
+              main_tier: loginData.user.main_tier,
+            };
+            // Store paywall info if free user
+            if (loginData.show_paywall_popup && loginData.checkout) {
+              localStorage.setItem('premier_show_paywall', 'true');
+              localStorage.setItem('premier_checkout_url', loginData.checkout);
+            }
+          }
+        } catch (err) {
+          console.warn('[Login] auth-login edge function failed, continuing with mock:', err);
+        }
+
+        mockLogin(email, dbUser.id, dbUser.main_tier);
         toast.success("Login realizado com sucesso!");
         navigate("/", { replace: true });
 
+        // Subscribe to push notifications
         try {
-          const { data: userData } = await supabase
-            .from('users')
-            .select('id')
-            .eq('email', email.toLowerCase().trim())
-            .maybeSingle();
-          if (userData?.id) {
-            subscribe(userData.id);
+          if (dbUser.id) {
+            subscribe(dbUser.id);
           }
         } catch {
           // Silently ignore push subscription errors
         }
       }
     } catch (err) {
+      console.warn('[Login] outer catch, falling back to mock login:', err);
       mockLogin(email);
       toast.success("Login realizado com sucesso!");
       navigate("/", { replace: true });
