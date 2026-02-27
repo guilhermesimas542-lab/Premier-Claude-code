@@ -229,8 +229,8 @@ export const SpecialBettingCard = ({
         </div>
       )}
 
-      {/* Countdown Timer - Top Left Corner - Always visible */}
-      {!isExpired && countdown && (
+      {/* Countdown Timer - Top Left Corner - Hidden when locked */}
+      {!isExpired && !isLocked && countdown && (
         <div 
           className="absolute z-40 flex items-center gap-1 bg-black/70 backdrop-blur-sm rounded-full"
           style={{

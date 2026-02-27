@@ -402,82 +402,44 @@ export const PremiumBettingCard = ({
           )}
         </div>
 
-        {/* Teams Section - small & bottom-right when locked */}
-        <div className={`flex items-center gap-2 w-full ${
-          isLocked 
-            ? "absolute bottom-2 right-2 justify-end" 
-            : "justify-center gap-4 sm:gap-6"
-        }`} style={isLocked ? { zIndex: 10 } : { height: '70px', marginTop: '4px' }}>
+        {/* Teams Section - LARGER shirts and names */}
+        <div className="flex items-center justify-center gap-4 sm:gap-6 w-full" style={{ height: '70px', marginTop: '4px' }}>
           {/* Team 1 */}
-          <div className="flex flex-col items-center gap-0.5">
+          <div className="flex flex-col items-center gap-1">
             <div className={`rounded-full backdrop-blur-sm flex items-center justify-center ring-1 shadow-lg ${
               isExpired ? "bg-gray-800/50 ring-gray-600/30" : "bg-white/10 ring-white/20"
-            }`} style={{ width: isLocked ? '28px' : '48px', height: isLocked ? '28px' : '48px' }}>
+            }`} style={{ width: '48px', height: '48px' }}>
               {team1.logo ? (
-                <img
-                  src={team1.logo}
-                  alt={team1.name}
-                  className={`object-contain ${isExpired ? "opacity-50" : ""}`}
-                  style={{ width: isLocked ? '18px' : '32px', height: isLocked ? '18px' : '32px' }}
-                />
+                <img src={team1.logo} alt={team1.name} className={`object-contain ${isExpired ? "opacity-50" : ""}`} style={{ width: '32px', height: '32px' }} />
               ) : team1.shirt ? (
-                <ShirtIcon
-                  variant={team1.shirt.variant}
-                  primaryColor={team1.shirt.primaryColor}
-                  secondaryColor={team1.shirt.secondaryColor}
-                  size={isLocked ? 20 : 36}
-                />
+                <ShirtIcon variant={team1.shirt.variant} primaryColor={team1.shirt.primaryColor} secondaryColor={team1.shirt.secondaryColor} size={36} />
               ) : (
-                <ShirtIcon variant="solid" primaryColor="#6B7280" size={isLocked ? 20 : 36} />
+                <ShirtIcon variant="solid" primaryColor="#6B7280" size={36} />
               )}
             </div>
-            {!isLocked && (
-              <span 
-                className={`font-extrabold text-center max-w-[80px] leading-tight line-clamp-1 ${
-                  isExpired ? "text-gray-400" : "text-white"
-                }`}
-                style={{ fontSize: '13px' }}
-              >
-                {team1.name}
-              </span>
-            )}
+            <span className={`font-extrabold text-center max-w-[80px] leading-tight line-clamp-1 ${isExpired ? "text-gray-400" : "text-white"}`} style={{ fontSize: '13px' }}>
+              {team1.name}
+            </span>
           </div>
 
-          <div className={`text-white/50 font-extrabold`} style={{ fontSize: isLocked ? '10px' : '13px' }}>VS</div>
+          <div className="text-white/50 font-extrabold" style={{ fontSize: '13px' }}>VS</div>
 
           {/* Team 2 */}
-          <div className="flex flex-col items-center gap-0.5">
+          <div className="flex flex-col items-center gap-1">
             <div className={`rounded-full backdrop-blur-sm flex items-center justify-center ring-1 shadow-lg ${
               isExpired ? "bg-gray-800/50 ring-gray-600/30" : "bg-white/10 ring-white/20"
-            }`} style={{ width: isLocked ? '28px' : '48px', height: isLocked ? '28px' : '48px' }}>
+            }`} style={{ width: '48px', height: '48px' }}>
               {team2.logo ? (
-                <img
-                  src={team2.logo}
-                  alt={team2.name}
-                  className={`object-contain ${isExpired ? "opacity-50" : ""}`}
-                  style={{ width: isLocked ? '18px' : '32px', height: isLocked ? '18px' : '32px' }}
-                />
+                <img src={team2.logo} alt={team2.name} className={`object-contain ${isExpired ? "opacity-50" : ""}`} style={{ width: '32px', height: '32px' }} />
               ) : team2.shirt ? (
-                <ShirtIcon
-                  variant={team2.shirt.variant}
-                  primaryColor={team2.shirt.primaryColor}
-                  secondaryColor={team2.shirt.secondaryColor}
-                  size={isLocked ? 20 : 36}
-                />
+                <ShirtIcon variant={team2.shirt.variant} primaryColor={team2.shirt.primaryColor} secondaryColor={team2.shirt.secondaryColor} size={36} />
               ) : (
-                <ShirtIcon variant="solid" primaryColor="#6B7280" size={isLocked ? 20 : 36} />
+                <ShirtIcon variant="solid" primaryColor="#6B7280" size={36} />
               )}
             </div>
-            {!isLocked && (
-              <span 
-                className={`font-extrabold text-center max-w-[80px] leading-tight line-clamp-1 ${
-                  isExpired ? "text-gray-400" : "text-white"
-                }`}
-                style={{ fontSize: '13px' }}
-              >
-                {team2.name}
-              </span>
-            )}
+            <span className={`font-extrabold text-center max-w-[80px] leading-tight line-clamp-1 ${isExpired ? "text-gray-400" : "text-white"}`} style={{ fontSize: '13px' }}>
+              {team2.name}
+            </span>
           </div>
         </div>
 
