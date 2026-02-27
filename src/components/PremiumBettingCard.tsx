@@ -300,16 +300,16 @@ export const PremiumBettingCard = ({
       {isLocked && !isExpired && (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-xl" style={{ zIndex: 20 }}>
           {lockedLabel && (
-            <span className="text-white/80 text-sm font-semibold">
+            <span className="text-white/80 text-sm font-semibold bg-black/80 px-2 py-1 rounded-md">
               Exclusivo do {lockedLabel}
             </span>
           )}
-          <div className="w-14 h-14 rounded-full bg-white flex items-center justify-center">
+          <div className="w-14 h-14 rounded-full bg-white flex items-center justify-center" style={{ boxShadow: '0 4px 20px rgba(255,255,255,0.35)' }}>
             <Lock className="w-7 h-7 text-black" />
           </div>
           <button
             onClick={(e) => { e.stopPropagation(); window.open('/planos', '_self'); }}
-            className="mt-1 px-6 py-3 rounded-full bg-orange-500 hover:bg-orange-400 text-white text-sm font-bold shadow-lg transition-all hover:scale-105 animate-pulse-glow"
+            className="mt-1 px-6 py-3 rounded-full bg-emerald-500 hover:bg-emerald-400 text-white text-sm font-bold shadow-lg transition-all hover:scale-105 animate-pulse-glow-green"
           >
             Adquira já
           </button>
