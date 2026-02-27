@@ -272,13 +272,14 @@ export default function AdminCards() {
                 <TableRow key={c.id} className="border-b border-white/10">
                   <TableCell className="p-2">
                     <div
-                      className="pointer-events-none overflow-hidden relative"
+                      onClick={() => openEdit(c)}
+                      className="overflow-hidden relative cursor-pointer hover:opacity-80 transition-opacity"
                       style={{
                         width: c.card_type === "type1_lateral" ? "130px" : "110px",
-                        height: c.card_type === "type1_lateral" ? "44px" : "85px",
+                        height: c.card_type === "type1_lateral" ? "55px" : "100px",
                       }}
                     >
-                      <div style={{
+                      <div className="pointer-events-none" style={{
                         transform: "scale(0.36)",
                         transformOrigin: "top left",
                         width: c.card_type === "type1_lateral" ? "360px" : "300px",
@@ -407,7 +408,18 @@ export default function AdminCards() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-gray-500">Badge texto</label>
-                  <Input value={form.badge_text} onChange={(e) => set("badge_text", e.target.value)} placeholder="Ex: BETA" className="bg-gray-900 border-gray-800" />
+                  <Select value={form.badge_text || "__none__"} onValueChange={(v) => set("badge_text", v === "__none__" ? "" : v)}>
+                    <SelectTrigger className="bg-gray-900 border-gray-800"><SelectValue placeholder="Selecione..." /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__none__">Nenhum</SelectItem>
+                      <SelectItem value="IA ATIVADA">IA ATIVADA</SelectItem>
+                      <SelectItem value="META">META</SelectItem>
+                      <SelectItem value="BETA">BETA</SelectItem>
+                      <SelectItem value="AO VIVO">AO VIVO</SelectItem>
+                      <SelectItem value="ATUALIZADO">ATUALIZADO</SelectItem>
+                      <SelectItem value="NOVO">NOVO</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>
                   <label className="text-xs text-gray-500">Badge cor</label>

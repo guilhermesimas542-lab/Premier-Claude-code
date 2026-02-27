@@ -15,7 +15,7 @@ export function CardType1Lateral({ card, onAction }: Props) {
       {/* Badge */}
       {card.badge_text && (
         <span
-          className="absolute -top-2.5 right-3 z-20 px-2.5 py-0.5 rounded-md text-[10px] font-bold"
+          className="absolute top-2 right-2 z-20 px-2.5 py-0.5 rounded-md text-[10px] font-bold"
           style={{
             background: card.badge_color === "gold" ? "hsl(48 96% 53%)" : "hsl(var(--primary))",
             color: card.badge_color === "gold" ? "#000" : "hsl(var(--primary-foreground))",
