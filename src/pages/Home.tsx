@@ -75,10 +75,11 @@ const Home = () => {
       }
       return;
     }
-    if (card.slug === "futebol") { navigate("/sport/1"); return; }
-    if (card.slug === "cassino") { navigate("/cassino"); return; }
-    if (card.slug === "odds_altas") { navigate("/odds-altas"); return; }
-    if (card.slug === "alavancagem") { navigate("/alavancagem"); return; }
+    const s = (card.slug || "").toLowerCase();
+    if (s === "futebol") { navigate("/sport/1"); return; }
+    if (s === "cassino") { navigate("/cassino"); return; }
+    if (s === "odds_altas") { navigate("/odds-altas"); return; }
+    if (s === "alavancagem") { navigate("/alavancagem"); return; }
   };
 
   const renderCard = (card: CardData) => {
