@@ -1,0 +1,2 @@
+INSERT INTO cards (name, slug, title, subtitle, card_type, category, display_order, is_active, badge_text, button_text_access)
+VALUES ('Futebol', 'futebol', 'Futebol', 'Entradas de futebol atualizadas', 'type1_lateral', 'sport', 0, true, 'AO VIVO', 'Acessar');
