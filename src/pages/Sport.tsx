@@ -423,12 +423,17 @@ const Sport = () => {
   const handleAddTip = (entry: DisplayTip) => {
     const url = resolveBetUrl(entry);
     if (url) {
-      setIframeUrl(url);
-      toast.success("Tip adicionada!", { description: "Cupom carregado no site de apostas abaixo" });
-      // Scroll suave até o iframe
-      setTimeout(() => {
-        document.getElementById("bet-iframe-section")?.scrollIntoView({ behavior: "smooth" });
-      }, 100);
+      // If force_sports_link_new_tab is enabled, open in new tab instead of iframe
+      if (userHouse?.force_sports_link_new_tab) {
+        window.open(url, '_blank', 'noopener,noreferrer');
+        toast.success("Tip adicionada!", { description: "Link aberto em nova aba" });
+      } else {
+        setIframeUrl(url);
+        toast.success("Tip adicionada!", { description: "Cupom carregado no site de apostas abaixo" });
+        setTimeout(() => {
+          document.getElementById("bet-iframe-section")?.scrollIntoView({ behavior: "smooth" });
+        }, 100);
+      }
     } else {
       toast.info("Nenhum link de bilhete configurado para esta tip.");
     }

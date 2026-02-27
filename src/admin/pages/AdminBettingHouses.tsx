@@ -20,6 +20,7 @@ export interface BettingHouse {
   is_active: boolean;
   is_default: boolean;
   open_in_new_tab: boolean;
+  force_sports_link_new_tab: boolean;
   created_at: string;
 }
 
@@ -35,6 +36,7 @@ const EMPTY_FORM = {
   is_active: true,
   is_default: false,
   open_in_new_tab: false,
+  force_sports_link_new_tab: false,
 };
 
 type HouseForm = typeof EMPTY_FORM;
@@ -86,6 +88,7 @@ export default function AdminBettingHouses() {
       is_active: h.is_active,
       is_default: h.is_default,
       open_in_new_tab: h.open_in_new_tab ?? false,
+      force_sports_link_new_tab: (h as any).force_sports_link_new_tab ?? false,
     });
     setShowForm(true);
   };
@@ -109,6 +112,7 @@ export default function AdminBettingHouses() {
       is_active: form.is_active,
       is_default: form.is_default,
       open_in_new_tab: form.open_in_new_tab,
+      force_sports_link_new_tab: form.force_sports_link_new_tab,
     };
 
     if (editId) {
@@ -296,6 +300,13 @@ export default function AdminBettingHouses() {
                   <p className="text-xs text-gray-500">Casa não permite iframe (abre link em nova aba)</p>
                 </div>
                 <Switch checked={form.open_in_new_tab} onCheckedChange={(v) => set("open_in_new_tab", v)} />
+              </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <label className="text-sm">Forçar abertura do link de Esportes em nova aba</label>
+                  <p className="text-xs text-gray-500">O botão "Adicionar Tip" abre o link em nova aba (não afeta Cassino)</p>
+                </div>
+                <Switch checked={form.force_sports_link_new_tab} onCheckedChange={(v) => set("force_sports_link_new_tab", v)} />
               </div>
             </div>
 
