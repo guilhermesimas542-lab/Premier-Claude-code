@@ -627,6 +627,27 @@ export type Database = {
           },
         ]
       }
+      teams: {
+        Row: {
+          created_at: string
+          id: string
+          logo_url: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          logo_url?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          logo_url?: string
+          name?: string
+        }
+        Relationships: []
+      }
       user_gamification: {
         Row: {
           created_at: string
