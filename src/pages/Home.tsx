@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
 import { toast } from "sonner";
 import { isAuthenticated, clearAuth, getStoredConfig, getBackgroundImageUrl } from "@/lib/auth";
+import { supabase } from "@/integrations/supabase/client";
 import { mockGetUser } from "@/mocks/user";
 import BasicPlanModal from "@/components/BasicPlanModal";
 import { PromoCarousel } from "@/components/PromoCarousel";
@@ -18,6 +19,8 @@ import { useUserAccess } from "@/hooks/useUserAccess";
 import { CardType1Lateral } from "@/components/cards/CardType1Lateral";
 import { CardType2Top } from "@/components/cards/CardType2Top";
 import { CardFunnelModal } from "@/components/cards/CardFunnelModal";
+import { usePayCardTrigger } from "@/hooks/usePayCardTrigger";
+import { PayCardFunnelModal } from "@/components/PayCardFunnelModal";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -32,11 +35,22 @@ const Home = () => {
 
   const mockUser = mockGetUser();
   const config = getStoredConfig();
-  const hasLifetimeAccess = true;
   const { house: userHouse } = useUserBettingHouse();
   const { cards: availableEntries, loading: loadingEntries } = useCardsBySlugs(["futebol", "cassino"]);
   const { cards: quickCards } = useCards("quick_access");
   const access = useUserAccess();
+  const { triggerPayCard, payCard: pcData, open: pcOpen, closePayCard } = usePayCardTrigger();
+
+  // Derive lifetime from DB user data
+  const [isLifetime, setIsLifetime] = useState(false);
+  useEffect(() => {
+    const checkLifetime = async () => {
+      if (!mockUser) return;
+      const { data } = await supabase.from("users").select("is_vitalicio").eq("email", mockUser.email.toLowerCase().trim()).maybeSingle();
+      setIsLifetime(!!data?.is_vitalicio);
+    };
+    checkLifetime();
+  }, []);
 
   useEffect(() => {
     console.log("DADOS BRUTOS RECEBIDOS DO BANCO:", JSON.stringify(availableEntries, null, 2));
@@ -115,13 +129,13 @@ const Home = () => {
                 </span>
               )}
               
-              {hasLifetimeAccess ? (
+              {isLifetime ? (
                 <span className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-semibold" style={{ background: "rgba(0,255,0,0.1)", color: "#FFFFFF", border: "1px solid rgba(0,255,0,0.4)", boxShadow: "0 0 10px rgba(0,255,0,0.2)" }}>
                   <Crown className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                   <span className="hidden sm:inline">Acesso</span> vitalício
                 </span>
               ) : (
-                <button onClick={() => setShowLifetimeModal(true)} className="inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-semibold transition-colors cursor-pointer" style={{ background: "rgba(255,0,0,0.1)", color: "#FF4444", border: "1px solid rgba(255,0,0,0.3)" }}>
+                <button onClick={async () => { const found = await triggerPayCard('vitalicio'); if (!found) setShowLifetimeModal(true); }} className="inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-semibold transition-colors cursor-pointer" style={{ background: "rgba(255,0,0,0.1)", color: "#FF4444", border: "1px solid rgba(255,0,0,0.3)" }}>
                   <span className="hidden sm:inline">Sem</span> vitalício
                   <ShoppingCart className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                 </button>
@@ -333,6 +347,9 @@ const Home = () => {
 
       {funnelCard && (
         <CardFunnelModal card={funnelCard} open={!!funnelCard} onClose={() => setFunnelCard(null)} />
+      )}
+      {pcData && (
+        <PayCardFunnelModal payCard={pcData} open={pcOpen} onClose={closePayCard} />
       )}
     </div>
   );

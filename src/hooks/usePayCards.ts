@@ -9,8 +9,9 @@ export interface PayCardData {
   has_intro_popup: boolean;
   popup_config: { title?: string; text?: string; image_url?: string; cta_text?: string } | null;
   quiz_questions: FunnelQuestion[] | null;
-  checkout_config: { product_id?: string; title?: string; benefits?: string[]; checkout_url?: string } | null;
+  checkout_config: { product_id?: string; title?: string; benefits?: string[]; checkout_url?: string; checkout_url_2?: string; checkout_label_1?: string; checkout_label_2?: string } | null;
   is_active: boolean;
+  betting_house_id: string | null;
 }
 
 export function usePayCardByPlan() {

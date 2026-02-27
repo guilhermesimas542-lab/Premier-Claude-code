@@ -1,0 +1,1 @@
+ALTER TABLE pay_cards ADD COLUMN betting_house_id UUID REFERENCES betting_houses(id) ON DELETE SET NULL;

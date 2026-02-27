@@ -6,6 +6,8 @@ import { mockLogin } from "@/mocks/user";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { CHECKOUT_LINKS } from "@/lib/checkoutLinks";
 import { Copy, RefreshCw, Target, Crown, Loader2, ShoppingCart, Users } from "lucide-react";
+import { usePayCardTrigger } from "@/hooks/usePayCardTrigger";
+import { PayCardFunnelModal } from "@/components/PayCardFunnelModal";
 import logo from "@/assets/premier-logo-new.png";
 import {
   Dialog,
@@ -22,6 +24,7 @@ const Login = () => {
   const [showTermsModal, setShowTermsModal] = useState(false);
   const navigate = useNavigate();
   const { subscribe } = usePushNotifications();
+  const { triggerPayCard, payCard, open: payCardOpen, closePayCard } = usePayCardTrigger();
 
   const validateEmail = (value: string) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
@@ -86,8 +89,11 @@ const Login = () => {
     }
   };
 
-  const handleAcquireAccess = () => {
-    window.open(CHECKOUT_LINKS.paywall_default, "_blank");
+  const handleAcquireAccess = async () => {
+    const found = await triggerPayCard('basic');
+    if (!found) {
+      window.open(CHECKOUT_LINKS.paywall_default, "_blank");
+    }
     setShowAcquireModal(false);
   };
 
@@ -513,6 +519,14 @@ const Login = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {payCard && (
+        <PayCardFunnelModal
+          payCard={payCard}
+          open={payCardOpen}
+          onClose={closePayCard}
+        />
+      )}
     </div>
   );
 };
