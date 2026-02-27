@@ -55,21 +55,31 @@ export function useCards(category?: string) {
 export function useCardsBySlugs(slugs: string[]) {
   const [cards, setCards] = useState<CardData[]>([]);
   const [loading, setLoading] = useState(true);
+  const normalizedSlugs = slugs.map((s) => s.trim().toLowerCase()).filter(Boolean);
 
   useEffect(() => {
     const fetchCards = async () => {
+      if (normalizedSlugs.length === 0) {
+        setCards([]);
+        setLoading(false);
+        return;
+      }
+
       setLoading(true);
+      const slugOrFilter = normalizedSlugs.map((slug) => `slug.ilike.${slug}`).join(",");
+
       const { data } = await supabase
         .from("cards" as any)
         .select("*")
         .eq("is_active", true)
-        .in("slug", slugs)
+        .or(slugOrFilter)
         .order("display_order", { ascending: true });
+
       setCards((data as any as CardData[]) ?? []);
       setLoading(false);
     };
     fetchCards();
-  }, [slugs.join(",")]);
+  }, [normalizedSlugs.join(",")]);
 
   return { cards, loading };
 }

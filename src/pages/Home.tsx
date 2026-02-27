@@ -34,9 +34,13 @@ const Home = () => {
   const config = getStoredConfig();
   const hasLifetimeAccess = true;
   const { house: userHouse } = useUserBettingHouse();
-  const { cards: mainCards } = useCardsBySlugs(["futebol", "cassino"]);
+  const { cards: availableEntries, loading: loadingEntries } = useCardsBySlugs(["futebol", "cassino"]);
   const { cards: quickCards } = useCards("quick_access");
   const access = useUserAccess();
+
+  useEffect(() => {
+    console.log("DADOS BRUTOS RECEBIDOS DO BANCO:", JSON.stringify(availableEntries, null, 2));
+  }, [availableEntries]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -161,7 +165,15 @@ const Home = () => {
             Entradas Disponíveis
           </h2>
           <div className="space-y-3">
-            {mainCards.map(renderCard)}
+            {loadingEntries ? (
+              <p className="px-1 text-sm text-muted-foreground">Carregando...</p>
+            ) : availableEntries.length > 0 ? (
+              availableEntries.map((card) => (
+                <CardType1Lateral key={card.id} card={card} onAction={() => handleCardAction(card)} />
+              ))
+            ) : (
+              <p className="px-1 text-sm text-muted-foreground">Nenhuma entrada disponível no momento.</p>
+            )}
           </div>
         </section>
 
