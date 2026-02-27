@@ -261,12 +261,12 @@ export const PremiumBettingCard = ({
         overflow: 'visible',
       }}
     >
-      {/* Stadium Background Image - grayscale+blur when locked */}
+      {/* Stadium Background Image - grayscale when locked */}
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat rounded-xl"
         style={{
           backgroundImage: `url('/images/futsal-arena.jpg')`,
-          ...(isLocked && !isExpired ? { filter: 'grayscale(1) blur(2px)', opacity: 0.3 } : {}),
+          ...(isLocked && !isExpired ? { filter: 'grayscale(1)', opacity: 0.5 } : {}),
         }}
       />
 
