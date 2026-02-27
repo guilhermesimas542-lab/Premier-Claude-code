@@ -1,5 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { fromZonedTime } from "date-fns-tz";
+import { BRAZIL_TZ } from "@/lib/timezone";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -58,7 +60,6 @@ export default function AdminTipsCreate() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const combinedDate = form.gameDate ? `${form.gameDate}T${form.gameHour}:${form.gameMinute}:00` : "";
     if (!form.gameDate || !form.team1_name || !form.team2_name || !form.odd || !form.palpite) {
       toast.error("Preencha os campos obrigatórios");
       return;
@@ -68,11 +69,19 @@ export default function AdminTipsCreate() {
     const cat = CATEGORIA_MAP[form.categoria] || CATEGORIA_MAP.free;
     const dateOnly = form.gameDate;
 
+    // Convert game time from São Paulo timezone to UTC
+    const gameLocalStr = `${dateOnly}T${form.gameHour}:${form.gameMinute}:00`;
+    const startsAtUTC = fromZonedTime(gameLocalStr, BRAZIL_TZ);
+
+    // expires_at = end of day in São Paulo timezone
+    const endOfDayLocal = `${dateOnly}T23:59:00`;
+    const expiresAtUTC = fromZonedTime(endOfDayLocal, BRAZIL_TZ);
+
     const payload: any = {
       title: `${form.team1_name} x ${form.team2_name}`,
       date: dateOnly,
-      starts_at: combinedDate ? new Date(combinedDate).toISOString() : null,
-      expires_at: dateOnly ? `${dateOnly}T23:59:00` : null,
+      starts_at: startsAtUTC.toISOString(),
+      expires_at: expiresAtUTC.toISOString(),
       odd: parseFloat(form.odd),
       tier_required: cat.tier,
       addon_required: cat.addon,
