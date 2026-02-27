@@ -128,7 +128,7 @@ export const SpecialBettingCard = ({
         ${isExpired 
           ? "border-gray-600/50 shadow-none grayscale-[60%]" 
           : isLocked
-            ? `${config.borderColor} grayscale`
+            ? `${config.borderColor}`
             : `${config.borderColor} hover:scale-[1.02]`
       }`}
       style={{
@@ -181,7 +181,7 @@ export const SpecialBettingCard = ({
 
       {/* Stadium Background Image */}
       <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat pointer-events-none rounded-xl overflow-hidden"
+        className={`absolute inset-0 bg-cover bg-center bg-no-repeat pointer-events-none rounded-xl overflow-hidden ${isLocked ? "grayscale blur-[4px]" : ""}`}
         style={{
           backgroundImage: `url('/images/futsal-arena.jpg')`,
         }}
@@ -206,7 +206,7 @@ export const SpecialBettingCard = ({
       {/* Locked Overlay with Lock Icon + CTA */}
       {isLocked && !isExpired && (
         <>
-          <div className="absolute inset-0 z-20 bg-black/40 backdrop-blur-[2px] pointer-events-none rounded-xl overflow-hidden" />
+          <div className="absolute inset-0 z-20 bg-black/30 pointer-events-none rounded-xl overflow-hidden" />
           <div className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-2 rounded-xl">
             {lockedLabel && (
               <span className="text-white/80 text-xs font-semibold">
@@ -226,7 +226,7 @@ export const SpecialBettingCard = ({
         </>
       )}
 
-      {/* Countdown Timer - Top Left Corner (smaller) */}
+      {/* Countdown Timer - Top Left Corner - Always visible */}
       {!isExpired && countdown && (
         <div 
           className="absolute z-40 flex items-center gap-1 bg-black/70 backdrop-blur-sm rounded-full"
@@ -322,7 +322,7 @@ export const SpecialBettingCard = ({
             }}
           >
             <p 
-              className={`font-extrabold line-clamp-1 ${isExpired ? "text-gray-400" : "text-white"}`}
+              className={`font-extrabold line-clamp-1 ${isExpired ? "text-gray-400" : isLocked ? "text-white/50" : "text-white"}`}
               style={{ fontSize: '12px' }}
             >
               {market}

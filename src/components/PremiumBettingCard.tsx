@@ -252,18 +252,18 @@ export const PremiumBettingCard = ({
         ${isExpired 
           ? "border-gray-600/50 shadow-none grayscale-[60%]" 
           : isLocked
-            ? `${config.borderColor} grayscale`
+            ? `${config.borderColor}`
             : `${config.borderColor} hover:scale-[1.02]`
       }`}
       style={{
         aspectRatio: '332 / 213',
         minHeight: 0,
-        overflow: 'visible', // Allow badge to float outside
+        overflow: 'visible',
       }}
     >
       {/* Stadium Background Image */}
       <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        className={`absolute inset-0 bg-cover bg-center bg-no-repeat rounded-xl ${isLocked ? "grayscale blur-[4px]" : ""}`}
         style={{
           backgroundImage: `url('/images/futsal-arena.jpg')`,
         }}
@@ -277,7 +277,7 @@ export const PremiumBettingCard = ({
       />
       
       {/* Dark Overlay for readability */}
-      <div className={`absolute inset-0 ${
+      <div className={`absolute inset-0 rounded-xl ${
         isExpired 
           ? "bg-gradient-to-b from-gray-900/70 via-gray-900/80 to-gray-900/90" 
           : "bg-gradient-to-b from-black/40 via-black/50 to-black/80"
@@ -293,8 +293,8 @@ export const PremiumBettingCard = ({
       {/* Locked Overlay with Lock Icon + CTA */}
       {isLocked && !isExpired && (
         <>
-          <div className="absolute inset-0 z-20 bg-black/40 backdrop-blur-[2px]" />
-          <div className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-2">
+          <div className="absolute inset-0 z-20 bg-black/30 rounded-xl" />
+          <div className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-2 rounded-xl">
             {lockedLabel && (
               <span className="text-white/80 text-xs font-semibold">
                 Exclusivo do {lockedLabel}
@@ -340,7 +340,7 @@ export const PremiumBettingCard = ({
         
         {/* Top Row - Timer (left), Info (right) - no badge here anymore */}
         <div className="relative h-7 mb-0.5">
-          {/* Timer - Top Left Corner - SMALLER */}
+          {/* Timer - Top Left Corner - Always visible (locked or not) */}
           {!isExpired && countdown && (
             <div 
               className={`absolute flex items-center gap-1 backdrop-blur-sm rounded-full z-40 ${
@@ -470,8 +470,16 @@ export const PremiumBettingCard = ({
           </div>
         </div>
 
-        {/* Market Name - REMOVED from main display, now only in tooltip */}
-        {/* The market info is accessible via the "i" icon tooltip */}
+        {/* Market Name - Visible with reduced opacity when locked */}
+        {isLocked && !isExpired && (
+          <div className="flex items-center justify-center z-40" style={{ height: '20px' }}>
+            <div className="rounded-full backdrop-blur-sm bg-black/50 border border-white/10" style={{ padding: '3px 10px' }}>
+              <p className="font-bold text-white/50 line-clamp-1" style={{ fontSize: '11px' }}>
+                {market}
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Multiple Bet Label - Compact (always reserve space) */}
         <div className="flex items-center justify-center" style={{ height: '16px' }}>
