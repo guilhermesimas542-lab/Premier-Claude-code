@@ -14,6 +14,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { PayCardMiniaturePreview } from "@/admin/components/pay-cards/PayCardMiniaturePreview";
 import { PayCardInteractivePreview } from "@/admin/components/pay-cards/PayCardInteractivePreview";
+import { useBettingHouseAdmin } from "@/admin/context/BettingHouseContext";
 
 interface PayCard {
   id: string;
@@ -63,6 +64,7 @@ const EMPTY_FORM = {
 };
 
 export default function AdminPayCards() {
+  const { selectedHouseId, selectedHouse } = useBettingHouseAdmin();
   const [payCards, setPayCards] = useState<PayCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -70,7 +72,6 @@ export default function AdminPayCards() {
   const [form, setForm] = useState({ ...EMPTY_FORM });
   const [saving, setSaving] = useState(false);
   const [questions, setQuestions] = useState<FunnelQuestion[]>([]);
-  const [houses, setHouses] = useState<{ id: string; name: string }[]>([]);
   const [sortCol, setSortCol] = useState<string>("name");
   const [sortDesc, setSortDesc] = useState(false);
 
@@ -100,20 +101,20 @@ export default function AdminPayCards() {
 
   const load = async () => {
     setLoading(true);
-    const { data } = await supabase
+    let q = supabase
       .from("pay_cards" as any)
       .select("*")
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false }) as any;
+    if (selectedHouseId) q = q.eq("betting_house_id", selectedHouseId);
+    else q = q.is("betting_house_id", null);
+    const { data } = await q;
     setPayCards((data as any as PayCard[]) ?? []);
     setLoading(false);
   };
 
   useEffect(() => {
     load();
-    supabase.from("betting_houses").select("id, name").eq("is_active", true).order("name").then(({ data }) => {
-      setHouses((data || []) as { id: string; name: string }[]);
-    });
-  }, []);
+  }, [selectedHouseId]);
 
   const openEdit = (c: PayCard) => {
     setEditId(c.id);
@@ -161,7 +162,7 @@ export default function AdminPayCards() {
       name: form.name,
       associated_plan: form.associated_plan,
       has_intro_popup: form.has_intro_popup,
-      betting_house_id: form.betting_house_id === "__none__" ? null : form.betting_house_id,
+      betting_house_id: selectedHouseId || null,
       location: form.location || null,
       target_audience: form.target_audience || null,
       popup_config: form.has_intro_popup ? {
@@ -234,7 +235,12 @@ export default function AdminPayCards() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold">Pay Cards</h2>
+        <div>
+          <h2 className="text-xl font-bold">Pay Cards</h2>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            {selectedHouse ? `Casa: ${selectedHouse.name}` : "Sem casa selecionada (global)"}
+          </p>
+        </div>
         <Button size="sm" onClick={openCreate}>
           <Plus className="w-4 h-4" /> Novo Pay Card
         </Button>
@@ -357,18 +363,11 @@ export default function AdminPayCards() {
                 </Select>
               </div>
 
-              <div>
-                <label className="text-xs text-gray-500">Casa de Apostas</label>
-                <Select value={form.betting_house_id} onValueChange={(v) => set("betting_house_id", v)}>
-                  <SelectTrigger className="bg-gray-900 border-gray-800"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="__none__">Geral (Padrão)</SelectItem>
-                    {houses.map(h => (
-                      <SelectItem key={h.id} value={h.id}>{h.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              {selectedHouse && (
+                <div className="text-xs text-muted-foreground px-1">
+                  Casa: <strong className="text-foreground">{selectedHouse.name}</strong>
+                </div>
+              )}
 
               <div className="flex items-center justify-between">
                 <label className="text-sm">Ativo</label>
