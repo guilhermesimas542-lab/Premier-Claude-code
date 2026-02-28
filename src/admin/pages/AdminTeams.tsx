@@ -176,7 +176,7 @@ export default function AdminTeams() {
               />
             </div>
             <div>
-              <label className="text-xs text-muted-foreground">Logo (PNG/JPG/WebP) *</label>
+              <label className="text-xs text-muted-foreground">Logo (PNG/JPG/WebP) * <span className="text-muted-foreground">(200 x 200 px)</span></label>
               <div className="mt-1">
                 <LogoInput
                   onUploadComplete={(url) => setFormLogoUrl(url)}

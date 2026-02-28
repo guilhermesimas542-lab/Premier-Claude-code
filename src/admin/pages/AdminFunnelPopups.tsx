@@ -231,7 +231,7 @@ export default function AdminFunnelPopups() {
 
               {/* Image */}
               <div>
-                <Label className="text-gray-400 text-xs">Imagem de Destaque</Label>
+                <Label className="text-gray-400 text-xs">Imagem de Destaque <span className="text-muted-foreground">(480 x 720 px)</span></Label>
                 <div className="flex gap-2 mt-1">
                   <Input
                     placeholder="URL da imagem"
