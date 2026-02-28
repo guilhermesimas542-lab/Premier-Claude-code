@@ -292,24 +292,10 @@ export const SpecialBettingCard = ({
         {/* Special Icon Section - Hidden when locked */}
         {!isLocked && (
           <div className="flex flex-col items-center justify-center gap-1 w-full" style={{ height: '60px' }}>
-            <div className={`w-11 h-11 rounded-full ${config.iconBg} backdrop-blur-sm flex items-center justify-center ring-1 shadow-lg ${
+            <div className={`w-14 h-14 rounded-full ${config.iconBg} backdrop-blur-sm flex items-center justify-center ring-1 shadow-lg ${
               isExpired ? "ring-gray-600/30" : "ring-white/20"
             }`}>
-              <IconComponent className={`w-6 h-6 ${isExpired ? "text-gray-500" : config.iconColor}`} />
-            </div>
-            <div className="text-center">
-              <h3 
-                className={`font-bold ${isExpired ? "text-gray-400" : "text-white"}`}
-                style={{ fontSize: '14px' }}
-              >
-                {config.title}
-              </h3>
-              <p 
-                className={`${isExpired ? "text-gray-500" : "text-white/60"}`}
-                style={{ fontSize: '9px' }}
-              >
-                {config.subtitle}
-              </p>
+              <IconComponent className={`w-8 h-8 ${isExpired ? "text-gray-500" : config.iconColor}`} />
             </div>
           </div>
         )}
@@ -317,18 +303,23 @@ export const SpecialBettingCard = ({
         {/* Odds only - Hidden when locked */}
         {!isLocked && (
           <div 
-            className={`w-full backdrop-blur-sm rounded-lg px-3 flex items-center justify-center ${
+            className={`w-full backdrop-blur-sm rounded-lg px-3 flex items-center justify-between ${
               isExpired ? "bg-gray-800/50" : "bg-black/50"
             }`}
             style={{ height: '36px', marginTop: '4px' }}
           >
-            <span className={`text-xs font-medium mr-2 ${isExpired ? "text-gray-500" : "text-white/60"}`}>Odd</span>
-            <span 
-              className={`font-black ${isExpired ? "text-gray-500" : "text-white"}`}
-              style={{ fontSize: '20px' }}
-            >
-              {odds.toFixed(2)}
+            <span className={`text-xs font-bold ${isExpired ? "text-gray-500" : "text-white/80"}`}>
+              {type === "ALAVANCAGEM" ? "Alavancagem do Dia" : "Múltipla do Dia"}
             </span>
+            <div className="flex items-center gap-1.5">
+              <span className={`text-xs font-medium ${isExpired ? "text-gray-500" : "text-white/60"}`}>Odd</span>
+              <span 
+                className={`font-black ${isExpired ? "text-gray-500" : "text-white"}`}
+                style={{ fontSize: '20px' }}
+              >
+                {odds.toFixed(2)}
+              </span>
+            </div>
           </div>
         )}
 
