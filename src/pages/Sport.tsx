@@ -568,7 +568,7 @@ const Sport = () => {
     const market = entry.category || entry.title;
     const betChoice = entry.condition_to_win || entry.title;
     const matchDate = entry.starts_at
-      ? formatDateTimeBR(entry.starts_at, 'HH:mm dd/MM')
+      ? formatDateTimeBR(entry.starts_at, 'HH:mm')
       : undefined;
     const expirationDate = entry.expires_at || undefined;
     const startsAt = entry.starts_at || undefined;

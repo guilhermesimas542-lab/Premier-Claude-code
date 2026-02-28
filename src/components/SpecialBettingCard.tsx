@@ -314,49 +314,22 @@ export const SpecialBettingCard = ({
           </div>
         )}
 
-        {/* Market Name and Bet Details - Hidden when locked */}
+        {/* Odds only - Hidden when locked */}
         {!isLocked && (
-          <>
-            <div className="flex items-center justify-center" style={{ height: '24px' }}>
-              <div 
-                className={`rounded-full backdrop-blur-sm border ${
-                  isExpired 
-                    ? "bg-gray-800/60 border-gray-600/30" 
-                    : "bg-black/60 border-white/10"
-                }`}
-                style={{ padding: '5px 12px' }}
-              >
-                <p 
-                  className={`font-extrabold line-clamp-1 ${isExpired ? "text-gray-400" : "text-white"}`}
-                  style={{ fontSize: '12px' }}
-                >
-                  {market}
-                </p>
-              </div>
-            </div>
-
-            <div className="h-1" />
-
-            <div 
-              className={`w-full backdrop-blur-sm rounded-lg px-3 flex items-center justify-between ${
-                isExpired ? "bg-gray-800/50" : "bg-black/50"
-              }`}
-              style={{ height: '36px' }}
+          <div 
+            className={`w-full backdrop-blur-sm rounded-lg px-3 flex items-center justify-center ${
+              isExpired ? "bg-gray-800/50" : "bg-black/50"
+            }`}
+            style={{ height: '36px', marginTop: '4px' }}
+          >
+            <span className={`text-xs font-medium mr-2 ${isExpired ? "text-gray-500" : "text-white/60"}`}>Odd</span>
+            <span 
+              className={`font-black ${isExpired ? "text-gray-500" : "text-white"}`}
+              style={{ fontSize: '20px' }}
             >
-              <span 
-                className={`font-extrabold line-clamp-1 ${isExpired ? "text-gray-500" : "text-emerald-400"}`}
-                style={{ fontSize: '14px' }}
-              >
-                {betChoice}
-              </span>
-              <span 
-                className={`font-black ${isExpired ? "text-gray-500" : "text-white"}`}
-                style={{ fontSize: '18px' }}
-              >
-                {odds.toFixed(2)}
-              </span>
-            </div>
-          </>
+              {odds.toFixed(2)}
+            </span>
+          </div>
         )}
 
         {/* Spacer to push buttons to bottom */}
