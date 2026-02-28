@@ -56,6 +56,26 @@ export default function AdminTipsCreate() {
 
   const set = (key: string, val: string) => setForm((f) => ({ ...f, [key]: val }));
 
+  const isSpecialCategory = form.categoria === "alavancagem" || form.categoria === "odds_altas";
+
+  useEffect(() => {
+    if (form.categoria === "alavancagem") {
+      setForm(f => ({
+        ...f,
+        palpite: "Alavancagem do Dia",
+        mercado: "Combinação de Mercados",
+        mercado_explicacao: "Esta é uma entrada especial que combina múltiplos mercados de baixa odd para criar uma aposta mais segura e com potencial de alavancagem de banca.",
+      }));
+    } else if (form.categoria === "odds_altas") {
+      setForm(f => ({
+        ...f,
+        palpite: "Múltipla do Dia",
+        mercado: "Múltipla de Alto Risco",
+        mercado_explicacao: "Esta é uma aposta múltipla que combina resultados de maior risco para buscar um retorno financeiro significativamente mais alto.",
+      }));
+    }
+  }, [form.categoria]);
+
   const hourOptions = useMemo(() => Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, "0")), []);
   const minuteOptions = useMemo(() => Array.from({ length: 12 }, (_, i) => (i * 5).toString().padStart(2, "0")), []);
 
@@ -211,26 +231,33 @@ export default function AdminTipsCreate() {
           </div>
         </div>
 
-        <PredictionAutocomplete
-          value={form.palpite}
-          onChange={(prediction, market, explanation) => {
-            setForm(f => ({
-              ...f,
-              palpite: prediction,
-              ...(market ? { mercado: market } : {}),
-              ...(explanation ? { mercado_explicacao: explanation } : {}),
-            }));
-          }}
-        />
+        {!isSpecialCategory && (
+          <PredictionAutocomplete
+            value={form.palpite}
+            onChange={(prediction, market, explanation) => {
+              setForm(f => ({
+                ...f,
+                palpite: prediction,
+                ...(market ? { mercado: market } : {}),
+                ...(explanation ? { mercado_explicacao: explanation } : {}),
+              }));
+            }}
+          />
+        )}
 
         <div>
-          <label className="text-xs text-muted-foreground">Mercado</label>
-          <Input value={form.mercado} onChange={(e) => set("mercado", e.target.value)} placeholder="Ex: Over/Under, Resultado Final" className="bg-muted/30 border-border" />
+          <label className="text-xs text-muted-foreground">Palpite {isSpecialCategory && "(auto)"}</label>
+          <Input value={form.palpite} onChange={(e) => set("palpite", e.target.value)} disabled={isSpecialCategory} className="bg-muted/30 border-border disabled:opacity-60" />
         </div>
 
         <div>
-          <label className="text-xs text-muted-foreground">O que é esse mercado?</label>
-          <Textarea value={form.mercado_explicacao} onChange={(e) => set("mercado_explicacao", e.target.value)} className="bg-muted/30 border-border" rows={2} placeholder="Explicação que aparece no tooltip (?)" />
+          <label className="text-xs text-muted-foreground">Mercado {isSpecialCategory && "(auto)"}</label>
+          <Input value={form.mercado} onChange={(e) => set("mercado", e.target.value)} disabled={isSpecialCategory} placeholder="Ex: Over/Under, Resultado Final" className="bg-muted/30 border-border disabled:opacity-60" />
+        </div>
+
+        <div>
+          <label className="text-xs text-muted-foreground">O que é esse mercado? {isSpecialCategory && "(auto)"}</label>
+          <Textarea value={form.mercado_explicacao} onChange={(e) => set("mercado_explicacao", e.target.value)} disabled={isSpecialCategory} className="bg-muted/30 border-border disabled:opacity-60" rows={2} placeholder="Explicação que aparece no tooltip (?)" />
         </div>
 
         <div>
