@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Loader2, Users, Activity, Clock, UserPlus, TrendingUp, Bell, Target, FileText } from "lucide-react";
+import { useBettingHouseAdmin } from "../context/BettingHouseContext";
 import {
   LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
   PieChart, Pie, Cell, Legend, BarChart, Bar,
@@ -40,6 +41,7 @@ const PERIOD_SHORTCUTS = [
 
 // ─── Component ───────────────────────────────────────────────────────────────
 export default function AdminAnalytics() {
+  const { selectedHouseId, selectedHouse } = useBettingHouseAdmin();
   const today = new Date();
   const [from, setFrom] = useState<Date>(subDays(today, 30));
   const [to, setTo] = useState<Date>(today);
@@ -66,6 +68,33 @@ export default function AdminAnalytics() {
     const until = endOfDay(to).toISOString();
     const todayStart = startOfDay(today).toISOString();
 
+    // Get user IDs for the selected house
+    let houseUserIds: string[] | null = null;
+    if (selectedHouseId) {
+      const { data: houseUsers } = await supabase
+        .from("users")
+        .select("id")
+        .eq("betting_house_id", selectedHouseId);
+      houseUserIds = (houseUsers ?? []).map((u: any) => u.id);
+    }
+
+    // Build queries with house filter
+    const buildEventsQ = (q: any) => {
+      if (houseUserIds && houseUserIds.length > 0) return q.in("user_id", houseUserIds.slice(0, 500));
+      if (houseUserIds && houseUserIds.length === 0) return q.eq("user_id", "00000000-0000-0000-0000-000000000000"); // no results
+      return q;
+    };
+
+    const buildUsersQ = (q: any) => {
+      if (selectedHouseId) return q.eq("betting_house_id", selectedHouseId);
+      return q;
+    };
+
+    const buildNotifsQ = (q: any) => {
+      if (selectedHouseId) return q.eq("betting_house_id", selectedHouseId);
+      return q;
+    };
+
     // Parallel fetches
     const [
       { data: allEvents },
@@ -77,13 +106,13 @@ export default function AdminAnalytics() {
       { data: entitlements },
       { data: tips },
     ] = await Promise.all([
-      supabase.from("events").select("user_id, event_name, created_at").gte("created_at", since).lte("created_at", until),
-      supabase.from("users").select("id, email, main_tier, last_seen_at"),
-      supabase.from("users").select("id").gte("created_at", since).lte("created_at", until),
-      supabase.from("events").select("event_name, created_at").gte("created_at", since).lte("created_at", until).in("event_name", ["app_open", "view_entries", "click_locked_entry", "click_buy_from_popup", "page_view", "card_click", "funnel_entry"]),
-      supabase.from("notifications").select("id").not("sent_at", "is", null).gte("sent_at", since).lte("sent_at", until),
-      supabase.from("events").select("user_id").gte("created_at", todayStart),
-      supabase.from("entitlements").select("user_id, product_key").eq("status", "active"),
+      buildEventsQ(supabase.from("events").select("user_id, event_name, created_at").gte("created_at", since).lte("created_at", until)),
+      buildUsersQ(supabase.from("users").select("id, email, main_tier, last_seen_at")),
+      buildUsersQ(supabase.from("users").select("id").gte("created_at", since).lte("created_at", until)),
+      buildEventsQ(supabase.from("events").select("event_name, created_at").gte("created_at", since).lte("created_at", until).in("event_name", ["app_open", "view_entries", "click_locked_entry", "click_buy_from_popup", "page_view", "card_click", "funnel_entry"])),
+      buildNotifsQ(supabase.from("notifications").select("id").not("sent_at", "is", null).gte("sent_at", since).lte("sent_at", until)),
+      buildEventsQ(supabase.from("events").select("user_id").gte("created_at", todayStart)),
+      (() => { const q = supabase.from("entitlements").select("user_id, product_key").eq("status", "active"); return houseUserIds && houseUserIds.length > 0 ? q.in("user_id", houseUserIds.slice(0, 500)) : houseUserIds && houseUserIds.length === 0 ? q.eq("user_id", "00000000-0000-0000-0000-000000000000") : q; })(),
       supabase.from("content_entries").select("id").gte("created_at", since).lte("created_at", until),
     ]);
 
@@ -168,7 +197,7 @@ export default function AdminAnalytics() {
 
     setTipsCount((tips ?? []).length);
     setLoading(false);
-  }, [from, to]);
+  }, [from, to, selectedHouseId]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -191,7 +220,7 @@ export default function AdminAnalytics() {
     <div className="space-y-6">
       {/* ── Header + Date Filter ─────────────────────────────────────── */}
       <div className="flex flex-col gap-3">
-        <h2 className="text-xl font-bold">Analytics — Visão Geral</h2>
+        <h2 className="text-xl font-bold">Analytics — {selectedHouse?.name ?? "Visão Geral"}</h2>
 
         <div className="flex flex-wrap items-center gap-2">
           {/* Shortcut buttons */}
