@@ -1,0 +1,1 @@
+ALTER TABLE public.notifications ADD COLUMN betting_house_id uuid REFERENCES public.betting_houses(id);

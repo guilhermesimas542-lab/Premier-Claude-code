@@ -558,6 +558,7 @@ export type Database = {
       }
       notifications: {
         Row: {
+          betting_house_id: string | null
           created_at: string
           id: string
           message: string
@@ -568,6 +569,7 @@ export type Database = {
           title: string
         }
         Insert: {
+          betting_house_id?: string | null
           created_at?: string
           id?: string
           message: string
@@ -578,6 +580,7 @@ export type Database = {
           title: string
         }
         Update: {
+          betting_house_id?: string | null
           created_at?: string
           id?: string
           message?: string
@@ -587,7 +590,15 @@ export type Database = {
           target_email?: string | null
           title?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "notifications_betting_house_id_fkey"
+            columns: ["betting_house_id"]
+            isOneToOne: false
+            referencedRelation: "betting_houses"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       orders: {
         Row: {

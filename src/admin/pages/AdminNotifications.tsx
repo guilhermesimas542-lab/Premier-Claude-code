@@ -7,8 +7,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Plus, Trash2, Loader2, Send, Clock, CheckCircle2, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import type { AdminNotification } from "../types";
+import { useBettingHouseAdmin } from "../context/BettingHouseContext";
 
 export default function AdminNotifications() {
+  const { selectedHouseId, selectedHouse } = useBettingHouseAdmin();
   const [items, setItems] = useState<AdminNotification[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
@@ -21,15 +23,17 @@ export default function AdminNotifications() {
   });
 
   const load = async () => {
-    const { data } = await (supabase as any)
+    let q = (supabase as any)
       .from("notifications")
       .select("*")
       .order("created_at", { ascending: false });
+    if (selectedHouseId) q = q.eq("betting_house_id", selectedHouseId);
+    const { data } = await q;
     setItems(data ?? []);
     setLoading(false);
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, [selectedHouseId]);
 
   const handleCreate = async () => {
     if (!form.title || !form.message) {
@@ -42,6 +46,7 @@ export default function AdminNotifications() {
       message: form.message,
       target: "all",
       scheduled_at: form.scheduled_at || null,
+      betting_house_id: selectedHouseId || null,
     });
     if (error) {
       toast.error(error.message);
@@ -90,8 +95,10 @@ export default function AdminNotifications() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold">Notificações Push</h2>
-          <p className="text-xs text-gray-500 mt-0.5">Envie notificações nativas para todos os usuários</p>
+        <h2 className="text-xl font-bold">Notificações Push</h2>
+          <p className="text-xs text-gray-500 mt-0.5">
+            Notificações da casa: <strong className="text-gray-300">{selectedHouse?.name ?? "—"}</strong>
+          </p>
         </div>
         <Button size="sm" onClick={() => setOpen(true)} className="gap-1.5">
           <Plus className="w-4 h-4" /> Nova
