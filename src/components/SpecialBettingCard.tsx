@@ -308,13 +308,13 @@ export const SpecialBettingCard = ({
             }`}
             style={{ height: '36px', marginTop: '4px' }}
           >
-            <span className={`text-xs font-bold ${isExpired ? "text-gray-500" : "text-white/80"}`}>
+            <span className={`text-xs font-bold ${isExpired ? "text-gray-500" : "text-emerald-400"}`}>
               {type === "ALAVANCAGEM" ? "Alavancagem do Dia" : "Múltipla do Dia"}
             </span>
             <div className="flex items-center gap-1.5">
-              <span className={`text-xs font-medium ${isExpired ? "text-gray-500" : "text-white/60"}`}>Odd</span>
+              <span className={`text-xs font-medium ${isExpired ? "text-gray-500" : "text-emerald-400"}`}>Odd</span>
               <span 
-                className={`font-black ${isExpired ? "text-gray-500" : "text-white"}`}
+                className={`font-black ${isExpired ? "text-gray-500" : "text-emerald-400"}`}
                 style={{ fontSize: '20px' }}
               >
                 {odds.toFixed(2)}
