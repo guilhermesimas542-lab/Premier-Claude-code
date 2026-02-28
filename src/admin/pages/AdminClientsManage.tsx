@@ -273,7 +273,35 @@ export default function AdminClientsManage() {
     if (error) { toast.error(error.message); setSaving(false); return; }
 
 
-    // 2. Sync add-ons via entitlements
+    // 2. Sync acesso_vitalicio entitlement with is_vitalicio toggle
+    {
+      const vKey = "acesso_vitalicio";
+      const { data: existingV } = await supabase
+        .from("entitlements")
+        .select("id, status")
+        .eq("user_id", editUser.id)
+        .eq("product_key", vKey as any)
+        .limit(1);
+
+      if (editUser.is_vitalicio) {
+        if (!existingV || existingV.length === 0) {
+          await supabase.from("entitlements").insert({
+            user_id: editUser.id,
+            product_key: vKey as any,
+            source: "admin",
+            status: "active",
+          });
+        } else if (existingV[0].status !== "active") {
+          await supabase.from("entitlements").update({ status: "active" }).eq("id", existingV[0].id);
+        }
+      } else {
+        if (existingV && existingV.length > 0 && existingV[0].status === "active") {
+          await supabase.from("entitlements").update({ status: "revoked" }).eq("id", existingV[0].id);
+        }
+      }
+    }
+
+    // 3. Sync add-ons via entitlements
     for (const { key } of ADDON_TOGGLES) {
       const wantsActive = editAddons[key] ?? false;
       const { data: existing } = await supabase

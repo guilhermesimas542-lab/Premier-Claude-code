@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Pencil, Trash2, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { Pencil, Trash2, ArrowUpDown, ArrowUp, ArrowDown, Snowflake } from "lucide-react";
 import { toast } from "sonner";
 import type { AdminContentEntry } from "../types";
 import { useBettingHouseAdmin } from "../context/BettingHouseContext";
@@ -88,6 +88,19 @@ export default function AdminTipsList() {
     const { id, created_at, ...rest } = editItem;
     const { error } = await supabase.from("content_entries").update(rest as any).eq("id", id);
     if (error) toast.error(error.message); else { toast.success("Atualizada"); setEditItem(null); load(); }
+  };
+
+  const handleFreeze = async (tip: AdminContentEntry) => {
+    const { id, created_at, ...dataToCopy } = tip;
+    const newFreeTip = {
+      ...dataToCopy,
+      tier_required: "free" as any,
+      addon_required: null,
+      result: "pending",
+    };
+    const { error } = await supabase.from("content_entries").insert(newFreeTip);
+    if (error) toast.error("Erro ao freezar: " + error.message);
+    else { toast.success("❄️ Tip duplicada como Free"); load(); }
   };
 
   const handleBulkDelete = async () => {
@@ -288,7 +301,15 @@ export default function AdminTipsList() {
                   <td className="px-3 py-2">{t.date}</td>
                   <td className="px-3 py-2">{t.starts_at ? new Date(t.starts_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : "—"}</td>
                   <td className="px-3 py-2">{t.odd != null ? t.odd.toFixed(2) : "—"}</td>
-                  <td className="px-3 py-2">{t.tier_required}</td>
+                  <td className="px-3 py-2">
+                    {(t as any).addon_required === "alavancagem" ? (
+                      <span className="text-blue-400 font-medium">Alavancagem</span>
+                    ) : (t as any).addon_required === "desaltas" ? (
+                      <span className="text-yellow-400 font-medium">Odds Altas</span>
+                    ) : (
+                      <span className="capitalize">{t.tier_required}</span>
+                    )}
+                  </td>
                   <td className="px-3 py-2"><Switch checked={t.active} onCheckedChange={(v) => toggleActive(t.id, v)} /></td>
                   <td className="px-3 py-2">
                     {(t as any).result === "pending" ? (
@@ -305,6 +326,7 @@ export default function AdminTipsList() {
                     )}
                   </td>
                   <td className="px-3 py-2 flex gap-1">
+                    <button onClick={() => handleFreeze(t)} className="text-cyan-400 hover:text-cyan-300 transition-colors" title="Freezar (duplicar como Free)"><Snowflake className="w-3.5 h-3.5" /></button>
                     <button onClick={() => setEditItem(t)} className="text-blue-400"><Pencil className="w-3.5 h-3.5" /></button>
                     <button onClick={() => handleDelete(t.id)} className="text-red-400"><Trash2 className="w-3.5 h-3.5" /></button>
                   </td>
