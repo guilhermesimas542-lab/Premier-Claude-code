@@ -29,6 +29,53 @@ export type Database = {
         }
         Relationships: []
       }
+      app_errors: {
+        Row: {
+          component: string | null
+          created_at: string
+          error_fingerprint: string
+          error_message: string
+          error_stack: string | null
+          house_id: string | null
+          id: string
+          properties: Json | null
+          screen: string | null
+          user_email: string | null
+        }
+        Insert: {
+          component?: string | null
+          created_at?: string
+          error_fingerprint: string
+          error_message: string
+          error_stack?: string | null
+          house_id?: string | null
+          id?: string
+          properties?: Json | null
+          screen?: string | null
+          user_email?: string | null
+        }
+        Update: {
+          component?: string | null
+          created_at?: string
+          error_fingerprint?: string
+          error_message?: string
+          error_stack?: string | null
+          house_id?: string | null
+          id?: string
+          properties?: Json | null
+          screen?: string | null
+          user_email?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "app_errors_house_id_fkey"
+            columns: ["house_id"]
+            isOneToOne: false
+            referencedRelation: "betting_houses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       banner_analytics: {
         Row: {
           banner_id: string
