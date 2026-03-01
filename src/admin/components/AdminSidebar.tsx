@@ -2,7 +2,7 @@ import { NavLink } from "react-router-dom";
 import {
   LayoutDashboard, Image, PlusCircle, List,
   Users, Bell, BarChart3, ChevronLeft, ChevronRight,
-  DollarSign, Activity, Home, Link, Layers, Shield, CreditCard,
+  DollarSign, Activity, Home, Link, Layers, Shield, CreditCard, Bug,
 } from "lucide-react";
 import { useState } from "react";
 import { useAdminMode } from "../context/AdminModeContext";
@@ -40,6 +40,7 @@ const futebolSections = [
     items: [
       { to: "/admin/analytics", icon: BarChart3, label: "Visão Geral" },
       { to: "/admin/analytics/events", icon: Activity, label: "Eventos" },
+      { to: "/admin/errors", icon: Bug, label: "Erros" },
     ],
   },
   {

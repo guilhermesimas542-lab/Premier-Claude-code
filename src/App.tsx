@@ -3,6 +3,8 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useEffect } from "react";
+import { installGlobalErrorTracker } from "@/lib/errorTracker";
 
 import Home from "./pages/Home";
 import Sport from "./pages/Sport";
@@ -37,6 +39,7 @@ import AdminTeams from "./admin/pages/AdminTeams";
 import AdminPredictions from "./admin/pages/AdminPredictions";
 import AdminCards from "./admin/pages/AdminCards";
 import AdminPayCards from "./admin/pages/AdminPayCards";
+import AdminErrors from "./admin/pages/AdminErrors";
 import { Navigate } from "react-router-dom";
 import { FunnelPopupProvider } from "./context/FunnelPopupContext";
 
@@ -49,7 +52,12 @@ const LEGACY_GAME_MAP: Record<string, string> = {
   crash: "fortune-tiger",
 };
 
-const App = () => (
+const App = () => {
+  useEffect(() => {
+    installGlobalErrorTracker();
+  }, []);
+
+  return (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
@@ -90,6 +98,7 @@ const App = () => (
               <Route path="funis" element={<Navigate to="/admin/popups" replace />} />
               <Route path="cards" element={<AdminCards />} />
               <Route path="pay-cards" element={<AdminPayCards />} />
+              <Route path="errors" element={<AdminErrors />} />
               {/* Cassino placeholders */}
               <Route path="cassino" element={<AdminCassinoPlaceholder />} />
               <Route path="cassino/analytics" element={<AdminCassinoPlaceholder />} />
@@ -101,6 +110,7 @@ const App = () => (
       </FunnelPopupProvider>
     </TooltipProvider>
   </QueryClientProvider>
-);
+  );
+};
 
 export default App;
