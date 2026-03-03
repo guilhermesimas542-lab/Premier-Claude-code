@@ -506,26 +506,57 @@ export type Database = {
       events: {
         Row: {
           created_at: string
+          device_id: string | null
+          element: string | null
+          event_id: string | null
           event_name: string
+          house_id: string | null
           id: string
           metadata: Json | null
+          properties: Json | null
+          screen: string | null
+          session_id: string | null
           user_id: string | null
+          value: string | null
         }
         Insert: {
           created_at?: string
+          device_id?: string | null
+          element?: string | null
+          event_id?: string | null
           event_name: string
+          house_id?: string | null
           id?: string
           metadata?: Json | null
+          properties?: Json | null
+          screen?: string | null
+          session_id?: string | null
           user_id?: string | null
+          value?: string | null
         }
         Update: {
           created_at?: string
+          device_id?: string | null
+          element?: string | null
+          event_id?: string | null
           event_name?: string
+          house_id?: string | null
           id?: string
           metadata?: Json | null
+          properties?: Json | null
+          screen?: string | null
+          session_id?: string | null
           user_id?: string | null
+          value?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "events_house_id_fkey"
+            columns: ["house_id"]
+            isOneToOne: false
+            referencedRelation: "betting_houses"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "events_user_id_fkey"
             columns: ["user_id"]

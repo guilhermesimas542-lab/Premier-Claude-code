@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
 import { installGlobalErrorTracker } from "@/lib/errorTracker";
+import { AnalyticsRouteTracker } from "@/components/AnalyticsRouteTracker";
 
 import Home from "./pages/Home";
 import Sport from "./pages/Sport";
@@ -64,6 +65,7 @@ const App = () => {
       <Sonner />
       <FunnelPopupProvider>
         <BrowserRouter>
+          <AnalyticsRouteTracker />
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/" element={<Home />} />

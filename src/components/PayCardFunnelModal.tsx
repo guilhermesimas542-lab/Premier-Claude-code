@@ -39,6 +39,7 @@ export function PayCardFunnelModal({ payCard, open, onClose }: Props) {
   useEffect(() => {
     if (open) {
       trackEvent("funnel_entry", { funnel_name: payCard.name, plan: payCard.associated_plan });
+      trackEvent("funnel_view", { funnel_name: payCard.name, plan: payCard.associated_plan });
     }
   }, [open]);
 
@@ -63,6 +64,10 @@ export function PayCardFunnelModal({ payCard, open, onClose }: Props) {
   };
 
   const goToCheckout = (url: string) => {
+    trackEvent("click_buy_from_popup", {
+      funnel_name: payCard.name,
+      plan: payCard.associated_plan,
+    });
     setEmbeddedUrl(url);
   };
 

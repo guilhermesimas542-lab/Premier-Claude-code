@@ -2,6 +2,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from "@/components/ui/button";
 import { Lock } from "lucide-react";
 import { getUnlockLink } from "@/lib/checkoutLinks";
+import { trackEvent } from "@/lib/events";
 
 interface LockedTipModalProps {
   isOpen: boolean;
@@ -13,6 +14,11 @@ interface LockedTipModalProps {
 
 export function LockedTipModal({ isOpen, onClose, tierLabel, tierRequired, addonRequired }: LockedTipModalProps) {
   const handleUpgrade = () => {
+    trackEvent("upgrade_click", {
+      target_plan: tierRequired,
+      addon: addonRequired,
+      screen: window.location.pathname,
+    });
     const link = getUnlockLink(tierRequired, addonRequired);
     window.open(link, "_blank");
     onClose();
