@@ -106,10 +106,10 @@ export default function AdminAnalytics() {
       { data: entitlements },
       { data: tips },
     ] = await Promise.all([
-      buildEventsQ(supabase.from("events").select("user_id, event_name, created_at").gte("created_at", since).lte("created_at", until)),
+      buildEventsQ(supabase.from("events").select("user_id, event_name, created_at, session_id, metadata, properties").gte("created_at", since).lte("created_at", until)),
       buildUsersQ(supabase.from("users").select("id, email, main_tier, last_seen_at")),
       buildUsersQ(supabase.from("users").select("id").gte("created_at", since).lte("created_at", until)),
-      buildEventsQ(supabase.from("events").select("event_name, created_at").gte("created_at", since).lte("created_at", until).in("event_name", ["app_open", "view_entries", "click_locked_entry", "click_buy_from_popup", "page_view", "card_click", "funnel_entry"])),
+      buildEventsQ(supabase.from("events").select("event_name, created_at").gte("created_at", since).lte("created_at", until).in("event_name", ["app_open", "view_entries", "click_locked_entry", "click_buy_from_popup", "page_view", "card_click", "funnel_entry", "funnel_view"])),
       buildNotifsQ(supabase.from("notifications").select("id").not("sent_at", "is", null).gte("sent_at", since).lte("sent_at", until)),
       buildEventsQ(supabase.from("events").select("user_id").gte("created_at", todayStart)),
       (() => { const q = supabase.from("entitlements").select("user_id, product_key").eq("status", "active"); return houseUserIds && houseUserIds.length > 0 ? q.in("user_id", houseUserIds.slice(0, 500)) : houseUserIds && houseUserIds.length === 0 ? q.eq("user_id", "00000000-0000-0000-0000-000000000000") : q; })(),
@@ -117,12 +117,24 @@ export default function AdminAnalytics() {
     ]);
 
     const s = allEvents ?? [];
-    const uniqueUsers = new Set(s.map((r) => r.user_id)).size;
-    const totalSessions = s.length;
-    const avgDuration = 0; // Duration not available from events table
+    const uniqueUsers = new Set(s.map((r: any) => r.user_id)).size;
+    
+    // Sessions: count distinct session_id
+    const totalSessions = new Set(s.map((r: any) => r.session_id).filter(Boolean)).size || s.length;
+    
+    // Avg duration from screen_time events
+    const screenTimeEvents = s.filter((e: any) => e.event_name === "screen_time");
+    const totalSeconds = screenTimeEvents.reduce((acc: number, e: any) => {
+      const sec = Number(e.metadata?.seconds ?? e.properties?.seconds ?? 0);
+      return acc + sec;
+    }, 0);
+    const sessionIdsInScreenTime = new Set(screenTimeEvents.map((e: any) => e.session_id).filter(Boolean));
+    const avgDuration = sessionIdsInScreenTime.size > 0
+      ? Math.round(totalSeconds / sessionIdsInScreenTime.size)
+      : 0;
 
     // Conversion rate: buy clicks / unique users
-    const buyClicks = (funnelEvents ?? []).filter((e) => e.event_name === "click_buy_from_popup").length;
+    const buyClicks = (funnelEvents ?? []).filter((e: any) => e.event_name === "click_buy_from_popup").length;
     const conversionRate = uniqueUsers > 0 ? Math.round((buyClicks / uniqueUsers) * 100 * 10) / 10 : 0;
 
     // Active today
@@ -172,7 +184,7 @@ export default function AdminAnalytics() {
     ]);
 
     // Funnel
-    const funnelEventNames = ["app_open", "page_view", "view_entries", "card_click", "funnel_entry", "click_locked_entry", "click_buy_from_popup"];
+    const funnelEventNames = ["app_open", "page_view", "view_entries", "card_click", "funnel_view", "click_locked_entry", "click_buy_from_popup"];
     const counts: Record<string, number> = {};
     funnelEventNames.forEach((e) => { counts[e] = 0; });
     (funnelEvents ?? []).forEach((ev) => { counts[ev.event_name] = (counts[ev.event_name] ?? 0) + 1; });
@@ -209,7 +221,7 @@ export default function AdminAnalytics() {
   const kpiCards = [
     { label: "Usuários únicos", value: kpis.uniqueUsers, icon: <Users className="w-4 h-4" />, color: "text-blue-400" },
     { label: "Sessões", value: kpis.totalSessions, icon: <Activity className="w-4 h-4" />, color: "text-purple-400" },
-    { label: "Tempo médio (seg)", value: "—", icon: <Clock className="w-4 h-4" />, color: "text-yellow-400" },
+    { label: "Tempo médio", value: kpis.avgDuration > 0 ? `${Math.floor(kpis.avgDuration / 60)}m ${kpis.avgDuration % 60}s` : "—", icon: <Clock className="w-4 h-4" />, color: "text-yellow-400" },
     { label: "Novos cadastros", value: kpis.newUsers, icon: <UserPlus className="w-4 h-4" />, color: "text-green-400" },
     { label: "Taxa de conversão", value: `${kpis.conversionRate}%`, icon: <TrendingUp className="w-4 h-4" />, color: "text-orange-400" },
     { label: "Ativos hoje", value: kpis.activeToday, icon: <Target className="w-4 h-4" />, color: "text-pink-400" },

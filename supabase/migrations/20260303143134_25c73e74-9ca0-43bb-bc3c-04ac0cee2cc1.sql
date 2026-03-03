@@ -1,0 +1,10 @@
+
+ALTER TABLE public.events
+  ADD COLUMN IF NOT EXISTS screen       TEXT,
+  ADD COLUMN IF NOT EXISTS element      TEXT,
+  ADD COLUMN IF NOT EXISTS value        TEXT,
+  ADD COLUMN IF NOT EXISTS properties   JSONB DEFAULT '{}',
+  ADD COLUMN IF NOT EXISTS device_id    TEXT,
+  ADD COLUMN IF NOT EXISTS session_id   TEXT,
+  ADD COLUMN IF NOT EXISTS event_id     TEXT,
+  ADD COLUMN IF NOT EXISTS house_id     UUID REFERENCES public.betting_houses(id) ON DELETE SET NULL;

@@ -6,11 +6,6 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
-interface EventRequest {
-  event_name: string;
-  metadata?: Record<string, unknown>;
-}
-
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -29,7 +24,7 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     );
 
-    // Extrair token do header (opcional para eventos)
+    // Extrair token do header
     const authHeader = req.headers.get('Authorization');
     let userId: string | null = null;
 
@@ -45,7 +40,7 @@ serve(async (req) => {
       }
     }
 
-    const body: EventRequest = await req.json();
+    const body = await req.json();
 
     if (!body.event_name) {
       return new Response(
@@ -54,13 +49,21 @@ serve(async (req) => {
       );
     }
 
-    // Inserir evento
+    // Inserir evento com novos campos
     const { data: event, error } = await supabase
       .from('events')
       .insert({
         user_id: userId,
         event_name: body.event_name,
         metadata: body.metadata || {},
+        screen: body.screen ?? null,
+        element: body.element ?? null,
+        value: body.value ?? null,
+        properties: body.properties ?? {},
+        device_id: body.device_id ?? null,
+        session_id: body.session_id ?? null,
+        event_id: body.event_id ?? null,
+        house_id: body.house_id ?? null,
       })
       .select()
       .single();
@@ -73,13 +76,12 @@ serve(async (req) => {
       );
     }
 
-    // AJUSTE 2: Atualizar APENAS last_event_at do usuário (não last_seen_at)
+    // Atualizar timestamps do usuário
     if (userId) {
       const updateData: Record<string, string> = {
         last_event_at: new Date().toISOString()
       };
       
-      // Se for evento app_open, atualiza TAMBÉM last_seen_at
       if (body.event_name === 'app_open') {
         updateData.last_seen_at = new Date().toISOString();
       }
@@ -91,10 +93,7 @@ serve(async (req) => {
     }
 
     return new Response(
-      JSON.stringify({
-        success: true,
-        event_id: event.id,
-      }),
+      JSON.stringify({ success: true, event_id: event.id }),
       { status: 201, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
