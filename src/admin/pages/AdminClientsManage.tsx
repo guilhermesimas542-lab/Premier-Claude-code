@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,7 +15,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, Pencil, Loader2, Trash2, ChevronsUpDown, ChevronUp, ChevronDown, Copy, Check } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Plus, Pencil, Loader2, Trash2, ChevronsUpDown, ChevronUp, ChevronDown, Copy, X } from "lucide-react";
 import { toast } from "sonner";
 import type { AdminUser } from "../types";
 import { ClientProfileModal } from "../components/ClientProfileModal";
@@ -151,13 +152,16 @@ export default function AdminClientsManage() {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
+  // Bulk selection state
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [showBulkDelete, setShowBulkDelete] = useState(false);
+  const [bulkDeleting, setBulkDeleting] = useState(false);
+
   // Build a map of house id → badge color
   const houseColorMap: Record<string, string> = {};
   adminHouses.forEach((h, i) => {
     houseColorMap[h.id] = HOUSE_BADGE_COLORS[i % HOUSE_BADGE_COLORS.length];
   });
-
-
 
   const handleSort = (col: SortKey) => {
     if (col === sortKey) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
@@ -180,10 +184,20 @@ export default function AdminClientsManage() {
     setLoadingAddons(false);
   };
 
-
-
-  const load = async () => {
+  const load = useCallback(async (overrides?: {
+    search?: string;
+    createdFrom?: string;
+    createdTo?: string;
+    lastSeenFrom?: string;
+    lastSeenTo?: string;
+  }) => {
     setLoading(true);
+
+    const s = overrides?.search ?? search;
+    const cf = overrides?.createdFrom ?? createdFrom;
+    const ct = overrides?.createdTo ?? createdTo;
+    const lf = overrides?.lastSeenFrom ?? lastSeenFrom;
+    const lt = overrides?.lastSeenTo ?? lastSeenTo;
 
     let q = supabase
       .from("users")
@@ -191,12 +205,11 @@ export default function AdminClientsManage() {
       .order("last_seen_at", { ascending: false, nullsFirst: false })
       .limit(200);
 
-    if (search) q = q.ilike("email", `%${search}%`);
-    if (createdFrom) q = q.gte("created_at", createdFrom);
-    if (createdTo) q = q.lte("created_at", createdTo + "T23:59:59");
-    if (lastSeenFrom) q = q.gte("last_seen_at", lastSeenFrom);
-    if (lastSeenTo) q = q.lte("last_seen_at", lastSeenTo + "T23:59:59");
-    // Filter by selected house (include users without a house when filtering)
+    if (s) q = q.ilike("email", `%${s}%`);
+    if (cf) q = q.gte("created_at", cf);
+    if (ct) q = q.lte("created_at", ct + "T23:59:59");
+    if (lf) q = q.gte("last_seen_at", lf);
+    if (lt) q = q.lte("last_seen_at", lt + "T23:59:59");
     if (selectedHouseId) q = q.or(`betting_house_id.eq.${selectedHouseId},betting_house_id.is.null`);
 
     const { data, count } = await q;
@@ -234,7 +247,7 @@ export default function AdminClientsManage() {
       }))
     );
     setLoading(false);
-  };
+  }, [search, createdFrom, createdTo, lastSeenFrom, lastSeenTo, selectedHouseId]);
 
   useEffect(() => {
     load();
@@ -243,13 +256,75 @@ export default function AdminClientsManage() {
     });
   }, [selectedHouseId]);
 
+  const handleClearFilters = () => {
+    setSearch("");
+    setCreatedFrom("");
+    setCreatedTo("");
+    setLastSeenFrom("");
+    setLastSeenTo("");
+    // Trigger load immediately with cleared values
+    load({ search: "", createdFrom: "", createdTo: "", lastSeenFrom: "", lastSeenTo: "" });
+  };
 
   const sortedUsers = sortUsers(users, sortKey, sortDir);
+
+  // Bulk selection helpers
+  const allVisibleSelected = sortedUsers.length > 0 && sortedUsers.every((u) => selectedIds.has(u.id));
+  const someSelected = selectedIds.size > 0;
+
+  const toggleSelectAll = () => {
+    if (allVisibleSelected) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(sortedUsers.map((u) => u.id)));
+    }
+  };
+
+  const toggleSelectOne = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.size === 0) return;
+    setBulkDeleting(true);
+    const ids = Array.from(selectedIds);
+
+    try {
+      // Delete related records first (tables without CASCADE)
+      await supabase.from("entitlements").delete().in("user_id", ids);
+      await supabase.from("events").delete().in("user_id", ids);
+      await supabase.from("orders").delete().in("user_id", ids);
+      await supabase.from("sessions").delete().in("user_id", ids);
+      await supabase.from("xp_events").delete().in("user_id", ids);
+      await supabase.from("user_gamification").delete().in("user_id", ids);
+      await supabase.from("user_popup_views").delete().in("user_id", ids);
+      await supabase.from("referrals").delete().in("referrer_user_id", ids);
+      await supabase.from("referrals").delete().in("referred_user_id", ids);
+      await supabase.from("push_subscriptions").delete().in("user_id", ids);
+      await supabase.from("banner_analytics").delete().in("user_id", ids);
+
+      // Delete users
+      const { error } = await supabase.from("users").delete().in("id", ids);
+      if (error) throw error;
+
+      toast.success(`${ids.length} cliente${ids.length !== 1 ? "s" : ""} excluído${ids.length !== 1 ? "s" : ""} com sucesso`);
+      setSelectedIds(new Set());
+      setShowBulkDelete(false);
+      load();
+    } catch (err: any) {
+      toast.error("Erro ao excluir: " + (err?.message ?? "erro desconhecido"));
+    }
+    setBulkDeleting(false);
+  };
 
   const handleCreate = async () => {
     if (!newEmail) { toast.error("Email obrigatório"); return; }
     setSaving(true);
-    // Pick default house if none selected
     let houseId = newHouseId;
     if (!houseId && houses.length > 0) houseId = houses[0].id;
     const { error } = await supabase
@@ -264,7 +339,6 @@ export default function AdminClientsManage() {
     if (!editUser) return;
     setSaving(true);
 
-    // 1. Update user tier + vitalicio + house
     const { error } = await supabase.from("users").update({
       main_tier: editUser.main_tier as any,
       is_vitalicio: editUser.is_vitalicio,
@@ -274,8 +348,7 @@ export default function AdminClientsManage() {
 
     if (error) { toast.error(error.message); setSaving(false); return; }
 
-
-    // 2. Sync acesso_vitalicio entitlement with is_vitalicio toggle
+    // Sync acesso_vitalicio entitlement with is_vitalicio toggle
     {
       const vKey = "acesso_vitalicio";
       const { data: existingV } = await supabase
@@ -303,7 +376,7 @@ export default function AdminClientsManage() {
       }
     }
 
-    // 3. Sync add-ons via entitlements
+    // Sync add-ons via entitlements
     for (const { key } of ADDON_TOGGLES) {
       const wantsActive = editAddons[key] ?? false;
       const { data: existing } = await supabase
@@ -363,6 +436,23 @@ export default function AdminClientsManage() {
         </Button>
       </div>
 
+      {/* Bulk action bar */}
+      {someSelected && (
+        <div className="bg-red-950/40 border border-red-500/30 rounded-xl px-4 py-3 flex items-center justify-between">
+          <span className="text-sm text-red-300 font-medium">
+            ✓ {selectedIds.size} cliente{selectedIds.size !== 1 ? "s" : ""} selecionado{selectedIds.size !== 1 ? "s" : ""}
+          </span>
+          <div className="flex items-center gap-2">
+            <Button size="sm" variant="destructive" onClick={() => setShowBulkDelete(true)}>
+              <Trash2 className="w-3.5 h-3.5 mr-1" /> Excluir selecionados
+            </Button>
+            <Button size="sm" variant="outline" className="border-gray-700 text-gray-400" onClick={() => setSelectedIds(new Set())}>
+              <X className="w-3.5 h-3.5 mr-1" /> Cancelar seleção
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Filters */}
       <div className="bg-gray-900 border border-white/10 rounded-xl p-4 space-y-3">
         <div className="flex gap-2 flex-wrap">
@@ -372,11 +462,8 @@ export default function AdminClientsManage() {
             onChange={(e) => setSearch(e.target.value)}
             className="w-64 bg-gray-800 border-gray-700"
           />
-          <Button size="sm" onClick={load}>Buscar</Button>
-          <Button size="sm" variant="outline" onClick={() => {
-            setSearch(""); setCreatedFrom(""); setCreatedTo("");
-            setLastSeenFrom(""); setLastSeenTo("");
-          }} className="border-gray-700 text-gray-400">
+          <Button size="sm" onClick={() => load()}>Buscar</Button>
+          <Button size="sm" variant="outline" onClick={handleClearFilters} className="border-gray-700 text-gray-400">
             Limpar filtros
           </Button>
         </div>
@@ -416,9 +503,16 @@ export default function AdminClientsManage() {
         </div>
       ) : (
         <div className="bg-gray-900 rounded-xl border border-white/10 overflow-x-auto">
-          <table className="w-full text-sm min-w-[850px]">
+          <table className="w-full text-sm min-w-[900px]">
             <thead>
               <tr className="border-b border-white/10 text-left text-gray-500 text-xs">
+                <th className="px-3 py-2 w-10">
+                  <Checkbox
+                    checked={allVisibleSelected}
+                    onCheckedChange={toggleSelectAll}
+                    className="border-gray-600"
+                  />
+                </th>
                 <th className={thClass} onClick={() => handleSort("email")}>
                   <span className="flex items-center">Email <SortIcon col="email" sortKey={sortKey} sortDir={sortDir} /></span>
                 </th>
@@ -443,7 +537,14 @@ export default function AdminClientsManage() {
             </thead>
             <tbody>
               {sortedUsers.map((u) => (
-                <tr key={u.id} className="border-b border-white/5 text-gray-300 text-xs hover:bg-white/5 transition-colors">
+                <tr key={u.id} className={`border-b border-white/5 text-gray-300 text-xs hover:bg-white/5 transition-colors ${selectedIds.has(u.id) ? "bg-white/5" : ""}`}>
+                  <td className="px-3 py-2">
+                    <Checkbox
+                      checked={selectedIds.has(u.id)}
+                      onCheckedChange={() => toggleSelectOne(u.id)}
+                      className="border-gray-600"
+                    />
+                  </td>
                   <td className="px-3 py-2">
                     <div className="flex items-center gap-1.5">
                       <button
@@ -503,7 +604,7 @@ export default function AdminClientsManage() {
               ))}
               {sortedUsers.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="px-3 py-8 text-center text-gray-600">
+                  <td colSpan={9} className="px-3 py-8 text-center text-gray-600">
                     Nenhum cliente encontrado
                   </td>
                 </tr>
@@ -566,7 +667,6 @@ export default function AdminClientsManage() {
                 </div>
               )}
 
-
               <div className="border-t border-white/10 pt-3 space-y-3">
                 <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Acesso</p>
                 <div className="flex items-center gap-3">
@@ -602,7 +702,7 @@ export default function AdminClientsManage() {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation */}
+      {/* Single Delete Confirmation */}
       <AlertDialog open={!!deleteUser} onOpenChange={(o) => !o && setDeleteUser(null)}>
         <AlertDialogContent className="bg-gray-900 border-gray-800 text-white">
           <AlertDialogHeader>
@@ -616,6 +716,25 @@ export default function AdminClientsManage() {
             <AlertDialogCancel className="bg-gray-800 border-gray-700 text-white hover:bg-gray-700">Cancelar</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} disabled={deleting} className="bg-red-600 hover:bg-red-700 text-white">
               {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Excluir"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Bulk Delete Confirmation */}
+      <AlertDialog open={showBulkDelete} onOpenChange={setShowBulkDelete}>
+        <AlertDialogContent className="bg-gray-900 border-gray-800 text-white">
+          <AlertDialogHeader>
+            <AlertDialogTitle>⚠️ Excluir clientes selecionados?</AlertDialogTitle>
+            <AlertDialogDescription className="text-gray-400">
+              Você está prestes a excluir <span className="text-white font-medium">{selectedIds.size}</span> cliente{selectedIds.size !== 1 ? "s" : ""} permanentemente.
+              <br />Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-gray-800 border-gray-700 text-white hover:bg-gray-700">Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleBulkDelete} disabled={bulkDeleting} className="bg-red-600 hover:bg-red-700 text-white">
+              {bulkDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : `Excluir ${selectedIds.size} cliente${selectedIds.size !== 1 ? "s" : ""}`}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
