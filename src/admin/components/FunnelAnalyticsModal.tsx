@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2 } from "lucide-react";
+import { Loader2, AlertTriangle } from "lucide-react";
 
 interface Props {
   open: boolean;
@@ -18,12 +18,14 @@ interface AnalyticsRow {
   created_at: string;
 }
 
-type Period = "today" | "7d" | "30d" | "all";
+type Period = "today" | "7d" | "30d" | "all" | "custom";
 
 export default function FunnelAnalyticsModal({ open, onClose, entityType, entityId, entityName }: Props) {
   const [data, setData] = useState<AnalyticsRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [period, setPeriod] = useState<Period>("30d");
+  const [customFrom, setCustomFrom] = useState("");
+  const [customTo, setCustomTo] = useState("");
 
   useEffect(() => {
     if (!open) return;
@@ -35,7 +37,16 @@ export default function FunnelAnalyticsModal({ open, onClose, entityType, entity
         .eq("entity_id", entityId)
         .order("created_at", { ascending: false });
 
-      if (period !== "all") {
+      if (period === "custom") {
+        if (customFrom && customTo) {
+          q = q.gte("created_at", new Date(customFrom).toISOString());
+          q = q.lte("created_at", new Date(customTo + "T23:59:59").toISOString());
+        } else {
+          // Don't filter yet if both dates aren't set
+          setLoading(false);
+          return;
+        }
+      } else if (period !== "all") {
         const now = new Date();
         let from: Date;
         if (period === "today") {
@@ -53,7 +64,7 @@ export default function FunnelAnalyticsModal({ open, onClose, entityType, entity
       setLoading(false);
     };
     load();
-  }, [open, entityType, entityId, period]);
+  }, [open, entityType, entityId, period, customFrom, customTo]);
 
   const metrics = useMemo(() => {
     const views = data.filter(r => r.event_type === "view").length;
@@ -81,11 +92,57 @@ export default function FunnelAnalyticsModal({ open, onClose, entityType, entity
     return result;
   }, [data]);
 
+  // Build funnel stages: steps + final_view + checkout
+  const funnelStages = useMemo(() => {
+    const stages: { label: string; count: number }[] = [];
+    // Add each step
+    stepData.forEach(s => {
+      stages.push({ label: `Pergunta ${s.stepIndex + 1}`, count: s.total });
+    });
+    // Add final view and checkout
+    stages.push({ label: "Tela Final", count: metrics.finalViews });
+    stages.push({ label: "Checkout", count: metrics.checkouts });
+    return stages;
+  }, [stepData, metrics]);
+
+  // Calculate exits per stage
+  const stageExits = useMemo(() => {
+    if (funnelStages.length === 0) return [];
+    const exits: { label: string; count: number; exitCount: number; exitPct: string }[] = [];
+    let maxExitCount = 0;
+    let maxExitIdx = -1;
+
+    for (let i = 0; i < funnelStages.length; i++) {
+      const current = funnelStages[i].count;
+      const next = i < funnelStages.length - 1 ? funnelStages[i + 1].count : 0;
+      const exitCount = Math.max(0, current - next);
+      const exitPct = metrics.views > 0 ? ((exitCount / metrics.views) * 100).toFixed(1) : "0";
+      
+      if (exitCount > maxExitCount && i < funnelStages.length - 1) {
+        maxExitCount = exitCount;
+        maxExitIdx = i;
+      }
+      
+      exits.push({ ...funnelStages[i], exitCount, exitPct });
+    }
+
+    return exits.map((e, i) => ({ ...e, isMaxExit: i === maxExitIdx && maxExitCount > 0 }));
+  }, [funnelStages, metrics.views]);
+
+  const handlePeriodClick = (p: Period) => {
+    if (p !== "custom") {
+      setCustomFrom("");
+      setCustomTo("");
+    }
+    setPeriod(p);
+  };
+
   const periods: { key: Period; label: string }[] = [
     { key: "today", label: "Hoje" },
     { key: "7d", label: "7 dias" },
     { key: "30d", label: "30 dias" },
     { key: "all", label: "Tudo" },
+    { key: "custom", label: "Personalizado" },
   ];
 
   return (
@@ -96,16 +153,40 @@ export default function FunnelAnalyticsModal({ open, onClose, entityType, entity
         </DialogHeader>
 
         {/* Period filter */}
-        <div className="flex gap-1 mb-4">
-          {periods.map(p => (
-            <button
-              key={p.key}
-              onClick={() => setPeriod(p.key)}
-              className={`px-3 py-1.5 text-xs rounded-lg transition-colors ${period === p.key ? "bg-primary text-primary-foreground" : "bg-gray-800 text-gray-400 hover:text-white"}`}
-            >
-              {p.label}
-            </button>
-          ))}
+        <div className="space-y-2 mb-4">
+          <div className="flex gap-1 flex-wrap">
+            {periods.map(p => (
+              <button
+                key={p.key}
+                onClick={() => handlePeriodClick(p.key)}
+                className={`px-3 py-1.5 text-xs rounded-lg transition-colors ${period === p.key ? "bg-primary text-primary-foreground" : "bg-gray-800 text-gray-400 hover:text-white"}`}
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
+          {period === "custom" && (
+            <div className="flex gap-3 items-center">
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs text-gray-500">De:</span>
+                <input
+                  type="date"
+                  value={customFrom}
+                  onChange={(e) => setCustomFrom(e.target.value)}
+                  className="bg-gray-800 border border-gray-700 rounded-md px-2 py-1.5 text-xs text-white [color-scheme:dark]"
+                />
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs text-gray-500">Até:</span>
+                <input
+                  type="date"
+                  value={customTo}
+                  onChange={(e) => setCustomTo(e.target.value)}
+                  className="bg-gray-800 border border-gray-700 rounded-md px-2 py-1.5 text-xs text-white [color-scheme:dark]"
+                />
+              </div>
+            </div>
+          )}
         </div>
 
         {loading ? (
@@ -125,22 +206,51 @@ export default function FunnelAnalyticsModal({ open, onClose, entityType, entity
               <KpiCard label="Conversão" value={`${metrics.pctCheckout}%`} highlight />
             </div>
 
-            {/* Step-by-step funnel */}
-            {stepData.length > 0 && (
-              <div className="space-y-4">
-                <h3 className="text-sm font-semibold text-gray-300">Funil por Etapa</h3>
-                {stepData.map(s => {
-                  const pct = metrics.views > 0 ? ((s.total / metrics.views) * 100).toFixed(1) : "0";
-                  const sortedOptions = Object.entries(s.options).sort((a, b) => b[1] - a[1]);
+            {/* Funnel with exit indicators */}
+            {stageExits.length > 0 && stageExits.some(s => s.count > 0) && (
+              <div className="space-y-3">
+                <h3 className="text-sm font-semibold text-gray-300">Funil de Conversão</h3>
+                {stageExits.map((s, i) => {
+                  const pct = metrics.views > 0 ? ((s.count / metrics.views) * 100).toFixed(1) : "0";
+                  const isLast = i === stageExits.length - 1;
                   return (
-                    <div key={s.stepIndex} className="bg-gray-800 rounded-lg p-3 space-y-2">
+                    <div key={i} className="bg-gray-800 rounded-lg p-3 space-y-1.5">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-medium text-gray-300">Pergunta {s.stepIndex + 1}</span>
-                        <span className="text-xs text-gray-500">{s.total} respostas ({pct}%)</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-medium text-gray-300">{s.label}</span>
+                          {s.isMaxExit && (
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-500/20 text-red-400 border border-red-400/30 flex items-center gap-1">
+                              <AlertTriangle className="w-3 h-3" /> Maior abandono
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className="text-xs text-gray-500">{s.count} {isLast ? "clicaram" : "chegaram"}</span>
+                          {!isLast && s.exitCount > 0 && (
+                            <span className="text-xs text-red-400">
+                              ↗ {s.exitCount} saíram ({s.exitPct}%)
+                            </span>
+                          )}
+                        </div>
                       </div>
                       <div className="w-full bg-gray-700 rounded-full h-2">
                         <div className="bg-primary h-2 rounded-full transition-all" style={{ width: `${pct}%` }} />
                       </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Step-by-step detail with options */}
+            {stepData.length > 0 && (
+              <div className="space-y-4">
+                <h3 className="text-sm font-semibold text-gray-300">Detalhes por Pergunta</h3>
+                {stepData.map(s => {
+                  const sortedOptions = Object.entries(s.options).sort((a, b) => b[1] - a[1]);
+                  return (
+                    <div key={s.stepIndex} className="bg-gray-800 rounded-lg p-3 space-y-2">
+                      <span className="text-xs font-medium text-gray-300">Pergunta {s.stepIndex + 1}</span>
                       <div className="space-y-1 pt-1">
                         {sortedOptions.map(([opt, count]) => {
                           const optPct = s.total > 0 ? ((count / s.total) * 100).toFixed(0) : "0";

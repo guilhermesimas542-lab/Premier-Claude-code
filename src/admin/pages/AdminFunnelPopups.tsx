@@ -121,6 +121,7 @@ export default function AdminFunnelPopups() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-white/10 text-left text-gray-500">
+                <th className="px-4 py-3 w-[80px]">Preview</th>
                 <th className="px-4 py-3">Tipo</th>
                 <th className="px-4 py-3">Público</th>
                 <th className="px-4 py-3">Perguntas</th>
@@ -134,6 +135,15 @@ export default function AdminFunnelPopups() {
                 const qCount = [row.question_1_text, row.question_2_text, row.question_3_text].filter(Boolean).length;
                 return (
                   <tr key={row.id} className="border-b border-white/5 text-gray-300">
+                    <td className="px-4 py-3">
+                      {row.image_url ? (
+                        <img src={row.image_url} alt="" className="w-16 h-16 object-cover rounded border border-white/10" />
+                      ) : (
+                        <div className="w-16 h-16 rounded border border-white/10 bg-gray-800 flex items-center justify-center text-2xl">
+                          {row.type === "welcome" ? "🎉" : row.type === "promotional" ? "📢" : row.type === "retention" ? "🔄" : "📋"}
+                        </div>
+                      )}
+                    </td>
                     <td className="px-4 py-3 font-medium text-white">{typeLabel(row.type)}</td>
                     <td className="px-4 py-3 text-xs text-gray-400">
                       {AUDIENCE_OPTIONS.find((a) => a.value === row.target_audience)?.label ?? row.target_audience}
@@ -160,7 +170,7 @@ export default function AdminFunnelPopups() {
                 );
               })}
               {items.length === 0 && (
-                <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-600">Nenhum pop-up criado ainda</td></tr>
+                <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-600">Nenhum pop-up criado ainda</td></tr>
               )}
             </tbody>
           </table>
