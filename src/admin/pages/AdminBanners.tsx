@@ -58,12 +58,6 @@ const ACTION_TYPE_OPTIONS = [
   { value: "quiz", label: "Abrir Quiz" },
 ] as const;
 
-const TIPS_TAB_OPTIONS = [
-  { value: "football", label: "Futebol" },
-  { value: "basketball", label: "Basquete" },
-  { value: "tennis", label: "Tênis" },
-  { value: "esports", label: "eSports" },
-] as const;
 
 const audienceLabel = (v: string) => AUDIENCE_OPTIONS.find((o) => o.value === v)?.label ?? v;
 const actionTypeLabel = (v: string) => ACTION_TYPE_OPTIONS.find((o) => o.value === v)?.label ?? v;
@@ -228,10 +222,6 @@ export default function AdminBanners() {
     const actionType = form.action_type || "external_link";
     if (actionType === "external_link" && !form.action_value) {
       toast.error("Preencha o link do botão");
-      return;
-    }
-    if (actionType === "tips_tab" && !form.action_value) {
-      toast.error("Selecione o esporte");
       return;
     }
 
@@ -725,7 +715,7 @@ export default function AdminBanners() {
               {/* Action Type */}
               <div>
                 <Label className="text-gray-400 text-xs">Tipo de Destino</Label>
-                <Select value={currentActionType} onValueChange={(v) => setForm({ ...form, action_type: v as ActionType, action_value: "" })}>
+                <Select value={currentActionType} onValueChange={(v) => setForm({ ...form, action_type: v as ActionType, action_value: v === "tips_tab" ? "football" : "" })}>
                   <SelectTrigger className="bg-gray-800 border-gray-700"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {ACTION_TYPE_OPTIONS.map((o) => (
@@ -743,17 +733,7 @@ export default function AdminBanners() {
               )}
 
               {currentActionType === "tips_tab" && (
-                <div>
-                  <Label className="text-gray-400 text-xs">Esporte <span className="text-red-400">*</span></Label>
-                  <Select value={form.action_value || ""} onValueChange={(v) => setForm({ ...form, action_value: v })}>
-                    <SelectTrigger className="bg-gray-800 border-gray-700"><SelectValue placeholder="Selecione o esporte" /></SelectTrigger>
-                    <SelectContent>
-                      {TIPS_TAB_OPTIONS.map((o) => (
-                        <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                <p className="text-xs text-gray-500">O banner direcionará para a aba de Tips (Futebol).</p>
               )}
 
               {currentActionType === "quiz" && (
