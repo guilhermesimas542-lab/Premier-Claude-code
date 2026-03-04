@@ -13,6 +13,8 @@ interface BannerItem {
   subtitle: string;
   button_text: string | null;
   button_link: string | null;
+  action_type: string;
+  action_value: string | null;
   target_audience: string;
 }
 
@@ -33,14 +35,18 @@ export const PromoCarousel = ({ context = "futebol" }: PromoCarouselProps) => {
       const now = new Date().toISOString();
       const { data } = await supabase
         .from("content_banners")
-        .select("id, image_url, tag, title, subtitle, button_text, button_link, target_audience")
+        .select("id, image_url, tag, title, subtitle, button_text, button_link, action_type, action_value, target_audience")
         .eq("context", context)
         .eq("status", "active")
         .lte("starts_at", now)
         .or(`ends_at.is.null,ends_at.gte.${now}`)
         .order("display_order", { ascending: true });
 
-      const allBanners = (data as unknown as BannerItem[]) ?? [];
+      const allBanners = ((data ?? []) as any[]).map((b: any) => ({
+        ...b,
+        action_type: b.action_type || "external_link",
+        action_value: b.action_value ?? b.button_link ?? null,
+      })) as BannerItem[];
 
       const user = mockGetUser();
       const userEmail = user?.email;
@@ -146,11 +152,23 @@ export const PromoCarousel = ({ context = "futebol" }: PromoCarouselProps) => {
     return () => clearInterval(interval);
   }, [emblaApi, banners.length]);
 
-  const handleClick = async (bannerId: string, link: string | null) => {
-    if (!link) return;
-    await trackClick(bannerId);
-    if (link.startsWith("http")) window.open(link, "_blank");
-    else navigate(link);
+  const handleClick = async (banner: BannerItem) => {
+    await trackClick(banner.id);
+
+    const actionType = banner.action_type || "external_link";
+
+    if (actionType === "external_link") {
+      const link = banner.action_value || banner.button_link;
+      if (!link) return;
+      if (link.startsWith("http")) window.open(link, "_blank");
+      else navigate(link);
+    } else if (actionType === "tips_tab") {
+      const sport = banner.action_value || "football";
+      navigate(`/sport?tab=${sport}`);
+    } else if (actionType === "quiz") {
+      // Open quiz directly - dispatch custom event
+      window.dispatchEvent(new CustomEvent("open-quiz-from-banner", { detail: { skipIntro: true } }));
+    }
   };
 
   if (loading) return (
@@ -170,12 +188,11 @@ export const PromoCarousel = ({ context = "futebol" }: PromoCarouselProps) => {
               <div
                 className="relative overflow-hidden rounded-xl cursor-pointer group"
                 style={{
-                  /* Mobile: ~190px, desktop: ~300px */
                   height: "clamp(160px, 26vw, 300px)",
                   border: "1px solid rgba(0,255,0,0.2)",
                   boxShadow: "0 0 20px rgba(0,255,0,0.06)",
                 }}
-                onClick={() => handleClick(b.id, b.button_link)}
+                onClick={() => handleClick(b)}
               >
                 {b.image_url ? (
                   <img
