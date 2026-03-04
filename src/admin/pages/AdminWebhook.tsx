@@ -251,12 +251,16 @@ function SimulateModal({ open, onClose, onDone }: { open: boolean; onClose: () =
     setSending(true);
     setResult(null);
     try {
+      const { data: { session } } = await supabase.auth.getSession();
       const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
       const res = await fetch(
         `https://${projectId}.supabase.co/functions/v1/payment-webhook?provider=simulation`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+          },
           body: JSON.stringify({
             action: "purchase",
             email,

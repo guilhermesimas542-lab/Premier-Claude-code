@@ -40,9 +40,22 @@ Deno.serve(async (req) => {
   const provider = url.searchParams.get("provider") ?? "lastlink";
   const tokenFromQuery = url.searchParams.get("token");
 
-  // ── Validate secret ────────────────────────────────────────────────────────
+  // ── Validate secret (skip for authenticated admins) ─────────────────────
   const webhookSecret = Deno.env.get("WEBHOOK_SECRET");
-  if (webhookSecret) {
+  let isAuthorizedAdmin = false;
+
+  const authHeader = req.headers.get("authorization");
+  if (authHeader?.startsWith("Bearer ")) {
+    const adminCheck = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY") ?? Deno.env.get("SUPABASE_PUBLISHABLE_KEY")!,
+      { global: { headers: { Authorization: authHeader } } }
+    );
+    const { data: isAdmin } = await adminCheck.rpc("is_admin");
+    if (isAdmin === true) isAuthorizedAdmin = true;
+  }
+
+  if (!isAuthorizedAdmin && webhookSecret) {
     const receivedToken =
       tokenFromQuery ??
       (payload.secret as string) ??
