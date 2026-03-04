@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { cn } from "@/lib/utils";
 
 const PLAN_COLORS: Record<string, string> = { Free: "#3b82f6", "Básico": "#10b981", Pro: "#f59e0b", Ultra: "#8b5cf6" };
@@ -110,6 +110,8 @@ export default function AdminDashboard() {
       case "yesterday": from = startOfDay(subDays(today, 1)); to = endOfDay(subDays(today, 1)); break;
       case "week": from = startOfWeek(today, { weekStartsOn: 1 }); to = today; break;
       case "month": from = startOfMonth(today); to = today; break;
+      case "15d": from = subDays(today, 15); to = today; break;
+      case "30d": from = subDays(today, 30); to = today; break;
       case "7d": default: from = subDays(today, 7); to = today; break;
     }
     setDateFrom(from);
@@ -285,6 +287,8 @@ export default function AdminDashboard() {
     { key: "week", label: "Esta Semana" },
     { key: "month", label: "Este Mês" },
     { key: "7d", label: "Últimos 7 dias" },
+    { key: "15d", label: "Últimos 15 dias" },
+    { key: "30d", label: "Últimos 30 dias" },
   ];
 
   return (
@@ -400,15 +404,30 @@ export default function AdminDashboard() {
         <div className="bg-gray-900 rounded-xl border border-white/10 p-4">
           <h3 className="text-sm font-semibold text-gray-400 mb-4">Usuários dos Planos Principais</h3>
           {planDist.length > 0 ? (
-            <ResponsiveContainer width="100%" height={250}>
-              <PieChart>
-                <Pie data={planDist} cx="50%" cy="50%" outerRadius={90} dataKey="value" nameKey="name" label={({ name, value }) => `${name}: ${value}`}>
-                  {planDist.map((entry) => (<Cell key={entry.name} fill={PLAN_COLORS[entry.name] ?? "#6b7280"} />))}
-                </Pie>
-                <Legend wrapperStyle={{ fontSize: 12, color: "#9ca3af" }} />
-                <Tooltip contentStyle={{ backgroundColor: "#1f2937", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8 }} />
-              </PieChart>
-            </ResponsiveContainer>
+            <>
+              <ResponsiveContainer width="100%" height={220}>
+                <PieChart>
+                  <Pie data={planDist} cx="50%" cy="50%" outerRadius={80} dataKey="value" nameKey="name">
+                    {planDist.map((entry) => (<Cell key={entry.name} fill={PLAN_COLORS[entry.name] ?? "#6b7280"} />))}
+                  </Pie>
+                  <Tooltip contentStyle={{ backgroundColor: "#1f2937", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8 }} />
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="mt-3 space-y-1">
+                {(() => {
+                  const total = planDist.reduce((s, i) => s + i.value, 0);
+                  return planDist.map((item) => {
+                    const pct = total > 0 ? ((item.value / total) * 100).toFixed(1) : "0.0";
+                    return (
+                      <div key={item.name} className="flex items-center gap-2 text-sm text-gray-400">
+                        <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: PLAN_COLORS[item.name] ?? "#6b7280" }} />
+                        <span>{item.name} — {item.value} usuário{item.value !== 1 ? "s" : ""} — {pct}%</span>
+                      </div>
+                    );
+                  });
+                })()}
+              </div>
+            </>
           ) : (
             <div className="flex items-center justify-center h-[250px] text-gray-600">Sem dados de planos</div>
           )}
@@ -417,15 +436,30 @@ export default function AdminDashboard() {
         <div className="bg-gray-900 rounded-xl border border-white/10 p-4">
           <h3 className="text-sm font-semibold text-gray-400 mb-4">Usuários dos Planos Adicionais</h3>
           {addonDist.length > 0 ? (
-            <ResponsiveContainer width="100%" height={250}>
-              <PieChart>
-                <Pie data={addonDist} cx="50%" cy="50%" outerRadius={90} dataKey="value" nameKey="name" label={({ name, value }) => `${name}: ${value}`}>
-                  {addonDist.map((entry) => (<Cell key={entry.name} fill={ADDON_COLORS[entry.name] ?? "#8b5cf6"} />))}
-                </Pie>
-                <Legend wrapperStyle={{ fontSize: 12, color: "#9ca3af" }} />
-                <Tooltip contentStyle={{ backgroundColor: "#1f2937", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8 }} />
-              </PieChart>
-            </ResponsiveContainer>
+            <>
+              <ResponsiveContainer width="100%" height={220}>
+                <PieChart>
+                  <Pie data={addonDist} cx="50%" cy="50%" outerRadius={80} dataKey="value" nameKey="name">
+                    {addonDist.map((entry) => (<Cell key={entry.name} fill={ADDON_COLORS[entry.name] ?? "#8b5cf6"} />))}
+                  </Pie>
+                  <Tooltip contentStyle={{ backgroundColor: "#1f2937", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8 }} />
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="mt-3 space-y-1">
+                {(() => {
+                  const total = addonDist.reduce((s, i) => s + i.value, 0);
+                  return addonDist.map((item) => {
+                    const pct = total > 0 ? ((item.value / total) * 100).toFixed(1) : "0.0";
+                    return (
+                      <div key={item.name} className="flex items-center gap-2 text-sm text-gray-400">
+                        <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: ADDON_COLORS[item.name] ?? "#8b5cf6" }} />
+                        <span>{item.name} — {item.value} usuário{item.value !== 1 ? "s" : ""} — {pct}%</span>
+                      </div>
+                    );
+                  });
+                })()}
+              </div>
+            </>
           ) : (
             <div className="flex items-center justify-center h-[250px] text-gray-600">Sem planos adicionais ativos</div>
           )}
