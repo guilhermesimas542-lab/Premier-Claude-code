@@ -525,13 +525,22 @@ function ProductModal({
           </div>
 
           <div>
-            <label className="text-xs text-gray-400 block mb-1">ID do produto na plataforma</label>
+            <label className="text-xs text-gray-400 block mb-1">
+              {provider === "lastlink" ? "ID do Produto (UUID da Lastlink)" : "ID do produto na plataforma"}
+            </label>
             <Input
-              placeholder="Ex: C343583F8"
+              placeholder={provider === "lastlink" ? "Ex: 037d5e50-ab28-47dd-a916-b4f9916dcd8a" : "Ex: C343583F8"}
               value={externalId}
               onChange={(e) => setExternalId(e.target.value)}
               className="bg-gray-800 border-white/10"
             />
+            {provider === "lastlink" && (
+              <p className="text-[11px] text-gray-500 mt-1.5 leading-relaxed">
+                <strong className="text-gray-400">Onde encontrar:</strong> Na Lastlink, vá em <strong className="text-gray-400">Produtos</strong>, clique para editar o produto e copie o código da URL:
+                <br />
+                <code className="text-yellow-400/80">.../products/<strong>[este-código]</strong>/edit</code>
+              </p>
+            )}
           </div>
 
           <div>
