@@ -59,6 +59,7 @@ Deno.serve(async (req) => {
   let eventName: string;
   let buyerEmail: string;
   let buyerName: string | null = null;
+  let buyerPhone: string | null = null;
   let paymentId: string;
   let productIds: string[] = [];
   let isTest = false;
@@ -71,6 +72,7 @@ Deno.serve(async (req) => {
     const buyer = (data.Buyer ?? data.buyer ?? {}) as Record<string, unknown>;
     buyerEmail = ((buyer.Email ?? buyer.email) as string ?? "").toLowerCase().trim();
     buyerName = (buyer.Name ?? buyer.name) as string ?? null;
+    buyerPhone = (buyer.Phone ?? buyer.phone ?? buyer.Cellphone ?? buyer.cellphone) as string ?? null;
     paymentId = (data.PaymentId ?? data.SubscriptionId ?? data.OrderId ?? `ll-${Date.now()}`) as string;
     const products = (data.Products ?? data.products ?? []) as Array<Record<string, unknown>>;
     productIds = products.map((p) => (p.Id ?? p.id) as string).filter(Boolean);
@@ -160,6 +162,7 @@ Deno.serve(async (req) => {
     // ── Find or create user ────────────────────────────────────────────────
     const { data: userData } = await supabase.rpc("get_or_create_user", {
       p_email: buyerEmail,
+      p_phone: buyerPhone,
     });
 
     const userId = userData?.id ?? null;
