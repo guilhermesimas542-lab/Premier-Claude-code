@@ -748,7 +748,7 @@ function RawLogsTab() {
           <TableBody>
             {logs.map((log) => {
               const p = log.payload as Record<string, unknown> | null;
-              const eventName = (p?.EventName ?? p?.action ?? "—") as string;
+              const eventName = (p?.Event ?? p?.EventName ?? p?.action ?? "—") as string;
               const buyer = ((p?.Data as Record<string, unknown>)?.Buyer ?? {}) as Record<string, unknown>;
               const email = (buyer?.Email ?? buyer?.email ?? p?.email ?? "—") as string;
 
