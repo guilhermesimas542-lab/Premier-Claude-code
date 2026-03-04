@@ -26,7 +26,7 @@ serve(async (req) => {
       .eq('active', true)
       .lte('starts_at', now)
       .or(`ends_at.is.null,ends_at.gt.${now}`)
-      .order('starts_at', { ascending: false });
+      .order('display_order', { ascending: true });
 
     if (error) {
       console.error('Erro ao buscar banners:', error);
