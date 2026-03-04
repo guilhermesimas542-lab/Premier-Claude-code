@@ -109,7 +109,7 @@ export default function AdminAnalytics() {
       buildEventsQ(supabase.from("events").select("user_id, event_name, created_at, session_id, metadata, properties").gte("created_at", since).lte("created_at", until)),
       buildUsersQ(supabase.from("users").select("id, email, main_tier, last_seen_at")),
       buildUsersQ(supabase.from("users").select("id").gte("created_at", since).lte("created_at", until)),
-      buildEventsQ(supabase.from("events").select("event_name, created_at").gte("created_at", since).lte("created_at", until).in("event_name", ["app_open", "view_entries", "click_locked_entry", "click_buy_from_popup", "page_view", "card_click", "funnel_entry", "funnel_view"])),
+      buildEventsQ(supabase.from("events").select("event_name, created_at").gte("created_at", since).lte("created_at", until).in("event_name", ["app_open", "view_entries", "click_locked_entry", "click_buy_from_popup", "card_click", "funnel_view"])),
       buildNotifsQ(supabase.from("notifications").select("id").not("sent_at", "is", null).gte("sent_at", since).lte("sent_at", until)),
       buildEventsQ(supabase.from("events").select("user_id").gte("created_at", todayStart)),
       (() => { const q = supabase.from("entitlements").select("user_id, product_key").eq("status", "active"); return houseUserIds && houseUserIds.length > 0 ? q.in("user_id", houseUserIds.slice(0, 500)) : houseUserIds && houseUserIds.length === 0 ? q.eq("user_id", "00000000-0000-0000-0000-000000000000") : q; })(),
@@ -120,7 +120,7 @@ export default function AdminAnalytics() {
     const uniqueUsers = new Set(s.map((r: any) => r.user_id)).size;
     
     // Sessions: count distinct session_id
-    const totalSessions = new Set(s.map((r: any) => r.session_id).filter(Boolean)).size || s.length;
+    const totalSessions = new Set(s.map((r: any) => r.session_id).filter(Boolean)).size;
     
     // Avg duration from screen_time events
     const screenTimeEvents = s.filter((e: any) => e.event_name === "screen_time");
@@ -184,7 +184,7 @@ export default function AdminAnalytics() {
     ]);
 
     // Funnel
-    const funnelEventNames = ["app_open", "page_view", "view_entries", "card_click", "funnel_view", "click_locked_entry", "click_buy_from_popup"];
+    const funnelEventNames = ["app_open", "view_entries", "card_click", "funnel_view", "click_locked_entry", "click_buy_from_popup"];
     const counts: Record<string, number> = {};
     funnelEventNames.forEach((e) => { counts[e] = 0; });
     (funnelEvents ?? []).forEach((ev) => { counts[ev.event_name] = (counts[ev.event_name] ?? 0) + 1; });
@@ -398,7 +398,7 @@ export default function AdminAnalytics() {
             <thead>
               <tr className="border-b border-white/10 text-left text-gray-500 text-xs">
                 <th className="px-3 py-2">Email</th>
-                <th className="px-3 py-2">Sessões</th>
+                <th className="px-3 py-2">Eventos</th>
                 <th className="px-3 py-2">Tempo total (seg)</th>
                 <th className="px-3 py-2">Último acesso</th>
               </tr>
