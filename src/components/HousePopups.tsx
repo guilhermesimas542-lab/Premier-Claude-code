@@ -1,10 +1,11 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { mockGetUser } from "@/mocks/user";
 import { FunnelPopup, FunnelPopupData } from "@/components/FunnelPopup";
 import { EmbeddedCheckout } from "@/components/EmbeddedCheckout";
+import { POPUP_PRIORITY } from "@/admin/components/funnel-popup/types";
 
 interface HousePopupData {
   popup_welcome_image?: string | null;
@@ -12,16 +13,38 @@ interface HousePopupData {
   [key: string]: any;
 }
 
-async function getUserId(): Promise<string | null> {
+async function getUserWithTier(): Promise<{
+  id: string;
+  mainTier: string;
+  houseId: string | null;
+  addons: string[];
+} | null> {
   const mockUser = mockGetUser();
   if (!mockUser?.email) return null;
-  if (mockUser.dbId) return mockUser.dbId;
-  const { data } = await supabase
+
+  const { data: userData } = await supabase
     .from("users")
-    .select("id")
+    .select("id, main_tier, betting_house_id")
     .eq("email", mockUser.email.toLowerCase().trim())
     .maybeSingle();
-  return data?.id || null;
+
+  if (!userData) return null;
+
+  // Fetch active addons
+  const { data: ents } = await supabase
+    .from("entitlements")
+    .select("product_key")
+    .eq("user_id", userData.id)
+    .eq("status", "active");
+
+  const addons = (ents || []).map((e) => e.product_key);
+
+  return {
+    id: userData.id,
+    mainTier: userData.main_tier || "free",
+    houseId: userData.betting_house_id || null,
+    addons,
+  };
 }
 
 async function hasViewedPopup(userId: string, popupId: string): Promise<boolean> {
@@ -46,10 +69,44 @@ async function markPopupViewed(userId: string, popupId: string) {
 }
 
 /**
+ * Checks if a user is eligible for a given popup type based on their tier and addons.
+ */
+function isEligibleForType(
+  type: string,
+  tier: string,
+  addons: string[]
+): boolean {
+  switch (type) {
+    case "welcome_free":
+      return tier === "free";
+    case "welcome_paid":
+      return tier !== "free";
+    case "upgrade_basic":
+      return tier === "free";
+    case "upgrade_pro":
+      return tier === "free" || tier === "basic";
+    case "upgrade_ultra":
+      return tier !== "ultra";
+    case "addon_alavancagem":
+      return !addons.includes("alavancagem");
+    case "addon_odds":
+      return !addons.includes("desaltas");
+    case "addon_telegram":
+      return !addons.includes("live_telegram");
+    case "promotional":
+      return true;
+    // Legacy "welcome" type — treat as welcome_free
+    case "welcome":
+      return tier === "free";
+    default:
+      return true;
+  }
+}
+
+/**
  * AutoPopup — unified component for ALL on_load popups.
- * Fetches all active on_load popups, finds the first one
- * the user hasn't seen yet, and displays it.
- * Tracks views in user_popup_views (DB), not localStorage.
+ * Fetches all active on_load popups, filters by user eligibility,
+ * sorts by priority, and shows the first unseen one per session.
  */
 export function WelcomePopup({ house }: { house: HousePopupData | null }) {
   const [open, setOpen] = useState(false);
@@ -57,6 +114,7 @@ export function WelcomePopup({ house }: { house: HousePopupData | null }) {
   const [currentPopupId, setCurrentPopupId] = useState<string | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
+  const sessionShownRef = useRef(false);
 
   const hasQuiz = popupData && [
     popupData.question_1_text,
@@ -72,35 +130,63 @@ export function WelcomePopup({ house }: { house: HousePopupData | null }) {
   }, [currentUserId, currentPopupId]);
 
   useEffect(() => {
-    const fetchFirstUnseenPopup = async () => {
-      const userId = await getUserId();
-      if (!userId) return;
-      setCurrentUserId(userId);
+    if (sessionShownRef.current) return;
 
-      // Fetch ALL active on_load popups, ordered by newest first
+    const fetchPriorityPopup = async () => {
+      const user = await getUserWithTier();
+      if (!user) return;
+      setCurrentUserId(user.id);
+
+      // Fetch ALL active on_load popups
       const { data: popups } = await supabase
         .from("popups")
-        .select("id, type, image_url, button_url, checkout_link, question_1_text, question_1_options, question_2_text, question_2_options, question_3_text, question_3_options, final_title, final_benefits")
+        .select("id, type, image_url, button_url, checkout_link, question_1_text, question_1_options, question_2_text, question_2_options, question_3_text, question_3_options, final_title, final_benefits, target_audience, betting_house_id")
         .eq("is_active", true)
         .eq("trigger_type", "on_load")
         .order("created_at", { ascending: false });
 
       if (!popups || popups.length === 0) return;
 
-      // Find the FIRST popup this user hasn't seen yet
-      for (const popup of popups) {
+      // Filter by user eligibility (tier + addons + audience)
+      const eligible = popups.filter((p: any) => {
+        // Check audience
+        const audience = p.target_audience || "all";
+        if (audience !== "all" && audience !== user.mainTier) return false;
+
+        // Check house match: popup is either global or for user's house
+        if (p.betting_house_id && p.betting_house_id !== user.houseId) return false;
+
+        // Check type eligibility
+        return isEligibleForType(p.type, user.mainTier, user.addons);
+      });
+
+      if (eligible.length === 0) return;
+
+      // Sort by priority (POPUP_PRIORITY order — lower index = higher priority)
+      eligible.sort((a: any, b: any) => {
+        const aPri = POPUP_PRIORITY.indexOf(a.type);
+        const bPri = POPUP_PRIORITY.indexOf(b.type);
+        // Types not in priority list go to end
+        const aIdx = aPri === -1 ? 999 : aPri;
+        const bIdx = bPri === -1 ? 999 : bPri;
+        return aIdx - bIdx;
+      });
+
+      // Find the first popup the user hasn't seen yet
+      for (const popup of eligible) {
         if (!popup.image_url) continue;
-        const alreadyViewed = await hasViewedPopup(userId, popup.id);
+        const alreadyViewed = await hasViewedPopup(user.id, popup.id);
         if (!alreadyViewed) {
+          sessionShownRef.current = true;
           setCurrentPopupId(popup.id);
           setPopupData(popup as unknown as FunnelPopupData);
           setOpen(true);
-          return; // Show only ONE popup
+          return;
         }
       }
     };
 
-    fetchFirstUnseenPopup();
+    fetchPriorityPopup();
   }, [house]);
 
   if (!popupData || !open) return null;

@@ -165,7 +165,7 @@ export default function AdminFunnelPopups() {
                         <img src={row.image_url} alt="" className="w-16 h-16 object-cover rounded border border-white/10" />
                       ) : (
                         <div className="w-16 h-16 rounded border border-white/10 bg-gray-800 flex items-center justify-center text-2xl">
-                          {row.type === "welcome" ? "🎉" : row.type === "promotional" ? "📢" : row.type === "retention" ? "🔄" : "📋"}
+                          {row.type === "welcome_free" || row.type === "welcome_paid" || row.type === "welcome" ? "🎉" : row.type === "promotional" ? "📢" : row.type === "retention" ? "🔄" : "📋"}
                         </div>
                       )}
                     </td>
