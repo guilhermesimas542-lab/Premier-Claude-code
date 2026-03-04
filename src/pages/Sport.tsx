@@ -599,6 +599,7 @@ const Sport = () => {
               justificativa={entry.justification || undefined}
               onAddTip={() => handleAddTip(entry)}
               onOpenJustificativa={handleOpenJustificativa}
+              onLockedClick={() => handleLockedClick(entry)}
             />
           ) : (
             <PremiumBettingCard
@@ -619,6 +620,7 @@ const Sport = () => {
               isExpired={isExpired}
               onAddTip={() => handleAddTip(entry)}
               onOpenJustificativa={handleOpenJustificativa}
+              onLockedClick={() => handleLockedClick(entry)}
             />
           )}
         </div>

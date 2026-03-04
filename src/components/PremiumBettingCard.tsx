@@ -40,6 +40,7 @@ interface PremiumBettingCardProps {
   onAddTip?: () => void;
   onViewAnalysis?: () => void;
   onOpenJustificativa?: (texto: string) => void;
+  onLockedClick?: () => void;
 }
 
 // Helper function to generate market explanation
@@ -180,6 +181,7 @@ export const PremiumBettingCard = ({
   justificativa,
   onAddTip,
   onOpenJustificativa,
+  onLockedClick,
 }: PremiumBettingCardProps) => {
   const [showMarketHelp, setShowMarketHelp] = useState(false);
   const [showBetHelp, setShowBetHelp] = useState(false);
@@ -308,7 +310,7 @@ export const PremiumBettingCard = ({
             <Lock className="w-6 h-6 text-black" />
           </div>
           <button
-            onClick={(e) => { e.stopPropagation(); window.open('/planos', '_self'); }}
+            onClick={(e) => { e.stopPropagation(); onLockedClick?.(); }}
             className="mt-1 px-6 py-3 rounded-full bg-emerald-500 hover:bg-emerald-400 text-white text-sm font-bold shadow-lg transition-all hover:scale-105 animate-pulse-glow-green"
           >
             Adquira já

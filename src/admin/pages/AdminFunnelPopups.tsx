@@ -34,6 +34,24 @@ export default function AdminFunnelPopups() {
   const [previewMode, setPreviewMode] = useState<"mobile" | "desktop">("mobile");
   const [testOpen, setTestOpen] = useState(false);
   const [analyticsTarget, setAnalyticsTarget] = useState<{ id: string; name: string } | null>(null);
+  const [metrics, setMetrics] = useState<Record<string, { views: number; clicks: number }>>({});
+
+  const loadMetrics = async (ids: string[]) => {
+    if (ids.length === 0) return;
+    const { data } = await supabase
+      .from("funnel_analytics")
+      .select("entity_id, event_type")
+      .eq("entity_type", "popup")
+      .in("entity_id", ids)
+      .in("event_type", ["view", "checkout_click"]);
+    const map: Record<string, { views: number; clicks: number }> = {};
+    (data ?? []).forEach((row: any) => {
+      if (!map[row.entity_id]) map[row.entity_id] = { views: 0, clicks: 0 };
+      if (row.event_type === "view") map[row.entity_id].views++;
+      else if (row.event_type === "checkout_click") map[row.entity_id].clicks++;
+    });
+    setMetrics(map);
+  };
 
   const load = async () => {
     setLoading(true);
@@ -41,8 +59,10 @@ export default function AdminFunnelPopups() {
     if (selectedHouseId) q = q.eq("betting_house_id", selectedHouseId);
     else q = q.is("betting_house_id", null);
     const { data } = await q;
-    setItems((data as PopupRow[]) ?? []);
+    const rows = (data as PopupRow[]) ?? [];
+    setItems(rows);
     setLoading(false);
+    loadMetrics(rows.map((r) => r.id));
   };
 
   useEffect(() => { load(); }, [selectedHouseId]);
@@ -126,6 +146,9 @@ export default function AdminFunnelPopups() {
                 <th className="px-4 py-3">Público</th>
                 <th className="px-4 py-3">Perguntas</th>
                 <th className="px-4 py-3">Checkout</th>
+                <th className="px-4 py-3 text-center">Impressões</th>
+                <th className="px-4 py-3 text-center">Cliques</th>
+                <th className="px-4 py-3 text-center">CTR</th>
                 <th className="px-4 py-3 text-center">Ativo</th>
                 <th className="px-4 py-3">Ações</th>
               </tr>
@@ -133,6 +156,8 @@ export default function AdminFunnelPopups() {
             <tbody>
               {items.map((row) => {
                 const qCount = [row.question_1_text, row.question_2_text, row.question_3_text].filter(Boolean).length;
+                const m = metrics[row.id] || { views: 0, clicks: 0 };
+                const ctr = m.views > 0 ? ((m.clicks / m.views) * 100).toFixed(1) + "%" : "—";
                 return (
                   <tr key={row.id} className="border-b border-white/5 text-gray-300">
                     <td className="px-4 py-3">
@@ -156,6 +181,9 @@ export default function AdminFunnelPopups() {
                     <td className="px-4 py-3 max-w-[140px] truncate text-xs text-gray-500">
                       {row.checkout_link ? <span className="text-green-400 truncate">{row.checkout_link}</span> : "—"}
                     </td>
+                    <td className="px-4 py-3 text-center text-white text-sm">{m.views}</td>
+                    <td className="px-4 py-3 text-center text-white text-sm">{m.clicks}</td>
+                    <td className="px-4 py-3 text-center text-white text-sm">{ctr}</td>
                     <td className="px-4 py-3 text-center">
                       <Switch checked={row.is_active} onCheckedChange={() => toggleActive(row)} />
                     </td>
@@ -170,7 +198,7 @@ export default function AdminFunnelPopups() {
                 );
               })}
               {items.length === 0 && (
-                <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-600">Nenhum pop-up criado ainda</td></tr>
+                <tr><td colSpan={10} className="px-4 py-8 text-center text-gray-600">Nenhum pop-up criado ainda</td></tr>
               )}
             </tbody>
           </table>
