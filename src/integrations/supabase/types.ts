@@ -1008,6 +1008,24 @@ export type Database = {
         }
         Relationships: []
       }
+      raw_webhook_logs: {
+        Row: {
+          created_at: string
+          id: number
+          payload: Json | null
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          payload?: Json | null
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          payload?: Json | null
+        }
+        Relationships: []
+      }
       referrals: {
         Row: {
           created_at: string
