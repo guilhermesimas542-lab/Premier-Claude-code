@@ -345,3 +345,9 @@ All colors MUST be HSL.
     animation: none !important;
   }
 }
+
+/* White calendar icon for date inputs */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
+}
