@@ -123,6 +123,20 @@ const ADDON_TOGGLES = [
   { key: "live_telegram", label: "Live Telegram" },
 ] as const;
 
+const TIER_PILLS = [
+  { value: "free", label: "Free" },
+  { value: "basic", label: "Básico" },
+  { value: "pro", label: "Pro" },
+  { value: "ultra", label: "Ultra" },
+] as const;
+
+const ADDON_PILLS = [
+  { value: "alavancagem", label: "Alavancagem" },
+  { value: "desaltas", label: "Odds Altas" },
+  { value: "live_telegram", label: "Live Telegram" },
+  { value: "acesso_vitalicio", label: "Acesso Vitalício" },
+] as const;
+
 export default function AdminClientsManage() {
   const { selectedHouseId, houses: adminHouses } = useBettingHouseAdmin();
   const [users, setUsers] = useState<UserWithUpsells[]>([]);
@@ -157,6 +171,10 @@ export default function AdminClientsManage() {
   const [showBulkDelete, setShowBulkDelete] = useState(false);
   const [bulkDeleting, setBulkDeleting] = useState(false);
 
+  // Tier & addon pill filters
+  const [selectedTier, setSelectedTier] = useState<string | null>(null);
+  const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
+
   // Build a map of house id → badge color
   const houseColorMap: Record<string, string> = {};
   adminHouses.forEach((h, i) => {
@@ -190,10 +208,14 @@ export default function AdminClientsManage() {
     createdTo?: string;
     lastSeenFrom?: string;
     lastSeenTo?: string;
+    selectedTier?: string | null;
+    selectedAddons?: string[];
   }) => {
     setLoading(true);
 
     const s = overrides?.search ?? search;
+    const tier = overrides?.selectedTier !== undefined ? overrides.selectedTier : selectedTier;
+    const addons = overrides?.selectedAddons !== undefined ? overrides.selectedAddons : selectedAddons;
     const cf = overrides?.createdFrom ?? createdFrom;
     const ct = overrides?.createdTo ?? createdTo;
     const lf = overrides?.lastSeenFrom ?? lastSeenFrom;
@@ -206,6 +228,7 @@ export default function AdminClientsManage() {
       .limit(200);
 
     if (s) q = q.ilike("email", `%${s}%`);
+    if (tier) q = q.eq("main_tier", tier as any);
     if (cf) q = q.gte("created_at", cf);
     if (ct) q = q.lte("created_at", ct + "T23:59:59");
     if (lf) q = q.gte("last_seen_at", lf);
@@ -230,6 +253,7 @@ export default function AdminClientsManage() {
       .eq("status", "active");
 
     const upsellMap: Record<string, string[]> = {};
+    const entKeyMap: Record<string, string[]> = {}; // user_id → product_key[]
     (entData ?? []).forEach((e) => {
       const label = UPSELL_LABELS[e.product_key];
       if (!label) return;
@@ -237,17 +261,30 @@ export default function AdminClientsManage() {
       if (!upsellMap[e.user_id].includes(label)) {
         upsellMap[e.user_id].push(label);
       }
+      if (!entKeyMap[e.user_id]) entKeyMap[e.user_id] = [];
+      if (!entKeyMap[e.user_id].includes(e.product_key)) {
+        entKeyMap[e.user_id].push(e.product_key);
+      }
     });
 
+    let filtered = rawUsers;
+    // Filter by addons: user must have ALL selected addons
+    if (addons.length > 0) {
+      filtered = filtered.filter((u: any) => {
+        const keys = entKeyMap[u.id] ?? [];
+        return addons.every((a) => keys.includes(a));
+      });
+    }
+
     setUsers(
-      rawUsers.map((u: any) => ({
+      filtered.map((u: any) => ({
         ...u,
         upsells: upsellMap[u.id] ?? [],
         betting_house_id: u.betting_house_id ?? null,
       }))
     );
     setLoading(false);
-  }, [search, createdFrom, createdTo, lastSeenFrom, lastSeenTo, selectedHouseId]);
+  }, [search, createdFrom, createdTo, lastSeenFrom, lastSeenTo, selectedHouseId, selectedTier, selectedAddons]);
 
   useEffect(() => {
     load();
@@ -256,14 +293,30 @@ export default function AdminClientsManage() {
     });
   }, [selectedHouseId]);
 
+  // Reactive filter on tier/addon changes
+  useEffect(() => {
+    load();
+  }, [selectedTier, selectedAddons]);
+
+  const handleTierFilter = (tier: string) => {
+    setSelectedTier((prev) => (prev === tier ? null : tier));
+  };
+
+  const handleAddonFilter = (addon: string) => {
+    setSelectedAddons((prev) =>
+      prev.includes(addon) ? prev.filter((a) => a !== addon) : [...prev, addon]
+    );
+  };
+
   const handleClearFilters = () => {
     setSearch("");
     setCreatedFrom("");
     setCreatedTo("");
     setLastSeenFrom("");
     setLastSeenTo("");
-    // Trigger load immediately with cleared values
-    load({ search: "", createdFrom: "", createdTo: "", lastSeenFrom: "", lastSeenTo: "" });
+    setSelectedTier(null);
+    setSelectedAddons([]);
+    load({ search: "", createdFrom: "", createdTo: "", lastSeenFrom: "", lastSeenTo: "", selectedTier: null, selectedAddons: [] });
   };
 
   const sortedUsers = sortUsers(users, sortKey, sortDir);
@@ -466,6 +519,41 @@ export default function AdminClientsManage() {
           <Button size="sm" variant="outline" onClick={handleClearFilters} className="border-gray-700 text-gray-400">
             Limpar filtros
           </Button>
+        </div>
+
+        {/* Pill filters */}
+        <div className="flex gap-4 flex-wrap items-center pt-1">
+          <div className="flex gap-1.5 items-center">
+            {TIER_PILLS.map((t) => (
+              <button
+                key={t.value}
+                onClick={() => handleTierFilter(t.value)}
+                className={`px-3 py-1 rounded-full text-xs font-medium transition-colors border ${
+                  selectedTier === t.value
+                    ? "bg-purple-600 text-white border-purple-500"
+                    : "bg-gray-800 text-gray-400 border-gray-700 hover:border-gray-500"
+                }`}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+          <div className="w-px h-5 bg-gray-700" />
+          <div className="flex gap-1.5 items-center">
+            {ADDON_PILLS.map((a) => (
+              <button
+                key={a.value}
+                onClick={() => handleAddonFilter(a.value)}
+                className={`px-3 py-1 rounded-full text-xs font-medium transition-colors border ${
+                  selectedAddons.includes(a.value)
+                    ? "bg-purple-600 text-white border-purple-500"
+                    : "bg-gray-800 text-gray-400 border-gray-700 hover:border-gray-500"
+                }`}
+              >
+                {a.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
