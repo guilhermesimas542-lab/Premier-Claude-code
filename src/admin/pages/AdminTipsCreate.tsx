@@ -26,8 +26,14 @@ const CATEGORIA_MAP: Record<string, { tier: string; addon: string | null }> = {
   odds_altas: { tier: "pro", addon: "desaltas" },
 };
 
+function getTomorrowDate(): string {
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  return tomorrow.toISOString().split("T")[0];
+}
+
 const EMPTY_FORM = {
-  gameDate: "",
+  gameDate: getTomorrowDate(),
   gameHour: "20",
   gameMinute: "00",
   team1_name: "", team1_logo_url: "",
