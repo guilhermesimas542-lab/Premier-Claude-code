@@ -294,6 +294,8 @@ export type Database = {
       }
       content_banners: {
         Row: {
+          action_type: string
+          action_value: string | null
           betting_house_id: string | null
           button_link: string | null
           button_text: string | null
@@ -312,6 +314,8 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          action_type?: string
+          action_value?: string | null
           betting_house_id?: string | null
           button_link?: string | null
           button_text?: string | null
@@ -330,6 +334,8 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          action_type?: string
+          action_value?: string | null
           betting_house_id?: string | null
           button_link?: string | null
           button_text?: string | null

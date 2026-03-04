@@ -15,6 +15,7 @@ import { useBettingHouseAdmin } from "@/admin/context/BettingHouseContext";
 import { format } from "date-fns";
 
 type BannerStatus = "active" | "inactive" | "deleted";
+type ActionType = "external_link" | "tips_tab" | "quiz";
 
 const AUDIENCE_OPTIONS = [
   { value: "all", label: "Todos" },
@@ -51,7 +52,21 @@ const LIMIT_CHECK_AUDIENCES = [
   { key: "no_acesso_vitalicio", label: "Sem Acesso Vitalício" },
 ] as const;
 
+const ACTION_TYPE_OPTIONS = [
+  { value: "external_link", label: "Link Externo" },
+  { value: "tips_tab", label: "Aba de Tips" },
+  { value: "quiz", label: "Abrir Quiz" },
+] as const;
+
+const TIPS_TAB_OPTIONS = [
+  { value: "football", label: "Futebol" },
+  { value: "basketball", label: "Basquete" },
+  { value: "tennis", label: "Tênis" },
+  { value: "esports", label: "eSports" },
+] as const;
+
 const audienceLabel = (v: string) => AUDIENCE_OPTIONS.find((o) => o.value === v)?.label ?? v;
+const actionTypeLabel = (v: string) => ACTION_TYPE_OPTIONS.find((o) => o.value === v)?.label ?? v;
 
 interface Banner {
   id: string;
@@ -62,12 +77,15 @@ interface Banner {
   subtitle: string;
   button_text: string | null;
   button_link: string | null;
+  action_type: ActionType;
+  action_value: string | null;
   status: BannerStatus;
   display_order: number;
   starts_at: string;
   ends_at: string | null;
   created_at: string;
   target_audience: string;
+  betting_house_id: string | null;
 }
 
 interface BannerAnalytics {
@@ -84,6 +102,8 @@ const emptyForm = {
   subtitle: "",
   button_text: "Acesse aqui",
   button_link: "",
+  action_type: "external_link" as ActionType,
+  action_value: "",
   status: "active" as BannerStatus,
   display_order: 0,
   starts_at: "",
@@ -109,10 +129,12 @@ export default function AdminBanners() {
   const [confirmAction, setConfirmAction] = useState<{ title: string; description: string; onConfirm: () => void } | null>(null);
   const [editAnalytics, setEditAnalytics] = useState<{ impressions: number; clicks: number; dailyClicks: { date: string; count: number }[] } | null>(null);
   const [limitModalOpen, setLimitModalOpen] = useState(false);
+  const [imageError, setImageError] = useState("");
 
   // Drag state
   const dragItem = useRef<number | null>(null);
   const dragOverItem = useRef<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -127,7 +149,11 @@ export default function AdminBanners() {
     }
 
     const { data } = await q;
-    const banners = (data as unknown as Banner[]) ?? [];
+    const banners = ((data ?? []) as any[]).map((b: any) => ({
+      ...b,
+      action_type: b.action_type || (b.button_link ? "external_link" : "external_link"),
+      action_value: b.action_value ?? b.button_link ?? null,
+    })) as Banner[];
     setAllItems(banners);
 
     if (banners.length > 0) {
@@ -178,6 +204,7 @@ export default function AdminBanners() {
     if (error) { toast.error("Erro no upload: " + error.message); setUploading(false); return; }
     const { data: urlData } = supabase.storage.from("banners").getPublicUrl(path);
     setForm((f) => ({ ...f, image_url: urlData.publicUrl }));
+    setImageError("");
     setUploading(false);
     toast.success("Imagem enviada!");
   };
@@ -190,12 +217,33 @@ export default function AdminBanners() {
   };
 
   const handleSave = async () => {
-    if (!form.button_link) {
+    // Validate image
+    if (!form.image_url) {
+      setImageError("Imagem de fundo é obrigatória");
+      toast.error("Imagem de fundo é obrigatória");
+      return;
+    }
+
+    // Validate action
+    const actionType = form.action_type || "external_link";
+    if (actionType === "external_link" && !form.action_value) {
       toast.error("Preencha o link do botão");
       return;
     }
+    if (actionType === "tips_tab" && !form.action_value) {
+      toast.error("Selecione o esporte");
+      return;
+    }
+
     setSaving(true);
     const nextOrder = allItems.length > 0 ? Math.max(...allItems.map((i) => i.display_order)) + 1 : 1;
+
+    // Derive button_link for backward compatibility
+    let buttonLink: string | null = null;
+    if (actionType === "external_link") buttonLink = form.action_value || null;
+    else if (actionType === "tips_tab") buttonLink = `/tips/${form.action_value}`;
+    else if (actionType === "quiz") buttonLink = null;
+
     const payload: Record<string, unknown> = {
       context: form.context || ctx,
       image_url: form.image_url || "",
@@ -203,7 +251,9 @@ export default function AdminBanners() {
       title: "",
       subtitle: "",
       button_text: form.button_text || "Acesse aqui",
-      button_link: form.button_link || null,
+      button_link: buttonLink,
+      action_type: actionType,
+      action_value: actionType === "quiz" ? null : (form.action_value || null),
       status: form.status ?? "active",
       display_order: (form as Banner).id ? form.display_order ?? 0 : nextOrder,
       starts_at: scheduleEnabled && form.starts_at ? form.starts_at : new Date().toISOString(),
@@ -238,15 +288,18 @@ export default function AdminBanners() {
       subtitle: "",
       button_text: b.button_text,
       button_link: b.button_link,
+      action_type: b.action_type || "external_link",
+      action_value: b.action_value,
       status: "inactive" as const,
       display_order: nextOrder,
       starts_at: new Date().toISOString(),
       ends_at: null,
       target_audience: b.target_audience,
+      betting_house_id: b.betting_house_id || selectedHouseId || null,
     };
     const { error } = await supabase.from("content_banners").insert(payload as any);
     if (error) { toast.error(error.message); return; }
-    toast.success("Banner duplicado! Está na aba Inativos.");
+    toast.success("Banner duplicado com sucesso");
     load();
   };
 
@@ -266,11 +319,19 @@ export default function AdminBanners() {
     setForm({ ...emptyForm, context: ctx, display_order: 0, starts_at: "", ends_at: "" });
     setScheduleEnabled(false);
     setEditAnalytics(null);
+    setImageError("");
     setOpen(true);
   };
 
   const openEdit = async (b: Banner) => {
-    setForm({ ...b, starts_at: toLocalDatetime(b.starts_at), ends_at: toLocalDatetime(b.ends_at) });
+    setForm({
+      ...b,
+      starts_at: toLocalDatetime(b.starts_at),
+      ends_at: toLocalDatetime(b.ends_at),
+      action_type: b.action_type || "external_link",
+      action_value: b.action_value ?? b.button_link ?? "",
+    });
+    setImageError("");
     const createdMs = new Date(b.created_at).getTime();
     const startsMs = new Date(b.starts_at).getTime();
     const hasCustomSchedule = Math.abs(startsMs - createdMs) > 60000 || !!b.ends_at;
@@ -300,8 +361,12 @@ export default function AdminBanners() {
 
   // Drag-and-drop handlers
   const handleDragStart = (index: number) => { dragItem.current = index; };
-  const handleDragEnter = (index: number) => { dragOverItem.current = index; };
+  const handleDragEnter = (index: number) => {
+    dragOverItem.current = index;
+    setDragOverIndex(index);
+  };
   const handleDragEnd = async () => {
+    setDragOverIndex(null);
     if (dragItem.current === null || dragOverItem.current === null || dragItem.current === dragOverItem.current) {
       dragItem.current = null;
       dragOverItem.current = null;
@@ -355,6 +420,13 @@ export default function AdminBanners() {
     return ((a.clicks / a.impressions) * 100).toFixed(1) + "%";
   };
 
+  const renderActionInfo = (b: Banner) => {
+    const at = b.action_type || "external_link";
+    if (at === "quiz") return <span className="text-purple-400 text-xs">Quiz</span>;
+    if (at === "tips_tab") return <span className="text-blue-400 text-xs">Tips: {b.action_value}</span>;
+    return <span className="text-[10px] text-gray-500 truncate">{b.button_link || b.action_value}</span>;
+  };
+
   const renderTable = (list: Banner[], tabStatus: BannerStatus) => {
     const isActiveTab = tabStatus === "active";
     const activeListForDrag = isActiveTab ? allItems.filter((b) => b.status === "active") : [];
@@ -366,7 +438,7 @@ export default function AdminBanners() {
             <tr className="border-b border-white/10 text-left text-gray-500">
               {isActiveTab && viewAs === "admin" && <th className="px-1 py-2 w-8"></th>}
               <th className="px-3 py-2">Preview</th>
-              <th className="px-3 py-2">Botão</th>
+              <th className="px-3 py-2">Botão / Ação</th>
               <th className="px-3 py-2">Público</th>
               {isActiveTab && <th className="px-3 py-2">Programado</th>}
               <th className="px-3 py-2 text-center">Impressões</th>
@@ -378,10 +450,11 @@ export default function AdminBanners() {
           <tbody>
             {list.map((b) => {
               const dragIndex = isActiveTab ? activeListForDrag.findIndex((x) => x.id === b.id) : -1;
+              const isDragOver = isActiveTab && dragOverIndex === dragIndex && dragIndex !== -1;
               return (
                 <tr
                   key={b.id}
-                  className="border-b border-white/5 text-gray-300"
+                  className={`border-b border-white/5 text-gray-300 transition-all ${isDragOver ? "bg-green-500/10 shadow-lg shadow-green-500/10" : ""}`}
                   draggable={isActiveTab && viewAs === "admin"}
                   onDragStart={() => handleDragStart(dragIndex)}
                   onDragEnter={() => handleDragEnter(dragIndex)}
@@ -405,7 +478,7 @@ export default function AdminBanners() {
                   <td className="px-3 py-2 max-w-[160px]">
                     <div className="flex flex-col gap-0.5">
                       {b.button_text && <span className="text-xs text-white truncate">{b.button_text}</span>}
-                      {b.button_link && <span className="text-[10px] text-gray-500 truncate">{b.button_link}</span>}
+                      {renderActionInfo(b)}
                     </div>
                   </td>
                   <td className="px-3 py-2"><span className="text-xs text-gray-400">{audienceLabel(b.target_audience)}</span></td>
@@ -449,6 +522,9 @@ export default function AdminBanners() {
   };
 
   if (loading) return <div className="text-gray-400">Carregando…</div>;
+
+  const isFormImageMissing = !form.image_url;
+  const currentActionType = form.action_type || "external_link";
 
   return (
     <div className="space-y-4">
@@ -618,13 +694,13 @@ export default function AdminBanners() {
               </div>
 
               <div>
-                <Label className="text-gray-400 text-xs">Imagem de Fundo</Label>
+                <Label className="text-gray-400 text-xs">Imagem de Fundo <span className="text-red-400">*</span></Label>
                 <div className="flex items-center gap-1.5 mb-1.5 mt-0.5 px-2.5 py-1.5 rounded-lg text-[11px]" style={{ background: "rgba(234,179,8,0.08)", border: "1px solid rgba(234,179,8,0.25)", color: "#ca8a04" }}>
                   <span>📐</span>
                   <span><strong>Mobile:</strong> 1080 × 200px &nbsp;•&nbsp; <strong>Desktop:</strong> 1920 × 400px</span>
                 </div>
                 <div className="flex gap-2 items-center">
-                  <Input placeholder="URL da imagem" value={form.image_url ?? ""} onChange={(e) => setForm({ ...form, image_url: e.target.value })} className="bg-gray-800 border-gray-700 flex-1" />
+                  <Input placeholder="URL da imagem" value={form.image_url ?? ""} onChange={(e) => { setForm({ ...form, image_url: e.target.value }); if (e.target.value) setImageError(""); }} className={`bg-gray-800 border-gray-700 flex-1 ${imageError ? "border-red-500" : ""}`} />
                   <label className="cursor-pointer shrink-0">
                     <input type="file" accept="image/*" className="hidden" onChange={(e) => { if (e.target.files?.[0]) handleUpload(e.target.files[0]); }} />
                     <span className="inline-flex items-center gap-1 px-3 py-2 rounded-md bg-green-700 hover:bg-green-600 text-sm text-white transition-colors">
@@ -632,6 +708,7 @@ export default function AdminBanners() {
                     </span>
                   </label>
                 </div>
+                {imageError && <p className="text-red-400 text-xs mt-1">{imageError}</p>}
                 {form.image_url && (
                   <div className="mt-2 relative">
                     <img src={form.image_url} alt="" className="w-full aspect-video object-cover rounded-md border border-white/10" />
@@ -645,10 +722,43 @@ export default function AdminBanners() {
                 <Input placeholder="Acesse aqui" maxLength={25} value={form.button_text ?? ""} onChange={(e) => setForm({ ...form, button_text: e.target.value })} className="bg-gray-800 border-gray-700" />
               </div>
 
+              {/* Action Type */}
               <div>
-                <Label className="text-gray-400 text-xs">Link do Botão <span className="text-red-400">*</span></Label>
-                <Input placeholder="https://... ou /rota" value={form.button_link ?? ""} onChange={(e) => setForm({ ...form, button_link: e.target.value })} className="bg-gray-800 border-gray-700" />
+                <Label className="text-gray-400 text-xs">Tipo de Destino</Label>
+                <Select value={currentActionType} onValueChange={(v) => setForm({ ...form, action_type: v as ActionType, action_value: "" })}>
+                  <SelectTrigger className="bg-gray-800 border-gray-700"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {ACTION_TYPE_OPTIONS.map((o) => (
+                      <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
+
+              {currentActionType === "external_link" && (
+                <div>
+                  <Label className="text-gray-400 text-xs">Link do Botão <span className="text-red-400">*</span></Label>
+                  <Input placeholder="https://... ou /rota" value={form.action_value ?? ""} onChange={(e) => setForm({ ...form, action_value: e.target.value })} className="bg-gray-800 border-gray-700" />
+                </div>
+              )}
+
+              {currentActionType === "tips_tab" && (
+                <div>
+                  <Label className="text-gray-400 text-xs">Esporte <span className="text-red-400">*</span></Label>
+                  <Select value={form.action_value || ""} onValueChange={(v) => setForm({ ...form, action_value: v })}>
+                    <SelectTrigger className="bg-gray-800 border-gray-700"><SelectValue placeholder="Selecione o esporte" /></SelectTrigger>
+                    <SelectContent>
+                      {TIPS_TAB_OPTIONS.map((o) => (
+                        <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
+              {currentActionType === "quiz" && (
+                <p className="text-xs text-gray-500">O quiz será aberto diretamente ao clicar no banner.</p>
+              )}
 
               <div className="space-y-2">
                 <div className="flex items-center gap-3">
@@ -672,9 +782,10 @@ export default function AdminBanners() {
                 )}
               </div>
 
-              <Button onClick={handleSave} disabled={saving} className="w-full">
+              <Button onClick={handleSave} disabled={saving || isFormImageMissing} className={`w-full ${isFormImageMissing ? "opacity-50" : ""}`}>
                 {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Salvar Banner"}
               </Button>
+              {isFormImageMissing && <p className="text-red-400 text-xs text-center">Adicione uma imagem de fundo para salvar</p>}
             </div>
 
             {/* Right: Live preview */}
