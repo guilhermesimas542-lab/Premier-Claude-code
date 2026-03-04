@@ -76,6 +76,7 @@ export default function AdminPayCards() {
   const [sortCol, setSortCol] = useState<string>("name");
   const [sortDesc, setSortDesc] = useState(false);
   const [analyticsTarget, setAnalyticsTarget] = useState<{ id: string; name: string } | null>(null);
+  const [metrics, setMetrics] = useState<Record<string, { views: number; clicks: number }>>({});
 
   const handleSort = (col: string) => {
     if (sortCol === col) setSortDesc(!sortDesc);
@@ -101,6 +102,23 @@ export default function AdminPayCards() {
 
   const set = (key: string, val: any) => setForm((f) => ({ ...f, [key]: val }));
 
+  const loadMetrics = async (ids: string[]) => {
+    if (ids.length === 0) return;
+    const { data } = await supabase
+      .from("funnel_analytics")
+      .select("entity_id, event_type")
+      .eq("entity_type", "paycard")
+      .in("entity_id", ids)
+      .in("event_type", ["view", "checkout_click"]);
+    const map: Record<string, { views: number; clicks: number }> = {};
+    (data ?? []).forEach((row: any) => {
+      if (!map[row.entity_id]) map[row.entity_id] = { views: 0, clicks: 0 };
+      if (row.event_type === "view") map[row.entity_id].views++;
+      else if (row.event_type === "checkout_click") map[row.entity_id].clicks++;
+    });
+    setMetrics(map);
+  };
+
   const load = async () => {
     setLoading(true);
     let q = supabase
@@ -110,8 +128,10 @@ export default function AdminPayCards() {
     if (selectedHouseId) q = q.eq("betting_house_id", selectedHouseId);
     else q = q.is("betting_house_id", null);
     const { data } = await q;
-    setPayCards((data as any as PayCard[]) ?? []);
+    const rows = (data as any as PayCard[]) ?? [];
+    setPayCards(rows);
     setLoading(false);
+    loadMetrics(rows.map((r) => r.id));
   };
 
   useEffect(() => {
@@ -271,6 +291,9 @@ export default function AdminPayCards() {
               </TableHead>
               <TableHead>Popup Intro</TableHead>
               <TableHead>Quiz</TableHead>
+              <TableHead className="text-center">Impressões</TableHead>
+              <TableHead className="text-center">Cliques</TableHead>
+              <TableHead className="text-center">CTR</TableHead>
               <TableHead className="w-[80px]">Status</TableHead>
               <TableHead className="w-[60px]">Ações</TableHead>
             </TableRow>
@@ -278,6 +301,8 @@ export default function AdminPayCards() {
           <TableBody>
             {sortedPayCards.map((c) => {
               const qCount = Array.isArray(c.quiz_questions) ? c.quiz_questions.filter((q: any) => q.text).length : 0;
+              const m = metrics[c.id] || { views: 0, clicks: 0 };
+              const ctr = m.views > 0 ? ((m.clicks / m.views) * 100).toFixed(1) + "%" : "—";
               return (
                 <TableRow key={c.id} className="border-b border-white/10">
                   <TableCell>
@@ -303,6 +328,9 @@ export default function AdminPayCards() {
                   <TableCell>
                     <span className="text-xs text-gray-400">{qCount} pergunta{qCount !== 1 ? "s" : ""}</span>
                   </TableCell>
+                  <TableCell className="text-center text-white text-sm">{m.views}</TableCell>
+                  <TableCell className="text-center text-white text-sm">{m.clicks}</TableCell>
+                  <TableCell className="text-center text-white text-sm">{ctr}</TableCell>
                   <TableCell>
                     <span className={`text-[10px] px-2 py-1 rounded-full font-medium ${c.is_active ? "bg-green-500/20 text-green-400 border border-green-400/30" : "bg-red-500/20 text-red-400 border border-red-400/30"}`}>
                       {c.is_active ? "ATIVO" : "INATIVO"}
@@ -323,7 +351,7 @@ export default function AdminPayCards() {
             })}
             {payCards.length === 0 && (
               <TableRow>
-                <TableCell colSpan={9} className="text-center py-8 text-gray-600">
+                <TableCell colSpan={12} className="text-center py-8 text-gray-600">
                   Nenhum Pay Card cadastrado
                 </TableCell>
               </TableRow>
