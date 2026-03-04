@@ -60,10 +60,12 @@ export default function AdminWebhook() {
         <TabsList>
           <TabsTrigger value="logs">Logs de Webhook</TabsTrigger>
           <TabsTrigger value="catalog">Catálogo de Produtos</TabsTrigger>
+          <TabsTrigger value="raw">Logs Brutos</TabsTrigger>
         </TabsList>
 
         <TabsContent value="logs"><WebhookLogsTab /></TabsContent>
         <TabsContent value="catalog"><ProductsCatalogTab /></TabsContent>
+        <TabsContent value="raw"><RawLogsTab /></TabsContent>
       </Tabs>
     </div>
   );
@@ -614,5 +616,108 @@ function ProductModal({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// TAB 3: Raw Webhook Logs
+// ═══════════════════════════════════════════════════════════════════════════════
+interface RawLog {
+  id: number;
+  created_at: string;
+  payload: Record<string, unknown> | null;
+}
+
+function RawLogsTab() {
+  const [logs, setLogs] = useState<RawLog[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [expandedId, setExpandedId] = useState<number | null>(null);
+
+  const fetchLogs = useCallback(async () => {
+    setLoading(true);
+    const { data } = await supabase
+      .from("raw_webhook_logs")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(50);
+    setLogs((data as unknown as RawLog[]) ?? []);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { fetchLogs(); }, [fetchLogs]);
+
+  return (
+    <div className="space-y-4 mt-4">
+      <div className="flex justify-between items-center">
+        <p className="text-sm text-gray-400">
+          Captura bruta de todos os webhooks recebidos, antes de qualquer validação.
+        </p>
+        <Button variant="outline" size="sm" onClick={fetchLogs} disabled={loading}>
+          <RefreshCw className={`w-4 h-4 mr-1 ${loading ? "animate-spin" : ""}`} />
+          Atualizar
+        </Button>
+      </div>
+
+      <div className="rounded-lg border border-white/10 overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-8" />
+              <TableHead>ID</TableHead>
+              <TableHead>Data/Hora</TableHead>
+              <TableHead>EventName</TableHead>
+              <TableHead>Email</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {logs.map((log) => {
+              const p = log.payload as Record<string, unknown> | null;
+              const eventName = (p?.EventName ?? p?.action ?? "—") as string;
+              const buyer = ((p?.Data as Record<string, unknown>)?.Buyer ?? {}) as Record<string, unknown>;
+              const email = (buyer?.Email ?? buyer?.email ?? p?.email ?? "—") as string;
+
+              return (
+                <>
+                  <TableRow
+                    key={log.id}
+                    className="cursor-pointer hover:bg-white/5"
+                    onClick={() => setExpandedId(expandedId === log.id ? null : log.id)}
+                  >
+                    <TableCell>
+                      {expandedId === log.id
+                        ? <ChevronDown className="w-4 h-4 text-gray-400" />
+                        : <ChevronRight className="w-4 h-4 text-gray-400" />}
+                    </TableCell>
+                    <TableCell className="text-xs text-gray-500 font-mono">{log.id}</TableCell>
+                    <TableCell className="text-xs text-gray-300">
+                      {new Date(log.created_at).toLocaleString("pt-BR")}
+                    </TableCell>
+                    <TableCell className="text-xs text-gray-300">{eventName}</TableCell>
+                    <TableCell className="text-xs text-gray-300">{email}</TableCell>
+                  </TableRow>
+                  {expandedId === log.id && (
+                    <TableRow key={`${log.id}-detail`}>
+                      <TableCell colSpan={5} className="bg-gray-900 p-4">
+                        <p className="text-[10px] text-gray-500 mb-1">Payload completo:</p>
+                        <pre className="text-xs text-gray-300 bg-black/30 p-3 rounded overflow-x-auto max-h-80">
+                          {JSON.stringify(log.payload, null, 2)}
+                        </pre>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </>
+              );
+            })}
+            {logs.length === 0 && !loading && (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center text-gray-500 py-8">
+                  Nenhum log bruto encontrado. Os webhooks aparecerão aqui assim que forem recebidos.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
   );
 }
