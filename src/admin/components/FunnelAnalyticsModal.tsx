@@ -71,9 +71,12 @@ export default function FunnelAnalyticsModal({ open, onClose, entityType, entity
     const finalViews = data.filter(r => r.event_type === "final_view").length;
     const checkouts = data.filter(r => r.event_type === "checkout_click").length;
     const exits = data.filter(r => r.event_type === "exit").length;
+    const step0Count = data.filter(r => r.event_type === "step" && r.step_index === 0).length;
+    const entryExits = Math.max(0, views - step0Count);
+    const pctEntryExits = views > 0 ? ((entryExits / views) * 100).toFixed(1) : "0";
     const pctFinal = views > 0 ? ((finalViews / views) * 100).toFixed(1) : "0";
     const pctCheckout = views > 0 ? ((checkouts / views) * 100).toFixed(1) : "0";
-    return { views, finalViews, checkouts, exits, pctFinal, pctCheckout };
+    return { views, finalViews, checkouts, exits, entryExits, pctEntryExits, pctFinal, pctCheckout };
   }, [data]);
 
   const stepData = useMemo(() => {
@@ -94,7 +97,9 @@ export default function FunnelAnalyticsModal({ open, onClose, entityType, entity
 
   // Build funnel stages: steps + final_view + checkout
   const funnelStages = useMemo(() => {
-    const stages: { label: string; count: number }[] = [];
+    const stages: { label: string; count: number; isEntry?: boolean }[] = [];
+    // Entry stage
+    stages.push({ label: "Visualização do Pop-up", count: metrics.views, isEntry: true });
     // Add each step
     stepData.forEach(s => {
       stages.push({ label: `Pergunta ${s.stepIndex + 1}`, count: s.total });
@@ -108,7 +113,7 @@ export default function FunnelAnalyticsModal({ open, onClose, entityType, entity
   // Calculate exits per stage
   const stageExits = useMemo(() => {
     if (funnelStages.length === 0) return [];
-    const exits: { label: string; count: number; exitCount: number; exitPct: string }[] = [];
+    const exits: { label: string; count: number; exitCount: number; exitPct: string; isEntry?: boolean }[] = [];
     let maxExitCount = 0;
     let maxExitIdx = -1;
 
@@ -201,8 +206,9 @@ export default function FunnelAnalyticsModal({ open, onClose, entityType, entity
               <KpiCard label="Tela Final" value={metrics.finalViews} sub={`${metrics.pctFinal}%`} />
               <KpiCard label="Checkout" value={metrics.checkouts} sub={`${metrics.pctCheckout}%`} />
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <KpiCard label="Saídas" value={metrics.exits} />
+            <div className="grid grid-cols-3 gap-3">
+              <KpiCard label="Saídas na Entrada" value={metrics.entryExits} sub={`${metrics.pctEntryExits}%`} />
+              <KpiCard label="Saídas (total)" value={metrics.exits} />
               <KpiCard label="Conversão" value={`${metrics.pctCheckout}%`} highlight />
             </div>
 
@@ -214,9 +220,10 @@ export default function FunnelAnalyticsModal({ open, onClose, entityType, entity
                   const pct = metrics.views > 0 ? ((s.count / metrics.views) * 100).toFixed(1) : "0";
                   const isLast = i === stageExits.length - 1;
                   return (
-                    <div key={i} className="bg-gray-800 rounded-lg p-3 space-y-1.5">
+                    <div key={i} className={`rounded-lg p-3 space-y-1.5 ${s.isEntry ? "bg-blue-900/30 border border-blue-500/20" : "bg-gray-800"}`}>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
+                          {s.isEntry && <span className="text-xs">👁️</span>}
                           <span className="text-xs font-medium text-gray-300">{s.label}</span>
                           {s.isMaxExit && (
                             <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-500/20 text-red-400 border border-red-400/30 flex items-center gap-1">
