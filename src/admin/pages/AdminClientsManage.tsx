@@ -96,6 +96,8 @@ function SortIcon({ col, sortKey, sortDir }: { col: SortKey; sortKey: SortKey; s
     : <ChevronDown className="w-3 h-3 ml-1 text-white" />;
 }
 
+const TIER_ORDER: Record<string, number> = { free: 0, basic: 1, pro: 2, ultra: 3 };
+
 function sortUsers(users: UserWithUpsells[], key: SortKey, dir: SortDir): UserWithUpsells[] {
   return [...users].sort((a, b) => {
     let av: string | number = "";
@@ -103,7 +105,7 @@ function sortUsers(users: UserWithUpsells[], key: SortKey, dir: SortDir): UserWi
 
     if (key === "email") { av = a.email ?? ""; bv = b.email ?? ""; }
     else if (key === "phone") { av = a.phone ?? ""; bv = b.phone ?? ""; }
-    else if (key === "main_tier") { av = a.main_tier ?? ""; bv = b.main_tier ?? ""; }
+    else if (key === "main_tier") { av = TIER_ORDER[a.main_tier] ?? -1; bv = TIER_ORDER[b.main_tier] ?? -1; }
     else if (key === "upsells") { av = a.upsells.join(","); bv = b.upsells.join(","); }
     else if (key === "created_at") { av = a.created_at ?? ""; bv = b.created_at ?? ""; }
     else if (key === "last_seen_at") { av = a.last_seen_at ?? ""; bv = b.last_seen_at ?? ""; }
@@ -132,7 +134,7 @@ export default function AdminClientsManage() {
   const [lastSeenFrom, setLastSeenFrom] = useState("");
   const [lastSeenTo, setLastSeenTo] = useState("");
 
-  const [sortKey, setSortKey] = useState<SortKey>("created_at");
+  const [sortKey, setSortKey] = useState<SortKey>("last_seen_at");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
 
   const [editUser, setEditUser] = useState<AdminUser | null>(null);
@@ -186,7 +188,7 @@ export default function AdminClientsManage() {
     let q = supabase
       .from("users")
       .select("*", { count: "exact" })
-      .order("created_at", { ascending: false })
+      .order("last_seen_at", { ascending: false, nullsFirst: false })
       .limit(200);
 
     if (search) q = q.ilike("email", `%${search}%`);
