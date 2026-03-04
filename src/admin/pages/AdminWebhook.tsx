@@ -17,8 +17,13 @@ import {
 import {
   RefreshCw, Zap, CheckCircle2, XCircle, AlertTriangle,
   Plus, Pencil, Trash2, Play, ChevronDown, ChevronRight,
+  Download, CalendarIcon,
 } from "lucide-react";
 import { toast } from "sonner";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 interface WebhookLog {
@@ -632,31 +637,102 @@ function RawLogsTab() {
   const [logs, setLogs] = useState<RawLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
+  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
 
   const fetchLogs = useCallback(async () => {
     setLoading(true);
-    const { data } = await supabase
+    let query = supabase
       .from("raw_webhook_logs")
       .select("*")
       .order("created_at", { ascending: false })
-      .limit(50);
+      .limit(200);
+
+    if (startDate) {
+      query = query.gte("created_at", format(startDate, "yyyy-MM-dd") + "T00:00:00");
+    }
+    if (endDate) {
+      query = query.lte("created_at", format(endDate, "yyyy-MM-dd") + "T23:59:59");
+    }
+
+    const { data } = await query;
     setLogs((data as unknown as RawLog[]) ?? []);
     setLoading(false);
-  }, []);
+  }, [startDate, endDate]);
 
   useEffect(() => { fetchLogs(); }, [fetchLogs]);
 
+  const exportCsv = () => {
+    if (logs.length === 0) { toast.error("Nenhum log para exportar"); return; }
+    const rows = logs.map((log) => ({
+      id: log.id,
+      created_at: log.created_at,
+      payload: JSON.stringify(log.payload),
+    }));
+    const header = "id,created_at,payload\n";
+    const csv = header + rows.map((r) =>
+      `${r.id},"${r.created_at}","${r.payload.replace(/"/g, '""')}"`
+    ).join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `raw_webhook_logs_${format(new Date(), "yyyy-MM-dd_HHmmss")}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success("CSV exportado!");
+  };
+
   return (
     <div className="space-y-4 mt-4">
-      <div className="flex justify-between items-center">
-        <p className="text-sm text-gray-400">
-          Captura bruta de todos os webhooks recebidos, antes de qualquer validação.
-        </p>
-        <Button variant="outline" size="sm" onClick={fetchLogs} disabled={loading}>
-          <RefreshCw className={`w-4 h-4 mr-1 ${loading ? "animate-spin" : ""}`} />
-          Atualizar
-        </Button>
+      <div className="flex flex-wrap gap-2 items-end justify-between">
+        <div className="flex flex-wrap gap-2 items-end">
+          <div>
+            <label className="text-xs text-gray-400 block mb-1">Data Início</label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="sm" className={cn("w-[150px] justify-start text-left font-normal", !startDate && "text-muted-foreground")}>
+                  <CalendarIcon className="w-3.5 h-3.5 mr-1" />
+                  {startDate ? format(startDate, "dd/MM/yyyy") : "Selecionar"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar mode="single" selected={startDate} onSelect={setStartDate} className={cn("p-3 pointer-events-auto")} />
+              </PopoverContent>
+            </Popover>
+          </div>
+          <div>
+            <label className="text-xs text-gray-400 block mb-1">Data Fim</label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="sm" className={cn("w-[150px] justify-start text-left font-normal", !endDate && "text-muted-foreground")}>
+                  <CalendarIcon className="w-3.5 h-3.5 mr-1" />
+                  {endDate ? format(endDate, "dd/MM/yyyy") : "Selecionar"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar mode="single" selected={endDate} onSelect={setEndDate} className={cn("p-3 pointer-events-auto")} />
+              </PopoverContent>
+            </Popover>
+          </div>
+          {(startDate || endDate) && (
+            <Button variant="ghost" size="sm" onClick={() => { setStartDate(undefined); setEndDate(undefined); }}>
+              Limpar
+            </Button>
+          )}
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={exportCsv} disabled={logs.length === 0}>
+            <Download className="w-4 h-4 mr-1" /> Exportar CSV
+          </Button>
+          <Button variant="outline" size="sm" onClick={fetchLogs} disabled={loading}>
+            <RefreshCw className={`w-4 h-4 mr-1 ${loading ? "animate-spin" : ""}`} />
+            Atualizar
+          </Button>
+        </div>
       </div>
+
+      <p className="text-xs text-gray-500">{logs.length} log(s) encontrado(s)</p>
 
       <div className="rounded-lg border border-white/10 overflow-hidden">
         <Table>
@@ -711,7 +787,7 @@ function RawLogsTab() {
             {logs.length === 0 && !loading && (
               <TableRow>
                 <TableCell colSpan={5} className="text-center text-gray-500 py-8">
-                  Nenhum log bruto encontrado. Os webhooks aparecerão aqui assim que forem recebidos.
+                  Nenhum log bruto encontrado.
                 </TableCell>
               </TableRow>
             )}
