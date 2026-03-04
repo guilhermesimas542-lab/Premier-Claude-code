@@ -2,7 +2,7 @@ import { NavLink } from "react-router-dom";
 import {
   LayoutDashboard, Image, PlusCircle, List,
   Users, Bell, BarChart3, ChevronLeft, ChevronRight,
-  DollarSign, Activity, Home, Link, Layers, Shield, CreditCard, Bug,
+  DollarSign, Activity, Home, Link, Layers, Shield, CreditCard, Bug, Zap,
 } from "lucide-react";
 import { useState } from "react";
 import { useAdminMode } from "../context/AdminModeContext";
@@ -50,9 +50,10 @@ const futebolSections = [
     ],
   },
   {
-    label: "Configurações",
+    label: "Integrações",
     items: [
       { to: "/admin/betting-houses", icon: Home, label: "Casas Parceiras" },
+      { to: "/admin/webhook", icon: Zap, label: "Webhook" },
     ],
   },
 ];
