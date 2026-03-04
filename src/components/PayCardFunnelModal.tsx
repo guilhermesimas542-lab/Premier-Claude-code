@@ -40,10 +40,8 @@ export function PayCardFunnelModal({ payCard, open, onClose }: Props) {
 
   useEffect(() => {
     if (open) {
-      // Legacy events (keep for backward compat)
-      trackEvent("funnel_entry", { funnel_name: payCard.name, plan: payCard.associated_plan });
+      // Single consolidated event per modal open
       trackEvent("funnel_view", { funnel_name: payCard.name, plan: payCard.associated_plan });
-      // New funnel analytics
       trackFunnel({ entityType: 'paycard', entityId: payCard.id, eventType: 'view', houseId });
     }
   }, [open]);

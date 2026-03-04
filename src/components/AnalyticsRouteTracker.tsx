@@ -22,9 +22,8 @@ export function AnalyticsRouteTracker() {
       });
     }
 
-    // screen_view + page_view
+    // screen_view (unified — page_view removed to avoid duplicates)
     trackEvent("screen_view", { screen: currentScreen });
-    trackEvent("page_view", { screen: currentScreen });
 
     prevScreen.current = currentScreen;
     enterTime.current = Date.now();
