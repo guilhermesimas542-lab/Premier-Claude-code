@@ -6,6 +6,7 @@ import QuizStep from "@/components/funnel/QuizStep";
 import { ChevronRight, X, Check } from "lucide-react";
 import type { PayCardData } from "@/hooks/usePayCards";
 import { trackEvent } from "@/lib/events";
+import { trackFunnel } from "@/lib/funnelTracker";
 
 interface Props {
   payCard: PayCardData;
@@ -25,6 +26,7 @@ export function PayCardFunnelModal({ payCard, open, onClose }: Props) {
   const label1 = checkout?.checkout_label_1 || "Assinar Agora";
   const label2 = checkout?.checkout_label_2 || "Comprar Pacote Completo";
   const hasDualCheckout = !!checkoutUrl && !!checkoutUrl2;
+  const houseId = payCard.betting_house_id ?? undefined;
 
   const getInitialStep = (): Step => {
     if (hasIntro) return "intro";
@@ -38,24 +40,46 @@ export function PayCardFunnelModal({ payCard, open, onClose }: Props) {
 
   useEffect(() => {
     if (open) {
+      // Legacy events (keep for backward compat)
       trackEvent("funnel_entry", { funnel_name: payCard.name, plan: payCard.associated_plan });
       trackEvent("funnel_view", { funnel_name: payCard.name, plan: payCard.associated_plan });
+      // New funnel analytics
+      trackFunnel({ entityType: 'paycard', entityId: payCard.id, eventType: 'view', houseId });
     }
   }, [open]);
 
+  // Track final_view when reaching checkout step
+  useEffect(() => {
+    if (step === "checkout") {
+      trackFunnel({ entityType: 'paycard', entityId: payCard.id, eventType: 'final_view', houseId });
+    }
+  }, [step]);
+
   if (!open) return null;
 
-  // If we opened embedded checkout
   if (embeddedUrl) {
     return <EmbeddedCheckout open={true} onClose={onClose} url={embeddedUrl} />;
   }
+
+  const handleClose = () => {
+    trackFunnel({ entityType: 'paycard', entityId: payCard.id, eventType: 'exit', houseId });
+    onClose();
+  };
 
   const advanceFromIntro = () => {
     if (hasQuiz) { setStep("quiz"); }
     else { setStep("checkout"); }
   };
 
-  const advanceFromQuiz = () => {
+  const advanceFromQuiz = (option: string) => {
+    trackFunnel({
+      entityType: 'paycard',
+      entityId: payCard.id,
+      eventType: 'step',
+      stepIndex: quizIndex,
+      stepOption: option,
+      houseId,
+    });
     if (quizIndex < questions.length - 1) {
       setQuizIndex(i => i + 1);
     } else {
@@ -64,23 +88,25 @@ export function PayCardFunnelModal({ payCard, open, onClose }: Props) {
   };
 
   const goToCheckout = (url: string) => {
+    // Legacy event
     trackEvent("click_buy_from_popup", {
       funnel_name: payCard.name,
       plan: payCard.associated_plan,
     });
+    // New funnel analytics
+    trackFunnel({ entityType: 'paycard', entityId: payCard.id, eventType: 'checkout_click', houseId });
     setEmbeddedUrl(url);
   };
 
   const popup = payCard.popup_config;
 
   return (
-    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+    <Dialog open={open} onOpenChange={(o) => !o && handleClose()}>
       <DialogContent className="bg-gradient-to-b from-zinc-900 to-zinc-950 border-white/10 text-white max-w-md p-0 overflow-hidden">
-        <button onClick={onClose} className="absolute top-3 right-3 z-10 text-gray-400 hover:text-white">
+        <button onClick={handleClose} className="absolute top-3 right-3 z-10 text-gray-400 hover:text-white">
           <X className="w-5 h-5" />
         </button>
 
-        {/* INTRO STEP */}
         {step === "intro" && popup && (
           <div className="flex flex-col items-center">
             {popup.image_url && (
@@ -101,7 +127,6 @@ export function PayCardFunnelModal({ payCard, open, onClose }: Props) {
           </div>
         )}
 
-        {/* QUIZ STEP */}
         {step === "quiz" && questions.length > 0 && (
           <div className="p-6">
             <div className="flex gap-1 mb-4">
@@ -122,7 +147,6 @@ export function PayCardFunnelModal({ payCard, open, onClose }: Props) {
           </div>
         )}
 
-        {/* CHECKOUT/OFFER STEP */}
         {step === "checkout" && (
           <div className="p-6 text-center space-y-4">
             {checkout?.title && <h3 className="text-lg font-bold">{checkout.title}</h3>}

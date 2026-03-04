@@ -7,7 +7,8 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Plus, Pencil, Trash2, Loader2, Upload, X, Eye } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, Upload, X, Eye, BarChart2 } from "lucide-react";
+import FunnelAnalyticsModal from "@/admin/components/FunnelAnalyticsModal";
 import { toast } from "sonner";
 import { useBettingHouseAdmin } from "@/admin/context/BettingHouseContext";
 import { Textarea } from "@/components/ui/textarea";
@@ -32,6 +33,7 @@ export default function AdminFunnelPopups() {
   const [deleteTarget, setDeleteTarget] = useState<PopupRow | null>(null);
   const [previewMode, setPreviewMode] = useState<"mobile" | "desktop">("mobile");
   const [testOpen, setTestOpen] = useState(false);
+  const [analyticsTarget, setAnalyticsTarget] = useState<{ id: string; name: string } | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -149,6 +151,7 @@ export default function AdminFunnelPopups() {
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex gap-2">
+                        <button onClick={() => setAnalyticsTarget({ id: row.id, name: typeLabel(row.type) })} className="text-blue-400 hover:text-blue-300" title="Ver Analytics"><BarChart2 className="w-4 h-4" /></button>
                         <button onClick={() => openEdit(row)} className="text-blue-400 hover:text-blue-300"><Pencil className="w-4 h-4" /></button>
                         <button onClick={() => setDeleteTarget(row)} className="text-red-400 hover:text-red-300"><Trash2 className="w-4 h-4" /></button>
                       </div>
@@ -337,6 +340,17 @@ export default function AdminFunnelPopups() {
 
       {/* Test Popup */}
       <TestPopupModal form={form} open={testOpen} onClose={() => setTestOpen(false)} />
+
+      {/* Analytics Modal */}
+      {analyticsTarget && (
+        <FunnelAnalyticsModal
+          open={!!analyticsTarget}
+          onClose={() => setAnalyticsTarget(null)}
+          entityType="popup"
+          entityId={analyticsTarget.id}
+          entityName={analyticsTarget.name}
+        />
+      )}
     </div>
   );
 }

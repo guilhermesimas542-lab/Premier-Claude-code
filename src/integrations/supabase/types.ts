@@ -572,6 +572,63 @@ export type Database = {
           },
         ]
       }
+      funnel_analytics: {
+        Row: {
+          created_at: string | null
+          device_id: string | null
+          entity_id: string
+          entity_type: string
+          event_type: string
+          house_id: string | null
+          id: string
+          session_id: string | null
+          step_index: number | null
+          step_option: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          device_id?: string | null
+          entity_id: string
+          entity_type: string
+          event_type: string
+          house_id?: string | null
+          id?: string
+          session_id?: string | null
+          step_index?: number | null
+          step_option?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          device_id?: string | null
+          entity_id?: string
+          entity_type?: string
+          event_type?: string
+          house_id?: string | null
+          id?: string
+          session_id?: string | null
+          step_index?: number | null
+          step_option?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "funnel_analytics_house_id_fkey"
+            columns: ["house_id"]
+            isOneToOne: false
+            referencedRelation: "betting_houses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "funnel_analytics_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       funnel_steps: {
         Row: {
           card_id: string

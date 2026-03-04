@@ -5,7 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, Pencil, Loader2, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
+import { Plus, Pencil, Loader2, ArrowUp, ArrowDown, ArrowUpDown, BarChart2 } from "lucide-react";
+import FunnelAnalyticsModal from "@/admin/components/FunnelAnalyticsModal";
 import { toast } from "sonner";
 import FunnelBuilder from "@/admin/components/funnel-popup/FunnelBuilder";
 import type { PopupFormState, FunnelQuestion } from "@/admin/components/funnel-popup/types";
@@ -74,6 +75,7 @@ export default function AdminPayCards() {
   const [questions, setQuestions] = useState<FunnelQuestion[]>([]);
   const [sortCol, setSortCol] = useState<string>("name");
   const [sortDesc, setSortDesc] = useState(false);
+  const [analyticsTarget, setAnalyticsTarget] = useState<{ id: string; name: string } | null>(null);
 
   const handleSort = (col: string) => {
     if (sortCol === col) setSortDesc(!sortDesc);
@@ -307,9 +309,14 @@ export default function AdminPayCards() {
                     </span>
                   </TableCell>
                   <TableCell>
-                    <button onClick={() => openEdit(c)} className="text-blue-400 hover:text-blue-300 p-1.5">
-                      <Pencil className="w-4 h-4" />
-                    </button>
+                    <div className="flex gap-1">
+                      <button onClick={() => setAnalyticsTarget({ id: c.id, name: c.name })} className="text-blue-400 hover:text-blue-300 p-1.5" title="Ver Analytics">
+                        <BarChart2 className="w-4 h-4" />
+                      </button>
+                      <button onClick={() => openEdit(c)} className="text-blue-400 hover:text-blue-300 p-1.5">
+                        <Pencil className="w-4 h-4" />
+                      </button>
+                    </div>
                   </TableCell>
                 </TableRow>
               );
@@ -450,6 +457,17 @@ export default function AdminPayCards() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Analytics Modal */}
+      {analyticsTarget && (
+        <FunnelAnalyticsModal
+          open={!!analyticsTarget}
+          onClose={() => setAnalyticsTarget(null)}
+          entityType="paycard"
+          entityId={analyticsTarget.id}
+          entityName={analyticsTarget.name}
+        />
+      )}
     </div>
   );
 }

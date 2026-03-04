@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X, Check } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import QuizStep from "@/components/funnel/QuizStep";
 import { EmbeddedCheckout } from "@/components/EmbeddedCheckout";
+import { trackFunnel } from "@/lib/funnelTracker";
 
 export interface FunnelPopupData {
   id: string;
@@ -18,6 +19,7 @@ export interface FunnelPopupData {
   final_title: string | null;
   final_benefits: string[] | null;
   checkout_link: string | null;
+  betting_house_id?: string | null;
 }
 
 interface FunnelPopupProps {
@@ -46,26 +48,53 @@ export function FunnelPopup({ popup, onClose }: FunnelPopupProps) {
   const currentQuestionIndex = step - firstQuestionStep;
 
   const benefits = popup.final_benefits ?? [];
+  const houseId = popup.betting_house_id ?? undefined;
+
+  // Track view on mount
+  useEffect(() => {
+    trackFunnel({ entityType: 'popup', entityId: popup.id, eventType: 'view', houseId });
+  }, []);
+
+  // Track final_view when reaching final step
+  useEffect(() => {
+    if (isOnFinal) {
+      trackFunnel({ entityType: 'popup', entityId: popup.id, eventType: 'final_view', houseId });
+    }
+  }, [isOnFinal]);
+
+  const handleClose = () => {
+    trackFunnel({ entityType: 'popup', entityId: popup.id, eventType: 'exit', houseId });
+    onClose();
+  };
 
   const handleImageClick = () => {
     if (hasFunnel) {
-      // Has funnel: advance to first question
       setStep(firstQuestionStep);
     } else if (popup.button_url || popup.checkout_link) {
-      // No funnel: open embedded checkout
       setCheckoutUrl(popup.button_url || popup.checkout_link!);
     }
   };
 
   const handleCheckout = (url: string) => {
+    trackFunnel({ entityType: 'popup', entityId: popup.id, eventType: 'checkout_click', houseId });
     setCheckoutUrl(url);
   };
 
-  const advance = () => setStep((s) => s + 1);
+  const handleQuizAnswer = (option: string) => {
+    trackFunnel({
+      entityType: 'popup',
+      entityId: popup.id,
+      eventType: 'step',
+      stepIndex: currentQuestionIndex,
+      stepOption: option,
+      houseId,
+    });
+    setStep((s) => s + 1);
+  };
 
   return (
     <>
-      <Dialog open onOpenChange={(o) => !o && onClose()}>
+      <Dialog open onOpenChange={(o) => !o && handleClose()}>
         <DialogContent
           className="p-0 border border-white/10 overflow-hidden max-w-[calc(100vw-2rem)] sm:max-w-md"
           style={{
@@ -74,15 +103,13 @@ export function FunnelPopup({ popup, onClose }: FunnelPopupProps) {
             boxShadow: "0 24px 48px rgba(0,0,0,0.6)",
           }}
         >
-          {/* Close button */}
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="absolute top-3 right-3 z-20 rounded-full p-1.5 transition-colors bg-black/60 border border-white/10 hover:bg-black/80"
           >
             <X className="w-3.5 h-3.5 text-white/70" />
           </button>
 
-          {/* Step 0: Featured Image */}
           {isOnImage && popup.image_url && (
             <button
               onClick={handleImageClick}
@@ -96,18 +123,16 @@ export function FunnelPopup({ popup, onClose }: FunnelPopupProps) {
             </button>
           )}
 
-          {/* Question steps */}
           {isOnQuestion && questions[currentQuestionIndex] && (
             <QuizStep
               questionText={questions[currentQuestionIndex].text!}
               options={questions[currentQuestionIndex].options}
               currentStep={currentQuestionIndex + 1}
               totalSteps={questions.length}
-              onAnswer={advance}
+              onAnswer={handleQuizAnswer}
             />
           )}
 
-          {/* Final Screen */}
           {isOnFinal && (
             <div className="p-5 space-y-4">
               <div className="text-center">
@@ -143,7 +168,7 @@ export function FunnelPopup({ popup, onClose }: FunnelPopupProps) {
               )}
 
               <button
-                onClick={onClose}
+                onClick={handleClose}
                 className="w-full text-center text-xs py-1 text-muted-foreground hover:text-foreground/50 transition-colors"
               >
                 Não, obrigado
