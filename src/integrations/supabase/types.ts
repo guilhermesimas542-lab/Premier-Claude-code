@@ -957,6 +957,7 @@ export type Database = {
           created_at: string | null
           entitlement_key: string | null
           id: string
+          lastlink_product_uuid: string | null
           product_name: string
           provider: string
           provider_product_id: string
@@ -967,6 +968,7 @@ export type Database = {
           created_at?: string | null
           entitlement_key?: string | null
           id?: string
+          lastlink_product_uuid?: string | null
           product_name: string
           provider: string
           provider_product_id: string
@@ -977,6 +979,7 @@ export type Database = {
           created_at?: string | null
           entitlement_key?: string | null
           id?: string
+          lastlink_product_uuid?: string | null
           product_name?: string
           provider?: string
           provider_product_id?: string
@@ -1002,24 +1005,6 @@ export type Database = {
           id?: string
           subscription_object?: Json
           user_id?: string
-        }
-        Relationships: []
-      }
-      raw_webhook_logs: {
-        Row: {
-          created_at: string
-          id: number
-          payload: Json | null
-        }
-        Insert: {
-          created_at?: string
-          id?: number
-          payload?: Json | null
-        }
-        Update: {
-          created_at?: string
-          id?: number
-          payload?: Json | null
         }
         Relationships: []
       }

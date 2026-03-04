@@ -29,16 +29,11 @@ Deno.serve(async (req) => {
   try {
     payload = JSON.parse(rawBody);
   } catch {
-    // Log even invalid JSON for debugging
-    await supabase.from("raw_webhook_logs").insert({ payload: { _raw_text: rawBody, _parse_error: true } });
     return new Response(JSON.stringify({ error: "Invalid JSON" }), {
       status: 400,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
-
-  // ── RAW LOG: capture full payload before any validation ──────────────────
-  await supabase.from("raw_webhook_logs").insert({ payload });
 
   // ── Detect provider ────────────────────────────────────────────────────────
   const url = new URL(req.url);
@@ -77,7 +72,7 @@ Deno.serve(async (req) => {
     const buyer = (data.Buyer ?? data.buyer ?? {}) as Record<string, unknown>;
     buyerEmail = ((buyer.Email ?? buyer.email) as string ?? "").toLowerCase().trim();
     buyerName = (buyer.Name ?? buyer.name) as string ?? null;
-    buyerPhone = (buyer.Phone ?? buyer.phone ?? buyer.Cellphone ?? buyer.cellphone) as string ?? null;
+    buyerPhone = (buyer.PhoneNumber ?? buyer.phoneNumber ?? buyer.Phone ?? buyer.phone ?? buyer.Cellphone ?? buyer.cellphone) as string ?? null;
     paymentId = (data.PaymentId ?? data.SubscriptionId ?? data.OrderId ?? `ll-${Date.now()}`) as string;
     const products = (data.Products ?? data.products ?? []) as Array<Record<string, unknown>>;
     productIds = products.map((p) => (p.Id ?? p.id) as string).filter(Boolean);
@@ -177,6 +172,7 @@ Deno.serve(async (req) => {
     const entitlementKeysToGrant: string[] = [];
 
     if (productIds.length > 0) {
+      // Try matching by provider_product_id first
       const { data: catalogItems } = await supabase
         .from("products_catalog")
         .select("provider_product_id, tier, entitlement_key")
@@ -184,9 +180,24 @@ Deno.serve(async (req) => {
         .in("provider_product_id", productIds)
         .eq("active", true);
 
-      for (const item of catalogItems ?? []) {
-        if (item.tier) tierToSet = item.tier;
-        if (item.entitlement_key) entitlementKeysToGrant.push(item.entitlement_key);
+      if (catalogItems && catalogItems.length > 0) {
+        for (const item of catalogItems) {
+          if (item.tier) tierToSet = item.tier;
+          if (item.entitlement_key) entitlementKeysToGrant.push(item.entitlement_key);
+        }
+      } else {
+        // Fallback: try matching by lastlink_product_uuid (Lastlink sends internal UUIDs)
+        const { data: uuidItems } = await supabase
+          .from("products_catalog")
+          .select("provider_product_id, tier, entitlement_key")
+          .eq("provider", provider)
+          .in("lastlink_product_uuid", productIds)
+          .eq("active", true);
+
+        for (const item of uuidItems ?? []) {
+          if (item.tier) tierToSet = item.tier;
+          if (item.entitlement_key) entitlementKeysToGrant.push(item.entitlement_key);
+        }
       }
     }
 
