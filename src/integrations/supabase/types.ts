@@ -682,37 +682,69 @@ export type Database = {
         Row: {
           amount: number
           buyer_email: string
+          buyer_name: string | null
           created_at: string
+          event_name: string | null
           id: string
+          is_test: boolean | null
           paid_at: string | null
+          product_ids: string[] | null
+          product_names: string[] | null
           provider: string
+          provider_event_id: string | null
           provider_order_id: string
           raw_payload: Json | null
           status: Database["public"]["Enums"]["order_status"]
+          unique_key: string | null
+          user_id: string | null
         }
         Insert: {
           amount: number
           buyer_email: string
+          buyer_name?: string | null
           created_at?: string
+          event_name?: string | null
           id?: string
+          is_test?: boolean | null
           paid_at?: string | null
+          product_ids?: string[] | null
+          product_names?: string[] | null
           provider: string
+          provider_event_id?: string | null
           provider_order_id: string
           raw_payload?: Json | null
           status?: Database["public"]["Enums"]["order_status"]
+          unique_key?: string | null
+          user_id?: string | null
         }
         Update: {
           amount?: number
           buyer_email?: string
+          buyer_name?: string | null
           created_at?: string
+          event_name?: string | null
           id?: string
+          is_test?: boolean | null
           paid_at?: string | null
+          product_ids?: string[] | null
+          product_names?: string[] | null
           provider?: string
+          provider_event_id?: string | null
           provider_order_id?: string
           raw_payload?: Json | null
           status?: Database["public"]["Enums"]["order_status"]
+          unique_key?: string | null
+          user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "orders_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       pay_cards: {
         Row: {
@@ -855,6 +887,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      products_catalog: {
+        Row: {
+          active: boolean | null
+          created_at: string | null
+          entitlement_key: string | null
+          id: string
+          product_name: string
+          provider: string
+          provider_product_id: string
+          tier: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string | null
+          entitlement_key?: string | null
+          id?: string
+          product_name: string
+          provider: string
+          provider_product_id: string
+          tier?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string | null
+          entitlement_key?: string | null
+          id?: string
+          product_name?: string
+          provider?: string
+          provider_product_id?: string
+          tier?: string | null
+        }
+        Relationships: []
       }
       push_subscriptions: {
         Row: {
@@ -1107,6 +1172,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      webhook_logs: {
+        Row: {
+          buyer_email: string | null
+          error_message: string | null
+          event_name: string | null
+          id: string
+          is_test: boolean | null
+          processed_ok: boolean
+          provider: string
+          provider_event_id: string | null
+          raw_payload: Json | null
+          received_at: string
+          unique_key: string | null
+        }
+        Insert: {
+          buyer_email?: string | null
+          error_message?: string | null
+          event_name?: string | null
+          id?: string
+          is_test?: boolean | null
+          processed_ok?: boolean
+          provider: string
+          provider_event_id?: string | null
+          raw_payload?: Json | null
+          received_at?: string
+          unique_key?: string | null
+        }
+        Update: {
+          buyer_email?: string | null
+          error_message?: string | null
+          event_name?: string | null
+          id?: string
+          is_test?: boolean | null
+          processed_ok?: boolean
+          provider?: string
+          provider_event_id?: string | null
+          raw_payload?: Json | null
+          received_at?: string
+          unique_key?: string | null
+        }
+        Relationships: []
       }
       xp_events: {
         Row: {
