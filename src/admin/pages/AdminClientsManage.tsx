@@ -667,7 +667,24 @@ export default function AdminClientsManage() {
                       })()
                     ) : <span className="text-gray-600">—</span>}
                   </td>
-                  <td className="px-3 py-2 text-gray-500">{u.phone ?? "—"}</td>
+                  <td className="px-3 py-2">
+                    {u.phone ? (
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-blue-400">{u.phone}</span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigator.clipboard.writeText(u.phone!);
+                            toast.success("Número copiado!");
+                          }}
+                          title="Copiar número"
+                          className="text-gray-500 hover:text-white transition-colors"
+                        >
+                          <Copy className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    ) : <span className="text-gray-600">—</span>}
+                  </td>
                   <td className="px-3 py-2">
                     <span className={`capitalize font-medium ${TIER_COLORS[u.main_tier] ?? "text-gray-300"}`}>
                       {u.main_tier}
