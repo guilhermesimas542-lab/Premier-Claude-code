@@ -1352,29 +1352,53 @@ export type Database = {
           title: string
         }[]
       }
-      get_or_create_user: {
-        Args: { p_email: string }
-        Returns: {
-          avatar_id: string | null
-          betting_house_id: string | null
-          created_at: string
-          email: string
-          id: string
-          is_vitalicio: boolean
-          last_event_at: string | null
-          last_seen_at: string | null
-          main_tier: Database["public"]["Enums"]["main_tier"]
-          nickname: string | null
-          phone: string | null
-          vitalicio_since: string | null
-        }
-        SetofOptions: {
-          from: "*"
-          to: "users"
-          isOneToOne: true
-          isSetofReturn: false
-        }
-      }
+      get_or_create_user:
+        | {
+            Args: { p_email: string }
+            Returns: {
+              avatar_id: string | null
+              betting_house_id: string | null
+              created_at: string
+              email: string
+              id: string
+              is_vitalicio: boolean
+              last_event_at: string | null
+              last_seen_at: string | null
+              main_tier: Database["public"]["Enums"]["main_tier"]
+              nickname: string | null
+              phone: string | null
+              vitalicio_since: string | null
+            }
+            SetofOptions: {
+              from: "*"
+              to: "users"
+              isOneToOne: true
+              isSetofReturn: false
+            }
+          }
+        | {
+            Args: { p_email: string; p_phone?: string }
+            Returns: {
+              avatar_id: string | null
+              betting_house_id: string | null
+              created_at: string
+              email: string
+              id: string
+              is_vitalicio: boolean
+              last_event_at: string | null
+              last_seen_at: string | null
+              main_tier: Database["public"]["Enums"]["main_tier"]
+              nickname: string | null
+              phone: string | null
+              vitalicio_since: string | null
+            }
+            SetofOptions: {
+              from: "*"
+              to: "users"
+              isOneToOne: true
+              isSetofReturn: false
+            }
+          }
       has_active_entitlement: {
         Args: {
           p_product: Database["public"]["Enums"]["product_key"]
