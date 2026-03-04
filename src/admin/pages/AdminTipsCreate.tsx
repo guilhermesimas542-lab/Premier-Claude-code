@@ -91,6 +91,14 @@ export default function AdminTipsCreate() {
       toast.error("Preencha os campos obrigatórios");
       return;
     }
+    if (!form.justification.trim()) {
+      toast.error("A justificativa é obrigatória");
+      return;
+    }
+    if (!form.link_house_1.trim() && !form.link_house_2.trim() && !form.link_house_3.trim()) {
+      toast.error("Preencha pelo menos um link de casa de apostas");
+      return;
+    }
     setSaving(true);
 
     const cat = CATEGORIA_MAP[form.categoria] || CATEGORIA_MAP.free;
@@ -267,14 +275,14 @@ export default function AdminTipsCreate() {
         </div>
 
         <div>
-          <label className="text-xs text-muted-foreground">Justificativa</label>
+          <label className="text-xs text-muted-foreground">Justificativa *</label>
           <Textarea value={form.justification} onChange={(e) => set("justification", e.target.value)} className="bg-muted/30 border-border" rows={3} placeholder="Texto do modal de justificativa (📊)" />
         </div>
 
         {/* Links por Casa de Apostas */}
         {houses.length > 0 && (
           <div className="border border-border rounded-lg p-3 space-y-2">
-            <span className="text-xs text-muted-foreground font-semibold uppercase">Links por Casa de Apostas (opcional)</span>
+            <span className="text-xs text-muted-foreground font-semibold uppercase">Links por Casa de Apostas *</span>
             {houses.slice(0, 3).map((h, idx) => {
               const key = `link_house_${idx + 1}` as "link_house_1" | "link_house_2" | "link_house_3";
               return (

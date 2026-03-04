@@ -1,6 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { getTodayInBrazil } from "@/lib/timezone";
+import { fromZonedTime } from "date-fns-tz";
+import { BRAZIL_TZ } from "@/lib/timezone";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -11,13 +13,33 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Pencil, Trash2, ArrowUpDown, ArrowUp, ArrowDown, Snowflake } from "lucide-react";
 import { toast } from "sonner";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { TeamAutocomplete } from "../components/TeamAutocomplete";
+import { PredictionAutocomplete } from "../components/PredictionAutocomplete";
 import type { AdminContentEntry } from "../types";
 import { useBettingHouseAdmin } from "../context/BettingHouseContext";
+
+const CATEGORIA_MAP: Record<string, { tier: string; addon: string | null }> = {
+  free: { tier: "free", addon: null },
+  basico: { tier: "basic", addon: null },
+  pro: { tier: "pro", addon: null },
+  ultra: { tier: "ultra", addon: null },
+  alavancagem: { tier: "pro", addon: "alavancagem" },
+  odds_altas: { tier: "pro", addon: "desaltas" },
+};
+
+function tierToCategoria(tier: string, addon: string | null): string {
+  if (addon === "alavancagem") return "alavancagem";
+  if (addon === "desaltas") return "odds_altas";
+  if (tier === "basic") return "basico";
+  return tier;
+}
 
 type SortColumn = "title" | "teams" | "date" | "starts_at" | "odd" | "tier_required" | "result";
 type SortDir = "asc" | "desc";
 
-const TIER_ORDER: Record<string, number> = { free: 0, alavancagem: 1, desaltas: 2, basic: 3, pro: 4, ultra: 5 };
+const TIER_ORDER: Record<string, number> = { free: 0, basic: 1, pro: 2, ultra: 3 };
+const ADDON_ORDER: Record<string, number> = { alavancagem: 4, desaltas: 5 };
 
 // House index → link column
 const HOUSE_LINK_COLS = ["link_house_1", "link_house_2", "link_house_3"] as const;
@@ -30,11 +52,51 @@ export default function AdminTipsList() {
   const [filters, setFilters] = useState({ tier: "", addon: "", team: "", active: "", dateFrom: today, dateTo: today, result: "" });
   const [activePeriod, setActivePeriod] = useState<string>("hoje");
   const [editItem, setEditItem] = useState<AdminContentEntry | null>(null);
+  const [editForm, setEditForm] = useState<any>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [bulkDeleting, setBulkDeleting] = useState(false);
   const [sortCol, setSortCol] = useState<SortColumn | null>(null);
   const [sortDir, setSortDir] = useState<SortDir>("asc");
+
+  const hourOptions = useMemo(() => Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, "0")), []);
+  const minuteOptions = useMemo(() => Array.from({ length: 12 }, (_, i) => (i * 5).toString().padStart(2, "0")), []);
+
+  const openEditModal = (t: AdminContentEntry) => {
+    setEditItem(t);
+    const startsAt = t.starts_at ? new Date(t.starts_at) : null;
+    // Parse hour/minute from starts_at in local display
+    let hour = "20", minute = "00";
+    if (startsAt) {
+      const timeStr = startsAt.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: "America/Sao_Paulo" });
+      const [h, m] = timeStr.split(":");
+      hour = h;
+      // Round minute to nearest 5
+      const mNum = parseInt(m);
+      minute = (Math.round(mNum / 5) * 5).toString().padStart(2, "0");
+      if (minute === "60") minute = "55";
+    }
+    setEditForm({
+      gameDate: t.date,
+      gameHour: hour,
+      gameMinute: minute,
+      team1_name: t.team1_name ?? "",
+      team1_logo_url: (t as any).team1_logo_url ?? "",
+      team2_name: t.team2_name ?? "",
+      team2_logo_url: (t as any).team2_logo_url ?? "",
+      categoria: tierToCategoria(t.tier_required, (t as any).addon_required),
+      odd: t.odd?.toString() ?? "",
+      palpite: t.condition_to_win ?? "",
+      mercado: t.market ?? "",
+      mercado_explicacao: t.category_explanation ?? "",
+      justification: t.justification ?? "",
+      link_house_1: (t as any).link_house_1 ?? "",
+      link_house_2: (t as any).link_house_2 ?? "",
+      link_house_3: (t as any).link_house_3 ?? "",
+    });
+  };
+
+  const setEF = (key: string, val: string) => setEditForm((f: any) => ({ ...f, [key]: val }));
 
   const load = async () => {
     setLoading(true);
@@ -64,7 +126,7 @@ export default function AdminTipsList() {
     setLoading(false);
   };
 
-  useEffect(() => { load(); }, [selectedHouseId]);
+  useEffect(() => { load(); }, [selectedHouseId, filters.dateFrom, filters.dateTo]);
 
   const handleDelete = async (id: string) => {
     if (!confirm("Excluir tip?")) return;
@@ -84,10 +146,39 @@ export default function AdminTipsList() {
   };
 
   const saveEdit = async () => {
-    if (!editItem) return;
-    const { id, created_at, ...rest } = editItem;
-    const { error } = await supabase.from("content_entries").update(rest as any).eq("id", id);
-    if (error) toast.error(error.message); else { toast.success("Atualizada"); setEditItem(null); load(); }
+    if (!editItem || !editForm) return;
+    const cat = CATEGORIA_MAP[editForm.categoria] || CATEGORIA_MAP.free;
+    const dateOnly = editForm.gameDate;
+    const gameLocalStr = `${dateOnly}T${editForm.gameHour}:${editForm.gameMinute}:00`;
+    const startsAtUTC = fromZonedTime(gameLocalStr, BRAZIL_TZ);
+    const endOfDayLocal = `${dateOnly}T23:59:00`;
+    const expiresAtUTC = fromZonedTime(endOfDayLocal, BRAZIL_TZ);
+
+    const payload: any = {
+      title: `${editForm.team1_name} x ${editForm.team2_name}`,
+      date: dateOnly,
+      starts_at: startsAtUTC.toISOString(),
+      expires_at: expiresAtUTC.toISOString(),
+      odd: parseFloat(editForm.odd) || null,
+      tier_required: cat.tier,
+      addon_required: cat.addon,
+      team1_name: editForm.team1_name,
+      team1_logo_url: editForm.team1_logo_url || null,
+      team2_name: editForm.team2_name,
+      team2_logo_url: editForm.team2_logo_url || null,
+      condition_to_win: editForm.palpite || null,
+      market: editForm.mercado || null,
+      category: editForm.mercado || null,
+      category_explanation: editForm.mercado_explicacao || null,
+      justification: editForm.justification || null,
+      link: editForm.link_house_1 || editForm.link_house_2 || editForm.link_house_3 || null,
+      link_house_1: editForm.link_house_1 || null,
+      link_house_2: editForm.link_house_2 || null,
+      link_house_3: editForm.link_house_3 || null,
+    };
+    const { error } = await supabase.from("content_entries").update(payload).eq("id", editItem.id);
+    if (error) toast.error(error.message);
+    else { toast.success("Atualizada"); setEditItem(null); setEditForm(null); load(); }
   };
 
   const handleFreeze = async (tip: AdminContentEntry) => {
@@ -172,7 +263,9 @@ export default function AdminTipsList() {
     }
     if (sortCol === "odd") return dir * ((a.odd ?? 0) - (b.odd ?? 0));
     if (sortCol === "tier_required") {
-      return dir * ((TIER_ORDER[a.tier_required] ?? 99) - (TIER_ORDER[b.tier_required] ?? 99));
+      const aOrder = (a as any).addon_required ? (ADDON_ORDER[(a as any).addon_required] ?? 99) : (TIER_ORDER[a.tier_required] ?? 99);
+      const bOrder = (b as any).addon_required ? (ADDON_ORDER[(b as any).addon_required] ?? 99) : (TIER_ORDER[b.tier_required] ?? 99);
+      return dir * (aOrder - bOrder);
     }
     if (sortCol === "result") {
       const rOrder: Record<string, number> = { pending: 0, green: 1, red: 2 };
@@ -252,7 +345,25 @@ export default function AdminTipsList() {
       {loading ? (
         <div className="text-gray-400">Carregando…</div>
       ) : (
-        <div className="bg-gray-900 rounded-xl border border-white/10 overflow-x-auto">
+        <>
+          {/* Legenda das colunas */}
+          <TooltipProvider>
+            <div className="flex flex-wrap items-center gap-4 text-[11px] text-gray-400 mb-2">
+              <Tooltip><TooltipTrigger asChild>
+                <span className="flex items-center gap-1 cursor-help"><span className="w-2 h-2 rounded-full bg-purple-500 inline-block" /> Plano</span>
+              </TooltipTrigger><TooltipContent>Plano necessário: Free, Basic, Pro, Ultra</TooltipContent></Tooltip>
+              <Tooltip><TooltipTrigger asChild>
+                <span className="flex items-center gap-1 cursor-help"><span className="w-2 h-2 rounded-full bg-blue-400 inline-block" /> Add-on</span>
+              </TooltipTrigger><TooltipContent>Add-on: Alavancagem ou Odds Altas</TooltipContent></Tooltip>
+              <Tooltip><TooltipTrigger asChild>
+                <span className="flex items-center gap-1 cursor-help"><span className="w-2 h-2 rounded-full bg-green-400 inline-block" /> Ativo</span>
+              </TooltipTrigger><TooltipContent>Se a tip está visível para os usuários</TooltipContent></Tooltip>
+              <Tooltip><TooltipTrigger asChild>
+                <span className="flex items-center gap-1 cursor-help"><span className="w-2 h-2 rounded-full bg-yellow-400 inline-block" /> Resultado</span>
+              </TooltipTrigger><TooltipContent>Pendente, Green ou Red</TooltipContent></Tooltip>
+            </div>
+          </TooltipProvider>
+          <div className="bg-gray-900 rounded-xl border border-white/10 overflow-x-auto">
           <table className="w-full text-sm min-w-[850px]">
             <thead>
               <tr className="border-b border-white/10 text-left text-gray-500 text-xs">
@@ -327,7 +438,7 @@ export default function AdminTipsList() {
                   </td>
                   <td className="px-3 py-2 flex gap-1">
                     <button onClick={() => handleFreeze(t)} className="text-cyan-400 hover:text-cyan-300 transition-colors" title="Freezar (duplicar como Free)"><Snowflake className="w-3.5 h-3.5" /></button>
-                    <button onClick={() => setEditItem(t)} className="text-blue-400"><Pencil className="w-3.5 h-3.5" /></button>
+                    <button onClick={() => openEditModal(t)} className="text-blue-400"><Pencil className="w-3.5 h-3.5" /></button>
                     <button onClick={() => handleDelete(t.id)} className="text-red-400"><Trash2 className="w-3.5 h-3.5" /></button>
                   </td>
                 </tr>
@@ -336,26 +447,111 @@ export default function AdminTipsList() {
             </tbody>
           </table>
         </div>
+        </>
       )}
 
-      {/* Edit Dialog */}
-      <Dialog open={!!editItem} onOpenChange={(o) => !o && setEditItem(null)}>
-        <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-lg max-h-[80vh] overflow-y-auto">
+      {/* Edit Dialog — Full Form */}
+      <Dialog open={!!editItem} onOpenChange={(o) => { if (!o) { setEditItem(null); setEditForm(null); } }}>
+        <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader><DialogTitle>Editar Tip</DialogTitle></DialogHeader>
-          {editItem && (
-            <div className="space-y-3">
-              <Input value={editItem.title} onChange={(e) => setEditItem({ ...editItem, title: e.target.value })} className="bg-gray-800 border-gray-700" placeholder="Título" />
-              <div className="grid grid-cols-2 gap-2">
-                <Input value={editItem.team1_name ?? ""} onChange={(e) => setEditItem({ ...editItem, team1_name: e.target.value })} className="bg-gray-800 border-gray-700" placeholder="Time 1" />
-                <Input value={editItem.team2_name ?? ""} onChange={(e) => setEditItem({ ...editItem, team2_name: e.target.value })} className="bg-gray-800 border-gray-700" placeholder="Time 2" />
+          {editItem && editForm && (
+            <div className="space-y-4">
+              {/* Data e Hora */}
+              <div className="grid grid-cols-[1fr_auto_auto] gap-3 items-end">
+                <div>
+                  <label className="text-xs text-muted-foreground">Data do Jogo *</label>
+                  <Input type="date" value={editForm.gameDate} onChange={(e) => setEF("gameDate", e.target.value)} className="bg-gray-800 border-gray-700" />
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground">Hora *</label>
+                  <Select value={editForm.gameHour} onValueChange={(v) => setEF("gameHour", v)}>
+                    <SelectTrigger className="bg-gray-800 border-gray-700 w-20"><SelectValue /></SelectTrigger>
+                    <SelectContent className="max-h-60">{hourOptions.map((h) => <SelectItem key={h} value={h}>{h}h</SelectItem>)}</SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground">Min *</label>
+                  <Select value={editForm.gameMinute} onValueChange={(v) => setEF("gameMinute", v)}>
+                    <SelectTrigger className="bg-gray-800 border-gray-700 w-20"><SelectValue /></SelectTrigger>
+                    <SelectContent>{minuteOptions.map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}</SelectContent>
+                  </Select>
+                </div>
               </div>
-              <div className="grid grid-cols-2 gap-2">
-                <Input type="number" step="0.01" value={editItem.odd ?? ""} onChange={(e) => setEditItem({ ...editItem, odd: parseFloat(e.target.value) })} className="bg-gray-800 border-gray-700" placeholder="Odd" />
-                <Input value={editItem.category ?? ""} onChange={(e) => setEditItem({ ...editItem, category: e.target.value })} className="bg-gray-800 border-gray-700" placeholder="Categoria" />
+
+              {/* Times */}
+              <div className="border border-gray-700 rounded-lg p-3 space-y-3">
+                <span className="text-xs text-muted-foreground font-semibold uppercase">Time 1</span>
+                <TeamAutocomplete label="Time 1" value={editForm.team1_name} logoUrl={editForm.team1_logo_url}
+                  onChange={(name, logoUrl) => setEditForm((f: any) => ({ ...f, team1_name: name, team1_logo_url: logoUrl }))} />
               </div>
-              <Textarea value={editItem.justification ?? ""} onChange={(e) => setEditItem({ ...editItem, justification: e.target.value })} className="bg-gray-800 border-gray-700" placeholder="Justificativa" rows={3} />
-              <Input value={editItem.link ?? ""} onChange={(e) => setEditItem({ ...editItem, link: e.target.value })} className="bg-gray-800 border-gray-700" placeholder="Link" />
-              <Button onClick={saveEdit} className="w-full">Salvar</Button>
+              <div className="border border-gray-700 rounded-lg p-3 space-y-3">
+                <span className="text-xs text-muted-foreground font-semibold uppercase">Time 2</span>
+                <TeamAutocomplete label="Time 2" value={editForm.team2_name} logoUrl={editForm.team2_logo_url}
+                  onChange={(name, logoUrl) => setEditForm((f: any) => ({ ...f, team2_name: name, team2_logo_url: logoUrl }))} />
+              </div>
+
+              {/* Categoria e Odd */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-muted-foreground">Categoria *</label>
+                  <Select value={editForm.categoria} onValueChange={(v) => setEF("categoria", v)}>
+                    <SelectTrigger className="bg-gray-800 border-gray-700"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="free">Free</SelectItem>
+                      <SelectItem value="basico">Básico</SelectItem>
+                      <SelectItem value="pro">Pro</SelectItem>
+                      <SelectItem value="ultra">Ultra</SelectItem>
+                      <SelectItem value="alavancagem">Alavancagem</SelectItem>
+                      <SelectItem value="odds_altas">Odds Altas</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground">Odd *</label>
+                  <Input type="number" step="0.01" value={editForm.odd} onChange={(e) => setEF("odd", e.target.value)} className="bg-gray-800 border-gray-700" />
+                </div>
+              </div>
+
+              {/* Palpite */}
+              {editForm.categoria !== "alavancagem" && editForm.categoria !== "odds_altas" && (
+                <PredictionAutocomplete value={editForm.palpite} onChange={(prediction, market, explanation) => {
+                  setEditForm((f: any) => ({ ...f, palpite: prediction, ...(market ? { mercado: market } : {}), ...(explanation ? { mercado_explicacao: explanation } : {}) }));
+                }} />
+              )}
+              <div>
+                <label className="text-xs text-muted-foreground">Palpite</label>
+                <Input value={editForm.palpite} onChange={(e) => setEF("palpite", e.target.value)} className="bg-gray-800 border-gray-700" />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground">Mercado</label>
+                <Input value={editForm.mercado} onChange={(e) => setEF("mercado", e.target.value)} className="bg-gray-800 border-gray-700" placeholder="Ex: Over/Under" />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground">O que é esse mercado?</label>
+                <Textarea value={editForm.mercado_explicacao} onChange={(e) => setEF("mercado_explicacao", e.target.value)} className="bg-gray-800 border-gray-700" rows={2} />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground">Justificativa *</label>
+                <Textarea value={editForm.justification} onChange={(e) => setEF("justification", e.target.value)} className="bg-gray-800 border-gray-700" rows={3} placeholder="Texto do modal de justificativa" />
+              </div>
+
+              {/* Links por Casa */}
+              {houses.length > 0 && (
+                <div className="border border-gray-700 rounded-lg p-3 space-y-2">
+                  <span className="text-xs text-muted-foreground font-semibold uppercase">Links por Casa de Apostas *</span>
+                  {houses.slice(0, 3).map((h, idx) => {
+                    const key = `link_house_${idx + 1}` as "link_house_1" | "link_house_2" | "link_house_3";
+                    return (
+                      <div key={h.id}>
+                        <label className="text-xs text-muted-foreground">🏠 {h.name}</label>
+                        <Input value={editForm[key] ?? ""} onChange={(e) => setEF(key, e.target.value)} placeholder={`https://.../${h.slug}/tip`} className="bg-gray-800 border-gray-700" />
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              <Button onClick={saveEdit} className="w-full">Salvar Alterações</Button>
             </div>
           )}
         </DialogContent>
