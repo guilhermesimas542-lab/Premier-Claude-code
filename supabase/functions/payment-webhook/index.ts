@@ -40,6 +40,14 @@ Deno.serve(async (req) => {
   // ── Raw log (before any validation) ──────────────────────────────────────
   await supabase.from("raw_webhook_logs").insert({ payload });
 
+  // ── Ignore test webhooks from Lastlink ─────────────────────────────────
+  if (payload.IsTest === true) {
+    return new Response(
+      JSON.stringify({ status: "ok", message: "Test webhook ignored" }),
+      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+
   // ── Detect provider ────────────────────────────────────────────────────────
   const url = new URL(req.url);
   const provider = url.searchParams.get("provider") ?? "lastlink";
@@ -83,9 +91,9 @@ Deno.serve(async (req) => {
   let isTest = false;
   let amount: number | null = null;
 
-  if (payload.EventName) {
-    // Lastlink format
-    eventName = payload.EventName as string;
+  if (payload.EventName || payload.Event) {
+    // Lastlink format (Event or EventName)
+    eventName = (payload.Event ?? payload.EventName) as string;
     const data = (payload.Data ?? payload.data ?? {}) as Record<string, unknown>;
     const buyer = (data.Buyer ?? data.buyer ?? {}) as Record<string, unknown>;
     buyerEmail = ((buyer.Email ?? buyer.email) as string ?? "").toLowerCase().trim();
