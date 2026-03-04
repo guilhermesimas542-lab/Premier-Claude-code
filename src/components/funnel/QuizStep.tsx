@@ -6,7 +6,7 @@ interface QuizStepProps {
   options: string[];
   currentStep: number;
   totalSteps: number;
-  onAnswer: () => void;
+  onAnswer: (option: string) => void;
 }
 
 export default function QuizStep({ questionText, options, currentStep, totalSteps, onAnswer }: QuizStepProps) {
@@ -14,7 +14,6 @@ export default function QuizStep({ questionText, options, currentStep, totalStep
 
   return (
     <div>
-      {/* Header with progress */}
       <div className="p-4 pb-0">
         <Progress value={progressValue} className="h-2 bg-zinc-800 [&>[data-state=complete]]:bg-primary [&>div]:bg-primary" />
         <p className="text-xs text-muted-foreground mt-2 text-center">
@@ -22,7 +21,6 @@ export default function QuizStep({ questionText, options, currentStep, totalStep
         </p>
       </div>
 
-      {/* Question block */}
       <div className="p-4 sm:p-6">
         <h3 className="text-lg sm:text-xl font-bold text-center mb-6">
           {questionText}
@@ -30,7 +28,7 @@ export default function QuizStep({ questionText, options, currentStep, totalStep
 
         <div className="space-y-3">
           {options.filter(Boolean).map((opt, i) => (
-            <QuizOptionCard key={i} index={i} text={opt} onClick={onAnswer} />
+            <QuizOptionCard key={i} index={i} text={opt} onClick={() => onAnswer(opt)} />
           ))}
         </div>
       </div>
