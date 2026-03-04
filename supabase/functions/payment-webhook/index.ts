@@ -29,11 +29,16 @@ Deno.serve(async (req) => {
   try {
     payload = JSON.parse(rawBody);
   } catch {
+    // Log even invalid JSON for debugging
+    await supabase.from("raw_webhook_logs").insert({ payload: { _raw_text: rawBody, _parse_error: true } });
     return new Response(JSON.stringify({ error: "Invalid JSON" }), {
       status: 400,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
+
+  // ── RAW LOG: capture full payload before any validation ──────────────────
+  await supabase.from("raw_webhook_logs").insert({ payload });
 
   // ── Detect provider ────────────────────────────────────────────────────────
   const url = new URL(req.url);
