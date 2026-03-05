@@ -230,6 +230,8 @@ export default function AdminPayCards() {
     questions,
     final_title: form.checkout_title,
     final_benefits: form.checkout_benefits ? form.checkout_benefits.split("\n").filter(Boolean) : [],
+    final_template: "default",
+    final_config: {},
   };
 
   const handleFunnelChange = (updated: PopupFormState) => {

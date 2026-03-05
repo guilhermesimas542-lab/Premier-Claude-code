@@ -4,6 +4,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import QuizStep from "@/components/funnel/QuizStep";
 import { EmbeddedCheckout } from "@/components/EmbeddedCheckout";
 import { trackFunnel } from "@/lib/funnelTracker";
+import { renderFinalTemplate, type FinalTemplateType, type FinalConfig } from "@/components/funnel/FinalTemplates";
 
 export interface FunnelPopupData {
   id: string;
@@ -20,6 +21,8 @@ export interface FunnelPopupData {
   final_benefits: string[] | null;
   checkout_link: string | null;
   betting_house_id?: string | null;
+  final_template?: string | null;
+  final_config?: Record<string, any> | null;
 }
 
 interface FunnelPopupProps {
@@ -133,48 +136,65 @@ export function FunnelPopup({ popup, onClose }: FunnelPopupProps) {
             />
           )}
 
-          {isOnFinal && (
-            <div className="p-5 space-y-4">
-              <div className="text-center">
-                <div className="w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center bg-primary/15 border border-primary/30">
-                  <Check className="w-6 h-6 text-primary" />
+          {isOnFinal && (() => {
+            const template = (popup.final_template || "default") as FinalTemplateType;
+            const config = (popup.final_config || {}) as FinalConfig;
+
+            if (template !== "default") {
+              return renderFinalTemplate(template, {
+                title: popup.final_title || "Perfeito para você!",
+                benefits,
+                checkoutLink: popup.checkout_link,
+                onCheckout: (url) => handleCheckout(url),
+                onClose: handleClose,
+                config,
+              });
+            }
+
+            // Default template
+            return (
+              <div className="p-5 space-y-4">
+                <div className="text-center">
+                  <div className="w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center bg-primary/15 border border-primary/30">
+                    <Check className="w-6 h-6 text-primary" />
+                  </div>
+                  <h2 className="text-xl font-bold text-foreground leading-snug">
+                    {popup.final_title || "Perfeito para você!"}
+                  </h2>
                 </div>
-                <h2 className="text-xl font-bold text-foreground leading-snug">
-                  {popup.final_title || "Perfeito para você!"}
-                </h2>
-              </div>
 
-              {benefits.length > 0 && (
-                <ul className="space-y-2.5">
-                  {benefits.map((b, i) => (
-                    <li key={i} className="flex items-start gap-2.5 text-sm text-foreground/80">
-                      <span className="shrink-0 w-5 h-5 rounded-full flex items-center justify-center mt-0.5 bg-primary/15">
-                        <Check className="w-3 h-3 text-primary" />
-                      </span>
-                      {b}
-                    </li>
-                  ))}
-                </ul>
-              )}
+                {benefits.length > 0 && (
+                  <ul className="space-y-2.5">
+                    {benefits.map((b, i) => (
+                      <li key={i} className="flex items-start gap-2.5 text-sm text-foreground/80">
+                        <span className="shrink-0 w-5 h-5 rounded-full flex items-center justify-center mt-0.5 bg-primary/15">
+                          <Check className="w-3 h-3 text-primary" />
+                        </span>
+                        {b}
+                      </li>
+                    ))}
+                  </ul>
+                )}
 
-              {popup.checkout_link && (
+                {popup.checkout_link && (
+                  <button
+                    onClick={() => handleCheckout(popup.checkout_link!)}
+                    className="block w-full py-4 text-center font-bold text-primary-foreground rounded-xl text-sm tracking-wide transition-transform hover:scale-[1.02] active:scale-[0.98] bg-primary"
+                    style={{ boxShadow: "0 0 20px hsl(var(--primary) / 0.3)" }}
+                  >
+                    QUERO ACESSAR AGORA →
+                  </button>
+                )}
+
                 <button
-                  onClick={() => handleCheckout(popup.checkout_link!)}
-                  className="block w-full py-4 text-center font-bold text-primary-foreground rounded-xl text-sm tracking-wide transition-transform hover:scale-[1.02] active:scale-[0.98] bg-primary"
-                  style={{ boxShadow: "0 0 20px hsl(var(--primary) / 0.3)" }}
+                  onClick={handleClose}
+                  className="w-full text-center text-xs py-1 text-muted-foreground hover:text-foreground/50 transition-colors"
                 >
-                  QUERO ACESSAR AGORA →
+                  Não, obrigado
                 </button>
-              )}
-
-              <button
-                onClick={handleClose}
-                className="w-full text-center text-xs py-1 text-muted-foreground hover:text-foreground/50 transition-colors"
-              >
-                Não, obrigado
-              </button>
-            </div>
-          )}
+              </div>
+            );
+          })()}
         </DialogContent>
       </Dialog>
 

@@ -12,6 +12,8 @@ export interface PopupFormState {
   final_title: string;
   final_benefits: string[];
   checkout_link: string;
+  final_template: string;
+  final_config: Record<string, any>;
 }
 
 export interface PopupRow {
@@ -29,6 +31,8 @@ export interface PopupRow {
   final_title: string | null;
   final_benefits: string[] | null;
   checkout_link: string | null;
+  final_template: string | null;
+  final_config: Record<string, any> | null;
   created_at: string;
 }
 
@@ -76,6 +80,8 @@ export const emptyForm: PopupFormState = {
   final_title: "",
   final_benefits: [],
   checkout_link: "",
+  final_template: "default",
+  final_config: {},
 };
 
 export function formToPayload(form: PopupFormState, selectedHouseId: string | null): Record<string, unknown> {
@@ -97,6 +103,8 @@ export function formToPayload(form: PopupFormState, selectedHouseId: string | nu
     final_title: form.final_title || null,
     final_benefits: form.final_benefits.filter(Boolean).length ? form.final_benefits.filter(Boolean) : null,
     checkout_link: form.checkout_link || null,
+    final_template: form.final_template || "default",
+    final_config: Object.keys(form.final_config || {}).length > 0 ? form.final_config : null,
     betting_house_id: selectedHouseId || null,
     updated_at: new Date().toISOString(),
   };
@@ -116,5 +124,7 @@ export function rowToForm(row: PopupRow): PopupFormState {
     final_title: row.final_title ?? "",
     final_benefits: (row.final_benefits as string[]) ?? [],
     checkout_link: row.checkout_link ?? "",
+    final_template: row.final_template ?? "default",
+    final_config: (row.final_config as Record<string, any>) ?? {},
   };
 }

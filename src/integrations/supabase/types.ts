@@ -873,6 +873,8 @@ export type Database = {
           checkout_link: string | null
           created_at: string
           final_benefits: Json | null
+          final_config: Json | null
+          final_template: string
           final_title: string | null
           id: string
           image_url: string | null
@@ -898,6 +900,8 @@ export type Database = {
           checkout_link?: string | null
           created_at?: string
           final_benefits?: Json | null
+          final_config?: Json | null
+          final_template?: string
           final_title?: string | null
           id?: string
           image_url?: string | null
@@ -923,6 +927,8 @@ export type Database = {
           checkout_link?: string | null
           created_at?: string
           final_benefits?: Json | null
+          final_config?: Json | null
+          final_template?: string
           final_title?: string | null
           id?: string
           image_url?: string | null

@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { useBettingHouseAdmin } from "@/admin/context/BettingHouseContext";
 import { Textarea } from "@/components/ui/textarea";
 import FunnelBuilder from "@/admin/components/funnel-popup/FunnelBuilder";
+import FinalTemplateEditor from "@/admin/components/funnel-popup/FinalTemplateEditor";
 import InteractivePreview from "@/admin/components/funnel-popup/InteractivePreview";
 import TestPopupModal from "@/admin/components/funnel-popup/TestPopupModal";
 import {
@@ -301,6 +302,10 @@ export default function AdminFunnelPopups() {
               {/* Final screen */}
               <div className="space-y-3 p-3 rounded-xl" style={{ background: "rgba(0,200,255,0.03)", border: "1px dashed rgba(0,200,255,0.15)" }}>
                 <p className="text-xs font-semibold text-white">Tela Final</p>
+
+                {/* Template selector + dynamic fields */}
+                <FinalTemplateEditor form={form} onChange={setForm} />
+
                 <div>
                   <Label className="text-gray-500 text-[11px]">Título</Label>
                   <Input placeholder="O Plano PRO é perfeito para você!" value={form.final_title} onChange={(e) => f("final_title", e.target.value)} className="bg-gray-800 border-gray-700 text-sm" />
