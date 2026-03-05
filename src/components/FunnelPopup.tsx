@@ -23,6 +23,7 @@ export interface FunnelPopupData {
   betting_house_id?: string | null;
   final_template?: string | null;
   final_config?: Record<string, any> | null;
+  button_color?: string | null;
 }
 
 interface FunnelPopupProps {
@@ -52,13 +53,12 @@ export function FunnelPopup({ popup, onClose }: FunnelPopupProps) {
 
   const benefits = popup.final_benefits ?? [];
   const houseId = popup.betting_house_id ?? undefined;
+  const buttonColor = (popup as any).button_color || null;
 
-  // Track view on mount
   useEffect(() => {
     trackFunnel({ entityType: 'popup', entityId: popup.id, eventType: 'view', houseId });
   }, []);
 
-  // Track final_view when reaching final step
   useEffect(() => {
     if (isOnFinal) {
       trackFunnel({ entityType: 'popup', entityId: popup.id, eventType: 'final_view', houseId });
@@ -133,6 +133,7 @@ export function FunnelPopup({ popup, onClose }: FunnelPopupProps) {
               currentStep={currentQuestionIndex + 1}
               totalSteps={questions.length}
               onAnswer={handleQuizAnswer}
+              buttonColor={buttonColor}
             />
           )}
 
@@ -148,6 +149,7 @@ export function FunnelPopup({ popup, onClose }: FunnelPopupProps) {
                 onCheckout: (url) => handleCheckout(url),
                 onClose: handleClose,
                 config,
+                buttonColor,
               });
             }
 
@@ -179,19 +181,15 @@ export function FunnelPopup({ popup, onClose }: FunnelPopupProps) {
                 {popup.checkout_link && (
                   <button
                     onClick={() => handleCheckout(popup.checkout_link!)}
-                    className="block w-full py-4 text-center font-bold text-primary-foreground rounded-xl text-sm tracking-wide transition-transform hover:scale-[1.02] active:scale-[0.98] bg-primary"
-                    style={{ boxShadow: "0 0 20px hsl(var(--primary) / 0.3)" }}
+                    className="block w-full py-4 text-center font-bold text-primary-foreground rounded-xl text-sm tracking-wide transition-transform hover:scale-[1.02] active:scale-[0.98] animate-[cta-pulse_2s_ease-in-out_infinite]"
+                    style={{
+                      backgroundColor: buttonColor || "hsl(var(--primary))",
+                      boxShadow: `0 0 20px ${buttonColor ? buttonColor + "4d" : "hsl(var(--primary) / 0.3)"}`,
+                    }}
                   >
                     QUERO ACESSAR AGORA →
                   </button>
                 )}
-
-                <button
-                  onClick={handleClose}
-                  className="w-full text-center text-xs py-1 text-muted-foreground hover:text-foreground/50 transition-colors"
-                >
-                  Não, obrigado
-                </button>
               </div>
             );
           })()}

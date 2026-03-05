@@ -232,6 +232,7 @@ export default function AdminPayCards() {
     final_benefits: form.checkout_benefits ? form.checkout_benefits.split("\n").filter(Boolean) : [],
     final_template: "default",
     final_config: {},
+    button_color: "",
   };
 
   const handleFunnelChange = (updated: PopupFormState) => {

@@ -14,6 +14,7 @@ export interface PopupFormState {
   checkout_link: string;
   final_template: string;
   final_config: Record<string, any>;
+  button_color: string;
 }
 
 export interface PopupRow {
@@ -82,11 +83,11 @@ export const emptyForm: PopupFormState = {
   checkout_link: "",
   final_template: "default",
   final_config: {},
+  button_color: "",
 };
 
 export function formToPayload(form: PopupFormState, selectedHouseId: string | null): Record<string, unknown> {
   const q = form.questions;
-  // Welcome popups always use on_load trigger
   const triggerType = (form.type === "welcome_free" || form.type === "welcome_paid") ? "on_load" : "manual";
   return {
     type: form.type,
@@ -105,6 +106,7 @@ export function formToPayload(form: PopupFormState, selectedHouseId: string | nu
     checkout_link: form.checkout_link || null,
     final_template: form.final_template || "default",
     final_config: Object.keys(form.final_config || {}).length > 0 ? form.final_config : null,
+    button_color: form.button_color || null,
     betting_house_id: selectedHouseId || null,
     updated_at: new Date().toISOString(),
   };
@@ -126,5 +128,6 @@ export function rowToForm(row: PopupRow): PopupFormState {
     checkout_link: row.checkout_link ?? "",
     final_template: row.final_template ?? "default",
     final_config: (row.final_config as Record<string, any>) ?? {},
+    button_color: (row as any).button_color ?? "",
   };
 }

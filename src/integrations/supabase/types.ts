@@ -868,6 +868,7 @@ export type Database = {
       popups: {
         Row: {
           betting_house_id: string | null
+          button_color: string | null
           button_text: string | null
           button_url: string | null
           checkout_link: string | null
@@ -895,6 +896,7 @@ export type Database = {
         }
         Insert: {
           betting_house_id?: string | null
+          button_color?: string | null
           button_text?: string | null
           button_url?: string | null
           checkout_link?: string | null
@@ -922,6 +924,7 @@ export type Database = {
         }
         Update: {
           betting_house_id?: string | null
+          button_color?: string | null
           button_text?: string | null
           button_url?: string | null
           checkout_link?: string | null

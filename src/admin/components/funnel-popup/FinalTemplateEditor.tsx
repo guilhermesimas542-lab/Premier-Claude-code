@@ -107,12 +107,9 @@ export default function FinalTemplateEditor({ form, onChange }: Props) {
         </>
       )}
 
-      {/* ─── Scarcity Countdown fields ─── */}
+      {/* ─── Scarcity Countdown: fixed 10min, no config needed ─── */}
       {template === "scarcity_countdown" && (
-        <div>
-          <Label className="text-gray-500 text-[11px]">Data/Hora Final da Oferta</Label>
-          <Input type="datetime-local" value={config.countdown_end ? config.countdown_end.slice(0, 16) : ""} onChange={(e) => setConfig({ countdown_end: new Date(e.target.value).toISOString() })} className="bg-gray-800 border-gray-700 text-sm" />
-        </div>
+        <p className="text-[10px] text-gray-500 italic">O contador inicia em 10:00 minutos automaticamente ao exibir o pop-up.</p>
       )}
 
       {/* ─── Bonus Offer fields ─── */}

@@ -4,7 +4,11 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Hot Entry Alert Animations */
+@keyframes cta-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+}
+
 @keyframes border-pulse {
   0%, 100% {
     box-shadow: 

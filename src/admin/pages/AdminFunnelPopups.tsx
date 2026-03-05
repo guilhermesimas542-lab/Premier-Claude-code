@@ -299,6 +299,31 @@ export default function AdminFunnelPopups() {
               {/* Dynamic Funnel Builder */}
               <FunnelBuilder form={form} onChange={setForm} />
 
+              {/* Button color picker */}
+              <div>
+                <Label className="text-gray-400 text-xs">Cor Principal dos Botões</Label>
+                <div className="flex gap-2 mt-1 items-center">
+                  <input
+                    type="color"
+                    value={form.button_color || "#f97316"}
+                    onChange={(e) => f("button_color", e.target.value)}
+                    className="w-10 h-10 rounded border border-white/10 cursor-pointer bg-transparent"
+                  />
+                  <Input
+                    placeholder="#f97316"
+                    value={form.button_color}
+                    onChange={(e) => f("button_color", e.target.value)}
+                    className="bg-gray-800 border-gray-700 text-sm flex-1"
+                  />
+                  {form.button_color && (
+                    <button type="button" onClick={() => f("button_color", "")} className="text-gray-500 hover:text-red-400">
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+                <p className="text-[10px] text-gray-600 mt-0.5">Aplicada aos botões de quiz e CTA final. Vazio = cor padrão.</p>
+              </div>
+
               {/* Final screen */}
               <div className="space-y-3 p-3 rounded-xl" style={{ background: "rgba(0,200,255,0.03)", border: "1px dashed rgba(0,200,255,0.15)" }}>
                 <p className="text-xs font-semibold text-white">Tela Final</p>

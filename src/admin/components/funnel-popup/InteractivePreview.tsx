@@ -91,7 +91,7 @@ export default function InteractivePreview({ form, previewMode }: Props) {
               <p className="text-sm font-bold text-foreground text-center">{validQuestions[currentQuestionIndex].text}</p>
               <div className="space-y-1.5">
                 {validQuestions[currentQuestionIndex].options.filter(Boolean).map((o, i) => (
-                  <QuizOptionCard key={i} index={i} text={o} onClick={advance} />
+                  <QuizOptionCard key={i} index={i} text={o} onClick={advance} buttonColor={(form as any).button_color || null} />
                 ))}
               </div>
               {step > 0 && (
@@ -118,6 +118,7 @@ export default function InteractivePreview({ form, previewMode }: Props) {
                   onCheckout: () => {},
                   onClose: () => {},
                   config,
+                  buttonColor: (form as any).button_color || null,
                 })}
                 {validQuestions.length > 0 && viewMode === "funnel" && (
                   <div className="px-4 pb-3">
@@ -139,7 +140,10 @@ export default function InteractivePreview({ form, previewMode }: Props) {
                 </div>
               ))}
               {form.checkout_link && (
-                <div className="w-full py-2 text-center text-xs font-bold text-primary-foreground rounded-lg cursor-pointer bg-primary hover:opacity-90 transition-opacity">
+                <div
+                  className="w-full py-2 text-center text-xs font-bold text-primary-foreground rounded-lg cursor-pointer hover:opacity-90 transition-opacity animate-[cta-pulse_2s_ease-in-out_infinite]"
+                  style={{ backgroundColor: (form as any).button_color || "hsl(var(--primary))" }}
+                >
                   QUERO ACESSAR →
                 </div>
               )}
