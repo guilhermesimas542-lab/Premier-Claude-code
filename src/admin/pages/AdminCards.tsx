@@ -5,7 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, Pencil, Loader2, Monitor, Smartphone, Tablet } from "lucide-react";
+import { Plus, Pencil, Loader2, Monitor, Smartphone, Tablet, ChevronDown } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { AUDIENCE_SEGMENTS, getSegmentLabel, parseAudience } from "@/lib/audienceUtils";
 import { toast } from "sonner";
 import FunnelBuilder from "@/admin/components/funnel-popup/FunnelBuilder";
 import type { PopupFormState, FunnelQuestion } from "@/admin/components/funnel-popup/types";
@@ -62,7 +64,7 @@ const EMPTY_FORM = {
   button_bg_color: "",
   button_font_color: "",
   requires_access: false,
-  access_field: "",
+  access_field: "[]",
   checkout_url: "",
   pay_card_id: "",
   display_order: 0,
@@ -128,7 +130,7 @@ export default function AdminCards() {
       button_bg_color: c.button_bg_color ?? "",
       button_font_color: c.button_font_color ?? "",
       requires_access: c.requires_access ?? false,
-      access_field: c.access_field ?? "",
+      access_field: c.access_field ?? "[]",
       checkout_url: c.checkout_url ?? "",
       pay_card_id: c.pay_card_id ?? "",
       display_order: c.display_order,
@@ -615,18 +617,47 @@ export default function AdminCards() {
 
               {form.requires_access && (
                 <div>
-                  <label className="text-xs text-gray-500">Campo de acesso (useUserAccess)</label>
-                  <Select value={form.access_field} onValueChange={(v) => set("access_field", v)}>
-                    <SelectTrigger className="bg-gray-900 border-gray-800"><SelectValue placeholder="Selecione..." /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="hasAlavancagem">hasAlavancagem</SelectItem>
-                      <SelectItem value="hasOddsAltas">hasOddsAltas</SelectItem>
-                      <SelectItem value="hasLiveTelegram">hasLiveTelegram</SelectItem>
-                      <SelectItem value="isBasic">isBasic</SelectItem>
-                      <SelectItem value="isPro">isPro</SelectItem>
-                      <SelectItem value="isUltra">isUltra</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <label className="text-xs text-gray-500">Bloqueado para</label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button className="w-full flex items-center justify-between bg-gray-900 border border-gray-800 rounded-md px-3 py-2 text-sm text-left min-h-[40px]">
+                        <span className="truncate text-gray-300">
+                          {(() => {
+                            const parsed = parseAudience(form.access_field);
+                            return parsed.length > 0 ? parsed.map(getSegmentLabel).join(", ") : "Selecione os critérios...";
+                          })()}
+                        </span>
+                        <ChevronDown className="w-4 h-4 shrink-0 opacity-50" />
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-80 p-0 bg-gray-900 border-gray-700 max-h-72 overflow-y-auto" align="start">
+                      {(() => {
+                        const groups = [...new Set(AUDIENCE_SEGMENTS.map(s => s.group))];
+                        const currentCriteria = parseAudience(form.access_field);
+                        const toggleCriterion = (val: string) => {
+                          const updated = currentCriteria.includes(val)
+                            ? currentCriteria.filter(c => c !== val)
+                            : [...currentCriteria, val];
+                          set("access_field", JSON.stringify(updated));
+                        };
+                        return groups.map(group => (
+                          <div key={group} className="px-3 py-2">
+                            <p className="text-[10px] font-bold text-gray-500 uppercase mb-1.5">{group}</p>
+                            {AUDIENCE_SEGMENTS.filter(s => s.group === group).map(seg => (
+                              <label key={seg.value} className="flex items-center gap-2 py-1 cursor-pointer hover:bg-gray-800 rounded px-1">
+                                <Checkbox
+                                  checked={currentCriteria.includes(seg.value)}
+                                  onCheckedChange={() => toggleCriterion(seg.value)}
+                                />
+                                <span className="text-xs text-gray-300">{seg.label}</span>
+                              </label>
+                            ))}
+                          </div>
+                        ));
+                      })()}
+                    </PopoverContent>
+                  </Popover>
+                  <p className="text-[10px] text-gray-500 mt-1">O card será bloqueado para usuários que atendem TODOS os critérios selecionados</p>
                 </div>
               )}
 

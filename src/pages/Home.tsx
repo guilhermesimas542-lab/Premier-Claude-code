@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
 import { toast } from "sonner";
 import { isAuthenticated, clearAuth, getStoredConfig, getBackgroundImageUrl } from "@/lib/auth";
+import { parseAudience, matchesAudienceCriteria } from "@/lib/audienceUtils";
 import { supabase } from "@/integrations/supabase/client";
 import type { PayCardData } from "@/hooks/usePayCards";
 import { mockGetUser } from "@/mocks/user";
@@ -102,8 +103,21 @@ const Home = () => {
   const handleBuyLifetime = () => { window.open(CHECKOUT_LINKS.vitalicio, '_blank'); setShowLifetimeModal(false); };
 
   const hasAccess = (card: CardData): boolean => {
-    if (!card.requires_access || !card.access_field) return true;
-    return !!(access as any)[card.access_field];
+    if (!card.requires_access) return true;
+    const criteria = parseAudience(card.access_field);
+    if (criteria.length === 0) return true; // No blocking criteria = accessible
+    // Check if user matches the blocking criteria
+    const isBlocked = matchesAudienceCriteria(
+      criteria,
+      access.mainTier,
+      access.isVitalicio,
+      [
+        ...(access.hasAlavancagem ? ["alavancagem"] : []),
+        ...(access.hasOddsAltas ? ["desaltas"] : []),
+        ...(access.hasLiveTelegram ? ["live_telegram"] : []),
+      ],
+    );
+    return !isBlocked; // If user matches blocking criteria, they DON'T have access
   };
 
   const handleOpenPayCardById = async (payCardId: string) => {

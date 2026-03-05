@@ -7,6 +7,7 @@ export interface UserAccess {
   hasAlavancagem: boolean;
   hasOddsAltas: boolean;
   hasLiveTelegram: boolean;
+  isVitalicio: boolean;
   isUltra: boolean;
   isPro: boolean;
   isBasic: boolean;
@@ -20,6 +21,7 @@ const DEFAULT: UserAccess = {
   hasAlavancagem: false,
   hasOddsAltas: false,
   hasLiveTelegram: false,
+  isVitalicio: false,
   isUltra: false,
   isPro: false,
   isBasic: false,
@@ -41,11 +43,12 @@ export function useUserAccess(): UserAccess {
 
     const { data: userData } = await supabase
       .from("users")
-      .select("id, main_tier")
+      .select("id, main_tier, is_vitalicio")
       .eq("email", mockUser.email.toLowerCase().trim())
       .maybeSingle();
 
     const tier = (userData?.main_tier as UserAccess["mainTier"]) || "free";
+    const isVitalicio = userData?.is_vitalicio ?? false;
     const userId = userData?.id;
 
     let addons: string[] = [];
@@ -63,6 +66,7 @@ export function useUserAccess(): UserAccess {
       hasAlavancagem: addons.includes("alavancagem"),
       hasOddsAltas: addons.includes("desaltas"),
       hasLiveTelegram: addons.includes("live_telegram"),
+      isVitalicio,
       isUltra: tier === "ultra",
       isPro: tier === "pro" || tier === "ultra",
       isBasic: tier === "basic" || tier === "pro" || tier === "ultra",
