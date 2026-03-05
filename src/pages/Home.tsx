@@ -5,6 +5,7 @@ import { useEffect, useState, useRef } from "react";
 import { toast } from "sonner";
 import { isAuthenticated, clearAuth, getStoredConfig, getBackgroundImageUrl } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
+import type { PayCardData } from "@/hooks/usePayCards";
 import { mockGetUser } from "@/mocks/user";
 import { trackEvent } from "@/lib/events";
 import BasicPlanModal from "@/components/BasicPlanModal";
@@ -34,6 +35,7 @@ const Home = () => {
   const [showLifetimeInfoModal, setShowLifetimeInfoModal] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [funnelCard, setFunnelCard] = useState<CardData | null>(null);
+  const [bannerPayCard, setBannerPayCard] = useState<PayCardData | null>(null);
 
   const mockUser = mockGetUser();
   const config = getStoredConfig();
@@ -57,6 +59,21 @@ const Home = () => {
   // Track app_open event once on mount
   useEffect(() => {
     trackEvent("app_open");
+  }, []);
+
+  // Listen for pay_card banner events
+  useEffect(() => {
+    const handlePayCardFromBanner = async (e: Event) => {
+      const { payCardId } = (e as CustomEvent).detail;
+      if (!payCardId) return;
+      const { data } = await supabase.from("pay_cards" as any).select("*").eq("id", payCardId).maybeSingle();
+      if (data) {
+        // Use a local state to show the pay card modal
+        setBannerPayCard(data as any as PayCardData);
+      }
+    };
+    window.addEventListener("open-paycard-from-banner", handlePayCardFromBanner);
+    return () => window.removeEventListener("open-paycard-from-banner", handlePayCardFromBanner);
   }, []);
 
   useEffect(() => {
@@ -389,6 +406,9 @@ const Home = () => {
       )}
       {pcData && (
         <PayCardFunnelModal payCard={pcData} open={pcOpen} onClose={closePayCard} />
+      )}
+      {bannerPayCard && (
+        <PayCardFunnelModal payCard={bannerPayCard} open={!!bannerPayCard} onClose={() => setBannerPayCard(null)} />
       )}
     </div>
   );
