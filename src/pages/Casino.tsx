@@ -14,6 +14,9 @@ import { useUserAccess } from "@/hooks/useUserAccess";
 import { CardType1Lateral } from "@/components/cards/CardType1Lateral";
 import { CardType2Top } from "@/components/cards/CardType2Top";
 import { CardFunnelModal } from "@/components/cards/CardFunnelModal";
+import { supabase } from "@/integrations/supabase/client";
+import type { PayCardData } from "@/hooks/usePayCards";
+import { PayCardFunnelModal } from "@/components/PayCardFunnelModal";
 
 const Casino = () => {
   const navigate = useNavigate();
@@ -22,6 +25,7 @@ const Casino = () => {
   const { cards: casinoCards, loading } = useCards("casino");
   const access = useUserAccess();
   const [funnelCard, setFunnelCard] = useState<CardData | null>(null);
+  const [cardPayCard, setCardPayCard] = useState<PayCardData | null>(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -46,9 +50,19 @@ const Casino = () => {
     return !!(access as any)[card.access_field];
   };
 
+  const handleOpenPayCardById = async (payCardId: string) => {
+    const { data } = await supabase.from("pay_cards" as any).select("*").eq("id", payCardId).maybeSingle();
+    if (data) setCardPayCard(data as any as PayCardData);
+  };
+
   const handleCardAction = (card: CardData) => {
-    // Cards that require access and user doesn't have it → open funnel/checkout
+    // Cards that require access and user doesn't have it → open pay card funnel
     if (card.requires_access && !hasAccess(card)) {
+      if (card.pay_card_id) {
+        handleOpenPayCardById(card.pay_card_id);
+        return;
+      }
+      // Legacy fallback
       if ((card.questions && card.questions.length > 0) || card.checkout_url) {
         setFunnelCard(card);
       }
@@ -127,6 +141,13 @@ const Casino = () => {
           card={funnelCard}
           open={!!funnelCard}
           onClose={() => setFunnelCard(null)}
+        />
+      )}
+      {cardPayCard && (
+        <PayCardFunnelModal
+          payCard={cardPayCard}
+          open={!!cardPayCard}
+          onClose={() => setCardPayCard(null)}
         />
       )}
     </div>

@@ -26,6 +26,7 @@ export interface CardData {
   requires_access: boolean;
   access_field: string | null;
   checkout_url: string | null;
+  pay_card_id: string | null;
   questions: any[];
   display_order: number;
   is_active: boolean;

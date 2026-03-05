@@ -106,8 +106,19 @@ const Home = () => {
     return !!(access as any)[card.access_field];
   };
 
+  const handleOpenPayCardById = async (payCardId: string) => {
+    const { data } = await supabase.from("pay_cards" as any).select("*").eq("id", payCardId).maybeSingle();
+    if (data) setBannerPayCard(data as any as PayCardData);
+  };
+
   const handleCardAction = (card: CardData) => {
     if (card.requires_access && !hasAccess(card)) {
+      // If card has a linked Pay Card, open its funnel
+      if (card.pay_card_id) {
+        handleOpenPayCardById(card.pay_card_id);
+        return;
+      }
+      // Legacy fallback: use card's own funnel/checkout
       if ((card.questions && card.questions.length > 0) || card.checkout_url) {
         setFunnelCard(card);
       }
