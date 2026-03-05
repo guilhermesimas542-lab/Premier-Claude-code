@@ -166,8 +166,12 @@ export const PromoCarousel = ({ context = "futebol" }: PromoCarouselProps) => {
       const sport = banner.action_value || "football";
       navigate(`/sport?tab=${sport}`);
     } else if (actionType === "quiz") {
-      // Open quiz directly - dispatch custom event
       window.dispatchEvent(new CustomEvent("open-quiz-from-banner", { detail: { skipIntro: true } }));
+    } else if (actionType === "pay_card") {
+      const payCardId = banner.action_value;
+      if (payCardId) {
+        window.dispatchEvent(new CustomEvent("open-paycard-from-banner", { detail: { payCardId } }));
+      }
     }
   };
 

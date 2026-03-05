@@ -15,7 +15,7 @@ import { useBettingHouseAdmin } from "@/admin/context/BettingHouseContext";
 import { format } from "date-fns";
 
 type BannerStatus = "active" | "inactive" | "deleted";
-type ActionType = "external_link" | "tips_tab" | "quiz";
+type ActionType = "external_link" | "tips_tab" | "quiz" | "pay_card";
 
 const AUDIENCE_OPTIONS = [
   { value: "all", label: "Todos" },
@@ -56,6 +56,7 @@ const ACTION_TYPE_OPTIONS = [
   { value: "external_link", label: "Link Externo" },
   { value: "tips_tab", label: "Aba de Tips" },
   { value: "quiz", label: "Abrir Quiz" },
+  { value: "pay_card", label: "Pay Card de Destino" },
 ] as const;
 
 
@@ -124,6 +125,7 @@ export default function AdminBanners() {
   const [editAnalytics, setEditAnalytics] = useState<{ impressions: number; clicks: number; dailyClicks: { date: string; count: number }[] } | null>(null);
   const [limitModalOpen, setLimitModalOpen] = useState(false);
   const [imageError, setImageError] = useState("");
+  const [payCardsList, setPayCardsList] = useState<{ id: string; name: string; associated_plan: string }[]>([]);
 
   // Drag state
   const dragItem = useRef<number | null>(null);
@@ -171,6 +173,15 @@ export default function AdminBanners() {
   };
 
   useEffect(() => { load(); }, [ctx, selectedHouseId]);
+
+  // Load pay cards for dropdown
+  useEffect(() => {
+    const loadPayCards = async () => {
+      const { data } = await supabase.from("pay_cards").select("id, name, associated_plan").eq("is_active", true).order("name");
+      setPayCardsList((data ?? []) as any[]);
+    };
+    loadPayCards();
+  }, []);
 
   const items = allItems.filter((b) => {
     if (b.status !== tab) return false;
@@ -224,6 +235,10 @@ export default function AdminBanners() {
       toast.error("Preencha o link do botão");
       return;
     }
+    if (actionType === "pay_card" && !form.action_value) {
+      toast.error("Selecione um Pay Card de destino");
+      return;
+    }
 
     setSaving(true);
     const nextOrder = allItems.length > 0 ? Math.max(...allItems.map((i) => i.display_order)) + 1 : 1;
@@ -233,6 +248,7 @@ export default function AdminBanners() {
     if (actionType === "external_link") buttonLink = form.action_value || null;
     else if (actionType === "tips_tab") buttonLink = `/tips/${form.action_value}`;
     else if (actionType === "quiz") buttonLink = null;
+    else if (actionType === "pay_card") buttonLink = null;
 
     const payload: Record<string, unknown> = {
       context: form.context || ctx,
@@ -243,7 +259,7 @@ export default function AdminBanners() {
       button_text: form.button_text || "Acesse aqui",
       button_link: buttonLink,
       action_type: actionType,
-      action_value: actionType === "quiz" ? null : (form.action_value || null),
+      action_value: (actionType === "quiz") ? null : (form.action_value || null),
       status: form.status ?? "active",
       display_order: (form as Banner).id ? form.display_order ?? 0 : nextOrder,
       starts_at: scheduleEnabled && form.starts_at ? form.starts_at : new Date().toISOString(),
@@ -414,6 +430,10 @@ export default function AdminBanners() {
     const at = b.action_type || "external_link";
     if (at === "quiz") return <span className="text-purple-400 text-xs">Quiz</span>;
     if (at === "tips_tab") return <span className="text-blue-400 text-xs">Tips: {b.action_value}</span>;
+    if (at === "pay_card") {
+      const pc = payCardsList.find(p => p.id === b.action_value);
+      return <span className="text-amber-400 text-xs">Pay Card: {pc?.name || b.action_value?.slice(0,8)}</span>;
+    }
     return <span className="text-[10px] text-gray-500 truncate">{b.button_link || b.action_value}</span>;
   };
 
@@ -738,6 +758,21 @@ export default function AdminBanners() {
 
               {currentActionType === "quiz" && (
                 <p className="text-xs text-gray-500">O quiz será aberto diretamente ao clicar no banner.</p>
+              )}
+
+              {currentActionType === "pay_card" && (
+                <div>
+                  <Label className="text-gray-400 text-xs">Pay Card de Destino <span className="text-red-400">*</span></Label>
+                  <Select value={form.action_value || ""} onValueChange={(v) => setForm({ ...form, action_value: v })}>
+                    <SelectTrigger className="bg-gray-800 border-gray-700"><SelectValue placeholder="Selecione um Pay Card" /></SelectTrigger>
+                    <SelectContent>
+                      {payCardsList.map((pc) => (
+                        <SelectItem key={pc.id} value={pc.id}>{pc.name} ({pc.associated_plan})</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-gray-500 mt-1">O funil do Pay Card será aberto ao clicar no banner.</p>
+                </div>
               )}
 
               <div className="space-y-2">
