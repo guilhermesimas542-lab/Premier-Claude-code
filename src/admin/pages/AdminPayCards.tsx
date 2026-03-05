@@ -11,6 +11,8 @@ import { toast } from "sonner";
 import FunnelBuilder from "@/admin/components/funnel-popup/FunnelBuilder";
 import type { PopupFormState, FunnelQuestion } from "@/admin/components/funnel-popup/types";
 import { LogoInput } from "@/admin/components/LogoInput";
+import FinalTemplateEditor, { FINAL_TEMPLATES } from "@/admin/components/funnel-popup/FinalTemplateEditor";
+import type { FinalConfig, FinalTemplateType } from "@/components/funnel/FinalTemplates";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { PayCardMiniaturePreview } from "@/admin/components/pay-cards/PayCardMiniaturePreview";
@@ -62,6 +64,9 @@ const EMPTY_FORM = {
   betting_house_id: "__none__",
   location: "",
   target_audience: "",
+  button_color: "",
+  checkout_template: "default",
+  checkout_final_config: {} as Record<string, any>,
 };
 
 export default function AdminPayCards() {
@@ -160,6 +165,9 @@ export default function AdminPayCards() {
       betting_house_id: c.betting_house_id || "__none__",
       location: c.location ?? "",
       target_audience: c.target_audience ?? "",
+      button_color: (c as any).button_color ?? "",
+      checkout_template: (c as any).checkout_template ?? "default",
+      checkout_final_config: (c as any).checkout_final_config ?? {},
     });
     const q = Array.isArray(c.quiz_questions) ? c.quiz_questions : [];
     setQuestions(q.map((item: any) => ({
@@ -203,6 +211,9 @@ export default function AdminPayCards() {
         benefits: form.checkout_benefits ? form.checkout_benefits.split("\n").filter(Boolean) : [],
       },
       is_active: form.is_active,
+      button_color: form.button_color || null,
+      checkout_template: form.checkout_template || "default",
+      checkout_final_config: Object.keys(form.checkout_final_config || {}).length > 0 ? form.checkout_final_config : null,
       updated_at: new Date().toISOString(),
     };
 
@@ -230,13 +241,17 @@ export default function AdminPayCards() {
     questions,
     final_title: form.checkout_title,
     final_benefits: form.checkout_benefits ? form.checkout_benefits.split("\n").filter(Boolean) : [],
-    final_template: "default",
-    final_config: {},
-    button_color: "",
+    final_template: form.checkout_template || "default",
+    final_config: form.checkout_final_config || {},
+    button_color: form.button_color || "",
   };
 
   const handleFunnelChange = (updated: PopupFormState) => {
     setQuestions(updated.questions);
+    // Sync template/config/color changes back
+    if (updated.final_template !== funnelForm.final_template) set("checkout_template", updated.final_template);
+    if (updated.final_config !== funnelForm.final_config) set("checkout_final_config", updated.final_config);
+    if (updated.button_color !== funnelForm.button_color) set("button_color", updated.button_color);
   };
 
   // Preview data adapter
@@ -255,6 +270,9 @@ export default function AdminPayCards() {
     questions,
     associated_plan: form.associated_plan,
     name: form.name,
+    button_color: form.button_color,
+    checkout_template: form.checkout_template,
+    checkout_final_config: form.checkout_final_config,
   };
 
   return (
@@ -447,6 +465,28 @@ export default function AdminPayCards() {
               {/* Quiz Section */}
               <FunnelBuilder form={funnelForm} onChange={handleFunnelChange} />
 
+              {/* Color Picker */}
+              <div className="p-3 rounded-lg bg-gray-800 space-y-3">
+                <label className="text-sm font-medium">🎨 Cor Principal dos Botões</label>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="color"
+                    value={form.button_color || "#f97316"}
+                    onChange={(e) => set("button_color", e.target.value)}
+                    className="w-10 h-10 rounded cursor-pointer border border-white/10 bg-transparent"
+                  />
+                  <Input
+                    value={form.button_color}
+                    onChange={(e) => set("button_color", e.target.value)}
+                    placeholder="#f97316"
+                    className="bg-gray-900 border-gray-800 flex-1"
+                  />
+                  {form.button_color && (
+                    <button onClick={() => set("button_color", "")} className="text-xs text-gray-500 hover:text-gray-300">Resetar</button>
+                  )}
+                </div>
+              </div>
+
               {/* Checkout Section */}
               <div className="p-3 rounded-lg bg-gray-800 space-y-3">
                 <label className="text-sm font-medium">💳 Checkout</label>
@@ -474,6 +514,15 @@ export default function AdminPayCards() {
                   <label className="text-xs text-gray-500">Benefícios (um por linha)</label>
                   <Textarea value={form.checkout_benefits} onChange={(e) => set("checkout_benefits", e.target.value)} placeholder={"Acesso a todas as tips Pro\nSuporte prioritário\nGrupo exclusivo"} className="bg-gray-900 border-gray-800 text-sm" rows={4} />
                 </div>
+
+                {/* Template selector for checkout */}
+                <FinalTemplateEditor
+                  form={funnelForm}
+                  onChange={(updated) => {
+                    set("checkout_template", updated.final_template);
+                    set("checkout_final_config", updated.final_config);
+                  }}
+                />
               </div>
 
               <Button onClick={handleSave} disabled={saving} className="w-full">

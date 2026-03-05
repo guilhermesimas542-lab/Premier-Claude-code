@@ -12,6 +12,9 @@ export interface PayCardData {
   checkout_config: { product_id?: string; title?: string; benefits?: string[]; checkout_url?: string; checkout_url_2?: string; checkout_label_1?: string; checkout_label_2?: string } | null;
   is_active: boolean;
   betting_house_id: string | null;
+  button_color: string | null;
+  checkout_template: string | null;
+  checkout_final_config: Record<string, any> | null;
 }
 
 export function usePayCardByPlan() {

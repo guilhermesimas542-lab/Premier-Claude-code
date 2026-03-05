@@ -7,6 +7,7 @@ import { ChevronRight, X, Check } from "lucide-react";
 import type { PayCardData } from "@/hooks/usePayCards";
 import { trackEvent } from "@/lib/events";
 import { trackFunnel } from "@/lib/funnelTracker";
+import { renderFinalTemplate, type FinalTemplateType, type FinalConfig } from "@/components/funnel/FinalTemplates";
 
 interface Props {
   payCard: PayCardData;
@@ -27,6 +28,9 @@ export function PayCardFunnelModal({ payCard, open, onClose }: Props) {
   const label2 = checkout?.checkout_label_2 || "Comprar Pacote Completo";
   const hasDualCheckout = !!checkoutUrl && !!checkoutUrl2;
   const houseId = payCard.betting_house_id ?? undefined;
+  const buttonColor = payCard.button_color || null;
+  const checkoutTemplate = (payCard.checkout_template || "default") as FinalTemplateType;
+  const checkoutFinalConfig = (payCard.checkout_final_config || {}) as FinalConfig;
 
   const getInitialStep = (): Step => {
     if (hasIntro) return "intro";
@@ -40,13 +44,11 @@ export function PayCardFunnelModal({ payCard, open, onClose }: Props) {
 
   useEffect(() => {
     if (open) {
-      // Single consolidated event per modal open
       trackEvent("funnel_view", { funnel_name: payCard.name, plan: payCard.associated_plan });
       trackFunnel({ entityType: 'paycard', entityId: payCard.id, eventType: 'view', houseId });
     }
   }, [open]);
 
-  // Track final_view when reaching checkout step
   useEffect(() => {
     if (step === "checkout") {
       trackFunnel({ entityType: 'paycard', entityId: payCard.id, eventType: 'final_view', houseId });
@@ -86,12 +88,10 @@ export function PayCardFunnelModal({ payCard, open, onClose }: Props) {
   };
 
   const goToCheckout = (url: string) => {
-    // Legacy event
     trackEvent("click_buy_from_popup", {
       funnel_name: payCard.name,
       plan: payCard.associated_plan,
     });
-    // New funnel analytics
     trackFunnel({ entityType: 'paycard', entityId: payCard.id, eventType: 'checkout_click', houseId });
     setEmbeddedUrl(url);
   };
@@ -118,7 +118,7 @@ export function PayCardFunnelModal({ payCard, open, onClose }: Props) {
             <div className="p-6 text-center space-y-3">
               {popup.title && <h3 className="text-lg font-bold">{popup.title}</h3>}
               {popup.text && <p className="text-sm text-gray-300">{popup.text}</p>}
-              <Button onClick={advanceFromIntro} className="w-full mt-2">
+              <Button onClick={advanceFromIntro} className="w-full mt-2" style={buttonColor ? { backgroundColor: buttonColor } : undefined}>
                 {popup.cta_text || "Continuar"} <ChevronRight className="w-4 h-4 ml-1" />
               </Button>
             </div>
@@ -132,6 +132,7 @@ export function PayCardFunnelModal({ payCard, open, onClose }: Props) {
                 <div
                   key={i}
                   className={`h-1 flex-1 rounded-full transition-colors ${i <= quizIndex ? "bg-primary" : "bg-white/10"}`}
+                  style={i <= quizIndex && buttonColor ? { backgroundColor: buttonColor } : undefined}
                 />
               ))}
             </div>
@@ -141,39 +142,72 @@ export function PayCardFunnelModal({ payCard, open, onClose }: Props) {
               questionText={questions[quizIndex].text}
               options={questions[quizIndex].options}
               onAnswer={advanceFromQuiz}
+              buttonColor={buttonColor}
             />
           </div>
         )}
 
-        {step === "checkout" && (
-          <div className="p-6 text-center space-y-4">
-            {checkout?.title && <h3 className="text-lg font-bold">{checkout.title}</h3>}
-            {checkout?.benefits && checkout.benefits.length > 0 && (
-              <ul className="text-left space-y-2">
-                {checkout.benefits.map((b, i) => (
-                  <li key={i} className="flex items-start gap-2 text-sm text-gray-200">
-                    <Check className="w-4 h-4 text-green-400 mt-0.5 shrink-0" />
-                    <span>{b}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
-            {hasDualCheckout ? (
-              <div className="space-y-3">
-                <Button onClick={() => goToCheckout(checkoutUrl!)} className="w-full" size="lg">
+        {step === "checkout" && (() => {
+          // Use template system if non-default
+          if (checkoutTemplate !== "default") {
+            const benefits = checkout?.benefits || [];
+            return renderFinalTemplate(checkoutTemplate, {
+              title: checkout?.title || "Perfeito para você!",
+              benefits,
+              checkoutLink: checkoutUrl || null,
+              onCheckout: goToCheckout,
+              onClose: handleClose,
+              config: checkoutFinalConfig,
+              buttonColor,
+            });
+          }
+
+          // Default template with dual checkout support
+          return (
+            <div className="p-6 text-center space-y-4">
+              {checkout?.title && <h3 className="text-lg font-bold">{checkout.title}</h3>}
+              {checkout?.benefits && checkout.benefits.length > 0 && (
+                <ul className="text-left space-y-2">
+                  {checkout.benefits.map((b, i) => (
+                    <li key={i} className="flex items-start gap-2 text-sm text-gray-200">
+                      <Check className="w-4 h-4 text-green-400 mt-0.5 shrink-0" />
+                      <span>{b}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {hasDualCheckout ? (
+                <div className="space-y-3">
+                  <Button
+                    onClick={() => goToCheckout(checkoutUrl!)}
+                    className="w-full animate-[cta-pulse_2s_ease-in-out_infinite]"
+                    size="lg"
+                    style={buttonColor ? { backgroundColor: buttonColor } : undefined}
+                  >
+                    {label1} <ChevronRight className="w-4 h-4 ml-1" />
+                  </Button>
+                  <Button
+                    onClick={() => goToCheckout(checkoutUrl2!)}
+                    className="w-full"
+                    size="lg"
+                    variant="outline"
+                  >
+                    {label2} <ChevronRight className="w-4 h-4 ml-1" />
+                  </Button>
+                </div>
+              ) : checkoutUrl ? (
+                <Button
+                  onClick={() => goToCheckout(checkoutUrl)}
+                  className="w-full animate-[cta-pulse_2s_ease-in-out_infinite]"
+                  size="lg"
+                  style={buttonColor ? { backgroundColor: buttonColor } : undefined}
+                >
                   {label1} <ChevronRight className="w-4 h-4 ml-1" />
                 </Button>
-                <Button onClick={() => goToCheckout(checkoutUrl2!)} className="w-full" size="lg" variant="outline">
-                  {label2} <ChevronRight className="w-4 h-4 ml-1" />
-                </Button>
-              </div>
-            ) : checkoutUrl ? (
-              <Button onClick={() => goToCheckout(checkoutUrl)} className="w-full" size="lg">
-                {label1} <ChevronRight className="w-4 h-4 ml-1" />
-              </Button>
-            ) : null}
-          </div>
-        )}
+              ) : null}
+            </div>
+          );
+        })()}
       </DialogContent>
     </Dialog>
   );

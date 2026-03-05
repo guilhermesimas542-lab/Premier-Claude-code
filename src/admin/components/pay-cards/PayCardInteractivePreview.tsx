@@ -4,6 +4,7 @@ import { ChevronRight, Check, RotateCcw, MousePointerClick } from "lucide-react"
 import QuizStep from "@/components/funnel/QuizStep";
 import { PayCardMiniaturePreview } from "./PayCardMiniaturePreview";
 import type { FunnelQuestion } from "@/admin/components/funnel-popup/types";
+import { renderFinalTemplate, type FinalTemplateType, type FinalConfig } from "@/components/funnel/FinalTemplates";
 
 interface PreviewData {
   has_intro_popup: boolean;
@@ -18,9 +19,11 @@ interface PreviewData {
   checkout_label_2: string;
   checkout_benefits: string;
   questions: FunnelQuestion[];
-  // form-level fields for the trigger preview
   associated_plan?: string;
   name?: string;
+  button_color?: string;
+  checkout_template?: string;
+  checkout_final_config?: Record<string, any>;
 }
 
 type Step = "trigger" | "intro" | "quiz" | "checkout";
@@ -31,6 +34,9 @@ export function PayCardInteractivePreview({ data }: { data: PreviewData }) {
   const hasQuiz = questions.length > 0;
   const benefits = data.checkout_benefits ? data.checkout_benefits.split("\n").filter(Boolean) : [];
   const hasDualCheckout = !!data.checkout_url && !!data.checkout_url_2;
+  const buttonColor = data.button_color || null;
+  const checkoutTemplate = (data.checkout_template || "default") as FinalTemplateType;
+  const checkoutFinalConfig = (data.checkout_final_config || {}) as FinalConfig;
 
   const [step, setStep] = useState<Step>("trigger");
   const [quizIndex, setQuizIndex] = useState(0);
@@ -103,7 +109,7 @@ export function PayCardInteractivePreview({ data }: { data: PreviewData }) {
             <div className="p-4 text-center space-y-2">
               {data.popup_title && <h3 className="text-sm font-bold text-white">{data.popup_title}</h3>}
               {data.popup_text && <p className="text-xs text-zinc-300">{data.popup_text}</p>}
-              <Button onClick={advanceFromIntro} size="sm" className="w-full mt-1">
+              <Button onClick={advanceFromIntro} size="sm" className="w-full mt-1" style={buttonColor ? { backgroundColor: buttonColor } : undefined}>
                 {data.popup_cta_text || "Continuar"} <ChevronRight className="w-3 h-3 ml-1" />
               </Button>
             </div>
@@ -115,7 +121,11 @@ export function PayCardInteractivePreview({ data }: { data: PreviewData }) {
           <div className="p-4">
             <div className="flex gap-1 mb-3">
               {questions.map((_, i) => (
-                <div key={i} className={`h-1 flex-1 rounded-full transition-colors ${i <= quizIndex ? "bg-primary" : "bg-white/10"}`} />
+                <div
+                  key={i}
+                  className={`h-1 flex-1 rounded-full transition-colors ${i <= quizIndex ? "bg-primary" : "bg-white/10"}`}
+                  style={i <= quizIndex && buttonColor ? { backgroundColor: buttonColor } : undefined}
+                />
               ))}
             </div>
             <QuizStep
@@ -124,43 +134,58 @@ export function PayCardInteractivePreview({ data }: { data: PreviewData }) {
               questionText={questions[quizIndex].text}
               options={questions[quizIndex].options}
               onAnswer={advanceFromQuiz}
+              buttonColor={buttonColor}
             />
           </div>
         )}
 
         {/* CHECKOUT */}
-        {step === "checkout" && (
-          <div className="p-4 text-center space-y-3">
-            {data.checkout_title && <h3 className="text-sm font-bold text-white">{data.checkout_title}</h3>}
-            {benefits.length > 0 && (
-              <ul className="text-left space-y-1.5">
-                {benefits.map((b, i) => (
-                  <li key={i} className="flex items-start gap-1.5 text-xs text-zinc-200">
-                    <Check className="w-3 h-3 text-emerald-400 mt-0.5 shrink-0" />
-                    <span>{b}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
-            {hasDualCheckout ? (
-              <div className="space-y-2">
-                <Button size="sm" className="w-full" disabled>
+        {step === "checkout" && (() => {
+          if (checkoutTemplate !== "default") {
+            return renderFinalTemplate(checkoutTemplate, {
+              title: data.checkout_title || "Perfeito para você!",
+              benefits,
+              checkoutLink: data.checkout_url || null,
+              onCheckout: () => {},
+              onClose: () => {},
+              config: checkoutFinalConfig,
+              buttonColor,
+            });
+          }
+
+          return (
+            <div className="p-4 text-center space-y-3">
+              {data.checkout_title && <h3 className="text-sm font-bold text-white">{data.checkout_title}</h3>}
+              {benefits.length > 0 && (
+                <ul className="text-left space-y-1.5">
+                  {benefits.map((b, i) => (
+                    <li key={i} className="flex items-start gap-1.5 text-xs text-zinc-200">
+                      <Check className="w-3 h-3 text-emerald-400 mt-0.5 shrink-0" />
+                      <span>{b}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {hasDualCheckout ? (
+                <div className="space-y-2">
+                  <Button size="sm" className="w-full animate-[cta-pulse_2s_ease-in-out_infinite]" disabled style={buttonColor ? { backgroundColor: buttonColor } : undefined}>
+                    {data.checkout_label_1 || "Assinar Agora"} <ChevronRight className="w-3 h-3 ml-1" />
+                  </Button>
+                  <Button size="sm" className="w-full" variant="outline" disabled>
+                    {data.checkout_label_2 || "Pacote Completo"} <ChevronRight className="w-3 h-3 ml-1" />
+                  </Button>
+                </div>
+              ) : (
+                <Button size="sm" className="w-full animate-[cta-pulse_2s_ease-in-out_infinite]" disabled style={buttonColor ? { backgroundColor: buttonColor } : undefined}>
                   {data.checkout_label_1 || "Assinar Agora"} <ChevronRight className="w-3 h-3 ml-1" />
                 </Button>
-                <Button size="sm" className="w-full" variant="outline" disabled>
-                  {data.checkout_label_2 || "Pacote Completo"} <ChevronRight className="w-3 h-3 ml-1" />
-                </Button>
-              </div>
-            ) : (
-              <Button size="sm" className="w-full" disabled>
-                {data.checkout_label_1 || "Assinar Agora"} <ChevronRight className="w-3 h-3 ml-1" />
-              </Button>
-            )}
-            {(!data.checkout_title && benefits.length === 0) && (
-              <p className="text-xs text-zinc-500 italic">Configure o checkout para ver o preview</p>
-            )}
-          </div>
-        )}
+              )}
+              {(!data.checkout_title && benefits.length === 0) && (
+                <p className="text-xs text-zinc-500 italic">Configure o checkout para ver o preview</p>
+              )}
+            </div>
+          );
+        })()}
       </div>
 
       {/* Step breadcrumb */}
