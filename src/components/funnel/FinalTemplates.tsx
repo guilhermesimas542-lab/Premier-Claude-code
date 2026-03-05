@@ -18,20 +18,21 @@ export interface FinalConfig {
   client_count?: number;
   testimonial_1?: string;
   client_name_1?: string;
-  countdown_end?: string; // ISO date
+  countdown_end?: string; // legacy, no longer used
   bonus_title?: string;
   bonus_description?: string;
   bonus_value?: string;
   comparison_items?: { text: string; included_current: boolean }[];
 }
 
-interface BaseProps {
+export interface BaseProps {
   title: string;
   benefits: string[];
   checkoutLink: string | null;
   onCheckout: (url: string) => void;
   onClose: () => void;
   config: FinalConfig;
+  buttonColor?: string | null;
 }
 
 /* ─── Shared pieces ─── */
@@ -48,44 +49,39 @@ const BenefitsList = ({ benefits }: { benefits: string[] }) => (
   </ul>
 );
 
-const CTAButton = ({ text, url, onClick }: { text: string; url: string | null; onClick: (u: string) => void }) =>
+const CTAButton = ({ text, url, onClick, color }: { text: string; url: string | null; onClick: (u: string) => void; color?: string | null }) =>
   url ? (
     <button
       onClick={() => onClick(url)}
-      className="block w-full py-4 text-center font-bold text-primary-foreground rounded-xl text-sm tracking-wide transition-transform hover:scale-[1.02] active:scale-[0.98] bg-primary"
-      style={{ boxShadow: "0 0 20px hsl(var(--primary) / 0.3)" }}
+      className="block w-full py-4 text-center font-bold text-primary-foreground rounded-xl text-sm tracking-wide transition-transform hover:scale-[1.02] active:scale-[0.98] animate-[cta-pulse_2s_ease-in-out_infinite]"
+      style={{
+        backgroundColor: color || "hsl(var(--primary))",
+        boxShadow: `0 0 20px ${color ? color + "4d" : "hsl(var(--primary) / 0.3)"}`,
+      }}
     >
       {text || "QUERO ACESSAR AGORA →"}
     </button>
   ) : null;
 
-const CloseLink = ({ onClose }: { onClose: () => void }) => (
-  <button onClick={onClose} className="w-full text-center text-xs py-1 text-muted-foreground hover:text-foreground/50 transition-colors">
-    Não, obrigado
-  </button>
-);
-
 /* ─── Template 1: Urgência Simples ─── */
-export function TemplateUrgency({ title, benefits, checkoutLink, onCheckout, onClose, config }: BaseProps) {
+export function TemplateUrgency({ title, benefits, checkoutLink, onCheckout, config, buttonColor }: BaseProps) {
   return (
     <div className="p-5 space-y-4">
       <div className="text-center">
         <h2 className="text-xl font-bold text-foreground leading-snug">{title}</h2>
         {config.subtitle && <p className="text-sm text-muted-foreground mt-1">{config.subtitle}</p>}
       </div>
-      {/* Pulsing red line */}
       <div className="flex justify-center">
         <div className="w-3/4 h-[2px] rounded-full bg-red-500 animate-pulse" />
       </div>
       <BenefitsList benefits={benefits} />
-      <CTAButton text={config.button_text || "QUERO ACESSAR AGORA →"} url={checkoutLink} onClick={onCheckout} />
-      <CloseLink onClose={onClose} />
+      <CTAButton text={config.button_text || "QUERO ACESSAR AGORA →"} url={checkoutLink} onClick={onCheckout} color={buttonColor} />
     </div>
   );
 }
 
 /* ─── Template 2: Ancoragem de Preço ─── */
-export function TemplatePriceAnchor({ title, benefits, checkoutLink, onCheckout, onClose, config }: BaseProps) {
+export function TemplatePriceAnchor({ title, benefits, checkoutLink, onCheckout, config, buttonColor }: BaseProps) {
   const oldNum = parseFloat((config.old_price || "0").replace(/[^\d.,]/g, "").replace(",", "."));
   const newNum = parseFloat((config.new_price || "0").replace(/[^\d.,]/g, "").replace(",", "."));
   const discount = oldNum > 0 ? Math.round(((oldNum - newNum) / oldNum) * 100) : 0;
@@ -96,7 +92,6 @@ export function TemplatePriceAnchor({ title, benefits, checkoutLink, onCheckout,
         <h2 className="text-xl font-bold text-foreground leading-snug">{title}</h2>
         {config.subtitle && <p className="text-sm text-muted-foreground mt-1">{config.subtitle}</p>}
       </div>
-      {/* Price section */}
       <div className="flex items-center justify-center gap-4 py-3">
         <span className="text-lg text-muted-foreground line-through">{config.old_price}</span>
         <span className="text-3xl font-extrabold text-primary">{config.new_price}</span>
@@ -109,14 +104,13 @@ export function TemplatePriceAnchor({ title, benefits, checkoutLink, onCheckout,
         </div>
       )}
       <BenefitsList benefits={benefits} />
-      <CTAButton text={config.button_text || "GARANTIR DESCONTO →"} url={checkoutLink} onClick={onCheckout} />
-      <CloseLink onClose={onClose} />
+      <CTAButton text={config.button_text || "GARANTIR DESCONTO →"} url={checkoutLink} onClick={onCheckout} color={buttonColor} />
     </div>
   );
 }
 
 /* ─── Template 3: Prova Social ─── */
-export function TemplateSocialProof({ title, benefits, checkoutLink, onCheckout, onClose, config }: BaseProps) {
+export function TemplateSocialProof({ title, benefits, checkoutLink, onCheckout, config, buttonColor }: BaseProps) {
   const count = config.client_count ?? 0;
   return (
     <div className="p-5 space-y-4">
@@ -137,23 +131,21 @@ export function TemplateSocialProof({ title, benefits, checkoutLink, onCheckout,
         </div>
       )}
       <BenefitsList benefits={benefits} />
-      <CTAButton text={config.button_text || "QUERO ACESSAR AGORA →"} url={checkoutLink} onClick={onCheckout} />
-      <CloseLink onClose={onClose} />
+      <CTAButton text={config.button_text || "QUERO ACESSAR AGORA →"} url={checkoutLink} onClick={onCheckout} color={buttonColor} />
     </div>
   );
 }
 
-/* ─── Template 4: Escassez com Contador ─── */
-function useCountdown(endDate: string | undefined) {
-  const [remaining, setRemaining] = useState({ d: 0, h: 0, m: 0, s: 0, expired: false });
+/* ─── Template 4: Escassez com Contador (fixed 10 min) ─── */
+function useCountdown10Min() {
+  const [remaining, setRemaining] = useState({ m: 10, s: 0, expired: false });
+  const [endTime] = useState(() => Date.now() + 10 * 60 * 1000);
+
   useEffect(() => {
-    if (!endDate) return;
     const tick = () => {
-      const diff = new Date(endDate).getTime() - Date.now();
-      if (diff <= 0) { setRemaining({ d: 0, h: 0, m: 0, s: 0, expired: true }); return; }
+      const diff = endTime - Date.now();
+      if (diff <= 0) { setRemaining({ m: 0, s: 0, expired: true }); return; }
       setRemaining({
-        d: Math.floor(diff / 86400000),
-        h: Math.floor((diff % 86400000) / 3600000),
         m: Math.floor((diff % 3600000) / 60000),
         s: Math.floor((diff % 60000) / 1000),
         expired: false,
@@ -162,12 +154,13 @@ function useCountdown(endDate: string | undefined) {
     tick();
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
-  }, [endDate]);
+  }, [endTime]);
+
   return remaining;
 }
 
-export function TemplateScarcityCountdown({ title, benefits, checkoutLink, onCheckout, onClose, config }: BaseProps) {
-  const cd = useCountdown(config.countdown_end);
+export function TemplateScarcityCountdown({ title, benefits, checkoutLink, onCheckout, config, buttonColor }: BaseProps) {
+  const cd = useCountdown10Min();
   const unit = (n: number, l: string) => (
     <div className="flex flex-col items-center">
       <span className="text-2xl font-extrabold text-primary tabular-nums">{String(n).padStart(2, "0")}</span>
@@ -187,10 +180,6 @@ export function TemplateScarcityCountdown({ title, benefits, checkoutLink, onChe
           <span className="text-sm font-bold text-red-400">Oferta expirada!</span>
         ) : (
           <div className="flex gap-3">
-            {unit(cd.d, "dias")}
-            <span className="text-xl font-bold text-muted-foreground self-start mt-0.5">:</span>
-            {unit(cd.h, "hrs")}
-            <span className="text-xl font-bold text-muted-foreground self-start mt-0.5">:</span>
             {unit(cd.m, "min")}
             <span className="text-xl font-bold text-muted-foreground self-start mt-0.5">:</span>
             {unit(cd.s, "seg")}
@@ -199,14 +188,13 @@ export function TemplateScarcityCountdown({ title, benefits, checkoutLink, onChe
       </div>
       <p className="text-xs text-center text-muted-foreground">Esta oferta exclusiva termina em breve...</p>
       <BenefitsList benefits={benefits} />
-      <CTAButton text={config.button_text || "GARANTIR AGORA →"} url={checkoutLink} onClick={onCheckout} />
-      <CloseLink onClose={onClose} />
+      <CTAButton text={config.button_text || "GARANTIR AGORA →"} url={checkoutLink} onClick={onCheckout} color={buttonColor} />
     </div>
   );
 }
 
 /* ─── Template 5: Oferta de Bônus ─── */
-export function TemplateBonusOffer({ title, benefits, checkoutLink, onCheckout, onClose, config }: BaseProps) {
+export function TemplateBonusOffer({ title, benefits, checkoutLink, onCheckout, config, buttonColor }: BaseProps) {
   return (
     <div className="p-5 space-y-4">
       <div className="text-center">
@@ -214,7 +202,6 @@ export function TemplateBonusOffer({ title, benefits, checkoutLink, onCheckout, 
         {config.subtitle && <p className="text-sm text-muted-foreground mt-1">{config.subtitle}</p>}
       </div>
       <BenefitsList benefits={benefits} />
-      {/* Bonus section */}
       {config.bonus_title && (
         <div className="rounded-xl border border-primary/30 bg-primary/5 p-4 space-y-2">
           <div className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-wider text-primary">
@@ -230,14 +217,13 @@ export function TemplateBonusOffer({ title, benefits, checkoutLink, onCheckout, 
           )}
         </div>
       )}
-      <CTAButton text={config.button_text || "QUERO TUDO AGORA →"} url={checkoutLink} onClick={onCheckout} />
-      <CloseLink onClose={onClose} />
+      <CTAButton text={config.button_text || "QUERO TUDO AGORA →"} url={checkoutLink} onClick={onCheckout} color={buttonColor} />
     </div>
   );
 }
 
 /* ─── Template 6: Comparativo de Planos ─── */
-export function TemplatePlanComparison({ title, benefits, checkoutLink, onCheckout, onClose, config }: BaseProps) {
+export function TemplatePlanComparison({ title, benefits, checkoutLink, onCheckout, config, buttonColor }: BaseProps) {
   const items = config.comparison_items ?? benefits.map((b) => ({ text: b, included_current: false }));
   return (
     <div className="p-5 space-y-4">
@@ -245,7 +231,6 @@ export function TemplatePlanComparison({ title, benefits, checkoutLink, onChecko
         <h2 className="text-xl font-bold text-foreground leading-snug">{title}</h2>
         {config.subtitle && <p className="text-sm text-muted-foreground mt-1">{config.subtitle}</p>}
       </div>
-      {/* Comparison table */}
       <div className="rounded-lg border border-border overflow-hidden text-xs">
         <div className="grid grid-cols-[1fr,80px,80px] bg-muted/40 text-muted-foreground font-semibold">
           <div className="px-3 py-2">Recurso</div>
@@ -268,8 +253,7 @@ export function TemplatePlanComparison({ title, benefits, checkoutLink, onChecko
           </div>
         ))}
       </div>
-      <CTAButton text={config.button_text || "FAZER UPGRADE →"} url={checkoutLink} onClick={onCheckout} />
-      <CloseLink onClose={onClose} />
+      <CTAButton text={config.button_text || "FAZER UPGRADE →"} url={checkoutLink} onClick={onCheckout} color={buttonColor} />
     </div>
   );
 }
@@ -293,6 +277,6 @@ export function renderFinalTemplate(
     case "plan_comparison":
       return <TemplatePlanComparison {...props} />;
     default:
-      return null; // "default" handled by caller
+      return null;
   }
 }

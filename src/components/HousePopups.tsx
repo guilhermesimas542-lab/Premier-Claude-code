@@ -140,7 +140,7 @@ export function WelcomePopup({ house }: { house: HousePopupData | null }) {
       // Fetch ALL active on_load popups
       const { data: popups } = await supabase
         .from("popups")
-        .select("id, type, image_url, button_url, checkout_link, question_1_text, question_1_options, question_2_text, question_2_options, question_3_text, question_3_options, final_title, final_benefits, target_audience, betting_house_id, final_template, final_config")
+        .select("id, type, image_url, button_url, checkout_link, question_1_text, question_1_options, question_2_text, question_2_options, question_3_text, question_3_options, final_title, final_benefits, target_audience, betting_house_id, final_template, final_config, button_color")
         .eq("is_active", true)
         .eq("trigger_type", "on_load")
         .order("created_at", { ascending: false });

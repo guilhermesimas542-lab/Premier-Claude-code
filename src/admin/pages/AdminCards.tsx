@@ -257,6 +257,7 @@ export default function AdminCards() {
     final_benefits: [],
     final_template: "default",
     final_config: {},
+    button_color: "",
   };
 
   const handleFunnelChange = (updated: PopupFormState) => {

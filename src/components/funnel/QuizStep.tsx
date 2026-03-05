@@ -7,9 +7,10 @@ interface QuizStepProps {
   currentStep: number;
   totalSteps: number;
   onAnswer: (option: string) => void;
+  buttonColor?: string | null;
 }
 
-export default function QuizStep({ questionText, options, currentStep, totalSteps, onAnswer }: QuizStepProps) {
+export default function QuizStep({ questionText, options, currentStep, totalSteps, onAnswer, buttonColor }: QuizStepProps) {
   const progressValue = (currentStep / totalSteps) * 100;
 
   return (
@@ -28,7 +29,7 @@ export default function QuizStep({ questionText, options, currentStep, totalStep
 
         <div className="space-y-3">
           {options.filter(Boolean).map((opt, i) => (
-            <QuizOptionCard key={i} index={i} text={opt} onClick={() => onAnswer(opt)} />
+            <QuizOptionCard key={i} index={i} text={opt} onClick={() => onAnswer(opt)} buttonColor={buttonColor} />
           ))}
         </div>
       </div>
