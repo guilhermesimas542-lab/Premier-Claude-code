@@ -28,9 +28,9 @@ export function EntryCard({
 
   const tierColors: Record<string, string> = {
     free: 'bg-gray-500/20 text-gray-300 border-gray-500/30',
-    basic: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
-    pro: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
-    ultra: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
+    basic: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
+    pro: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30',
+    ultra: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
   };
 
   const tierBadgeClass = tierColors[tier_required] || tierColors.free;
