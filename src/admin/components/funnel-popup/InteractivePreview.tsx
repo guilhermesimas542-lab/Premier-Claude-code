@@ -82,6 +82,7 @@ export default function InteractivePreview({ form, previewMode }: Props) {
               <Progress
                 value={((currentQuestionIndex + 1) / validQuestions.length) * 100}
                 className="h-2 bg-zinc-800 [&>div]:bg-primary"
+                style={(form as any).button_color ? { ["--progress-color" as any]: (form as any).button_color } : undefined}
               />
               <p className="text-[10px] text-muted-foreground mt-1.5 text-center">
                 Etapa {currentQuestionIndex + 1} de {validQuestions.length}

@@ -16,7 +16,11 @@ export default function QuizStep({ questionText, options, currentStep, totalStep
   return (
     <div>
       <div className="p-4 pb-0">
-        <Progress value={progressValue} className="h-2 bg-zinc-800 [&>[data-state=complete]]:bg-primary [&>div]:bg-primary" />
+        <Progress
+          value={progressValue}
+          className="h-2 bg-zinc-800 [&>[data-state=complete]]:bg-primary [&>div]:bg-primary"
+          style={buttonColor ? { ["--progress-color" as any]: buttonColor } : undefined}
+        />
         <p className="text-xs text-muted-foreground mt-2 text-center">
           Etapa {currentStep} de {totalSteps}
         </p>
