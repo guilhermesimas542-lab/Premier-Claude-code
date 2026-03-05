@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Check, RotateCcw } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import QuizOptionCard from "@/components/funnel/QuizOptionCard";
+import { renderFinalTemplate, type FinalTemplateType, type FinalConfig } from "@/components/funnel/FinalTemplates";
 import type { PopupFormState } from "./types";
 
 interface Props {
@@ -103,26 +104,53 @@ export default function InteractivePreview({ form, previewMode }: Props) {
         )}
 
         {/* Final screen */}
-        {showFinal && (
-          <div className="p-4 space-y-3">
-            <p className="text-sm font-bold text-foreground text-center">{form.final_title || "Título Final"}</p>
-            {benefits.map((b, i) => (
-              <div key={i} className="flex items-center gap-2 text-xs text-foreground/70">
-                <Check className="w-3 h-3 shrink-0 text-primary" />{b}
+        {showFinal && (() => {
+          const template = ((form as any).final_template || "default") as FinalTemplateType;
+          const config = ((form as any).final_config || {}) as FinalConfig;
+
+          if (template !== "default") {
+            return (
+              <div>
+                {renderFinalTemplate(template, {
+                  title: form.final_title || "Título Final",
+                  benefits,
+                  checkoutLink: form.checkout_link || null,
+                  onCheckout: () => {},
+                  onClose: () => {},
+                  config,
+                })}
+                {validQuestions.length > 0 && viewMode === "funnel" && (
+                  <div className="px-4 pb-3">
+                    <button type="button" onClick={reset} className="text-[10px] text-muted-foreground hover:text-foreground flex items-center gap-1 mx-auto">
+                      <RotateCcw className="w-3 h-3" /> Reiniciar funil
+                    </button>
+                  </div>
+                )}
               </div>
-            ))}
-            {form.checkout_link && (
-              <div className="w-full py-2 text-center text-xs font-bold text-primary-foreground rounded-lg cursor-pointer bg-primary hover:opacity-90 transition-opacity">
-                QUERO ACESSAR →
-              </div>
-            )}
-            {validQuestions.length > 0 && viewMode === "funnel" && (
-              <button type="button" onClick={reset} className="text-[10px] text-muted-foreground hover:text-foreground flex items-center gap-1 mx-auto">
-                <RotateCcw className="w-3 h-3" /> Reiniciar funil
-              </button>
-            )}
-          </div>
-        )}
+            );
+          }
+
+          return (
+            <div className="p-4 space-y-3">
+              <p className="text-sm font-bold text-foreground text-center">{form.final_title || "Título Final"}</p>
+              {benefits.map((b, i) => (
+                <div key={i} className="flex items-center gap-2 text-xs text-foreground/70">
+                  <Check className="w-3 h-3 shrink-0 text-primary" />{b}
+                </div>
+              ))}
+              {form.checkout_link && (
+                <div className="w-full py-2 text-center text-xs font-bold text-primary-foreground rounded-lg cursor-pointer bg-primary hover:opacity-90 transition-opacity">
+                  QUERO ACESSAR →
+                </div>
+              )}
+              {validQuestions.length > 0 && viewMode === "funnel" && (
+                <button type="button" onClick={reset} className="text-[10px] text-muted-foreground hover:text-foreground flex items-center gap-1 mx-auto">
+                  <RotateCcw className="w-3 h-3" /> Reiniciar funil
+                </button>
+              )}
+            </div>
+          );
+        })()}
       </div>
 
       <p className="text-[11px] text-muted-foreground text-center">
