@@ -57,12 +57,12 @@ const getCardConfig = (type: SpecialCardType) => {
     icon: Gift,
     title: "Odds Altas",
     subtitle: "Seleções especiais",
-    bgColor: "bg-gradient-to-r from-amber-600 to-orange-700",
+    bgColor: "bg-[#DC143C]",
     textColor: "text-white",
-    glowColor: "", // Removed glow
-    borderColor: "border-[#EF4444]", // Vermelho
-    iconBg: "bg-amber-500/30",
-    iconColor: "text-amber-300",
+    glowColor: "",
+    borderColor: "border-[#DC143C]", // Vermelho Forte
+    iconBg: "bg-[#DC143C]/30",
+    iconColor: "text-[#FF6B6B]",
   };
 };
 
@@ -198,9 +198,9 @@ export const SpecialBettingCard = ({
       <div className={`absolute inset-0 pointer-events-none rounded-xl overflow-hidden ${
         isExpired 
           ? "bg-gradient-to-b from-gray-900/70 via-gray-900/80 to-gray-900/90" 
-          : type === "ALAVANCAGEM"
+         : type === "ALAVANCAGEM"
             ? "bg-gradient-to-b from-teal-900/60 via-black/60 to-black/80"
-            : "bg-gradient-to-b from-amber-900/60 via-black/60 to-black/80"
+            : "bg-gradient-to-b from-red-900/60 via-black/60 to-black/80"
       }`} />
 
       {/* Saturation overlay — makes everything below it grayscale */}

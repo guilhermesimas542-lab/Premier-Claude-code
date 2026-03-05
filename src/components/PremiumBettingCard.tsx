@@ -135,21 +135,21 @@ const getTierConfig = (tier: string) => {
       };
     case "PRO":
       return {
-        bgColor: "bg-gradient-to-r from-orange-500 to-orange-600",
-        textColor: "text-white",
-        glowColor: "", // Removed glow
-        borderColor: "border-[#F59E0B]", // Amarelo/Laranja
-        iconColor: "text-orange-400",
-        iconBorderColor: "border-orange-500/50",
+        bgColor: "bg-[#FFD700]",
+        textColor: "text-black",
+        glowColor: "",
+        borderColor: "border-[#FFD700]", // Dourado
+        iconColor: "text-[#FFD700]",
+        iconBorderColor: "border-[#FFD700]/50",
       };
     case "GRÁTIS":
       return {
-        bgColor: "bg-gradient-to-r from-cyan-500 to-cyan-600",
+        bgColor: "bg-[#808080]",
         textColor: "text-white",
-        glowColor: "", // Removed glow
-        borderColor: "border-[#38BDF8]", // Azul claro/ciano
-        iconColor: "text-cyan-400",
-        iconBorderColor: "border-cyan-500/50",
+        glowColor: "",
+        borderColor: "border-[#808080]", // Cinza
+        iconColor: "text-[#808080]",
+        iconBorderColor: "border-[#808080]/50",
       };
     default: // BÁSICO
       return {

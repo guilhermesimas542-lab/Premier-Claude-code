@@ -68,30 +68,30 @@ const getTierStyle = (tier: string, addon: string | null): TierStyle => {
     border: "rgba(249,115,22,0.4)", glow: "0 0 15px rgba(249,115,22,0.15)",
   };
   if (addon === "desaltas") return {
-    label: "ODDS ALTAS", color: "#16A34A",
-    bg: "linear-gradient(135deg, rgba(22,163,74,0.12), rgba(21,128,61,0.06))",
-    border: "rgba(22,163,74,0.4)", glow: "0 0 15px rgba(22,163,74,0.15)",
+    label: "ODDS ALTAS", color: "#DC143C",
+    bg: "linear-gradient(135deg, rgba(220,20,60,0.12), rgba(178,16,48,0.06))",
+    border: "rgba(220,20,60,0.4)", glow: "0 0 15px rgba(220,20,60,0.15)",
   };
   const map: Record<string, TierStyle> = {
     free: {
-      label: "FREE", color: "#888888",
-      bg: "linear-gradient(135deg, rgba(136,136,136,0.08), rgba(100,100,100,0.04))",
-      border: "rgba(136,136,136,0.3)", glow: "none",
+      label: "FREE", color: "#808080",
+      bg: "linear-gradient(135deg, rgba(128,128,128,0.08), rgba(100,100,100,0.04))",
+      border: "rgba(128,128,128,0.3)", glow: "none",
     },
     basic: {
-      label: "BASIC", color: "#3B82F6",
-      bg: "linear-gradient(135deg, rgba(59,130,246,0.12), rgba(30,64,175,0.06))",
-      border: "rgba(59,130,246,0.4)", glow: "0 0 15px rgba(59,130,246,0.15)",
+      label: "BASIC", color: "#22C55E",
+      bg: "linear-gradient(135deg, rgba(34,197,94,0.12), rgba(21,128,61,0.06))",
+      border: "rgba(34,197,94,0.4)", glow: "0 0 15px rgba(34,197,94,0.15)",
     },
     pro: {
-      label: "PRO", color: "#A855F7",
-      bg: "linear-gradient(135deg, rgba(168,85,247,0.12), rgba(126,34,206,0.06))",
-      border: "rgba(168,85,247,0.4)", glow: "0 0 15px rgba(168,85,247,0.15)",
+      label: "PRO", color: "#FFD700",
+      bg: "linear-gradient(135deg, rgba(255,215,0,0.12), rgba(204,172,0,0.06))",
+      border: "rgba(255,215,0,0.4)", glow: "0 0 15px rgba(255,215,0,0.15)",
     },
     ultra: {
-      label: "ULTRA", color: "#EAB308",
-      bg: "linear-gradient(135deg, rgba(234,179,8,0.12), rgba(202,138,4,0.06))",
-      border: "rgba(234,179,8,0.4)", glow: "0 0 15px rgba(234,179,8,0.15)",
+      label: "ULTRA", color: "#A855F7",
+      bg: "linear-gradient(135deg, rgba(168,85,247,0.12), rgba(126,34,206,0.06))",
+      border: "rgba(168,85,247,0.4)", glow: "0 0 15px rgba(168,85,247,0.15)",
     },
   };
   return map[tier] || map.free;
