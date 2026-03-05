@@ -130,7 +130,13 @@ export default function AdminCards() {
       button_bg_color: c.button_bg_color ?? "",
       button_font_color: c.button_font_color ?? "",
       requires_access: c.requires_access ?? false,
-      access_field: c.access_field ?? "[]",
+      access_field: (() => {
+        const raw = c.access_field ?? "[]";
+        const parsed = parseAudience(raw);
+        // Filter out legacy values not in AUDIENCE_SEGMENTS
+        const valid = parsed.filter(v => AUDIENCE_SEGMENTS.some(s => s.value === v));
+        return JSON.stringify(valid);
+      })(),
       checkout_url: c.checkout_url ?? "",
       pay_card_id: c.pay_card_id ?? "",
       display_order: c.display_order,
@@ -640,20 +646,35 @@ export default function AdminCards() {
                             : [...currentCriteria, val];
                           set("access_field", JSON.stringify(updated));
                         };
-                        return groups.map(group => (
-                          <div key={group} className="px-3 py-2">
-                            <p className="text-[10px] font-bold text-gray-500 uppercase mb-1.5">{group}</p>
-                            {AUDIENCE_SEGMENTS.filter(s => s.group === group).map(seg => (
-                              <label key={seg.value} className="flex items-center gap-2 py-1 cursor-pointer hover:bg-gray-800 rounded px-1">
-                                <Checkbox
-                                  checked={currentCriteria.includes(seg.value)}
-                                  onCheckedChange={() => toggleCriterion(seg.value)}
-                                />
-                                <span className="text-xs text-gray-300">{seg.label}</span>
-                              </label>
+                         return (
+                          <>
+                            {groups.map(group => (
+                              <div key={group} className="px-3 py-2">
+                                <p className="text-[10px] font-bold text-gray-500 uppercase mb-1.5">{group}</p>
+                                {AUDIENCE_SEGMENTS.filter(s => s.group === group).map(seg => (
+                                  <label key={seg.value} className="flex items-center gap-2 py-1 cursor-pointer hover:bg-gray-800 rounded px-1">
+                                    <Checkbox
+                                      checked={currentCriteria.includes(seg.value)}
+                                      onCheckedChange={() => toggleCriterion(seg.value)}
+                                    />
+                                    <span className="text-xs text-gray-300">{seg.label}</span>
+                                  </label>
+                                ))}
+                              </div>
                             ))}
-                          </div>
-                        ));
+                            {currentCriteria.length > 0 && (
+                              <div className="border-t border-gray-700 px-3 py-2">
+                                <button
+                                  type="button"
+                                  className="text-xs text-red-400 hover:text-red-300 font-medium w-full text-center"
+                                  onClick={() => set("access_field", "[]")}
+                                >
+                                  Limpar tudo
+                                </button>
+                              </div>
+                            )}
+                          </>
+                        );
                       })()}
                     </PopoverContent>
                   </Popover>
