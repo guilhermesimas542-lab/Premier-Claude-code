@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, Pencil, Loader2, ArrowUp, ArrowDown, ArrowUpDown, BarChart2 } from "lucide-react";
+import { Plus, Pencil, Loader2, ArrowUp, ArrowDown, ArrowUpDown, BarChart2, X, ChevronDown } from "lucide-react";
 import FunnelAnalyticsModal from "@/admin/components/FunnelAnalyticsModal";
 import { toast } from "sonner";
 import FunnelBuilder from "@/admin/components/funnel-popup/FunnelBuilder";
@@ -18,6 +18,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { PayCardMiniaturePreview } from "@/admin/components/pay-cards/PayCardMiniaturePreview";
 import { PayCardInteractivePreview } from "@/admin/components/pay-cards/PayCardInteractivePreview";
 import { useBettingHouseAdmin } from "@/admin/context/BettingHouseContext";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface PayCard {
   id: string;
@@ -46,6 +48,45 @@ const PLAN_OPTIONS = [
 
 const PLAN_LABELS: Record<string, string> = Object.fromEntries(PLAN_OPTIONS.map(p => [p.value, p.label]));
 
+const AUDIENCE_OPTIONS = [
+  { group: "Gerais", options: [
+    { value: "all", label: "Todos os Usuários" },
+    { value: "all_paid", label: "Todos os Usuários Pagantes" },
+    { value: "all_free", label: "Todos os Usuários Gratuitos" },
+  ]},
+  { group: "Planos Base", options: [
+    { value: "has_basic", label: "Possui Plano Básico" },
+    { value: "no_basic", label: "Não Possui Plano Básico" },
+    { value: "has_pro", label: "Possui Plano Pro" },
+    { value: "no_pro", label: "Não Possui Plano Pro" },
+    { value: "has_ultra", label: "Possui Plano Ultra" },
+    { value: "no_ultra", label: "Não Possui Plano Ultra" },
+  ]},
+  { group: "Add-ons", options: [
+    { value: "has_vitalicio", label: "Possui Plano Vitalício" },
+    { value: "no_vitalicio", label: "Não Possui Plano Vitalício" },
+    { value: "has_alavancagem", label: "Possui Add-on Alavancagem" },
+    { value: "no_alavancagem", label: "Não Possui Add-on Alavancagem" },
+    { value: "has_desaltas", label: "Possui Add-on Odds Altas" },
+    { value: "no_desaltas", label: "Não Possui Add-on Odds Altas" },
+    { value: "has_live_telegram", label: "Possui Add-on Live Telegram" },
+    { value: "no_live_telegram", label: "Não Possui Add-on Live Telegram" },
+  ]},
+];
+
+const ALL_AUDIENCE_FLAT = AUDIENCE_OPTIONS.flatMap(g => g.options);
+const audienceLabel = (v: string) => ALL_AUDIENCE_FLAT.find(o => o.value === v)?.label ?? v;
+
+function parseAudienceArray(val: string | null): string[] {
+  if (!val) return [];
+  try {
+    const parsed = JSON.parse(val);
+    if (Array.isArray(parsed)) return parsed;
+  } catch {}
+  // Legacy: single string value
+  return val ? [val] : [];
+}
+
 const EMPTY_FORM = {
   name: "",
   associated_plan: "basic",
@@ -63,7 +104,7 @@ const EMPTY_FORM = {
   is_active: true,
   betting_house_id: "__none__",
   location: "",
-  target_audience: "",
+  target_audience: [] as string[],
   button_color: "",
   checkout_template: "default",
   checkout_final_config: {} as Record<string, any>,
@@ -164,7 +205,7 @@ export default function AdminPayCards() {
       is_active: c.is_active,
       betting_house_id: c.betting_house_id || "__none__",
       location: c.location ?? "",
-      target_audience: c.target_audience ?? "",
+      target_audience: parseAudienceArray(c.target_audience),
       button_color: (c as any).button_color ?? "",
       checkout_template: (c as any).checkout_template ?? "default",
       checkout_final_config: (c as any).checkout_final_config ?? {},
@@ -194,7 +235,7 @@ export default function AdminPayCards() {
       has_intro_popup: form.has_intro_popup,
       betting_house_id: selectedHouseId || null,
       location: form.location || null,
-      target_audience: form.target_audience || null,
+      target_audience: form.target_audience.length > 0 ? JSON.stringify(form.target_audience) : null,
       popup_config: form.has_intro_popup ? {
         title: form.popup_title || null,
         text: form.popup_text || null,
@@ -339,7 +380,21 @@ export default function AdminPayCards() {
                     <span className="text-xs text-gray-400">{c.location || "—"}</span>
                   </TableCell>
                   <TableCell>
-                    <span className="text-xs text-gray-400">{c.target_audience || "—"}</span>
+                    {(() => {
+                      const tags = parseAudienceArray(c.target_audience);
+                      if (tags.length === 0) return <span className="text-xs text-gray-600">Nenhum</span>;
+                      if (tags.includes("all")) return <span className="text-xs text-green-400">Todos</span>;
+                      return (
+                        <div className="flex flex-wrap gap-1 max-w-[200px]">
+                          {tags.slice(0, 3).map(t => (
+                            <span key={t} className="text-[9px] px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-400/20">
+                              {audienceLabel(t)}
+                            </span>
+                          ))}
+                          {tags.length > 3 && <span className="text-[9px] text-gray-500">+{tags.length - 3}</span>}
+                        </div>
+                      );
+                    })()}
                   </TableCell>
                   <TableCell>
                     <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${c.has_intro_popup ? "bg-green-500/20 text-green-400 border border-green-400/30" : "bg-gray-500/20 text-gray-400 border border-gray-400/30"}`}>
@@ -402,8 +457,72 @@ export default function AdminPayCards() {
                   <Input value={form.location} onChange={(e) => set("location", e.target.value)} placeholder="Ex: Home, Sports Tips, Suporte" className="bg-gray-900 border-gray-800" />
                 </div>
                 <div>
-                  <label className="text-xs text-gray-500">Público-alvo</label>
-                  <Input value={form.target_audience} onChange={(e) => set("target_audience", e.target.value)} placeholder="Ex: Usuário Gratuito" className="bg-gray-900 border-gray-800" />
+                  <label className="text-xs text-gray-500">Público-alvo (segmentação)</label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button className="w-full flex items-center justify-between rounded-md border border-gray-800 bg-gray-900 px-3 py-2 text-sm min-h-[40px] text-left">
+                        {form.target_audience.length === 0 ? (
+                          <span className="text-gray-500">Selecione os critérios…</span>
+                        ) : (
+                          <div className="flex flex-wrap gap-1 flex-1">
+                            {form.target_audience.map(v => (
+                              <span key={v} className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-400/20">
+                                {audienceLabel(v)}
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    set("target_audience", form.target_audience.filter((x: string) => x !== v));
+                                  }}
+                                  className="hover:text-white"
+                                >
+                                  <X className="w-3 h-3" />
+                                </button>
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                        <ChevronDown className="w-4 h-4 shrink-0 text-gray-500" />
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[340px] p-0 bg-gray-900 border-gray-700" align="start">
+                      <div className="max-h-[300px] overflow-y-auto p-2 space-y-3">
+                        {AUDIENCE_OPTIONS.map(group => (
+                          <div key={group.group}>
+                            <div className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold px-2 py-1">{group.group}</div>
+                            {group.options.map(opt => {
+                              const checked = form.target_audience.includes(opt.value);
+                              return (
+                                <label
+                                  key={opt.value}
+                                  className="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-gray-800 cursor-pointer text-sm text-gray-300"
+                                >
+                                  <Checkbox
+                                    checked={checked}
+                                    onCheckedChange={(c) => {
+                                      if (c) {
+                                        set("target_audience", [...form.target_audience, opt.value]);
+                                      } else {
+                                        set("target_audience", form.target_audience.filter((x: string) => x !== opt.value));
+                                      }
+                                    }}
+                                    className="border-gray-600"
+                                  />
+                                  {opt.label}
+                                </label>
+                              );
+                            })}
+                          </div>
+                        ))}
+                      </div>
+                      {form.target_audience.length > 0 && (
+                        <div className="border-t border-gray-700 p-2">
+                          <button onClick={() => set("target_audience", [])} className="text-xs text-gray-500 hover:text-gray-300">Limpar tudo</button>
+                        </div>
+                      )}
+                    </PopoverContent>
+                  </Popover>
+                  <p className="text-[10px] text-gray-600 mt-1">Condição AND: o usuário precisa atender a todos os critérios.</p>
                 </div>
               </div>
 
