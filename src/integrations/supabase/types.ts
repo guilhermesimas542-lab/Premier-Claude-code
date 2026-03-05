@@ -813,7 +813,10 @@ export type Database = {
         Row: {
           associated_plan: string
           betting_house_id: string | null
+          button_color: string | null
           checkout_config: Json | null
+          checkout_final_config: Json | null
+          checkout_template: string | null
           created_at: string | null
           has_intro_popup: boolean | null
           id: string
@@ -828,7 +831,10 @@ export type Database = {
         Insert: {
           associated_plan: string
           betting_house_id?: string | null
+          button_color?: string | null
           checkout_config?: Json | null
+          checkout_final_config?: Json | null
+          checkout_template?: string | null
           created_at?: string | null
           has_intro_popup?: boolean | null
           id?: string
@@ -843,7 +849,10 @@ export type Database = {
         Update: {
           associated_plan?: string
           betting_house_id?: string | null
+          button_color?: string | null
           checkout_config?: Json | null
+          checkout_final_config?: Json | null
+          checkout_template?: string | null
           created_at?: string | null
           has_intro_popup?: boolean | null
           id?: string
