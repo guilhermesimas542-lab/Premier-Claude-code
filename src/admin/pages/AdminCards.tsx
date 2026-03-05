@@ -35,6 +35,7 @@ interface Card {
   requires_access: boolean;
   access_field: string | null;
   checkout_url: string | null;
+  pay_card_id: string | null;
   questions: any;
   display_order: number;
   is_active: boolean;
@@ -63,6 +64,7 @@ const EMPTY_FORM = {
   requires_access: false,
   access_field: "",
   checkout_url: "",
+  pay_card_id: "",
   display_order: 0,
   is_active: true,
 };
@@ -83,6 +85,7 @@ export default function AdminCards() {
   const [saving, setSaving] = useState(false);
   const [questions, setQuestions] = useState<FunnelQuestion[]>([]);
   const [previewMode, setPreviewMode] = useState<"mobile" | "tablet" | "desktop">("mobile");
+  const [payCards, setPayCards] = useState<{ id: string; name: string }[]>([]);
 
   const set = (key: string, val: any) => setForm((f) => ({ ...f, [key]: val }));
 
@@ -97,6 +100,12 @@ export default function AdminCards() {
   };
 
   useEffect(() => { load(); }, []);
+
+  useEffect(() => {
+    supabase.from("pay_cards" as any).select("id, name").eq("is_active", true).order("name").then(({ data }: any) => {
+      setPayCards((data as { id: string; name: string }[]) ?? []);
+    });
+  }, []);
 
   const openEdit = (c: Card) => {
     setEditId(c.id);
@@ -121,6 +130,7 @@ export default function AdminCards() {
       requires_access: c.requires_access ?? false,
       access_field: c.access_field ?? "",
       checkout_url: c.checkout_url ?? "",
+      pay_card_id: c.pay_card_id ?? "",
       display_order: c.display_order,
       is_active: c.is_active,
     });
@@ -184,6 +194,7 @@ export default function AdminCards() {
       requires_access: form.requires_access,
       access_field: form.access_field || null,
       checkout_url: form.checkout_url || null,
+      pay_card_id: form.pay_card_id || null,
       questions: questions.filter(q => q.text && q.options.some(o => o)),
       display_order: form.display_order,
       is_active: form.is_active,
@@ -240,6 +251,7 @@ export default function AdminCards() {
     requires_access: form.requires_access,
     access_field: form.access_field || null,
     checkout_url: form.checkout_url || null,
+    pay_card_id: form.pay_card_id || null,
     questions: questions,
     display_order: form.display_order,
     is_active: form.is_active,
@@ -284,6 +296,7 @@ export default function AdminCards() {
     requires_access: c.requires_access,
     access_field: c.access_field,
     checkout_url: c.checkout_url,
+    pay_card_id: c.pay_card_id ?? null,
     questions: c.questions ?? [],
     display_order: c.display_order,
     is_active: c.is_active,
@@ -576,10 +589,21 @@ export default function AdminCards() {
                 </div>
               </div>
 
-              <div>
-                <label className="text-xs text-gray-500">Checkout URL</label>
-                <Input value={form.checkout_url} onChange={(e) => set("checkout_url", e.target.value)} placeholder="https://..." className="bg-gray-900 border-gray-800" />
-              </div>
+              {form.requires_access && (
+                <div>
+                  <label className="text-xs text-gray-500">Pay Card de Destino</label>
+                  <Select value={form.pay_card_id} onValueChange={(v) => set("pay_card_id", v === "__none__" ? "" : v)}>
+                    <SelectTrigger className="bg-gray-900 border-gray-800"><SelectValue placeholder="Selecione um Pay Card..." /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__none__">Nenhum</SelectItem>
+                      {payCards.map((pc) => (
+                        <SelectItem key={pc.id} value={pc.id}>{pc.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-[10px] text-gray-500 mt-1">O botão "Adquirir" abrirá o funil deste Pay Card</p>
+                </div>
+              )}
 
               <div className="flex items-center justify-between p-3 rounded-lg bg-gray-800">
                 <div>

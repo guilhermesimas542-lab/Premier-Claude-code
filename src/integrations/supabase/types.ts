@@ -227,6 +227,7 @@ export type Database = {
           image_urls: Json | null
           is_active: boolean
           name: string
+          pay_card_id: string | null
           product_id: string | null
           questions: Json | null
           requires_access: boolean | null
@@ -254,6 +255,7 @@ export type Database = {
           image_urls?: Json | null
           is_active?: boolean
           name: string
+          pay_card_id?: string | null
           product_id?: string | null
           questions?: Json | null
           requires_access?: boolean | null
@@ -281,6 +283,7 @@ export type Database = {
           image_urls?: Json | null
           is_active?: boolean
           name?: string
+          pay_card_id?: string | null
           product_id?: string | null
           questions?: Json | null
           requires_access?: boolean | null
@@ -290,7 +293,15 @@ export type Database = {
           title?: string
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "cards_pay_card_id_fkey"
+            columns: ["pay_card_id"]
+            isOneToOne: false
+            referencedRelation: "pay_cards"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       content_banners: {
         Row: {
