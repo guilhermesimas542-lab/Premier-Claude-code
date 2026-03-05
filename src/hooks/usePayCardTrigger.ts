@@ -3,86 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useUserBettingHouse } from "./useUserBettingHouse";
 import type { PayCardData } from "./usePayCards";
 import { mockGetUser } from "@/mocks/user";
-
-/** Parse the target_audience field (JSON array string or legacy single string) */
-function parseAudience(val: string | null | undefined): string[] {
-  if (!val) return [];
-  try {
-    const parsed = JSON.parse(val);
-    if (Array.isArray(parsed)) return parsed;
-  } catch {}
-  return val ? [val] : [];
-}
-
-/** Check if a user matches ALL audience criteria (AND logic) */
-async function matchesAudience(
-  criteria: string[],
-  userTier: string,
-  isVitalicio: boolean,
-  activeAddons: string[],
-): Promise<boolean> {
-  // No criteria = don't show (explicit selection required)
-  if (criteria.length === 0) return false;
-
-  for (const c of criteria) {
-    switch (c) {
-      case "all":
-        break; // always true
-      case "all_paid":
-        if (userTier === "free") return false;
-        break;
-      case "all_free":
-        if (userTier !== "free") return false;
-        break;
-      case "has_basic":
-        if (userTier !== "basic") return false;
-        break;
-      case "no_basic":
-        if (userTier === "basic") return false;
-        break;
-      case "has_pro":
-        if (userTier !== "pro") return false;
-        break;
-      case "no_pro":
-        if (userTier === "pro") return false;
-        break;
-      case "has_ultra":
-        if (userTier !== "ultra") return false;
-        break;
-      case "no_ultra":
-        if (userTier === "ultra") return false;
-        break;
-      case "has_vitalicio":
-        if (!isVitalicio) return false;
-        break;
-      case "no_vitalicio":
-        if (isVitalicio) return false;
-        break;
-      case "has_alavancagem":
-        if (!activeAddons.includes("alavancagem")) return false;
-        break;
-      case "no_alavancagem":
-        if (activeAddons.includes("alavancagem")) return false;
-        break;
-      case "has_desaltas":
-        if (!activeAddons.includes("desaltas")) return false;
-        break;
-      case "no_desaltas":
-        if (activeAddons.includes("desaltas")) return false;
-        break;
-      case "has_live_telegram":
-        if (!activeAddons.includes("live_telegram")) return false;
-        break;
-      case "no_live_telegram":
-        if (activeAddons.includes("live_telegram")) return false;
-        break;
-      default:
-        // Unknown criterion — skip (backwards compat with legacy string values)
-        break;
-    }
-  }
-  return true;
-}
+import { parseAudience, matchesAudienceCriteria } from "@/lib/audienceUtils";
 
 export function usePayCardTrigger() {
   const { house } = useUserBettingHouse();
@@ -117,8 +38,8 @@ export function usePayCardTrigger() {
     // Helper to check audience match
     const checkAudience = async (card: any): Promise<boolean> => {
       const criteria = parseAudience(card.target_audience);
-      if (criteria.length === 0) return true; // No criteria = show to all (backwards compat for direct triggers)
-      return matchesAudience(criteria, userTier, isVitalicio, activeAddons);
+      if (criteria.length === 0) return true;
+      return matchesAudienceCriteria(criteria, userTier, isVitalicio, activeAddons);
     };
 
     // 1. Try house-specific pay card

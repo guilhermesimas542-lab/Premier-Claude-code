@@ -2,6 +2,7 @@ import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { getStoredConfig, clearAuth, isAuthenticated } from "@/lib/auth";
 import { useEffect, useState } from "react";
+import { parseAudience, matchesAudienceCriteria } from "@/lib/audienceUtils";
 import { toast } from "sonner";
 import { AppConfig } from "@/types/auth";
 import { BottomNav } from "@/components/BottomNav";
@@ -46,8 +47,20 @@ const Casino = () => {
   };
 
   const hasAccess = (card: CardData): boolean => {
-    if (!card.requires_access || !card.access_field) return true;
-    return !!(access as any)[card.access_field];
+    if (!card.requires_access) return true;
+    const criteria = parseAudience(card.access_field);
+    if (criteria.length === 0) return true;
+    const isBlocked = matchesAudienceCriteria(
+      criteria,
+      access.mainTier,
+      access.isVitalicio,
+      [
+        ...(access.hasAlavancagem ? ["alavancagem"] : []),
+        ...(access.hasOddsAltas ? ["desaltas"] : []),
+        ...(access.hasLiveTelegram ? ["live_telegram"] : []),
+      ],
+    );
+    return !isBlocked;
   };
 
   const handleOpenPayCardById = async (payCardId: string) => {
