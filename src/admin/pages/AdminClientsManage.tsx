@@ -161,6 +161,7 @@ export default function AdminClientsManage() {
   const [profileUserId, setProfileUserId] = useState<string | null>(null);
   const [newEmail, setNewEmail] = useState("");
   const [newTier, setNewTier] = useState("free");
+  const [newOrigin, setNewOrigin] = useState("gift");
   const [newHouseId, setNewHouseId] = useState<string>("");
   const [houses, setHouses] = useState<BettingHouseOption[]>([]);
   const [saving, setSaving] = useState(false);
