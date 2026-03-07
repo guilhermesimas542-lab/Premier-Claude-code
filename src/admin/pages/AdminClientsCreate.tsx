@@ -3,11 +3,19 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, UserPlus } from "lucide-react";
 import { toast } from "sonner";
 
 interface BettingHouseOption { id: string; name: string; }
+
+const ADDON_TOGGLES = [
+  { key: "alavancagem", label: "Alavancagem" },
+  { key: "desaltas", label: "Odds Altas" },
+  { key: "live_telegram", label: "Live Telegram" },
+  { key: "acesso_vitalicio", label: "Acesso Vitalício" },
+] as const;
 
 export default function AdminClientsCreate() {
   const [email, setEmail] = useState("");
@@ -15,6 +23,7 @@ export default function AdminClientsCreate() {
   const [origin, setOrigin] = useState("gift");
   const [houseId, setHouseId] = useState("");
   const [houses, setHouses] = useState<BettingHouseOption[]>([]);
+  const [addons, setAddons] = useState<Record<string, boolean>>({});
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -28,18 +37,48 @@ export default function AdminClientsCreate() {
     if (!origin) { toast.error("Origem do usuário obrigatória"); return; }
     setSaving(true);
     const finalHouseId = houseId || (houses.length > 0 ? houses[0].id : null);
-    const { error } = await supabase
+
+    const isVitalicio = addons["acesso_vitalicio"] ?? false;
+
+    const { data: newUser, error } = await supabase
       .from("users")
-      .insert({ email: email.toLowerCase().trim(), main_tier: tier as any, betting_house_id: finalHouseId, origin } as any);
+      .insert({
+        email: email.toLowerCase().trim(),
+        main_tier: tier as any,
+        betting_house_id: finalHouseId,
+        origin,
+        is_vitalicio: isVitalicio,
+        vitalicio_since: isVitalicio ? new Date().toISOString() : null,
+      } as any)
+      .select("id")
+      .single();
+
     if (error) {
       toast.error(error.message);
-    } else {
-      toast.success("Cliente criado com sucesso!");
-      setEmail("");
-      setTier("free");
-      setOrigin("gift");
-      setHouseId("");
+      setSaving(false);
+      return;
     }
+
+    // Grant selected add-ons as entitlements
+    const userId = newUser?.id;
+    if (userId) {
+      const activeAddons = ADDON_TOGGLES.filter(({ key }) => addons[key]);
+      for (const { key } of activeAddons) {
+        await supabase.from("entitlements").insert({
+          user_id: userId,
+          product_key: key as any,
+          source: "admin" as any,
+          status: "active" as any,
+        });
+      }
+    }
+
+    toast.success("Cliente criado com sucesso!");
+    setEmail("");
+    setTier("free");
+    setOrigin("gift");
+    setHouseId("");
+    setAddons({});
     setSaving(false);
   };
 
@@ -102,6 +141,19 @@ export default function AdminClientsCreate() {
               </Select>
             </div>
           )}
+
+          <div className="border-t border-white/10 pt-3 space-y-3">
+            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Add-ons</p>
+            {ADDON_TOGGLES.map(({ key, label }) => (
+              <div key={key} className="flex items-center gap-3">
+                <Switch
+                  checked={addons[key] ?? false}
+                  onCheckedChange={(v) => setAddons((prev) => ({ ...prev, [key]: v }))}
+                />
+                <label className="text-sm">{label}</label>
+              </div>
+            ))}
+          </div>
 
           <Button onClick={handleCreate} disabled={saving} className="w-full">
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Criar Cliente"}
