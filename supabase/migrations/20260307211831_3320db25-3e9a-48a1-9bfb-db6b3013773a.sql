@@ -1,0 +1,1 @@
+ALTER TABLE public.users ADD COLUMN origin text DEFAULT 'manual' CONSTRAINT users_origin_check CHECK (origin IN ('webhook', 'gift', 'test', 'manual'));

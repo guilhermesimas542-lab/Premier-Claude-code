@@ -1293,6 +1293,7 @@ export type Database = {
           last_seen_at: string | null
           main_tier: Database["public"]["Enums"]["main_tier"]
           nickname: string | null
+          origin: string | null
           phone: string | null
           vitalicio_since: string | null
         }
@@ -1307,6 +1308,7 @@ export type Database = {
           last_seen_at?: string | null
           main_tier?: Database["public"]["Enums"]["main_tier"]
           nickname?: string | null
+          origin?: string | null
           phone?: string | null
           vitalicio_since?: string | null
         }
@@ -1321,6 +1323,7 @@ export type Database = {
           last_seen_at?: string | null
           main_tier?: Database["public"]["Enums"]["main_tier"]
           nickname?: string | null
+          origin?: string | null
           phone?: string | null
           vitalicio_since?: string | null
         }
@@ -1464,6 +1467,7 @@ export type Database = {
               last_seen_at: string | null
               main_tier: Database["public"]["Enums"]["main_tier"]
               nickname: string | null
+              origin: string | null
               phone: string | null
               vitalicio_since: string | null
             }
@@ -1487,6 +1491,7 @@ export type Database = {
               last_seen_at: string | null
               main_tier: Database["public"]["Enums"]["main_tier"]
               nickname: string | null
+              origin: string | null
               phone: string | null
               vitalicio_since: string | null
             }
