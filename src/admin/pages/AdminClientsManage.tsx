@@ -735,6 +735,16 @@ export default function AdminClientsManage() {
                 <SelectItem value="ultra">Ultra</SelectItem>
               </SelectContent>
             </Select>
+            <div>
+              <label className="text-xs text-gray-500">Origem do Usuário</label>
+              <Select value={newOrigin} onValueChange={setNewOrigin}>
+                <SelectTrigger className="bg-gray-800 border-gray-700"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="gift">Brinde / Parceria</SelectItem>
+                  <SelectItem value="test">Usuário de Teste</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
             <Button onClick={handleCreate} disabled={saving} className="w-full">
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Criar"}
             </Button>
