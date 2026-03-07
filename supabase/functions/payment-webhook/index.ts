@@ -88,6 +88,8 @@ Deno.serve(async (req) => {
   let buyerPhone: string | null = null;
   let paymentId: string;
   let productIds: string[] = [];
+  let productNames: string[] = [];
+  let subscriptionId: string | null = null;
   let isTest = false;
   let amount: number | null = null;
 
