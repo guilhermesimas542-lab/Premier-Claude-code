@@ -88,6 +88,8 @@ Deno.serve(async (req) => {
   let buyerPhone: string | null = null;
   let paymentId: string;
   let productIds: string[] = [];
+  let productNames: string[] = [];
+  let subscriptionId: string | null = null;
   let isTest = false;
   let amount: number | null = null;
 
@@ -102,6 +104,8 @@ Deno.serve(async (req) => {
     paymentId = (data.PaymentId ?? data.SubscriptionId ?? data.OrderId ?? `ll-${Date.now()}`) as string;
     const products = (data.Products ?? data.products ?? []) as Array<Record<string, unknown>>;
     productIds = products.map((p) => (p.Id ?? p.id) as string).filter(Boolean);
+    productNames = products.map((p) => (p.Name ?? p.name ?? '') as string).filter(Boolean);
+    subscriptionId = (data.SubscriptionId ?? data.subscription_id ?? null) as string | null;
     const payment = (data.Payment ?? data.payment ?? {}) as Record<string, unknown>;
     amount = Number(payment.Amount ?? payment.amount ?? 0) || null;
     isTest = !!(payload._admin_simulation);
@@ -115,6 +119,22 @@ Deno.serve(async (req) => {
     amount = Number(payload.amount ?? 0) || null;
     isTest = !!(payload._admin_simulation);
   }
+
+  // ── Financial event logging ────────────────────────────────────────────────
+  const isRecurringEvent = eventName === 'Subscription_Renewed' || eventName === 'Pagamento_de_Renovacao_Efetuado';
+  const valueCents = Math.round((amount ?? 0) * 100);
+  await supabase.from('financial_events').insert({
+    event_name: eventName,
+    email: buyerEmail || null,
+    product_name: productNames.join(', ') || null,
+    product_id: productIds.join(', ') || null,
+    value_cents: valueCents,
+    order_id: paymentId,
+    subscription_id: subscriptionId,
+    is_recurring: isRecurringEvent,
+    is_test: isTest,
+    raw_payload: payload,
+  });
 
   if (!buyerEmail) {
     return new Response(JSON.stringify({ error: "Missing buyer email" }), {
