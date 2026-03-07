@@ -28,9 +28,16 @@ export default function AdminRevenue() {
       const thirtyDaysAgo = new Date(Date.now() - 30 * 86400000).toISOString();
       const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString();
 
+      const REVENUE_EVENTS = ['Compra_Completa', 'Pagamento_de_Renovacao_Efetuado'];
+
       const [r30, rAll, activeRes, recoveryRes] = await Promise.all([
-        supabase.from('orders').select('amount, buyer_email').eq('status', 'paid').gte('paid_at', thirtyDaysAgo),
-        supabase.from('orders').select('amount, buyer_email').eq('status', 'paid'),
+        (supabase.from as any)('financial_events')
+          .select('value_cents, email')
+          .in('event_name', REVENUE_EVENTS)
+          .gte('created_at', thirtyDaysAgo),
+        (supabase.from as any)('financial_events')
+          .select('value_cents, email')
+          .in('event_name', REVENUE_EVENTS),
         supabase.from('users').select('id', { count: 'exact', head: true }).gte('last_seen_at', sevenDaysAgo),
         (supabase.from as any)('financial_events')
           .select('id', { count: 'exact', head: true })
@@ -38,13 +45,13 @@ export default function AdminRevenue() {
           .gte('created_at', thirtyDaysAgo),
       ]);
 
-      const orders30 = r30.data || [];
-      const revenue30d = orders30.reduce((s: number, o: any) => s + Number(o.amount || 0), 0);
-      const sales30d = orders30.length;
+      const events30 = r30.data || [];
+      const revenue30d = events30.reduce((s: number, e: any) => s + Number(e.value_cents || 0), 0) / 100;
+      const sales30d = events30.length;
 
-      const allOrders = rAll.data || [];
-      const totalRevenue = allOrders.reduce((s: number, o: any) => s + Number(o.amount || 0), 0);
-      const uniqueEmails = new Set(allOrders.map((o: any) => o.buyer_email)).size;
+      const allEvents = rAll.data || [];
+      const totalRevenue = allEvents.reduce((s: number, e: any) => s + Number(e.value_cents || 0), 0) / 100;
+      const uniqueEmails = new Set(allEvents.filter((e: any) => e.email).map((e: any) => e.email)).size;
 
       setKpis({
         revenue30d,
