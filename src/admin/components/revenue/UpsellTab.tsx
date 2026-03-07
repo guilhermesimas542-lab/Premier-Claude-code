@@ -50,12 +50,24 @@ export default function UpsellTab() {
     return m;
   }, [entitlements]);
 
+  const ALL_ADDON_KEYS = ['alavancagem', 'desaltas', 'live_telegram', 'acesso_vitalicio'];
+
   const filtered = useMemo(() => {
     const f = UPSELL_FILTERS[Number(filterIdx)];
     if (!f) return [];
+
+    // "Todas as Oportunidades" — any user missing at least one addon or vitalício
+    if (f.tier === 'all') {
+      return users.filter(u => {
+        const addons = entMap[u.id] || new Set();
+        const hasAll = ALL_ADDON_KEYS.every(k => addons.has(k)) && u.is_vitalicio;
+        return !hasAll;
+      });
+    }
+
     return users.filter(u => {
       const tierMatch = f.tier === 'any_paid'
-        ? ['basic', 'pro', 'ultra'].includes(u.main_tier)
+        ? ['free', 'basic', 'pro', 'ultra'].includes(u.main_tier)
         : u.main_tier === f.tier;
       if (!tierMatch) return false;
 

@@ -86,12 +86,27 @@ export interface FinancialEvent {
 }
 
 export const UPSELL_FILTERS = [
-  { label: 'Plano Básico sem Alavancagem', tier: 'basic', missingKey: 'alavancagem' },
-  { label: 'Plano Básico sem Odds Altas', tier: 'basic', missingKey: 'desaltas' },
-  { label: 'Plano Pro sem Alavancagem', tier: 'pro', missingKey: 'alavancagem' },
-  { label: 'Plano Pro sem Odds Altas', tier: 'pro', missingKey: 'desaltas' },
-  { label: 'Qualquer plano sem Live Telegram', tier: 'any_paid', missingKey: 'live_telegram' },
+  // Geral
+  { label: '── Todas as Oportunidades', tier: 'all', missingKey: '_any' },
+  // Global
   { label: 'Qualquer plano sem Vitalício', tier: 'any_paid', missingKey: 'acesso_vitalicio', checkVitalicio: true },
+  { label: 'Qualquer plano sem Live Telegram', tier: 'any_paid', missingKey: 'live_telegram' },
+  // Free
+  { label: 'Free sem Alavancagem', tier: 'free', missingKey: 'alavancagem' },
+  { label: 'Free sem Odds Altas', tier: 'free', missingKey: 'desaltas' },
+  { label: 'Free sem Live Telegram', tier: 'free', missingKey: 'live_telegram' },
+  // Básico
+  { label: 'Básico sem Alavancagem', tier: 'basic', missingKey: 'alavancagem' },
+  { label: 'Básico sem Odds Altas', tier: 'basic', missingKey: 'desaltas' },
+  { label: 'Básico sem Live Telegram', tier: 'basic', missingKey: 'live_telegram' },
+  // Pro
+  { label: 'Pro sem Alavancagem', tier: 'pro', missingKey: 'alavancagem' },
+  { label: 'Pro sem Odds Altas', tier: 'pro', missingKey: 'desaltas' },
+  { label: 'Pro sem Live Telegram', tier: 'pro', missingKey: 'live_telegram' },
+  // Ultra
+  { label: 'Ultra sem Alavancagem', tier: 'ultra', missingKey: 'alavancagem' },
+  { label: 'Ultra sem Odds Altas', tier: 'ultra', missingKey: 'desaltas' },
+  { label: 'Ultra sem Live Telegram', tier: 'ultra', missingKey: 'live_telegram' },
 ];
 
 export const TIER_DISPLAY: Record<string, string> = {
