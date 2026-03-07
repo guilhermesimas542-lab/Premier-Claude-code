@@ -258,9 +258,12 @@ Deno.serve(async (req) => {
     }
 
     if (isPurchaseApproved) {
-      // ── Update user tier ──────────────────────────────────────────────
+      // ── Update user tier + origin ─────────────────────────────────────
       if (tierToSet && userId) {
-        await supabase.from("users").update({ main_tier: tierToSet }).eq("id", userId);
+        await supabase.from("users").update({ main_tier: tierToSet, origin: "webhook" }).eq("id", userId);
+      } else if (userId) {
+        // Even without tier change, mark origin as webhook for purchases
+        await supabase.from("users").update({ origin: "webhook" }).eq("id", userId);
       }
 
       // ── Grant entitlements ────────────────────────────────────────────

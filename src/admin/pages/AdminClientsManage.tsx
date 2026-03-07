@@ -161,6 +161,7 @@ export default function AdminClientsManage() {
   const [profileUserId, setProfileUserId] = useState<string | null>(null);
   const [newEmail, setNewEmail] = useState("");
   const [newTier, setNewTier] = useState("free");
+  const [newOrigin, setNewOrigin] = useState("gift");
   const [newHouseId, setNewHouseId] = useState<string>("");
   const [houses, setHouses] = useState<BettingHouseOption[]>([]);
   const [saving, setSaving] = useState(false);
@@ -382,9 +383,9 @@ export default function AdminClientsManage() {
     if (!houseId && houses.length > 0) houseId = houses[0].id;
     const { error } = await supabase
       .from("users")
-      .insert({ email: newEmail.toLowerCase().trim(), main_tier: newTier as any, betting_house_id: houseId || null });
+      .insert({ email: newEmail.toLowerCase().trim(), main_tier: newTier as any, betting_house_id: houseId || null, origin: newOrigin } as any);
     if (error) toast.error(error.message);
-    else { toast.success("Cliente criado"); setShowCreate(false); setNewEmail(""); setNewHouseId(""); load(); }
+    else { toast.success("Cliente criado"); setShowCreate(false); setNewEmail(""); setNewHouseId(""); setNewOrigin("gift"); load(); }
     setSaving(false);
   };
 
@@ -734,6 +735,16 @@ export default function AdminClientsManage() {
                 <SelectItem value="ultra">Ultra</SelectItem>
               </SelectContent>
             </Select>
+            <div>
+              <label className="text-xs text-gray-500">Origem do Usuário</label>
+              <Select value={newOrigin} onValueChange={setNewOrigin}>
+                <SelectTrigger className="bg-gray-800 border-gray-700"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="gift">Brinde / Parceria</SelectItem>
+                  <SelectItem value="test">Usuário de Teste</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
             <Button onClick={handleCreate} disabled={saving} className="w-full">
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Criar"}
             </Button>

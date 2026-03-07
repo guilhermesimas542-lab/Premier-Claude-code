@@ -38,7 +38,7 @@ export default function AdminRevenue() {
         (supabase.from as any)('financial_events')
           .select('value_cents, email')
           .in('event_name', REVENUE_EVENTS),
-        supabase.from('users').select('id', { count: 'exact', head: true }).gte('last_seen_at', sevenDaysAgo),
+        supabase.from('users').select('id', { count: 'exact', head: true }).gte('last_seen_at', sevenDaysAgo).not('origin', 'eq', 'test'),
         (supabase.from as any)('financial_events')
           .select('id', { count: 'exact', head: true })
           .in('event_name', RECOVERY_EVENTS)
