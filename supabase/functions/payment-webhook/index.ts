@@ -120,6 +120,22 @@ Deno.serve(async (req) => {
     isTest = !!(payload._admin_simulation);
   }
 
+  // ── Financial event logging ────────────────────────────────────────────────
+  const isRecurringEvent = eventName === 'Subscription_Renewed' || eventName === 'Pagamento_de_Renovacao_Efetuado';
+  const valueCents = Math.round((amount ?? 0) * 100);
+  await supabase.from('financial_events').insert({
+    event_name: eventName,
+    email: buyerEmail || null,
+    product_name: productNames.join(', ') || null,
+    product_id: productIds.join(', ') || null,
+    value_cents: valueCents,
+    order_id: paymentId,
+    subscription_id: subscriptionId,
+    is_recurring: isRecurringEvent,
+    is_test: isTest,
+    raw_payload: payload,
+  });
+
   if (!buyerEmail) {
     return new Response(JSON.stringify({ error: "Missing buyer email" }), {
       status: 400,
