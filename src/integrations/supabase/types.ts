@@ -583,6 +583,54 @@ export type Database = {
           },
         ]
       }
+      financial_events: {
+        Row: {
+          created_at: string
+          currency: string | null
+          email: string | null
+          event_name: string
+          id: number
+          is_recurring: boolean | null
+          is_test: boolean | null
+          order_id: string | null
+          product_id: string | null
+          product_name: string | null
+          raw_payload: Json
+          subscription_id: string | null
+          value_cents: number | null
+        }
+        Insert: {
+          created_at?: string
+          currency?: string | null
+          email?: string | null
+          event_name: string
+          id?: never
+          is_recurring?: boolean | null
+          is_test?: boolean | null
+          order_id?: string | null
+          product_id?: string | null
+          product_name?: string | null
+          raw_payload: Json
+          subscription_id?: string | null
+          value_cents?: number | null
+        }
+        Update: {
+          created_at?: string
+          currency?: string | null
+          email?: string | null
+          event_name?: string
+          id?: never
+          is_recurring?: boolean | null
+          is_test?: boolean | null
+          order_id?: string | null
+          product_id?: string | null
+          product_name?: string | null
+          raw_payload?: Json
+          subscription_id?: string | null
+          value_cents?: number | null
+        }
+        Relationships: []
+      }
       funnel_analytics: {
         Row: {
           created_at: string | null
