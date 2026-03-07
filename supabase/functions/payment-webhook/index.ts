@@ -104,6 +104,8 @@ Deno.serve(async (req) => {
     paymentId = (data.PaymentId ?? data.SubscriptionId ?? data.OrderId ?? `ll-${Date.now()}`) as string;
     const products = (data.Products ?? data.products ?? []) as Array<Record<string, unknown>>;
     productIds = products.map((p) => (p.Id ?? p.id) as string).filter(Boolean);
+    productNames = products.map((p) => (p.Name ?? p.name ?? '') as string).filter(Boolean);
+    subscriptionId = (data.SubscriptionId ?? data.subscription_id ?? null) as string | null;
     const payment = (data.Payment ?? data.payment ?? {}) as Record<string, unknown>;
     amount = Number(payment.Amount ?? payment.amount ?? 0) || null;
     isTest = !!(payload._admin_simulation);
