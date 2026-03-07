@@ -383,9 +383,9 @@ export default function AdminClientsManage() {
     if (!houseId && houses.length > 0) houseId = houses[0].id;
     const { error } = await supabase
       .from("users")
-      .insert({ email: newEmail.toLowerCase().trim(), main_tier: newTier as any, betting_house_id: houseId || null });
+      .insert({ email: newEmail.toLowerCase().trim(), main_tier: newTier as any, betting_house_id: houseId || null, origin: newOrigin } as any);
     if (error) toast.error(error.message);
-    else { toast.success("Cliente criado"); setShowCreate(false); setNewEmail(""); setNewHouseId(""); load(); }
+    else { toast.success("Cliente criado"); setShowCreate(false); setNewEmail(""); setNewHouseId(""); setNewOrigin("gift"); load(); }
     setSaving(false);
   };
 
