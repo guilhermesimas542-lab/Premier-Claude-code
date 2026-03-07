@@ -1,19 +1,41 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, Image, PlusCircle, List,
   Users, Bell, BarChart3, ChevronLeft, ChevronRight,
   DollarSign, Activity, Home, Link, Layers, Shield, CreditCard, Bug, Zap,
+  ChevronDown, UserPlus,
 } from "lucide-react";
 import { useState } from "react";
 import { useAdminMode } from "../context/AdminModeContext";
 
-const futebolSections = [
+interface MenuItem {
+  to: string;
+  icon: React.ElementType;
+  label: string;
+  end?: boolean;
+  children?: { to: string; icon: React.ElementType; label: string; end?: boolean }[];
+}
+
+interface Section {
+  label: string;
+  items: MenuItem[];
+}
+
+const futebolSections: Section[] = [
   {
     label: "Gestão",
     items: [
       { to: "/admin", icon: LayoutDashboard, label: "Dashboard", end: true },
       { to: "/admin/banners", icon: Image, label: "Banners" },
-      { to: "/admin/clients", icon: Users, label: "Clientes" },
+      {
+        to: "/admin/clients",
+        icon: Users,
+        label: "Clientes",
+        children: [
+          { to: "/admin/clients", icon: List, label: "Lista de Clientes", end: true },
+          { to: "/admin/clients/create", icon: UserPlus, label: "Cadastrar Novo" },
+        ],
+      },
       { to: "/admin/notifications", icon: Bell, label: "Notificações" },
     ],
   },
@@ -58,7 +80,7 @@ const futebolSections = [
   },
 ];
 
-const cassinoSections = [
+const cassinoSections: Section[] = [
   {
     label: "Gestão",
     items: [
@@ -82,8 +104,25 @@ const cassinoSections = [
 export function AdminSidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const { mode, setMode } = useAdminMode();
+  const location = useLocation();
+  const [expandedMenus, setExpandedMenus] = useState<Set<string>>(new Set());
 
   const sections = mode === "futebol" ? futebolSections : cassinoSections;
+
+  const isChildActive = (item: MenuItem) =>
+    item.children?.some((c) => c.end ? location.pathname === c.to : location.pathname.startsWith(c.to)) ?? false;
+
+  const toggleExpand = (to: string) => {
+    setExpandedMenus((prev) => {
+      const next = new Set(prev);
+      if (next.has(to)) next.delete(to);
+      else next.add(to);
+      return next;
+    });
+  };
+
+  const isExpanded = (item: MenuItem) =>
+    expandedMenus.has(item.to) || isChildActive(item);
 
   return (
     <aside
@@ -132,23 +171,67 @@ export function AdminSidebar() {
               </div>
             )}
             <div className="space-y-0.5 px-2">
-              {section.items.map((item) => (
-                <NavLink
-                  key={item.to}
-                  to={item.to}
-                  end={item.end}
-                  className={({ isActive }) =>
-                    `flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm transition-colors ${
-                      isActive
-                        ? "bg-blue-600/20 text-blue-400 font-medium"
-                        : "text-gray-400 hover:bg-white/5 hover:text-white"
-                    }`
-                  }
-                >
-                  <item.icon className="w-4 h-4 shrink-0" />
-                  {!collapsed && <span className="truncate">{item.label}</span>}
-                </NavLink>
-              ))}
+              {section.items.map((item) =>
+                item.children ? (
+                  <div key={item.to}>
+                    <button
+                      onClick={() => toggleExpand(item.to)}
+                      className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm transition-colors ${
+                        isChildActive(item)
+                          ? "bg-blue-600/20 text-blue-400 font-medium"
+                          : "text-gray-400 hover:bg-white/5 hover:text-white"
+                      }`}
+                    >
+                      <item.icon className="w-4 h-4 shrink-0" />
+                      {!collapsed && (
+                        <>
+                          <span className="truncate flex-1 text-left">{item.label}</span>
+                          <ChevronDown
+                            className={`w-3 h-3 transition-transform ${isExpanded(item) ? "rotate-180" : ""}`}
+                          />
+                        </>
+                      )}
+                    </button>
+                    {!collapsed && isExpanded(item) && (
+                      <div className="ml-4 mt-0.5 space-y-0.5 border-l border-white/10 pl-2">
+                        {item.children.map((child) => (
+                          <NavLink
+                            key={child.to}
+                            to={child.to}
+                            end={child.end}
+                            className={({ isActive }) =>
+                              `flex items-center gap-2 px-2 py-1.5 rounded-md text-xs transition-colors ${
+                                isActive
+                                  ? "bg-blue-600/20 text-blue-400 font-medium"
+                                  : "text-gray-400 hover:bg-white/5 hover:text-white"
+                              }`
+                            }
+                          >
+                            <child.icon className="w-3.5 h-3.5 shrink-0" />
+                            <span className="truncate">{child.label}</span>
+                          </NavLink>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <NavLink
+                    key={item.to}
+                    to={item.to}
+                    end={item.end}
+                    className={({ isActive }) =>
+                      `flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm transition-colors ${
+                        isActive
+                          ? "bg-blue-600/20 text-blue-400 font-medium"
+                          : "text-gray-400 hover:bg-white/5 hover:text-white"
+                      }`
+                    }
+                  >
+                    <item.icon className="w-4 h-4 shrink-0" />
+                    {!collapsed && <span className="truncate">{item.label}</span>}
+                  </NavLink>
+                )
+              )}
             </div>
           </div>
         ))}
