@@ -31,7 +31,7 @@ export default function UpsellTab() {
     async function load() {
       setLoading(true);
       const [{ data: u }, { data: e }] = await Promise.all([
-        supabase.from('users').select('id, email, main_tier, is_vitalicio, last_seen_at').neq('main_tier', 'free').not('origin', 'eq', 'test'),
+        supabase.from('users').select('id, email, main_tier, is_vitalicio, last_seen_at').not('origin', 'eq', 'test'),
         supabase.from('entitlements').select('user_id, product_key').eq('status', 'active'),
       ]);
       setUsers((u as UserRow[]) || []);
