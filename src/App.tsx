@@ -27,6 +27,7 @@ import AdminBanners from "./admin/pages/AdminBanners";
 import AdminTipsCreate from "./admin/pages/AdminTipsCreate";
 import AdminTipsList from "./admin/pages/AdminTipsList";
 import AdminClientsManage from "./admin/pages/AdminClientsManage";
+import AdminClientsCreate from "./admin/pages/AdminClientsCreate";
 import AdminNotifications from "./admin/pages/AdminNotifications";
 import AdminAnalytics from "./admin/pages/AdminAnalytics";
 import AdminEventsPage from "./admin/pages/AdminEventsPage";
