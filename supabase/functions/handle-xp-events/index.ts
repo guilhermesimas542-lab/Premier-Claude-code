@@ -253,7 +253,7 @@ serve(async (req) => {
         newAchievements.push({ id: 'daily_checkin', ...dailyResult });
       }
 
-      const today = new Date().toISOString().split('T')[0];
+      const today = new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString().split('T')[0];
       const lastLogin = gamification?.last_login_date;
 
       // 3. If already logged today, return with any new achievements/XP from above
