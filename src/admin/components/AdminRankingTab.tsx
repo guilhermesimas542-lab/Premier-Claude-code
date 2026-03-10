@@ -258,6 +258,9 @@ export default function AdminRankingTab() {
                   <td className="px-3 py-2">{u.total_logins}</td>
                   <td className="px-3 py-2">{u.current_streak}d</td>
                   <td className="px-3 py-2">{u.achievement_count}</td>
+                  <td className="px-3 py-2 text-gray-500">
+                    {u.last_seen_at ? new Date(u.last_seen_at).toLocaleDateString('pt-BR') : '—'}
+                  </td>
                   <td className="px-3 py-2">
                     <div className="flex gap-1">
                       <button onClick={() => copyText(u.email, 'Email')} className="p-1 rounded hover:bg-white/10" title="Copiar email">
