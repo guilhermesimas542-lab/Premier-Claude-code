@@ -102,7 +102,7 @@ export function useGamification(onNewAchievements?: () => void) {
     } catch {
       return null;
     }
-  }, [userId, fetchData]);
+  }, [userId, fetchData, onNewAchievements]);
 
   return { data, loading, userId, sendXpEvent, refetch: fetchData };
 }
