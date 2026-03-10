@@ -90,6 +90,7 @@ const Support = () => {
   const navigate = useNavigate();
   const mockUser = mockGetUser();
   const { data: gamification, userId, sendXpEvent } = useGamification();
+  const { permanentAchievements, isUnlocked, unlockedPermanentCount } = useAchievements(userId);
   const [nickname, setNickname] = useState("");
   const [currentAvatarId, setCurrentAvatarId] = useState("avatar_default_1");
   const [isProfileModalOpen, setProfileModalOpen] = useState(false);
