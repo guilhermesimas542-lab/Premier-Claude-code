@@ -74,6 +74,7 @@ export default function AdminRankingTab() {
 
     const combined: RankingUser[] = (usersData ?? []).map((u: any) => ({
       ...u,
+      last_seen_at: u.last_seen_at ?? null,
       total_xp: gamMap[u.id]?.total_xp ?? 0,
       current_level: gamMap[u.id]?.current_level ?? 1,
       current_streak: gamMap[u.id]?.current_streak ?? 0,
