@@ -94,6 +94,8 @@ export function useGamification() {
               },
             });
           }
+          // Dispatch event so useAchievements can refetch
+          window.dispatchEvent(new CustomEvent('achievements-updated'));
         }
       }
       return result;

@@ -12,6 +12,7 @@ interface RankingUser {
   phone: string | null;
   nickname: string | null;
   avatar_id: string | null;
+  last_seen_at: string | null;
   total_xp: number;
   current_level: number;
   current_streak: number;
@@ -31,7 +32,7 @@ interface SpecialAchievement {
   user_count?: number;
 }
 
-type SortKey = 'total_xp' | 'email' | 'current_level' | 'total_logins' | 'current_streak' | 'achievement_count';
+type SortKey = 'total_xp' | 'email' | 'current_level' | 'total_logins' | 'current_streak' | 'achievement_count' | 'last_seen_at';
 type SortDir = 'asc' | 'desc' | null;
 
 const TIER_LABELS: Record<string, string> = { free: 'Gratuito', basic: 'Básico', pro: 'Pro', ultra: 'Ultra' };
@@ -59,7 +60,7 @@ export default function AdminRankingTab() {
 
   const fetchRanking = useCallback(async () => {
     setLoading(true);
-    const { data: usersData } = await supabase.from('users').select('id, email, phone, nickname, avatar_id') as any;
+    const { data: usersData } = await supabase.from('users').select('id, email, phone, nickname, avatar_id, last_seen_at') as any;
     const { data: gamData } = await supabase.from('user_gamification').select('user_id, total_xp, current_level, current_streak, total_logins') as any;
     const { data: achData } = await supabase.from('user_achievements').select('user_id, achievement_id') as any;
 
@@ -73,6 +74,7 @@ export default function AdminRankingTab() {
 
     const combined: RankingUser[] = (usersData ?? []).map((u: any) => ({
       ...u,
+      last_seen_at: u.last_seen_at ?? null,
       total_xp: gamMap[u.id]?.total_xp ?? 0,
       current_level: gamMap[u.id]?.current_level ?? 1,
       current_streak: gamMap[u.id]?.current_streak ?? 0,
@@ -124,6 +126,11 @@ export default function AdminRankingTab() {
           const aVal = (a.nickname || a.email).toLowerCase();
           const bVal = (b.nickname || b.email).toLowerCase();
           return sortDir === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+        }
+        if (sortKey === 'last_seen_at') {
+          const dateA = a.last_seen_at ? new Date(a.last_seen_at).getTime() : 0;
+          const dateB = b.last_seen_at ? new Date(b.last_seen_at).getTime() : 0;
+          return sortDir === 'asc' ? dateA - dateB : dateB - dateA;
         }
         const aVal = a[sortKey] as number;
         const bVal = b[sortKey] as number;
@@ -227,6 +234,7 @@ export default function AdminRankingTab() {
               <SortHeader label="Dias" sortKeyProp="total_logins" />
               <SortHeader label="Streak" sortKeyProp="current_streak" />
               <SortHeader label="🏆" sortKeyProp="achievement_count" />
+              <SortHeader label="Último Acesso" sortKeyProp="last_seen_at" />
               <th className="px-3 py-2">Ações</th>
             </tr>
           </thead>
@@ -250,6 +258,9 @@ export default function AdminRankingTab() {
                   <td className="px-3 py-2">{u.total_logins}</td>
                   <td className="px-3 py-2">{u.current_streak}d</td>
                   <td className="px-3 py-2">{u.achievement_count}</td>
+                  <td className="px-3 py-2 text-gray-500">
+                    {u.last_seen_at ? new Date(u.last_seen_at).toLocaleDateString('pt-BR') : '—'}
+                  </td>
                   <td className="px-3 py-2">
                     <div className="flex gap-1">
                       <button onClick={() => copyText(u.email, 'Email')} className="p-1 rounded hover:bg-white/10" title="Copiar email">
@@ -269,7 +280,7 @@ export default function AdminRankingTab() {
               );
             })}
             {paged.length === 0 && (
-              <tr><td colSpan={9} className="px-3 py-6 text-center text-gray-600">Sem dados</td></tr>
+              <tr><td colSpan={10} className="px-3 py-6 text-center text-gray-600">Sem dados</td></tr>
             )}
           </tbody>
         </table>

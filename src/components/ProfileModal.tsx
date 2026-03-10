@@ -23,7 +23,7 @@ const ProfileModal = ({ isOpen, onClose }: ProfileModalProps) => {
   const { data: gamification, loading, userId, sendXpEvent } = useGamification();
   const {
     permanentAchievements, streakAchievements, dailyAchievements, specialAchievements,
-    isUnlocked, isUnlockedToday, userAchievements,
+    isUnlocked, isUnlockedToday, userAchievements, refetch: refetchAchievements,
   } = useAchievements(userId);
   const [nickname, setNickname] = useState("");
   const [currentAvatarId, setCurrentAvatarId] = useState("avatar_default_1");
