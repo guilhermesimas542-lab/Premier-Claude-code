@@ -280,7 +280,7 @@ export default function AdminRankingTab() {
               );
             })}
             {paged.length === 0 && (
-              <tr><td colSpan={9} className="px-3 py-6 text-center text-gray-600">Sem dados</td></tr>
+              <tr><td colSpan={10} className="px-3 py-6 text-center text-gray-600">Sem dados</td></tr>
             )}
           </tbody>
         </table>
