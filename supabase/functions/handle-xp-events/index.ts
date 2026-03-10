@@ -239,18 +239,25 @@ serve(async (req) => {
     const newAchievements: any[] = [];
 
     if (event === 'DAILY_LOGIN') {
-      // Always check permanent achievements (idempotent)
+      // 1. Always check permanent achievements (idempotent)
       const permAchievements = await checkPermanentAchievements(userId, supabaseAdmin);
       for (const pa of permAchievements) {
         xpToAdd += pa.xp_reward;
         newAchievements.push(pa);
       }
 
+      // 2. Always try to grant daily_checkin (idempotent — checks if already granted today)
+      const dailyResult = await grantDailyAchievement(userId, 'daily_checkin', supabaseAdmin);
+      if (dailyResult) {
+        xpToAdd += dailyResult.xp_reward;
+        newAchievements.push({ id: 'daily_checkin', ...dailyResult });
+      }
+
       const today = new Date().toISOString().split('T')[0];
       const lastLogin = gamification?.last_login_date;
 
+      // 3. If already logged today, return with any new achievements/XP from above
       if (lastLogin === today) {
-        // Already logged today — return with any new permanent achievements
         if (xpToAdd > 0) {
           const newTotalXp = (gamification?.total_xp || 0) + xpToAdd;
           const newLevel = calculateLevel(newTotalXp);
@@ -268,7 +275,7 @@ serve(async (req) => {
         );
       }
 
-      // First login of the day
+      // 4. First login of the day — give XP, calculate streak
       xpToAdd += XP_EVENTS.DAILY_LOGIN;
       const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
       const currentStreak = lastLogin === yesterday ? (gamification?.current_streak || 0) + 1 : 1;
@@ -284,12 +291,6 @@ serve(async (req) => {
         last_login_date: today,
         total_logins: (gamification?.total_logins || 0) + 1,
       };
-
-      const dailyResult = await grantDailyAchievement(userId, 'daily_checkin', supabaseAdmin);
-      if (dailyResult) {
-        xpToAdd += dailyResult.xp_reward;
-        newAchievements.push({ id: 'daily_checkin', ...dailyResult });
-      }
 
       const streakAchievements = await checkStreakAchievements(userId, currentStreak, supabaseAdmin);
       for (const sa of streakAchievements) {
