@@ -46,6 +46,13 @@ export function useAchievements(userId: string | null) {
     fetchAll();
   }, [fetchAll]);
 
+  // Listen for achievement updates from useGamification
+  useEffect(() => {
+    const handler = () => fetchAll();
+    window.addEventListener('achievements-updated', handler);
+    return () => window.removeEventListener('achievements-updated', handler);
+  }, [fetchAll]);
+
   const isUnlocked = useCallback((achievementId: string) => {
     return userAchievements.some(ua => ua.achievement_id === achievementId);
   }, [userAchievements]);
