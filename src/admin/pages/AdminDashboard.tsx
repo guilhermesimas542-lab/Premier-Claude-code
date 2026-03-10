@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { format, startOfDay, endOfDay, startOfWeek, startOfMonth, subDays } from "date-fns";
+import { format, startOfDay, endOfDay, startOfWeek, startOfMonth, subDays, eachDayOfInterval } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useBettingHouseAdmin } from "@/admin/context/BettingHouseContext";
 import { Users, UserPlus, AlertTriangle, Wifi, Info, CalendarIcon, RefreshCw } from "lucide-react";
