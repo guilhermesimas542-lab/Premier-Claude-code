@@ -85,6 +85,7 @@ function WebhookLogsTab() {
   const [filter, setFilter] = useState<"all" | "ok" | "error">("all");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [simModalOpen, setSimModalOpen] = useState(false);
+  const [reprocessingId, setReprocessingId] = useState<string | null>(null);
 
   const fetchLogs = useCallback(async () => {
     setLoading(true);
@@ -103,6 +104,33 @@ function WebhookLogsTab() {
   }, [filter]);
 
   useEffect(() => { fetchLogs(); }, [fetchLogs]);
+
+  const handleReprocess = async (payload: Record<string, unknown>) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+      const res = await fetch(
+        `https://${projectId}.supabase.co/functions/v1/payment-webhook?provider=lastlink`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+      const data = await res.json();
+      if (res.ok) {
+        toast.success("Webhook re-processado com sucesso!");
+      } else {
+        toast.error(`Falha: ${data.error ?? data.message ?? "Erro desconhecido"}`);
+      }
+      fetchLogs();
+    } catch (err) {
+      toast.error(`Erro ao re-processar: ${String(err)}`);
+    }
+  };
 
   const todayLogs = logs.filter(
     (l) => new Date(l.received_at).toDateString() === new Date().toDateString()
@@ -164,6 +192,7 @@ function WebhookLogsTab() {
               <TableHead>E-mail</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Teste?</TableHead>
+              <TableHead>Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -173,11 +202,12 @@ function WebhookLogsTab() {
                 log={log}
                 expanded={expandedId === log.id}
                 onToggle={() => setExpandedId(expandedId === log.id ? null : log.id)}
+                onReprocess={handleReprocess}
               />
             ))}
             {logs.length === 0 && !loading && (
               <TableRow>
-                <TableCell colSpan={7} className="text-center text-gray-500 py-8">
+                <TableCell colSpan={8} className="text-center text-gray-500 py-8">
                   Nenhum log encontrado
                 </TableCell>
               </TableRow>
