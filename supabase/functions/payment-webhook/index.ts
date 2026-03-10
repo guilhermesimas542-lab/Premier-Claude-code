@@ -230,6 +230,7 @@ Deno.serve(async (req) => {
 
     if (logInsertError) throw logInsertError;
     logId = logEntry.id;
+    console.log("[WEBHOOK] 6. Log inserido em webhook_logs. logId:", logId);
 
     // ── Is this a purchase approval? ───────────────────────────────────────
     const isPurchaseApproved =
