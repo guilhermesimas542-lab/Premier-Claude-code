@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { getTodayInBrazil } from '@/lib/timezone';
 
 export interface Achievement {
   id: string;
