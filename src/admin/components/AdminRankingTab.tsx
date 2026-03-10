@@ -60,7 +60,7 @@ export default function AdminRankingTab() {
 
   const fetchRanking = useCallback(async () => {
     setLoading(true);
-    const { data: usersData } = await supabase.from('users').select('id, email, phone, nickname, avatar_id') as any;
+    const { data: usersData } = await supabase.from('users').select('id, email, phone, nickname, avatar_id, last_seen_at') as any;
     const { data: gamData } = await supabase.from('user_gamification').select('user_id, total_xp, current_level, current_streak, total_logins') as any;
     const { data: achData } = await supabase.from('user_achievements').select('user_id, achievement_id') as any;
 
