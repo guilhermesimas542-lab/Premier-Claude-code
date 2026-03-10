@@ -234,6 +234,7 @@ export default function AdminRankingTab() {
               <SortHeader label="Dias" sortKeyProp="total_logins" />
               <SortHeader label="Streak" sortKeyProp="current_streak" />
               <SortHeader label="🏆" sortKeyProp="achievement_count" />
+              <SortHeader label="Último Acesso" sortKeyProp="last_seen_at" />
               <th className="px-3 py-2">Ações</th>
             </tr>
           </thead>
