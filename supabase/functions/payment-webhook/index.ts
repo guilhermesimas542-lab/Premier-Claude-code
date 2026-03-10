@@ -237,12 +237,14 @@ Deno.serve(async (req) => {
 
     if (productIds.length > 0) {
       // Try matching by provider_product_id first
-      const { data: catalogItems } = await supabase
+      const { data: catalogItems, error: catalogError } = await supabase
         .from("products_catalog")
         .select("provider_product_id, tier, entitlement_key")
         .eq("provider", provider)
         .in("provider_product_id", productIds)
         .eq("active", true);
+
+      console.log("[webhook] catalog lookup by provider_product_id:", { productIds, provider, catalogItems, catalogError });
 
       if (catalogItems && catalogItems.length > 0) {
         for (const item of catalogItems) {
@@ -251,12 +253,14 @@ Deno.serve(async (req) => {
         }
       } else {
         // Fallback: try matching by lastlink_product_uuid (Lastlink sends internal UUIDs)
-        const { data: uuidItems } = await supabase
+        const { data: uuidItems, error: uuidError } = await supabase
           .from("products_catalog")
           .select("provider_product_id, tier, entitlement_key")
           .eq("provider", provider)
           .in("lastlink_product_uuid", productIds)
           .eq("active", true);
+
+        console.log("[webhook] catalog fallback by lastlink_product_uuid:", { uuidItems, uuidError });
 
         for (const item of uuidItems ?? []) {
           if (item.tier) tierToSet = item.tier;
@@ -264,6 +268,8 @@ Deno.serve(async (req) => {
         }
       }
     }
+
+    console.log("[webhook] resolved:", { tierToSet, entitlementKeysToGrant, userId });
 
     // Fallback: legacy product_key
     if (!tierToSet && entitlementKeysToGrant.length === 0 && payload.product_key) {
