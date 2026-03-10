@@ -194,6 +194,7 @@ const ProfileModal = ({ isOpen, onClose }: ProfileModalProps) => {
               isUnlocked={isUnlocked}
               isUnlockedToday={isUnlockedToday}
               currentStreak={gamification?.current_streak || 0}
+              userAchievements={userAchievements}
             />
 
             {/* Referral */}
