@@ -138,7 +138,7 @@ export default function AdminAnalytics() {
     const conversionRate = uniqueUsers > 0 ? Math.round((buyClicks / uniqueUsers) * 100 * 10) / 10 : 0;
 
     // Active today
-    const activeToday = new Set((todayEvents ?? []).map((r: any) => r.user_id)).size;
+    const activeToday = new Set((todayEvents ?? []).map((r: any) => r.user_id).filter(Boolean)).size;
 
     setKpis({
       uniqueUsers,

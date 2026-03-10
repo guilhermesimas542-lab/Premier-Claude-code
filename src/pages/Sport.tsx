@@ -15,6 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { mockGetUser } from "@/mocks/user";
 import MatrixRain from "@/components/MatrixRain";
 import { trackEvent } from "@/lib/events";
+import { useGamification } from "@/hooks/useGamification";
 import logoImg from "@/assets/premier-logo-custom.png";
 import { useUserBettingHouse } from "@/hooks/useUserBettingHouse";
 import { UpgradePopup } from "@/components/HousePopups";

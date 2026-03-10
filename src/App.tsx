@@ -70,6 +70,7 @@ const App = () => {
       <FunnelPopupProvider>
         <BrowserRouter>
           <AnalyticsRouteTracker />
+          <DailyCheckinHandler />
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/" element={<Home />} />
