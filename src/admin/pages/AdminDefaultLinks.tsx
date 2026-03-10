@@ -56,13 +56,14 @@ export default function AdminDefaultLinks() {
       setLoading(true);
       const { data, error } = await supabase
         .from("betting_houses")
-        .select("iframe_url, aviator_url, roleta_url, mines_url, football_studio_url, created_at")
+        .select("iframe_url, telegram_group_url, aviator_url, roleta_url, mines_url, football_studio_url, created_at")
         .eq("id", selectedHouse.id)
         .maybeSingle();
 
       if (!error && data) {
         setForm({
           iframe_url: data.iframe_url ?? "",
+          telegram_group_url: (data as any).telegram_group_url ?? "",
           aviator_url: (data as any).aviator_url ?? "",
           roleta_url: (data as any).roleta_url ?? "",
           mines_url: (data as any).mines_url ?? "",
