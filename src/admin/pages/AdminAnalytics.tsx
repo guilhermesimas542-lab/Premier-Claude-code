@@ -232,13 +232,8 @@ export default function AdminAnalytics() {
     <div className="space-y-6">
       <h2 className="text-xl font-bold">Analytics — {selectedHouse?.name ?? "Visão Geral"}</h2>
 
-      <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="bg-gray-900 border border-white/10">
-          <TabsTrigger value="overview">📊 Visão Geral</TabsTrigger>
-          <TabsTrigger value="ranking">🏆 Ranking</TabsTrigger>
-        </TabsList>
 
-        <TabsContent value="overview" className="space-y-6 mt-4">
+
           {/* ── Date Filter ─────────────────────────────────────── */}
           <div className="flex flex-wrap items-center gap-2">
             {PERIOD_SHORTCUTS.map((s) => (
