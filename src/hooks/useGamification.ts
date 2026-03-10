@@ -102,7 +102,7 @@ export function useGamification() {
     } catch {
       return null;
     }
-  }, [userId, fetchData, onNewAchievements]);
+  }, [userId, fetchData]);
 
   return { data, loading, userId, sendXpEvent, refetch: fetchData };
 }
