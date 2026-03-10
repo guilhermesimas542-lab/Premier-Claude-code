@@ -143,6 +143,7 @@ const Sport = () => {
   const navigate = useNavigate();
   const { sportId } = useParams<{ sportId: string }>();
   const { house: userHouse } = useUserBettingHouse();
+  const { sendXpEvent } = useGamification();
   const [iframeUrl, setIframeUrl] = useState<string>("");
 
   const [activeTierHighlight, setActiveTierHighlight] = useState<TierType | null>(null);
