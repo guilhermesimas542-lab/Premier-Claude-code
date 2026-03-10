@@ -112,8 +112,11 @@ Deno.serve(async (req) => {
       }
     }
 
+    console.log("[WEBHOOK] 4. Resultado da validação. isAuthorized:", isAuthorized);
+
     // Se nenhum método de autorização passou, retorna 401
     if (!isAuthorized) {
+      console.log("[WEBHOOK] 5. BLOQUEADO - 401 Unauthorized. tokenFromQuery:", tokenFromQuery, "| WEBHOOK_SECRET presente:", !!Deno.env.get('WEBHOOK_SECRET'));
       console.warn("[webhook] Unauthorized. hmac_header:", !!signature, "hmac_secret_set:", !!lastlinkSecret, "simple_secret_set:", !!simpleWebhookSecret, "token_query:", !!tokenFromQuery, "x-webhook-secret_header:", !!req.headers.get("x-webhook-secret"));
       return new Response(JSON.stringify({ error: "Unauthorized: No valid authentication method found." }), {
         status: 401,
