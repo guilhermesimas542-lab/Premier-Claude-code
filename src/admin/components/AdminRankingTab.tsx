@@ -12,6 +12,7 @@ interface RankingUser {
   phone: string | null;
   nickname: string | null;
   avatar_id: string | null;
+  last_seen_at: string | null;
   total_xp: number;
   current_level: number;
   current_streak: number;
