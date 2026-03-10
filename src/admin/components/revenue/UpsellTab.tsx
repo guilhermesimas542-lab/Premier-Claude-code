@@ -70,7 +70,7 @@ export default function UpsellTab() {
         : u.main_tier === f.tier;
       if (!tierMatch) return false;
 
-      if (f.checkVitalicio) return !u.is_vitalicio;
+      if (f.checkVitalicio) { const addons = entMap[u.id] || new Set(); return !addons.has('acesso_vitalicio'); }
 
       const addons = entMap[u.id] || new Set();
       return !addons.has(f.missingKey);

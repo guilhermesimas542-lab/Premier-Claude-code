@@ -38,8 +38,6 @@ export default function AdminClientsCreate() {
     setSaving(true);
     const finalHouseId = houseId || (houses.length > 0 ? houses[0].id : null);
 
-    const isVitalicio = addons["acesso_vitalicio"] ?? false;
-
     const { data: newUser, error } = await supabase
       .from("users")
       .insert({
@@ -47,8 +45,6 @@ export default function AdminClientsCreate() {
         main_tier: tier as any,
         betting_house_id: finalHouseId,
         origin,
-        is_vitalicio: isVitalicio,
-        vitalicio_since: isVitalicio ? new Date().toISOString() : null,
       } as any)
       .select("id")
       .single();
