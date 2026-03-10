@@ -52,6 +52,8 @@ Deno.serve(async (req) => {
       );
     }
 
+    console.log("[WEBHOOK] 2. Passou verificação IsTest.");
+
     // ── Detect provider ────────────────────────────────────────────────────────
     const url = new URL(req.url);
     const provider = url.searchParams.get("provider") ?? "lastlink";
