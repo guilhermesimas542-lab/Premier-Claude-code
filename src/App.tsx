@@ -98,6 +98,7 @@ const App = () => {
               <Route path="notifications" element={<AdminNotifications />} />
               <Route path="analytics" element={<AdminAnalytics />} />
               <Route path="analytics/events" element={<AdminEventsPage />} />
+              <Route path="ranking" element={<AdminRanking />} />
               <Route path="revenue" element={<AdminRevenue />} />
               <Route path="default-links" element={<AdminDefaultLinks />} />
               <Route path="popups" element={<AdminPopups />} />
