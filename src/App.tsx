@@ -120,6 +120,7 @@ const App = () => {
           </Routes>
         </BrowserRouter>
       </FunnelPopupProvider>
+      </GamificationProvider>
     </TooltipProvider>
   </QueryClientProvider>
   );
