@@ -91,10 +91,11 @@ const Support = () => {
   const navigate = useNavigate();
   const mockUser = mockGetUser();
   const { data: gamification, userId, sendXpEvent } = useGamification();
-  const { permanentAchievements, isUnlocked, unlockedPermanentCount } = useAchievements(userId);
+  const { permanentAchievements, isUnlocked, unlockedPermanentCount, userAchievements } = useAchievements(userId);
   const [nickname, setNickname] = useState("");
   const [currentAvatarId, setCurrentAvatarId] = useState("avatar_default_1");
   const [isProfileModalOpen, setProfileModalOpen] = useState(false);
+  const [selectedPreviewAch, setSelectedPreviewAch] = useState<any>(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
