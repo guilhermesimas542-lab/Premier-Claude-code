@@ -8,6 +8,7 @@ import { mockGetUser, mockLogout } from "@/mocks/user";
 import { supabase } from "@/integrations/supabase/client";
 import { useGamification, getXpProgress } from "@/hooks/useGamification";
 import { useAchievements } from "@/hooks/useAchievements";
+import AchievementDetailModal from "@/components/AchievementDetailModal";
 import { getAvatarById, LEVEL_TITLES } from "@/lib/avatars";
 import { BottomNav } from "@/components/BottomNav";
 import MatrixRain from "@/components/MatrixRain";
