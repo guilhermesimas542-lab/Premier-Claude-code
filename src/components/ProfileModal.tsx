@@ -4,11 +4,13 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { mockGetUser, mockLogout } from "@/mocks/user";
 import { useGamification, getXpProgress } from "@/hooks/useGamification";
+import { useAchievements } from "@/hooks/useAchievements";
 import { AVATARS, getAvatarById, LEVEL_TITLES } from "@/lib/avatars";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import AchievementsSection from "@/components/AchievementsSection";
 
 interface ProfileModalProps {
   isOpen: boolean;
@@ -19,6 +21,10 @@ const ProfileModal = ({ isOpen, onClose }: ProfileModalProps) => {
   const navigate = useNavigate();
   const mockUser = mockGetUser();
   const { data: gamification, loading, userId, sendXpEvent } = useGamification();
+  const {
+    permanentAchievements, streakAchievements, dailyAchievements, specialAchievements,
+    isUnlocked, isUnlockedToday,
+  } = useAchievements(userId);
   const [nickname, setNickname] = useState("");
   const [currentAvatarId, setCurrentAvatarId] = useState("avatar_default_1");
   const [showAvatarModal, setShowAvatarModal] = useState(false);
@@ -179,6 +185,17 @@ const ProfileModal = ({ isOpen, onClose }: ProfileModalProps) => {
               ))}
             </div>
 
+            {/* Achievements Section */}
+            <AchievementsSection
+              permanentAchievements={permanentAchievements}
+              streakAchievements={streakAchievements}
+              dailyAchievements={dailyAchievements}
+              specialAchievements={specialAchievements}
+              isUnlocked={isUnlocked}
+              isUnlockedToday={isUnlockedToday}
+              currentStreak={gamification?.current_streak || 0}
+            />
+
             {/* Referral */}
             <div
               className="rounded-2xl p-5"
@@ -203,39 +220,6 @@ const ProfileModal = ({ isOpen, onClose }: ProfileModalProps) => {
                 <Copy className="w-4 h-4" /> Copiar Link de Convite
               </button>
             </div>
-
-            {/* Streak Bonuses */}
-            <div
-              className="rounded-2xl p-5"
-              style={{
-                background: 'linear-gradient(135deg, rgba(255,107,53,0.08), rgba(200,60,20,0.05))',
-                border: '1px solid rgba(255,107,53,0.2)',
-              }}
-            >
-              <div className="flex items-center gap-3 mb-3">
-                <Flame className="w-5 h-5" style={{ color: '#FF6B35' }} />
-                <h3 className="font-bold text-white" style={{ color: '#FF6B35' }}>Bônus de Streak</h3>
-              </div>
-              <div className="space-y-2">
-                {[
-                  { days: 3, xp: 5 }, { days: 7, xp: 15 }, { days: 14, xp: 25 },
-                  { days: 30, xp: 50 }, { days: 60, xp: 100 }, { days: 100, xp: 200 },
-                ].map(({ days, xp }) => {
-                  const achieved = (gamification?.longest_streak || 0) >= days;
-                  return (
-                    <div key={days} className="flex items-center justify-between py-1.5">
-                      <span className="text-sm text-white">
-                        {achieved ? <Check className="w-4 h-4 inline mr-1" style={{ color: '#00FF00' }} /> : <Lock className="w-3 h-3 inline mr-1 opacity-40" />}
-                        {days} dias seguidos
-                      </span>
-                      <span className="text-sm font-bold" style={{ color: achieved ? '#00FF00' : '#888' }}>+{xp} XP</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-
           </div>
         </DialogContent>
       </Dialog>
@@ -250,23 +234,23 @@ const ProfileModal = ({ isOpen, onClose }: ProfileModalProps) => {
             <p className="text-xs opacity-60">Desbloqueie novos avatares subindo de nível!</p>
             <div className="grid grid-cols-4 gap-3">
               {AVATARS.map((avatar) => {
-                const isUnlocked = avatar.requiredLevel <= level;
+                const isUnlockedAvatar = avatar.requiredLevel <= level;
                 const isSelected = avatar.id === currentAvatarId;
                 return (
                   <button
                     key={avatar.id}
-                    onClick={() => isUnlocked && handleSelectAvatar(avatar.id)}
-                    disabled={!isUnlocked}
+                    onClick={() => isUnlockedAvatar && handleSelectAvatar(avatar.id)}
+                    disabled={!isUnlockedAvatar}
                     className="flex flex-col items-center gap-1 p-2 rounded-xl transition-all"
                     style={{
-                      background: isSelected ? 'rgba(0,255,0,0.15)' : isUnlocked ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.3)',
+                      background: isSelected ? 'rgba(0,255,0,0.15)' : isUnlockedAvatar ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.3)',
                       border: isSelected ? '2px solid #00FF00' : '2px solid transparent',
-                      opacity: isUnlocked ? 1 : 0.4,
+                      opacity: isUnlockedAvatar ? 1 : 0.4,
                     }}
                   >
-                    <span className="text-2xl">{isUnlocked ? avatar.emoji : '🔒'}</span>
+                    <span className="text-2xl">{isUnlockedAvatar ? avatar.emoji : '🔒'}</span>
                     <span className="text-[10px]">{avatar.label}</span>
-                    {!isUnlocked && <span className="text-[9px] opacity-60">Nv.{avatar.requiredLevel}</span>}
+                    {!isUnlockedAvatar && <span className="text-[9px] opacity-60">Nv.{avatar.requiredLevel}</span>}
                   </button>
                 );
               })}
