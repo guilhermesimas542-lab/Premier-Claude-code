@@ -85,6 +85,14 @@ function WebhookLogsTab() {
   const [logs, setLogs] = useState<WebhookLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "ok" | "error">("all");
+  const [eventFilter, setEventFilter] = useState<"approved" | "all">("approved");
+
+  const APPROVED_EVENTS = [
+    "Purchase_Order_Confirmed",
+    "Subscription_Product_Access",
+    "Product_Access_Started",
+    "Pagamento_de_Renovacao_Efetuado",
+  ];
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [simModalOpen, setSimModalOpen] = useState(false);
   const [reprocessingId, setReprocessingId] = useState<string | null>(null);
