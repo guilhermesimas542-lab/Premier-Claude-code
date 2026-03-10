@@ -85,6 +85,7 @@ function WebhookLogsTab() {
   const [filter, setFilter] = useState<"all" | "ok" | "error">("all");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [simModalOpen, setSimModalOpen] = useState(false);
+  const [reprocessingId, setReprocessingId] = useState<string | null>(null);
 
   const fetchLogs = useCallback(async () => {
     setLoading(true);
@@ -103,6 +104,33 @@ function WebhookLogsTab() {
   }, [filter]);
 
   useEffect(() => { fetchLogs(); }, [fetchLogs]);
+
+  const handleReprocess = async (payload: Record<string, unknown>) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+      const res = await fetch(
+        `https://${projectId}.supabase.co/functions/v1/payment-webhook?provider=lastlink`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+      const data = await res.json();
+      if (res.ok) {
+        toast.success("Webhook re-processado com sucesso!");
+      } else {
+        toast.error(`Falha: ${data.error ?? data.message ?? "Erro desconhecido"}`);
+      }
+      fetchLogs();
+    } catch (err) {
+      toast.error(`Erro ao re-processar: ${String(err)}`);
+    }
+  };
 
   const todayLogs = logs.filter(
     (l) => new Date(l.received_at).toDateString() === new Date().toDateString()
@@ -164,6 +192,7 @@ function WebhookLogsTab() {
               <TableHead>E-mail</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Teste?</TableHead>
+              <TableHead>Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -173,11 +202,12 @@ function WebhookLogsTab() {
                 log={log}
                 expanded={expandedId === log.id}
                 onToggle={() => setExpandedId(expandedId === log.id ? null : log.id)}
+                onReprocess={handleReprocess}
               />
             ))}
             {logs.length === 0 && !loading && (
               <TableRow>
-                <TableCell colSpan={7} className="text-center text-gray-500 py-8">
+                <TableCell colSpan={8} className="text-center text-gray-500 py-8">
                   Nenhum log encontrado
                 </TableCell>
               </TableRow>
@@ -204,7 +234,7 @@ function StatusCard({ icon, label, value, sub }: { icon: React.ReactNode; label:
   );
 }
 
-function LogRow({ log, expanded, onToggle }: { log: WebhookLog; expanded: boolean; onToggle: () => void }) {
+function LogRow({ log, expanded, onToggle, onReprocess }: { log: WebhookLog; expanded: boolean; onToggle: () => void; onReprocess: (payload: Record<string, unknown>) => void }) {
   return (
     <>
       <TableRow className="cursor-pointer hover:bg-white/5" onClick={onToggle}>
@@ -227,10 +257,23 @@ function LogRow({ log, expanded, onToggle }: { log: WebhookLog; expanded: boolea
           )}
         </TableCell>
         <TableCell>{log.is_test ? <Badge variant="secondary" className="text-[10px]">Teste</Badge> : "—"}</TableCell>
+        <TableCell onClick={(e) => e.stopPropagation()}>
+          {!log.processed_ok && log.raw_payload && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 text-xs text-yellow-400 hover:text-yellow-300"
+              onClick={() => onReprocess(log.raw_payload!)}
+            >
+              <RefreshCw className="w-3.5 h-3.5 mr-1" />
+              Re-processar
+            </Button>
+          )}
+        </TableCell>
       </TableRow>
       {expanded && (
         <TableRow>
-          <TableCell colSpan={7} className="bg-gray-900 p-4">
+          <TableCell colSpan={8} className="bg-gray-900 p-4">
             {log.error_message && (
               <p className="text-red-400 text-xs mb-2">
                 <strong>Erro:</strong> {log.error_message}
@@ -639,6 +682,7 @@ function RawLogsTab() {
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
+  const [reprocessingId, setReprocessingId] = useState<number | null>(null);
 
   const fetchLogs = useCallback(async () => {
     setLoading(true);
@@ -661,6 +705,35 @@ function RawLogsTab() {
   }, [startDate, endDate]);
 
   useEffect(() => { fetchLogs(); }, [fetchLogs]);
+
+  const handleReprocess = async (logId: number, payload: Record<string, unknown>) => {
+    setReprocessingId(logId);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+      const res = await fetch(
+        `https://${projectId}.supabase.co/functions/v1/payment-webhook?provider=lastlink`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+      const data = await res.json();
+      if (res.ok) {
+        toast.success(`Log #${logId} re-processado com sucesso!`);
+      } else {
+        toast.error(`Falha: ${data.error ?? data.message ?? "Erro desconhecido"}`);
+      }
+    } catch (err) {
+      toast.error(`Erro ao re-processar: ${String(err)}`);
+    } finally {
+      setReprocessingId(null);
+    }
+  };
 
   const exportCsv = () => {
     if (logs.length === 0) { toast.error("Nenhum log para exportar"); return; }
@@ -743,6 +816,7 @@ function RawLogsTab() {
               <TableHead>Data/Hora</TableHead>
               <TableHead>EventName</TableHead>
               <TableHead>Email</TableHead>
+              <TableHead>Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -770,10 +844,24 @@ function RawLogsTab() {
                     </TableCell>
                     <TableCell className="text-xs text-gray-300">{eventName}</TableCell>
                     <TableCell className="text-xs text-gray-300">{email}</TableCell>
+                    <TableCell onClick={(e) => e.stopPropagation()}>
+                      {log.payload && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 text-xs text-yellow-400 hover:text-yellow-300"
+                          disabled={reprocessingId === log.id}
+                          onClick={() => handleReprocess(log.id, log.payload!)}
+                        >
+                          <RefreshCw className={`w-3.5 h-3.5 mr-1 ${reprocessingId === log.id ? "animate-spin" : ""}`} />
+                          {reprocessingId === log.id ? "Enviando..." : "Re-processar"}
+                        </Button>
+                      )}
+                    </TableCell>
                   </TableRow>
                   {expandedId === log.id && (
                     <TableRow key={`${log.id}-detail`}>
-                      <TableCell colSpan={5} className="bg-gray-900 p-4">
+                      <TableCell colSpan={6} className="bg-gray-900 p-4">
                         <p className="text-[10px] text-gray-500 mb-1">Payload completo:</p>
                         <pre className="text-xs text-gray-300 bg-black/30 p-3 rounded overflow-x-auto max-h-80">
                           {JSON.stringify(log.payload, null, 2)}
@@ -786,7 +874,7 @@ function RawLogsTab() {
             })}
             {logs.length === 0 && !loading && (
               <TableRow>
-                <TableCell colSpan={5} className="text-center text-gray-500 py-8">
+                <TableCell colSpan={6} className="text-center text-gray-500 py-8">
                   Nenhum log bruto encontrado.
                 </TableCell>
               </TableRow>

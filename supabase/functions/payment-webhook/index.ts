@@ -198,6 +198,7 @@ Deno.serve(async (req) => {
     const isPurchaseApproved =
       eventName === "Purchase_Order_Confirmed" ||
       eventName === "Subscription_Renewed" ||
+      eventName === "Pagamento_de_Renovacao_Efetuado" ||
       eventName === "Subscription_Reactivated" ||
       eventName === "purchase" ||
       eventName === "approved";
@@ -231,6 +232,20 @@ Deno.serve(async (req) => {
 
     const userId = userData?.id ?? null;
 
+    if (!userId) {
+      const errMsg = `Falha ao criar/encontrar usuário: ${userError?.message ?? "userId retornou null"}`;
+      console.error("[webhook]", errMsg);
+      await supabase
+        .from("webhook_logs")
+        .update({ processed_ok: false, error_message: errMsg })
+        .eq("id", logId);
+
+      return new Response(
+        JSON.stringify({ error: errMsg }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     // ── Map products via products_catalog ──────────────────────────────────
     let tierToSet: string | null = null;
     const entitlementKeysToGrant: string[] = [];
@@ -262,9 +277,11 @@ Deno.serve(async (req) => {
 
         console.log("[webhook] catalog fallback by lastlink_product_uuid:", { uuidItems, uuidError });
 
-        for (const item of uuidItems ?? []) {
-          if (item.tier) tierToSet = item.tier;
-          if (item.entitlement_key) entitlementKeysToGrant.push(item.entitlement_key);
+        if (uuidItems && uuidItems.length > 0) {
+          for (const item of uuidItems) {
+            if (item.tier) tierToSet = item.tier;
+            if (item.entitlement_key) entitlementKeysToGrant.push(item.entitlement_key);
+          }
         }
       }
     }
@@ -279,6 +296,21 @@ Deno.serve(async (req) => {
       } else {
         entitlementKeysToGrant.push(pk);
       }
+    }
+
+    // ── Fail explicitly if no product matched ─────────────────────────────
+    if (!tierToSet && entitlementKeysToGrant.length === 0 && productIds.length > 0) {
+      const errMsg = `Produto não encontrado no catálogo para IDs: ${productIds.join(", ")} (provider: ${provider})`;
+      console.error("[webhook]", errMsg);
+      await supabase
+        .from("webhook_logs")
+        .update({ processed_ok: false, error_message: errMsg })
+        .eq("id", logId);
+
+      return new Response(
+        JSON.stringify({ status: "error", message: errMsg }),
+        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     if (isPurchaseApproved) {
