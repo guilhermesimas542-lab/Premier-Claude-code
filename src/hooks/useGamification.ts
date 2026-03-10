@@ -94,6 +94,8 @@ export function useGamification(onNewAchievements?: () => void) {
               },
             });
           }
+          // Refetch achievements so UI updates immediately
+          onNewAchievements?.();
         }
       }
       return result;
