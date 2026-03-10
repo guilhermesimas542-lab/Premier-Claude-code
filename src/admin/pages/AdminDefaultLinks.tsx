@@ -69,7 +69,7 @@ export default function AdminDefaultLinks() {
           mines_url: (data as any).mines_url ?? "",
           football_studio_url: (data as any).football_studio_url ?? "",
         });
-        setLastUpdated((data as any).created_at ?? null);
+        // Don't set lastUpdated from created_at — it's not the last save time
       }
       setLoading(false);
     };
