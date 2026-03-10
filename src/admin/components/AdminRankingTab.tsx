@@ -53,7 +53,6 @@ export default function AdminRankingTab() {
   const [newIcon, setNewIcon] = useState("⚽");
   const [newXp, setNewXp] = useState(200);
   const [newEntryId, setNewEntryId] = useState("");
-  const [newCategory, setNewCategory] = useState("");
   const [newEventDate, setNewEventDate] = useState("");
   const [entries, setEntries] = useState<{ id: string; title: string; date: string }[]>([]);
   const [creatingSpecial, setCreatingSpecial] = useState(false);
