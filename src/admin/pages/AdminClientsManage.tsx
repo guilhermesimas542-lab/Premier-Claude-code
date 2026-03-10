@@ -395,40 +395,10 @@ export default function AdminClientsManage() {
 
     const { error } = await supabase.from("users").update({
       main_tier: editUser.main_tier as any,
-      is_vitalicio: editUser.is_vitalicio,
-      vitalicio_since: editUser.is_vitalicio ? editUser.vitalicio_since || new Date().toISOString() : null,
       betting_house_id: editHouseId || null,
     }).eq("id", editUser.id);
 
     if (error) { toast.error(error.message); setSaving(false); return; }
-
-    // Sync acesso_vitalicio entitlement with is_vitalicio toggle
-    {
-      const vKey = "acesso_vitalicio";
-      const { data: existingV } = await supabase
-        .from("entitlements")
-        .select("id, status")
-        .eq("user_id", editUser.id)
-        .eq("product_key", vKey as any)
-        .limit(1);
-
-      if (editUser.is_vitalicio) {
-        if (!existingV || existingV.length === 0) {
-          await supabase.from("entitlements").insert({
-            user_id: editUser.id,
-            product_key: vKey as any,
-            source: "admin",
-            status: "active",
-          });
-        } else if (existingV[0].status !== "active") {
-          await supabase.from("entitlements").update({ status: "active" }).eq("id", existingV[0].id);
-        }
-      } else {
-        if (existingV && existingV.length > 0 && existingV[0].status === "active") {
-          await supabase.from("entitlements").update({ status: "revoked" }).eq("id", existingV[0].id);
-        }
-      }
-    }
 
     // Sync add-ons via entitlements
     for (const { key } of ADDON_TOGGLES) {
