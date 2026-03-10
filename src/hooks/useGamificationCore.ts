@@ -37,22 +37,67 @@ export function useGamificationCore() {
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
 
-  // Get user ID from email
-  useEffect(() => {
-    const mockUser = mockGetUser();
-    if (!mockUser) { setLoading(false); return; }
+  const hasCheckedIn = useRef(false);
 
-    const fetchUserId = async () => {
+  // Get user ID from email — also listens for login events
+  useEffect(() => {
+    const init = async () => {
+      const mockUser = mockGetUser();
+      if (!mockUser?.email) { setLoading(false); return; }
+
       const { data: user } = await supabase
         .from('users')
         .select('id')
         .eq('email', mockUser.email)
         .maybeSingle();
-      if (user?.id) setUserId(user.id);
-      else setLoading(false);
+
+      if (user?.id) {
+        setUserId(user.id);
+      } else {
+        setLoading(false);
+      }
     };
-    fetchUserId();
+
+    init();
+
+    const handleLoginEvent = () => {
+      hasCheckedIn.current = false; // reset for new login
+      init();
+    };
+
+    window.addEventListener('premier:login', handleLoginEvent);
+    return () => {
+      window.removeEventListener('premier:login', handleLoginEvent);
+    };
   }, []);
+
+  // Fire DAILY_LOGIN once when userId becomes available
+  useEffect(() => {
+    if (userId && !hasCheckedIn.current) {
+      hasCheckedIn.current = true;
+      supabase.functions.invoke('handle-xp-events', {
+        body: { event: 'DAILY_LOGIN', userId },
+      }).then(({ data: result, error }) => {
+        if (!error && result?.success) {
+          fetchData();
+          if (result.newAchievements?.length > 0) {
+            for (const ach of result.newAchievements) {
+              toast.success('Conquista desbloqueada!', {
+                description: `${ach.icon} ${ach.name} — +${ach.xp_reward} XP`,
+                duration: 4000,
+                style: {
+                  background: '#212529',
+                  border: '1px solid rgba(76,175,80,0.5)',
+                  color: '#fff',
+                },
+              });
+            }
+            window.dispatchEvent(new CustomEvent('achievements-updated'));
+          }
+        }
+      });
+    }
+  }, [userId]);
 
   // Fetch gamification data
   const fetchData = useCallback(async () => {
