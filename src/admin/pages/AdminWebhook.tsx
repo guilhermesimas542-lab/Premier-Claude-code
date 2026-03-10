@@ -598,29 +598,82 @@ function ProductModal({
       toast.error("Preencha todos os campos obrigatórios");
       return;
     }
+    if (type === "bundle" && bundleAddons.length === 0) {
+      toast.error("Selecione pelo menos um add-on para o bundle.");
+      return;
+    }
     setSaving(true);
 
-    const row = {
-      provider,
-      provider_product_id: externalId,
-      product_name: name,
-      tier: type === "tier" ? tierValue : null,
-      entitlement_key: type === "addon" ? addonValue : null,
-      active,
-    };
+    try {
+      if (type === "bundle") {
+        const bundleRows = [
+          {
+            provider,
+            provider_product_id: externalId,
+            product_name: `${name} (Plano)`,
+            tier: tierValue,
+            entitlement_key: null,
+            product_type: "bundle",
+            bundle_name: name,
+            active,
+          },
+          ...bundleAddons.map(addonKey => ({
+            provider,
+            provider_product_id: externalId,
+            product_name: `${name} (${addonKey})`,
+            tier: null,
+            entitlement_key: addonKey,
+            product_type: "bundle",
+            bundle_name: name,
+            active,
+          })),
+        ];
 
-    if (editing) {
-      await supabase.from("products_catalog").update(row).eq("id", editing.id);
-      toast.success("Produto atualizado");
-    } else {
-      await supabase.from("products_catalog").insert(row);
-      toast.success("Produto cadastrado");
+        if (editing) {
+          await supabase
+            .from("products_catalog")
+            .delete()
+            .eq("bundle_name", editing.bundle_name ?? name)
+            .eq("provider_product_id", externalId);
+        }
+
+        await supabase.from("products_catalog").insert(bundleRows);
+      } else {
+        const row = {
+          provider,
+          provider_product_id: externalId,
+          product_name: name,
+          tier: type === "tier" ? tierValue : null,
+          entitlement_key: type === "addon" ? addonValue : null,
+          product_type: type === "tier" ? "plan" : "addon",
+          bundle_name: null,
+          active,
+        };
+
+        if (editing) {
+          await supabase.from("products_catalog").update(row).eq("id", editing.id);
+        } else {
+          await supabase.from("products_catalog").insert(row);
+        }
+      }
+
+      toast.success("Produto salvo com sucesso!");
+    } catch (err) {
+      toast.error("Erro ao salvar produto.");
+      console.error(err);
+    } finally {
+      setSaving(false);
+      onClose();
+      onDone();
     }
-
-    setSaving(false);
-    onClose();
-    onDone();
   };
+
+  const addonOptions = [
+    { key: "alavancagem", label: "Alavancagem" },
+    { key: "desaltas", label: "Odds Altas" },
+    { key: "live_telegram", label: "Live Telegram" },
+    { key: "acesso_vitalicio", label: "Acesso Vitalício" },
+  ];
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -667,9 +720,11 @@ function ProductModal({
           </div>
 
           <div>
-            <label className="text-xs text-gray-400 block mb-1">Nome legível</label>
+            <label className="text-xs text-gray-400 block mb-1">
+              {type === "bundle" ? "Nome do Bundle" : "Nome legível"}
+            </label>
             <Input
-              placeholder="Ex: Plano Básico Mensal"
+              placeholder={type === "bundle" ? "Ex: Pacote Ultra Completo" : "Ex: Plano Básico Mensal"}
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="bg-gray-800 border-white/10"
@@ -678,32 +733,37 @@ function ProductModal({
 
           <div>
             <label className="text-xs text-gray-400 block mb-1">Tipo</label>
-            <Select value={type} onValueChange={(v) => setType(v as "tier" | "addon")}>
+            <Select value={type} onValueChange={(v) => setType(v as "tier" | "addon" | "bundle")}>
               <SelectTrigger className="bg-gray-800 border-white/10">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="tier">Tier (Plano)</SelectItem>
+                <SelectItem value="tier">Plano</SelectItem>
                 <SelectItem value="addon">Add-on</SelectItem>
+                <SelectItem value="bundle">Bundle (Plano + Add-ons)</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
-          {type === "tier" ? (
+          {/* Tier selector — for "tier" and "bundle" */}
+          {(type === "tier" || type === "bundle") && (
             <div>
-              <label className="text-xs text-gray-400 block mb-1">Plano</label>
+              <label className="text-xs text-gray-400 block mb-1">Plano incluído</label>
               <Select value={tierValue} onValueChange={setTierValue}>
                 <SelectTrigger className="bg-gray-800 border-white/10">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="basic">Basic</SelectItem>
+                  <SelectItem value="basic">Básico</SelectItem>
                   <SelectItem value="pro">Pro</SelectItem>
                   <SelectItem value="ultra">Ultra</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-          ) : (
+          )}
+
+          {/* Single addon selector — for "addon" only */}
+          {type === "addon" && (
             <div>
               <label className="text-xs text-gray-400 block mb-1">Add-on</label>
               <Select value={addonValue} onValueChange={setAddonValue}>
@@ -711,12 +771,35 @@ function ProductModal({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="alavancagem">Alavancagem</SelectItem>
-                  <SelectItem value="desaltas">Desaltas</SelectItem>
-                  <SelectItem value="live_telegram">Live Telegram</SelectItem>
-                  <SelectItem value="acesso_vitalicio">Acesso Vitalício</SelectItem>
+                  {addonOptions.map(({ key, label }) => (
+                    <SelectItem key={key} value={key}>{label}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
+            </div>
+          )}
+
+          {/* Multi-addon checkboxes — for "bundle" only */}
+          {type === "bundle" && (
+            <div>
+              <label className="text-xs text-gray-400 block mb-1">Add-ons incluídos no Bundle</label>
+              <p className="text-[10px] text-gray-500 mb-2">Selecione todos os add-ons que este pacote deve liberar.</p>
+              <div className="flex flex-col gap-2 border border-white/10 rounded-md p-3 bg-gray-800/50">
+                {addonOptions.map(({ key, label }) => (
+                  <label key={key} className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={bundleAddons.includes(key)}
+                      onChange={() => toggleBundleAddon(key)}
+                      className="w-4 h-4 rounded border-white/20"
+                    />
+                    <span className="text-sm text-gray-300">{label}</span>
+                  </label>
+                ))}
+              </div>
+              {bundleAddons.length === 0 && (
+                <p className="text-xs text-red-400 mt-1">Selecione pelo menos um add-on para o bundle.</p>
+              )}
             </div>
           )}
 
