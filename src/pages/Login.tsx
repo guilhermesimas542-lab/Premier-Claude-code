@@ -72,6 +72,7 @@ const Login = () => {
         }
 
         mockLogin(email, dbUser.id, dbUser.main_tier);
+        window.dispatchEvent(new CustomEvent('premier:login'));
         trackEvent("user_login");
         toast.success("Login realizado com sucesso!");
         navigate("/", { replace: true });
