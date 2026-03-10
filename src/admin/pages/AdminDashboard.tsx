@@ -168,7 +168,6 @@ export default function AdminDashboard() {
       }
       const { data: sessionsRaw } = await sessionsQ;
       setSessionsData(sessionsRaw ?? []);
-      const paid = paidUsersRes.data ?? [];
 
       // Entitlements
       const houseUserIds = users.map((u: any) => u.id);
