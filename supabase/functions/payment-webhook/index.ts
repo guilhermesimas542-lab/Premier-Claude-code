@@ -222,10 +222,12 @@ Deno.serve(async (req) => {
     }
 
     // ── Find or create user ────────────────────────────────────────────────
-    const { data: userData } = await supabase.rpc("get_or_create_user", {
+    const { data: userData, error: userError } = await supabase.rpc("get_or_create_user", {
       p_email: buyerEmail,
       p_phone: buyerPhone,
     });
+
+    console.log("[webhook] get_or_create_user:", { userData, userError });
 
     const userId = userData?.id ?? null;
 
