@@ -170,8 +170,23 @@ function WebhookLogsTab() {
         />
       </div>
 
-      {/* Actions */}
+      {/* Event filter */}
       <div className="flex flex-wrap gap-2">
+        <Button
+          variant={eventFilter === "approved" ? "default" : "outline"}
+          size="sm"
+          onClick={() => setEventFilter("approved")}
+        >
+          🛒 Compras Aprovadas
+        </Button>
+        <Button
+          variant={eventFilter === "all" ? "default" : "outline"}
+          size="sm"
+          onClick={() => setEventFilter("all")}
+        >
+          Todos os Eventos
+        </Button>
+        <span className="w-px bg-white/10 mx-1" />
         {(["all", "ok", "error"] as const).map((f) => (
           <Button
             key={f}
