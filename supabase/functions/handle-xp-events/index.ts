@@ -57,7 +57,7 @@ function getXpForLevel(level: number): number {
 }
 
 async function grantDailyAchievement(userId: string, achievementId: string, supabaseAdmin: any) {
-  const today = new Date().toISOString().split('T')[0];
+  const today = new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString().split('T')[0];
 
   const { data: existing } = await supabaseAdmin
     .from('user_achievements')
@@ -253,7 +253,7 @@ serve(async (req) => {
         newAchievements.push({ id: 'daily_checkin', ...dailyResult });
       }
 
-      const today = new Date().toISOString().split('T')[0];
+      const today = new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString().split('T')[0];
       const lastLogin = gamification?.last_login_date;
 
       // 3. If already logged today, return with any new achievements/XP from above
@@ -277,7 +277,7 @@ serve(async (req) => {
 
       // 4. First login of the day — give XP, calculate streak
       xpToAdd += XP_EVENTS.DAILY_LOGIN;
-      const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+      const yesterday = new Date(Date.now() - 3 * 60 * 60 * 1000 - 86400000).toISOString().split('T')[0];
       const currentStreak = lastLogin === yesterday ? (gamification?.current_streak || 0) + 1 : 1;
 
       if (STREAK_BONUSES[currentStreak]) {

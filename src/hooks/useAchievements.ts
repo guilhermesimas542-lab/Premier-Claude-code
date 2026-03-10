@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { getTodayInBrazil } from '@/lib/timezone';
 
 export interface Achievement {
   id: string;
@@ -58,7 +59,7 @@ export function useAchievements(userId: string | null) {
   }, [userAchievements]);
 
   const isUnlockedToday = useCallback((achievementId: string) => {
-    const today = new Date().toISOString().split('T')[0];
+    const today = getTodayInBrazil();
     return userAchievements.some(ua => ua.achievement_id === achievementId && ua.achievement_date === today);
   }, [userAchievements]);
 

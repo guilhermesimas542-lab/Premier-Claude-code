@@ -47,6 +47,7 @@ import AdminWebhook from "./admin/pages/AdminWebhook";
 import { Navigate } from "react-router-dom";
 import { FunnelPopupProvider } from "./context/FunnelPopupContext";
 import { DailyCheckinHandler } from "./components/DailyCheckinHandler";
+import { GamificationProvider } from "./contexts/GamificationContext";
 
 const queryClient = new QueryClient();
 
@@ -67,6 +68,7 @@ const App = () => {
     <TooltipProvider>
       <Toaster />
       <Sonner />
+      <GamificationProvider>
       <FunnelPopupProvider>
         <BrowserRouter>
           <AnalyticsRouteTracker />
@@ -118,6 +120,7 @@ const App = () => {
           </Routes>
         </BrowserRouter>
       </FunnelPopupProvider>
+      </GamificationProvider>
     </TooltipProvider>
   </QueryClientProvider>
   );
