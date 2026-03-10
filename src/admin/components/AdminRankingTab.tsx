@@ -127,6 +127,11 @@ export default function AdminRankingTab() {
           const bVal = (b.nickname || b.email).toLowerCase();
           return sortDir === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
         }
+        if (sortKey === 'last_seen_at') {
+          const dateA = a.last_seen_at ? new Date(a.last_seen_at).getTime() : 0;
+          const dateB = b.last_seen_at ? new Date(b.last_seen_at).getTime() : 0;
+          return sortDir === 'asc' ? dateA - dateB : dateB - dateA;
+        }
         const aVal = a[sortKey] as number;
         const bVal = b[sortKey] as number;
         return sortDir === 'asc' ? aVal - bVal : bVal - aVal;
