@@ -21,7 +21,7 @@ function getUrlStatus(url: string) {
 
 const FIELDS = [
   { key: "iframe_url", label: "🏠 Iframe de Esportes", placeholder: "https://esportivabet.com", section: "sports" },
-  { key: "telegram_group_url", label: "📲 Link do Grupo Telegram", placeholder: "https://t.me/seugrupovip", section: "general" },
+  { key: "telegram_group_url", label: "📲 Link do Grupo Telegram", placeholder: "https://t.me/seugrupovip", section: "sports" },
   { key: "aviator_url", label: "✈️ Aviator", placeholder: "https://esportivabet.com/cassino/aviator", section: "casino" },
   { key: "roleta_url", label: "🎰 Roleta", placeholder: "https://esportivabet.com/cassino/roleta", section: "casino" },
   { key: "mines_url", label: "💎 Mines", placeholder: "https://esportivabet.com/cassino/mines", section: "casino" },

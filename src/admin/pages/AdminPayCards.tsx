@@ -455,7 +455,14 @@ export default function AdminPayCards() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-gray-500">Localização</label>
-                  <Input value={form.location} onChange={(e) => set("location", e.target.value)} placeholder="Ex: Home, Sports Tips, Suporte" className="bg-gray-900 border-gray-800" />
+                  <select value={form.location} onChange={(e) => set("location", e.target.value)} className="w-full rounded-md bg-gray-900 border border-gray-800 text-sm px-3 py-2">
+                    <option value="">Selecione...</option>
+                    <option value="header">Header</option>
+                    <option value="sports_tips">Sports Tips</option>
+                    <option value="support">Suporte</option>
+                    <option value="home">Home</option>
+                    <option value="casino">Cassino</option>
+                  </select>
                 </div>
                 <div>
                   <label className="text-xs text-gray-500">Público-alvo (segmentação)</label>
