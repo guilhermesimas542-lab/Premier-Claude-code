@@ -54,7 +54,7 @@ export default function AdminRankingTab() {
   const [newXp, setNewXp] = useState(200);
   const [newEntryId, setNewEntryId] = useState("");
   const [newEventDate, setNewEventDate] = useState("");
-  const [entries, setEntries] = useState<{ id: string; title: string; date: string }[]>([]);
+  const [entries, setEntries] = useState<{ id: string; title: string; date: string; tier_required: string; addon_required: string | null }[]>([]);
   const [creatingSpecial, setCreatingSpecial] = useState(false);
 
   const fetchRanking = useCallback(async () => {
