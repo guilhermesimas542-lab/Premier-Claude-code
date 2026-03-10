@@ -48,6 +48,8 @@ interface ProductCatalogItem {
   entitlement_key: string | null;
   active: boolean;
   created_at: string;
+  product_type: string;
+  bundle_name: string | null;
 }
 
 // ─── Component ───────────────────────────────────────────────────────────────
