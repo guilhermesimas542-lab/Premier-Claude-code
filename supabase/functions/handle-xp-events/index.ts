@@ -57,7 +57,7 @@ function getXpForLevel(level: number): number {
 }
 
 async function grantDailyAchievement(userId: string, achievementId: string, supabaseAdmin: any) {
-  const today = new Date().toISOString().split('T')[0];
+  const today = new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString().split('T')[0];
 
   const { data: existing } = await supabaseAdmin
     .from('user_achievements')
