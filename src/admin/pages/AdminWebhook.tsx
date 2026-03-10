@@ -107,11 +107,12 @@ function WebhookLogsTab() {
 
     if (filter === "ok") query = query.eq("processed_ok", true);
     if (filter === "error") query = query.eq("processed_ok", false);
+    if (eventFilter === "approved") query = query.in("event_name", APPROVED_EVENTS);
 
     const { data } = await query;
     setLogs((data as unknown as WebhookLog[]) ?? []);
     setLoading(false);
-  }, [filter]);
+  }, [filter, eventFilter]);
 
   useEffect(() => { fetchLogs(); }, [fetchLogs]);
 
