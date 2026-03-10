@@ -330,7 +330,6 @@ export default function AdminRankingTab() {
                     <span className="text-sm font-bold text-white">{s.name}</span>
                     <div className="text-[10px] text-gray-500">
                       +{s.xp_reward} XP · {s.user_count ?? 0} usuários
-                      {s.sport_category && <span> · {s.sport_category}</span>}
                       {s.event_date && <span> · {new Date(s.event_date + 'T12:00:00').toLocaleDateString('pt-BR')}</span>}
                     </div>
                   </div>
