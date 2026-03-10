@@ -277,7 +277,7 @@ const CasinoGame = () => {
   const [stepIndex, setStepIndex] = useState(0);
   const [cooldown, setCooldown] = useState(0);
   const [result, setResult] = useState<any>(null);
-  const timersRef = useRef<NodeJS.Timeout[]>([]);
+  const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   const gameConfig = gameId ? GAME_CONFIGS[gameId] : null;
 

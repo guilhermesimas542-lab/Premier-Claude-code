@@ -101,14 +101,30 @@ Deno.serve(async (req) => {
     buyerEmail = ((buyer.Email ?? buyer.email) as string ?? "").toLowerCase().trim();
     buyerName = (buyer.Name ?? buyer.name) as string ?? null;
     buyerPhone = (buyer.PhoneNumber ?? buyer.phoneNumber ?? buyer.Phone ?? buyer.phone ?? buyer.Cellphone ?? buyer.cellphone) as string ?? null;
-    paymentId = (data.PaymentId ?? data.SubscriptionId ?? data.OrderId ?? `ll-${Date.now()}`) as string;
+
+    // Extract products from Data.Products array
     const products = (data.Products ?? data.products ?? []) as Array<Record<string, unknown>>;
     productIds = products.map((p) => (p.Id ?? p.id) as string).filter(Boolean);
     productNames = products.map((p) => (p.Name ?? p.name ?? '') as string).filter(Boolean);
-    subscriptionId = (data.SubscriptionId ?? data.subscription_id ?? null) as string | null;
-    const payment = (data.Payment ?? data.payment ?? {}) as Record<string, unknown>;
-    amount = Number(payment.Amount ?? payment.amount ?? 0) || null;
+
+    // PaymentId lives under Data.Purchase.PaymentId in Lastlink
+    const purchase = (data.Purchase ?? data.purchase ?? {}) as Record<string, unknown>;
+    const purchasePayment = (purchase.Payment ?? purchase.payment ?? {}) as Record<string, unknown>;
+    paymentId = (purchase.PaymentId ?? purchasePayment.PaymentId ?? data.PaymentId ?? data.SubscriptionId ?? data.OrderId ?? `ll-${Date.now()}`) as string;
+
+    // SubscriptionId lives under Data.Subscriptions[].Id
+    const subscriptions = (data.Subscriptions ?? data.subscriptions ?? []) as Array<Record<string, unknown>>;
+    subscriptionId = subscriptions.length > 0
+      ? ((subscriptions[0].Id ?? subscriptions[0].id) as string ?? null)
+      : ((data.SubscriptionId ?? data.subscription_id ?? null) as string | null);
+
+    // Amount lives under Data.Purchase.Price.Value
+    const purchasePrice = (purchase.Price ?? purchase.price ?? {}) as Record<string, unknown>;
+    amount = Number(purchasePrice.Value ?? purchasePrice.value ?? purchasePayment.Amount ?? purchasePayment.amount ?? 0) || null;
+
     isTest = !!(payload._admin_simulation);
+
+    console.log("[webhook] Lastlink parsed:", { eventName, buyerEmail, paymentId, productIds, productNames, subscriptionId, amount });
   } else {
     // Legacy / generic format
     eventName = (payload.action as string) ?? "purchase";
