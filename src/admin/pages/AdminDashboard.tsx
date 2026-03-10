@@ -158,6 +158,18 @@ export default function AdminDashboard() {
       const users = usersRes.data ?? [];
       const paid = paidUsersRes.data ?? [];
 
+      // Fetch sessions for DAU chart
+      const houseUserIdsForSessions = selectedHouseId ? (usersRes.data ?? []).map((u: any) => u.id) : null;
+      let sessionsQ = supabase.from("sessions").select("user_id, session_start_at").gte("session_start_at", since).lte("session_start_at", until);
+      if (houseUserIdsForSessions && houseUserIdsForSessions.length > 0) {
+        sessionsQ = sessionsQ.in("user_id", houseUserIdsForSessions.slice(0, 500));
+      } else if (houseUserIdsForSessions && houseUserIdsForSessions.length === 0) {
+        sessionsQ = sessionsQ.eq("user_id", "00000000-0000-0000-0000-000000000000");
+      }
+      const { data: sessionsRaw } = await sessionsQ;
+      setSessionsData(sessionsRaw ?? []);
+      const paid = paidUsersRes.data ?? [];
+
       // Entitlements
       const houseUserIds = users.map((u: any) => u.id);
       let entitlementsData: any[] = [];
