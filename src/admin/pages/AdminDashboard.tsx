@@ -158,16 +158,24 @@ export default function AdminDashboard() {
       const users = usersRes.data ?? [];
       const paid = paidUsersRes.data ?? [];
 
-      // Fetch sessions for DAU chart
-      const houseUserIdsForSessions = selectedHouseId ? (usersRes.data ?? []).map((u: any) => u.id) : null;
-      let sessionsQ = supabase.from("sessions").select("user_id, session_start_at").gte("session_start_at", since).lte("session_start_at", until);
-      if (houseUserIdsForSessions && houseUserIdsForSessions.length > 0) {
-        sessionsQ = sessionsQ.in("user_id", houseUserIdsForSessions.slice(0, 500));
-      } else if (houseUserIdsForSessions && houseUserIdsForSessions.length === 0) {
-        sessionsQ = sessionsQ.eq("user_id", "00000000-0000-0000-0000-000000000000");
+      // Fetch events for DAU chart (more reliable than sessions)
+      let eventsQ = supabase.from("events").select("user_id, created_at").gte("created_at", since).lte("created_at", until).not("user_id", "is", null);
+      if (selectedHouseId) {
+        eventsQ = eventsQ.eq("house_id", selectedHouseId);
       }
-      const { data: sessionsRaw } = await sessionsQ;
-      setSessionsData(sessionsRaw ?? []);
+      // Fetch up to max rows - events can be large, so we only need user_id + date
+      const allEventsData: { user_id: string; created_at: string }[] = [];
+      let eventsPage = 0;
+      const PAGE_SIZE = 1000;
+      while (true) {
+        const { data: eventsChunk } = await eventsQ.range(eventsPage * PAGE_SIZE, (eventsPage + 1) * PAGE_SIZE - 1);
+        if (!eventsChunk || eventsChunk.length === 0) break;
+        allEventsData.push(...(eventsChunk as any[]));
+        if (eventsChunk.length < PAGE_SIZE) break;
+        eventsPage++;
+        if (eventsPage > 10) break; // safety cap
+      }
+      setSessionsData(allEventsData.map((e: any) => ({ user_id: e.user_id, session_start_at: e.created_at })));
 
       // Entitlements
       const houseUserIds = users.map((u: any) => u.id);
