@@ -59,7 +59,7 @@ export default function UpsellTab() {
     if (f.tier === 'all') {
       return users.filter(u => {
         const addons = entMap[u.id] || new Set();
-        const hasAll = ALL_ADDON_KEYS.every(k => addons.has(k)) && u.is_vitalicio;
+        const hasAll = ALL_ADDON_KEYS.every(k => addons.has(k));
         return !hasAll;
       });
     }
