@@ -138,8 +138,8 @@ export default function AdminDashboard() {
   useEffect(() => {
     const load = async () => {
       setLoading(true);
-      const since = dateFrom.toISOString();
-      const until = dateTo.toISOString();
+      const since = startOfDay(dateFrom).toISOString();
+      const until = endOfDay(dateTo).toISOString();
       const fifteenDaysAgo = new Date(Date.now() - 15 * 86400000).toISOString();
 
       // Build user queries filtered by house
