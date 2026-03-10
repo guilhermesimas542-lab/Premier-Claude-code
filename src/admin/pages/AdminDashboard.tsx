@@ -232,16 +232,21 @@ export default function AdminDashboard() {
   // Online — already a simple count, apply plan filter
   const onlineUsers = onlineCount; // plan filter not applicable to count-only query
 
-  // DAU based on last_seen_at (one point per user per day)
+  // DAU based on sessions table — unique users per day across the full date range
   const dauMap: Record<string, Set<string>> = {};
-  activeUsersList.forEach((u) => {
-    const day = u.last_seen_at!.slice(0, 10);
-    if (!dauMap[day]) dauMap[day] = new Set();
-    dauMap[day].add(u.id);
+  // Initialize all days in range with empty sets
+  const allDays = eachDayOfInterval({ start: startOfDay(dateFrom), end: startOfDay(dateTo) });
+  allDays.forEach((d) => { dauMap[format(d, "yyyy-MM-dd")] = new Set(); });
+  // Fill from sessions data
+  sessionsData.forEach((s) => {
+    if (filteredUserIds && !filteredUserIds.has(s.user_id)) return;
+    const day = s.session_start_at.slice(0, 10);
+    if (dauMap[day]) dauMap[day].add(s.user_id);
   });
-  const dauData = Object.entries(dauMap)
-    .map(([date, set]) => ({ date, users: set.size }))
-    .sort((a, b) => a.date.localeCompare(b.date));
+  const dauData = allDays.map((d) => {
+    const key = format(d, "yyyy-MM-dd");
+    return { date: format(d, "MM-dd"), users: dauMap[key]?.size ?? 0 };
+  });
 
   const relevantPaidIds = filteredUserIds
     ? paidIds.filter((id) => filteredUserIds!.has(id))
