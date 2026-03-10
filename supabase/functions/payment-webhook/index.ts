@@ -39,6 +39,8 @@ Deno.serve(async (req) => {
       });
     }
 
+    console.log("[WEBHOOK] 1. Payload recebido. Event:", (payload as any)?.Event, "| IsTest:", (payload as any)?.IsTest, "| Email:", (payload as any)?.Data?.Buyer?.Email);
+
     // ── Raw log (before any validation) ──────────────────────────────────────
     await supabase.from("raw_webhook_logs").insert({ payload });
 
