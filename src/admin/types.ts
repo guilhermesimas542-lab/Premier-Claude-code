@@ -43,11 +43,9 @@ export interface AdminUser {
   email: string;
   phone: string | null;
   main_tier: string;
-  is_vitalicio: boolean;
   created_at: string;
   last_seen_at: string | null;
   last_event_at: string | null;
-  vitalicio_since: string | null;
 }
 
 export interface AdminSession {

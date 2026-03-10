@@ -754,13 +754,6 @@ export default function AdminClientsManage() {
                 </div>
               )}
 
-              <div className="border-t border-white/10 pt-3 space-y-3">
-                <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Acesso</p>
-                <div className="flex items-center gap-3">
-                  <Switch checked={editUser.is_vitalicio} onCheckedChange={(v) => setEditUser({ ...editUser, is_vitalicio: v })} />
-                  <label className="text-sm">Vitalício</label>
-                </div>
-              </div>
 
               <div className="border-t border-white/10 pt-3 space-y-3">
                 <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Add-ons</p>

@@ -20,18 +20,18 @@ export function usePayCardTrigger() {
     if (mockUser?.email) {
       const { data: userData } = await supabase
         .from("users")
-        .select("id, main_tier, is_vitalicio")
+        .select("id, main_tier")
         .eq("email", mockUser.email.toLowerCase().trim())
         .maybeSingle();
       if (userData) {
         userTier = userData.main_tier;
-        isVitalicio = userData.is_vitalicio;
         const { data: ents } = await supabase
           .from("entitlements")
           .select("product_key")
           .eq("user_id", userData.id)
           .eq("status", "active");
         activeAddons = (ents ?? []).map((e: any) => e.product_key);
+        isVitalicio = activeAddons.includes("acesso_vitalicio");
       }
     }
 
