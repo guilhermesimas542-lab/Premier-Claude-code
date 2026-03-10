@@ -548,23 +548,37 @@ function ProductModal({
   const [provider, setProvider] = useState("lastlink");
   const [externalId, setExternalId] = useState("");
   const [name, setName] = useState("");
-  const [type, setType] = useState<"tier" | "addon">("tier");
+  const [type, setType] = useState<"tier" | "addon" | "bundle">("tier");
   const [tierValue, setTierValue] = useState("basic");
   const [addonValue, setAddonValue] = useState("alavancagem");
+  const [bundleAddons, setBundleAddons] = useState<string[]>([]);
   const [active, setActive] = useState(true);
   const [saving, setSaving] = useState(false);
+
+  const toggleBundleAddon = (key: string) => {
+    setBundleAddons(prev =>
+      prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]
+    );
+  };
 
   useEffect(() => {
     if (editing) {
       setProvider(editing.provider);
       setExternalId(editing.provider_product_id);
-      setName(editing.product_name);
       setActive(editing.active);
-      if (editing.tier) {
+      if (editing.product_type === "bundle" && editing.bundle_name) {
+        setType("bundle");
+        setName(editing.bundle_name);
+        setTierValue(editing.tier ?? "basic");
+        // We'll load bundle addons from onDone's refetch; for now set from editing context
+        setBundleAddons([]);
+      } else if (editing.tier) {
         setType("tier");
+        setName(editing.product_name);
         setTierValue(editing.tier);
       } else {
         setType("addon");
+        setName(editing.product_name);
         setAddonValue(editing.entitlement_key ?? "alavancagem");
       }
     } else {
@@ -574,6 +588,7 @@ function ProductModal({
       setType("tier");
       setTierValue("basic");
       setAddonValue("alavancagem");
+      setBundleAddons([]);
       setActive(true);
     }
   }, [editing, open]);
