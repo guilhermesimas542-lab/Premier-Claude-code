@@ -198,16 +198,13 @@ const Home = () => {
               {/* Live Telegram button */}
               {isTelegramMember ? (
                 <a href={telegramGroupUrl || "#"} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center p-1.5 sm:p-2 rounded-full cursor-pointer transition-all hover:scale-105" style={{ background: "rgba(0,200,83,0.15)", border: "1px solid rgba(0,200,83,0.5)", boxShadow: "0 0 10px rgba(0,200,83,0.25)" }}>
-                  <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="currentColor" style={{ color: "#00C853" }}>
+                  <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="currentColor" style={{ color: "#FFFFFF" }}>
                     <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121L9.1 13.617l-2.97-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/>
                   </svg>
                 </a>
               ) : (
                 <button onClick={async () => { await triggerPayCard('live_telegram'); }} className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-semibold transition-colors cursor-pointer" style={{ background: "rgba(255,0,0,0.1)", color: "#FF4444", border: "1px solid rgba(255,0,0,0.3)" }}>
-                  <svg viewBox="0 0 24 24" className="w-2.5 h-2.5 sm:w-3 sm:h-3" fill="currentColor" style={{ color: "#0088CC" }}>
-                    <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121L9.1 13.617l-2.97-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/>
-                  </svg>
-                  <span className="animate-pulse">Adquira o Live</span>
+                  Live <ShoppingCart className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                 </button>
               )}
 
