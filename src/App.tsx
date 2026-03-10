@@ -46,6 +46,7 @@ import AdminErrors from "./admin/pages/AdminErrors";
 import AdminWebhook from "./admin/pages/AdminWebhook";
 import { Navigate } from "react-router-dom";
 import { FunnelPopupProvider } from "./context/FunnelPopupContext";
+import { DailyCheckinHandler } from "./components/DailyCheckinHandler";
 
 const queryClient = new QueryClient();
 
@@ -69,6 +70,7 @@ const App = () => {
       <FunnelPopupProvider>
         <BrowserRouter>
           <AnalyticsRouteTracker />
+          <DailyCheckinHandler />
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/" element={<Home />} />

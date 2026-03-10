@@ -47,10 +47,6 @@ const Profile = () => {
     fetchProfile();
   }, [userId]);
 
-  // Daily login XP on mount
-  useEffect(() => {
-    if (userId) sendXpEvent('DAILY_LOGIN');
-  }, [userId, sendXpEvent]);
 
   const level = gamification?.current_level || 1;
   const totalXp = gamification?.total_xp || 0;

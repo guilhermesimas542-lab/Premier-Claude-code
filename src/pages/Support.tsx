@@ -119,13 +119,12 @@ const Support = () => {
     fetchProfile();
   }, [userId]);
 
-  // Daily login XP + navigation achievement
+  // Navigation achievement (daily checkin moved to DailyCheckinHandler)
   useEffect(() => {
     if (userId) {
-      sendXpEvent('DAILY_LOGIN');
       supabase.from('user_achievements').insert({ user_id: userId, achievement_id: 'open_support' } as any).select();
     }
-  }, [userId, sendXpEvent]);
+  }, [userId]);
 
   const level = gamification?.current_level || 1;
   const totalXp = gamification?.total_xp || 0;

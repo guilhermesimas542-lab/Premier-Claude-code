@@ -117,7 +117,7 @@ export default function AdminAnalytics() {
     ]);
 
     const s = allEvents ?? [];
-    const uniqueUsers = new Set(s.map((r: any) => r.user_id)).size;
+    const uniqueUsers = new Set(s.map((r: any) => r.user_id).filter(Boolean)).size;
     
     // Sessions: count distinct session_id
     const totalSessions = new Set(s.map((r: any) => r.session_id).filter(Boolean)).size;
@@ -138,7 +138,7 @@ export default function AdminAnalytics() {
     const conversionRate = uniqueUsers > 0 ? Math.round((buyClicks / uniqueUsers) * 100 * 10) / 10 : 0;
 
     // Active today
-    const activeToday = new Set((todayEvents ?? []).map((r: any) => r.user_id)).size;
+    const activeToday = new Set((todayEvents ?? []).map((r: any) => r.user_id).filter(Boolean)).size;
 
     setKpis({
       uniqueUsers,
