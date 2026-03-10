@@ -46,25 +46,39 @@ const Home = () => {
   const access = useUserAccess();
   const { triggerPayCard, payCard: pcData, open: pcOpen, closePayCard } = usePayCardTrigger();
 
-  // Derive lifetime from entitlements table (single source of truth)
+  // Derive lifetime & telegram from entitlements table (single source of truth)
   const [isLifetime, setIsLifetime] = useState(false);
+  const [isTelegramMember, setIsTelegramMember] = useState(false);
+  const [telegramGroupUrl, setTelegramGroupUrl] = useState<string | null>(null);
   useEffect(() => {
-    const checkLifetime = async () => {
+    const checkEntitlements = async () => {
       if (!mockUser) return;
-      // First get user id from email
       const { data: userData } = await supabase.from("users").select("id").eq("email", mockUser.email.toLowerCase().trim()).maybeSingle();
       if (!userData?.id) return;
-      const { data: entitlement } = await supabase
+      const { data: ents } = await supabase
         .from("entitlements")
-        .select("id")
+        .select("product_key")
         .eq("user_id", userData.id)
-        .eq("product_key", "acesso_vitalicio")
-        .eq("status", "active")
-        .maybeSingle();
-      setIsLifetime(!!entitlement);
+        .eq("status", "active");
+      const keys = (ents ?? []).map((e) => e.product_key);
+      setIsLifetime(keys.includes("acesso_vitalicio"));
+      setIsTelegramMember(keys.includes("live_telegram"));
     };
-    checkLifetime();
+    checkEntitlements();
   }, []);
+
+  // Load telegram group URL from the user's betting house
+  useEffect(() => {
+    if (!userHouse?.id) return;
+    supabase
+      .from("betting_houses")
+      .select("telegram_group_url")
+      .eq("id", userHouse.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        setTelegramGroupUrl((data as any)?.telegram_group_url ?? null);
+      });
+  }, [userHouse?.id]);
 
   // Track app_open event once on mount
   useEffect(() => {
