@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { format, startOfDay, endOfDay, startOfWeek, startOfMonth, subDays } from "date-fns";
+import { format, startOfDay, endOfDay, startOfWeek, startOfMonth, subDays, eachDayOfInterval } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useBettingHouseAdmin } from "@/admin/context/BettingHouseContext";
 import { Users, UserPlus, AlertTriangle, Wifi, Info, CalendarIcon, RefreshCw } from "lucide-react";
@@ -100,6 +100,7 @@ export default function AdminDashboard() {
   const [onlineCount, setOnlineCount] = useState(0);
   const [churnIds, setChurnIds] = useState<string[]>([]);
   const [paidIds, setPaidIds] = useState<string[]>([]);
+  const [sessionsData, setSessionsData] = useState<{ user_id: string; session_start_at: string }[]>([]);
 
   const applyShortcut = (key: string) => {
     setActiveShortcut(key);
@@ -156,6 +157,17 @@ export default function AdminDashboard() {
 
       const users = usersRes.data ?? [];
       const paid = paidUsersRes.data ?? [];
+
+      // Fetch sessions for DAU chart
+      const houseUserIdsForSessions = selectedHouseId ? (usersRes.data ?? []).map((u: any) => u.id) : null;
+      let sessionsQ = supabase.from("sessions").select("user_id, session_start_at").gte("session_start_at", since).lte("session_start_at", until);
+      if (houseUserIdsForSessions && houseUserIdsForSessions.length > 0) {
+        sessionsQ = sessionsQ.in("user_id", houseUserIdsForSessions.slice(0, 500));
+      } else if (houseUserIdsForSessions && houseUserIdsForSessions.length === 0) {
+        sessionsQ = sessionsQ.eq("user_id", "00000000-0000-0000-0000-000000000000");
+      }
+      const { data: sessionsRaw } = await sessionsQ;
+      setSessionsData(sessionsRaw ?? []);
 
       // Entitlements
       const houseUserIds = users.map((u: any) => u.id);
@@ -220,16 +232,21 @@ export default function AdminDashboard() {
   // Online — already a simple count, apply plan filter
   const onlineUsers = onlineCount; // plan filter not applicable to count-only query
 
-  // DAU based on last_seen_at (one point per user per day)
+  // DAU based on sessions table — unique users per day across the full date range
   const dauMap: Record<string, Set<string>> = {};
-  activeUsersList.forEach((u) => {
-    const day = u.last_seen_at!.slice(0, 10);
-    if (!dauMap[day]) dauMap[day] = new Set();
-    dauMap[day].add(u.id);
+  // Initialize all days in range with empty sets
+  const allDays = eachDayOfInterval({ start: startOfDay(dateFrom), end: startOfDay(dateTo) });
+  allDays.forEach((d) => { dauMap[format(d, "yyyy-MM-dd")] = new Set(); });
+  // Fill from sessions data
+  sessionsData.forEach((s) => {
+    if (filteredUserIds && !filteredUserIds.has(s.user_id)) return;
+    const day = s.session_start_at.slice(0, 10);
+    if (dauMap[day]) dauMap[day].add(s.user_id);
   });
-  const dauData = Object.entries(dauMap)
-    .map(([date, set]) => ({ date, users: set.size }))
-    .sort((a, b) => a.date.localeCompare(b.date));
+  const dauData = allDays.map((d) => {
+    const key = format(d, "yyyy-MM-dd");
+    return { date: format(d, "MM-dd"), users: dauMap[key]?.size ?? 0 };
+  });
 
   const relevantPaidIds = filteredUserIds
     ? paidIds.filter((id) => filteredUserIds!.has(id))
