@@ -251,9 +251,10 @@ const Support = () => {
             {permanentAchievements.slice(0, 6).map(ach => {
               const unlocked = isUnlocked(ach.id);
               return (
-                <div
+                <button
                   key={ach.id}
-                  className="w-10 h-10 rounded-full flex items-center justify-center text-lg"
+                  onClick={(e) => { e.stopPropagation(); setSelectedPreviewAch(ach); }}
+                  className="w-10 h-10 rounded-full flex items-center justify-center text-lg transition-all hover:scale-110 active:scale-95"
                   style={{
                     background: unlocked ? 'rgba(255,215,0,0.15)' : 'rgba(255,255,255,0.05)',
                     border: unlocked ? '1px solid rgba(255,215,0,0.3)' : '1px solid rgba(255,255,255,0.1)',
@@ -261,7 +262,7 @@ const Support = () => {
                   }}
                 >
                   {unlocked ? ach.icon : <Lock className="w-3 h-3 text-gray-500" />}
-                </div>
+                </button>
               );
             })}
             {permanentAchievements.length > 6 && (
