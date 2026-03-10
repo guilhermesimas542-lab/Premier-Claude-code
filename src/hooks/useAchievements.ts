@@ -28,13 +28,14 @@ export function useAchievements(userId: string | null) {
   const [loading, setLoading] = useState(true);
 
   const fetchAll = useCallback(async () => {
-    if (!userId) return;
     setLoading(true);
 
-    const [{ data: achData }, { data: uaData }] = await Promise.all([
-      supabase.from('achievements').select('*').eq('is_active', true) as any,
-      supabase.from('user_achievements').select('*').eq('user_id', userId) as any,
-    ]);
+    const achPromise = supabase.from('achievements').select('*').eq('is_active', true) as any;
+    const uaPromise = userId
+      ? (supabase.from('user_achievements').select('*').eq('user_id', userId) as any)
+      : Promise.resolve({ data: [] });
+
+    const [{ data: achData }, { data: uaData }] = await Promise.all([achPromise, uaPromise]);
 
     setAchievements((achData ?? []) as Achievement[]);
     setUserAchievements((uaData ?? []) as UserAchievement[]);
