@@ -413,12 +413,8 @@ export default function AdminAnalytics() {
               </table>
             </div>
           </div>
-        </TabsContent>
 
-        <TabsContent value="ranking" className="mt-4">
-          <AdminRankingTab />
-        </TabsContent>
-      </Tabs>
+
     </div>
   );
 }
