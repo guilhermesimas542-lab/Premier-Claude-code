@@ -21,10 +21,12 @@ export type Database = {
           condition_value: Json | null
           created_at: string | null
           description: string
+          event_date: string | null
           icon: string
           id: string
           is_active: boolean | null
           name: string
+          sport_category: string | null
           xp_reward: number
         }
         Insert: {
@@ -33,10 +35,12 @@ export type Database = {
           condition_value?: Json | null
           created_at?: string | null
           description: string
+          event_date?: string | null
           icon: string
           id: string
           is_active?: boolean | null
           name: string
+          sport_category?: string | null
           xp_reward?: number
         }
         Update: {
@@ -45,10 +49,12 @@ export type Database = {
           condition_value?: Json | null
           created_at?: string | null
           description?: string
+          event_date?: string | null
           icon?: string
           id?: string
           is_active?: boolean | null
           name?: string
+          sport_category?: string | null
           xp_reward?: number
         }
         Relationships: []

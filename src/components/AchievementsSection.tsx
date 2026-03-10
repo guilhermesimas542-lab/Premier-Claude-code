@@ -1,7 +1,8 @@
-import { Lock, Check } from "lucide-react";
+import { Lock, Check, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import { Achievement, UserAchievement } from "@/hooks/useAchievements";
 import AchievementDetailModal from "./AchievementDetailModal";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 interface AchievementsSectionProps {
   permanentAchievements: Achievement[];
@@ -25,6 +26,7 @@ const AchievementsSection = ({
   userAchievements = [],
 }: AchievementsSectionProps) => {
   const [selectedAch, setSelectedAch] = useState<Achievement | null>(null);
+  const [showAllPermanent, setShowAllPermanent] = useState(false);
 
   const getUserAchievement = (achId: string): UserAchievement | null => {
     return userAchievements.find(ua => ua.achievement_id === achId) || null;
@@ -34,36 +36,48 @@ const AchievementsSection = ({
   const nextStreakDays = nextStreakMilestone?.condition_value?.days ?? null;
   const daysUntilNext = nextStreakDays ? nextStreakDays - currentStreak : 0;
 
+  // Show first 3: prioritize unlocked, then locked
+  const unlockedPermanent = permanentAchievements.filter(a => isUnlocked(a.id));
+  const lockedPermanent = permanentAchievements.filter(a => !isUnlocked(a.id));
+  const preview3 = [...unlockedPermanent, ...lockedPermanent].slice(0, 3);
+
+  const AchievementButton = ({ ach, unlocked, size = 'normal' }: { ach: Achievement; unlocked: boolean; size?: 'normal' | 'small' }) => (
+    <button
+      onClick={() => setSelectedAch(ach)}
+      className="flex flex-col items-center gap-1 p-3 rounded-xl text-center transition-all hover:scale-[1.03] active:scale-95"
+      style={{
+        background: unlocked ? 'rgba(0,255,0,0.08)' : 'rgba(255,255,255,0.03)',
+        border: unlocked ? '1px solid rgba(0,255,0,0.25)' : '1px solid rgba(255,255,255,0.06)',
+        opacity: unlocked ? 1 : 0.5,
+      }}
+    >
+      <span className={size === 'small' ? 'text-xl' : 'text-2xl'}>{unlocked ? ach.icon : '🔒'}</span>
+      <span className="text-[10px] font-medium text-white leading-tight">{ach.name}</span>
+      <span className="text-[9px]" style={{ color: unlocked ? '#00FF00' : '#666' }}>+{ach.xp_reward} XP</span>
+    </button>
+  );
+
   return (
     <>
       <div className="space-y-4">
-        {/* Permanent Achievements */}
+        {/* Permanent Achievements - Preview (3 items) */}
         <div className="rounded-2xl p-5" style={{ background: 'linear-gradient(135deg, rgba(0,255,0,0.06), rgba(0,100,0,0.08))', border: '1px solid rgba(0,255,0,0.15)' }}>
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-bold text-sm" style={{ color: '#00FF00' }}>🏆 Conquistas Permanentes</h3>
-            <span className="text-xs opacity-60 text-white">{permanentAchievements.filter(a => isUnlocked(a.id)).length}/{permanentAchievements.length}</span>
+            <span className="text-xs opacity-60 text-white">{unlockedPermanent.length}/{permanentAchievements.length}</span>
           </div>
           <div className="grid grid-cols-3 gap-2">
-            {permanentAchievements.map((ach) => {
-              const unlocked = isUnlocked(ach.id);
-              return (
-                <button
-                  key={ach.id}
-                  onClick={() => setSelectedAch(ach)}
-                  className="flex flex-col items-center gap-1 p-3 rounded-xl text-center transition-all hover:scale-[1.03] active:scale-95"
-                  style={{
-                    background: unlocked ? 'rgba(0,255,0,0.08)' : 'rgba(255,255,255,0.03)',
-                    border: unlocked ? '1px solid rgba(0,255,0,0.25)' : '1px solid rgba(255,255,255,0.06)',
-                    opacity: unlocked ? 1 : 0.5,
-                  }}
-                >
-                  <span className="text-2xl">{unlocked ? ach.icon : '🔒'}</span>
-                  <span className="text-[10px] font-medium text-white leading-tight">{ach.name}</span>
-                  <span className="text-[9px]" style={{ color: unlocked ? '#00FF00' : '#666' }}>+{ach.xp_reward} XP</span>
-                </button>
-              );
-            })}
+            {preview3.map((ach) => (
+              <AchievementButton key={ach.id} ach={ach} unlocked={isUnlocked(ach.id)} />
+            ))}
           </div>
+          <button
+            onClick={() => setShowAllPermanent(true)}
+            className="w-full mt-3 flex items-center justify-center gap-1 text-xs font-medium transition-colors hover:opacity-80"
+            style={{ color: '#00FF00' }}
+          >
+            Ver todas ({unlockedPermanent.length}/{permanentAchievements.length}) <ChevronRight className="w-3 h-3" />
+          </button>
         </div>
 
         {/* Streak Achievements */}
@@ -161,12 +175,33 @@ const AchievementsSection = ({
         )}
       </div>
 
+      {/* Detail Modal */}
       <AchievementDetailModal
         achievement={selectedAch}
         userAchievement={selectedAch ? getUserAchievement(selectedAch.id) : null}
         isOpen={!!selectedAch}
         onClose={() => setSelectedAch(null)}
       />
+
+      {/* All Permanent Achievements Modal */}
+      <Dialog open={showAllPermanent} onOpenChange={setShowAllPermanent}>
+        <DialogContent
+          className="max-w-md max-h-[80vh] overflow-y-auto p-0 border-0 [&>button]:bg-white/10 [&>button]:backdrop-blur-sm [&>button]:rounded-full [&>button]:w-8 [&>button]:h-8 [&>button]:flex [&>button]:items-center [&>button]:justify-center [&>button]:border [&>button]:border-white/20 [&>button]:opacity-100 [&>button]:top-3 [&>button]:right-3 [&>button]:text-white [&>button:hover]:bg-white/20"
+          style={{ background: '#0a0a0a', border: '1px solid rgba(0,255,0,0.2)' }}
+        >
+          <div className="p-5 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="font-bold text-base" style={{ color: '#00FF00' }}>🏆 Todas as Conquistas</h3>
+              <span className="text-xs opacity-60 text-white">{unlockedPermanent.length}/{permanentAchievements.length}</span>
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              {permanentAchievements.map((ach) => (
+                <AchievementButton key={ach.id} ach={ach} unlocked={isUnlocked(ach.id)} size="small" />
+              ))}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

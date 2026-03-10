@@ -1,0 +1,3 @@
+ALTER TABLE achievements 
+ADD COLUMN IF NOT EXISTS sport_category TEXT,
+ADD COLUMN IF NOT EXISTS event_date DATE;
