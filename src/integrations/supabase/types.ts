@@ -1031,33 +1031,39 @@ export type Database = {
       products_catalog: {
         Row: {
           active: boolean | null
+          bundle_name: string | null
           created_at: string | null
           entitlement_key: string | null
           id: string
           lastlink_product_uuid: string | null
           product_name: string
+          product_type: string
           provider: string
           provider_product_id: string
           tier: string | null
         }
         Insert: {
           active?: boolean | null
+          bundle_name?: string | null
           created_at?: string | null
           entitlement_key?: string | null
           id?: string
           lastlink_product_uuid?: string | null
           product_name: string
+          product_type?: string
           provider: string
           provider_product_id: string
           tier?: string | null
         }
         Update: {
           active?: boolean | null
+          bundle_name?: string | null
           created_at?: string | null
           entitlement_key?: string | null
           id?: string
           lastlink_product_uuid?: string | null
           product_name?: string
+          product_type?: string
           provider?: string
           provider_product_id?: string
           tier?: string | null
