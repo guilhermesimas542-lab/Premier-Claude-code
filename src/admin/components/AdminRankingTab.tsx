@@ -32,7 +32,7 @@ interface SpecialAchievement {
   user_count?: number;
 }
 
-type SortKey = 'total_xp' | 'email' | 'current_level' | 'total_logins' | 'current_streak' | 'achievement_count';
+type SortKey = 'total_xp' | 'email' | 'current_level' | 'total_logins' | 'current_streak' | 'achievement_count' | 'last_seen_at';
 type SortDir = 'asc' | 'desc' | null;
 
 const TIER_LABELS: Record<string, string> = { free: 'Gratuito', basic: 'Básico', pro: 'Pro', ultra: 'Ultra' };
