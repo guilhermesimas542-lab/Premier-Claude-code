@@ -24,6 +24,8 @@ interface SpecialAchievement {
   name: string;
   icon: string;
   xp_reward: number;
+  sport_category?: string | null;
+  event_date?: string | null;
   entry_title?: string;
   entry_id?: string;
   user_count?: number;
@@ -32,6 +34,8 @@ interface SpecialAchievement {
 type SortKey = 'total_xp' | 'email' | 'current_level' | 'total_logins' | 'current_streak' | 'achievement_count';
 type SortDir = 'asc' | 'desc' | null;
 
+const SPORT_CATEGORIES = ['Futebol', 'Basquete', 'Tênis', 'Futebol Americano', 'MMA / UFC', 'Cassino', 'Outro'];
+
 export default function AdminRankingTab() {
   const [users, setUsers] = useState<RankingUser[]>([]);
   const [loading, setLoading] = useState(true);
@@ -39,17 +43,17 @@ export default function AdminRankingTab() {
   const [page, setPage] = useState(0);
   const PAGE_SIZE = 25;
 
-  // Sorting
   const [sortKey, setSortKey] = useState<SortKey>('total_xp');
   const [sortDir, setSortDir] = useState<SortDir>('desc');
 
-  // Special achievements
   const [specials, setSpecials] = useState<SpecialAchievement[]>([]);
   const [showCreate, setShowCreate] = useState(false);
   const [newName, setNewName] = useState("");
   const [newIcon, setNewIcon] = useState("⚽");
   const [newXp, setNewXp] = useState(200);
   const [newEntryId, setNewEntryId] = useState("");
+  const [newCategory, setNewCategory] = useState("");
+  const [newEventDate, setNewEventDate] = useState("");
   const [entries, setEntries] = useState<{ id: string; title: string; date: string }[]>([]);
   const [creatingSpecial, setCreatingSpecial] = useState(false);
 
@@ -67,16 +71,14 @@ export default function AdminRankingTab() {
       achCountMap[a.user_id].add(a.achievement_id);
     });
 
-    const combined: RankingUser[] = (usersData ?? [])
-      .filter((u: any) => gamMap[u.id])
-      .map((u: any) => ({
-        ...u,
-        total_xp: gamMap[u.id]?.total_xp ?? 0,
-        current_level: gamMap[u.id]?.current_level ?? 1,
-        current_streak: gamMap[u.id]?.current_streak ?? 0,
-        total_logins: gamMap[u.id]?.total_logins ?? 0,
-        achievement_count: achCountMap[u.id]?.size ?? 0,
-      }));
+    const combined: RankingUser[] = (usersData ?? []).map((u: any) => ({
+      ...u,
+      total_xp: gamMap[u.id]?.total_xp ?? 0,
+      current_level: gamMap[u.id]?.current_level ?? 1,
+      current_streak: gamMap[u.id]?.current_streak ?? 0,
+      total_logins: gamMap[u.id]?.total_logins ?? 0,
+      achievement_count: achCountMap[u.id]?.size ?? 0,
+    }));
     setUsers(combined);
     setLoading(false);
   }, []);
@@ -89,16 +91,19 @@ export default function AdminRankingTab() {
     (linkData ?? []).forEach((l: any) => { linkMap[l.achievement_id] = l.entry_id; });
     const countMap: Record<string, number> = {};
     (countData ?? []).forEach((c: any) => { countMap[c.achievement_id] = (countMap[c.achievement_id] ?? 0) + 1; });
-    setSpecials((specData ?? []).map((s: any) => ({ ...s, entry_id: linkMap[s.id], user_count: countMap[s.id] ?? 0 })));
+    setSpecials((specData ?? []).map((s: any) => ({
+      ...s,
+      entry_id: linkMap[s.id],
+      user_count: countMap[s.id] ?? 0,
+    })));
   }, []);
 
   useEffect(() => { fetchRanking(); fetchSpecials(); }, [fetchRanking, fetchSpecials]);
 
-  // Sorting logic
   const handleSort = (key: SortKey) => {
     if (sortKey === key) {
       if (sortDir === 'desc') setSortDir('asc');
-      else if (sortDir === 'asc') { setSortDir(null); setSortKey('total_xp'); setSortDir('desc'); }
+      else if (sortDir === 'asc') { setSortDir('desc'); setSortKey('total_xp'); }
       else setSortDir('desc');
     } else {
       setSortKey(key);
@@ -113,16 +118,15 @@ export default function AdminRankingTab() {
       const s = search.toLowerCase();
       return u.email.toLowerCase().includes(s) || (u.nickname?.toLowerCase().includes(s));
     });
-
     if (sortDir) {
       list = [...list].sort((a, b) => {
-        let aVal: any = a[sortKey];
-        let bVal: any = b[sortKey];
         if (sortKey === 'email') {
-          aVal = (a.nickname || a.email).toLowerCase();
-          bVal = (b.nickname || b.email).toLowerCase();
+          const aVal = (a.nickname || a.email).toLowerCase();
+          const bVal = (b.nickname || b.email).toLowerCase();
           return sortDir === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
         }
+        const aVal = a[sortKey] as number;
+        const bVal = b[sortKey] as number;
         return sortDir === 'asc' ? aVal - bVal : bVal - aVal;
       });
     }
@@ -161,12 +165,24 @@ export default function AdminRankingTab() {
     if (!newName.trim() || !newEntryId) return;
     setCreatingSpecial(true);
     const id = `special_${Date.now()}`;
-    const { error } = await (supabase.from('achievements').insert({ id, name: newName, description: `Achievement especial: ${newName}`, icon: newIcon, xp_reward: newXp, category: 'special', condition_type: 'special_entry', is_active: true }) as any);
+    const insertData: any = {
+      id,
+      name: newName,
+      description: `Achievement especial: ${newName}`,
+      icon: newIcon,
+      xp_reward: newXp,
+      category: 'special',
+      condition_type: 'special_entry',
+      is_active: true,
+      sport_category: newCategory || null,
+      event_date: newEventDate || null,
+    };
+    const { error } = await (supabase.from('achievements').insert(insertData) as any);
     if (!error) {
       await (supabase.from('special_achievement_entries').insert({ achievement_id: id, entry_id: newEntryId }) as any);
       toast.success("Achievement especial criado!");
       setShowCreate(false);
-      setNewName(""); setNewIcon("⚽"); setNewXp(200); setNewEntryId("");
+      setNewName(""); setNewIcon("⚽"); setNewXp(200); setNewEntryId(""); setNewCategory(""); setNewEventDate("");
       fetchSpecials();
     } else {
       toast.error("Erro ao criar achievement");
@@ -195,6 +211,7 @@ export default function AdminRankingTab() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
           <Input value={search} onChange={e => { setSearch(e.target.value); setPage(0); }} placeholder="Buscar por email ou nickname..." className="pl-10 bg-gray-900 border-gray-700 text-white" />
         </div>
+        <span className="text-xs text-gray-500">{sortedFiltered.length} usuários</span>
         {loading && <Loader2 className="w-5 h-5 animate-spin text-gray-500" />}
       </div>
 
@@ -288,6 +305,13 @@ export default function AdminRankingTab() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <Input type="number" value={newXp} onChange={e => setNewXp(Number(e.target.value))} placeholder="XP" className="bg-gray-800 border-gray-700 text-white" />
+              <select value={newCategory} onChange={e => setNewCategory(e.target.value)} className="bg-gray-800 border border-gray-700 text-white text-sm rounded-md px-3 py-2">
+                <option value="">Jogo / Categoria</option>
+                {SPORT_CATEGORIES.map(c => (<option key={c} value={c}>{c}</option>))}
+              </select>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <Input type="date" value={newEventDate} onChange={e => setNewEventDate(e.target.value)} className="bg-gray-800 border-gray-700 text-white" />
               <select value={newEntryId} onChange={e => setNewEntryId(e.target.value)} className="bg-gray-800 border border-gray-700 text-white text-sm rounded-md px-3 py-2">
                 <option value="">Selecionar entrada...</option>
                 {entries.map(e => (<option key={e.id} value={e.id}>{e.title} ({e.date})</option>))}
@@ -306,7 +330,11 @@ export default function AdminRankingTab() {
                   <span className="text-2xl">{s.icon}</span>
                   <div>
                     <span className="text-sm font-bold text-white">{s.name}</span>
-                    <div className="text-[10px] text-gray-500">+{s.xp_reward} XP · {s.user_count ?? 0} usuários</div>
+                    <div className="text-[10px] text-gray-500">
+                      +{s.xp_reward} XP · {s.user_count ?? 0} usuários
+                      {s.sport_category && <span> · {s.sport_category}</span>}
+                      {s.event_date && <span> · {new Date(s.event_date + 'T12:00:00').toLocaleDateString('pt-BR')}</span>}
+                    </div>
                   </div>
                 </div>
                 <Button size="sm" variant="outline" onClick={() => handleDeactivate(s.id)} className="border-red-500/30 text-red-400 hover:bg-red-500/10 text-xs">Desativar</Button>
