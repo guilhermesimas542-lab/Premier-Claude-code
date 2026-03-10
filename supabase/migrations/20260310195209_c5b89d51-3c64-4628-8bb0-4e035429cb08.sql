@@ -1,0 +1,1 @@
+ALTER TABLE user_achievements ALTER COLUMN achievement_date DROP DEFAULT;

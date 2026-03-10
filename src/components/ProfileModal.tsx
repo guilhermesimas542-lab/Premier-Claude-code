@@ -87,6 +87,7 @@ const ProfileModal = ({ isOpen, onClose }: ProfileModalProps) => {
       setCurrentAvatarId(avatarId);
       setShowAvatarModal(false);
       toast.success("Avatar atualizado!");
+      sendXpEvent('COMPLETE_PROFILE');
     }
   };
 
