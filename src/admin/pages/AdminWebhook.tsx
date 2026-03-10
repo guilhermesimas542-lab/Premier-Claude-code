@@ -48,6 +48,8 @@ interface ProductCatalogItem {
   entitlement_key: string | null;
   active: boolean;
   created_at: string;
+  product_type: string;
+  bundle_name: string | null;
 }
 
 // ─── Component ───────────────────────────────────────────────────────────────
@@ -430,38 +432,90 @@ function ProductsCatalogTab() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {products.map((p) => (
-              <TableRow key={p.id}>
-                <TableCell>
-                  <Badge variant="outline" className="text-xs">{p.provider}</Badge>
-                </TableCell>
-                <TableCell className="text-xs text-gray-300 font-mono">{p.provider_product_id}</TableCell>
-                <TableCell className="text-sm text-white">{p.product_name}</TableCell>
-                <TableCell className="text-xs text-gray-400">
-                  {p.tier ? "Tier" : "Add-on"}
-                </TableCell>
-                <TableCell className="text-xs text-gray-300">
-                  {p.tier ?? p.entitlement_key ?? "—"}
-                </TableCell>
-                <TableCell>
-                  {p.active ? (
-                    <CheckCircle2 className="w-4 h-4 text-green-400" />
-                  ) : (
-                    <XCircle className="w-4 h-4 text-gray-500" />
-                  )}
-                </TableCell>
-                <TableCell>
-                  <div className="flex gap-1">
-                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setEditing(p); setModalOpen(true); }}>
-                      <Pencil className="w-3.5 h-3.5" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="h-7 w-7 text-red-400" onClick={() => handleDelete(p.id)}>
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
+            {(() => {
+              // Group bundle items together for display
+              const rendered = new Set<string>();
+              return products.map((p) => {
+                // If it's a bundle item, show only one grouped row per bundle_name
+                if (p.product_type === "bundle" && p.bundle_name) {
+                  if (rendered.has(p.bundle_name)) return null;
+                  rendered.add(p.bundle_name);
+                  const bundleItems = products.filter(
+                    (bp) => bp.bundle_name === p.bundle_name && bp.provider_product_id === p.provider_product_id
+                  );
+                  const bundleTier = bundleItems.find((b) => b.tier)?.tier;
+                  const bundleAddons = bundleItems.filter((b) => b.entitlement_key).map((b) => b.entitlement_key);
+                  return (
+                    <TableRow key={p.id}>
+                      <TableCell>
+                        <Badge variant="outline" className="text-xs">{p.provider}</Badge>
+                      </TableCell>
+                      <TableCell className="text-xs text-gray-300 font-mono">{p.provider_product_id}</TableCell>
+                      <TableCell className="text-sm text-white">
+                        {p.bundle_name}
+                        <span className="text-[10px] text-gray-500 ml-1">({bundleItems.length} itens)</span>
+                      </TableCell>
+                      <TableCell>
+                        <Badge className="text-[10px] bg-purple-500/20 text-purple-300 border-purple-500/30">Bundle</Badge>
+                      </TableCell>
+                      <TableCell className="text-xs text-gray-300">
+                        {bundleTier && <Badge variant="secondary" className="text-[10px] mr-1">{bundleTier}</Badge>}
+                        {bundleAddons.map((a) => (
+                          <Badge key={a} variant="outline" className="text-[10px] mr-1">{a}</Badge>
+                        ))}
+                      </TableCell>
+                      <TableCell>
+                        {p.active ? <CheckCircle2 className="w-4 h-4 text-green-400" /> : <XCircle className="w-4 h-4 text-gray-500" />}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex gap-1">
+                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setEditing(p); setModalOpen(true); }}>
+                            <Pencil className="w-3.5 h-3.5" />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-red-400" onClick={async () => {
+                            if (!confirm("Excluir todo o bundle?")) return;
+                            await supabase.from("products_catalog").delete().eq("bundle_name", p.bundle_name).eq("provider_product_id", p.provider_product_id);
+                            toast.success("Bundle excluído");
+                            fetchProducts();
+                          }}>
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                }
+                // Regular plan/addon row
+                return (
+                  <TableRow key={p.id}>
+                    <TableCell>
+                      <Badge variant="outline" className="text-xs">{p.provider}</Badge>
+                    </TableCell>
+                    <TableCell className="text-xs text-gray-300 font-mono">{p.provider_product_id}</TableCell>
+                    <TableCell className="text-sm text-white">{p.product_name}</TableCell>
+                    <TableCell className="text-xs text-gray-400">
+                      {p.tier ? "Plano" : "Add-on"}
+                    </TableCell>
+                    <TableCell className="text-xs text-gray-300">
+                      {p.tier ?? p.entitlement_key ?? "—"}
+                    </TableCell>
+                    <TableCell>
+                      {p.active ? <CheckCircle2 className="w-4 h-4 text-green-400" /> : <XCircle className="w-4 h-4 text-gray-500" />}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex gap-1">
+                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setEditing(p); setModalOpen(true); }}>
+                          <Pencil className="w-3.5 h-3.5" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="h-7 w-7 text-red-400" onClick={() => handleDelete(p.id)}>
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              });
+            })()}
             {products.length === 0 && !loading && (
               <TableRow>
                 <TableCell colSpan={7} className="text-center text-gray-500 py-8">
@@ -494,23 +548,37 @@ function ProductModal({
   const [provider, setProvider] = useState("lastlink");
   const [externalId, setExternalId] = useState("");
   const [name, setName] = useState("");
-  const [type, setType] = useState<"tier" | "addon">("tier");
+  const [type, setType] = useState<"tier" | "addon" | "bundle">("tier");
   const [tierValue, setTierValue] = useState("basic");
   const [addonValue, setAddonValue] = useState("alavancagem");
+  const [bundleAddons, setBundleAddons] = useState<string[]>([]);
   const [active, setActive] = useState(true);
   const [saving, setSaving] = useState(false);
+
+  const toggleBundleAddon = (key: string) => {
+    setBundleAddons(prev =>
+      prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]
+    );
+  };
 
   useEffect(() => {
     if (editing) {
       setProvider(editing.provider);
       setExternalId(editing.provider_product_id);
-      setName(editing.product_name);
       setActive(editing.active);
-      if (editing.tier) {
+      if (editing.product_type === "bundle" && editing.bundle_name) {
+        setType("bundle");
+        setName(editing.bundle_name);
+        setTierValue(editing.tier ?? "basic");
+        // We'll load bundle addons from onDone's refetch; for now set from editing context
+        setBundleAddons([]);
+      } else if (editing.tier) {
         setType("tier");
+        setName(editing.product_name);
         setTierValue(editing.tier);
       } else {
         setType("addon");
+        setName(editing.product_name);
         setAddonValue(editing.entitlement_key ?? "alavancagem");
       }
     } else {
@@ -520,6 +588,7 @@ function ProductModal({
       setType("tier");
       setTierValue("basic");
       setAddonValue("alavancagem");
+      setBundleAddons([]);
       setActive(true);
     }
   }, [editing, open]);
@@ -529,29 +598,82 @@ function ProductModal({
       toast.error("Preencha todos os campos obrigatórios");
       return;
     }
+    if (type === "bundle" && bundleAddons.length === 0) {
+      toast.error("Selecione pelo menos um add-on para o bundle.");
+      return;
+    }
     setSaving(true);
 
-    const row = {
-      provider,
-      provider_product_id: externalId,
-      product_name: name,
-      tier: type === "tier" ? tierValue : null,
-      entitlement_key: type === "addon" ? addonValue : null,
-      active,
-    };
+    try {
+      if (type === "bundle") {
+        const bundleRows = [
+          {
+            provider,
+            provider_product_id: externalId,
+            product_name: `${name} (Plano)`,
+            tier: tierValue,
+            entitlement_key: null,
+            product_type: "bundle",
+            bundle_name: name,
+            active,
+          },
+          ...bundleAddons.map(addonKey => ({
+            provider,
+            provider_product_id: externalId,
+            product_name: `${name} (${addonKey})`,
+            tier: null,
+            entitlement_key: addonKey,
+            product_type: "bundle",
+            bundle_name: name,
+            active,
+          })),
+        ];
 
-    if (editing) {
-      await supabase.from("products_catalog").update(row).eq("id", editing.id);
-      toast.success("Produto atualizado");
-    } else {
-      await supabase.from("products_catalog").insert(row);
-      toast.success("Produto cadastrado");
+        if (editing) {
+          await supabase
+            .from("products_catalog")
+            .delete()
+            .eq("bundle_name", editing.bundle_name ?? name)
+            .eq("provider_product_id", externalId);
+        }
+
+        await supabase.from("products_catalog").insert(bundleRows);
+      } else {
+        const row = {
+          provider,
+          provider_product_id: externalId,
+          product_name: name,
+          tier: type === "tier" ? tierValue : null,
+          entitlement_key: type === "addon" ? addonValue : null,
+          product_type: type === "tier" ? "plan" : "addon",
+          bundle_name: null,
+          active,
+        };
+
+        if (editing) {
+          await supabase.from("products_catalog").update(row).eq("id", editing.id);
+        } else {
+          await supabase.from("products_catalog").insert(row);
+        }
+      }
+
+      toast.success("Produto salvo com sucesso!");
+    } catch (err) {
+      toast.error("Erro ao salvar produto.");
+      console.error(err);
+    } finally {
+      setSaving(false);
+      onClose();
+      onDone();
     }
-
-    setSaving(false);
-    onClose();
-    onDone();
   };
+
+  const addonOptions = [
+    { key: "alavancagem", label: "Alavancagem" },
+    { key: "desaltas", label: "Odds Altas" },
+    { key: "live_telegram", label: "Live Telegram" },
+    { key: "acesso_vitalicio", label: "Acesso Vitalício" },
+  ];
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -598,9 +720,11 @@ function ProductModal({
           </div>
 
           <div>
-            <label className="text-xs text-gray-400 block mb-1">Nome legível</label>
+            <label className="text-xs text-gray-400 block mb-1">
+              {type === "bundle" ? "Nome do Bundle" : "Nome legível"}
+            </label>
             <Input
-              placeholder="Ex: Plano Básico Mensal"
+              placeholder={type === "bundle" ? "Ex: Pacote Ultra Completo" : "Ex: Plano Básico Mensal"}
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="bg-gray-800 border-white/10"
@@ -609,32 +733,37 @@ function ProductModal({
 
           <div>
             <label className="text-xs text-gray-400 block mb-1">Tipo</label>
-            <Select value={type} onValueChange={(v) => setType(v as "tier" | "addon")}>
+            <Select value={type} onValueChange={(v) => setType(v as "tier" | "addon" | "bundle")}>
               <SelectTrigger className="bg-gray-800 border-white/10">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="tier">Tier (Plano)</SelectItem>
+                <SelectItem value="tier">Plano</SelectItem>
                 <SelectItem value="addon">Add-on</SelectItem>
+                <SelectItem value="bundle">Bundle (Plano + Add-ons)</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
-          {type === "tier" ? (
+          {/* Tier selector — for "tier" and "bundle" */}
+          {(type === "tier" || type === "bundle") && (
             <div>
-              <label className="text-xs text-gray-400 block mb-1">Plano</label>
+              <label className="text-xs text-gray-400 block mb-1">Plano incluído</label>
               <Select value={tierValue} onValueChange={setTierValue}>
                 <SelectTrigger className="bg-gray-800 border-white/10">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="basic">Basic</SelectItem>
+                  <SelectItem value="basic">Básico</SelectItem>
                   <SelectItem value="pro">Pro</SelectItem>
                   <SelectItem value="ultra">Ultra</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-          ) : (
+          )}
+
+          {/* Single addon selector — for "addon" only */}
+          {type === "addon" && (
             <div>
               <label className="text-xs text-gray-400 block mb-1">Add-on</label>
               <Select value={addonValue} onValueChange={setAddonValue}>
@@ -642,12 +771,35 @@ function ProductModal({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="alavancagem">Alavancagem</SelectItem>
-                  <SelectItem value="desaltas">Desaltas</SelectItem>
-                  <SelectItem value="live_telegram">Live Telegram</SelectItem>
-                  <SelectItem value="acesso_vitalicio">Acesso Vitalício</SelectItem>
+                  {addonOptions.map(({ key, label }) => (
+                    <SelectItem key={key} value={key}>{label}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
+            </div>
+          )}
+
+          {/* Multi-addon checkboxes — for "bundle" only */}
+          {type === "bundle" && (
+            <div>
+              <label className="text-xs text-gray-400 block mb-1">Add-ons incluídos no Bundle</label>
+              <p className="text-[10px] text-gray-500 mb-2">Selecione todos os add-ons que este pacote deve liberar.</p>
+              <div className="flex flex-col gap-2 border border-white/10 rounded-md p-3 bg-gray-800/50">
+                {addonOptions.map(({ key, label }) => (
+                  <label key={key} className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={bundleAddons.includes(key)}
+                      onChange={() => toggleBundleAddon(key)}
+                      className="w-4 h-4 rounded border-white/20"
+                    />
+                    <span className="text-sm text-gray-300">{label}</span>
+                  </label>
+                ))}
+              </div>
+              {bundleAddons.length === 0 && (
+                <p className="text-xs text-red-400 mt-1">Selecione pelo menos um add-on para o bundle.</p>
+              )}
             </div>
           )}
 
