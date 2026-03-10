@@ -8,6 +8,7 @@ import { mockGetUser, mockLogout } from "@/mocks/user";
 import { supabase } from "@/integrations/supabase/client";
 import { useGamification, getXpProgress } from "@/hooks/useGamification";
 import { useAchievements } from "@/hooks/useAchievements";
+import AchievementDetailModal from "@/components/AchievementDetailModal";
 import { getAvatarById, LEVEL_TITLES } from "@/lib/avatars";
 import { BottomNav } from "@/components/BottomNav";
 import MatrixRain from "@/components/MatrixRain";
@@ -90,10 +91,11 @@ const Support = () => {
   const navigate = useNavigate();
   const mockUser = mockGetUser();
   const { data: gamification, userId, sendXpEvent } = useGamification();
-  const { permanentAchievements, isUnlocked, unlockedPermanentCount } = useAchievements(userId);
+  const { permanentAchievements, isUnlocked, unlockedPermanentCount, userAchievements } = useAchievements(userId);
   const [nickname, setNickname] = useState("");
   const [currentAvatarId, setCurrentAvatarId] = useState("avatar_default_1");
   const [isProfileModalOpen, setProfileModalOpen] = useState(false);
+  const [selectedPreviewAch, setSelectedPreviewAch] = useState<any>(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -117,9 +119,12 @@ const Support = () => {
     fetchProfile();
   }, [userId]);
 
-  // Daily login XP
+  // Daily login XP + navigation achievement
   useEffect(() => {
-    if (userId) sendXpEvent('DAILY_LOGIN');
+    if (userId) {
+      sendXpEvent('DAILY_LOGIN');
+      supabase.from('user_achievements').insert({ user_id: userId, achievement_id: 'open_support' } as any).select();
+    }
   }, [userId, sendXpEvent]);
 
   const level = gamification?.current_level || 1;
@@ -247,9 +252,10 @@ const Support = () => {
             {permanentAchievements.slice(0, 6).map(ach => {
               const unlocked = isUnlocked(ach.id);
               return (
-                <div
+                <button
                   key={ach.id}
-                  className="w-10 h-10 rounded-full flex items-center justify-center text-lg"
+                  onClick={(e) => { e.stopPropagation(); setSelectedPreviewAch(ach); }}
+                  className="w-10 h-10 rounded-full flex items-center justify-center text-lg transition-all hover:scale-110 active:scale-95"
                   style={{
                     background: unlocked ? 'rgba(255,215,0,0.15)' : 'rgba(255,255,255,0.05)',
                     border: unlocked ? '1px solid rgba(255,215,0,0.3)' : '1px solid rgba(255,255,255,0.1)',
@@ -257,7 +263,7 @@ const Support = () => {
                   }}
                 >
                   {unlocked ? ach.icon : <Lock className="w-3 h-3 text-gray-500" />}
-                </div>
+                </button>
               );
             })}
             {permanentAchievements.length > 6 && (
@@ -340,6 +346,13 @@ const Support = () => {
 
       {/* Profile Modal */}
       <ProfileModal isOpen={isProfileModalOpen} onClose={() => setProfileModalOpen(false)} />
+
+      <AchievementDetailModal
+        achievement={selectedPreviewAch}
+        userAchievement={selectedPreviewAch ? userAchievements.find((ua: any) => ua.achievement_id === selectedPreviewAch.id) || null : null}
+        isOpen={!!selectedPreviewAch}
+        onClose={() => setSelectedPreviewAch(null)}
+      />
 
       <BottomNav />
     </div>

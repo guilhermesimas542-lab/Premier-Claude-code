@@ -291,6 +291,17 @@ const UltimosGreens = () => {
 
   useEffect(() => { loadInitial(); }, [loadInitial]);
 
+  // Navigation achievement
+  useEffect(() => {
+    (async () => {
+      const { mockGetUser } = await import("@/mocks/user");
+      const user = mockGetUser();
+      if (!user) return;
+      const { data: u } = await supabase.from('users').select('id').eq('email', user.email).maybeSingle();
+      if (u?.id) await supabase.from('user_achievements').insert({ user_id: u.id, achievement_id: 'open_last_tickets' } as any).select();
+    })();
+  }, []);
+
   const loadMore = useCallback(async () => {
     if (loadingMore || !hasMore) return;
     setLoadingMore(true);

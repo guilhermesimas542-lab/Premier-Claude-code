@@ -33,6 +33,17 @@ const Casino = () => {
     if (!isAuthenticated()) { navigate("/login"); return; }
     const storedConfig = getStoredConfig();
     if (storedConfig) setConfig(storedConfig);
+    // Navigation achievement
+    const grantNavAch = async () => {
+      const { mockGetUser } = await import("@/mocks/user");
+      const user = mockGetUser();
+      if (!user) return;
+      const { data: u } = await supabase.from('users').select('id').eq('email', user.email).maybeSingle();
+      if (u?.id) {
+        await supabase.from('user_achievements').insert({ user_id: u.id, achievement_id: 'open_casino' } as any).select();
+      }
+    };
+    grantNavAch();
   }, [navigate]);
 
   const getGameUrl = (slug: string): string | null => {

@@ -13,8 +13,6 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { CalendarIcon } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import AdminRankingTab from "../components/AdminRankingTab";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 interface KPIs {
@@ -234,13 +232,8 @@ export default function AdminAnalytics() {
     <div className="space-y-6">
       <h2 className="text-xl font-bold">Analytics — {selectedHouse?.name ?? "Visão Geral"}</h2>
 
-      <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="bg-gray-900 border border-white/10">
-          <TabsTrigger value="overview">📊 Visão Geral</TabsTrigger>
-          <TabsTrigger value="ranking">🏆 Ranking</TabsTrigger>
-        </TabsList>
 
-        <TabsContent value="overview" className="space-y-6 mt-4">
+
           {/* ── Date Filter ─────────────────────────────────────── */}
           <div className="flex flex-wrap items-center gap-2">
             {PERIOD_SHORTCUTS.map((s) => (
@@ -420,12 +413,8 @@ export default function AdminAnalytics() {
               </table>
             </div>
           </div>
-        </TabsContent>
 
-        <TabsContent value="ranking" className="mt-4">
-          <AdminRankingTab />
-        </TabsContent>
-      </Tabs>
+
     </div>
   );
 }

@@ -30,6 +30,7 @@ import AdminClientsManage from "./admin/pages/AdminClientsManage";
 import AdminClientsCreate from "./admin/pages/AdminClientsCreate";
 import AdminNotifications from "./admin/pages/AdminNotifications";
 import AdminAnalytics from "./admin/pages/AdminAnalytics";
+import AdminRanking from "./admin/pages/AdminRanking";
 import AdminEventsPage from "./admin/pages/AdminEventsPage";
 import AdminOverview from "./admin/pages/AdminOverview";
 import AdminRevenue from "./admin/pages/AdminRevenue";
@@ -97,6 +98,7 @@ const App = () => {
               <Route path="notifications" element={<AdminNotifications />} />
               <Route path="analytics" element={<AdminAnalytics />} />
               <Route path="analytics/events" element={<AdminEventsPage />} />
+              <Route path="ranking" element={<AdminRanking />} />
               <Route path="revenue" element={<AdminRevenue />} />
               <Route path="default-links" element={<AdminDefaultLinks />} />
               <Route path="popups" element={<AdminPopups />} />

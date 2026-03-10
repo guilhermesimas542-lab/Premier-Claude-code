@@ -23,7 +23,7 @@ const ProfileModal = ({ isOpen, onClose }: ProfileModalProps) => {
   const { data: gamification, loading, userId, sendXpEvent } = useGamification();
   const {
     permanentAchievements, streakAchievements, dailyAchievements, specialAchievements,
-    isUnlocked, isUnlockedToday,
+    isUnlocked, isUnlockedToday, userAchievements,
   } = useAchievements(userId);
   const [nickname, setNickname] = useState("");
   const [currentAvatarId, setCurrentAvatarId] = useState("avatar_default_1");
@@ -194,6 +194,7 @@ const ProfileModal = ({ isOpen, onClose }: ProfileModalProps) => {
               isUnlocked={isUnlocked}
               isUnlockedToday={isUnlockedToday}
               currentStreak={gamification?.current_streak || 0}
+              userAchievements={userAchievements}
             />
 
             {/* Referral */}
