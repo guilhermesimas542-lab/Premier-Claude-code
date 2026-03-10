@@ -159,21 +159,18 @@ export default function AdminDashboard() {
       const paid = paidUsersRes.data ?? [];
 
       // Fetch events for DAU chart (more reliable than sessions)
-      let eventsQ = supabase.from("events").select("user_id, created_at").gte("created_at", since).lte("created_at", until).not("user_id", "is", null);
-      if (selectedHouseId) {
-        eventsQ = eventsQ.eq("house_id", selectedHouseId);
-      }
-      // Fetch up to max rows - events can be large, so we only need user_id + date
       const allEventsData: { user_id: string; created_at: string }[] = [];
       let eventsPage = 0;
       const PAGE_SIZE = 1000;
       while (true) {
-        const { data: eventsChunk } = await eventsQ.range(eventsPage * PAGE_SIZE, (eventsPage + 1) * PAGE_SIZE - 1);
+        let eq = supabase.from("events").select("user_id, created_at").gte("created_at", since).lte("created_at", until).not("user_id", "is", null);
+        if (selectedHouseId) eq = eq.eq("house_id", selectedHouseId);
+        const { data: eventsChunk } = await eq.range(eventsPage * PAGE_SIZE, (eventsPage + 1) * PAGE_SIZE - 1);
         if (!eventsChunk || eventsChunk.length === 0) break;
         allEventsData.push(...(eventsChunk as any[]));
         if (eventsChunk.length < PAGE_SIZE) break;
         eventsPage++;
-        if (eventsPage > 10) break; // safety cap
+        if (eventsPage > 10) break;
       }
       setSessionsData(allEventsData.map((e: any) => ({ user_id: e.user_id, session_start_at: e.created_at })));
 
