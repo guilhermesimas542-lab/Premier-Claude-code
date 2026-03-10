@@ -181,7 +181,7 @@ export default function AdminRankingTab() {
       await (supabase.from('special_achievement_entries').insert({ achievement_id: id, entry_id: newEntryId }) as any);
       toast.success("Achievement especial criado!");
       setShowCreate(false);
-      setNewName(""); setNewIcon("⚽"); setNewXp(200); setNewEntryId(""); setNewCategory(""); setNewEventDate("");
+      setNewName(""); setNewIcon("⚽"); setNewXp(200); setNewEntryId(""); setNewEventDate("");
       fetchSpecials();
     } else {
       toast.error("Erro ao criar achievement");
