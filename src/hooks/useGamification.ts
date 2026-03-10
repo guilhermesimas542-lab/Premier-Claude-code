@@ -32,7 +32,7 @@ export function getXpProgress(totalXp: number, currentLevel: number) {
   return { xpInLevel, xpNeeded, progress, nextLevelXp };
 }
 
-export function useGamification(onNewAchievements?: () => void) {
+export function useGamification() {
   const [data, setData] = useState<GamificationData | null>(null);
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
