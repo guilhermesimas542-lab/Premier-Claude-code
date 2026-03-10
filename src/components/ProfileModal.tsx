@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { mockGetUser, mockLogout } from "@/mocks/user";
-import { useGamification, getXpProgress } from "@/hooks/useGamification";
+import { useGamification, getXpProgress } from "@/contexts/GamificationContext";
 import { useAchievements } from "@/hooks/useAchievements";
 import { AVATARS, getAvatarById, LEVEL_TITLES } from "@/lib/avatars";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";

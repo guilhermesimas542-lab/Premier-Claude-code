@@ -6,7 +6,7 @@ import { isAuthenticated } from "@/lib/auth";
 import { SUPPORT_WHATSAPP_URL } from "@/lib/userMock";
 import { mockGetUser, mockLogout } from "@/mocks/user";
 import { supabase } from "@/integrations/supabase/client";
-import { useGamification, getXpProgress } from "@/hooks/useGamification";
+import { useGamification, getXpProgress } from "@/contexts/GamificationContext";
 import { useAchievements } from "@/hooks/useAchievements";
 import AchievementDetailModal from "@/components/AchievementDetailModal";
 import { getAvatarById, LEVEL_TITLES } from "@/lib/avatars";

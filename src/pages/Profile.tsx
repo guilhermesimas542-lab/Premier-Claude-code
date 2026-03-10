@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { mockGetUser, mockLogout } from "@/mocks/user";
-import { useGamification, getXpProgress } from "@/hooks/useGamification";
+import { useGamification, getXpProgress } from "@/contexts/GamificationContext";
 import { AVATARS, getAvatarById, getAvailableAvatars, getLockedAvatars, LEVEL_TITLES } from "@/lib/avatars";
 import { BottomNav } from "@/components/BottomNav";
 import MatrixRain from "@/components/MatrixRain";
