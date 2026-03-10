@@ -114,7 +114,19 @@ export function WelcomePopup({ house }: { house: HousePopupData | null }) {
   const [currentPopupId, setCurrentPopupId] = useState<string | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
+  const [lastLoginEvent, setLastLoginEvent] = useState(0);
   const sessionShownRef = useRef(false);
+
+  // Listen for login events to re-trigger popup check
+  useEffect(() => {
+    const handleLogin = () => {
+      console.log('[WelcomePopup] Evento premier:login detectado. Re-verificando pop-ups.');
+      sessionShownRef.current = false;
+      setLastLoginEvent(Date.now());
+    };
+    window.addEventListener('premier:login', handleLogin);
+    return () => window.removeEventListener('premier:login', handleLogin);
+  }, []);
 
   const hasQuiz = popupData && [
     popupData.question_1_text,
@@ -132,41 +144,48 @@ export function WelcomePopup({ house }: { house: HousePopupData | null }) {
   useEffect(() => {
     if (sessionShownRef.current) return;
 
+    console.log('[WelcomePopup] Iniciando verificação de pop-up...');
+
     const fetchPriorityPopup = async () => {
       const user = await getUserWithTier();
+      console.log('[WelcomePopup] Usuário encontrado:', user);
       if (!user) return;
       setCurrentUserId(user.id);
 
       // Fetch ALL active on_load popups
-      const { data: popups } = await supabase
+      const { data: popups, error } = await supabase
         .from("popups")
         .select("id, type, image_url, button_url, checkout_link, question_1_text, question_1_options, question_2_text, question_2_options, question_3_text, question_3_options, final_title, final_benefits, target_audience, betting_house_id, final_template, final_config, button_color")
         .eq("is_active", true)
         .eq("trigger_type", "on_load")
         .order("created_at", { ascending: false });
 
-      if (!popups || popups.length === 0) return;
+      console.log('[WelcomePopup] Pop-ups encontrados no banco:', popups, 'Erro:', error);
+
+      if (!popups || popups.length === 0) {
+        console.log('[WelcomePopup] Nenhum pop-up on_load ativo encontrado.');
+        return;
+      }
 
       // Filter by user eligibility (tier + addons + audience)
       const eligible = popups.filter((p: any) => {
-        // Check audience
         const audience = p.target_audience || "all";
         if (audience !== "all" && audience !== user.mainTier) return false;
-
-        // Check house match: popup is either global or for user's house
         if (p.betting_house_id && p.betting_house_id !== user.houseId) return false;
-
-        // Check type eligibility
         return isEligibleForType(p.type, user.mainTier, user.addons);
       });
 
-      if (eligible.length === 0) return;
+      console.log('[WelcomePopup] Pop-ups elegíveis após filtro:', eligible.length, eligible.map((p: any) => ({ id: p.id, type: p.type })));
 
-      // Sort by priority (POPUP_PRIORITY order — lower index = higher priority)
+      if (eligible.length === 0) {
+        console.log('[WelcomePopup] Nenhum pop-up elegível para este usuário.');
+        return;
+      }
+
+      // Sort by priority
       eligible.sort((a: any, b: any) => {
         const aPri = POPUP_PRIORITY.indexOf(a.type);
         const bPri = POPUP_PRIORITY.indexOf(b.type);
-        // Types not in priority list go to end
         const aIdx = aPri === -1 ? 999 : aPri;
         const bIdx = bPri === -1 ? 999 : bPri;
         return aIdx - bIdx;
@@ -174,20 +193,24 @@ export function WelcomePopup({ house }: { house: HousePopupData | null }) {
 
       // Find the first popup the user hasn't seen yet
       for (const popup of eligible) {
-        if (!popup.image_url) continue;
+        console.log(`[WelcomePopup] Verificando pop-up: ${popup.id} (${popup.type}), image_url: ${popup.image_url ? 'sim' : 'não'}`);
         const alreadyViewed = await hasViewedPopup(user.id, popup.id);
+        console.log(`[WelcomePopup] Usuário já viu este pop-up? ${alreadyViewed}`);
         if (!alreadyViewed) {
           sessionShownRef.current = true;
           setCurrentPopupId(popup.id);
           setPopupData(popup as unknown as FunnelPopupData);
           setOpen(true);
+          console.log(`[WelcomePopup] Exibindo pop-up: ${popup.id} (${popup.type})`);
           return;
         }
       }
+
+      console.log('[WelcomePopup] Nenhum pop-up elegível foi exibido nesta sessão (todos já vistos).');
     };
 
     fetchPriorityPopup();
-  }, [house]);
+  }, [house, lastLoginEvent]);
 
   if (!popupData || !open) return null;
 
