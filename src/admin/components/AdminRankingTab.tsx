@@ -34,7 +34,8 @@ interface SpecialAchievement {
 type SortKey = 'total_xp' | 'email' | 'current_level' | 'total_logins' | 'current_streak' | 'achievement_count';
 type SortDir = 'asc' | 'desc' | null;
 
-const SPORT_CATEGORIES = ['Futebol', 'Basquete', 'Tênis', 'Futebol Americano', 'MMA / UFC', 'Cassino', 'Outro'];
+const TIER_LABELS: Record<string, string> = { free: 'Gratuito', basic: 'Básico', pro: 'Pro', ultra: 'Ultra' };
+const ADDON_LABELS: Record<string, string> = { alavancagem: 'Alavancagem', desaltas: 'Odds Altas', live_telegram: 'Live', acesso_vitalicio: 'Vitalício' };
 
 export default function AdminRankingTab() {
   const [users, setUsers] = useState<RankingUser[]>([]);
