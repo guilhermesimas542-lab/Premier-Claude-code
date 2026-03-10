@@ -56,7 +56,12 @@ const ProfileModal = ({ isOpen, onClose }: ProfileModalProps) => {
   const referralLink = userId ? `${window.location.origin}/login?ref=${userId}` : '';
 
   const handleSaveNickname = async () => {
-    if (!userId || !nicknameInput.trim()) return;
+    if (!userId || !nicknameInput.trim()) {
+      if (!userId) {
+        toast.error("Erro: Usuário não encontrado. Tente fazer login novamente.");
+      }
+      return;
+    }
     if (!/^[a-zA-Z0-9_]{3,20}$/.test(nicknameInput)) {
       toast.error("Nickname deve ter 3-20 caracteres (letras, números, _)");
       return;

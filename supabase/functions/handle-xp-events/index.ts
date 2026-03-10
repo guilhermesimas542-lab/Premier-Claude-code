@@ -239,48 +239,62 @@ serve(async (req) => {
     const newAchievements: any[] = [];
 
     if (event === 'DAILY_LOGIN') {
+      // Always check permanent achievements (idempotent)
+      const permAchievements = await checkPermanentAchievements(userId, supabaseAdmin);
+      for (const pa of permAchievements) {
+        xpToAdd += pa.xp_reward;
+        newAchievements.push(pa);
+      }
+
       const today = new Date().toISOString().split('T')[0];
       const lastLogin = gamification?.last_login_date;
 
-      if (lastLogin !== today) {
-        xpToAdd += XP_EVENTS.DAILY_LOGIN;
-        const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-        const currentStreak = lastLogin === yesterday ? (gamification?.current_streak || 0) + 1 : 1;
-
-        if (STREAK_BONUSES[currentStreak]) {
-          streakBonus = STREAK_BONUSES[currentStreak];
-          xpToAdd += streakBonus;
+      if (lastLogin === today) {
+        // Already logged today — return with any new permanent achievements
+        if (xpToAdd > 0) {
+          const newTotalXp = (gamification?.total_xp || 0) + xpToAdd;
+          const newLevel = calculateLevel(newTotalXp);
+          await supabaseAdmin.from('user_gamification').update({ total_xp: newTotalXp, current_level: newLevel }).eq('user_id', userId);
+          await supabaseAdmin.from('xp_events').insert({ user_id: userId, event_type: event, xp_amount: xpToAdd });
+          const { data: updated } = await supabaseAdmin.from('user_gamification').select('*').eq('user_id', userId).single();
+          return new Response(
+            JSON.stringify({ success: true, xpAdded: xpToAdd, alreadyLoggedToday: true, gamification: updated, newAchievements }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
         }
-
-        streakData = {
-          current_streak: currentStreak,
-          longest_streak: Math.max(gamification?.longest_streak || 0, currentStreak),
-          last_login_date: today,
-          total_logins: (gamification?.total_logins || 0) + 1,
-        };
-
-        const dailyResult = await grantDailyAchievement(userId, 'daily_checkin', supabaseAdmin);
-        if (dailyResult) {
-          xpToAdd += dailyResult.xp_reward;
-          newAchievements.push({ id: 'daily_checkin', ...dailyResult });
-        }
-
-        const streakAchievements = await checkStreakAchievements(userId, currentStreak, supabaseAdmin);
-        for (const sa of streakAchievements) {
-          xpToAdd += sa.xp_reward;
-          newAchievements.push(sa);
-        }
-
-        const permAchievements = await checkPermanentAchievements(userId, supabaseAdmin);
-        for (const pa of permAchievements) {
-          xpToAdd += pa.xp_reward;
-          newAchievements.push(pa);
-        }
-      } else {
         return new Response(
           JSON.stringify({ success: true, xpAdded: 0, alreadyLoggedToday: true, gamification, newAchievements: [] }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
+      }
+
+      // First login of the day
+      xpToAdd += XP_EVENTS.DAILY_LOGIN;
+      const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+      const currentStreak = lastLogin === yesterday ? (gamification?.current_streak || 0) + 1 : 1;
+
+      if (STREAK_BONUSES[currentStreak]) {
+        streakBonus = STREAK_BONUSES[currentStreak];
+        xpToAdd += streakBonus;
+      }
+
+      streakData = {
+        current_streak: currentStreak,
+        longest_streak: Math.max(gamification?.longest_streak || 0, currentStreak),
+        last_login_date: today,
+        total_logins: (gamification?.total_logins || 0) + 1,
+      };
+
+      const dailyResult = await grantDailyAchievement(userId, 'daily_checkin', supabaseAdmin);
+      if (dailyResult) {
+        xpToAdd += dailyResult.xp_reward;
+        newAchievements.push({ id: 'daily_checkin', ...dailyResult });
+      }
+
+      const streakAchievements = await checkStreakAchievements(userId, currentStreak, supabaseAdmin);
+      for (const sa of streakAchievements) {
+        xpToAdd += sa.xp_reward;
+        newAchievements.push(sa);
       }
     } else if (event === 'COMPLETE_PROFILE') {
       // Give XP AND check permanent achievements (profile_complete)

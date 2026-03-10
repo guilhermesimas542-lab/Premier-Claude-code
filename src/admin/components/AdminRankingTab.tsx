@@ -240,10 +240,7 @@ export default function AdminRankingTab() {
                   <td className="px-3 py-2 font-bold">{getMedal(globalPos)}</td>
                   <td className="px-3 py-2 text-lg">{avatar.emoji}</td>
                   <td className="px-3 py-2">
-                    <div>
-                      {u.nickname && <span className="font-bold text-white">@{u.nickname}</span>}
-                      <div className="text-gray-500 text-[10px]">{u.email}</div>
-                    </div>
+                    <span className="text-gray-300 text-xs">{u.email}</span>
                   </td>
                   <td className="px-3 py-2">
                     <span className="text-yellow-400 font-bold">{u.current_level}</span>
