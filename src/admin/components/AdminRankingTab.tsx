@@ -197,7 +197,8 @@ export default function AdminRankingTab() {
 
   useEffect(() => {
     const fetchEntries = async () => {
-      const { data } = await supabase.from('content_entries').select('id, title, date').eq('active', true).order('date', { ascending: false }).limit(50);
+      const today = new Date().toISOString().split('T')[0];
+      const { data } = await supabase.from('content_entries').select('id, title, date, tier_required, addon_required').eq('active', true).gte('date', today).order('date', { ascending: true }).limit(50);
       setEntries((data ?? []) as any);
     };
     fetchEntries();
