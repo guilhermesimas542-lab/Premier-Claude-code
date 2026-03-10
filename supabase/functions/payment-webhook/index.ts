@@ -39,6 +39,8 @@ Deno.serve(async (req) => {
       });
     }
 
+    console.log("[WEBHOOK] 1. Payload recebido. Event:", (payload as any)?.Event, "| IsTest:", (payload as any)?.IsTest, "| Email:", (payload as any)?.Data?.Buyer?.Email);
+
     // ── Raw log (before any validation) ──────────────────────────────────────
     await supabase.from("raw_webhook_logs").insert({ payload });
 
@@ -50,6 +52,8 @@ Deno.serve(async (req) => {
       );
     }
 
+    console.log("[WEBHOOK] 2. Passou verificação IsTest.");
+
     // ── Detect provider ────────────────────────────────────────────────────────
     const url = new URL(req.url);
     const provider = url.searchParams.get("provider") ?? "lastlink";
@@ -59,6 +63,8 @@ Deno.serve(async (req) => {
     const lastlinkSecret = Deno.env.get("LASTLINK_WEBHOOK_SECRET");
     const signature = req.headers.get("x-lastlink-signature");
     let isAuthorized = false;
+
+    console.log("[WEBHOOK] 3. Iniciando validação de segurança. tokenFromQuery:", tokenFromQuery, "| signature presente:", !!signature);
 
     // 1. Prioridade Máxima: Validação HMAC da Lastlink
     if (signature && lastlinkSecret) {
@@ -106,8 +112,11 @@ Deno.serve(async (req) => {
       }
     }
 
+    console.log("[WEBHOOK] 4. Resultado da validação. isAuthorized:", isAuthorized);
+
     // Se nenhum método de autorização passou, retorna 401
     if (!isAuthorized) {
+      console.log("[WEBHOOK] 5. BLOQUEADO - 401 Unauthorized. tokenFromQuery:", tokenFromQuery, "| WEBHOOK_SECRET presente:", !!Deno.env.get('WEBHOOK_SECRET'));
       console.warn("[webhook] Unauthorized. hmac_header:", !!signature, "hmac_secret_set:", !!lastlinkSecret, "simple_secret_set:", !!simpleWebhookSecret, "token_query:", !!tokenFromQuery, "x-webhook-secret_header:", !!req.headers.get("x-webhook-secret"));
       return new Response(JSON.stringify({ error: "Unauthorized: No valid authentication method found." }), {
         status: 401,
@@ -221,6 +230,7 @@ Deno.serve(async (req) => {
 
     if (logInsertError) throw logInsertError;
     logId = logEntry.id;
+    console.log("[WEBHOOK] 6. Log inserido em webhook_logs. logId:", logId);
 
     // ── Is this a purchase approval? ───────────────────────────────────────
     const isPurchaseApproved =
@@ -430,7 +440,7 @@ Deno.serve(async (req) => {
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (err) {
-    console.error("[webhook] ERRO GLOBAL:", err);
+    console.error("[WEBHOOK] ERRO GLOBAL:", (err as Error)?.message ?? String(err));
 
     if (logId) {
       await supabase
