@@ -12,7 +12,6 @@ interface UserRow {
   id: string;
   email: string;
   main_tier: string;
-  is_vitalicio: boolean;
   last_seen_at: string | null;
 }
 
