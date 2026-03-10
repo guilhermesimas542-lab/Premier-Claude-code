@@ -103,6 +103,7 @@ export default function AdminDefaultLinks() {
       .from("betting_houses")
       .update({
         iframe_url: form.iframe_url,
+        telegram_group_url: form.telegram_group_url || null,
         aviator_url: form.aviator_url || null,
         roleta_url: form.roleta_url || null,
         mines_url: form.mines_url || null,
