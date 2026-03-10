@@ -52,7 +52,7 @@ Deno.serve(async (req) => {
 
     // Buscar ou criar usuário usando a função do banco
     const { data: user, error: userError } = await supabase
-      .rpc('get_or_create_user', { p_email: normalizedEmail });
+      .rpc('get_or_create_user', { p_email: normalizedEmail, p_phone: null });
 
     if (userError) {
       console.error('Erro ao buscar/criar usuário:', userError);
