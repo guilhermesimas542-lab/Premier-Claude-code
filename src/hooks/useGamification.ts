@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { mockGetUser } from '@/mocks/user';
+import { toast } from 'sonner';
 
 export interface GamificationData {
   user_id: string;
@@ -79,6 +80,21 @@ export function useGamification() {
       });
       if (!error && result?.success) {
         fetchData(); // refresh
+        
+        // Show achievement toasts
+        if (result.newAchievements && result.newAchievements.length > 0) {
+          for (const ach of result.newAchievements) {
+            toast(`${ach.icon} ${ach.name}`, {
+              description: `+${ach.xp_reward} XP`,
+              duration: 4000,
+              style: {
+                background: '#0a0a0a',
+                border: '1px solid rgba(255,215,0,0.4)',
+                color: '#FFD700',
+              },
+            });
+          }
+        }
       }
       return result;
     } catch {

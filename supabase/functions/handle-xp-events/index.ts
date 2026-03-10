@@ -13,28 +13,33 @@ const XP_EVENTS: Record<string, number> = {
   UPGRADE_PLAN: 500,
   INVITE_FRIEND: 100,
   VIEW_GREEN: 2,
+  VIEW_BASIC_TIP: 0,
+  VIEW_ULTRA_TIP: 0,
+  VIEW_ALAV_TIP: 0,
+  VIEW_ODDS_TIP: 0,
+  VIEW_ANY_TIP: 0,
 };
 
+const STREAK_MILESTONES = [3, 7, 14, 30, 60, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900, 950, 1000];
+
 const STREAK_BONUSES: Record<number, number> = {
-  3: 5,
-  7: 15,
-  14: 25,
-  30: 50,
-  60: 100,
-  100: 200,
+  3: 5, 7: 15, 14: 25, 30: 50, 60: 100, 100: 200,
+};
+
+// Daily achievement mappings
+const DAILY_EVENT_MAP: Record<string, string> = {
+  VIEW_ANY_TIP: 'daily_hunter',
+  VIEW_BASIC_TIP: 'daily_basic',
+  VIEW_ULTRA_TIP: 'daily_ultra',
+  VIEW_ALAV_TIP: 'daily_alav',
+  VIEW_ODDS_TIP: 'daily_odds',
 };
 
 function calculateLevel(xp: number): number {
   const levels = [
-    { level: 10, xp: 4500 },
-    { level: 9, xp: 3600 },
-    { level: 8, xp: 2800 },
-    { level: 7, xp: 2100 },
-    { level: 6, xp: 1500 },
-    { level: 5, xp: 1000 },
-    { level: 4, xp: 600 },
-    { level: 3, xp: 300 },
-    { level: 2, xp: 100 },
+    { level: 10, xp: 4500 }, { level: 9, xp: 3600 }, { level: 8, xp: 2800 },
+    { level: 7, xp: 2100 }, { level: 6, xp: 1500 }, { level: 5, xp: 1000 },
+    { level: 4, xp: 600 }, { level: 3, xp: 300 }, { level: 2, xp: 100 },
   ];
   for (const l of levels) {
     if (xp >= l.xp) return l.level;
@@ -48,6 +53,139 @@ function getXpForLevel(level: number): number {
     6: 1500, 7: 2100, 8: 2800, 9: 3600, 10: 4500,
   };
   return thresholds[level] || 0;
+}
+
+async function grantDailyAchievement(userId: string, achievementId: string, supabaseAdmin: any) {
+  const today = new Date().toISOString().split('T')[0];
+  
+  // Check if already granted today
+  const { data: existing } = await supabaseAdmin
+    .from('user_achievements')
+    .select('id')
+    .eq('user_id', userId)
+    .eq('achievement_id', achievementId)
+    .eq('achievement_date', today)
+    .maybeSingle();
+  
+  if (existing) return null;
+
+  // Get achievement details
+  const { data: achievement } = await supabaseAdmin
+    .from('achievements')
+    .select('xp_reward, name, icon')
+    .eq('id', achievementId)
+    .eq('is_active', true)
+    .maybeSingle();
+  
+  if (!achievement) return null;
+
+  await supabaseAdmin
+    .from('user_achievements')
+    .insert({ user_id: userId, achievement_id: achievementId, achievement_date: today });
+
+  return achievement;
+}
+
+async function checkStreakAchievements(userId: string, currentStreak: number, supabaseAdmin: any) {
+  const granted: any[] = [];
+  
+  for (const milestone of STREAK_MILESTONES) {
+    if (currentStreak >= milestone) {
+      const achievementId = `streak_${milestone}`;
+      
+      // Check if already granted (streak achievements are one-time, use null date)
+      const { data: existing } = await supabaseAdmin
+        .from('user_achievements')
+        .select('id')
+        .eq('user_id', userId)
+        .eq('achievement_id', achievementId)
+        .is('achievement_date', null)
+        .maybeSingle();
+      
+      if (!existing) {
+        const { data: achievement } = await supabaseAdmin
+          .from('achievements')
+          .select('xp_reward, name, icon')
+          .eq('id', achievementId)
+          .eq('is_active', true)
+          .maybeSingle();
+        
+        if (achievement) {
+          await supabaseAdmin
+            .from('user_achievements')
+            .insert({ user_id: userId, achievement_id: achievementId, achievement_date: null });
+          granted.push({ id: achievementId, ...achievement });
+        }
+      }
+    }
+  }
+  
+  return granted;
+}
+
+async function checkPermanentAchievements(userId: string, supabaseAdmin: any) {
+  const granted: any[] = [];
+  
+  // Get user data
+  const { data: user } = await supabaseAdmin
+    .from('users')
+    .select('main_tier, nickname, avatar_id')
+    .eq('id', userId)
+    .maybeSingle();
+  
+  if (!user) return granted;
+
+  // Get active entitlements
+  const { data: entitlements } = await supabaseAdmin
+    .from('entitlements')
+    .select('product_key')
+    .eq('user_id', userId)
+    .eq('status', 'active');
+  
+  const activeKeys = (entitlements ?? []).map((e: any) => e.product_key);
+
+  // Get already granted permanent achievements
+  const { data: grantedAchievements } = await supabaseAdmin
+    .from('user_achievements')
+    .select('achievement_id')
+    .eq('user_id', userId)
+    .is('achievement_date', null);
+  
+  const grantedIds = new Set((grantedAchievements ?? []).map((a: any) => a.achievement_id));
+
+  // Get all permanent achievements
+  const { data: permanentAchievements } = await supabaseAdmin
+    .from('achievements')
+    .select('*')
+    .eq('category', 'permanent')
+    .eq('is_active', true);
+
+  for (const ach of (permanentAchievements ?? [])) {
+    if (grantedIds.has(ach.id)) continue;
+
+    let shouldGrant = false;
+
+    if (ach.condition_type === 'first_login') {
+      shouldGrant = true; // If we're here, user has logged in
+    } else if (ach.condition_type === 'profile_complete') {
+      shouldGrant = !!user.nickname && user.avatar_id && user.avatar_id !== 'avatar_default_1';
+    } else if (ach.condition_type === 'has_plan') {
+      const plans = ach.condition_value?.plans || [];
+      shouldGrant = plans.includes(user.main_tier);
+    } else if (ach.condition_type === 'has_entitlement') {
+      const key = ach.condition_value?.key;
+      shouldGrant = activeKeys.includes(key);
+    }
+
+    if (shouldGrant) {
+      await supabaseAdmin
+        .from('user_achievements')
+        .insert({ user_id: userId, achievement_id: ach.id, achievement_date: null });
+      granted.push({ id: ach.id, name: ach.name, icon: ach.icon, xp_reward: ach.xp_reward });
+    }
+  }
+
+  return granted;
 }
 
 serve(async (req) => {
@@ -90,6 +228,7 @@ serve(async (req) => {
     let streakData: Record<string, any> = {};
     let streakBonus = 0;
     let leveledUp = false;
+    const newAchievements: any[] = [];
 
     if (event === 'DAILY_LOGIN') {
       const today = new Date().toISOString().split('T')[0];
@@ -100,7 +239,7 @@ serve(async (req) => {
         const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
         const currentStreak = lastLogin === yesterday ? (gamification?.current_streak || 0) + 1 : 1;
 
-        // Streak bonuses
+        // Old streak bonuses (kept for backward compat)
         if (STREAK_BONUSES[currentStreak]) {
           streakBonus = STREAK_BONUSES[currentStreak];
           xpToAdd += streakBonus;
@@ -112,13 +251,50 @@ serve(async (req) => {
           last_login_date: today,
           total_logins: (gamification?.total_logins || 0) + 1,
         };
+
+        // Grant daily check-in achievement
+        const dailyResult = await grantDailyAchievement(userId, 'daily_checkin', supabaseAdmin);
+        if (dailyResult) {
+          xpToAdd += dailyResult.xp_reward;
+          newAchievements.push({ id: 'daily_checkin', ...dailyResult });
+        }
+
+        // Check streak achievements
+        const streakAchievements = await checkStreakAchievements(userId, currentStreak, supabaseAdmin);
+        for (const sa of streakAchievements) {
+          xpToAdd += sa.xp_reward;
+          newAchievements.push(sa);
+        }
+
+        // Check permanent achievements
+        const permAchievements = await checkPermanentAchievements(userId, supabaseAdmin);
+        for (const pa of permAchievements) {
+          xpToAdd += pa.xp_reward;
+          newAchievements.push(pa);
+        }
       } else {
-        // Already logged in today
         return new Response(
-          JSON.stringify({ success: true, xpAdded: 0, alreadyLoggedToday: true, gamification }),
+          JSON.stringify({ success: true, xpAdded: 0, alreadyLoggedToday: true, gamification, newAchievements: [] }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
+    } else if (DAILY_EVENT_MAP[event]) {
+      // Daily view achievements
+      const dailyAchId = DAILY_EVENT_MAP[event];
+      const dailyResult = await grantDailyAchievement(userId, dailyAchId, supabaseAdmin);
+      if (dailyResult) {
+        xpToAdd += dailyResult.xp_reward;
+        newAchievements.push({ id: dailyAchId, ...dailyResult });
+      }
+      // Also grant daily_hunter for any view
+      if (event !== 'VIEW_ANY_TIP') {
+        const hunterResult = await grantDailyAchievement(userId, 'daily_hunter', supabaseAdmin);
+        if (hunterResult) {
+          xpToAdd += hunterResult.xp_reward;
+          newAchievements.push({ id: 'daily_hunter', ...hunterResult });
+        }
+      }
+      xpToAdd += XP_EVENTS[event] || 0;
     } else {
       xpToAdd = XP_EVENTS[event] || 0;
     }
@@ -164,13 +340,14 @@ serve(async (req) => {
           newLevel,
           gamification: updated,
           nextLevelXp: getXpForLevel(newLevel + 1),
+          newAchievements,
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
     return new Response(
-      JSON.stringify({ success: true, xpAdded: 0, gamification }),
+      JSON.stringify({ success: true, xpAdded: 0, gamification, newAchievements }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 

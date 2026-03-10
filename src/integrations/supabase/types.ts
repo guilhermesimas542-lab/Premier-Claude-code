@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      achievements: {
+        Row: {
+          category: string
+          condition_type: string
+          condition_value: Json | null
+          created_at: string | null
+          description: string
+          icon: string
+          id: string
+          is_active: boolean | null
+          name: string
+          xp_reward: number
+        }
+        Insert: {
+          category: string
+          condition_type: string
+          condition_value?: Json | null
+          created_at?: string | null
+          description: string
+          icon: string
+          id: string
+          is_active?: boolean | null
+          name: string
+          xp_reward?: number
+        }
+        Update: {
+          category?: string
+          condition_type?: string
+          condition_value?: Json | null
+          created_at?: string | null
+          description?: string
+          icon?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          xp_reward?: number
+        }
+        Relationships: []
+      }
       admin_emails: {
         Row: {
           created_at: string
@@ -1189,6 +1228,35 @@ export type Database = {
           },
         ]
       }
+      special_achievement_entries: {
+        Row: {
+          achievement_id: string
+          created_at: string | null
+          entry_id: string
+          id: string
+        }
+        Insert: {
+          achievement_id: string
+          created_at?: string | null
+          entry_id: string
+          id?: string
+        }
+        Update: {
+          achievement_id?: string
+          created_at?: string | null
+          entry_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "special_achievement_entries_achievement_id_fkey"
+            columns: ["achievement_id"]
+            isOneToOne: false
+            referencedRelation: "achievements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       teams: {
         Row: {
           created_at: string
@@ -1209,6 +1277,48 @@ export type Database = {
           name?: string
         }
         Relationships: []
+      }
+      user_achievements: {
+        Row: {
+          achievement_date: string | null
+          achievement_id: string
+          granted_by: string | null
+          id: string
+          unlocked_at: string | null
+          user_id: string
+        }
+        Insert: {
+          achievement_date?: string | null
+          achievement_id: string
+          granted_by?: string | null
+          id?: string
+          unlocked_at?: string | null
+          user_id: string
+        }
+        Update: {
+          achievement_date?: string | null
+          achievement_id?: string
+          granted_by?: string | null
+          id?: string
+          unlocked_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_achievements_achievement_id_fkey"
+            columns: ["achievement_id"]
+            isOneToOne: false
+            referencedRelation: "achievements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_achievements_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_gamification: {
         Row: {

@@ -1,4 +1,4 @@
-import { ArrowLeft, MessageCircle, Headphones, Star, Flame, Trophy, Users, Calendar, Share2, Copy, Rocket, Crown, LogOut } from "lucide-react";
+import { ArrowLeft, MessageCircle, Headphones, Star, Flame, Trophy, Users, Calendar, Share2, Copy, Rocket, Crown, LogOut, Lock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -7,6 +7,7 @@ import { SUPPORT_WHATSAPP_URL } from "@/lib/userMock";
 import { mockGetUser, mockLogout } from "@/mocks/user";
 import { supabase } from "@/integrations/supabase/client";
 import { useGamification, getXpProgress } from "@/hooks/useGamification";
+import { useAchievements } from "@/hooks/useAchievements";
 import { getAvatarById, LEVEL_TITLES } from "@/lib/avatars";
 import { BottomNav } from "@/components/BottomNav";
 import MatrixRain from "@/components/MatrixRain";
@@ -89,6 +90,7 @@ const Support = () => {
   const navigate = useNavigate();
   const mockUser = mockGetUser();
   const { data: gamification, userId, sendXpEvent } = useGamification();
+  const { permanentAchievements, isUnlocked, unlockedPermanentCount } = useAchievements(userId);
   const [nickname, setNickname] = useState("");
   const [currentAvatarId, setCurrentAvatarId] = useState("avatar_default_1");
   const [isProfileModalOpen, setProfileModalOpen] = useState(false);
@@ -225,8 +227,51 @@ const Support = () => {
         </section>
 
 
+        {/* Achievements Preview Card */}
+        <section
+          onClick={() => setProfileModalOpen(true)}
+          className="backdrop-blur-sm rounded-2xl p-4 sm:p-5 cursor-pointer transition-all hover:scale-[1.01] active:scale-[0.99]"
+          style={{
+            background: 'linear-gradient(135deg, rgba(255,215,0,0.06), rgba(200,160,0,0.08))',
+            border: '1px solid rgba(255,215,0,0.2)',
+          }}
+        >
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Trophy className="w-5 h-5" style={{ color: '#FFD700' }} />
+              <h3 className="font-bold text-sm" style={{ color: '#FFD700' }}>Conquistas</h3>
+            </div>
+            <span className="text-xs" style={{ color: '#FFD700' }}>{unlockedPermanentCount}/{permanentAchievements.length} →</span>
+          </div>
+          <div className="flex gap-2 flex-wrap">
+            {permanentAchievements.slice(0, 6).map(ach => {
+              const unlocked = isUnlocked(ach.id);
+              return (
+                <div
+                  key={ach.id}
+                  className="w-10 h-10 rounded-full flex items-center justify-center text-lg"
+                  style={{
+                    background: unlocked ? 'rgba(255,215,0,0.15)' : 'rgba(255,255,255,0.05)',
+                    border: unlocked ? '1px solid rgba(255,215,0,0.3)' : '1px solid rgba(255,255,255,0.1)',
+                    opacity: unlocked ? 1 : 0.4,
+                  }}
+                >
+                  {unlocked ? ach.icon : <Lock className="w-3 h-3 text-gray-500" />}
+                </div>
+              );
+            })}
+            {permanentAchievements.length > 6 && (
+              <div className="w-10 h-10 rounded-full flex items-center justify-center text-[10px] text-gray-400" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                +{permanentAchievements.length - 6}
+              </div>
+            )}
+          </div>
+          <p className="text-center text-[10px] mt-3 opacity-40" style={{ color: '#fff' }}>
+            Toque para ver todas as conquistas
+          </p>
+        </section>
 
-        {/* Plan & Upgrade Card */}
+
         <PlanUpgradeCard />
 
         {/* Invite Friends Card */}
