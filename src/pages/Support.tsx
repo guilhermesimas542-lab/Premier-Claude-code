@@ -16,9 +16,6 @@ import { useUserAccess } from "@/hooks/useUserAccess";
 import { getUpgradeLinkForTier } from "@/lib/checkoutLinks";
 import { usePayCardTrigger } from "@/hooks/usePayCardTrigger";
 import { PayCardFunnelModal } from "@/components/PayCardFunnelModal";
-import { getUpgradeLinkForTier } from "@/lib/checkoutLinks";
-import { usePayCardTrigger } from "@/hooks/usePayCardTrigger";
-import { PayCardFunnelModal } from "@/components/PayCardFunnelModal";
 
 const TIER_LABELS: Record<string, string> = {
   free: 'Gratuito', basic: 'Basic', pro: 'Pro', ultra: 'Ultra',
