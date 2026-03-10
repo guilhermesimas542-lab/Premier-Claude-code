@@ -432,38 +432,90 @@ function ProductsCatalogTab() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {products.map((p) => (
-              <TableRow key={p.id}>
-                <TableCell>
-                  <Badge variant="outline" className="text-xs">{p.provider}</Badge>
-                </TableCell>
-                <TableCell className="text-xs text-gray-300 font-mono">{p.provider_product_id}</TableCell>
-                <TableCell className="text-sm text-white">{p.product_name}</TableCell>
-                <TableCell className="text-xs text-gray-400">
-                  {p.tier ? "Tier" : "Add-on"}
-                </TableCell>
-                <TableCell className="text-xs text-gray-300">
-                  {p.tier ?? p.entitlement_key ?? "—"}
-                </TableCell>
-                <TableCell>
-                  {p.active ? (
-                    <CheckCircle2 className="w-4 h-4 text-green-400" />
-                  ) : (
-                    <XCircle className="w-4 h-4 text-gray-500" />
-                  )}
-                </TableCell>
-                <TableCell>
-                  <div className="flex gap-1">
-                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setEditing(p); setModalOpen(true); }}>
-                      <Pencil className="w-3.5 h-3.5" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="h-7 w-7 text-red-400" onClick={() => handleDelete(p.id)}>
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
+            {(() => {
+              // Group bundle items together for display
+              const rendered = new Set<string>();
+              return products.map((p) => {
+                // If it's a bundle item, show only one grouped row per bundle_name
+                if (p.product_type === "bundle" && p.bundle_name) {
+                  if (rendered.has(p.bundle_name)) return null;
+                  rendered.add(p.bundle_name);
+                  const bundleItems = products.filter(
+                    (bp) => bp.bundle_name === p.bundle_name && bp.provider_product_id === p.provider_product_id
+                  );
+                  const bundleTier = bundleItems.find((b) => b.tier)?.tier;
+                  const bundleAddons = bundleItems.filter((b) => b.entitlement_key).map((b) => b.entitlement_key);
+                  return (
+                    <TableRow key={p.id}>
+                      <TableCell>
+                        <Badge variant="outline" className="text-xs">{p.provider}</Badge>
+                      </TableCell>
+                      <TableCell className="text-xs text-gray-300 font-mono">{p.provider_product_id}</TableCell>
+                      <TableCell className="text-sm text-white">
+                        {p.bundle_name}
+                        <span className="text-[10px] text-gray-500 ml-1">({bundleItems.length} itens)</span>
+                      </TableCell>
+                      <TableCell>
+                        <Badge className="text-[10px] bg-purple-500/20 text-purple-300 border-purple-500/30">Bundle</Badge>
+                      </TableCell>
+                      <TableCell className="text-xs text-gray-300">
+                        {bundleTier && <Badge variant="secondary" className="text-[10px] mr-1">{bundleTier}</Badge>}
+                        {bundleAddons.map((a) => (
+                          <Badge key={a} variant="outline" className="text-[10px] mr-1">{a}</Badge>
+                        ))}
+                      </TableCell>
+                      <TableCell>
+                        {p.active ? <CheckCircle2 className="w-4 h-4 text-green-400" /> : <XCircle className="w-4 h-4 text-gray-500" />}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex gap-1">
+                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setEditing(p); setModalOpen(true); }}>
+                            <Pencil className="w-3.5 h-3.5" />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-red-400" onClick={async () => {
+                            if (!confirm("Excluir todo o bundle?")) return;
+                            await supabase.from("products_catalog").delete().eq("bundle_name", p.bundle_name).eq("provider_product_id", p.provider_product_id);
+                            toast.success("Bundle excluído");
+                            fetchProducts();
+                          }}>
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                }
+                // Regular plan/addon row
+                return (
+                  <TableRow key={p.id}>
+                    <TableCell>
+                      <Badge variant="outline" className="text-xs">{p.provider}</Badge>
+                    </TableCell>
+                    <TableCell className="text-xs text-gray-300 font-mono">{p.provider_product_id}</TableCell>
+                    <TableCell className="text-sm text-white">{p.product_name}</TableCell>
+                    <TableCell className="text-xs text-gray-400">
+                      {p.tier ? "Plano" : "Add-on"}
+                    </TableCell>
+                    <TableCell className="text-xs text-gray-300">
+                      {p.tier ?? p.entitlement_key ?? "—"}
+                    </TableCell>
+                    <TableCell>
+                      {p.active ? <CheckCircle2 className="w-4 h-4 text-green-400" /> : <XCircle className="w-4 h-4 text-gray-500" />}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex gap-1">
+                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setEditing(p); setModalOpen(true); }}>
+                          <Pencil className="w-3.5 h-3.5" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="h-7 w-7 text-red-400" onClick={() => handleDelete(p.id)}>
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              });
+            })()}
             {products.length === 0 && !loading && (
               <TableRow>
                 <TableCell colSpan={7} className="text-center text-gray-500 py-8">
