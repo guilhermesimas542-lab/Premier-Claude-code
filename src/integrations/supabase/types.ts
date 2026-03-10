@@ -145,6 +145,7 @@ export type Database = {
           popup_welcome_link: string | null
           roleta_url: string | null
           slug: string
+          telegram_group_url: string | null
         }
         Insert: {
           aviator_url?: string | null
@@ -175,6 +176,7 @@ export type Database = {
           popup_welcome_link?: string | null
           roleta_url?: string | null
           slug: string
+          telegram_group_url?: string | null
         }
         Update: {
           aviator_url?: string | null
@@ -205,6 +207,7 @@ export type Database = {
           popup_welcome_link?: string | null
           roleta_url?: string | null
           slug?: string
+          telegram_group_url?: string | null
         }
         Relationships: []
       }

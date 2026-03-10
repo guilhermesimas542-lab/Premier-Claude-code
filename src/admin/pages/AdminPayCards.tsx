@@ -44,6 +44,7 @@ const PLAN_OPTIONS = [
   { value: "alavancagem", label: "Alavancagem" },
   { value: "desaltas", label: "Odds Altas" },
   { value: "vitalicio", label: "Vitalício" },
+  { value: "live_telegram", label: "Live Telegram" },
 ];
 
 const PLAN_LABELS: Record<string, string> = Object.fromEntries(PLAN_OPTIONS.map(p => [p.value, p.label]));

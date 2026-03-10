@@ -1,0 +1,1 @@
+ALTER TABLE public.betting_houses ADD COLUMN IF NOT EXISTS telegram_group_url TEXT;

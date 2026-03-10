@@ -46,25 +46,39 @@ const Home = () => {
   const access = useUserAccess();
   const { triggerPayCard, payCard: pcData, open: pcOpen, closePayCard } = usePayCardTrigger();
 
-  // Derive lifetime from entitlements table (single source of truth)
+  // Derive lifetime & telegram from entitlements table (single source of truth)
   const [isLifetime, setIsLifetime] = useState(false);
+  const [isTelegramMember, setIsTelegramMember] = useState(false);
+  const [telegramGroupUrl, setTelegramGroupUrl] = useState<string | null>(null);
   useEffect(() => {
-    const checkLifetime = async () => {
+    const checkEntitlements = async () => {
       if (!mockUser) return;
-      // First get user id from email
       const { data: userData } = await supabase.from("users").select("id").eq("email", mockUser.email.toLowerCase().trim()).maybeSingle();
       if (!userData?.id) return;
-      const { data: entitlement } = await supabase
+      const { data: ents } = await supabase
         .from("entitlements")
-        .select("id")
+        .select("product_key")
         .eq("user_id", userData.id)
-        .eq("product_key", "acesso_vitalicio")
-        .eq("status", "active")
-        .maybeSingle();
-      setIsLifetime(!!entitlement);
+        .eq("status", "active");
+      const keys = (ents ?? []).map((e) => e.product_key);
+      setIsLifetime(keys.includes("acesso_vitalicio"));
+      setIsTelegramMember(keys.includes("live_telegram"));
     };
-    checkLifetime();
+    checkEntitlements();
   }, []);
+
+  // Load telegram group URL from the user's betting house
+  useEffect(() => {
+    if (!userHouse?.id) return;
+    supabase
+      .from("betting_houses")
+      .select("telegram_group_url")
+      .eq("id", userHouse.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        setTelegramGroupUrl((data as any)?.telegram_group_url ?? null);
+      });
+  }, [userHouse?.id]);
 
   // Track app_open event once on mount
   useEffect(() => {
@@ -181,12 +195,24 @@ const Home = () => {
             </div>
             
             <div className="flex items-center gap-2 sm:gap-3">
-              {mockUser && (
-                <span className="hidden md:block text-xs sm:text-sm font-medium truncate max-w-[180px]" style={{ color: "#CCCCCC" }}>
-                  {mockUser.email}
-                </span>
+              {/* Live Telegram button */}
+              {isTelegramMember ? (
+                <a href={telegramGroupUrl || "#"} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-semibold cursor-pointer transition-all hover:scale-105" style={{ background: "rgba(0,136,204,0.15)", color: "#FFFFFF", border: "1px solid rgba(0,136,204,0.5)", boxShadow: "0 0 10px rgba(0,136,204,0.25)" }}>
+                  <svg viewBox="0 0 24 24" className="w-2.5 h-2.5 sm:w-3 sm:h-3" fill="currentColor" style={{ color: "#0088CC" }}>
+                    <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121L9.1 13.617l-2.97-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/>
+                  </svg>
+                  <span className="hidden sm:inline">Live</span> Telegram
+                </a>
+              ) : (
+                <button onClick={async () => { await triggerPayCard('live_telegram'); }} className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-semibold transition-colors cursor-pointer" style={{ background: "rgba(255,0,0,0.1)", color: "#FF4444", border: "1px solid rgba(255,0,0,0.3)" }}>
+                  <svg viewBox="0 0 24 24" className="w-2.5 h-2.5 sm:w-3 sm:h-3" fill="currentColor">
+                    <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121L9.1 13.617l-2.97-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/>
+                  </svg>
+                  <span className="hidden sm:inline">Live</span> Telegram
+                </button>
               )}
-              
+
+              {/* Vitalício button */}
               {isLifetime ? (
                 <button onClick={() => setShowLifetimeInfoModal(true)} className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-semibold cursor-pointer transition-all hover:scale-105" style={{ background: "rgba(0,255,0,0.1)", color: "#FFFFFF", border: "1px solid rgba(0,255,0,0.4)", boxShadow: "0 0 10px rgba(0,255,0,0.2)" }}>
                   <Crown className="w-2.5 h-2.5 sm:w-3 sm:h-3" />

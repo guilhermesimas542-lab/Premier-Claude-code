@@ -112,6 +112,16 @@ export function PayCardMiniaturePreview({ payCard, onClick }: Props) {
         </ScaledMiniature>
       );
 
+    case "LIVE_TELEGRAM":
+      return wrap(
+        <div className="flex items-center justify-center rounded-full border border-blue-500/60 bg-blue-900/40 overflow-hidden gap-1" style={{ width: 90, height: 32 }}>
+          <svg viewBox="0 0 24 24" className="w-3 h-3 text-blue-400" fill="currentColor">
+            <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121L9.1 13.617l-2.97-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/>
+          </svg>
+          <span className="text-[7px] text-blue-400 font-bold">Live Telegram</span>
+        </div>
+      );
+
     default:
       return wrap(
         <div className="flex items-center justify-center rounded-lg border border-white/10 bg-zinc-800 text-[7px] text-zinc-400 p-1 text-center" style={{ width: 90, height: 58 }}>

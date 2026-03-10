@@ -21,18 +21,20 @@ function getUrlStatus(url: string) {
 
 const FIELDS = [
   { key: "iframe_url", label: "🏠 Iframe de Esportes", placeholder: "https://esportivabet.com", section: "sports" },
+  { key: "telegram_group_url", label: "📲 Link do Grupo Telegram", placeholder: "https://t.me/seugrupovip", section: "general" },
   { key: "aviator_url", label: "✈️ Aviator", placeholder: "https://esportivabet.com/cassino/aviator", section: "casino" },
   { key: "roleta_url", label: "🎰 Roleta", placeholder: "https://esportivabet.com/cassino/roleta", section: "casino" },
   { key: "mines_url", label: "💎 Mines", placeholder: "https://esportivabet.com/cassino/mines", section: "casino" },
   { key: "football_studio_url", label: "⚽ Football Studio", placeholder: "https://esportivabet.com/cassino/football", section: "casino" },
 ] as const;
 
-type FormKey = "iframe_url" | "aviator_url" | "roleta_url" | "mines_url" | "football_studio_url";
+type FormKey = "iframe_url" | "telegram_group_url" | "aviator_url" | "roleta_url" | "mines_url" | "football_studio_url";
 
 type Form = Record<FormKey, string>;
 
 const EMPTY_FORM: Form = {
   iframe_url: "",
+  telegram_group_url: "",
   aviator_url: "",
   roleta_url: "",
   mines_url: "",
@@ -54,13 +56,14 @@ export default function AdminDefaultLinks() {
       setLoading(true);
       const { data, error } = await supabase
         .from("betting_houses")
-        .select("iframe_url, aviator_url, roleta_url, mines_url, football_studio_url, created_at")
+        .select("iframe_url, telegram_group_url, aviator_url, roleta_url, mines_url, football_studio_url, created_at")
         .eq("id", selectedHouse.id)
         .maybeSingle();
 
       if (!error && data) {
         setForm({
           iframe_url: data.iframe_url ?? "",
+          telegram_group_url: (data as any).telegram_group_url ?? "",
           aviator_url: (data as any).aviator_url ?? "",
           roleta_url: (data as any).roleta_url ?? "",
           mines_url: (data as any).mines_url ?? "",
