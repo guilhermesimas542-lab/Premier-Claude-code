@@ -46,13 +46,22 @@ const Home = () => {
   const access = useUserAccess();
   const { triggerPayCard, payCard: pcData, open: pcOpen, closePayCard } = usePayCardTrigger();
 
-  // Derive lifetime from DB user data
+  // Derive lifetime from entitlements table (single source of truth)
   const [isLifetime, setIsLifetime] = useState(false);
   useEffect(() => {
     const checkLifetime = async () => {
       if (!mockUser) return;
-      const { data } = await supabase.from("users").select("is_vitalicio").eq("email", mockUser.email.toLowerCase().trim()).maybeSingle();
-      setIsLifetime(!!data?.is_vitalicio);
+      // First get user id from email
+      const { data: userData } = await supabase.from("users").select("id").eq("email", mockUser.email.toLowerCase().trim()).maybeSingle();
+      if (!userData?.id) return;
+      const { data: entitlement } = await supabase
+        .from("entitlements")
+        .select("id")
+        .eq("user_id", userData.id)
+        .eq("product_key", "acesso_vitalicio")
+        .eq("status", "active")
+        .maybeSingle();
+      setIsLifetime(!!entitlement);
     };
     checkLifetime();
   }, []);

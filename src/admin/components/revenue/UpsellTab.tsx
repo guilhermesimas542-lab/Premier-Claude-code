@@ -12,7 +12,6 @@ interface UserRow {
   id: string;
   email: string;
   main_tier: string;
-  is_vitalicio: boolean;
   last_seen_at: string | null;
 }
 
@@ -31,7 +30,7 @@ export default function UpsellTab() {
     async function load() {
       setLoading(true);
       const [{ data: u }, { data: e }] = await Promise.all([
-        supabase.from('users').select('id, email, main_tier, is_vitalicio, last_seen_at').not('origin', 'eq', 'test'),
+        supabase.from('users').select('id, email, main_tier, last_seen_at').not('origin', 'eq', 'test'),
         supabase.from('entitlements').select('user_id, product_key').eq('status', 'active'),
       ]);
       setUsers((u as UserRow[]) || []);
@@ -60,7 +59,7 @@ export default function UpsellTab() {
     if (f.tier === 'all') {
       return users.filter(u => {
         const addons = entMap[u.id] || new Set();
-        const hasAll = ALL_ADDON_KEYS.every(k => addons.has(k)) && u.is_vitalicio;
+        const hasAll = ALL_ADDON_KEYS.every(k => addons.has(k));
         return !hasAll;
       });
     }
@@ -71,7 +70,7 @@ export default function UpsellTab() {
         : u.main_tier === f.tier;
       if (!tierMatch) return false;
 
-      if (f.checkVitalicio) return !u.is_vitalicio;
+      if (f.checkVitalicio) { const addons = entMap[u.id] || new Set(); return !addons.has('acesso_vitalicio'); }
 
       const addons = entMap[u.id] || new Set();
       return !addons.has(f.missingKey);

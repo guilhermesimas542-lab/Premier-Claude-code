@@ -43,12 +43,11 @@ export function useUserAccess(): UserAccess {
 
     const { data: userData } = await supabase
       .from("users")
-      .select("id, main_tier, is_vitalicio")
+      .select("id, main_tier")
       .eq("email", mockUser.email.toLowerCase().trim())
       .maybeSingle();
 
     const tier = (userData?.main_tier as UserAccess["mainTier"]) || "free";
-    const isVitalicio = userData?.is_vitalicio ?? false;
     const userId = userData?.id;
 
     let addons: string[] = [];
@@ -60,6 +59,8 @@ export function useUserAccess(): UserAccess {
         .eq("status", "active");
       addons = (ents || []).map((e) => e.product_key);
     }
+
+    const isVitalicio = addons.includes("acesso_vitalicio");
 
     setState({
       mainTier: tier,
