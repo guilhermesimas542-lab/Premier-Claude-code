@@ -1294,14 +1294,12 @@ export type Database = {
           created_at: string
           email: string
           id: string
-          is_vitalicio: boolean
           last_event_at: string | null
           last_seen_at: string | null
           main_tier: Database["public"]["Enums"]["main_tier"]
           nickname: string | null
           origin: string | null
           phone: string | null
-          vitalicio_since: string | null
         }
         Insert: {
           avatar_id?: string | null
@@ -1309,14 +1307,12 @@ export type Database = {
           created_at?: string
           email: string
           id?: string
-          is_vitalicio?: boolean
           last_event_at?: string | null
           last_seen_at?: string | null
           main_tier?: Database["public"]["Enums"]["main_tier"]
           nickname?: string | null
           origin?: string | null
           phone?: string | null
-          vitalicio_since?: string | null
         }
         Update: {
           avatar_id?: string | null
@@ -1324,14 +1320,12 @@ export type Database = {
           created_at?: string
           email?: string
           id?: string
-          is_vitalicio?: boolean
           last_event_at?: string | null
           last_seen_at?: string | null
           main_tier?: Database["public"]["Enums"]["main_tier"]
           nickname?: string | null
           origin?: string | null
           phone?: string | null
-          vitalicio_since?: string | null
         }
         Relationships: [
           {
@@ -1468,14 +1462,12 @@ export type Database = {
               created_at: string
               email: string
               id: string
-              is_vitalicio: boolean
               last_event_at: string | null
               last_seen_at: string | null
               main_tier: Database["public"]["Enums"]["main_tier"]
               nickname: string | null
               origin: string | null
               phone: string | null
-              vitalicio_since: string | null
             }
             SetofOptions: {
               from: "*"
@@ -1492,14 +1484,12 @@ export type Database = {
               created_at: string
               email: string
               id: string
-              is_vitalicio: boolean
               last_event_at: string | null
               last_seen_at: string | null
               main_tier: Database["public"]["Enums"]["main_tier"]
               nickname: string | null
               origin: string | null
               phone: string | null
-              vitalicio_since: string | null
             }
             SetofOptions: {
               from: "*"
