@@ -440,7 +440,7 @@ Deno.serve(async (req) => {
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (err) {
-    console.error("[webhook] ERRO GLOBAL:", err);
+    console.error("[WEBHOOK] ERRO GLOBAL:", (err as Error)?.message ?? String(err));
 
     if (logId) {
       await supabase
