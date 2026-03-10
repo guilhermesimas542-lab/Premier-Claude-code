@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Loader2, Users, Activity, Clock, UserPlus, TrendingUp, Bell, Target, FileText } from "lucide-react";
+import { Loader2, Users, Activity, Clock, UserPlus, TrendingUp, Bell, Target, FileText, Trophy } from "lucide-react";
 import { useBettingHouseAdmin } from "../context/BettingHouseContext";
 import {
   LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
@@ -13,6 +13,8 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { CalendarIcon } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import AdminRankingTab from "../components/AdminRankingTab";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 interface KPIs {
