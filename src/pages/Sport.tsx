@@ -447,9 +447,23 @@ const Sport = () => {
 
   const handleAddTip = (entry: DisplayTip) => {
     trackEvent("card_click", { tier: entry.tier_required, addon: entry.addon_required, title: entry.title });
+
+    // Dispatch XP events for achievements
+    sendXpEvent('VIEW_ANY_TIP');
+    if (entry.addon_required === 'alavancagem') {
+      sendXpEvent('VIEW_ALAV_TIP');
+    } else if (entry.addon_required === 'desaltas') {
+      sendXpEvent('VIEW_ODDS_TIP');
+    } else if (entry.tier_required === 'free') {
+      sendXpEvent('VIEW_FREE_TIP');
+    } else if (entry.tier_required === 'basic') {
+      sendXpEvent('VIEW_BASIC_TIP');
+    } else if (entry.tier_required === 'ultra') {
+      sendXpEvent('VIEW_ULTRA_TIP');
+    }
+
     const url = resolveBetUrl(entry);
     if (url) {
-      // If force_sports_link_new_tab is enabled, open in new tab instead of iframe
       if (userHouse?.force_sports_link_new_tab) {
         window.open(url, '_blank', 'noopener,noreferrer');
         toast.success("Tip adicionada!", { description: "Link aberto em nova aba" });
