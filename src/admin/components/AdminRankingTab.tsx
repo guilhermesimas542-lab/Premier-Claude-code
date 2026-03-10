@@ -174,7 +174,6 @@ export default function AdminRankingTab() {
       category: 'special',
       condition_type: 'special_entry',
       is_active: true,
-      sport_category: newCategory || null,
       event_date: newEventDate || null,
     };
     const { error } = await (supabase.from('achievements').insert(insertData) as any);
