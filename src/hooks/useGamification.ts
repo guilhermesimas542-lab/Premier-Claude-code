@@ -94,8 +94,8 @@ export function useGamification() {
               },
             });
           }
-          // Refetch achievements so UI updates immediately
-          onNewAchievements?.();
+          // Dispatch event so useAchievements can refetch
+          window.dispatchEvent(new CustomEvent('achievements-updated'));
         }
       }
       return result;
