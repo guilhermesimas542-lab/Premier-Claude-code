@@ -121,6 +121,7 @@ const ADDON_TOGGLES = [
   { key: "alavancagem", label: "Alavancagem" },
   { key: "desaltas", label: "Odds Altas" },
   { key: "live_telegram", label: "Live Telegram" },
+  { key: "acesso_vitalicio", label: "Vitalício" },
 ] as const;
 
 const TIER_PILLS = [
