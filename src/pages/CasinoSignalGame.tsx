@@ -472,7 +472,7 @@ const CasinoSignalGame = () => {
   const gameConfig = slug ? GAME_CONFIGS[slug] : null;
 
   // Refs para cleanup de timers
-  const timersRef = useRef<NodeJS.Timeout[]>([]);
+  const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   useEffect(() => {
     window.scrollTo(0, 0);

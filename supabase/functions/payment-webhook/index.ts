@@ -101,14 +101,30 @@ Deno.serve(async (req) => {
     buyerEmail = ((buyer.Email ?? buyer.email) as string ?? "").toLowerCase().trim();
     buyerName = (buyer.Name ?? buyer.name) as string ?? null;
     buyerPhone = (buyer.PhoneNumber ?? buyer.phoneNumber ?? buyer.Phone ?? buyer.phone ?? buyer.Cellphone ?? buyer.cellphone) as string ?? null;
-    paymentId = (data.PaymentId ?? data.SubscriptionId ?? data.OrderId ?? `ll-${Date.now()}`) as string;
+
+    // Extract products from Data.Products array
     const products = (data.Products ?? data.products ?? []) as Array<Record<string, unknown>>;
     productIds = products.map((p) => (p.Id ?? p.id) as string).filter(Boolean);
     productNames = products.map((p) => (p.Name ?? p.name ?? '') as string).filter(Boolean);
-    subscriptionId = (data.SubscriptionId ?? data.subscription_id ?? null) as string | null;
-    const payment = (data.Payment ?? data.payment ?? {}) as Record<string, unknown>;
-    amount = Number(payment.Amount ?? payment.amount ?? 0) || null;
+
+    // PaymentId lives under Data.Purchase.PaymentId in Lastlink
+    const purchase = (data.Purchase ?? data.purchase ?? {}) as Record<string, unknown>;
+    const purchasePayment = (purchase.Payment ?? purchase.payment ?? {}) as Record<string, unknown>;
+    paymentId = (purchase.PaymentId ?? purchasePayment.PaymentId ?? data.PaymentId ?? data.SubscriptionId ?? data.OrderId ?? `ll-${Date.now()}`) as string;
+
+    // SubscriptionId lives under Data.Subscriptions[].Id
+    const subscriptions = (data.Subscriptions ?? data.subscriptions ?? []) as Array<Record<string, unknown>>;
+    subscriptionId = subscriptions.length > 0
+      ? ((subscriptions[0].Id ?? subscriptions[0].id) as string ?? null)
+      : ((data.SubscriptionId ?? data.subscription_id ?? null) as string | null);
+
+    // Amount lives under Data.Purchase.Price.Value
+    const purchasePrice = (purchase.Price ?? purchase.price ?? {}) as Record<string, unknown>;
+    amount = Number(purchasePrice.Value ?? purchasePrice.value ?? purchasePayment.Amount ?? purchasePayment.amount ?? 0) || null;
+
     isTest = !!(payload._admin_simulation);
+
+    console.log("[webhook] Lastlink parsed:", { eventName, buyerEmail, paymentId, productIds, productNames, subscriptionId, amount });
   } else {
     // Legacy / generic format
     eventName = (payload.action as string) ?? "purchase";
@@ -206,10 +222,12 @@ Deno.serve(async (req) => {
     }
 
     // ── Find or create user ────────────────────────────────────────────────
-    const { data: userData } = await supabase.rpc("get_or_create_user", {
+    const { data: userData, error: userError } = await supabase.rpc("get_or_create_user", {
       p_email: buyerEmail,
       p_phone: buyerPhone,
     });
+
+    console.log("[webhook] get_or_create_user:", { userData, userError });
 
     const userId = userData?.id ?? null;
 
@@ -219,12 +237,14 @@ Deno.serve(async (req) => {
 
     if (productIds.length > 0) {
       // Try matching by provider_product_id first
-      const { data: catalogItems } = await supabase
+      const { data: catalogItems, error: catalogError } = await supabase
         .from("products_catalog")
         .select("provider_product_id, tier, entitlement_key")
         .eq("provider", provider)
         .in("provider_product_id", productIds)
         .eq("active", true);
+
+      console.log("[webhook] catalog lookup by provider_product_id:", { productIds, provider, catalogItems, catalogError });
 
       if (catalogItems && catalogItems.length > 0) {
         for (const item of catalogItems) {
@@ -233,12 +253,14 @@ Deno.serve(async (req) => {
         }
       } else {
         // Fallback: try matching by lastlink_product_uuid (Lastlink sends internal UUIDs)
-        const { data: uuidItems } = await supabase
+        const { data: uuidItems, error: uuidError } = await supabase
           .from("products_catalog")
           .select("provider_product_id, tier, entitlement_key")
           .eq("provider", provider)
           .in("lastlink_product_uuid", productIds)
           .eq("active", true);
+
+        console.log("[webhook] catalog fallback by lastlink_product_uuid:", { uuidItems, uuidError });
 
         for (const item of uuidItems ?? []) {
           if (item.tier) tierToSet = item.tier;
@@ -246,6 +268,8 @@ Deno.serve(async (req) => {
         }
       }
     }
+
+    console.log("[webhook] resolved:", { tierToSet, entitlementKeysToGrant, userId });
 
     // Fallback: legacy product_key
     if (!tierToSet && entitlementKeysToGrant.length === 0 && payload.product_key) {
