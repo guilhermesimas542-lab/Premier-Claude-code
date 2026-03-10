@@ -30,6 +30,7 @@ import AdminClientsManage from "./admin/pages/AdminClientsManage";
 import AdminClientsCreate from "./admin/pages/AdminClientsCreate";
 import AdminNotifications from "./admin/pages/AdminNotifications";
 import AdminAnalytics from "./admin/pages/AdminAnalytics";
+import AdminRanking from "./admin/pages/AdminRanking";
 import AdminEventsPage from "./admin/pages/AdminEventsPage";
 import AdminOverview from "./admin/pages/AdminOverview";
 import AdminRevenue from "./admin/pages/AdminRevenue";
