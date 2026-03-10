@@ -305,18 +305,16 @@ export default function AdminRankingTab() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <Input type="number" value={newXp} onChange={e => setNewXp(Number(e.target.value))} placeholder="XP" className="bg-gray-800 border-gray-700 text-white" />
-              <select value={newCategory} onChange={e => setNewCategory(e.target.value)} className="bg-gray-800 border border-gray-700 text-white text-sm rounded-md px-3 py-2">
-                <option value="">Jogo / Categoria</option>
-                {SPORT_CATEGORIES.map(c => (<option key={c} value={c}>{c}</option>))}
-              </select>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
               <Input type="date" value={newEventDate} onChange={e => setNewEventDate(e.target.value)} className="bg-gray-800 border-gray-700 text-white" />
-              <select value={newEntryId} onChange={e => setNewEntryId(e.target.value)} className="bg-gray-800 border border-gray-700 text-white text-sm rounded-md px-3 py-2">
-                <option value="">Selecionar entrada...</option>
-                {entries.map(e => (<option key={e.id} value={e.id}>{e.title} ({e.date})</option>))}
-              </select>
             </div>
+            <select value={newEntryId} onChange={e => setNewEntryId(e.target.value)} className="bg-gray-800 border border-gray-700 text-white text-sm rounded-md px-3 py-2 w-full">
+              <option value="">Selecionar entrada...</option>
+              {entries.map(e => {
+                const plan = e.addon_required ? (ADDON_LABELS[e.addon_required] || e.addon_required) : (TIER_LABELS[e.tier_required] || e.tier_required);
+                const dateStr = new Date(e.date + 'T12:00:00').toLocaleDateString('pt-BR');
+                return <option key={e.id} value={e.id}>{e.title} — {plan} — {dateStr}</option>;
+              })}
+            </select>
             <Button onClick={handleCreateSpecial} disabled={creatingSpecial || !newName || !newEntryId} className="w-full">
               {creatingSpecial ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Criar Achievement'}
             </Button>
