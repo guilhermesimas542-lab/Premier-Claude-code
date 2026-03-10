@@ -64,6 +64,8 @@ Deno.serve(async (req) => {
     const signature = req.headers.get("x-lastlink-signature");
     let isAuthorized = false;
 
+    console.log("[WEBHOOK] 3. Iniciando validação de segurança. tokenFromQuery:", tokenFromQuery, "| signature presente:", !!signature);
+
     // 1. Prioridade Máxima: Validação HMAC da Lastlink
     if (signature && lastlinkSecret) {
       try {
