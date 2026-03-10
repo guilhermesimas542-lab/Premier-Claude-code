@@ -100,6 +100,7 @@ export default function AdminDashboard() {
   const [onlineCount, setOnlineCount] = useState(0);
   const [churnIds, setChurnIds] = useState<string[]>([]);
   const [paidIds, setPaidIds] = useState<string[]>([]);
+  const [sessionsData, setSessionsData] = useState<{ user_id: string; session_start_at: string }[]>([]);
 
   const applyShortcut = (key: string) => {
     setActiveShortcut(key);
