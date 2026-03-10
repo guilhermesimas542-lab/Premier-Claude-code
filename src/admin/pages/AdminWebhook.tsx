@@ -1014,7 +1014,20 @@ function RawLogsTab() {
                   {expandedId === log.id && (
                     <TableRow key={`${log.id}-detail`}>
                       <TableCell colSpan={6} className="bg-gray-900 p-4">
-                        <p className="text-[10px] text-gray-500 mb-1">Payload completo:</p>
+                        <div className="flex items-center gap-2 mb-1">
+                          <p className="text-[10px] text-gray-500">Payload completo:</p>
+                          <button
+                            onClick={() => {
+                              navigator.clipboard.writeText(JSON.stringify(log.payload, null, 2));
+                              const btn = document.getElementById(`copy-btn-${log.id}`);
+                              if (btn) { btn.textContent = '✓ Copiado'; setTimeout(() => { btn.textContent = '📋 Copiar'; }, 2000); }
+                            }}
+                            id={`copy-btn-${log.id}`}
+                            className="text-[10px] px-2 py-0.5 rounded bg-gray-700 hover:bg-gray-600 text-gray-300 transition-colors"
+                          >
+                            📋 Copiar
+                          </button>
+                        </div>
                         <pre className="text-xs text-gray-300 bg-black/30 p-3 rounded overflow-x-auto max-h-80">
                           {JSON.stringify(log.payload, null, 2)}
                         </pre>
