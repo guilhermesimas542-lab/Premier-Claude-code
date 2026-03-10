@@ -85,6 +85,14 @@ function WebhookLogsTab() {
   const [logs, setLogs] = useState<WebhookLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "ok" | "error">("all");
+  const [eventFilter, setEventFilter] = useState<"approved" | "all">("approved");
+
+  const APPROVED_EVENTS = [
+    "Purchase_Order_Confirmed",
+    "Subscription_Product_Access",
+    "Product_Access_Started",
+    "Pagamento_de_Renovacao_Efetuado",
+  ];
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [simModalOpen, setSimModalOpen] = useState(false);
   const [reprocessingId, setReprocessingId] = useState<string | null>(null);
@@ -99,11 +107,12 @@ function WebhookLogsTab() {
 
     if (filter === "ok") query = query.eq("processed_ok", true);
     if (filter === "error") query = query.eq("processed_ok", false);
+    if (eventFilter === "approved") query = query.in("event_name", APPROVED_EVENTS);
 
     const { data } = await query;
     setLogs((data as unknown as WebhookLog[]) ?? []);
     setLoading(false);
-  }, [filter]);
+  }, [filter, eventFilter]);
 
   useEffect(() => { fetchLogs(); }, [fetchLogs]);
 
@@ -161,8 +170,23 @@ function WebhookLogsTab() {
         />
       </div>
 
-      {/* Actions */}
+      {/* Event filter */}
       <div className="flex flex-wrap gap-2">
+        <Button
+          variant={eventFilter === "approved" ? "default" : "outline"}
+          size="sm"
+          onClick={() => setEventFilter("approved")}
+        >
+          🛒 Compras Aprovadas
+        </Button>
+        <Button
+          variant={eventFilter === "all" ? "default" : "outline"}
+          size="sm"
+          onClick={() => setEventFilter("all")}
+        >
+          Todos os Eventos
+        </Button>
+        <span className="w-px bg-white/10 mx-1" />
         {(["all", "ok", "error"] as const).map((f) => (
           <Button
             key={f}
