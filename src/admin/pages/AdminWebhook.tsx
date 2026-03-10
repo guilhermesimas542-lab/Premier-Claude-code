@@ -204,7 +204,7 @@ function StatusCard({ icon, label, value, sub }: { icon: React.ReactNode; label:
   );
 }
 
-function LogRow({ log, expanded, onToggle }: { log: WebhookLog; expanded: boolean; onToggle: () => void }) {
+function LogRow({ log, expanded, onToggle, onReprocess }: { log: WebhookLog; expanded: boolean; onToggle: () => void; onReprocess: (payload: Record<string, unknown>) => void }) {
   return (
     <>
       <TableRow className="cursor-pointer hover:bg-white/5" onClick={onToggle}>
@@ -227,10 +227,23 @@ function LogRow({ log, expanded, onToggle }: { log: WebhookLog; expanded: boolea
           )}
         </TableCell>
         <TableCell>{log.is_test ? <Badge variant="secondary" className="text-[10px]">Teste</Badge> : "—"}</TableCell>
+        <TableCell onClick={(e) => e.stopPropagation()}>
+          {!log.processed_ok && log.raw_payload && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 text-xs text-yellow-400 hover:text-yellow-300"
+              onClick={() => onReprocess(log.raw_payload!)}
+            >
+              <RefreshCw className="w-3.5 h-3.5 mr-1" />
+              Re-processar
+            </Button>
+          )}
+        </TableCell>
       </TableRow>
       {expanded && (
         <TableRow>
-          <TableCell colSpan={7} className="bg-gray-900 p-4">
+          <TableCell colSpan={8} className="bg-gray-900 p-4">
             {log.error_message && (
               <p className="text-red-400 text-xs mb-2">
                 <strong>Erro:</strong> {log.error_message}
