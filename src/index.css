@@ -115,10 +115,10 @@
   left: 0;
   width: 100%;
   height: 2px;
-  background: linear-gradient(90deg, transparent 0%, #00FF85 50%, transparent 100%);
+  background: linear-gradient(90deg, transparent 0%, #00FF7F 50%, transparent 100%);
   animation: lightning-strike 4s ease-in-out infinite;
   filter: blur(1px);
-  box-shadow: 0 0 10px #00FF85;
+  box-shadow: 0 0 10px #00FF7F;
 }
 
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 

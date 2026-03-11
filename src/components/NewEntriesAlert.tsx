@@ -61,7 +61,7 @@ export const NewEntriesAlert = ({ betSiteUrl }: NewEntriesAlertProps) => {
       </div>
 
       {/* Pulsing glow effect */}
-      <div className="absolute -inset-1 bg-gradient-to-r from-[#00FF85]/20 via-[#005CFF]/20 to-[#00FF85]/20 blur-2xl -z-10 animate-pulse" />
+      <div className="absolute -inset-1 bg-gradient-to-r from-[#00FF7F]/20 via-[#005CFF]/20 to-[#00FF7F]/20 blur-2xl -z-10 animate-pulse" />
     </div>
   );
 };
