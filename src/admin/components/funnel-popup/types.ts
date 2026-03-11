@@ -90,7 +90,7 @@ export const emptyForm: PopupFormState = {
 
 export function formToPayload(form: PopupFormState, selectedHouseId: string | null): Record<string, unknown> {
   const q = form.questions;
-  const triggerType = (form.type === "welcome_free" || form.type === "welcome_paid") ? "on_load" : "manual";
+  const triggerType = (form.type === "welcome_free" || form.type === "welcome_paid" || form.type === "casino_welcome") ? "on_load" : "manual";
   return {
     type: form.type,
     is_active: form.is_active,
