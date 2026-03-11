@@ -13,7 +13,7 @@ import FunnelBuilder from "@/admin/components/funnel-popup/FunnelBuilder";
 import type { PopupFormState, FunnelQuestion } from "@/admin/components/funnel-popup/types";
 import { LogoInput } from "@/admin/components/LogoInput";
 import { CardType1Lateral } from "@/components/cards/CardType1Lateral";
-import { CardType2Top } from "@/components/cards/CardType2Top";
+import CardType2Top from "@/components/cards/CardType2Top";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import type { CardData, CardImageUrls } from "@/hooks/useCards";

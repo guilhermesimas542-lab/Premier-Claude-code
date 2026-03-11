@@ -13,7 +13,7 @@ import { useUserBettingHouse } from "@/hooks/useUserBettingHouse";
 import { useCards, CardData } from "@/hooks/useCards";
 import { useUserAccess } from "@/hooks/useUserAccess";
 import { CardType1Lateral } from "@/components/cards/CardType1Lateral";
-import { CardType2Top } from "@/components/cards/CardType2Top";
+import CardType2Top from "@/components/cards/CardType2Top";
 import { CardFunnelModal } from "@/components/cards/CardFunnelModal";
 import { supabase } from "@/integrations/supabase/client";
 import type { PayCardData } from "@/hooks/usePayCards";
