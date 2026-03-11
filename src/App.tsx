@@ -71,6 +71,7 @@ const App = () => {
       <Toaster />
       <Sonner />
       <GamificationProvider>
+      <LinksProvider>
       <FunnelPopupProvider>
         <BrowserRouter>
           <AnalyticsRouteTracker />
