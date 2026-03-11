@@ -1,0 +1,1 @@
+ALTER TABLE public.betting_houses ADD COLUMN support_whatsapp_url text, ADD COLUMN acquire_access_url text;

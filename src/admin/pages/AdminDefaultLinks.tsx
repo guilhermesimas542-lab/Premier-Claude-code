@@ -26,9 +26,11 @@ const FIELDS = [
   { key: "roleta_url", label: "🎰 Roleta", placeholder: "https://esportivabet.com/cassino/roleta", section: "casino" },
   { key: "mines_url", label: "💎 Mines", placeholder: "https://esportivabet.com/cassino/mines", section: "casino" },
   { key: "football_studio_url", label: "⚽ Football Studio", placeholder: "https://esportivabet.com/cassino/football", section: "casino" },
+  { key: "support_whatsapp_url", label: "📞 URL Suporte WhatsApp", placeholder: "https://wa.me/5511999999999", section: "buttons" },
+  { key: "acquire_access_url", label: "🛒 URL Adquirir Acesso", placeholder: "https://checkout.premierfc.app/...", section: "buttons" },
 ] as const;
 
-type FormKey = "iframe_url" | "telegram_group_url" | "aviator_url" | "roleta_url" | "mines_url" | "football_studio_url";
+type FormKey = "iframe_url" | "telegram_group_url" | "aviator_url" | "roleta_url" | "mines_url" | "football_studio_url" | "support_whatsapp_url" | "acquire_access_url";
 
 type Form = Record<FormKey, string>;
 
@@ -39,6 +41,8 @@ const EMPTY_FORM: Form = {
   roleta_url: "",
   mines_url: "",
   football_studio_url: "",
+  support_whatsapp_url: "",
+  acquire_access_url: "",
 };
 
 export default function AdminDefaultLinks() {
@@ -56,7 +60,7 @@ export default function AdminDefaultLinks() {
       setLoading(true);
       const { data, error } = await supabase
         .from("betting_houses")
-        .select("iframe_url, telegram_group_url, aviator_url, roleta_url, mines_url, football_studio_url, created_at")
+        .select("iframe_url, telegram_group_url, aviator_url, roleta_url, mines_url, football_studio_url, support_whatsapp_url, acquire_access_url, created_at")
         .eq("id", selectedHouse.id)
         .maybeSingle();
 
@@ -68,6 +72,8 @@ export default function AdminDefaultLinks() {
           roleta_url: (data as any).roleta_url ?? "",
           mines_url: (data as any).mines_url ?? "",
           football_studio_url: (data as any).football_studio_url ?? "",
+          support_whatsapp_url: (data as any).support_whatsapp_url ?? "",
+          acquire_access_url: (data as any).acquire_access_url ?? "",
         });
         // Don't set lastUpdated from created_at — it's not the last save time
       }
@@ -108,6 +114,8 @@ export default function AdminDefaultLinks() {
         roleta_url: form.roleta_url || null,
         mines_url: form.mines_url || null,
         football_studio_url: form.football_studio_url || null,
+        support_whatsapp_url: form.support_whatsapp_url || null,
+        acquire_access_url: form.acquire_access_url || null,
       } as any)
       .eq("id", selectedHouse.id);
 
@@ -141,6 +149,7 @@ export default function AdminDefaultLinks() {
 
   const sportsFields = FIELDS.filter((f) => f.section === "sports");
   const casinoFields = FIELDS.filter((f) => f.section === "casino");
+  const buttonFields = FIELDS.filter((f) => f.section === "buttons");
 
   const renderField = (field: (typeof FIELDS)[number]) => {
     const url = form[field.key];
@@ -194,6 +203,14 @@ export default function AdminDefaultLinks() {
               🎰 Links de Cassino
             </p>
             {casinoFields.map(renderField)}
+          </div>
+
+          {/* Buttons section */}
+          <div className="bg-gray-900 border border-white/10 rounded-xl p-6 space-y-4">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              🔗 Links de Botões
+            </p>
+            {buttonFields.map(renderField)}
           </div>
 
           {/* Save button */}

@@ -8,6 +8,7 @@ import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { CHECKOUT_LINKS } from "@/lib/checkoutLinks";
 import { Crown, Loader2, ShoppingCart } from "lucide-react";
 import { usePayCardTrigger } from "@/hooks/usePayCardTrigger";
+import { useLinks } from "@/contexts/LinksContext";
 import { PayCardFunnelModal } from "@/components/PayCardFunnelModal";
 import logo from "@/assets/premier-logo-new.png";
 import {
@@ -32,6 +33,7 @@ const Login = () => {
   const navigate = useNavigate();
   const { subscribe } = usePushNotifications();
   const { triggerPayCard, payCard, open: payCardOpen, closePayCard } = usePayCardTrigger();
+  const { links } = useLinks();
 
   const validateEmail = (value: string) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
@@ -102,7 +104,8 @@ const Login = () => {
   const handleAcquireAccess = async () => {
     const found = await triggerPayCard('basic');
     if (!found) {
-      window.open(CHECKOUT_LINKS.paywall_default, "_blank");
+      const url = links.acquire_access_url || CHECKOUT_LINKS.paywall_default;
+      window.open(url, "_blank");
     }
     setShowAcquireModal(false);
   };
@@ -259,7 +262,7 @@ const Login = () => {
             </button>
             <span className="text-[#4A5568]/40">|</span>
             <a
-              href="https://wa.link/1p68qg"
+              href={links.support_whatsapp_url || "https://wa.link/1p68qg"}
               target="_blank"
               rel="noopener noreferrer"
               className="text-[#4A5568] hover:text-primary transition-colors"

@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { isAuthenticated } from "@/lib/auth";
-import { SUPPORT_WHATSAPP_URL } from "@/lib/userMock";
+import { SUPPORT_WHATSAPP_URL_FALLBACK } from "@/lib/userMock";
+import { useLinks } from "@/contexts/LinksContext";
 import { mockGetUser, mockLogout } from "@/mocks/user";
 import { supabase } from "@/integrations/supabase/client";
 import { useGamification, getXpProgress } from "@/contexts/GamificationContext";
@@ -133,8 +134,10 @@ const Support = () => {
   const levelTitle = LEVEL_TITLES[level] || 'Novato';
   const referralLink = userId ? `${window.location.origin}/login?ref=${userId}` : '';
 
+  const { links } = useLinks();
+
   const handleOpenSupport = () => {
-    window.open(SUPPORT_WHATSAPP_URL, "_blank");
+    window.open(links.support_whatsapp_url || SUPPORT_WHATSAPP_URL_FALLBACK, "_blank");
   };
 
   const copyReferralLink = () => {

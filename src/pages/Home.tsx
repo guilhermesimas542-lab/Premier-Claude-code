@@ -23,6 +23,7 @@ import { CardType2Top } from "@/components/cards/CardType2Top";
 import { CardFunnelModal } from "@/components/cards/CardFunnelModal";
 import { usePayCardTrigger } from "@/hooks/usePayCardTrigger";
 import { PayCardFunnelModal } from "@/components/PayCardFunnelModal";
+import { useLinks } from "@/contexts/LinksContext";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -44,6 +45,7 @@ const Home = () => {
   const { cards: quickCards } = useCards("quick_access");
   const access = useUserAccess();
   const { triggerPayCard, payCard: pcData, open: pcOpen, closePayCard } = usePayCardTrigger();
+  const { links } = useLinks();
 
   // Derive lifetime & telegram from entitlements table (single source of truth)
   const [isLifetime, setIsLifetime] = useState(false);
@@ -317,7 +319,7 @@ const Home = () => {
                 Termos & Privacidade
               </button>
               <span style={{ color: "#555555" }}>|</span>
-              <a href="https://wa.link/1p68qg" target="_blank" rel="noopener noreferrer" className="transition-colors hover:underline" style={{ color: "#CCCCCC" }}>
+              <a href={links.support_whatsapp_url || "https://wa.link/1p68qg"} target="_blank" rel="noopener noreferrer" className="transition-colors hover:underline" style={{ color: "#CCCCCC" }}>
                 Suporte
               </a>
             </div>

@@ -162,6 +162,7 @@ export type Database = {
       }
       betting_houses: {
         Row: {
+          acquire_access_url: string | null
           aviator_url: string | null
           created_at: string
           football_studio_url: string | null
@@ -190,9 +191,11 @@ export type Database = {
           popup_welcome_link: string | null
           roleta_url: string | null
           slug: string
+          support_whatsapp_url: string | null
           telegram_group_url: string | null
         }
         Insert: {
+          acquire_access_url?: string | null
           aviator_url?: string | null
           created_at?: string
           football_studio_url?: string | null
@@ -221,9 +224,11 @@ export type Database = {
           popup_welcome_link?: string | null
           roleta_url?: string | null
           slug: string
+          support_whatsapp_url?: string | null
           telegram_group_url?: string | null
         }
         Update: {
+          acquire_access_url?: string | null
           aviator_url?: string | null
           created_at?: string
           football_studio_url?: string | null
@@ -252,6 +257,7 @@ export type Database = {
           popup_welcome_link?: string | null
           roleta_url?: string | null
           slug?: string
+          support_whatsapp_url?: string | null
           telegram_group_url?: string | null
         }
         Relationships: []

@@ -49,6 +49,7 @@ import { Navigate } from "react-router-dom";
 import { FunnelPopupProvider } from "./context/FunnelPopupContext";
 
 import { GamificationProvider } from "./contexts/GamificationContext";
+import { LinksProvider } from "./contexts/LinksContext";
 
 const queryClient = new QueryClient();
 
@@ -70,6 +71,7 @@ const App = () => {
       <Toaster />
       <Sonner />
       <GamificationProvider>
+      <LinksProvider>
       <FunnelPopupProvider>
         <BrowserRouter>
           <AnalyticsRouteTracker />
@@ -121,6 +123,7 @@ const App = () => {
           </Routes>
         </BrowserRouter>
       </FunnelPopupProvider>
+      </LinksProvider>
       </GamificationProvider>
     </TooltipProvider>
   </QueryClientProvider>
