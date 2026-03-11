@@ -240,8 +240,8 @@ const Login = () => {
                       {/* Card */}
                       <div
                         style={{
-                          backgroundColor: '#0D1929',
-                          border: '1.5px solid rgba(255,255,255,0.12)',
+                          backgroundColor: '#112236',
+                          border: '1.5px solid rgba(255,255,255,0.22)',
                           borderRadius: '12px',
                           overflow: 'hidden',
                         }}
