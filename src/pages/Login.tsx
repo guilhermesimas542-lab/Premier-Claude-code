@@ -104,14 +104,12 @@ const Login = () => {
   const { links } = useLinks();
   const greens = useLastGreens();
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [fadeKey, setFadeKey] = useState(0);
 
   useEffect(() => {
     if (greens.length <= 1) return;
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % greens.length);
-      setFadeKey((prev) => prev + 1);
-    }, 5000);
+    }, 3000);
     return () => clearInterval(interval);
   }, [greens.length]);
 
