@@ -40,6 +40,7 @@ export interface PopupRow {
 export const POPUP_TYPES = [
   { value: "welcome_free", label: "🎉 Boas-Vindas (Free)", desc: "Primeira visita de usuário Free" },
   { value: "welcome_paid", label: "🎉 Boas-Vindas (Pago)", desc: "Primeira visita de usuário pagante" },
+  { value: "casino_welcome", label: "🎰 Boas-Vindas (Cassino)", desc: "Primeira visita à aba de Cassino" },
   { value: "upgrade_basic", label: "🔓 Upgrade Básico", desc: "Para usuários Free" },
   { value: "upgrade_pro", label: "⭐ Upgrade Pro", desc: "Para Free e Básico" },
   { value: "upgrade_ultra", label: "👑 Upgrade Ultra", desc: "Para todos abaixo de Ultra" },
