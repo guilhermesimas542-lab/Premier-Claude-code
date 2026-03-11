@@ -282,6 +282,8 @@ const Login = () => {
                               flexDirection: 'column',
                               alignItems: 'center',
                               textAlign: 'center',
+                              overflow: 'hidden',
+                              maxWidth: '140px',
                             }}
                           >
                             <span
@@ -303,7 +305,7 @@ const Login = () => {
                                 fontSize: '12px',
                                 color: '#94A3B8',
                                 marginTop: '2px',
-                                whiteSpace: 'nowrap',
+                                textAlign: 'center',
                               }}
                             >
                               {`R$ 100 → R$ ${(100 * Number(green.odd)).toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
