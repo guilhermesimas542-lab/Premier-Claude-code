@@ -229,36 +229,58 @@ const Login = () => {
 
         {/* Last Greens Carousel */}
         {greens.length > 0 && (
-          <div
-            key={fadeKey}
-            className="w-full rounded-xl p-3.5 mb-8 animate-fade-in"
-            style={{
-              backgroundColor: "hsl(var(--card))",
-              border: "1px solid rgba(0, 232, 122, 0.15)",
-            }}
-          >
-            <div className="flex items-start justify-between">
-              {/* Left */}
-              <div className="flex flex-col gap-1 min-w-0 flex-1">
-                <span className="inline-flex w-fit px-2 py-0.5 rounded text-[10px] font-display font-bold uppercase tracking-wider text-background bg-primary">
-                  ÚLTIMO GREEN
-                </span>
-                <span className="font-display font-bold text-sm text-foreground truncate">
-                  {greens[currentIndex].title}
-                </span>
-                <span className="font-sans text-xs text-muted-foreground truncate">
-                  {greens[currentIndex].condition_to_win}
-                </span>
+          <div className="w-full mb-8">
+            {(() => {
+              const green = greens[currentIndex];
+              const color = getCategoryColor(green.category);
+              return (
+                <div
+                  key={currentIndex}
+                  className="rounded-xl overflow-hidden border animate-fade-in"
+                  style={{ borderColor: 'rgba(255,255,255,0.07)', backgroundColor: '#0D1929' }}
+                >
+                  <div className="flex items-center justify-between px-4 pt-4 pb-3">
+                    <div className="flex flex-col gap-1.5">
+                      <span
+                        className="inline-block px-2.5 py-0.5 rounded text-[11px] font-display font-bold tracking-wide"
+                        style={{ backgroundColor: color.bg, border: `1px solid ${color.border}`, color: color.text, letterSpacing: '0.05em' }}
+                      >
+                        {color.label}
+                      </span>
+                      <span className="text-white/40 font-sans text-[11px]">
+                        {formatGreenDate(green.created_at)}
+                      </span>
+                    </div>
+                    <span className="font-display font-black text-[32px] text-primary leading-none">
+                      {Number(green.odd).toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="px-4 pb-3">
+                    <p className="text-white font-display font-bold text-lg leading-tight">{green.title}</p>
+                    <p className="text-white/50 font-sans text-[13px] mt-0.5">{green.condition_to_win}</p>
+                  </div>
+                  <div className="flex items-center justify-center py-2.5" style={{ backgroundColor: 'rgba(0,232,122,0.08)', borderTop: '1px solid rgba(0,232,122,0.15)' }}>
+                    <span className="font-display font-bold text-[13px] text-primary tracking-wide">✓ ENTRADA BATEU</span>
+                  </div>
+                </div>
+              );
+            })()}
+            {greens.length > 1 && (
+              <div className="flex justify-center gap-1.5 mt-3">
+                {greens.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentIndex(index)}
+                    className="rounded-full transition-all duration-300"
+                    style={{
+                      width: index === currentIndex ? '20px' : '6px',
+                      height: '6px',
+                      backgroundColor: index === currentIndex ? '#00E87A' : 'rgba(255,255,255,0.2)',
+                    }}
+                  />
+                ))}
               </div>
-              {/* Right */}
-              <div className="flex flex-col items-end ml-3 shrink-0">
-                <span className="font-sans text-[10px] uppercase text-muted-foreground">ODD</span>
-                <span className="font-display font-black text-2xl text-primary">
-                  {greens[currentIndex].odd.toFixed(2)}
-                </span>
-                <span className="font-sans text-[11px] text-primary">✓ Confirmado</span>
-              </div>
-            </div>
+            )}
           </div>
         )}
 
