@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { getTierStyle, type TierColorStyle } from "@/lib/tierColors";
 
 import { ShirtIcon } from "@/components/ShirtIcon";
 
@@ -53,49 +54,6 @@ const formatDateHeader = (dateStr: string): string => {
   return `${day}/${month}/${year}`;
 };
 
-interface TierStyle {
-  label: string;
-  color: string;
-  bg: string;
-  border: string;
-  glow: string;
-}
-
-const getTierStyle = (tier: string, addon: string | null): TierStyle => {
-  if (addon === "alavancagem") return {
-    label: "ALAVANCAGEM", color: "#F97316",
-    bg: "linear-gradient(135deg, rgba(249,115,22,0.12), rgba(234,88,12,0.06))",
-    border: "rgba(249,115,22,0.4)", glow: "0 0 15px rgba(249,115,22,0.15)",
-  };
-  if (addon === "desaltas") return {
-    label: "ODDS ALTAS", color: "#DC143C",
-    bg: "linear-gradient(135deg, rgba(220,20,60,0.12), rgba(178,16,48,0.06))",
-    border: "rgba(220,20,60,0.4)", glow: "0 0 15px rgba(220,20,60,0.15)",
-  };
-  const map: Record<string, TierStyle> = {
-    free: {
-      label: "FREE", color: "#808080",
-      bg: "linear-gradient(135deg, rgba(128,128,128,0.08), rgba(100,100,100,0.04))",
-      border: "rgba(128,128,128,0.3)", glow: "none",
-    },
-    basic: {
-      label: "BASIC", color: "#22C55E",
-      bg: "linear-gradient(135deg, rgba(34,197,94,0.12), rgba(21,128,61,0.06))",
-      border: "rgba(34,197,94,0.4)", glow: "0 0 15px rgba(34,197,94,0.15)",
-    },
-    pro: {
-      label: "PRO", color: "#FFD700",
-      bg: "linear-gradient(135deg, rgba(255,215,0,0.12), rgba(204,172,0,0.06))",
-      border: "rgba(255,215,0,0.4)", glow: "0 0 15px rgba(255,215,0,0.15)",
-    },
-    ultra: {
-      label: "ULTRA", color: "#A855F7",
-      bg: "linear-gradient(135deg, rgba(168,85,247,0.12), rgba(126,34,206,0.06))",
-      border: "rgba(168,85,247,0.4)", glow: "0 0 15px rgba(168,85,247,0.15)",
-    },
-  };
-  return map[tier] || map.free;
-};
 
 const PER_PAGE = 50;
 

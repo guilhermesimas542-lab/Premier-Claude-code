@@ -10,6 +10,7 @@ import { Crown, Loader2, ShoppingCart } from "lucide-react";
 import { usePayCardTrigger } from "@/hooks/usePayCardTrigger";
 import { useLinks } from "@/contexts/LinksContext";
 import { PayCardFunnelModal } from "@/components/PayCardFunnelModal";
+import { getTierBadgeStyle } from "@/lib/tierColors";
 import logo from "@/assets/premier-logo-new.png";
 import {
   Dialog,
@@ -25,18 +26,6 @@ interface LastGreen {
   tier_required: string;
   addon_required: string | null;
   created_at: string;
-}
-
-function getGreenStyle(tier: string, addon: string | null): { bg: string; border: string; text: string; label: string } {
-  if (addon === 'alavancagem') return { bg: 'rgba(249,115,22,0.25)', border: 'rgba(249,115,22,0.6)', text: '#F97316', label: 'ALAVANCAGEM' };
-  if (addon === 'desaltas') return { bg: 'rgba(220,20,60,0.25)', border: 'rgba(220,20,60,0.6)', text: '#DC143C', label: 'ODDS ALTAS' };
-  const map: Record<string, { bg: string; border: string; text: string; label: string }> = {
-    free:  { bg: 'rgba(128,128,128,0.25)', border: 'rgba(128,128,128,0.6)', text: '#808080', label: 'FREE' },
-    basic: { bg: 'rgba(34,197,94,0.25)',   border: 'rgba(34,197,94,0.6)',   text: '#22C55E', label: 'BASIC' },
-    pro:   { bg: 'rgba(255,215,0,0.25)',   border: 'rgba(255,215,0,0.6)',   text: '#FFD700', label: 'PRO' },
-    ultra: { bg: 'rgba(168,85,247,0.25)',  border: 'rgba(168,85,247,0.6)',  text: '#A855F7', label: 'ULTRA' },
-  };
-  return map[(tier || '').toLowerCase()] || map.free;
 }
 
 function formatGreenDate(dateStr: string): string {
@@ -241,7 +230,7 @@ const Login = () => {
                 }}
               >
                 {greens.map((green, index) => {
-                  const color = getGreenStyle(green.tier_required, green.addon_required);
+                  const color = getTierBadgeStyle(green.tier_required, green.addon_required);
                   return (
                     <div
                       key={index}

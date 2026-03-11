@@ -27,10 +27,10 @@ export function EntryCard({
   };
 
   const tierColors: Record<string, string> = {
-    free: 'bg-gray-500/20 text-gray-300 border-gray-500/30',
-    basic: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
-    pro: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30',
-    ultra: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
+    free: 'bg-[#94A3B8]/20 text-[#94A3B8] border-[#94A3B8]/30',
+    basic: 'bg-[#60A5FA]/20 text-[#60A5FA] border-[#60A5FA]/30',
+    pro: 'bg-[#00E87A]/20 text-[#00E87A] border-[#00E87A]/30',
+    ultra: 'bg-[#7C3AED]/20 text-[#7C3AED] border-[#7C3AED]/30',
   };
 
   const tierBadgeClass = tierColors[tier_required] || tierColors.free;
