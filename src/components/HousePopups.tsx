@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import { useLocation } from "react-router-dom";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
