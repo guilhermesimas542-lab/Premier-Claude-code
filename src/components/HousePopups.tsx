@@ -112,6 +112,7 @@ function isEligibleForType(
  * sorts by priority, and shows the first unseen one per session.
  */
 export function WelcomePopup({ house }: { house: HousePopupData | null }) {
+  const location = useLocation();
   const [open, setOpen] = useState(false);
   const [popupData, setPopupData] = useState<FunnelPopupData | null>(null);
   const [currentPopupId, setCurrentPopupId] = useState<string | null>(null);
