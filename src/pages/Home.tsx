@@ -45,6 +45,7 @@ const Home = () => {
   const { cards: quickCards } = useCards("quick_access");
   const access = useUserAccess();
   const { triggerPayCard, payCard: pcData, open: pcOpen, closePayCard } = usePayCardTrigger();
+  const { links } = useLinks();
 
   // Derive lifetime & telegram from entitlements table (single source of truth)
   const [isLifetime, setIsLifetime] = useState(false);
