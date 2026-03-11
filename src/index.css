@@ -9,6 +9,11 @@
   50% { transform: scale(1.04); }
 }
 
+@keyframes telegramPulse {
+  0%, 100% { box-shadow: 0 0 4px rgba(0,255,127,0.2); }
+  50% { box-shadow: 0 0 12px rgba(0,255,127,0.45); }
+}
+
 @keyframes border-pulse {
   0%, 100% {
     box-shadow: 
