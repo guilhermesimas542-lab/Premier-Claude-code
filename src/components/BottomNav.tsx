@@ -1,6 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { CircleDot, Dices, User } from "lucide-react";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 const NAV_ITEMS = [
   {
