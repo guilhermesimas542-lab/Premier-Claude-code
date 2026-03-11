@@ -10,7 +10,7 @@ import { AnalyticsRouteTracker } from "@/components/AnalyticsRouteTracker";
 import Home from "./pages/Home";
 import Sport from "./pages/Sport";
 import Login from "./pages/Login";
-import Bonus from "./pages/Bonus";
+
 import Casino from "./pages/Casino";
 import CasinoGame from "./pages/CasinoGame";
 
