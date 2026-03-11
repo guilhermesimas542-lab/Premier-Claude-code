@@ -208,7 +208,7 @@ const Login = () => {
       {/* Content */}
       <main className="relative flex flex-col items-center justify-center min-h-screen px-6 py-12 w-full max-w-md mx-auto" style={{ zIndex: 2 }}>
         {/* Logo — hero element */}
-        <div className="mb-10 pointer-events-none">
+        <div className="mb-4 pointer-events-none">
           <img
             src={logo}
             alt="Premier Ultra"
