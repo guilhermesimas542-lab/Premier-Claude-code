@@ -44,7 +44,7 @@ export const NewEntriesAlert = ({ betSiteUrl }: NewEntriesAlertProps) => {
             <h3 className="text-xl md:text-2xl font-black text-white tracking-tight mb-1">
               🎁 WELCOME10
             </h3>
-            <p className="text-sm text-[#00FF85] font-semibold">
+            <p className="text-sm text-[#00FF7F] font-semibold">
               Cupom disponível que dobra seu depósito (200%), pegue antes que a casa tire do ar
             </p>
           </div>
