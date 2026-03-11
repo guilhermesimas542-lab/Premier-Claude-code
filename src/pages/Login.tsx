@@ -18,10 +18,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-const FEATURES = [
-  { title: "Entradas prontas", desc: "Análises diárias com alto índice de acerto" },
-  { title: "IA avançada", desc: "Modelos treinados com dados reais de jogos" },
-  { title: "Resultados reais", desc: "Acompanhe greens e reds com transparência" },
+const STATS = [
+  { value: "80%", label: "ACERTO" },
+  { value: "+12", label: "TIPS/DIA" },
+  { value: "+50K", label: "USUÁRIOS" },
 ];
 
 const Login = () => {
@@ -150,25 +150,19 @@ const Login = () => {
         </div>
 
         {/* Title */}
-        <h1 className="font-display font-black text-3xl uppercase tracking-tight text-center mb-1">
-          PREMIER <span className="text-primary">ULTRA</span>
+        <h1 className="font-display font-black text-4xl uppercase tracking-tight text-center mb-1">
+          <span className="text-brand-purple-ultra">ULTRA</span>
         </h1>
         <p className="text-center text-sm font-sans text-muted-foreground mb-8">
           IA que analisa. Você que lucra.
         </p>
 
-        {/* Feature cards */}
-        <div className="w-full space-y-2.5 mb-8">
-          {FEATURES.map((f) => (
-            <div
-              key={f.title}
-              className="flex items-start gap-3 px-4 py-3 rounded-[10px] bg-card border border-white/[0.07]"
-            >
-              <span className="mt-1.5 w-2 h-2 rounded-full bg-primary shrink-0" />
-              <p className="text-[13px] font-sans text-foreground">
-                <span className="font-bold">{f.title}</span>{" "}
-                <span className="text-muted-foreground">— {f.desc}</span>
-              </p>
+        {/* Stats */}
+        <div className="w-full flex justify-around mb-8">
+          {STATS.map((s) => (
+            <div key={s.label} className="flex flex-col items-center">
+              <span className="font-display font-black text-2xl text-brand-green">{s.value}</span>
+              <span className="font-sans text-[11px] uppercase text-slate-400 tracking-wide">{s.label}</span>
             </div>
           ))}
         </div>
@@ -225,7 +219,7 @@ const Login = () => {
         {/* Secondary CTA */}
         <button
           onClick={() => setShowAcquireModal(true)}
-          className="w-full h-12 rounded-[10px] font-display font-bold text-sm uppercase flex items-center justify-center gap-2 transition-colors duration-200 active:scale-[0.98] text-muted-foreground border border-white/[0.07] bg-transparent hover:border-white/20"
+          className="w-full h-12 rounded-[10px] font-display font-bold text-sm uppercase flex items-center justify-center gap-2 transition-colors duration-200 active:scale-[0.98] text-white border-2 border-white/15 bg-transparent hover:border-white/30"
         >
           <ShoppingCart className="w-4 h-4" />
           Adquirir acesso
