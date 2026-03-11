@@ -8,7 +8,7 @@ import { AppConfig } from "@/types/auth";
 import { BottomNav } from "@/components/BottomNav";
 import { PromoCarousel } from "@/components/PromoCarousel";
 import logoImg from "@/assets/premier-logo-custom.png";
-import MatrixRain from "@/components/MatrixRain";
+
 import { useUserBettingHouse } from "@/hooks/useUserBettingHouse";
 import { useCards, CardData } from "@/hooks/useCards";
 import { useUserAccess } from "@/hooks/useUserAccess";
