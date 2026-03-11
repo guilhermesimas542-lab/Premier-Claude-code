@@ -256,8 +256,10 @@ const Login = () => {
                     >
                       {/* Card */}
                       <div
-                        className="border"
-                        style={{ borderColor: 'rgba(255,255,255,0.07)', backgroundColor: '#0D1929' }}
+                        style={{
+                          backgroundColor: '#0D1929',
+                          border: '1.5px solid rgba(255,255,255,0.12)',
+                        }}
                       >
                         {/* Top: badge | odd */}
                         <div className="flex items-center justify-between px-4 pt-4 pb-3">
@@ -285,7 +287,7 @@ const Login = () => {
                             style={{
                               fontFamily: 'Barlow Condensed, sans-serif',
                               fontWeight: 900,
-                              fontSize: '32px',
+                              fontSize: '36px',
                               color: '#00E87A',
                               lineHeight: 1,
                             }}
