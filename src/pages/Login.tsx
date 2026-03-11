@@ -22,23 +22,26 @@ interface LastGreen {
   title: string;
   condition_to_win: string;
   odd: number;
-  category: string;
+  tier_required: string;
   created_at: string;
 }
 
-const CATEGORY_COLORS: Record<string, { bg: string; border: string; text: string; label: string }> = {
+const TIER_COLORS: Record<string, { bg: string; border: string; text: string; label: string }> = {
+  'free':        { bg: 'rgba(96,165,250,0.15)',  border: 'rgba(96,165,250,0.3)',  text: '#60A5FA', label: 'BÁSICO' },
+  'basic':       { bg: 'rgba(96,165,250,0.15)',  border: 'rgba(96,165,250,0.3)',  text: '#60A5FA', label: 'BÁSICO' },
   'basico':      { bg: 'rgba(96,165,250,0.15)',  border: 'rgba(96,165,250,0.3)',  text: '#60A5FA', label: 'BÁSICO' },
-  'básico':      { bg: 'rgba(96,165,250,0.15)',  border: 'rgba(96,165,250,0.3)',  text: '#60A5FA', label: 'BÁSICO' },
   'pro':         { bg: 'rgba(0,232,122,0.15)',   border: 'rgba(0,232,122,0.3)',   text: '#00E87A', label: 'PRO' },
   'ultra':       { bg: 'rgba(124,58,237,0.15)',  border: 'rgba(124,58,237,0.3)',  text: '#7C3AED', label: 'ULTRA' },
   'alavancagem': { bg: 'rgba(240,180,41,0.15)',  border: 'rgba(240,180,41,0.3)',  text: '#F0B429', label: 'ALAVANCAGEM' },
   'odds_altas':  { bg: 'rgba(249,115,22,0.15)',  border: 'rgba(249,115,22,0.3)',  text: '#F97316', label: 'ODDS ALTAS' },
   'odds altas':  { bg: 'rgba(249,115,22,0.15)',  border: 'rgba(249,115,22,0.3)',  text: '#F97316', label: 'ODDS ALTAS' },
+  'oddsaltas':   { bg: 'rgba(249,115,22,0.15)',  border: 'rgba(249,115,22,0.3)',  text: '#F97316', label: 'ODDS ALTAS' },
 };
 const DEFAULT_COLOR = { bg: 'rgba(255,255,255,0.08)', border: 'rgba(255,255,255,0.2)', text: '#ffffff', label: 'ENTRADA' };
-function getCategoryColor(category: string) {
-  const key = (category || '').toLowerCase().trim();
-  return CATEGORY_COLORS[key] || DEFAULT_COLOR;
+function getTierColor(tier: string) {
+  if (!tier) return DEFAULT_COLOR;
+  const key = tier.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  return TIER_COLORS[key] || DEFAULT_COLOR;
 }
 
 function formatGreenDate(dateStr: string): string {
@@ -67,7 +70,7 @@ const useLastGreens = () => {
 
         const { data } = await supabase
           .from("content_entries")
-          .select("title, condition_to_win, odd, category, created_at")
+          .select("title, condition_to_win, odd, tier_required, created_at")
           .eq("result", "green")
           .eq("date", dateStr);
 
@@ -77,7 +80,7 @@ const useLastGreens = () => {
               title: d.title,
               condition_to_win: d.condition_to_win ?? "",
               odd: d.odd ?? 0,
-              category: d.category ?? "",
+              tier_required: d.tier_required ?? "",
               created_at: d.created_at,
             }))
           );
