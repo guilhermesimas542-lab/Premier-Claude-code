@@ -59,7 +59,7 @@ export function CardType1Lateral({ card, onAction }: Props) {
             <span className="text-3xl text-muted-foreground">📦</span>
           </div>
         )}
-        <div className="absolute inset-0" style={{ background: "linear-gradient(to right, transparent, hsl(0 0% 7%))" }} />
+        <div className="absolute inset-0" style={{ background: "linear-gradient(to right, transparent, #112236)" }} />
       </div>
 
       {/* Content */}

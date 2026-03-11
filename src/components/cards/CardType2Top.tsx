@@ -66,7 +66,7 @@ export function CardType2Top({ card, hasAccess, onAction }: Props) {
             <span className="text-4xl text-muted-foreground">📦</span>
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-[hsl(0_0%_7%)] via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#112236] via-transparent to-transparent" />
 
         {/* Lock overlay */}
         {showLocked && (
