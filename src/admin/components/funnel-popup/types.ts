@@ -54,6 +54,7 @@ export const POPUP_TYPES = [
 export const POPUP_PRIORITY: string[] = [
   "welcome_paid",
   "welcome_free",
+  "casino_welcome",
   "upgrade_ultra",
   "upgrade_pro",
   "upgrade_basic",

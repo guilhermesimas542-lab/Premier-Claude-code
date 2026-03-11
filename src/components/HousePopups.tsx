@@ -218,7 +218,7 @@ export function WelcomePopup({ house }: { house: HousePopupData | null }) {
     };
 
     fetchPriorityPopup();
-  }, [house, lastLoginEvent]);
+  }, [house, lastLoginEvent, location.pathname]);
 
   if (!popupData || !open) return null;
 
