@@ -84,7 +84,7 @@ const App = () => {
             <Route path="/cassino" element={<Casino />} />
             <Route path="/support" element={<Support />} />
             
-            <Route path="/cassino/jogo/:slug" element={<CasinoSignalGame />} />
+            
             <Route path="/cassino/:gameId" element={<CasinoGame />} />
             {/* Admin routes */}
             <Route path="/admin/login" element={<AdminLogin />} />
