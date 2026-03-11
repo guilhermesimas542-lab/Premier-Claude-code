@@ -23,28 +23,20 @@ interface LastGreen {
   condition_to_win: string;
   odd: number;
   tier_required: string;
+  addon_required: string | null;
   created_at: string;
 }
 
-const TIER_COLORS: Record<string, { bg: string; border: string; text: string; label: string }> = {
-  'free':        { bg: 'rgba(96,165,250,0.25)',  border: 'rgba(96,165,250,0.6)',  text: '#60A5FA', label: 'BÁSICO' },
-  'basic':       { bg: 'rgba(96,165,250,0.25)',  border: 'rgba(96,165,250,0.6)',  text: '#60A5FA', label: 'BÁSICO' },
-  'basico':      { bg: 'rgba(96,165,250,0.25)',  border: 'rgba(96,165,250,0.6)',  text: '#60A5FA', label: 'BÁSICO' },
-  'pro':         { bg: 'rgba(0,232,122,0.25)',   border: 'rgba(0,232,122,0.6)',   text: '#00E87A', label: 'PRO' },
-  'ultra':       { bg: 'rgba(124,58,237,0.25)',  border: 'rgba(124,58,237,0.6)',  text: '#7C3AED', label: 'ULTRA' },
-  'alavancagem': { bg: 'rgba(240,180,41,0.25)',  border: 'rgba(240,180,41,0.6)',  text: '#F0B429', label: 'ALAVANCAGEM' },
-  'leverage':    { bg: 'rgba(240,180,41,0.25)',  border: 'rgba(240,180,41,0.6)',  text: '#F0B429', label: 'ALAVANCAGEM' },
-  'odds_altas':  { bg: 'rgba(249,115,22,0.25)',  border: 'rgba(249,115,22,0.6)',  text: '#F97316', label: 'ODDS ALTAS' },
-  'odds altas':  { bg: 'rgba(249,115,22,0.25)',  border: 'rgba(249,115,22,0.6)',  text: '#F97316', label: 'ODDS ALTAS' },
-  'oddsaltas':   { bg: 'rgba(249,115,22,0.25)',  border: 'rgba(249,115,22,0.6)',  text: '#F97316', label: 'ODDS ALTAS' },
-  'high_odds':   { bg: 'rgba(249,115,22,0.25)',  border: 'rgba(249,115,22,0.6)',  text: '#F97316', label: 'ODDS ALTAS' },
-  'high odds':   { bg: 'rgba(249,115,22,0.25)',  border: 'rgba(249,115,22,0.6)',  text: '#F97316', label: 'ODDS ALTAS' },
-};
-const DEFAULT_COLOR = { bg: 'rgba(255,255,255,0.12)', border: 'rgba(255,255,255,0.4)', text: '#ffffff', label: 'ENTRADA' };
-function getTierColor(tier: string) {
-  if (!tier) return DEFAULT_COLOR;
-  const key = tier.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-  return TIER_COLORS[key] || DEFAULT_COLOR;
+function getGreenStyle(tier: string, addon: string | null): { bg: string; border: string; text: string; label: string } {
+  if (addon === 'alavancagem') return { bg: 'rgba(249,115,22,0.25)', border: 'rgba(249,115,22,0.6)', text: '#F97316', label: 'ALAVANCAGEM' };
+  if (addon === 'desaltas') return { bg: 'rgba(220,20,60,0.25)', border: 'rgba(220,20,60,0.6)', text: '#DC143C', label: 'ODDS ALTAS' };
+  const map: Record<string, { bg: string; border: string; text: string; label: string }> = {
+    free:  { bg: 'rgba(128,128,128,0.25)', border: 'rgba(128,128,128,0.6)', text: '#808080', label: 'FREE' },
+    basic: { bg: 'rgba(34,197,94,0.25)',   border: 'rgba(34,197,94,0.6)',   text: '#22C55E', label: 'BASIC' },
+    pro:   { bg: 'rgba(255,215,0,0.25)',   border: 'rgba(255,215,0,0.6)',   text: '#FFD700', label: 'PRO' },
+    ultra: { bg: 'rgba(168,85,247,0.25)',  border: 'rgba(168,85,247,0.6)',  text: '#A855F7', label: 'ULTRA' },
+  };
+  return map[(tier || '').toLowerCase()] || map.free;
 }
 
 function formatGreenDate(dateStr: string): string {
