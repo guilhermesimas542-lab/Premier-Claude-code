@@ -25,7 +25,6 @@ const NAV_ITEMS = [
 export const BottomNav = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const isMobile = useIsMobile();
 
   const isActive = (item: typeof NAV_ITEMS[0]) => {
     return item.matchPaths.some(p => location.pathname.startsWith(p));
