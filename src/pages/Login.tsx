@@ -244,46 +244,32 @@ const Login = () => {
                           border: '1.5px solid rgba(255,255,255,0.12)',
                         }}
                       >
-                        {/* Topo do card: grid 3 colunas — badge | odd+retorno | espaço espelho */}
-                        <div
-                          style={{
-                            display: 'grid',
-                            gridTemplateColumns: '1fr auto 1fr',
-                            alignItems: 'center',
-                            padding: '16px 16px 12px 16px',
-                          }}
-                        >
-                          {/* Coluna esquerda: badge de categoria */}
-                          <div style={{ display: 'flex', alignItems: 'flex-start' }}>
-                            <span
-                              style={{
-                                fontFamily: 'Barlow Condensed, sans-serif',
-                                fontWeight: 900,
-                                fontSize: '15px',
-                                textTransform: 'uppercase',
-                                letterSpacing: '1.5px',
-                                padding: '6px 14px',
-                                borderRadius: '6px',
-                                backgroundColor: color.bg,
-                                border: `1.5px solid ${color.border}`,
-                                color: color.text,
-                                display: 'inline-block',
-                                lineHeight: 1,
-                              }}
-                            >
-                              {color.label}
-                            </span>
-                          </div>
-
-                          {/* Coluna central: odd + retorno — naturalmente centralizado pelo grid */}
+                        {/* Topo do card: badge esquerda | odd+retorno direita */}
+                        <div className="flex items-start justify-between px-4 pt-4 pb-3">
+                          <span
+                            style={{
+                              fontFamily: 'Barlow Condensed, sans-serif',
+                              fontWeight: 900,
+                              fontSize: '15px',
+                              textTransform: 'uppercase',
+                              letterSpacing: '1.5px',
+                              padding: '6px 14px',
+                              borderRadius: '6px',
+                              backgroundColor: color.bg,
+                              border: `1.5px solid ${color.border}`,
+                              color: color.text,
+                              display: 'inline-block',
+                              lineHeight: 1,
+                            }}
+                          >
+                            {color.label}
+                          </span>
                           <div
                             style={{
                               display: 'flex',
                               flexDirection: 'column',
-                              alignItems: 'center',
-                              textAlign: 'center',
-                              overflow: 'hidden',
-                              maxWidth: '140px',
+                              alignItems: 'flex-end',
+                              textAlign: 'right',
                             }}
                           >
                             <span
@@ -297,7 +283,6 @@ const Login = () => {
                             >
                               {Number(green.odd).toFixed(2)}
                             </span>
-
                             <span
                               style={{
                                 fontFamily: 'DM Sans, sans-serif',
@@ -305,15 +290,11 @@ const Login = () => {
                                 fontSize: '12px',
                                 color: '#94A3B8',
                                 marginTop: '2px',
-                                textAlign: 'center',
                               }}
                             >
                               {`R$ 100 → R$ ${(100 * Number(green.odd)).toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
                             </span>
                           </div>
-
-                          {/* Coluna direita: vazia — espelha a esquerda para manter a odd centralizada */}
-                          <div />
                         </div>
                         {/* Middle: game and tip */}
                         <div className="px-4 pb-3">
