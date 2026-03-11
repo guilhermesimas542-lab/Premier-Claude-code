@@ -85,7 +85,7 @@ export const SpecialBettingCard = ({
 }: SpecialBettingCardProps) => {
   const [countdown, setCountdown] = useState<string>("");
   const [isExpiredLocal, setIsExpiredLocal] = useState(false);
-  const matrixCanvasRef = useMatrixCanvas();
+  
 
   const config = getCardConfig(type);
   const IconComponent = config.icon;
