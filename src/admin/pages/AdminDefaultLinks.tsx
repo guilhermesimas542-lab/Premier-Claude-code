@@ -114,6 +114,8 @@ export default function AdminDefaultLinks() {
         roleta_url: form.roleta_url || null,
         mines_url: form.mines_url || null,
         football_studio_url: form.football_studio_url || null,
+        support_whatsapp_url: form.support_whatsapp_url || null,
+        acquire_access_url: form.acquire_access_url || null,
       } as any)
       .eq("id", selectedHouse.id);
 
