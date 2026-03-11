@@ -196,10 +196,11 @@ const Login = () => {
           />
         </div>
 
-        {/* Last Green Card */}
-        {lastGreen && (
+        {/* Last Greens Carousel */}
+        {greens.length > 0 && (
           <div
-            className="w-full rounded-xl p-3.5 mb-8"
+            key={fadeKey}
+            className="w-full rounded-xl p-3.5 mb-8 animate-fade-in"
             style={{
               backgroundColor: "hsl(var(--card))",
               border: "1px solid rgba(0, 232, 122, 0.15)",
@@ -212,17 +213,17 @@ const Login = () => {
                   ÚLTIMO GREEN
                 </span>
                 <span className="font-display font-bold text-sm text-foreground truncate">
-                  {lastGreen.title}
+                  {greens[currentIndex].title}
                 </span>
                 <span className="font-sans text-xs text-muted-foreground truncate">
-                  {lastGreen.condition_to_win}
+                  {greens[currentIndex].condition_to_win}
                 </span>
               </div>
               {/* Right */}
               <div className="flex flex-col items-end ml-3 shrink-0">
                 <span className="font-sans text-[10px] uppercase text-muted-foreground">ODD</span>
                 <span className="font-display font-black text-2xl text-primary">
-                  {lastGreen.odd.toFixed(2)}
+                  {greens[currentIndex].odd.toFixed(2)}
                 </span>
                 <span className="font-sans text-[11px] text-primary">✓ Confirmado</span>
               </div>
