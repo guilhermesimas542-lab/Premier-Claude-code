@@ -54,7 +54,7 @@ export const BottomNav = () => {
               className="relative flex flex-col items-center justify-center gap-1 px-4 py-2 rounded-xl transition-all duration-200"
             >
               {active && (
-                <div className="absolute inset-0 rounded-xl" style={{ background: "rgba(0,255,0,0.08)" }} />
+                <div className="absolute inset-0 rounded-xl" style={{ background: "rgba(0,232,122,0.08)" }} />
               )}
               
               <Icon
