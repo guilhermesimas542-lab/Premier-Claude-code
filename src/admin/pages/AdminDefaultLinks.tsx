@@ -149,6 +149,7 @@ export default function AdminDefaultLinks() {
 
   const sportsFields = FIELDS.filter((f) => f.section === "sports");
   const casinoFields = FIELDS.filter((f) => f.section === "casino");
+  const buttonFields = FIELDS.filter((f) => f.section === "buttons");
 
   const renderField = (field: (typeof FIELDS)[number]) => {
     const url = form[field.key];
