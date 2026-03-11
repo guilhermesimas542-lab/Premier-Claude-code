@@ -285,7 +285,7 @@ const Login = () => {
                             style={{
                               fontFamily: 'Barlow Condensed, sans-serif',
                               fontWeight: 900,
-                              fontSize: '32px',
+                              fontSize: '36px',
                               color: '#00E87A',
                               lineHeight: 1,
                             }}
