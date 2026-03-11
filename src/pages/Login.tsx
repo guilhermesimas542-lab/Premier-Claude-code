@@ -262,7 +262,7 @@ const Login = () => {
             </button>
             <span className="text-[#4A5568]/40">|</span>
             <a
-              href="https://wa.link/1p68qg"
+              href={links.support_whatsapp_url || "https://wa.link/1p68qg"}
               target="_blank"
               rel="noopener noreferrer"
               className="text-[#4A5568] hover:text-primary transition-colors"

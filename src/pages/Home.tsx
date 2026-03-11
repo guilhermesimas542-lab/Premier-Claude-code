@@ -317,7 +317,7 @@ const Home = () => {
                 Termos & Privacidade
               </button>
               <span style={{ color: "#555555" }}>|</span>
-              <a href="https://wa.link/1p68qg" target="_blank" rel="noopener noreferrer" className="transition-colors hover:underline" style={{ color: "#CCCCCC" }}>
+              <a href={links.support_whatsapp_url || "https://wa.link/1p68qg"} target="_blank" rel="noopener noreferrer" className="transition-colors hover:underline" style={{ color: "#CCCCCC" }}>
                 Suporte
               </a>
             </div>

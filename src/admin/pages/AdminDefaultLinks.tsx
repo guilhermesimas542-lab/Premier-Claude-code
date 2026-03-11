@@ -205,6 +205,14 @@ export default function AdminDefaultLinks() {
             {casinoFields.map(renderField)}
           </div>
 
+          {/* Buttons section */}
+          <div className="bg-gray-900 border border-white/10 rounded-xl p-6 space-y-4">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              🔗 Links de Botões
+            </p>
+            {buttonFields.map(renderField)}
+          </div>
+
           {/* Save button */}
           <Button
             onClick={handleSave}

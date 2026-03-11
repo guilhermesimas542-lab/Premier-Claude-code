@@ -123,6 +123,7 @@ const App = () => {
           </Routes>
         </BrowserRouter>
       </FunnelPopupProvider>
+      </LinksProvider>
       </GamificationProvider>
     </TooltipProvider>
   </QueryClientProvider>
