@@ -134,8 +134,10 @@ const Support = () => {
   const levelTitle = LEVEL_TITLES[level] || 'Novato';
   const referralLink = userId ? `${window.location.origin}/login?ref=${userId}` : '';
 
+  const { links } = useLinks();
+
   const handleOpenSupport = () => {
-    window.open(SUPPORT_WHATSAPP_URL, "_blank");
+    window.open(links.support_whatsapp_url || SUPPORT_WHATSAPP_URL_FALLBACK, "_blank");
   };
 
   const copyReferralLink = () => {
