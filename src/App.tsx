@@ -16,7 +16,7 @@ import CasinoGame from "./pages/CasinoGame";
 
 import UltimosGreens from "./pages/UltimosGreens";
 import Support from "./pages/Support";
-import Profile from "./pages/Profile";
+
 import NotFound from "./pages/NotFound";
 import { AdminGuard } from "./admin/components/AdminGuard";
 import { AdminLayout } from "./admin/components/AdminLayout";
