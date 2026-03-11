@@ -27,17 +27,20 @@ interface LastGreen {
 }
 
 const TIER_COLORS: Record<string, { bg: string; border: string; text: string; label: string }> = {
-  'free':        { bg: 'rgba(96,165,250,0.15)',  border: 'rgba(96,165,250,0.3)',  text: '#60A5FA', label: 'BÁSICO' },
-  'basic':       { bg: 'rgba(96,165,250,0.15)',  border: 'rgba(96,165,250,0.3)',  text: '#60A5FA', label: 'BÁSICO' },
-  'basico':      { bg: 'rgba(96,165,250,0.15)',  border: 'rgba(96,165,250,0.3)',  text: '#60A5FA', label: 'BÁSICO' },
-  'pro':         { bg: 'rgba(0,232,122,0.15)',   border: 'rgba(0,232,122,0.3)',   text: '#00E87A', label: 'PRO' },
-  'ultra':       { bg: 'rgba(124,58,237,0.15)',  border: 'rgba(124,58,237,0.3)',  text: '#7C3AED', label: 'ULTRA' },
-  'alavancagem': { bg: 'rgba(240,180,41,0.15)',  border: 'rgba(240,180,41,0.3)',  text: '#F0B429', label: 'ALAVANCAGEM' },
-  'odds_altas':  { bg: 'rgba(249,115,22,0.15)',  border: 'rgba(249,115,22,0.3)',  text: '#F97316', label: 'ODDS ALTAS' },
-  'odds altas':  { bg: 'rgba(249,115,22,0.15)',  border: 'rgba(249,115,22,0.3)',  text: '#F97316', label: 'ODDS ALTAS' },
-  'oddsaltas':   { bg: 'rgba(249,115,22,0.15)',  border: 'rgba(249,115,22,0.3)',  text: '#F97316', label: 'ODDS ALTAS' },
+  'free':        { bg: 'rgba(96,165,250,0.25)',  border: 'rgba(96,165,250,0.6)',  text: '#60A5FA', label: 'BÁSICO' },
+  'basic':       { bg: 'rgba(96,165,250,0.25)',  border: 'rgba(96,165,250,0.6)',  text: '#60A5FA', label: 'BÁSICO' },
+  'basico':      { bg: 'rgba(96,165,250,0.25)',  border: 'rgba(96,165,250,0.6)',  text: '#60A5FA', label: 'BÁSICO' },
+  'pro':         { bg: 'rgba(0,232,122,0.25)',   border: 'rgba(0,232,122,0.6)',   text: '#00E87A', label: 'PRO' },
+  'ultra':       { bg: 'rgba(124,58,237,0.25)',  border: 'rgba(124,58,237,0.6)',  text: '#7C3AED', label: 'ULTRA' },
+  'alavancagem': { bg: 'rgba(240,180,41,0.25)',  border: 'rgba(240,180,41,0.6)',  text: '#F0B429', label: 'ALAVANCAGEM' },
+  'leverage':    { bg: 'rgba(240,180,41,0.25)',  border: 'rgba(240,180,41,0.6)',  text: '#F0B429', label: 'ALAVANCAGEM' },
+  'odds_altas':  { bg: 'rgba(249,115,22,0.25)',  border: 'rgba(249,115,22,0.6)',  text: '#F97316', label: 'ODDS ALTAS' },
+  'odds altas':  { bg: 'rgba(249,115,22,0.25)',  border: 'rgba(249,115,22,0.6)',  text: '#F97316', label: 'ODDS ALTAS' },
+  'oddsaltas':   { bg: 'rgba(249,115,22,0.25)',  border: 'rgba(249,115,22,0.6)',  text: '#F97316', label: 'ODDS ALTAS' },
+  'high_odds':   { bg: 'rgba(249,115,22,0.25)',  border: 'rgba(249,115,22,0.6)',  text: '#F97316', label: 'ODDS ALTAS' },
+  'high odds':   { bg: 'rgba(249,115,22,0.25)',  border: 'rgba(249,115,22,0.6)',  text: '#F97316', label: 'ODDS ALTAS' },
 };
-const DEFAULT_COLOR = { bg: 'rgba(255,255,255,0.08)', border: 'rgba(255,255,255,0.2)', text: '#ffffff', label: 'ENTRADA' };
+const DEFAULT_COLOR = { bg: 'rgba(255,255,255,0.12)', border: 'rgba(255,255,255,0.4)', text: '#ffffff', label: 'ENTRADA' };
 function getTierColor(tier: string) {
   if (!tier) return DEFAULT_COLOR;
   const key = tier.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
@@ -233,41 +236,109 @@ const Login = () => {
         {/* Last Greens Carousel */}
         {greens.length > 0 && (
           <div className="w-full mb-8">
-            {(() => {
-              const green = greens[currentIndex];
-              const color = getTierColor(green.tier_required);
-              return (
-                <div
-                  key={currentIndex}
-                  className="rounded-xl overflow-hidden border animate-fade-in"
-                  style={{ borderColor: 'rgba(255,255,255,0.07)', backgroundColor: '#0D1929' }}
-                >
-                  <div className="flex items-center justify-between px-4 pt-4 pb-3">
-                    <div className="flex flex-col gap-1.5">
-                      <span
-                        className="inline-block px-2.5 py-0.5 rounded text-[11px] font-display font-bold tracking-wide"
-                        style={{ backgroundColor: color.bg, border: `1px solid ${color.border}`, color: color.text, letterSpacing: '0.05em' }}
+            {/* Container with overflow hidden for slide animation */}
+            <div className="overflow-hidden rounded-xl">
+              <div
+                className="flex"
+                style={{
+                  transform: `translateX(-${currentIndex * 100}%)`,
+                  transition: 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                  willChange: 'transform',
+                }}
+              >
+                {greens.map((green, index) => {
+                  const color = getTierColor(green.tier_required);
+                  return (
+                    <div
+                      key={index}
+                      className="w-full shrink-0"
+                      style={{ minWidth: '100%' }}
+                    >
+                      {/* Card */}
+                      <div
+                        className="border"
+                        style={{ borderColor: 'rgba(255,255,255,0.07)', backgroundColor: '#0D1929' }}
                       >
-                        {color.label}
-                      </span>
-                      <span className="text-white/40 font-sans text-[11px]">
-                        {formatGreenDate(green.created_at)}
-                      </span>
+                        {/* Top: badge | odd */}
+                        <div className="flex items-center justify-between px-4 pt-4 pb-3">
+                          {/* Badge - no date */}
+                          <span
+                            style={{
+                              fontFamily: 'Barlow Condensed, sans-serif',
+                              fontWeight: 900,
+                              fontSize: '15px',
+                              textTransform: 'uppercase',
+                              letterSpacing: '1.5px',
+                              padding: '6px 14px',
+                              borderRadius: '6px',
+                              backgroundColor: color.bg,
+                              border: `1.5px solid ${color.border}`,
+                              color: color.text,
+                              display: 'inline-block',
+                              lineHeight: 1,
+                            }}
+                          >
+                            {color.label}
+                          </span>
+                          {/* Odd */}
+                          <span
+                            style={{
+                              fontFamily: 'Barlow Condensed, sans-serif',
+                              fontWeight: 900,
+                              fontSize: '32px',
+                              color: '#00E87A',
+                              lineHeight: 1,
+                            }}
+                          >
+                            {Number(green.odd).toFixed(2)}
+                          </span>
+                        </div>
+                        {/* Middle: game and tip */}
+                        <div className="px-4 pb-3">
+                          <p
+                            className="text-white leading-tight"
+                            style={{
+                              fontFamily: 'Barlow Condensed, sans-serif',
+                              fontWeight: 700,
+                              fontSize: '18px',
+                            }}
+                          >
+                            {green.title}
+                          </p>
+                          <p
+                            className="text-white/50 mt-0.5"
+                            style={{ fontFamily: 'DM Sans, sans-serif', fontSize: '13px' }}
+                          >
+                            {green.condition_to_win}
+                          </p>
+                        </div>
+                        {/* Bottom strip: ENTRADA BATEU */}
+                        <div
+                          className="flex items-center justify-center py-2.5"
+                          style={{
+                            backgroundColor: 'rgba(0,232,122,0.08)',
+                            borderTop: '1px solid rgba(0,232,122,0.15)',
+                          }}
+                        >
+                          <span
+                            style={{
+                              fontFamily: 'Barlow Condensed, sans-serif',
+                              fontWeight: 700,
+                              fontSize: '13px',
+                              color: '#00E87A',
+                              letterSpacing: '0.06em',
+                            }}
+                          >
+                            ✓ ENTRADA BATEU
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                    <span className="font-display font-black text-[32px] text-primary leading-none">
-                      {Number(green.odd).toFixed(2)}
-                    </span>
-                  </div>
-                  <div className="px-4 pb-3">
-                    <p className="text-white font-display font-bold text-lg leading-tight">{green.title}</p>
-                    <p className="text-white/50 font-sans text-[13px] mt-0.5">{green.condition_to_win}</p>
-                  </div>
-                  <div className="flex items-center justify-center py-2.5" style={{ backgroundColor: 'rgba(0,232,122,0.08)', borderTop: '1px solid rgba(0,232,122,0.15)' }}>
-                    <span className="font-display font-bold text-[13px] text-primary tracking-wide">✓ ENTRADA BATEU</span>
-                  </div>
-                </div>
-              );
-            })()}
+                  );
+                })}
+              </div>
+            </div>
+            {/* Dots indicator */}
             {greens.length > 1 && (
               <div className="flex justify-center gap-1.5 mt-3">
                 {greens.map((_, index) => (
