@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Anchor, Gift, Clock, HelpCircle, BarChart3, Info, Lock } from "lucide-react";
 import { useState, useEffect } from "react";
-import { useMatrixCanvas } from "@/hooks/useMatrixCanvas";
+
 
 type SpecialCardType = "ALAVANCAGEM" | "ODDS_ALTAS";
 
