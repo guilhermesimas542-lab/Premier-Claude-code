@@ -22,6 +22,37 @@ interface LastGreen {
   title: string;
   condition_to_win: string;
   odd: number;
+  category: string;
+  created_at: string;
+}
+
+const CATEGORY_COLORS: Record<string, { bg: string; border: string; text: string; label: string }> = {
+  'basico':      { bg: 'rgba(96,165,250,0.15)',  border: 'rgba(96,165,250,0.3)',  text: '#60A5FA', label: 'BÁSICO' },
+  'básico':      { bg: 'rgba(96,165,250,0.15)',  border: 'rgba(96,165,250,0.3)',  text: '#60A5FA', label: 'BÁSICO' },
+  'pro':         { bg: 'rgba(0,232,122,0.15)',   border: 'rgba(0,232,122,0.3)',   text: '#00E87A', label: 'PRO' },
+  'ultra':       { bg: 'rgba(124,58,237,0.15)',  border: 'rgba(124,58,237,0.3)',  text: '#7C3AED', label: 'ULTRA' },
+  'alavancagem': { bg: 'rgba(240,180,41,0.15)',  border: 'rgba(240,180,41,0.3)',  text: '#F0B429', label: 'ALAVANCAGEM' },
+  'odds_altas':  { bg: 'rgba(249,115,22,0.15)',  border: 'rgba(249,115,22,0.3)',  text: '#F97316', label: 'ODDS ALTAS' },
+  'odds altas':  { bg: 'rgba(249,115,22,0.15)',  border: 'rgba(249,115,22,0.3)',  text: '#F97316', label: 'ODDS ALTAS' },
+};
+const DEFAULT_COLOR = { bg: 'rgba(255,255,255,0.08)', border: 'rgba(255,255,255,0.2)', text: '#ffffff', label: 'ENTRADA' };
+function getCategoryColor(category: string) {
+  const key = (category || '').toLowerCase().trim();
+  return CATEGORY_COLORS[key] || DEFAULT_COLOR;
+}
+
+function formatGreenDate(dateStr: string): string {
+  const date = new Date(dateStr);
+  const now = new Date();
+  const yesterday = new Date(now);
+  yesterday.setDate(now.getDate() - 1);
+  const isYesterday =
+    date.getDate() === yesterday.getDate() &&
+    date.getMonth() === yesterday.getMonth() &&
+    date.getFullYear() === yesterday.getFullYear();
+  const hours = date.getHours().toString().padStart(2, '0');
+  const minutes = date.getMinutes().toString().padStart(2, '0');
+  return isYesterday ? `ontem · ${hours}:${minutes}` : `${date.getDate()}/${date.getMonth() + 1} · ${hours}:${minutes}`;
 }
 
 const useLastGreens = () => {
@@ -36,7 +67,7 @@ const useLastGreens = () => {
 
         const { data } = await supabase
           .from("content_entries")
-          .select("title, condition_to_win, odd")
+          .select("title, condition_to_win, odd, category, created_at")
           .eq("result", "green")
           .eq("date", dateStr);
 
@@ -46,6 +77,8 @@ const useLastGreens = () => {
               title: d.title,
               condition_to_win: d.condition_to_win ?? "",
               odd: d.odd ?? 0,
+              category: d.category ?? "",
+              created_at: d.created_at,
             }))
           );
         }
