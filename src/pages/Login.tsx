@@ -219,7 +219,7 @@ const Login = () => {
         {/* Secondary CTA */}
         <button
           onClick={() => setShowAcquireModal(true)}
-          className="w-full h-12 rounded-[10px] font-display font-bold text-sm uppercase flex items-center justify-center gap-2 transition-colors duration-200 active:scale-[0.98] text-muted-foreground border border-white/[0.07] bg-transparent hover:border-white/20"
+          className="w-full h-12 rounded-[10px] font-display font-bold text-sm uppercase flex items-center justify-center gap-2 transition-colors duration-200 active:scale-[0.98] text-white border-2 border-white/15 bg-transparent hover:border-white/30"
         >
           <ShoppingCart className="w-4 h-4" />
           Adquirir acesso

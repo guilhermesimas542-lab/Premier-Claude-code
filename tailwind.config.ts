@@ -65,6 +65,7 @@ export default {
         },
         'brand-green': "hsl(var(--brand-green))",
         'brand-gold': "hsl(var(--brand-gold))",
+        'brand-purple-ultra': "hsl(var(--brand-purple-ultra))",
         'card-bg': "hsl(var(--card-bg))",
         'navy-dark': "hsl(var(--navy-dark))",
       },
