@@ -14,7 +14,7 @@ import { PromoCarousel } from "@/components/PromoCarousel";
 import { BottomNav } from "@/components/BottomNav";
 import { CHECKOUT_LINKS } from "@/lib/checkoutLinks";
 import logoImg from "@/assets/premier-logo-custom.png";
-import MatrixRain from "@/components/MatrixRain";
+
 import { useUserBettingHouse } from "@/hooks/useUserBettingHouse";
 import { useCards, useCardsBySlugs, CardData } from "@/hooks/useCards";
 import { useUserAccess } from "@/hooks/useUserAccess";
