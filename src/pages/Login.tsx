@@ -24,11 +24,11 @@ interface LastGreen {
   odd: number;
 }
 
-const useLastGreen = () => {
-  const [lastGreen, setLastGreen] = useState<LastGreen | null>(null);
+const useLastGreens = () => {
+  const [greens, setGreens] = useState<LastGreen[]>([]);
 
   useEffect(() => {
-    const fetchLastGreen = async () => {
+    const fetchGreens = async () => {
       try {
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
@@ -38,25 +38,25 @@ const useLastGreen = () => {
           .from("content_entries")
           .select("title, condition_to_win, odd")
           .eq("result", "green")
-          .eq("date", dateStr)
-          .order("odd", { ascending: false })
-          .limit(1);
+          .eq("date", dateStr);
 
         if (data && data.length > 0) {
-          setLastGreen({
-            title: data[0].title,
-            condition_to_win: data[0].condition_to_win ?? "",
-            odd: data[0].odd ?? 0,
-          });
+          setGreens(
+            data.map((d) => ({
+              title: d.title,
+              condition_to_win: d.condition_to_win ?? "",
+              odd: d.odd ?? 0,
+            }))
+          );
         }
       } catch {
         // silently fail
       }
     };
-    fetchLastGreen();
+    fetchGreens();
   }, []);
 
-  return lastGreen;
+  return greens;
 };
 
 const Login = () => {
