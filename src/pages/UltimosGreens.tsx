@@ -54,9 +54,6 @@ const formatDateHeader = (dateStr: string): string => {
   return `${day}/${month}/${year}`;
 };
 
-const getEntryStyle = (tier: string, addon: string | null): TierColorStyle => {
-  return getTierStyle(tier, addon);
-};
 
 const PER_PAGE = 50;
 

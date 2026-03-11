@@ -37,7 +37,7 @@ const formatCountdown = (totalSeconds: number): string => {
 };
 
 // Get card config based on type
-// Border colors: ALAVANCAGEM = #3B82F6 (azul), ODDS_ALTAS = #EF4444 (vermelho)
+// Border colors: ALAVANCAGEM = #F0B429 (gold), ODDS_ALTAS = #F97316 (laranja)
 const getCardConfig = (type: SpecialCardType) => {
   if (type === "ALAVANCAGEM") {
     return {
@@ -46,10 +46,10 @@ const getCardConfig = (type: SpecialCardType) => {
       subtitle: "Sequência do dia",
       bgColor: "bg-gradient-to-r from-teal-600 to-emerald-700",
       textColor: "text-white",
-      glowColor: "", // Removed glow
-      borderColor: "border-[#3B82F6]", // Azul
-      iconBg: "bg-teal-500/30",
-      iconColor: "text-teal-300",
+      glowColor: "",
+      borderColor: "border-[#F0B429]",
+      iconBg: "bg-[#F0B429]/30",
+      iconColor: "text-[#F0B429]",
     };
   }
   // ODDS_ALTAS
@@ -57,12 +57,12 @@ const getCardConfig = (type: SpecialCardType) => {
     icon: Gift,
     title: "Odds Altas",
     subtitle: "Seleções especiais",
-    bgColor: "bg-[#DC143C]",
+    bgColor: "bg-[#F97316]",
     textColor: "text-white",
     glowColor: "",
-    borderColor: "border-[#DC143C]", // Vermelho Forte
-    iconBg: "bg-[#DC143C]/30",
-    iconColor: "text-[#FF6B6B]",
+    borderColor: "border-[#F97316]",
+    iconBg: "bg-[#F97316]/30",
+    iconColor: "text-[#FF8C42]",
   };
 };
 
