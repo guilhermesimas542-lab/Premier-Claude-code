@@ -171,8 +171,12 @@ export function WelcomePopup({ house }: { house: HousePopupData | null }) {
         return;
       }
 
-      // Filter by user eligibility (tier + addons + audience)
+      // Filter by user eligibility (tier + addons + audience + route)
       const eligible = popups.filter((p: any) => {
+        // Route-based filtering
+        if (p.type === "casino_welcome" && location.pathname !== "/cassino") return false;
+        if (p.type !== "casino_welcome" && location.pathname !== "/") return false;
+
         const audience = p.target_audience || "all";
         if (audience !== "all" && audience !== user.mainTier) return false;
         if (p.betting_house_id && p.betting_house_id !== user.houseId) return false;
