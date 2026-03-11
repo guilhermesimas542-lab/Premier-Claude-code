@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
 import { installGlobalErrorTracker } from "@/lib/errorTracker";
 import { AnalyticsRouteTracker } from "@/components/AnalyticsRouteTracker";
+import { GlobalPopups } from "@/components/GlobalPopups";
 
 import Home from "./pages/Home";
 import Sport from "./pages/Sport";
