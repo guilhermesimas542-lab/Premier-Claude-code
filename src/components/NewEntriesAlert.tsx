@@ -33,8 +33,8 @@ export const NewEntriesAlert = ({ betSiteUrl }: NewEntriesAlertProps) => {
         <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
           {/* Animated icon */}
           <div className="relative">
-            <div className="absolute inset-0 bg-[#00FF85] blur-xl opacity-50 animate-pulse" />
-            <div className="relative bg-gradient-to-br from-[#005CFF] to-[#00FF85] p-3 rounded-xl">
+            <div className="absolute inset-0 bg-[#00FF7F] blur-xl opacity-50 animate-pulse" />
+            <div className="relative bg-gradient-to-br from-[#005CFF] to-[#00FF7F] p-3 rounded-xl">
               <Zap className="w-6 h-6 text-white animate-pulse" fill="white" />
             </div>
           </div>
