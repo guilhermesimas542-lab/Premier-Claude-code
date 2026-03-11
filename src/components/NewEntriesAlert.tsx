@@ -52,7 +52,7 @@ export const NewEntriesAlert = ({ betSiteUrl }: NewEntriesAlertProps) => {
 
         {/* CTA Button */}
         <Button 
-          onClick={() => navigate("/bonus")}
+          onClick={() => navigate("/")}
           className="bg-gradient-to-r from-[#005CFF] via-[#0066FF] to-[#005CFF] hover:from-[#0066FF] hover:via-[#0080FF] hover:to-[#0066FF] text-white font-black px-8 py-6 text-base shadow-xl shadow-[#005CFF]/50 hover:shadow-[#0066FF]/70 transition-all duration-300 border-0"
         >
           Dobrar minha banca

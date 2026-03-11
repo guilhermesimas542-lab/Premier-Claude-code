@@ -79,7 +79,7 @@ const App = () => {
             <Route path="/sport/:sportId" element={<Sport />} />
             <Route path="/alavancagem" element={<Sport />} />
             <Route path="/odds-altas" element={<Sport />} />
-            <Route path="/bonus" element={<Bonus />} />
+            
             <Route path="/ultimos-greens" element={<UltimosGreens />} />
             <Route path="/cassino" element={<Casino />} />
             <Route path="/support" element={<Support />} />
