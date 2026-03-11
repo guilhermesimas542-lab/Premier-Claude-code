@@ -242,10 +242,19 @@ const Login = () => {
                         style={{
                           backgroundColor: '#0D1929',
                           border: '1.5px solid rgba(255,255,255,0.12)',
+                          borderRadius: '12px',
+                          overflow: 'hidden',
                         }}
                       >
-                        {/* Topo do card: badge esquerda | odd+retorno direita */}
-                        <div className="flex items-start justify-between px-4 pt-4 pb-3">
+                        {/* LINHA 1: badge esquerda | odd direita */}
+                        <div
+                          style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            padding: '14px 16px 10px 16px',
+                          }}
+                        >
                           <span
                             style={{
                               fontFamily: 'Barlow Condensed, sans-serif',
@@ -258,67 +267,79 @@ const Login = () => {
                               backgroundColor: color.bg,
                               border: `1.5px solid ${color.border}`,
                               color: color.text,
-                              display: 'inline-block',
                               lineHeight: 1,
                             }}
                           >
                             {color.label}
                           </span>
-                          <div
+                          <span
                             style={{
-                              display: 'flex',
-                              flexDirection: 'column',
-                              alignItems: 'flex-end',
-                              textAlign: 'right',
+                              fontFamily: 'Barlow Condensed, sans-serif',
+                              fontWeight: 900,
+                              fontSize: '36px',
+                              color: '#00E87A',
+                              lineHeight: 1,
                             }}
                           >
-                            <span
+                            {Number(green.odd).toFixed(2)}
+                          </span>
+                        </div>
+                        {/* LINHA 2: nome+dica esquerda | retorno direita */}
+                        <div
+                          style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            padding: '0 16px 14px 16px',
+                          }}
+                        >
+                          <div>
+                            <p
                               style={{
                                 fontFamily: 'Barlow Condensed, sans-serif',
-                                fontWeight: 900,
-                                fontSize: '36px',
-                                color: '#00E87A',
-                                lineHeight: 1,
+                                fontWeight: 700,
+                                fontSize: '18px',
+                                color: '#ffffff',
+                                lineHeight: 1.2,
+                                margin: 0,
                               }}
                             >
-                              {Number(green.odd).toFixed(2)}
-                            </span>
-                            <span
+                              {green.title}
+                            </p>
+                            <p
                               style={{
                                 fontFamily: 'DM Sans, sans-serif',
                                 fontWeight: 400,
-                                fontSize: '12px',
-                                color: '#94A3B8',
+                                fontSize: '13px',
+                                color: 'rgba(255,255,255,0.45)',
                                 marginTop: '2px',
+                                margin: 0,
                               }}
                             >
-                              {`R$ 100 → R$ ${(100 * Number(green.odd)).toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
-                            </span>
+                              {green.condition_to_win}
+                            </p>
                           </div>
-                        </div>
-                        {/* Middle: game and tip */}
-                        <div className="px-4 pb-3">
-                          <p
-                            className="text-white leading-tight"
+                          <span
                             style={{
-                              fontFamily: 'Barlow Condensed, sans-serif',
-                              fontWeight: 700,
-                              fontSize: '18px',
+                              fontFamily: 'DM Sans, sans-serif',
+                              fontWeight: 400,
+                              fontSize: '13px',
+                              color: '#94A3B8',
+                              whiteSpace: 'nowrap',
+                              marginLeft: '12px',
+                              flexShrink: 0,
                             }}
                           >
-                            {green.title}
-                          </p>
-                          <p
-                            className="text-white/50 mt-0.5"
-                            style={{ fontFamily: 'DM Sans, sans-serif', fontSize: '13px' }}
-                          >
-                            {green.condition_to_win}
-                          </p>
+                            {`R$ 100 → R$ ${(100 * Number(green.odd)).toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
+                          </span>
                         </div>
-                        {/* Bottom strip: ENTRADA BATEU */}
+                        {/* FAIXA INFERIOR: ENTRADA BATEU */}
                         <div
-                          className="flex items-center justify-center py-2.5"
                           style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: '10px 16px',
                             backgroundColor: 'rgba(0,232,122,0.08)',
                             borderTop: '1px solid rgba(0,232,122,0.15)',
                           }}
@@ -330,6 +351,7 @@ const Login = () => {
                               fontSize: '13px',
                               color: '#00E87A',
                               letterSpacing: '0.06em',
+                              textTransform: 'uppercase',
                             }}
                           >
                             ✓ ENTRADA BATEU
