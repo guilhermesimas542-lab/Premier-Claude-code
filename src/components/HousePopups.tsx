@@ -96,6 +96,8 @@ function isEligibleForType(
       return !addons.includes("live_telegram");
     case "promotional":
       return true;
+    case "casino_welcome":
+      return true; // Any user visiting /cassino for the first time
     // Legacy "welcome" type — treat as welcome_free
     case "welcome":
       return tier === "free";
