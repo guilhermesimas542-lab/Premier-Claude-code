@@ -1,4 +1,3 @@
-import { Lock } from "lucide-react";
 import type { CardData } from "@/hooks/useCards";
 
 interface Props {
@@ -7,27 +6,41 @@ interface Props {
   onAction: () => void;
 }
 
-function getBadgeStyle(color: string | null) {
-  switch (color) {
-    case "gold":
-      return { background: "hsl(48 96% 53%)", color: "#000", border: "none" };
-    case "green":
-      return { background: "#22c55e", color: "#fff", border: "none" };
-    case "black_green":
-      return { background: "#000", color: "#00FF00", border: "1px solid #00FF00" };
-    case "tron":
-      return { background: "#000", color: "#00FFFF", border: "1px solid #00FFFF", boxShadow: "0 0 5px #00FFFF" };
-    case "white":
-      return { background: "#fff", color: "#000", border: "none" };
-    default: // "primary"
-      return { background: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))", border: "none" };
+function getBadgeStyle(badgeText: string, color: string | null) {
+  const upper = (badgeText || '').toUpperCase();
+  if (upper.includes('IA') || upper.includes('ATIVADA') || color === 'green') {
+    return { background: 'rgba(0,255,127,0.15)', border: '1px solid rgba(0,255,127,0.3)', color: '#00FF7F' };
   }
+  if (upper.includes('NOVO') || color === 'gold') {
+    return { background: 'rgba(240,180,41,0.15)', border: '1px solid rgba(240,180,41,0.3)', color: '#F0B429' };
+  }
+  if (upper.includes('BETA') || color === 'white') {
+    return { background: 'rgba(148,163,184,0.15)', border: '1px solid rgba(148,163,184,0.3)', color: '#94A3B8' };
+  }
+  if (color === 'black_green') {
+    return { background: "#000", color: "#00FF7F", border: "1px solid #00FF7F" };
+  }
+  if (color === 'tron') {
+    return { background: "#000", color: "#00FFFF", border: "1px solid #00FFFF" };
+  }
+  return { background: 'rgba(0,255,127,0.15)', border: '1px solid rgba(0,255,127,0.3)', color: '#00FF7F' };
+}
+
+function isGreenColor(c: string | null): boolean {
+  if (!c) return false;
+  const lower = c.toLowerCase();
+  return lower === '#00e87a' || lower === '#00ff7f' || lower.includes('00e87a') || lower.includes('00ff7f');
 }
 
 export function CardType2Top({ card, hasAccess, onAction }: Props) {
   const showLocked = card.requires_access && !hasAccess;
   const imgs = card.image_urls;
   const mobileImg = imgs?.mobile || imgs?.tablet || imgs?.desktop || null;
+
+  const buttonBg = card.button_bg_color || "hsl(var(--primary))";
+  const buttonColor = isGreenColor(card.button_bg_color)
+    ? '#000000'
+    : (card.button_font_color || "hsl(var(--primary-foreground))");
 
   return (
     <button
@@ -39,12 +52,18 @@ export function CardType2Top({ card, hasAccess, onAction }: Props) {
       {card.badges && card.badges.length > 0 && (
         <div className="absolute top-2 right-2 z-20 flex gap-1 flex-wrap justify-end">
           {card.badges.map((badge) => {
-            const style = getBadgeStyle(card.badge_color);
+            const style = getBadgeStyle(badge, card.badge_color);
             return (
               <span
                 key={badge}
-                className="px-2 py-0.5 rounded-md text-[9px] font-bold"
-                style={style}
+                className="px-2 py-0.5 rounded-md"
+                style={{
+                  ...style,
+                  fontFamily: "'Barlow Condensed', sans-serif",
+                  fontWeight: 700,
+                  fontSize: '11px',
+                  letterSpacing: '1px',
+                }}
               >
                 {badge}
               </span>
@@ -53,7 +72,7 @@ export function CardType2Top({ card, hasAccess, onAction }: Props) {
         </div>
       )}
 
-      {/* Image area — panoramic 16/7 aspect ratio */}
+      {/* Image area */}
       <div className="relative w-full overflow-hidden" style={{ height: "180px" }}>
         {mobileImg ? (
           <picture>
@@ -68,38 +87,75 @@ export function CardType2Top({ card, hasAccess, onAction }: Props) {
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-[#112236] via-transparent to-transparent" />
 
-        {/* Lock overlay */}
+        {/* Lock overlay — redesigned */}
         {showLocked && (
-          <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-            <Lock className="w-8 h-8 text-white/60" />
+          <div className="absolute inset-0 flex flex-col items-center justify-center" style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(2px)' }}>
+            {/* Padlock icon */}
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg" style={{ opacity: 0.7 }}>
+              <path d="M12 2C9.24 2 7 4.24 7 7v3H6c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-8c0-1.1-.9-2-2-2h-1V7c0-2.76-2.24-5-5-5zm3 10H9V7c0-1.66 1.34-3 3-3s3 1.34 3 3v5z"/>
+            </svg>
+            {/* Separator */}
+            <div style={{ width: '40px', height: '1px', background: 'rgba(255,255,255,0.3)', margin: '8px 0' }} />
+            {/* Price if available */}
+            {(card as any).price && (
+              <span style={{
+                fontFamily: "'Barlow Condensed', sans-serif",
+                fontWeight: 700,
+                fontSize: '16px',
+                color: '#FFFFFF',
+              }}>
+                {(card as any).price}
+              </span>
+            )}
           </div>
         )}
       </div>
 
       {/* Content */}
       <div className="p-4">
-        <h3 className="text-foreground font-bold text-base truncate mb-1">{card.title}</h3>
+        <h3 className="truncate mb-1" style={{
+          fontFamily: "'Barlow Condensed', sans-serif",
+          fontWeight: 800,
+          fontSize: '20px',
+          color: '#FFFFFF',
+        }}>{card.title}</h3>
         {card.subtitle && (
-          <p className="text-xs text-muted-foreground truncate mb-2">{card.subtitle}</p>
+          <p className="truncate mb-2" style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontWeight: 400,
+            fontSize: '13px',
+            color: showLocked ? '#94A3B8' : '#94A3B8',
+          }}>{showLocked ? 'Desbloqueie para acessar' : card.subtitle}</p>
         )}
 
         {showLocked ? (
           <span
-            className="w-full h-9 text-sm font-bold rounded-lg flex items-center justify-center gap-1.5"
+            className="w-full h-9 flex items-center justify-center"
             style={{
-              background: card.button_bg_color || "#f97316",
-              color: card.button_font_color || "#fff",
+              width: '100%',
+              padding: '10px',
+              background: 'transparent',
+              border: '1.5px solid rgba(255,255,255,0.3)',
+              borderRadius: '10px',
+              color: '#FFFFFF',
+              fontFamily: "'Barlow Condensed', sans-serif",
+              fontWeight: 800,
+              fontSize: '14px',
+              letterSpacing: '1px',
+              cursor: 'pointer',
             }}
           >
-            <Lock className="w-3.5 h-3.5" />
-            {card.button_text_acquire || "Adquirir Agora"}
+            DESBLOQUEAR
           </span>
         ) : (
           <span
-            className="w-full h-9 text-sm font-bold rounded-lg flex items-center justify-center group-hover:opacity-90 transition-colors"
+            className="w-full h-9 text-sm rounded-lg flex items-center justify-center group-hover:opacity-90 transition-colors"
             style={{
-              background: card.button_bg_color || "hsl(var(--primary))",
-              color: card.button_font_color || "hsl(var(--primary-foreground))",
+              background: buttonBg,
+              color: buttonColor,
+              fontFamily: "'Barlow Condensed', sans-serif",
+              fontWeight: 700,
+              letterSpacing: '0.5px',
             }}
           >
             {card.button_text_access || "Acessar"}
