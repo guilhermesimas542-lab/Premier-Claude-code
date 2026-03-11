@@ -22,6 +22,37 @@ interface LastGreen {
   title: string;
   condition_to_win: string;
   odd: number;
+  category: string;
+  created_at: string;
+}
+
+const CATEGORY_COLORS: Record<string, { bg: string; border: string; text: string; label: string }> = {
+  'basico':      { bg: 'rgba(96,165,250,0.15)',  border: 'rgba(96,165,250,0.3)',  text: '#60A5FA', label: 'BÁSICO' },
+  'básico':      { bg: 'rgba(96,165,250,0.15)',  border: 'rgba(96,165,250,0.3)',  text: '#60A5FA', label: 'BÁSICO' },
+  'pro':         { bg: 'rgba(0,232,122,0.15)',   border: 'rgba(0,232,122,0.3)',   text: '#00E87A', label: 'PRO' },
+  'ultra':       { bg: 'rgba(124,58,237,0.15)',  border: 'rgba(124,58,237,0.3)',  text: '#7C3AED', label: 'ULTRA' },
+  'alavancagem': { bg: 'rgba(240,180,41,0.15)',  border: 'rgba(240,180,41,0.3)',  text: '#F0B429', label: 'ALAVANCAGEM' },
+  'odds_altas':  { bg: 'rgba(249,115,22,0.15)',  border: 'rgba(249,115,22,0.3)',  text: '#F97316', label: 'ODDS ALTAS' },
+  'odds altas':  { bg: 'rgba(249,115,22,0.15)',  border: 'rgba(249,115,22,0.3)',  text: '#F97316', label: 'ODDS ALTAS' },
+};
+const DEFAULT_COLOR = { bg: 'rgba(255,255,255,0.08)', border: 'rgba(255,255,255,0.2)', text: '#ffffff', label: 'ENTRADA' };
+function getCategoryColor(category: string) {
+  const key = (category || '').toLowerCase().trim();
+  return CATEGORY_COLORS[key] || DEFAULT_COLOR;
+}
+
+function formatGreenDate(dateStr: string): string {
+  const date = new Date(dateStr);
+  const now = new Date();
+  const yesterday = new Date(now);
+  yesterday.setDate(now.getDate() - 1);
+  const isYesterday =
+    date.getDate() === yesterday.getDate() &&
+    date.getMonth() === yesterday.getMonth() &&
+    date.getFullYear() === yesterday.getFullYear();
+  const hours = date.getHours().toString().padStart(2, '0');
+  const minutes = date.getMinutes().toString().padStart(2, '0');
+  return isYesterday ? `ontem · ${hours}:${minutes}` : `${date.getDate()}/${date.getMonth() + 1} · ${hours}:${minutes}`;
 }
 
 const useLastGreens = () => {
@@ -36,7 +67,7 @@ const useLastGreens = () => {
 
         const { data } = await supabase
           .from("content_entries")
-          .select("title, condition_to_win, odd")
+          .select("title, condition_to_win, odd, category, created_at")
           .eq("result", "green")
           .eq("date", dateStr);
 
@@ -46,6 +77,8 @@ const useLastGreens = () => {
               title: d.title,
               condition_to_win: d.condition_to_win ?? "",
               odd: d.odd ?? 0,
+              category: d.category ?? "",
+              created_at: d.created_at,
             }))
           );
         }
@@ -71,14 +104,12 @@ const Login = () => {
   const { links } = useLinks();
   const greens = useLastGreens();
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [fadeKey, setFadeKey] = useState(0);
 
   useEffect(() => {
     if (greens.length <= 1) return;
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % greens.length);
-      setFadeKey((prev) => prev + 1);
-    }, 5000);
+    }, 3000);
     return () => clearInterval(interval);
   }, [greens.length]);
 
@@ -198,36 +229,58 @@ const Login = () => {
 
         {/* Last Greens Carousel */}
         {greens.length > 0 && (
-          <div
-            key={fadeKey}
-            className="w-full rounded-xl p-3.5 mb-8 animate-fade-in"
-            style={{
-              backgroundColor: "hsl(var(--card))",
-              border: "1px solid rgba(0, 232, 122, 0.15)",
-            }}
-          >
-            <div className="flex items-start justify-between">
-              {/* Left */}
-              <div className="flex flex-col gap-1 min-w-0 flex-1">
-                <span className="inline-flex w-fit px-2 py-0.5 rounded text-[10px] font-display font-bold uppercase tracking-wider text-background bg-primary">
-                  ÚLTIMO GREEN
-                </span>
-                <span className="font-display font-bold text-sm text-foreground truncate">
-                  {greens[currentIndex].title}
-                </span>
-                <span className="font-sans text-xs text-muted-foreground truncate">
-                  {greens[currentIndex].condition_to_win}
-                </span>
+          <div className="w-full mb-8">
+            {(() => {
+              const green = greens[currentIndex];
+              const color = getCategoryColor(green.category);
+              return (
+                <div
+                  key={currentIndex}
+                  className="rounded-xl overflow-hidden border animate-fade-in"
+                  style={{ borderColor: 'rgba(255,255,255,0.07)', backgroundColor: '#0D1929' }}
+                >
+                  <div className="flex items-center justify-between px-4 pt-4 pb-3">
+                    <div className="flex flex-col gap-1.5">
+                      <span
+                        className="inline-block px-2.5 py-0.5 rounded text-[11px] font-display font-bold tracking-wide"
+                        style={{ backgroundColor: color.bg, border: `1px solid ${color.border}`, color: color.text, letterSpacing: '0.05em' }}
+                      >
+                        {color.label}
+                      </span>
+                      <span className="text-white/40 font-sans text-[11px]">
+                        {formatGreenDate(green.created_at)}
+                      </span>
+                    </div>
+                    <span className="font-display font-black text-[32px] text-primary leading-none">
+                      {Number(green.odd).toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="px-4 pb-3">
+                    <p className="text-white font-display font-bold text-lg leading-tight">{green.title}</p>
+                    <p className="text-white/50 font-sans text-[13px] mt-0.5">{green.condition_to_win}</p>
+                  </div>
+                  <div className="flex items-center justify-center py-2.5" style={{ backgroundColor: 'rgba(0,232,122,0.08)', borderTop: '1px solid rgba(0,232,122,0.15)' }}>
+                    <span className="font-display font-bold text-[13px] text-primary tracking-wide">✓ ENTRADA BATEU</span>
+                  </div>
+                </div>
+              );
+            })()}
+            {greens.length > 1 && (
+              <div className="flex justify-center gap-1.5 mt-3">
+                {greens.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentIndex(index)}
+                    className="rounded-full transition-all duration-300"
+                    style={{
+                      width: index === currentIndex ? '20px' : '6px',
+                      height: '6px',
+                      backgroundColor: index === currentIndex ? '#00E87A' : 'rgba(255,255,255,0.2)',
+                    }}
+                  />
+                ))}
               </div>
-              {/* Right */}
-              <div className="flex flex-col items-end ml-3 shrink-0">
-                <span className="font-sans text-[10px] uppercase text-muted-foreground">ODD</span>
-                <span className="font-display font-black text-2xl text-primary">
-                  {greens[currentIndex].odd.toFixed(2)}
-                </span>
-                <span className="font-sans text-[11px] text-primary">✓ Confirmado</span>
-              </div>
-            </div>
+            )}
           </div>
         )}
 
@@ -289,14 +342,21 @@ const Login = () => {
           Adquirir acesso
         </button>
 
-        {/* Social proof */}
-        <div className="flex items-center justify-center gap-2 mt-8 mb-6">
-          <div className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-card border border-white/[0.07]">
+        {/* Social Proof Pills */}
+        <div className="flex gap-3 justify-center flex-wrap mt-8 mb-6">
+          <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-2">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
             </span>
-            <span className="text-sm font-sans text-muted-foreground">+50.000 apostadores ativos</span>
+            <span className="text-white/70 text-sm font-sans font-medium">+50.000 apostadores</span>
+          </div>
+          <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-2">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
+            </span>
+            <span className="text-white/70 text-sm font-sans font-medium">+10 entradas por dia</span>
           </div>
         </div>
 
