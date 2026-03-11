@@ -235,7 +235,7 @@ const Login = () => {
           <div className="w-full mb-8">
             {(() => {
               const green = greens[currentIndex];
-              const color = getCategoryColor(green.category);
+              const color = getTierColor(green.tier_required);
               return (
                 <div
                   key={currentIndex}
