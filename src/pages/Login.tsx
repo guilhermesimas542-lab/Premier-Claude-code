@@ -157,18 +157,12 @@ const Login = () => {
           IA que analisa. Você que lucra.
         </p>
 
-        {/* Feature cards */}
-        <div className="w-full space-y-2.5 mb-8">
-          {FEATURES.map((f) => (
-            <div
-              key={f.title}
-              className="flex items-start gap-3 px-4 py-3 rounded-[10px] bg-card border border-white/[0.07]"
-            >
-              <span className="mt-1.5 w-2 h-2 rounded-full bg-primary shrink-0" />
-              <p className="text-[13px] font-sans text-foreground">
-                <span className="font-bold">{f.title}</span>{" "}
-                <span className="text-muted-foreground">— {f.desc}</span>
-              </p>
+        {/* Stats */}
+        <div className="w-full flex justify-around mb-8">
+          {STATS.map((s) => (
+            <div key={s.label} className="flex flex-col items-center">
+              <span className="font-display font-black text-2xl text-brand-green">{s.value}</span>
+              <span className="font-sans text-[11px] uppercase text-slate-400 tracking-wide">{s.label}</span>
             </div>
           ))}
         </div>
