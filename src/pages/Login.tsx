@@ -104,7 +104,8 @@ const Login = () => {
   const handleAcquireAccess = async () => {
     const found = await triggerPayCard('basic');
     if (!found) {
-      window.open(CHECKOUT_LINKS.paywall_default, "_blank");
+      const url = links.acquire_access_url || CHECKOUT_LINKS.paywall_default;
+      window.open(url, "_blank");
     }
     setShowAcquireModal(false);
   };
