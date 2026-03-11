@@ -346,20 +346,20 @@ const Login = () => {
         </button>
 
         {/* Social Proof Pills */}
-        <div className="flex gap-3 justify-center flex-wrap mt-8 mb-6">
-          <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-2">
-            <span className="relative flex h-2 w-2">
+        <div className="flex gap-2 justify-center items-center flex-nowrap mt-8 mb-6">
+          <div className="flex items-center gap-1.5 bg-white/5 border border-white/10 rounded-full px-3 py-1.5">
+            <span className="relative flex h-1.5 w-1.5 shrink-0">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
+              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-primary" />
             </span>
-            <span className="text-white/70 text-sm font-sans font-medium">+50.000 apostadores</span>
+            <span className="text-white/70 whitespace-nowrap font-sans" style={{ fontSize: '12px', fontWeight: 500 }}>+50.000 apostadores</span>
           </div>
-          <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-2">
-            <span className="relative flex h-2 w-2">
+          <div className="flex items-center gap-1.5 bg-white/5 border border-white/10 rounded-full px-3 py-1.5">
+            <span className="relative flex h-1.5 w-1.5 shrink-0">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
+              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-primary" />
             </span>
-            <span className="text-white/70 text-sm font-sans font-medium">+10 entradas por dia</span>
+            <span className="text-white/70 whitespace-nowrap font-sans" style={{ fontSize: '12px', fontWeight: 500 }}>+10 entradas por dia</span>
           </div>
         </div>
 
