@@ -64,11 +64,11 @@
 
 .border-glow {
   background: linear-gradient(90deg, 
-    #00FF85 0%, 
+    #00FF7F 0%, 
     #005CFF 25%, 
-    #00FF85 50%, 
+    #00FF7F 50%, 
     #005CFF 75%, 
-    #00FF85 100%
+    #00FF7F 100%
   );
   background-size: 200% 100%;
   animation: border-fire 3s linear infinite;
@@ -79,7 +79,7 @@
   position: absolute;
   width: 4px;
   height: 4px;
-  background: radial-gradient(circle, #00FF85 0%, transparent 70%);
+  background: radial-gradient(circle, #00FF7F 0%, transparent 70%);
   border-radius: 50%;
   animation: particle-rise 3s ease-in-out infinite;
 }
@@ -115,10 +115,10 @@
   left: 0;
   width: 100%;
   height: 2px;
-  background: linear-gradient(90deg, transparent 0%, #00FF85 50%, transparent 100%);
+  background: linear-gradient(90deg, transparent 0%, #00FF7F 50%, transparent 100%);
   animation: lightning-strike 4s ease-in-out infinite;
   filter: blur(1px);
-  box-shadow: 0 0 10px #00FF85;
+  box-shadow: 0 0 10px #00FF7F;
 }
 
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
@@ -136,16 +136,16 @@ All colors MUST be HSL.
     --popover: 215 45% 10%;
     --popover-foreground: 210 17% 95%;
 
-    --primary: 155 100% 45%;
+    --primary: 146 100% 50%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 155 100% 35%;
+    --secondary: 146 100% 40%;
     --secondary-foreground: 0 0% 100%;
 
     --muted: 220 30% 12%;
     --muted-foreground: 218 11% 61%;
 
-    --accent: 155 80% 50%;
+    --accent: 146 100% 50%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
@@ -153,24 +153,24 @@ All colors MUST be HSL.
 
     --border: 220 30% 14%;
     --input: 220 30% 14%;
-    --ring: 155 100% 45%;
+    --ring: 146 100% 50%;
 
-    --success: 155 100% 45%;
+    --success: 146 100% 50%;
     --warning: 42 88% 55%;
     --vip: 280 100% 60%;
     --ultra: 280 100% 60%;
 
     --radius: 0.75rem;
 
-    --brand-green: 155 100% 45%;
+    --brand-green: 146 100% 50%;
     --brand-gold: 42 88% 55%;
     --brand-purple-ultra: 263 90% 58%;
     --card-bg: 215 35% 14%;
     --navy-dark: 220 65% 7%;
 
     --gradient-card: linear-gradient(135deg, hsl(215, 45%, 12%) 0%, hsl(220, 65%, 7%) 100%);
-    --shadow-glow-primary: 0 0 20px hsl(155 100% 45% / 0.3);
-    --shadow-glow-accent: 0 0 20px hsl(155 100% 45% / 0.2);
+    --shadow-glow-primary: 0 0 20px hsl(146 100% 50% / 0.3);
+    --shadow-glow-accent: 0 0 20px hsl(146 100% 50% / 0.2);
     --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.4);
   }
 

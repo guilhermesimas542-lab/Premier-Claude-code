@@ -13,7 +13,7 @@ import FunnelBuilder from "@/admin/components/funnel-popup/FunnelBuilder";
 import type { PopupFormState, FunnelQuestion } from "@/admin/components/funnel-popup/types";
 import { LogoInput } from "@/admin/components/LogoInput";
 import { CardType1Lateral } from "@/components/cards/CardType1Lateral";
-import { CardType2Top } from "@/components/cards/CardType2Top";
+import CardType2Top from "@/components/cards/CardType2Top";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import type { CardData, CardImageUrls } from "@/hooks/useCards";
@@ -365,7 +365,7 @@ export default function AdminCards() {
                       <span className="font-semibold text-sm">
                         {c.title}
                         <span className="ml-2 font-normal text-xs text-muted-foreground">
-                          {c.card_type === "type1_lateral" ? "(200 x 240 px)" : "(800 x 360 px)"}
+                          {c.card_type === "type1_lateral" ? "(200 x 240 px)" : "(800 x 800 px)"}
                         </span>
                       </span>
                       <div className="flex items-center gap-1.5 flex-wrap">

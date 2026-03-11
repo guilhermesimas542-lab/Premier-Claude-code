@@ -19,7 +19,7 @@ import { useUserBettingHouse } from "@/hooks/useUserBettingHouse";
 import { useCards, useCardsBySlugs, CardData } from "@/hooks/useCards";
 import { useUserAccess } from "@/hooks/useUserAccess";
 import { CardType1Lateral } from "@/components/cards/CardType1Lateral";
-import { CardType2Top } from "@/components/cards/CardType2Top";
+import CardType2Top from "@/components/cards/CardType2Top";
 import { CardFunnelModal } from "@/components/cards/CardFunnelModal";
 import { usePayCardTrigger } from "@/hooks/usePayCardTrigger";
 import { PayCardFunnelModal } from "@/components/PayCardFunnelModal";
@@ -273,7 +273,11 @@ const Home = () => {
             >
               ⚡ Acesso Rápido
             </h2>
-            <div className="space-y-3">
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: '10px',
+            }}>
               {quickCards.map(renderCard)}
             </div>
           </section>
