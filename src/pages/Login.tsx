@@ -266,7 +266,7 @@ const Login = () => {
                             {color.label}
                           </span>
                           {/* Odd + retorno */}
-                          <div className="flex flex-col items-end">
+                          <div className="flex flex-col items-center text-center">
                             <span
                               style={{
                                 fontFamily: 'Barlow Condensed, sans-serif',
