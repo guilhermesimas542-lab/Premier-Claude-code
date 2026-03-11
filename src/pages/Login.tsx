@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -18,11 +18,46 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-const STATS = [
-  { value: "80%", label: "ACERTO" },
-  { value: "+12", label: "TIPS/DIA" },
-  { value: "+50K", label: "USUÁRIOS" },
-];
+interface LastGreen {
+  title: string;
+  condition_to_win: string;
+  odd: number;
+}
+
+const useLastGreen = () => {
+  const [lastGreen, setLastGreen] = useState<LastGreen | null>(null);
+
+  useEffect(() => {
+    const fetchLastGreen = async () => {
+      try {
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const dateStr = yesterday.toISOString().split("T")[0];
+
+        const { data } = await supabase
+          .from("content_entries")
+          .select("title, condition_to_win, odd")
+          .eq("result", "green")
+          .eq("date", dateStr)
+          .order("odd", { ascending: false })
+          .limit(1);
+
+        if (data && data.length > 0) {
+          setLastGreen({
+            title: data[0].title,
+            condition_to_win: data[0].condition_to_win ?? "",
+            odd: data[0].odd ?? 0,
+          });
+        }
+      } catch {
+        // silently fail
+      }
+    };
+    fetchLastGreen();
+  }, []);
+
+  return lastGreen;
+};
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -34,6 +69,7 @@ const Login = () => {
   const { subscribe } = usePushNotifications();
   const { triggerPayCard, payCard, open: payCardOpen, closePayCard } = usePayCardTrigger();
   const { links } = useLinks();
+  const lastGreen = useLastGreen();
 
   const validateEmail = (value: string) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
@@ -140,32 +176,48 @@ const Login = () => {
 
       {/* Content */}
       <main className="relative flex flex-col items-center justify-center min-h-screen px-6 py-12 w-full max-w-md mx-auto" style={{ zIndex: 2 }}>
-        {/* Logo */}
-        <div className="mb-8">
+        {/* Logo — hero element */}
+        <div className="mb-10">
           <img
             src={logo}
             alt="Premier FC App"
-            className="h-16 w-auto mx-auto object-contain scale-[9.0]"
+            className="h-20 w-auto mx-auto object-contain scale-[11.7]"
           />
         </div>
 
-        {/* Title */}
-        <h1 className="font-display font-black text-4xl uppercase tracking-tight text-center mb-1">
-          <span className="text-brand-purple-ultra">ULTRA</span>
-        </h1>
-        <p className="text-center text-sm font-sans text-muted-foreground mb-8">
-          IA que analisa. Você que lucra.
-        </p>
-
-        {/* Stats */}
-        <div className="w-full flex justify-around mb-8">
-          {STATS.map((s) => (
-            <div key={s.label} className="flex flex-col items-center">
-              <span className="font-display font-black text-2xl text-brand-green">{s.value}</span>
-              <span className="font-sans text-[11px] uppercase text-slate-400 tracking-wide">{s.label}</span>
+        {/* Last Green Card */}
+        {lastGreen && (
+          <div
+            className="w-full rounded-xl p-3.5 mb-8"
+            style={{
+              backgroundColor: "hsl(var(--card))",
+              border: "1px solid rgba(0, 232, 122, 0.15)",
+            }}
+          >
+            <div className="flex items-start justify-between">
+              {/* Left */}
+              <div className="flex flex-col gap-1 min-w-0 flex-1">
+                <span className="inline-flex w-fit px-2 py-0.5 rounded text-[10px] font-display font-bold uppercase tracking-wider text-background bg-primary">
+                  ÚLTIMO GREEN
+                </span>
+                <span className="font-display font-bold text-sm text-foreground truncate">
+                  {lastGreen.title}
+                </span>
+                <span className="font-sans text-xs text-muted-foreground truncate">
+                  {lastGreen.condition_to_win}
+                </span>
+              </div>
+              {/* Right */}
+              <div className="flex flex-col items-end ml-3 shrink-0">
+                <span className="font-sans text-[10px] uppercase text-muted-foreground">ODD</span>
+                <span className="font-display font-black text-2xl text-primary">
+                  {lastGreen.odd.toFixed(2)}
+                </span>
+                <span className="font-sans text-[11px] text-primary">✓ Confirmado</span>
+              </div>
             </div>
-          ))}
-        </div>
+          </div>
+        )}
 
         {/* Form */}
         <form onSubmit={handleLogin} className="w-full space-y-3 mb-6">
