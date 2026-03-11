@@ -289,7 +289,7 @@ const Home = () => {
           <button
             onClick={() => navigate("/ultimos-greens")}
             className="w-full flex items-center gap-3 p-4 rounded-xl border transition-all hover:-translate-y-0.5"
-            style={{ background: "#112236", borderColor: "rgba(255,255,255,0.22)" }}
+            style={{ background: "#112236", borderColor: "rgba(255,255,255,0.30)" }}
           >
             <div className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0" style={{ background: "rgba(0,255,0,0.1)", border: "1px solid rgba(0,255,0,0.3)" }}>
               <span className="text-lg">🏆</span>

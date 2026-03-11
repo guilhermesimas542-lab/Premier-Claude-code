@@ -32,7 +32,7 @@ export function CardType2Top({ card, hasAccess, onAction }: Props) {
   return (
     <button
       onClick={onAction}
-      className="relative w-full overflow-hidden rounded-xl border border-white/[0.22] hover:-translate-y-0.5 hover:border-primary/50 transition-all duration-200 text-left group"
+      className="relative w-full overflow-hidden rounded-xl border border-white/[0.30] hover:-translate-y-0.5 hover:border-primary/50 transition-all duration-200 text-left group"
       style={{ background: "#112236" }}
     >
       {/* Badges */}

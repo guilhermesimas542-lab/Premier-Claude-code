@@ -147,7 +147,7 @@ const Support = () => {
 
   return (
     <div className="min-h-screen relative overflow-hidden pb-24 bg-navy-dark">
-      <div className="absolute top-0 left-1/4 w-96 h-96 rounded-full blur-[120px] pointer-events-none" style={{ background: "rgba(0,232,122,0.04)" }} />
+      <div className="absolute top-0 left-1/4 w-96 h-96 rounded-full blur-[120px] pointer-events-none" style={{ background: "rgba(0,255,127,0.04)" }} />
 
       {/* Header */}
       <header className="sticky top-0 z-40 backdrop-blur-xl" style={{ background: "rgba(0,0,0,0.92)", borderBottom: "1px solid rgba(0,255,0,0.15)" }}>

@@ -54,12 +54,12 @@ export const BottomNav = () => {
               className="relative flex flex-col items-center justify-center gap-1 px-4 py-2 rounded-xl transition-all duration-200"
             >
               {active && (
-                <div className="absolute inset-0 rounded-xl" style={{ background: "rgba(0,232,122,0.08)" }} />
+                <div className="absolute inset-0 rounded-xl" style={{ background: "rgba(0,255,127,0.08)" }} />
               )}
               
               <Icon
                 className="relative z-10 w-5 h-5 transition-colors"
-                style={{ color: active ? "#00E87A" : "#888888" }}
+                style={{ color: active ? "#00FF7F" : "#888888" }}
               />
               <span
                 className="relative z-10 text-[10px] font-medium transition-colors"

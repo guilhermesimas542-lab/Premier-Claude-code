@@ -241,7 +241,7 @@ const Login = () => {
                       <div
                         style={{
                           backgroundColor: '#112236',
-                          border: '1.5px solid rgba(255,255,255,0.22)',
+                          border: '1.5px solid rgba(255,255,255,0.30)',
                           borderRadius: '12px',
                           overflow: 'hidden',
                         }}
