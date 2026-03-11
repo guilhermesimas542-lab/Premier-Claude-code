@@ -265,18 +265,32 @@ const Login = () => {
                           >
                             {color.label}
                           </span>
-                          {/* Odd */}
-                          <span
-                            style={{
-                              fontFamily: 'Barlow Condensed, sans-serif',
-                              fontWeight: 900,
-                              fontSize: '36px',
-                              color: '#00E87A',
-                              lineHeight: 1,
-                            }}
-                          >
-                            {Number(green.odd).toFixed(2)}
-                          </span>
+                          {/* Odd + retorno */}
+                          <div className="flex flex-col items-end">
+                            <span
+                              style={{
+                                fontFamily: 'Barlow Condensed, sans-serif',
+                                fontWeight: 900,
+                                fontSize: '36px',
+                                color: '#00E87A',
+                                lineHeight: 1,
+                              }}
+                            >
+                              {Number(green.odd).toFixed(2)}
+                            </span>
+                            <span
+                              style={{
+                                fontFamily: 'DM Sans, sans-serif',
+                                fontWeight: 400,
+                                fontSize: '12px',
+                                color: '#94A3B8',
+                                lineHeight: 1.4,
+                                marginTop: '2px',
+                              }}
+                            >
+                              {`R$ 100 → R$ ${(100 * Number(green.odd)).toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
+                            </span>
+                          </div>
                         </div>
                         {/* Middle: game and tip */}
                         <div className="px-4 pb-3">
