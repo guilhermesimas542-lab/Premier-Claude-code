@@ -29,8 +29,8 @@ export function CardType1Lateral({ card, onAction }: Props) {
   return (
     <button
       onClick={onAction}
-      className="relative w-full overflow-hidden rounded-xl border border-white/10 flex hover:-translate-y-0.5 hover:border-primary/50 transition-all duration-200 text-left group"
-      style={{ background: "hsl(0 0% 7%)", minHeight: "120px" }}
+      className="relative w-full overflow-hidden rounded-xl border border-white/[0.22] flex hover:-translate-y-0.5 hover:border-primary/50 transition-all duration-200 text-left group"
+      style={{ background: "#112236", minHeight: "120px" }}
     >
       {/* Badges */}
       {card.badges && card.badges.length > 0 && (
@@ -59,7 +59,7 @@ export function CardType1Lateral({ card, onAction }: Props) {
             <span className="text-3xl text-muted-foreground">📦</span>
           </div>
         )}
-        <div className="absolute inset-0" style={{ background: "linear-gradient(to right, transparent, hsl(0 0% 7%))" }} />
+        <div className="absolute inset-0" style={{ background: "linear-gradient(to right, transparent, #112236)" }} />
       </div>
 
       {/* Content */}

@@ -32,8 +32,8 @@ export function CardType2Top({ card, hasAccess, onAction }: Props) {
   return (
     <button
       onClick={onAction}
-      className="relative w-full overflow-hidden rounded-xl border border-white/10 hover:-translate-y-0.5 hover:border-primary/50 transition-all duration-200 text-left group"
-      style={{ background: "hsl(0 0% 7%)" }}
+      className="relative w-full overflow-hidden rounded-xl border border-white/[0.22] hover:-translate-y-0.5 hover:border-primary/50 transition-all duration-200 text-left group"
+      style={{ background: "#112236" }}
     >
       {/* Badges */}
       {card.badges && card.badges.length > 0 && (
@@ -66,7 +66,7 @@ export function CardType2Top({ card, hasAccess, onAction }: Props) {
             <span className="text-4xl text-muted-foreground">📦</span>
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-[hsl(0_0%_7%)] via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#112236] via-transparent to-transparent" />
 
         {/* Lock overlay */}
         {showLocked && (
