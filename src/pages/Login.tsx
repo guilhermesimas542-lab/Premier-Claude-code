@@ -24,11 +24,11 @@ interface LastGreen {
   odd: number;
 }
 
-const useLastGreen = () => {
-  const [lastGreen, setLastGreen] = useState<LastGreen | null>(null);
+const useLastGreens = () => {
+  const [greens, setGreens] = useState<LastGreen[]>([]);
 
   useEffect(() => {
-    const fetchLastGreen = async () => {
+    const fetchGreens = async () => {
       try {
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
@@ -38,25 +38,25 @@ const useLastGreen = () => {
           .from("content_entries")
           .select("title, condition_to_win, odd")
           .eq("result", "green")
-          .eq("date", dateStr)
-          .order("odd", { ascending: false })
-          .limit(1);
+          .eq("date", dateStr);
 
         if (data && data.length > 0) {
-          setLastGreen({
-            title: data[0].title,
-            condition_to_win: data[0].condition_to_win ?? "",
-            odd: data[0].odd ?? 0,
-          });
+          setGreens(
+            data.map((d) => ({
+              title: d.title,
+              condition_to_win: d.condition_to_win ?? "",
+              odd: d.odd ?? 0,
+            }))
+          );
         }
       } catch {
         // silently fail
       }
     };
-    fetchLastGreen();
+    fetchGreens();
   }, []);
 
-  return lastGreen;
+  return greens;
 };
 
 const Login = () => {
@@ -69,7 +69,18 @@ const Login = () => {
   const { subscribe } = usePushNotifications();
   const { triggerPayCard, payCard, open: payCardOpen, closePayCard } = usePayCardTrigger();
   const { links } = useLinks();
-  const lastGreen = useLastGreen();
+  const greens = useLastGreens();
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [fadeKey, setFadeKey] = useState(0);
+
+  useEffect(() => {
+    if (greens.length <= 1) return;
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % greens.length);
+      setFadeKey((prev) => prev + 1);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [greens.length]);
 
   const validateEmail = (value: string) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
@@ -181,14 +192,15 @@ const Login = () => {
           <img
             src={logo}
             alt="Premier FC App"
-            className="h-20 w-auto mx-auto object-contain scale-[11.7]"
+            className="h-16 w-auto mx-auto object-contain scale-[9.0]"
           />
         </div>
 
-        {/* Last Green Card */}
-        {lastGreen && (
+        {/* Last Greens Carousel */}
+        {greens.length > 0 && (
           <div
-            className="w-full rounded-xl p-3.5 mb-8"
+            key={fadeKey}
+            className="w-full rounded-xl p-3.5 mb-8 animate-fade-in"
             style={{
               backgroundColor: "hsl(var(--card))",
               border: "1px solid rgba(0, 232, 122, 0.15)",
@@ -201,17 +213,17 @@ const Login = () => {
                   ÚLTIMO GREEN
                 </span>
                 <span className="font-display font-bold text-sm text-foreground truncate">
-                  {lastGreen.title}
+                  {greens[currentIndex].title}
                 </span>
                 <span className="font-sans text-xs text-muted-foreground truncate">
-                  {lastGreen.condition_to_win}
+                  {greens[currentIndex].condition_to_win}
                 </span>
               </div>
               {/* Right */}
               <div className="flex flex-col items-end ml-3 shrink-0">
                 <span className="font-sans text-[10px] uppercase text-muted-foreground">ODD</span>
                 <span className="font-display font-black text-2xl text-primary">
-                  {lastGreen.odd.toFixed(2)}
+                  {greens[currentIndex].odd.toFixed(2)}
                 </span>
                 <span className="font-sans text-[11px] text-primary">✓ Confirmado</span>
               </div>
