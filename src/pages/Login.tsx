@@ -27,17 +27,20 @@ interface LastGreen {
 }
 
 const TIER_COLORS: Record<string, { bg: string; border: string; text: string; label: string }> = {
-  'free':        { bg: 'rgba(96,165,250,0.15)',  border: 'rgba(96,165,250,0.3)',  text: '#60A5FA', label: 'BÁSICO' },
-  'basic':       { bg: 'rgba(96,165,250,0.15)',  border: 'rgba(96,165,250,0.3)',  text: '#60A5FA', label: 'BÁSICO' },
-  'basico':      { bg: 'rgba(96,165,250,0.15)',  border: 'rgba(96,165,250,0.3)',  text: '#60A5FA', label: 'BÁSICO' },
-  'pro':         { bg: 'rgba(0,232,122,0.15)',   border: 'rgba(0,232,122,0.3)',   text: '#00E87A', label: 'PRO' },
-  'ultra':       { bg: 'rgba(124,58,237,0.15)',  border: 'rgba(124,58,237,0.3)',  text: '#7C3AED', label: 'ULTRA' },
-  'alavancagem': { bg: 'rgba(240,180,41,0.15)',  border: 'rgba(240,180,41,0.3)',  text: '#F0B429', label: 'ALAVANCAGEM' },
-  'odds_altas':  { bg: 'rgba(249,115,22,0.15)',  border: 'rgba(249,115,22,0.3)',  text: '#F97316', label: 'ODDS ALTAS' },
-  'odds altas':  { bg: 'rgba(249,115,22,0.15)',  border: 'rgba(249,115,22,0.3)',  text: '#F97316', label: 'ODDS ALTAS' },
-  'oddsaltas':   { bg: 'rgba(249,115,22,0.15)',  border: 'rgba(249,115,22,0.3)',  text: '#F97316', label: 'ODDS ALTAS' },
+  'free':        { bg: 'rgba(96,165,250,0.25)',  border: 'rgba(96,165,250,0.6)',  text: '#60A5FA', label: 'BÁSICO' },
+  'basic':       { bg: 'rgba(96,165,250,0.25)',  border: 'rgba(96,165,250,0.6)',  text: '#60A5FA', label: 'BÁSICO' },
+  'basico':      { bg: 'rgba(96,165,250,0.25)',  border: 'rgba(96,165,250,0.6)',  text: '#60A5FA', label: 'BÁSICO' },
+  'pro':         { bg: 'rgba(0,232,122,0.25)',   border: 'rgba(0,232,122,0.6)',   text: '#00E87A', label: 'PRO' },
+  'ultra':       { bg: 'rgba(124,58,237,0.25)',  border: 'rgba(124,58,237,0.6)',  text: '#7C3AED', label: 'ULTRA' },
+  'alavancagem': { bg: 'rgba(240,180,41,0.25)',  border: 'rgba(240,180,41,0.6)',  text: '#F0B429', label: 'ALAVANCAGEM' },
+  'leverage':    { bg: 'rgba(240,180,41,0.25)',  border: 'rgba(240,180,41,0.6)',  text: '#F0B429', label: 'ALAVANCAGEM' },
+  'odds_altas':  { bg: 'rgba(249,115,22,0.25)',  border: 'rgba(249,115,22,0.6)',  text: '#F97316', label: 'ODDS ALTAS' },
+  'odds altas':  { bg: 'rgba(249,115,22,0.25)',  border: 'rgba(249,115,22,0.6)',  text: '#F97316', label: 'ODDS ALTAS' },
+  'oddsaltas':   { bg: 'rgba(249,115,22,0.25)',  border: 'rgba(249,115,22,0.6)',  text: '#F97316', label: 'ODDS ALTAS' },
+  'high_odds':   { bg: 'rgba(249,115,22,0.25)',  border: 'rgba(249,115,22,0.6)',  text: '#F97316', label: 'ODDS ALTAS' },
+  'high odds':   { bg: 'rgba(249,115,22,0.25)',  border: 'rgba(249,115,22,0.6)',  text: '#F97316', label: 'ODDS ALTAS' },
 };
-const DEFAULT_COLOR = { bg: 'rgba(255,255,255,0.08)', border: 'rgba(255,255,255,0.2)', text: '#ffffff', label: 'ENTRADA' };
+const DEFAULT_COLOR = { bg: 'rgba(255,255,255,0.12)', border: 'rgba(255,255,255,0.4)', text: '#ffffff', label: 'ENTRADA' };
 function getTierColor(tier: string) {
   if (!tier) return DEFAULT_COLOR;
   const key = tier.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
