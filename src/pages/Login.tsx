@@ -246,13 +246,13 @@ const Login = () => {
                           overflow: 'hidden',
                         }}
                       >
-                        {/* LINHA 1: badge esquerda | odd direita */}
+                        {/* LINHA 1: badge esquerda | odd+retorno direita */}
                         <div
                           style={{
                             display: 'flex',
                             justifyContent: 'space-between',
-                            alignItems: 'center',
-                            padding: '14px 16px 10px 16px',
+                            alignItems: 'flex-start',
+                            padding: '14px 16px 8px 16px',
                           }}
                         >
                           <span
@@ -272,66 +272,57 @@ const Login = () => {
                           >
                             {color.label}
                           </span>
-                          <span
-                            style={{
-                              fontFamily: 'Barlow Condensed, sans-serif',
-                              fontWeight: 900,
-                              fontSize: '36px',
-                              color: '#00FF7F',
-                              lineHeight: 1,
-                            }}
-                          >
-                            {Number(green.odd).toFixed(2)}
-                          </span>
-                        </div>
-                        {/* LINHA 2: nome+dica esquerda | retorno direita */}
-                        <div
-                          style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            padding: '0 16px 14px 16px',
-                          }}
-                        >
-                          <div>
-                            <p
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                            <span
                               style={{
                                 fontFamily: 'Barlow Condensed, sans-serif',
-                                fontWeight: 700,
-                                fontSize: '18px',
-                                color: '#ffffff',
-                                lineHeight: 1.2,
-                                margin: 0,
+                                fontWeight: 900,
+                                fontSize: '36px',
+                                color: '#00FF7F',
+                                lineHeight: 1,
                               }}
                             >
-                              {green.title}
-                            </p>
-                            <p
+                              {Number(green.odd).toFixed(2)}
+                            </span>
+                            <span
                               style={{
                                 fontFamily: 'DM Sans, sans-serif',
                                 fontWeight: 400,
                                 fontSize: '13px',
-                                color: 'rgba(255,255,255,0.45)',
-                                marginTop: '2px',
-                                margin: 0,
+                                color: '#94A3B8',
+                                whiteSpace: 'nowrap',
+                                marginTop: '4px',
                               }}
                             >
-                              {green.condition_to_win}
-                            </p>
+                              {`R$ 100 → R$ ${(100 * Number(green.odd)).toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
+                            </span>
                           </div>
-                          <span
+                        </div>
+                        {/* LINHA 2: nome do jogo + dica */}
+                        <div style={{ padding: '0 16px 14px 16px' }}>
+                          <p
+                            style={{
+                              fontFamily: 'Barlow Condensed, sans-serif',
+                              fontWeight: 700,
+                              fontSize: '18px',
+                              color: '#ffffff',
+                              lineHeight: 1.2,
+                              margin: 0,
+                            }}
+                          >
+                            {green.title}
+                          </p>
+                          <p
                             style={{
                               fontFamily: 'DM Sans, sans-serif',
                               fontWeight: 400,
                               fontSize: '13px',
-                              color: '#94A3B8',
-                              whiteSpace: 'nowrap',
-                              marginLeft: '12px',
-                              flexShrink: 0,
+                              color: 'rgba(255,255,255,0.45)',
+                              marginTop: '2px',
                             }}
                           >
-                            {`R$ 100 → R$ ${(100 * Number(green.odd)).toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
-                          </span>
+                            {green.condition_to_win}
+                          </p>
                         </div>
                         {/* FAIXA INFERIOR: ENTRADA BATEU */}
                         <div
