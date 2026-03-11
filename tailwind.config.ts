@@ -63,6 +63,10 @@ export default {
         ultra: {
           DEFAULT: "hsl(var(--ultra))",
         },
+        'brand-green': "hsl(var(--brand-green))",
+        'brand-gold': "hsl(var(--brand-gold))",
+        'card-bg': "hsl(var(--card-bg))",
+        'navy-dark': "hsl(var(--navy-dark))",
       },
       borderRadius: {
         lg: "var(--radius)",
