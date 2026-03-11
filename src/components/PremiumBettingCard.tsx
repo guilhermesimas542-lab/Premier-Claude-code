@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { HelpCircle, Info, Link2, Clock, Layers, BarChart3, Lock } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { ShirtIcon } from "./ShirtIcon";
-import { useMatrixCanvas } from "@/hooks/useMatrixCanvas";
+
 
 export interface ShirtConfig {
   variant: "solid" | "stripes";
