@@ -13,7 +13,7 @@ import { toZonedTime } from "date-fns-tz";
 import { BottomNav } from "@/components/BottomNav";
 import { supabase } from "@/integrations/supabase/client";
 import { mockGetUser } from "@/mocks/user";
-import MatrixRain from "@/components/MatrixRain";
+
 import { trackEvent } from "@/lib/events";
 import { useGamification } from "@/contexts/GamificationContext";
 import logoImg from "@/assets/premier-logo-custom.png";
