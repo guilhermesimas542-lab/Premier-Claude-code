@@ -169,7 +169,7 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 217 19% 7%;
+    --background: 220 65% 7%;
     --foreground: 210 17% 95%;
   }
 }
