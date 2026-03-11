@@ -30,7 +30,7 @@ const FIELDS = [
   { key: "acquire_access_url", label: "🛒 URL Adquirir Acesso", placeholder: "https://checkout.premierfc.app/...", section: "buttons" },
 ] as const;
 
-type FormKey = "iframe_url" | "telegram_group_url" | "aviator_url" | "roleta_url" | "mines_url" | "football_studio_url";
+type FormKey = "iframe_url" | "telegram_group_url" | "aviator_url" | "roleta_url" | "mines_url" | "football_studio_url" | "support_whatsapp_url" | "acquire_access_url";
 
 type Form = Record<FormKey, string>;
 
