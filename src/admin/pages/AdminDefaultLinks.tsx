@@ -60,7 +60,7 @@ export default function AdminDefaultLinks() {
       setLoading(true);
       const { data, error } = await supabase
         .from("betting_houses")
-        .select("iframe_url, telegram_group_url, aviator_url, roleta_url, mines_url, football_studio_url, created_at")
+        .select("iframe_url, telegram_group_url, aviator_url, roleta_url, mines_url, football_studio_url, support_whatsapp_url, acquire_access_url, created_at")
         .eq("id", selectedHouse.id)
         .maybeSingle();
 
@@ -72,6 +72,8 @@ export default function AdminDefaultLinks() {
           roleta_url: (data as any).roleta_url ?? "",
           mines_url: (data as any).mines_url ?? "",
           football_studio_url: (data as any).football_studio_url ?? "",
+          support_whatsapp_url: (data as any).support_whatsapp_url ?? "",
+          acquire_access_url: (data as any).acquire_access_url ?? "",
         });
         // Don't set lastUpdated from created_at — it's not the last save time
       }
