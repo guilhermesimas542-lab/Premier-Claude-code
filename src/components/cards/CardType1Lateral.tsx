@@ -29,8 +29,8 @@ export function CardType1Lateral({ card, onAction }: Props) {
   return (
     <button
       onClick={onAction}
-      className="relative w-full overflow-hidden rounded-xl border border-white/10 flex hover:-translate-y-0.5 hover:border-primary/50 transition-all duration-200 text-left group"
-      style={{ background: "hsl(0 0% 7%)", minHeight: "120px" }}
+      className="relative w-full overflow-hidden rounded-xl border border-white/[0.22] flex hover:-translate-y-0.5 hover:border-primary/50 transition-all duration-200 text-left group"
+      style={{ background: "#112236", minHeight: "120px" }}
     >
       {/* Badges */}
       {card.badges && card.badges.length > 0 && (
