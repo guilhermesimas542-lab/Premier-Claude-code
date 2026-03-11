@@ -160,7 +160,7 @@ All colors MUST be HSL.
     --brand-green: 155 100% 45%;
     --brand-gold: 42 88% 55%;
     --brand-purple-ultra: 263 90% 58%;
-    --card-bg: 215 45% 10%;
+    --card-bg: 215 35% 14%;
     --navy-dark: 220 65% 7%;
 
     --gradient-card: linear-gradient(135deg, hsl(215, 45%, 12%) 0%, hsl(220, 65%, 7%) 100%);
