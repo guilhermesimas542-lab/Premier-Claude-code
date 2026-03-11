@@ -33,6 +33,7 @@ const Login = () => {
   const navigate = useNavigate();
   const { subscribe } = usePushNotifications();
   const { triggerPayCard, payCard, open: payCardOpen, closePayCard } = usePayCardTrigger();
+  const { links } = useLinks();
 
   const validateEmail = (value: string) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
