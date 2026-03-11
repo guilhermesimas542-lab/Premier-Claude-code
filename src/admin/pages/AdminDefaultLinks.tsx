@@ -26,6 +26,8 @@ const FIELDS = [
   { key: "roleta_url", label: "🎰 Roleta", placeholder: "https://esportivabet.com/cassino/roleta", section: "casino" },
   { key: "mines_url", label: "💎 Mines", placeholder: "https://esportivabet.com/cassino/mines", section: "casino" },
   { key: "football_studio_url", label: "⚽ Football Studio", placeholder: "https://esportivabet.com/cassino/football", section: "casino" },
+  { key: "support_whatsapp_url", label: "📞 URL Suporte WhatsApp", placeholder: "https://wa.me/5511999999999", section: "buttons" },
+  { key: "acquire_access_url", label: "🛒 URL Adquirir Acesso", placeholder: "https://checkout.premierfc.app/...", section: "buttons" },
 ] as const;
 
 type FormKey = "iframe_url" | "telegram_group_url" | "aviator_url" | "roleta_url" | "mines_url" | "football_studio_url";
