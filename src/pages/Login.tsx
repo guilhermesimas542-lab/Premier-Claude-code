@@ -286,6 +286,7 @@ const Login = () => {
                                 color: '#94A3B8',
                                 lineHeight: 1.4,
                                 marginTop: '2px',
+                                whiteSpace: 'nowrap',
                               }}
                             >
                               {`R$ 100 → R$ ${(100 * Number(green.odd)).toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
