@@ -180,7 +180,7 @@ const Home = () => {
 
   return (
     <div className="min-h-screen relative overflow-hidden pb-20 md:pb-0 bg-navy-dark">
-      <div className="absolute top-0 left-1/4 w-96 h-96 rounded-full blur-[140px] pointer-events-none" style={{ background: "rgba(0,232,122,0.06)" }} />
+      <div className="absolute top-0 left-1/4 w-96 h-96 rounded-full blur-[140px] pointer-events-none" style={{ background: "rgba(0,255,127,0.06)" }} />
 
       {/* Header */}
       <header className="sticky top-0 z-50 backdrop-blur-xl border-b" style={{ background: "rgba(0,0,0,0.92)", borderColor: "rgba(0,255,0,0.15)" }}>
