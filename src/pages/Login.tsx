@@ -266,7 +266,15 @@ const Login = () => {
                             {color.label}
                           </span>
                           {/* Odd + retorno */}
-                          <div className="flex min-w-[112px] flex-col items-center justify-center text-center">
+                          <div
+                            style={{
+                              display: 'flex',
+                              flexDirection: 'column',
+                              alignItems: 'center',
+                              width: '100px',
+                              flexShrink: 0,
+                            }}
+                          >
                             <span
                               style={{
                                 fontFamily: 'Barlow Condensed, sans-serif',
@@ -274,6 +282,9 @@ const Login = () => {
                                 fontSize: '36px',
                                 color: '#00E87A',
                                 lineHeight: 1,
+                                textAlign: 'center',
+                                display: 'block',
+                                width: '100%',
                               }}
                             >
                               {Number(green.odd).toFixed(2)}
@@ -286,6 +297,9 @@ const Login = () => {
                                 color: '#94A3B8',
                                 lineHeight: 1.4,
                                 marginTop: '2px',
+                                textAlign: 'center',
+                                display: 'block',
+                                width: '100%',
                                 whiteSpace: 'nowrap',
                               }}
                             >
