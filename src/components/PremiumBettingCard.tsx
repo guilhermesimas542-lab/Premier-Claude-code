@@ -269,12 +269,7 @@ export const PremiumBettingCard = ({
         style={{ backgroundImage: `url('/images/futsal-arena.jpg')` }}
       />
 
-      {/* Matrix Rain overlay inside card */}
-      <canvas
-        ref={matrixCanvasRef}
-        className="absolute inset-0 rounded-xl"
-        style={{ zIndex: 1, opacity: 0.18, pointerEvents: "none" }}
-      />
+      {/* Dark gradient overlay */}
       
       {/* Dark Overlay for readability */}
       <div className={`absolute inset-0 rounded-xl ${
