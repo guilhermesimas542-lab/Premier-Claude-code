@@ -208,7 +208,7 @@ const Login = () => {
       {/* Content */}
       <main className="relative flex flex-col items-center justify-center min-h-screen px-6 py-12 w-full max-w-md mx-auto" style={{ zIndex: 2 }}>
         {/* Logo — hero element */}
-        <div className="mb-10 pointer-events-none">
+        <div className="mb-4 pointer-events-none">
           <img
             src={logo}
             alt="Premier Ultra"
@@ -385,7 +385,21 @@ const Login = () => {
 
         {/* Form */}
         <form onSubmit={handleLogin} className="w-full space-y-3 mb-6">
-          <div className="space-y-1.5">
+          <div className="flex flex-col gap-1.5">
+            {/* Label */}
+            <label
+              htmlFor="email"
+              style={{
+                fontFamily: 'Barlow Condensed, sans-serif',
+                fontWeight: 700,
+                fontSize: '11px',
+                letterSpacing: '1.5px',
+                color: '#94A3B8',
+                textTransform: 'uppercase',
+              }}
+            >
+              E-MAIL
+            </label>
             <input
               id="email"
               type="email"
@@ -396,11 +410,11 @@ const Login = () => {
                 if (emailError) setEmailError("");
               }}
               disabled={isLoading}
-              className="w-full h-[52px] rounded-[10px] px-4 text-base font-sans bg-card text-foreground outline-none transition-colors duration-200 disabled:opacity-50 placeholder:text-[#4A5568] focus:border-primary"
+              className="w-full h-[52px] rounded-[10px] px-4 text-base font-sans bg-card text-foreground outline-none transition-colors duration-200 disabled:opacity-50 placeholder:text-white/50 focus:border-primary"
               style={{
                 border: emailError
                   ? "1.5px solid hsl(var(--destructive))"
-                  : "1.5px solid rgba(255,255,255,0.07)",
+                  : "1.5px solid rgba(255,255,255,0.15)",
               }}
               onFocus={(e) => {
                 if (!emailError) {
@@ -409,7 +423,7 @@ const Login = () => {
               }}
               onBlur={(e) => {
                 if (!emailError) {
-                  e.currentTarget.style.border = "1.5px solid rgba(255,255,255,0.07)";
+                  e.currentTarget.style.border = "1.5px solid rgba(255,255,255,0.15)";
                 }
               }}
             />
