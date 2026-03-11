@@ -169,8 +169,8 @@ All colors MUST be HSL.
     --navy-dark: 220 65% 7%;
 
     --gradient-card: linear-gradient(135deg, hsl(215, 45%, 12%) 0%, hsl(220, 65%, 7%) 100%);
-    --shadow-glow-primary: 0 0 20px hsl(155 100% 45% / 0.3);
-    --shadow-glow-accent: 0 0 20px hsl(155 100% 45% / 0.2);
+    --shadow-glow-primary: 0 0 20px hsl(146 100% 50% / 0.3);
+    --shadow-glow-accent: 0 0 20px hsl(146 100% 50% / 0.2);
     --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.4);
   }
 
