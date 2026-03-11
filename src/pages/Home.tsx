@@ -23,6 +23,7 @@ import { CardType2Top } from "@/components/cards/CardType2Top";
 import { CardFunnelModal } from "@/components/cards/CardFunnelModal";
 import { usePayCardTrigger } from "@/hooks/usePayCardTrigger";
 import { PayCardFunnelModal } from "@/components/PayCardFunnelModal";
+import { useLinks } from "@/contexts/LinksContext";
 
 const Home = () => {
   const navigate = useNavigate();
