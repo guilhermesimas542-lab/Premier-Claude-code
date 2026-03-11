@@ -11,7 +11,7 @@ import { useAchievements } from "@/hooks/useAchievements";
 import AchievementDetailModal from "@/components/AchievementDetailModal";
 import { getAvatarById, LEVEL_TITLES } from "@/lib/avatars";
 import { BottomNav } from "@/components/BottomNav";
-import MatrixRain from "@/components/MatrixRain";
+
 import ProfileModal from "@/components/ProfileModal";
 import { useUserAccess } from "@/hooks/useUserAccess";
 import { getUpgradeLinkForTier } from "@/lib/checkoutLinks";
