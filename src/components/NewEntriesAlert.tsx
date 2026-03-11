@@ -10,7 +10,7 @@ export const NewEntriesAlert = ({ betSiteUrl }: NewEntriesAlertProps) => {
   const navigate = useNavigate();
 
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#000636] via-[#001B70] to-[#000636] border-2 border-[#00FF85] p-6 shadow-2xl shadow-[#00FF85]/30 animate-fade-in hot-entry-alert">
+    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#000636] via-[#001B70] to-[#000636] border-2 border-[#00FF7F] p-6 shadow-2xl shadow-[#00FF7F]/30 animate-fade-in hot-entry-alert">
       {/* Animated border glow */}
       <div className="absolute inset-0 rounded-2xl border-glow" />
       
