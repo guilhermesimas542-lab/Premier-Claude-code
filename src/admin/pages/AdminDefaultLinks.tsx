@@ -41,6 +41,8 @@ const EMPTY_FORM: Form = {
   roleta_url: "",
   mines_url: "",
   football_studio_url: "",
+  support_whatsapp_url: "",
+  acquire_access_url: "",
 };
 
 export default function AdminDefaultLinks() {

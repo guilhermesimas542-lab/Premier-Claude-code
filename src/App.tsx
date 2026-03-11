@@ -49,6 +49,7 @@ import { Navigate } from "react-router-dom";
 import { FunnelPopupProvider } from "./context/FunnelPopupContext";
 
 import { GamificationProvider } from "./contexts/GamificationContext";
+import { LinksProvider } from "./contexts/LinksContext";
 
 const queryClient = new QueryClient();
 

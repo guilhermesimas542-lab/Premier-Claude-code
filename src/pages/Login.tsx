@@ -8,6 +8,7 @@ import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { CHECKOUT_LINKS } from "@/lib/checkoutLinks";
 import { Crown, Loader2, ShoppingCart } from "lucide-react";
 import { usePayCardTrigger } from "@/hooks/usePayCardTrigger";
+import { useLinks } from "@/contexts/LinksContext";
 import { PayCardFunnelModal } from "@/components/PayCardFunnelModal";
 import logo from "@/assets/premier-logo-new.png";
 import {
