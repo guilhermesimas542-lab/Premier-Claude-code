@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import { useLocation } from "react-router-dom";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -95,6 +96,8 @@ function isEligibleForType(
       return !addons.includes("live_telegram");
     case "promotional":
       return true;
+    case "casino_welcome":
+      return true; // Any user visiting /cassino for the first time
     // Legacy "welcome" type — treat as welcome_free
     case "welcome":
       return tier === "free";
@@ -109,19 +112,20 @@ function isEligibleForType(
  * sorts by priority, and shows the first unseen one per session.
  */
 export function WelcomePopup({ house }: { house: HousePopupData | null }) {
+  const location = useLocation();
   const [open, setOpen] = useState(false);
   const [popupData, setPopupData] = useState<FunnelPopupData | null>(null);
   const [currentPopupId, setCurrentPopupId] = useState<string | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
   const [lastLoginEvent, setLastLoginEvent] = useState(0);
-  const sessionShownRef = useRef(false);
+  const sessionShownRoutesRef = useRef<Set<string>>(new Set());
 
   // Listen for login events to re-trigger popup check
   useEffect(() => {
     const handleLogin = () => {
       console.log('[WelcomePopup] Evento premier:login detectado. Re-verificando pop-ups.');
-      sessionShownRef.current = false;
+      sessionShownRoutesRef.current.clear();
       setLastLoginEvent(Date.now());
     };
     window.addEventListener('premier:login', handleLogin);
@@ -142,7 +146,7 @@ export function WelcomePopup({ house }: { house: HousePopupData | null }) {
   }, [currentUserId, currentPopupId]);
 
   useEffect(() => {
-    if (sessionShownRef.current) return;
+    if (sessionShownRoutesRef.current.has(location.pathname)) return;
 
     console.log('[WelcomePopup] Iniciando verificação de pop-up...');
 
@@ -167,8 +171,12 @@ export function WelcomePopup({ house }: { house: HousePopupData | null }) {
         return;
       }
 
-      // Filter by user eligibility (tier + addons + audience)
+      // Filter by user eligibility (tier + addons + audience + route)
       const eligible = popups.filter((p: any) => {
+        // Route-based filtering
+        if (p.type === "casino_welcome" && location.pathname !== "/cassino") return false;
+        if (p.type !== "casino_welcome" && location.pathname !== "/") return false;
+
         const audience = p.target_audience || "all";
         if (audience !== "all" && audience !== user.mainTier) return false;
         if (p.betting_house_id && p.betting_house_id !== user.houseId) return false;
@@ -197,7 +205,7 @@ export function WelcomePopup({ house }: { house: HousePopupData | null }) {
         const alreadyViewed = await hasViewedPopup(user.id, popup.id);
         console.log(`[WelcomePopup] Usuário já viu este pop-up? ${alreadyViewed}`);
         if (!alreadyViewed) {
-          sessionShownRef.current = true;
+          sessionShownRoutesRef.current.add(location.pathname);
           setCurrentPopupId(popup.id);
           setPopupData(popup as unknown as FunnelPopupData);
           setOpen(true);
@@ -210,7 +218,7 @@ export function WelcomePopup({ house }: { house: HousePopupData | null }) {
     };
 
     fetchPriorityPopup();
-  }, [house, lastLoginEvent]);
+  }, [house, lastLoginEvent, location.pathname]);
 
   if (!popupData || !open) return null;
 

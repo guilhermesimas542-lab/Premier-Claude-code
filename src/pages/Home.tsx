@@ -15,7 +15,6 @@ import { BottomNav } from "@/components/BottomNav";
 import { CHECKOUT_LINKS } from "@/lib/checkoutLinks";
 import logoImg from "@/assets/premier-logo-custom.png";
 import MatrixRain from "@/components/MatrixRain";
-import { WelcomePopup } from "@/components/HousePopups";
 import { useUserBettingHouse } from "@/hooks/useUserBettingHouse";
 import { useCards, useCardsBySlugs, CardData } from "@/hooks/useCards";
 import { useUserAccess } from "@/hooks/useUserAccess";
@@ -454,7 +453,7 @@ const Home = () => {
         </div>
       )}
 
-      <WelcomePopup house={userHouse} />
+      
       <BottomNav />
 
       {funnelCard && (

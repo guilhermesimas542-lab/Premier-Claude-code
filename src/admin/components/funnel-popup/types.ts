@@ -40,6 +40,7 @@ export interface PopupRow {
 export const POPUP_TYPES = [
   { value: "welcome_free", label: "🎉 Boas-Vindas (Free)", desc: "Primeira visita de usuário Free" },
   { value: "welcome_paid", label: "🎉 Boas-Vindas (Pago)", desc: "Primeira visita de usuário pagante" },
+  { value: "casino_welcome", label: "🎰 Boas-Vindas (Cassino)", desc: "Primeira visita à aba de Cassino" },
   { value: "upgrade_basic", label: "🔓 Upgrade Básico", desc: "Para usuários Free" },
   { value: "upgrade_pro", label: "⭐ Upgrade Pro", desc: "Para Free e Básico" },
   { value: "upgrade_ultra", label: "👑 Upgrade Ultra", desc: "Para todos abaixo de Ultra" },
@@ -53,6 +54,7 @@ export const POPUP_TYPES = [
 export const POPUP_PRIORITY: string[] = [
   "welcome_paid",
   "welcome_free",
+  "casino_welcome",
   "upgrade_ultra",
   "upgrade_pro",
   "upgrade_basic",
@@ -88,7 +90,7 @@ export const emptyForm: PopupFormState = {
 
 export function formToPayload(form: PopupFormState, selectedHouseId: string | null): Record<string, unknown> {
   const q = form.questions;
-  const triggerType = (form.type === "welcome_free" || form.type === "welcome_paid") ? "on_load" : "manual";
+  const triggerType = (form.type === "welcome_free" || form.type === "welcome_paid" || form.type === "casino_welcome") ? "on_load" : "manual";
   return {
     type: form.type,
     is_active: form.is_active,
