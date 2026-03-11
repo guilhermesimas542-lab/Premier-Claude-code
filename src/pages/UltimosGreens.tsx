@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import MatrixRain from "@/components/MatrixRain";
+
 import { ShirtIcon } from "@/components/ShirtIcon";
 
 interface GreenEntry {
@@ -333,9 +333,7 @@ const UltimosGreens = () => {
   const sortedDates = Object.keys(groupedGreens).sort((a, b) => b.localeCompare(a));
 
   return (
-    <div className="min-h-screen relative overflow-hidden" style={{ background: "#000000" }}>
-      {/* Matrix Rain Background */}
-      <MatrixRain opacity={0.18} fixed={false} />
+    <div className="min-h-screen relative overflow-hidden bg-navy-dark">
 
       {/* Header */}
       <header className="sticky top-0 z-50 backdrop-blur-xl" style={{ background: "rgba(0,0,0,0.92)", borderBottom: "1px solid rgba(0,255,0,0.15)" }}>

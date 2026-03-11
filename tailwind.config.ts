@@ -14,8 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
-        display: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['"DM Sans"', 'system-ui', '-apple-system', 'sans-serif'],
+        display: ['"Barlow Condensed"', 'system-ui', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -63,6 +63,10 @@ export default {
         ultra: {
           DEFAULT: "hsl(var(--ultra))",
         },
+        'brand-green': "hsl(var(--brand-green))",
+        'brand-gold': "hsl(var(--brand-gold))",
+        'card-bg': "hsl(var(--card-bg))",
+        'navy-dark': "hsl(var(--navy-dark))",
       },
       borderRadius: {
         lg: "var(--radius)",

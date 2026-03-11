@@ -13,7 +13,7 @@ import { toZonedTime } from "date-fns-tz";
 import { BottomNav } from "@/components/BottomNav";
 import { supabase } from "@/integrations/supabase/client";
 import { mockGetUser } from "@/mocks/user";
-import MatrixRain from "@/components/MatrixRain";
+
 import { trackEvent } from "@/lib/events";
 import { useGamification } from "@/contexts/GamificationContext";
 import logoImg from "@/assets/premier-logo-custom.png";
@@ -653,8 +653,7 @@ const Sport = () => {
   };
 
   return (
-    <div className="min-h-screen overflow-x-hidden w-full max-w-full pb-20 md:pb-0 relative" style={{ background: "#000000" }}>
-      <MatrixRain opacity={0.22} />
+    <div className="min-h-screen overflow-x-hidden w-full max-w-full pb-20 md:pb-0 relative bg-navy-dark">
       <header className="sticky top-0 z-50 backdrop-blur-xl border-b" style={{ background: "rgba(0,0,0,0.92)", borderColor: "rgba(0,255,0,0.15)" }}>
         <div className="container max-w-7xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
           <div className="flex items-center justify-between gap-2 sm:gap-4">

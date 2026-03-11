@@ -108,7 +108,7 @@ const Login = () => {
   const isDisabled = !email.trim() || isLoading;
 
   return (
-    <div className="relative min-h-screen overflow-hidden" style={{ background: "#000000" }}>
+    <div className="relative min-h-screen overflow-hidden bg-navy-dark">
 
       {/* Radial vignette to improve card readability */}
       <div

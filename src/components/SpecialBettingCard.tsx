@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Anchor, Gift, Clock, HelpCircle, BarChart3, Info, Lock } from "lucide-react";
 import { useState, useEffect } from "react";
-import { useMatrixCanvas } from "@/hooks/useMatrixCanvas";
+
 
 type SpecialCardType = "ALAVANCAGEM" | "ODDS_ALTAS";
 
@@ -85,7 +85,7 @@ export const SpecialBettingCard = ({
 }: SpecialBettingCardProps) => {
   const [countdown, setCountdown] = useState<string>("");
   const [isExpiredLocal, setIsExpiredLocal] = useState(false);
-  const matrixCanvasRef = useMatrixCanvas();
+  
 
   const config = getCardConfig(type);
   const IconComponent = config.icon;
@@ -187,12 +187,7 @@ export const SpecialBettingCard = ({
         style={{ backgroundImage: `url('/images/futsal-arena.jpg')` }}
       />
 
-      {/* Matrix Rain overlay inside card */}
-      <canvas
-        ref={matrixCanvasRef}
-        className="absolute inset-0 rounded-xl"
-        style={{ zIndex: 1, opacity: 0.18, pointerEvents: "none" }}
-      />
+      {/* Dark Overlay with gradient based on type */}
       
       {/* Dark Overlay with gradient based on type */}
       <div className={`absolute inset-0 pointer-events-none rounded-xl overflow-hidden ${
