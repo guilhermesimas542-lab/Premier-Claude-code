@@ -340,8 +340,8 @@ const Login = () => {
                             alignItems: 'center',
                             justifyContent: 'center',
                             padding: '10px 16px',
-                            backgroundColor: 'rgba(0,232,122,0.08)',
-                            borderTop: '1px solid rgba(0,232,122,0.15)',
+                            backgroundColor: 'rgba(0,255,127,0.08)',
+                            borderTop: '1px solid rgba(0,255,127,0.15)',
                           }}
                         >
                           <span
@@ -349,7 +349,7 @@ const Login = () => {
                               fontFamily: 'Barlow Condensed, sans-serif',
                               fontWeight: 700,
                               fontSize: '13px',
-                              color: '#00E87A',
+                              color: '#00FF7F',
                               letterSpacing: '0.06em',
                               textTransform: 'uppercase',
                             }}
