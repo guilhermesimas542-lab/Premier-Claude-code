@@ -119,7 +119,7 @@ export function WelcomePopup({ house }: { house: HousePopupData | null }) {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
   const [lastLoginEvent, setLastLoginEvent] = useState(0);
-  const sessionShownRef = useRef(false);
+  const sessionShownRoutesRef = useRef<Set<string>>(new Set());
 
   // Listen for login events to re-trigger popup check
   useEffect(() => {
