@@ -36,9 +36,9 @@ export const BottomNav = () => {
       style={{
         height: "64px",
         paddingBottom: "env(safe-area-inset-bottom, 0px)",
-        background: "rgba(0,0,0,0.95)",
-        borderTop: "1px solid rgba(0,255,0,0.2)",
-        boxShadow: "0 -4px 20px rgba(0,255,0,0.05)",
+        background: "rgba(6,13,30,0.95)",
+        borderTop: "1px solid rgba(0,232,122,0.15)",
+        boxShadow: "0 -4px 20px rgba(0,232,122,0.05)",
       }}
     >
       <div className="h-full flex items-center justify-around max-w-md mx-auto px-4">
