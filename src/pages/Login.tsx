@@ -65,9 +65,10 @@ const useLastGreens = () => {
 
         const { data } = await supabase
           .from("content_entries")
-          .select("title, condition_to_win, odd, tier_required, created_at")
+          .select("title, condition_to_win, odd, tier_required, addon_required, created_at")
           .eq("result", "green")
-          .eq("date", dateStr);
+          .eq("date", dateStr)
+          .order("created_at", { ascending: false });
 
         if (data && data.length > 0) {
           setGreens(
@@ -76,6 +77,7 @@ const useLastGreens = () => {
               condition_to_win: d.condition_to_win ?? "",
               odd: d.odd ?? 0,
               tier_required: d.tier_required ?? "",
+              addon_required: d.addon_required ?? null,
               created_at: d.created_at,
             }))
           );
