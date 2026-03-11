@@ -241,7 +241,7 @@ const Login = () => {
                 }}
               >
                 {greens.map((green, index) => {
-                  const color = getTierColor(green.tier_required);
+                  const color = getGreenStyle(green.tier_required, green.addon_required);
                   return (
                     <div
                       key={index}
