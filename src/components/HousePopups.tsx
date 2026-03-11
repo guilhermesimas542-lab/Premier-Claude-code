@@ -125,7 +125,7 @@ export function WelcomePopup({ house }: { house: HousePopupData | null }) {
   useEffect(() => {
     const handleLogin = () => {
       console.log('[WelcomePopup] Evento premier:login detectado. Re-verificando pop-ups.');
-      sessionShownRef.current = false;
+      sessionShownRoutesRef.current.clear();
       setLastLoginEvent(Date.now());
     };
     window.addEventListener('premier:login', handleLogin);
