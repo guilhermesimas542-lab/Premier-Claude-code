@@ -189,7 +189,7 @@ export const PremiumBettingCard = ({
   const [isExpiredLocal, setIsExpiredLocal] = useState(false);
   const marketHelpRef = useRef<HTMLDivElement>(null);
   const betHelpRef = useRef<HTMLDivElement>(null);
-  const matrixCanvasRef = useMatrixCanvas();
+  
 
   // Get display tier (never MÚLTIPLA)
   const displayTier = getDisplayTier(tier);
