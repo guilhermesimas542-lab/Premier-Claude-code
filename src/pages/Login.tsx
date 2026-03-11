@@ -69,7 +69,18 @@ const Login = () => {
   const { subscribe } = usePushNotifications();
   const { triggerPayCard, payCard, open: payCardOpen, closePayCard } = usePayCardTrigger();
   const { links } = useLinks();
-  const lastGreen = useLastGreen();
+  const greens = useLastGreens();
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [fadeKey, setFadeKey] = useState(0);
+
+  useEffect(() => {
+    if (greens.length <= 1) return;
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % greens.length);
+      setFadeKey((prev) => prev + 1);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [greens.length]);
 
   const validateEmail = (value: string) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
