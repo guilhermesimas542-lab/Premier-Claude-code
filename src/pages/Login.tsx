@@ -188,11 +188,11 @@ const Login = () => {
       {/* Content */}
       <main className="relative flex flex-col items-center justify-center min-h-screen px-6 py-12 w-full max-w-md mx-auto" style={{ zIndex: 2 }}>
         {/* Logo — hero element */}
-        <div className="mb-10 pointer-events-none relative z-0">
+        <div className="mb-6 pointer-events-none">
           <img
             src={logo}
-            alt="Premier FC App"
-            className="h-16 w-auto mx-auto object-contain scale-[9.0]"
+            alt="Premier Ultra"
+            className="w-48 h-auto mx-auto block"
           />
         </div>
 
