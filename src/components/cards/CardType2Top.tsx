@@ -6,162 +6,122 @@ interface Props {
   onAction: () => void;
 }
 
-function getBadgeStyle(badgeText: string, color: string | null) {
-  const upper = (badgeText || '').toUpperCase();
-  if (upper.includes('IA') || upper.includes('ATIVADA') || color === 'green') {
-    return { background: 'rgba(0,255,127,0.15)', border: '1px solid rgba(0,255,127,0.3)', color: '#00FF7F' };
-  }
-  if (upper.includes('NOVO') || color === 'gold') {
-    return { background: 'rgba(240,180,41,0.15)', border: '1px solid rgba(240,180,41,0.3)', color: '#F0B429' };
-  }
-  if (upper.includes('BETA') || color === 'white') {
-    return { background: 'rgba(148,163,184,0.15)', border: '1px solid rgba(148,163,184,0.3)', color: '#94A3B8' };
-  }
-  if (color === 'black_green') {
-    return { background: "#000", color: "#00FF7F", border: "1px solid #00FF7F" };
-  }
-  if (color === 'tron') {
-    return { background: "#000", color: "#00FFFF", border: "1px solid #00FFFF" };
-  }
-  return { background: 'rgba(0,255,127,0.15)', border: '1px solid rgba(0,255,127,0.3)', color: '#00FF7F' };
-}
-
-function isGreenColor(c: string | null): boolean {
-  if (!c) return false;
-  const lower = c.toLowerCase();
-  return lower === '#00e87a' || lower === '#00ff7f' || lower.includes('00e87a') || lower.includes('00ff7f');
-}
-
-export function CardType2Top({ card, hasAccess, onAction }: Props) {
-  const showLocked = card.requires_access && !hasAccess;
-  const imgs = card.image_urls;
-  const mobileImg = imgs?.mobile || imgs?.tablet || imgs?.desktop || null;
-
-  const buttonBg = card.button_bg_color || "hsl(var(--primary))";
-  const buttonColor = isGreenColor(card.button_bg_color)
-    ? '#000000'
-    : (card.button_font_color || "hsl(var(--primary-foreground))");
+const CardType2Top = ({ card, hasAccess, onAction }: Props) => {
+  const imageUrl = card.image_urls?.mobile || card.image_urls?.tablet || card.image_urls?.desktop || null;
 
   return (
-    <button
+    <div
       onClick={onAction}
-      className="relative w-full overflow-hidden rounded-xl border border-white/[0.30] hover:-translate-y-0.5 hover:border-primary/50 transition-all duration-200 text-left group"
-      style={{ background: "#112236" }}
+      style={{
+        background: '#112236',
+        border: '1.5px solid rgba(255,255,255,0.22)',
+        borderRadius: '12px',
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
+        width: '100%',
+        cursor: 'pointer',
+      }}
     >
-      {/* Badges */}
-      {card.badges && card.badges.length > 0 && (
-        <div className="absolute top-2 right-2 z-20 flex gap-1 flex-wrap justify-end">
-          {card.badges.map((badge) => {
-            const style = getBadgeStyle(badge, card.badge_color);
-            return (
-              <span
-                key={badge}
-                className="px-2 py-0.5 rounded-md"
-                style={{
-                  ...style,
-                  fontFamily: "'Barlow Condensed', sans-serif",
-                  fontWeight: 700,
-                  fontSize: '11px',
-                  letterSpacing: '1px',
-                }}
-              >
-                {badge}
-              </span>
-            );
-          })}
-        </div>
-      )}
-
-      {/* Image area */}
-      <div className="relative w-full overflow-hidden" style={{ height: "180px" }}>
-        {mobileImg ? (
-          <picture>
-            {imgs?.desktop && <source media="(min-width: 1024px)" srcSet={imgs.desktop} />}
-            {imgs?.tablet && <source media="(min-width: 768px)" srcSet={imgs.tablet} />}
-            <img src={mobileImg} alt={card.name} className="w-full h-full object-cover rounded-t-xl" />
-          </picture>
-        ) : (
-          <div className="w-full h-full flex items-center justify-center rounded-t-xl" style={{ background: "hsl(0 0% 10%)" }}>
-            <span className="text-4xl text-muted-foreground">📦</span>
-          </div>
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#112236] via-transparent to-transparent" />
-
-        {/* Lock overlay — redesigned */}
-        {showLocked && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center" style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(2px)' }}>
-            {/* Padlock icon */}
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg" style={{ opacity: 0.7 }}>
-              <path d="M12 2C9.24 2 7 4.24 7 7v3H6c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-8c0-1.1-.9-2-2-2h-1V7c0-2.76-2.24-5-5-5zm3 10H9V7c0-1.66 1.34-3 3-3s3 1.34 3 3v5z"/>
-            </svg>
-            {/* Separator */}
-            <div style={{ width: '40px', height: '1px', background: 'rgba(255,255,255,0.3)', margin: '8px 0' }} />
-            {/* Price if available */}
-            {(card as any).price && (
-              <span style={{
-                fontFamily: "'Barlow Condensed', sans-serif",
-                fontWeight: 700,
-                fontSize: '16px',
-                color: '#FFFFFF',
-              }}>
-                {(card as any).price}
-              </span>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* Content */}
-      <div className="p-4">
-        <h3 className="truncate mb-1" style={{
-          fontFamily: "'Barlow Condensed', sans-serif",
-          fontWeight: 800,
-          fontSize: '20px',
-          color: '#FFFFFF',
-        }}>{card.title}</h3>
-        {card.subtitle && (
-          <p className="truncate mb-2" style={{
-            fontFamily: "'DM Sans', sans-serif",
-            fontWeight: 400,
-            fontSize: '13px',
-            color: showLocked ? '#94A3B8' : '#94A3B8',
-          }}>{showLocked ? 'Desbloqueie para acessar' : card.subtitle}</p>
-        )}
-
-        {showLocked ? (
-          <span
-            className="w-full h-9 flex items-center justify-center"
+      {/* Área da imagem — quadrada 1:1 */}
+      <div style={{ position: 'relative', width: '100%', aspectRatio: '1 / 1' }}>
+        {imageUrl ? (
+          <img
+            src={imageUrl}
+            alt={card.title || card.name}
             style={{
               width: '100%',
-              padding: '10px',
-              background: 'transparent',
-              border: '1.5px solid rgba(255,255,255,0.3)',
-              borderRadius: '10px',
-              color: '#FFFFFF',
-              fontFamily: "'Barlow Condensed', sans-serif",
-              fontWeight: 800,
-              fontSize: '14px',
-              letterSpacing: '1px',
-              cursor: 'pointer',
+              height: '100%',
+              objectFit: 'cover',
+              display: 'block',
+              borderRadius: '10px 10px 0 0',
             }}
-          >
-            DESBLOQUEAR
-          </span>
+          />
         ) : (
-          <span
-            className="w-full h-9 text-sm rounded-lg flex items-center justify-center group-hover:opacity-90 transition-colors"
-            style={{
-              background: buttonBg,
-              color: buttonColor,
-              fontFamily: "'Barlow Condensed', sans-serif",
-              fontWeight: 700,
-              letterSpacing: '0.5px',
-            }}
-          >
-            {card.button_text_access || "Acessar"}
-          </span>
+          <div style={{
+            width: '100%',
+            height: '100%',
+            background: 'rgba(255,255,255,0.05)',
+            borderRadius: '10px 10px 0 0',
+          }} />
+        )}
+
+        {/* Overlay de bloqueio — só aparece quando !hasAccess */}
+        {!hasAccess && (
+          <div style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'rgba(6,13,30,0.75)',
+            borderRadius: '10px 10px 0 0',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+          }}>
+            {/* Cadeado branco 28px */}
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+              <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zM9 8V6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9z"/>
+            </svg>
+            {/* Linha separadora */}
+            <div style={{ width: '40px', height: '1px', background: 'rgba(255,255,255,0.25)' }} />
+          </div>
         )}
       </div>
-    </button>
+
+      {/* Área de texto e botão */}
+      <div style={{ padding: '10px 10px 12px 10px', display: 'flex', flexDirection: 'column' }}>
+        <span style={{
+          fontFamily: "'Barlow Condensed', sans-serif",
+          fontWeight: 800,
+          fontSize: '15px',
+          color: '#FFFFFF',
+          lineHeight: 1.2,
+        }}>
+          {card.title || card.name}
+        </span>
+        <span style={{
+          fontFamily: "'DM Sans', sans-serif",
+          fontWeight: 400,
+          fontSize: '11px',
+          color: '#94A3B8',
+          lineHeight: 1.3,
+          marginBottom: '6px',
+        }}>
+          {hasAccess ? (card.subtitle || '') : 'Desbloqueie para acessar'}
+        </span>
+
+        {/* Botão — verde se liberado, outline branco se bloqueado */}
+        <button
+          onClick={(e) => { e.stopPropagation(); onAction(); }}
+          style={{
+            width: '100%',
+            padding: '8px 0',
+            borderRadius: '8px',
+            fontFamily: "'Barlow Condensed', sans-serif",
+            fontWeight: 800,
+            fontSize: '13px',
+            letterSpacing: '0.5px',
+            cursor: 'pointer',
+            transition: 'opacity 0.2s',
+            ...(hasAccess
+              ? {
+                  background: '#00FF7F',
+                  border: 'none',
+                  color: '#000000',
+                }
+              : {
+                  background: 'transparent',
+                  border: '1.5px solid rgba(255,255,255,0.3)',
+                  color: '#FFFFFF',
+                }),
+          }}
+        >
+          {hasAccess ? 'ACESSAR' : 'DESBLOQUEAR'}
+        </button>
+      </div>
+    </div>
   );
-}
+};
+
+export default CardType2Top;

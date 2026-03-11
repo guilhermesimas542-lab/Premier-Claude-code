@@ -273,7 +273,11 @@ const Home = () => {
             >
               ⚡ Acesso Rápido
             </h2>
-            <div className="space-y-3">
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: '10px',
+            }}>
               {quickCards.map(renderCard)}
             </div>
           </section>

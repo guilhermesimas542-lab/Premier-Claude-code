@@ -365,7 +365,7 @@ export default function AdminCards() {
                       <span className="font-semibold text-sm">
                         {c.title}
                         <span className="ml-2 font-normal text-xs text-muted-foreground">
-                          {c.card_type === "type1_lateral" ? "(200 x 240 px)" : "(800 x 360 px)"}
+                          {c.card_type === "type1_lateral" ? "(200 x 240 px)" : "(800 x 800 px)"}
                         </span>
                       </span>
                       <div className="flex items-center gap-1.5 flex-wrap">
