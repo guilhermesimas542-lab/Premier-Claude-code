@@ -454,7 +454,7 @@ const Home = () => {
         </div>
       )}
 
-      <WelcomePopup house={userHouse} />
+      
       <BottomNav />
 
       {funnelCard && (
