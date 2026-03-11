@@ -367,14 +367,14 @@ const Login = () => {
             {greens.length > 1 && (
               <div className="flex justify-center gap-1.5 mt-3">
                 {greens.map((_, index) => (
-                  <button
+                    <button
                     key={index}
                     onClick={() => setCurrentIndex(index)}
                     className="rounded-full transition-all duration-300"
                     style={{
                       width: index === currentIndex ? '20px' : '6px',
                       height: '6px',
-                      backgroundColor: index === currentIndex ? '#00E87A' : 'rgba(255,255,255,0.2)',
+                      backgroundColor: index === currentIndex ? '#00FF7F' : 'rgba(255,255,255,0.2)',
                     }}
                   />
                 ))}
