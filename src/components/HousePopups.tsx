@@ -205,7 +205,7 @@ export function WelcomePopup({ house }: { house: HousePopupData | null }) {
         const alreadyViewed = await hasViewedPopup(user.id, popup.id);
         console.log(`[WelcomePopup] Usuário já viu este pop-up? ${alreadyViewed}`);
         if (!alreadyViewed) {
-          sessionShownRef.current = true;
+          sessionShownRoutesRef.current.add(location.pathname);
           setCurrentPopupId(popup.id);
           setPopupData(popup as unknown as FunnelPopupData);
           setOpen(true);
