@@ -64,11 +64,11 @@
 
 .border-glow {
   background: linear-gradient(90deg, 
-    #00FF85 0%, 
+    #00FF7F 0%, 
     #005CFF 25%, 
-    #00FF85 50%, 
+    #00FF7F 50%, 
     #005CFF 75%, 
-    #00FF85 100%
+    #00FF7F 100%
   );
   background-size: 200% 100%;
   animation: border-fire 3s linear infinite;
