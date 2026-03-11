@@ -29,7 +29,7 @@ export function EntryCard({
   const tierColors: Record<string, string> = {
     free: 'bg-[#94A3B8]/20 text-[#94A3B8] border-[#94A3B8]/30',
     basic: 'bg-[#60A5FA]/20 text-[#60A5FA] border-[#60A5FA]/30',
-    pro: 'bg-[#00E87A]/20 text-[#00E87A] border-[#00E87A]/30',
+    pro: 'bg-[#00FF7F]/20 text-[#00FF7F] border-[#00FF7F]/30',
     ultra: 'bg-[#7C3AED]/20 text-[#7C3AED] border-[#7C3AED]/30',
   };
 
