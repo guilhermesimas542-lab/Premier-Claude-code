@@ -146,7 +146,7 @@ export function WelcomePopup({ house }: { house: HousePopupData | null }) {
   }, [currentUserId, currentPopupId]);
 
   useEffect(() => {
-    if (sessionShownRef.current) return;
+    if (sessionShownRoutesRef.current.has(location.pathname)) return;
 
     console.log('[WelcomePopup] Iniciando verificação de pop-up...');
 
