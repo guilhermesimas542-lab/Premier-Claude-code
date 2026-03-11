@@ -13,10 +13,10 @@ import Login from "./pages/Login";
 import Bonus from "./pages/Bonus";
 import Casino from "./pages/Casino";
 import CasinoGame from "./pages/CasinoGame";
-import CasinoSignalGame from "./pages/CasinoSignalGame";
+
 import UltimosGreens from "./pages/UltimosGreens";
 import Support from "./pages/Support";
-import Profile from "./pages/Profile";
+
 import NotFound from "./pages/NotFound";
 import { AdminGuard } from "./admin/components/AdminGuard";
 import { AdminLayout } from "./admin/components/AdminLayout";
@@ -83,8 +83,8 @@ const App = () => {
             <Route path="/ultimos-greens" element={<UltimosGreens />} />
             <Route path="/cassino" element={<Casino />} />
             <Route path="/support" element={<Support />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/cassino/jogo/:slug" element={<CasinoSignalGame />} />
+            
+            
             <Route path="/cassino/:gameId" element={<CasinoGame />} />
             {/* Admin routes */}
             <Route path="/admin/login" element={<AdminLogin />} />
