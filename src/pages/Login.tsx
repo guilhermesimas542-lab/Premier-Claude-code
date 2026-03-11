@@ -18,10 +18,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-const FEATURES = [
-  { title: "Entradas prontas", desc: "Análises diárias com alto índice de acerto" },
-  { title: "IA avançada", desc: "Modelos treinados com dados reais de jogos" },
-  { title: "Resultados reais", desc: "Acompanhe greens e reds com transparência" },
+const STATS = [
+  { value: "80%", label: "ACERTO" },
+  { value: "+12", label: "TIPS/DIA" },
+  { value: "+50K", label: "USUÁRIOS" },
 ];
 
 const Login = () => {
