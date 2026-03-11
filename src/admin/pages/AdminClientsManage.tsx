@@ -64,9 +64,6 @@ const TIER_COLORS: Record<string, string> = {
   pro: "text-[#00E87A]",
   ultra: "text-[#7C3AED]",
 };
-  pro: "text-orange-400",
-  ultra: "text-purple-400",
-};
 
 function UpsellBadges({ upsells }: { upsells: string[] }) {
   const allActive = UPSELL_BADGES.every(({ key }) => upsells.includes(UPSELL_LABELS[key]));
