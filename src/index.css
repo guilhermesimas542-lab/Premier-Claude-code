@@ -79,7 +79,7 @@
   position: absolute;
   width: 4px;
   height: 4px;
-  background: radial-gradient(circle, #00FF85 0%, transparent 70%);
+  background: radial-gradient(circle, #00FF7F 0%, transparent 70%);
   border-radius: 50%;
   animation: particle-rise 3s ease-in-out infinite;
 }
