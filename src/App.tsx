@@ -13,7 +13,7 @@ import Login from "./pages/Login";
 import Bonus from "./pages/Bonus";
 import Casino from "./pages/Casino";
 import CasinoGame from "./pages/CasinoGame";
-import CasinoSignalGame from "./pages/CasinoSignalGame";
+
 import UltimosGreens from "./pages/UltimosGreens";
 import Support from "./pages/Support";
 import Profile from "./pages/Profile";
