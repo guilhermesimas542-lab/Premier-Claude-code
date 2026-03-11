@@ -3,7 +3,7 @@
  *
  * GRÁTIS  — #94A3B8 cinza
  * BÁSICO  — #60A5FA azul claro
- * PRO     — #00E87A verde
+ * PRO     — #00FF7F verde
  * ULTRA   — #7C3AED roxo
  * ALAVANCAGEM — #F0B429 gold
  * ODDS ALTAS  — #F97316 laranja
@@ -34,10 +34,10 @@ const STYLES: Record<string, TierColorStyle> = {
   },
   pro: {
     label: 'PRO',
-    color: '#00E87A',
-    bg: 'rgba(0,232,122,0.15)',
-    border: 'rgba(0,232,122,0.5)',
-    glow: '0 0 15px rgba(0,232,122,0.15)',
+    color: '#00FF7F',
+    bg: 'rgba(0,255,127,0.15)',
+    border: 'rgba(0,255,127,0.5)',
+    glow: '0 0 15px rgba(0,255,127,0.15)',
   },
   ultra: {
     label: 'ULTRA',

@@ -14,7 +14,7 @@ const UPSELL_BADGES = [
 const TIER_COLORS: Record<string, string> = {
   free: "text-[#94A3B8]",
   basic: "text-[#60A5FA]",
-  pro: "text-[#00E87A]",
+  pro: "text-[#00FF7F]",
   ultra: "text-[#7C3AED]",
 };
 

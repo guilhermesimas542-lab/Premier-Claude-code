@@ -241,7 +241,7 @@ const Login = () => {
                       <div
                         style={{
                           backgroundColor: '#112236',
-                          border: '1.5px solid rgba(255,255,255,0.22)',
+                          border: '1.5px solid rgba(255,255,255,0.30)',
                           borderRadius: '12px',
                           overflow: 'hidden',
                         }}
@@ -277,7 +277,7 @@ const Login = () => {
                               fontFamily: 'Barlow Condensed, sans-serif',
                               fontWeight: 900,
                               fontSize: '36px',
-                              color: '#00E87A',
+                              color: '#00FF7F',
                               lineHeight: 1,
                             }}
                           >
@@ -340,8 +340,8 @@ const Login = () => {
                             alignItems: 'center',
                             justifyContent: 'center',
                             padding: '10px 16px',
-                            backgroundColor: 'rgba(0,232,122,0.08)',
-                            borderTop: '1px solid rgba(0,232,122,0.15)',
+                            backgroundColor: 'rgba(0,255,127,0.08)',
+                            borderTop: '1px solid rgba(0,255,127,0.15)',
                           }}
                         >
                           <span
@@ -349,7 +349,7 @@ const Login = () => {
                               fontFamily: 'Barlow Condensed, sans-serif',
                               fontWeight: 700,
                               fontSize: '13px',
-                              color: '#00E87A',
+                              color: '#00FF7F',
                               letterSpacing: '0.06em',
                               textTransform: 'uppercase',
                             }}
@@ -367,14 +367,14 @@ const Login = () => {
             {greens.length > 1 && (
               <div className="flex justify-center gap-1.5 mt-3">
                 {greens.map((_, index) => (
-                  <button
+                    <button
                     key={index}
                     onClick={() => setCurrentIndex(index)}
                     className="rounded-full transition-all duration-300"
                     style={{
                       width: index === currentIndex ? '20px' : '6px',
                       height: '6px',
-                      backgroundColor: index === currentIndex ? '#00E87A' : 'rgba(255,255,255,0.2)',
+                      backgroundColor: index === currentIndex ? '#00FF7F' : 'rgba(255,255,255,0.2)',
                     }}
                   />
                 ))}
