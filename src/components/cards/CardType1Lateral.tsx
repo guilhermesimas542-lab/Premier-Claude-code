@@ -5,26 +5,59 @@ interface Props {
   onAction: () => void;
 }
 
-function getBadgeStyle(color: string | null) {
-  switch (color) {
-    case "gold":
-      return { background: "hsl(48 96% 53%)", color: "#000", border: "none" };
-    case "green":
-      return { background: "#22c55e", color: "#fff", border: "none" };
-    case "black_green":
-      return { background: "#000", color: "#00FF00", border: "1px solid #00FF00" };
-    case "tron":
-      return { background: "#000", color: "#00FFFF", border: "1px solid #00FFFF", boxShadow: "0 0 5px #00FFFF" };
-    case "white":
-      return { background: "#fff", color: "#000", border: "none" };
-    default:
-      return { background: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))", border: "none" };
+function getBadgeStyle(badgeText: string, color: string | null) {
+  // Specific badge styling per PDF spec
+  const upper = (badgeText || '').toUpperCase();
+  if (upper.includes('IA') || upper.includes('ATIVADA') || color === 'green') {
+    return {
+      background: 'rgba(0,255,127,0.15)',
+      border: '1px solid rgba(0,255,127,0.3)',
+      color: '#00FF7F',
+    };
   }
+  if (upper.includes('NOVO') || color === 'gold') {
+    return {
+      background: 'rgba(240,180,41,0.15)',
+      border: '1px solid rgba(240,180,41,0.3)',
+      color: '#F0B429',
+    };
+  }
+  if (upper.includes('BETA') || color === 'white') {
+    return {
+      background: 'rgba(148,163,184,0.15)',
+      border: '1px solid rgba(148,163,184,0.3)',
+      color: '#94A3B8',
+    };
+  }
+  if (color === 'black_green') {
+    return { background: "#000", color: "#00FF7F", border: "1px solid #00FF7F" };
+  }
+  if (color === 'tron') {
+    return { background: "#000", color: "#00FFFF", border: "1px solid #00FFFF", boxShadow: "0 0 5px #00FFFF" };
+  }
+  // default
+  return {
+    background: 'rgba(0,255,127,0.15)',
+    border: '1px solid rgba(0,255,127,0.3)',
+    color: '#00FF7F',
+  };
+}
+
+function isGreenColor(c: string | null): boolean {
+  if (!c) return false;
+  const lower = c.toLowerCase();
+  return lower === '#00e87a' || lower === '#00ff7f' || lower.includes('00e87a') || lower.includes('00ff7f');
 }
 
 export function CardType1Lateral({ card, onAction }: Props) {
   const imgs = card.image_urls;
   const mobileImg = imgs?.mobile || imgs?.tablet || imgs?.desktop || null;
+
+  // If button bg is green, force black text
+  const buttonBg = card.button_bg_color || "hsl(var(--primary))";
+  const buttonColor = isGreenColor(card.button_bg_color)
+    ? '#000000'
+    : (card.button_font_color || "hsl(var(--primary-foreground))");
 
   return (
     <button
@@ -36,12 +69,18 @@ export function CardType1Lateral({ card, onAction }: Props) {
       {card.badges && card.badges.length > 0 && (
         <div className="absolute top-2 right-2 z-20 flex gap-1 flex-wrap justify-end">
           {card.badges.map((badge) => {
-            const style = getBadgeStyle(card.badge_color);
+            const style = getBadgeStyle(badge, card.badge_color);
             return (
               <span
                 key={badge}
-                className="px-2.5 py-0.5 rounded-md text-[10px] font-bold"
-                style={style}
+                className="px-2.5 py-0.5 rounded-md"
+                style={{
+                  ...style,
+                  fontFamily: "'Barlow Condensed', sans-serif",
+                  fontWeight: 700,
+                  fontSize: '11px',
+                  letterSpacing: '1px',
+                }}
               >
                 {badge}
               </span>
@@ -64,15 +103,28 @@ export function CardType1Lateral({ card, onAction }: Props) {
 
       {/* Content */}
       <div className="flex-1 p-4 flex flex-col justify-center gap-2">
-        <h3 className="text-foreground font-bold text-base">{card.title}</h3>
+        <h3 style={{
+          fontFamily: "'Barlow Condensed', sans-serif",
+          fontWeight: 800,
+          fontSize: '20px',
+          color: '#FFFFFF',
+        }}>{card.title}</h3>
         {card.subtitle && (
-          <p className="text-xs text-muted-foreground">{card.subtitle}</p>
+          <p style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontWeight: 400,
+            fontSize: '13px',
+            color: '#94A3B8',
+          }}>{card.subtitle}</p>
         )}
         <span
           className="w-full h-8 text-xs font-bold rounded-lg flex items-center justify-center group-hover:opacity-90 transition-colors"
           style={{
-            background: card.button_bg_color || "hsl(var(--primary))",
-            color: card.button_font_color || "hsl(var(--primary-foreground))",
+            background: buttonBg,
+            color: buttonColor,
+            fontFamily: "'Barlow Condensed', sans-serif",
+            fontWeight: 700,
+            letterSpacing: '0.5px',
           }}
         >
           {card.button_text_access || "Acessar"}

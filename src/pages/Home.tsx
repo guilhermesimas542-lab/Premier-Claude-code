@@ -1,4 +1,4 @@
-import { LogOut, Menu, Headphones, X, Gift, Sparkles, ShoppingCart, Crown } from "lucide-react";
+import { LogOut, Headphones, X, Gift, Sparkles, ShoppingCart, Crown } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
@@ -29,8 +29,6 @@ const Home = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [showBasicModal, setShowBasicModal] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
   const [showPromotionsModal, setShowPromotionsModal] = useState(false);
   const [showLifetimeModal, setShowLifetimeModal] = useState(false);
   const [showLifetimeInfoModal, setShowLifetimeInfoModal] = useState(false);
@@ -93,7 +91,6 @@ const Home = () => {
       if (!payCardId) return;
       const { data } = await supabase.from("pay_cards" as any).select("*").eq("id", payCardId).maybeSingle();
       if (data) {
-        // Use a local state to show the pay card modal
         setBannerPayCard(data as any as PayCardData);
       }
     };
@@ -106,14 +103,6 @@ const Home = () => {
   }, [availableEntries]);
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) setMenuOpen(false);
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  useEffect(() => {
     if (!isAuthenticated()) { navigate("/login"); return; }
     setLoading(false);
     Object.keys(localStorage).forEach(key => {
@@ -122,15 +111,14 @@ const Home = () => {
   }, [navigate]);
 
   const handleLogout = () => { clearAuth(); toast.success("Logout realizado com sucesso"); navigate("/login"); };
-  const handleSupport = () => { navigate("/support"); setMenuOpen(false); };
-  const handlePromotions = () => { setShowPromotionsModal(true); setMenuOpen(false); };
+  const handleSupport = () => { navigate("/support"); };
+  const handlePromotions = () => { setShowPromotionsModal(true); };
   const handleBuyLifetime = () => { window.open(CHECKOUT_LINKS.vitalicio, '_blank'); setShowLifetimeModal(false); };
 
   const hasAccess = (card: CardData): boolean => {
     if (!card.requires_access) return true;
     const criteria = parseAudience(card.access_field);
-    if (criteria.length === 0) return true; // No blocking criteria = accessible
-    // Check if user matches the blocking criteria
+    if (criteria.length === 0) return true;
     const isBlocked = matchesAudienceCriteria(
       criteria,
       access.mainTier,
@@ -141,7 +129,7 @@ const Home = () => {
         ...(access.hasLiveTelegram ? ["live_telegram"] : []),
       ],
     );
-    return !isBlocked; // If user matches blocking criteria, they DON'T have access
+    return !isBlocked;
   };
 
   const handleOpenPayCardById = async (payCardId: string) => {
@@ -151,12 +139,10 @@ const Home = () => {
 
   const handleCardAction = (card: CardData) => {
     if (card.requires_access && !hasAccess(card)) {
-      // If card has a linked Pay Card, open its funnel
       if (card.pay_card_id) {
         handleOpenPayCardById(card.pay_card_id);
         return;
       }
-      // Legacy fallback: use card's own funnel/checkout
       if ((card.questions && card.questions.length > 0) || card.checkout_url) {
         setFunnelCard(card);
       }
@@ -186,18 +172,38 @@ const Home = () => {
       <header className="sticky top-0 z-50 backdrop-blur-xl border-b" style={{ background: "rgba(0,0,0,0.92)", borderColor: "rgba(0,255,0,0.15)" }}>
         <div className="container max-w-7xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
           <div className="flex items-center justify-between gap-2 sm:gap-4">
-            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            {/* Logo — icon only */}
+            <div className="shrink-0">
               <img src={logoImg} alt="Premier Ultra" className="h-10 sm:h-12 w-auto" style={{ filter: "drop-shadow(0 0 10px rgba(0,255,0,0.5))" }} />
-              <span className="text-2xl sm:text-4xl font-bold" style={{ color: "#FFFFFF", textShadow: "0 0 14px rgba(0,255,0,0.3)" }}>Premier Ultra</span>
             </div>
             
             <div className="flex items-center gap-2 sm:gap-3">
-              {/* Live Telegram button */}
+              {/* Live Telegram pill */}
               {isTelegramMember ? (
-                <a href={telegramGroupUrl || "#"} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center p-1.5 sm:p-2 rounded-full cursor-pointer transition-all hover:scale-105" style={{ background: "rgba(0,200,83,0.15)", border: "1px solid rgba(0,200,83,0.5)", boxShadow: "0 0 10px rgba(0,200,83,0.25)" }}>
-                  <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="currentColor" style={{ color: "#FFFFFF" }}>
+                <a
+                  href={telegramGroupUrl || "#"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 rounded-full cursor-pointer transition-all hover:scale-105"
+                  style={{
+                    padding: '6px 12px',
+                    background: 'rgba(0,255,127,0.08)',
+                    border: '1px solid rgba(0,255,127,0.2)',
+                    animation: 'telegramPulse 2s ease-in-out infinite',
+                  }}
+                >
+                  <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor" style={{ color: "#FFFFFF" }}>
                     <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121L9.1 13.617l-2.97-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/>
                   </svg>
+                  <span style={{
+                    fontFamily: "'Barlow Condensed', sans-serif",
+                    fontWeight: 700,
+                    fontSize: '13px',
+                    color: '#FFFFFF',
+                    letterSpacing: '1px',
+                  }}>
+                    CANAL
+                  </span>
                 </a>
               ) : (
                 <button onClick={async () => { await triggerPayCard('live_telegram'); }} className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-semibold transition-colors cursor-pointer" style={{ background: "rgba(255,0,0,0.1)", color: "#FF4444", border: "1px solid rgba(255,0,0,0.3)" }}>
@@ -217,32 +223,6 @@ const Home = () => {
                   <ShoppingCart className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                 </button>
               )}
-              
-              <div className="relative" ref={menuRef}>
-                <button onClick={() => setMenuOpen(!menuOpen)} className="p-2 rounded-lg transition-colors" style={{ background: "rgba(0,255,0,0.05)", border: "1px solid rgba(0,255,0,0.25)" }}>
-                  {menuOpen ? <X className="w-5 h-5" style={{ color: "#00FF00" }} /> : <Menu className="w-5 h-5" style={{ color: "#00FF00" }} />}
-                </button>
-
-                {menuOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-52 sm:w-56 backdrop-blur-xl rounded-xl shadow-xl overflow-hidden z-50" style={{ background: "rgba(0,8,0,0.97)", border: "1px solid rgba(0,255,0,0.2)", boxShadow: "0 0 30px rgba(0,255,0,0.1)" }}>
-                    <div className="py-2">
-                      <button onClick={handlePromotions} className="w-full px-4 py-3 flex items-center gap-3 text-left transition-colors hover:bg-[rgba(0,255,0,0.07)]">
-                        <Gift className="w-4 h-4" style={{ color: "#00FF00" }} />
-                        <span className="text-sm font-medium" style={{ color: "#FFFFFF" }}>Promoções</span>
-                      </button>
-                      <button onClick={handleSupport} className="w-full px-4 py-3 flex items-center gap-3 text-left transition-colors hover:bg-[rgba(0,255,0,0.07)]">
-                        <Headphones className="w-4 h-4" style={{ color: "#00FF00" }} />
-                        <span className="text-sm font-medium" style={{ color: "#FFFFFF" }}>Suporte</span>
-                      </button>
-                      <div className="my-2 border-t" style={{ borderColor: "rgba(0,255,0,0.15)" }} />
-                      <button onClick={() => { setMenuOpen(false); handleLogout(); }} className="w-full px-4 py-3 flex items-center gap-3 text-left text-red-400 hover:bg-red-500/10 transition-colors">
-                        <LogOut className="w-4 h-4" />
-                        <span className="text-sm font-medium">Sair</span>
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
             </div>
           </div>
         </div>
@@ -253,7 +233,16 @@ const Home = () => {
 
         {/* Main Entry Cards */}
         <section className="space-y-4 sm:space-y-6">
-          <h2 className="text-xl sm:text-2xl font-display font-extrabold tracking-tight" style={{ color: "#FFFFFF" }}>
+          <h2
+            style={{
+              fontFamily: "'Barlow Condensed', sans-serif",
+              fontWeight: 800,
+              fontSize: '20px',
+              color: '#FFFFFF',
+              textTransform: 'uppercase',
+              letterSpacing: '1px',
+            }}
+          >
             Entradas Disponíveis
           </h2>
           <div className="space-y-3">
@@ -272,7 +261,16 @@ const Home = () => {
         {/* Quick Access */}
         {quickCards.length > 0 && (
           <section className="space-y-2.5">
-            <h2 className="text-base sm:text-lg font-bold" style={{ color: "#FFFFFF" }}>
+            <h2
+              style={{
+                fontFamily: "'Barlow Condensed', sans-serif",
+                fontWeight: 800,
+                fontSize: '18px',
+                color: '#FFFFFF',
+                textTransform: 'uppercase',
+                letterSpacing: '1px',
+              }}
+            >
               ⚡ Acesso Rápido
             </h2>
             <div className="space-y-3">
@@ -283,7 +281,16 @@ const Home = () => {
 
         {/* Últimos Bilhetes */}
         <section className="space-y-2.5">
-          <h2 className="text-base sm:text-lg font-bold" style={{ color: "#FFFFFF" }}>
+          <h2
+            style={{
+              fontFamily: "'Barlow Condensed', sans-serif",
+              fontWeight: 800,
+              fontSize: '18px',
+              color: '#FFFFFF',
+              textTransform: 'uppercase',
+              letterSpacing: '1px',
+            }}
+          >
             🎫 Últimos Bilhetes
           </h2>
           <button
@@ -295,10 +302,31 @@ const Home = () => {
               <span className="text-lg">🏆</span>
             </div>
             <div className="flex-1 text-left">
-              <h3 className="text-sm font-bold" style={{ color: "#FFFFFF" }}>Histórico de Greens</h3>
-              <p className="text-xs" style={{ color: "#AAAAAA" }}>Veja os últimos bilhetes vencedores</p>
+              <h3 style={{
+                fontFamily: "'Barlow Condensed', sans-serif",
+                fontWeight: 700,
+                fontSize: '16px',
+                color: '#FFFFFF',
+              }}>Histórico de Greens</h3>
+              <p style={{
+                fontFamily: "'DM Sans', sans-serif",
+                fontWeight: 400,
+                fontSize: '13px',
+                color: '#94A3B8',
+              }}>Veja os últimos bilhetes vencedores</p>
             </div>
-            <span className="text-xs font-bold px-3 py-1.5 rounded-lg" style={{ background: "rgba(0,255,0,0.1)", color: "#00FF00", border: "1px solid rgba(0,255,0,0.3)" }}>
+            <span
+              style={{
+                background: 'transparent',
+                border: '1.5px solid #00FF7F',
+                color: '#00FF7F',
+                fontFamily: "'Barlow Condensed', sans-serif",
+                fontWeight: 700,
+                fontSize: '13px',
+                borderRadius: '8px',
+                padding: '6px 14px',
+              }}
+            >
               Ver todos
             </span>
           </button>
