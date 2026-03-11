@@ -150,8 +150,8 @@ const Login = () => {
         </div>
 
         {/* Title */}
-        <h1 className="font-display font-black text-3xl uppercase tracking-tight text-center mb-1">
-          PREMIER <span className="text-primary">ULTRA</span>
+        <h1 className="font-display font-black text-4xl uppercase tracking-tight text-center mb-1">
+          <span className="text-brand-purple-ultra">ULTRA</span>
         </h1>
         <p className="text-center text-sm font-sans text-muted-foreground mb-8">
           IA que analisa. Você que lucra.
