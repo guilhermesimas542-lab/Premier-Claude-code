@@ -59,7 +59,7 @@ export const BottomNav = () => {
               
               <Icon
                 className="relative z-10 w-5 h-5 transition-colors"
-                style={{ color: active ? "#00FF00" : "#888888" }}
+                style={{ color: active ? "#00E87A" : "#888888" }}
               />
               <span
                 className="relative z-10 text-[10px] font-medium transition-colors"
