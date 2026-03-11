@@ -28,9 +28,6 @@ export const BottomNav = () => {
   const location = useLocation();
   const isMobile = useIsMobile();
 
-  // Só mostra no mobile
-  if (!isMobile) return null;
-
   const isActive = (item: typeof NAV_ITEMS[0]) => {
     return item.matchPaths.some(p => location.pathname.startsWith(p));
   };
