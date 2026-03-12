@@ -340,15 +340,22 @@ const Home = () => {
               width: '100px',
               minWidth: '100px',
               height: '120px',
+              borderRadius: '10px 0 0 10px',
+              overflow: 'hidden',
               background: 'linear-gradient(135deg, #1a2a1a 0%, #0d1f0d 100%)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              borderRadius: '10px 0 0 10px',
-              overflow: 'hidden',
             }}>
-              {/* Ícone de troféu centralizado */}
-              <span style={{ fontSize: '40px', lineHeight: 1 }}>🏆</span>
+              {ultimosGreensCard?.image_urls?.mobile ? (
+                <img
+                  src={ultimosGreensCard.image_urls.mobile}
+                  alt="Últimos Greens"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
+              ) : (
+                <span style={{ fontSize: '40px', lineHeight: 1 }}>🏆</span>
+              )}
             </div>
             {/* Conteúdo direito */}
             <div style={{
