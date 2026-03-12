@@ -169,7 +169,7 @@ const Home = () => {
       <div className="absolute top-0 left-1/4 w-96 h-96 rounded-full blur-[140px] pointer-events-none" style={{ background: "rgba(0,255,127,0.06)" }} />
 
       {/* Header */}
-      <header className="sticky top-0 z-50 backdrop-blur-xl border-b" style={{ background: "rgba(0,0,0,0.92)", borderColor: "rgba(0,255,0,0.15)" }}>
+      <header className="sticky top-0 z-50" style={{ background: 'transparent', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
         <div className="container max-w-7xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
           <div className="flex items-center justify-between gap-2 sm:gap-4">
             {/* Logo — icon only */}
@@ -283,58 +283,123 @@ const Home = () => {
           </section>
         )}
 
-        {/* Últimos Bilhetes */}
-        <section className="space-y-2.5">
-          <h2
+        {/* Seção Últimos Bilhetes */}
+        <div>
+          {/* Título da seção */}
+          <h2 style={{
+            fontFamily: "'Barlow Condensed', sans-serif",
+            fontWeight: 800,
+            fontSize: '18px',
+            color: '#FFFFFF',
+            textTransform: 'uppercase',
+            letterSpacing: '1px',
+            marginBottom: '12px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+          }}>
+            🎫 ÚLTIMOS BILHETES
+          </h2>
+          {/* Card no formato lateral — idêntico ao CardType1Lateral */}
+          <div
+            onClick={() => navigate("/ultimos-greens")}
             style={{
-              fontFamily: "'Barlow Condensed', sans-serif",
-              fontWeight: 800,
-              fontSize: '18px',
-              color: '#FFFFFF',
-              textTransform: 'uppercase',
-              letterSpacing: '1px',
+              background: '#112236',
+              border: '1.5px solid rgba(255,255,255,0.22)',
+              borderRadius: '12px',
+              overflow: 'hidden',
+              display: 'flex',
+              alignItems: 'stretch',
+              cursor: 'pointer',
+              position: 'relative',
             }}
           >
-            🎫 Últimos Bilhetes
-          </h2>
-          <button
-            onClick={() => navigate("/ultimos-greens")}
-            className="w-full flex items-center gap-3 p-4 rounded-xl border transition-all hover:-translate-y-0.5"
-            style={{ background: "#112236", borderColor: "rgba(255,255,255,0.30)" }}
-          >
-            <div className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0" style={{ background: "rgba(0,255,0,0.1)", border: "1px solid rgba(0,255,0,0.3)" }}>
-              <span className="text-lg">🏆</span>
+            {/* Imagem lateral esquerda — 100×120px igual ao CardType1Lateral */}
+            <div style={{
+              width: '100px',
+              minWidth: '100px',
+              height: '120px',
+              background: 'linear-gradient(135deg, #1a2a1a 0%, #0d1f0d 100%)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: '10px 0 0 10px',
+              overflow: 'hidden',
+            }}>
+              {/* Ícone de troféu centralizado */}
+              <span style={{ fontSize: '40px', lineHeight: 1 }}>🏆</span>
             </div>
-            <div className="flex-1 text-left">
-              <h3 style={{
+            {/* Conteúdo direito */}
+            <div style={{
+              flex: 1,
+              padding: '12px 12px 12px 14px',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              position: 'relative',
+            }}>
+              {/* Badge GREENS no canto superior direito */}
+              <div style={{
+                position: 'absolute',
+                top: '10px',
+                right: '10px',
+                background: 'rgba(240,180,41,0.15)',
+                border: '1px solid rgba(240,180,41,0.3)',
+                borderRadius: '6px',
+                padding: '2px 8px',
                 fontFamily: "'Barlow Condensed', sans-serif",
                 fontWeight: 700,
-                fontSize: '16px',
-                color: '#FFFFFF',
-              }}>Histórico de Greens</h3>
-              <p style={{
-                fontFamily: "'DM Sans', sans-serif",
-                fontWeight: 400,
-                fontSize: '13px',
-                color: '#94A3B8',
-              }}>Veja os últimos bilhetes vencedores</p>
+                fontSize: '11px',
+                color: '#F0B429',
+                letterSpacing: '1px',
+              }}>
+                🏆 GREENS
+              </div>
+              {/* Título e subtítulo */}
+              <div style={{ paddingRight: '70px' }}>
+                <div style={{
+                  fontFamily: "'Barlow Condensed', sans-serif",
+                  fontWeight: 800,
+                  fontSize: '18px',
+                  color: '#FFFFFF',
+                  lineHeight: 1.2,
+                  marginBottom: '4px',
+                }}>
+                  Últimos Greens
+                </div>
+                <div style={{
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontWeight: 400,
+                  fontSize: '12px',
+                  color: '#94A3B8',
+                  lineHeight: 1.3,
+                }}>
+                  Veja os bilhetes que bateram
+                </div>
+              </div>
+              {/* Botão VER HISTÓRICO */}
+              <button
+                onClick={(e) => { e.stopPropagation(); navigate("/ultimos-greens"); }}
+                style={{
+                  marginTop: '10px',
+                  width: '100%',
+                  padding: '7px 0',
+                  background: '#00FF7F',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontFamily: "'Barlow Condensed', sans-serif",
+                  fontWeight: 800,
+                  fontSize: '13px',
+                  color: '#000000',
+                  letterSpacing: '0.5px',
+                  cursor: 'pointer',
+                }}
+              >
+                VER HISTÓRICO
+              </button>
             </div>
-            <span
-              style={{
-                background: 'transparent',
-                border: '1.5px solid #00FF7F',
-                color: '#00FF7F',
-                fontFamily: "'Barlow Condensed', sans-serif",
-                fontWeight: 700,
-                fontSize: '13px',
-                borderRadius: '8px',
-                padding: '6px 14px',
-              }}
-            >
-              Ver todos
-            </span>
-          </button>
-        </section>
+          </div>
+        </div>
       </main>
 
       {/* Footer */}
