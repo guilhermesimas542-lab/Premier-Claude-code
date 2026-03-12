@@ -41,6 +41,8 @@ const Home = () => {
   const { house: userHouse } = useUserBettingHouse();
   const { cards: availableEntries, loading: loadingEntries } = useCardsBySlugs(["futebol", "cassino"]);
   const { cards: quickCards } = useCards("quick_access");
+  const { cards: ultimosGreensCards } = useCardsBySlugs(["ultimos-greens"]);
+  const ultimosGreensCard = ultimosGreensCards?.[0] || null;
   const access = useUserAccess();
   const { triggerPayCard, payCard: pcData, open: pcOpen, closePayCard } = usePayCardTrigger();
   const { links } = useLinks();
