@@ -402,7 +402,7 @@ const Home = () => {
                   color: '#94A3B8',
                   lineHeight: 1.3,
                 }}>
-                  Veja os bilhetes que bateram
+                  {ultimosGreensCard?.subtitle || 'Veja os bilhetes que bateram'}
                 </div>
               </div>
               {/* Botão VER HISTÓRICO */}
