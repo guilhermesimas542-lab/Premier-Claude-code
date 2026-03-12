@@ -117,18 +117,25 @@ export function CardType1Lateral({ card, onAction }: Props) {
             color: '#94A3B8',
           }}>{card.subtitle}</p>
         )}
-        <span
-          className="w-full h-8 text-xs font-bold rounded-lg flex items-center justify-center group-hover:opacity-90 transition-colors"
+        <button
+          onClick={(e) => { e.stopPropagation(); onAction(); }}
           style={{
+            width: '100%',
+            padding: '8px 0',
+            borderRadius: '8px',
+            fontFamily: "'Barlow Condensed', sans-serif",
+            fontWeight: 800,
+            fontSize: '13px',
+            letterSpacing: '0.5px',
+            cursor: 'pointer',
+            border: 'none',
             background: buttonBg,
             color: buttonColor,
-            fontFamily: "'Barlow Condensed', sans-serif",
-            fontWeight: 700,
-            letterSpacing: '0.5px',
+            transition: 'opacity 0.2s',
           }}
         >
-          {card.button_text_access || "Acessar"}
-        </span>
+          {card.button_text_access || 'ACESSAR'}
+        </button>
       </div>
     </button>
   );

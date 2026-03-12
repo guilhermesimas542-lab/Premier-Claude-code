@@ -41,6 +41,8 @@ const Home = () => {
   const { house: userHouse } = useUserBettingHouse();
   const { cards: availableEntries, loading: loadingEntries } = useCardsBySlugs(["futebol", "cassino"]);
   const { cards: quickCards } = useCards("quick_access");
+  const { cards: ultimosGreensCards } = useCardsBySlugs(["ultimos-greens"]);
+  const ultimosGreensCard = ultimosGreensCards?.[0] || null;
   const access = useUserAccess();
   const { triggerPayCard, payCard: pcData, open: pcOpen, closePayCard } = usePayCardTrigger();
   const { links } = useLinks();
@@ -213,10 +215,29 @@ const Home = () => {
 
               {/* Vitalício button */}
               {isLifetime ? (
-                <button onClick={() => setShowLifetimeInfoModal(true)} className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-semibold cursor-pointer transition-all hover:scale-105" style={{ background: "rgba(0,255,0,0.1)", color: "#FFFFFF", border: "1px solid rgba(0,255,0,0.4)", boxShadow: "0 0 10px rgba(0,255,0,0.2)" }}>
-                  <Crown className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-                  <span className="hidden sm:inline">Acesso</span> vitalício
-                </button>
+                <div
+                  onClick={() => setShowLifetimeInfoModal(true)}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '6px 12px',
+                    background: 'rgba(0,255,0,0.1)',
+                    border: '1px solid rgba(0,255,0,0.4)',
+                    borderRadius: '999px',
+                    boxShadow: '0 0 10px rgba(0,255,0,0.2)',
+                    cursor: 'pointer',
+                    fontFamily: "'Barlow Condensed', sans-serif",
+                    fontWeight: 700,
+                    fontSize: '13px',
+                    color: '#FFFFFF',
+                    letterSpacing: '0.5px',
+                    transition: 'transform 0.2s',
+                  }}
+                >
+                  <Crown size={14} color="#FFFFFF" />
+                  VITALÍCIO
+                </div>
               ) : (
                 <button onClick={async () => { const found = await triggerPayCard('vitalicio'); if (!found) setShowLifetimeModal(true); }} className="inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-semibold transition-colors cursor-pointer" style={{ background: "rgba(255,0,0,0.1)", color: "#FF4444", border: "1px solid rgba(255,0,0,0.3)" }}>
                   <span className="hidden sm:inline">Sem</span> vitalício
@@ -319,15 +340,22 @@ const Home = () => {
               width: '100px',
               minWidth: '100px',
               height: '120px',
+              borderRadius: '10px 0 0 10px',
+              overflow: 'hidden',
               background: 'linear-gradient(135deg, #1a2a1a 0%, #0d1f0d 100%)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              borderRadius: '10px 0 0 10px',
-              overflow: 'hidden',
             }}>
-              {/* Ícone de troféu centralizado */}
-              <span style={{ fontSize: '40px', lineHeight: 1 }}>🏆</span>
+              {ultimosGreensCard?.image_urls?.mobile ? (
+                <img
+                  src={ultimosGreensCard.image_urls.mobile}
+                  alt="Últimos Greens"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
+              ) : (
+                <span style={{ fontSize: '40px', lineHeight: 1 }}>🏆</span>
+              )}
             </div>
             {/* Conteúdo direito */}
             <div style={{
@@ -365,7 +393,7 @@ const Home = () => {
                   lineHeight: 1.2,
                   marginBottom: '4px',
                 }}>
-                  Últimos Greens
+                  {ultimosGreensCard?.title || 'Últimos Greens'}
                 </div>
                 <div style={{
                   fontFamily: "'DM Sans', sans-serif",
@@ -374,7 +402,7 @@ const Home = () => {
                   color: '#94A3B8',
                   lineHeight: 1.3,
                 }}>
-                  Veja os bilhetes que bateram
+                  {ultimosGreensCard?.subtitle || 'Veja os bilhetes que bateram'}
                 </div>
               </div>
               {/* Botão VER HISTÓRICO */}
