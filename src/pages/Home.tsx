@@ -213,10 +213,29 @@ const Home = () => {
 
               {/* Vitalício button */}
               {isLifetime ? (
-                <button onClick={() => setShowLifetimeInfoModal(true)} className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-semibold cursor-pointer transition-all hover:scale-105" style={{ background: "rgba(0,255,0,0.1)", color: "#FFFFFF", border: "1px solid rgba(0,255,0,0.4)", boxShadow: "0 0 10px rgba(0,255,0,0.2)" }}>
-                  <Crown className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-                  <span className="hidden sm:inline">Acesso</span> vitalício
-                </button>
+                <div
+                  onClick={() => setShowLifetimeInfoModal(true)}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '6px 12px',
+                    background: 'rgba(0,255,0,0.1)',
+                    border: '1px solid rgba(0,255,0,0.4)',
+                    borderRadius: '999px',
+                    boxShadow: '0 0 10px rgba(0,255,0,0.2)',
+                    cursor: 'pointer',
+                    fontFamily: "'Barlow Condensed', sans-serif",
+                    fontWeight: 700,
+                    fontSize: '13px',
+                    color: '#FFFFFF',
+                    letterSpacing: '0.5px',
+                    transition: 'transform 0.2s',
+                  }}
+                >
+                  <Crown size={14} color="#FFFFFF" />
+                  VITALÍCIO
+                </div>
               ) : (
                 <button onClick={async () => { const found = await triggerPayCard('vitalicio'); if (!found) setShowLifetimeModal(true); }} className="inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-semibold transition-colors cursor-pointer" style={{ background: "rgba(255,0,0,0.1)", color: "#FF4444", border: "1px solid rgba(255,0,0,0.3)" }}>
                   <span className="hidden sm:inline">Sem</span> vitalício
