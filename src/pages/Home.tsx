@@ -393,7 +393,7 @@ const Home = () => {
                   lineHeight: 1.2,
                   marginBottom: '4px',
                 }}>
-                  Últimos Greens
+                  {ultimosGreensCard?.title || 'Últimos Greens'}
                 </div>
                 <div style={{
                   fontFamily: "'DM Sans', sans-serif",
