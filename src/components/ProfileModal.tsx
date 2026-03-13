@@ -53,7 +53,7 @@ const ProfileModal = ({ isOpen, onClose }: ProfileModalProps) => {
   const { xpInLevel, xpNeeded, progress } = getXpProgress(totalXp, level);
   const currentAvatar = getAvatarById(currentAvatarId);
   const levelTitle = LEVEL_TITLES[level] || 'Novato';
-  const referralLink = userId ? `${window.location.origin}/login?ref=${userId}` : '';
+  
 
   const handleSaveNickname = async () => {
     if (!userId || !nicknameInput.trim()) {
