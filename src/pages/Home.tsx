@@ -1,5 +1,6 @@
 import { LogOut, Headphones, X, Gift, Sparkles, ShoppingCart, Crown } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import AppHeader from "@/components/AppHeader";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
 import { toast } from "sonner";
@@ -47,9 +48,8 @@ const Home = () => {
   const { triggerPayCard, payCard: pcData, open: pcOpen, closePayCard } = usePayCardTrigger();
   const { links } = useLinks();
 
-  // Derive lifetime & telegram from entitlements table (single source of truth)
+  // Derive lifetime for info modal only
   const [isLifetime, setIsLifetime] = useState(false);
-  const [isTelegramMember, setIsTelegramMember] = useState(false);
   const [telegramGroupUrl, setTelegramGroupUrl] = useState<string | null>(null);
   useEffect(() => {
     const checkEntitlements = async () => {
@@ -63,23 +63,9 @@ const Home = () => {
         .eq("status", "active");
       const keys = (ents ?? []).map((e) => e.product_key);
       setIsLifetime(keys.includes("acesso_vitalicio"));
-      setIsTelegramMember(keys.includes("live_telegram"));
     };
     checkEntitlements();
   }, []);
-
-  // Load telegram group URL from the user's betting house
-  useEffect(() => {
-    if (!userHouse?.id) return;
-    supabase
-      .from("betting_houses")
-      .select("telegram_group_url")
-      .eq("id", userHouse.id)
-      .maybeSingle()
-      .then(({ data }) => {
-        setTelegramGroupUrl((data as any)?.telegram_group_url ?? null);
-      });
-  }, [userHouse?.id]);
 
   // Track app_open event once on mount
   useEffect(() => {
@@ -170,86 +156,7 @@ const Home = () => {
     <div className="min-h-screen relative overflow-hidden pb-20 md:pb-0 bg-navy-dark">
       <div className="absolute top-0 left-1/4 w-96 h-96 rounded-full blur-[140px] pointer-events-none" style={{ background: "rgba(0,255,127,0.06)" }} />
 
-      {/* Header */}
-      <header className="sticky top-0 z-50" style={{ background: 'transparent', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
-        <div className="container max-w-7xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
-          <div className="flex items-center justify-between gap-2 sm:gap-4">
-            {/* Logo — icon only */}
-            <div className="shrink-0">
-              <img src={logoImg} alt="Premier Ultra" className="h-10 sm:h-12 w-auto" style={{ filter: "drop-shadow(0 0 10px rgba(0,255,0,0.5))" }} />
-            </div>
-            
-            <div className="flex items-center gap-2 sm:gap-3">
-              {/* Live Telegram pill */}
-              {isTelegramMember ? (
-                <a
-                  href={telegramGroupUrl || "#"}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 rounded-full cursor-pointer transition-all hover:scale-105"
-                  style={{
-                    padding: '6px 12px',
-                    background: 'rgba(0,255,127,0.1)',
-                    border: '1px solid rgba(0,255,127,0.4)',
-                    borderRadius: '999px',
-                    boxShadow: '0 0 10px rgba(0,255,127,0.2)',
-                    animation: 'telegramPulse 2s ease-in-out infinite',
-                  }}
-                >
-                  <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor" style={{ color: "#FFFFFF" }}>
-                    <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121L9.1 13.617l-2.97-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/>
-                  </svg>
-                  <span style={{
-                    fontFamily: "'Barlow Condensed', sans-serif",
-                    fontWeight: 700,
-                    fontSize: '13px',
-                    color: '#FFFFFF',
-                    letterSpacing: '1px',
-                  }}>
-                    CANAL
-                  </span>
-                </a>
-              ) : (
-                <button onClick={async () => { await triggerPayCard('live_telegram'); }} className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-semibold transition-colors cursor-pointer" style={{ background: "rgba(255,0,0,0.1)", color: "#FF4444", border: "1px solid rgba(255,0,0,0.3)" }}>
-                  Live <ShoppingCart className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-                </button>
-              )}
-
-              {/* Vitalício button */}
-              {isLifetime ? (
-                <div
-                  onClick={() => setShowLifetimeInfoModal(true)}
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    padding: '6px 12px',
-                    background: 'rgba(0,255,127,0.1)',
-                    border: '1px solid rgba(0,255,127,0.4)',
-                    borderRadius: '999px',
-                    boxShadow: '0 0 10px rgba(0,255,127,0.2)',
-                    cursor: 'pointer',
-                    fontFamily: "'Barlow Condensed', sans-serif",
-                    fontWeight: 700,
-                    fontSize: '13px',
-                    color: '#FFFFFF',
-                    letterSpacing: '0.5px',
-                    transition: 'transform 0.2s',
-                  }}
-                >
-                  <Crown size={14} color="#FFFFFF" />
-                  VITALÍCIO
-                </div>
-              ) : (
-                <button onClick={async () => { const found = await triggerPayCard('vitalicio'); if (!found) setShowLifetimeModal(true); }} className="inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-semibold transition-colors cursor-pointer" style={{ background: "rgba(255,0,0,0.1)", color: "#FF4444", border: "1px solid rgba(255,0,0,0.3)" }}>
-                  <span className="hidden sm:inline">Sem</span> vitalício
-                  <ShoppingCart className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-      </header>
+      <AppHeader onShowLifetimeInfoModal={() => setShowLifetimeInfoModal(true)} />
 
       <main className="container max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6 relative z-10">
         <PromoCarousel />
@@ -489,35 +396,7 @@ const Home = () => {
         </div>
       )}
 
-      {/* Modal Compra Vitalício */}
-      {showLifetimeModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={() => setShowLifetimeModal(false)}>
-          <div className="w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden" style={{ background: "rgba(0,8,0,0.97)", border: "1px solid rgba(0,255,0,0.25)", boxShadow: "0 0 40px rgba(0,255,0,0.1)" }} onClick={(e) => e.stopPropagation()}>
-            <div className="relative px-6 py-5" style={{ borderBottom: "1px solid rgba(0,255,0,0.15)" }}>
-              <div className="relative flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(0,255,0,0.1)", border: "1px solid rgba(0,255,0,0.3)" }}>
-                  <Crown className="w-5 h-5" style={{ color: "#00FF00" }} />
-                </div>
-                <div>
-                  <h2 className="text-lg font-bold" style={{ color: "#FFFFFF" }}>Acesso Vitalício</h2>
-                  <p className="text-xs mt-0.5" style={{ color: "#AAAAAA" }}>Pagamento único • Acesso permanente</p>
-                </div>
-              </div>
-              <button onClick={() => setShowLifetimeModal(false)} className="absolute top-4 right-4 p-1.5 rounded-lg transition-colors hover:bg-[rgba(0,255,0,0.08)]">
-                <X className="w-5 h-5" style={{ color: "#00FF00" }} />
-              </button>
-            </div>
-            <div className="px-6 py-6">
-              <button onClick={handleBuyLifetime} className="w-full py-3.5 rounded-xl font-bold text-sm transition-all" style={{ background: "#00FF00", color: "#000000", boxShadow: "0 0 20px rgba(0,255,0,0.4)" }}>
-                Quero Acesso Vitalício
-              </button>
-              <button onClick={() => setShowLifetimeModal(false)} className="w-full text-center mt-3 text-xs py-2 transition-colors" style={{ color: "#AAAAAA" }}>
-                Não agora
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Modal Compra Vitalício is now in AppHeader */}
 
       {/* Modal Info Vitalício */}
       {showLifetimeInfoModal && (
@@ -584,9 +463,7 @@ const Home = () => {
       {funnelCard && (
         <CardFunnelModal card={funnelCard} open={!!funnelCard} onClose={() => setFunnelCard(null)} />
       )}
-      {pcData && (
-        <PayCardFunnelModal payCard={pcData} open={pcOpen} onClose={closePayCard} />
-      )}
+      {/* PayCard modal now in AppHeader for header pills; keep for banner pay cards */}
       {bannerPayCard && (
         <PayCardFunnelModal payCard={bannerPayCard} open={!!bannerPayCard} onClose={() => setBannerPayCard(null)} />
       )}
