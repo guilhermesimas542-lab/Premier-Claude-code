@@ -348,19 +348,13 @@ const Sport = () => {
     }
   };
 
-  const updateScrollButtons = useCallback(() => {
+  const updateActiveCardIndex = useCallback(() => {
     const container = activeCarouselRef.current;
     if (!container) return;
-    setCanScrollLeft(container.scrollLeft > 10);
-    setCanScrollRight(container.scrollLeft < container.scrollWidth - container.clientWidth - 10);
+    const cardWidth = Math.min(420, window.innerWidth * 0.88) + 12;
+    const idx = Math.round(container.scrollLeft / cardWidth);
+    setActiveCardIndex(idx);
   }, []);
-
-  const scrollByArrow = (direction: 'left' | 'right') => {
-    const container = activeCarouselRef.current;
-    if (!container) return;
-    const cardWidth = Math.min(420, window.innerWidth * 0.92) + 16;
-    container.scrollBy({ left: direction === 'left' ? -cardWidth : cardWidth, behavior: 'smooth' });
-  };
 
   const handleMouseDown = (e: React.MouseEvent) => {
     const container = activeCarouselRef.current;
