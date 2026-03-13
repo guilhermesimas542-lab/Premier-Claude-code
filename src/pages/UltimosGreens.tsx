@@ -178,7 +178,6 @@ const GreenDetailModal = ({ entry, onClose }: { entry: GreenEntry | null; onClos
 
         {/* Result banner */}
         <div
-          className="flex items-center justify-center gap-2"
           style={{
             background: "transparent",
             border: "1.5px solid #00FF7F",
@@ -190,8 +189,12 @@ const GreenDetailModal = ({ entry, onClose }: { entry: GreenEntry | null; onClos
             borderRadius: 10,
             width: "100%",
             cursor: "default",
-            letterSpacing: "0.05em",
-            textTransform: "uppercase" as const,
+            letterSpacing: "0.06em",
+            textTransform: "uppercase",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 8,
           }}
         >
           <Trophy className="w-5 h-5" style={{ color: "#00FF7F" }} />
