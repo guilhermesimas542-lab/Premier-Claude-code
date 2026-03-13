@@ -587,11 +587,11 @@ const Sport = () => {
       <div
         key={entry.id}
         ref={isExpiredSection ? undefined : (el) => { activeCardRefs.current[index] = el; }}
-        className={`flex-shrink-0 snap-center ${isLocked ? "cursor-pointer" : ""} ${isExpired ? "pointer-events-none" : ""}`}
-        style={{ width: 'min(420px, 92vw)', minWidth: '280px', overflow: 'visible' }}
+        className={`flex-shrink-0 ${isLocked ? "cursor-pointer" : ""} ${isExpired ? "pointer-events-none" : ""}`}
+        style={{ width: '88vw', minWidth: 280, maxWidth: 420, flexShrink: 0, scrollSnapAlign: 'start' as const }}
         onClick={isLocked ? () => handleLockedClick(entry) : undefined}
       >
-        <div style={{ height: 'calc(min(420px, 92vw) * 213 / 332)' }}>
+        <div style={{ aspectRatio: '332 / 280' }}>
           {isSpecial ? (
             <SpecialBettingCard
               tipId={0}
