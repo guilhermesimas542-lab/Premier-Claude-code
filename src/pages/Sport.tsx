@@ -657,20 +657,45 @@ const Sport = () => {
         <div className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-2 px-1 sm:justify-center" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
           {TIER_TABS.map((tab) => {
             const isActive = activeTierHighlight === tab.tier;
-            const hasContent = tipsByTier[tab.tier]?.length > 0;
+            const count = tipsByTier[tab.tier]?.length || 0;
+            const hasContent = count > 0;
+            const tabColor = TIER_TAB_COLORS[tab.colorKey] || "#94A3B8";
+
+            // Check if user has access to this tier
+            const tierKey = tab.colorKey;
+            const userHasAccess = tierKey === "free"
+              || (tierKey === "alavancagem" || tierKey === "odds_altas")
+              || (mockUser && (() => {
+                // Derive from tips — if there's any unlocked entry in this tier, user has access
+                return tipsByTier[tab.tier]?.some(t => t.display_status === "unlocked");
+              })());
+
             return (
               <button
                 key={tab.tier}
-                onClick={() => scrollToTier(tab.tier)}
-                disabled={!hasContent}
-                className={`px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-xs font-bold whitespace-nowrap transition-all duration-200 active:scale-95 border focus:outline-none focus:ring-2 focus:ring-white/20 flex-shrink-0 min-h-[32px] sm:min-h-[36px] ${
-                  !hasContent ? 'bg-transparent text-white/30 border-white/10 cursor-not-allowed'
-                    : isActive ? 'bg-white/10 text-white border-white/40 shadow-[0_0_8px_rgba(255,255,255,0.15)]'
-                    : 'bg-transparent text-white/80 border-white/20 hover:bg-white/5 hover:border-white/40 hover:text-white'
-                }`}
+                onClick={() => {
+                  if (!hasContent) return;
+                  if (!userHasAccess && hasContent) {
+                    // Find a locked entry from this tier to trigger locked click
+                    const lockedEntry = tipsByTier[tab.tier]?.find(t => t.display_status === "locked");
+                    if (lockedEntry) { handleLockedClick(lockedEntry); return; }
+                  }
+                  scrollToTier(tab.tier);
+                }}
+                style={
+                  !hasContent
+                    ? { background: "transparent", border: "1.5px solid rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.25)", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 13, padding: "6px 14px", borderRadius: 20, cursor: "not-allowed", whiteSpace: "nowrap" as const, flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 4 }
+                    : isActive
+                      ? { background: `${tabColor}26`, border: `1.5px solid ${tabColor}`, color: tabColor, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 13, padding: "6px 14px", borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" as const, flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 4 }
+                      : !userHasAccess
+                        ? { background: "transparent", border: "1.5px solid rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.4)", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 13, padding: "6px 14px", borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" as const, opacity: 0.7, flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 4 }
+                        : { background: "transparent", border: "1.5px solid rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.5)", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 13, padding: "6px 14px", borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" as const, flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 4 }
+                }
               >
                 <span className="sm:hidden">{tab.labelShort}</span>
                 <span className="hidden sm:inline">{tab.label}</span>
+                {hasContent && !userHasAccess && <Lock className="w-2.5 h-2.5" style={{ opacity: 0.7 }} />}
+                {hasContent && <span style={{ fontSize: 11, opacity: 0.7 }}>({count})</span>}
               </button>
             );
           })}
