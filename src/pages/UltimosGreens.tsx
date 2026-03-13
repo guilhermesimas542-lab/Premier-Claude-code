@@ -73,8 +73,9 @@ const GreenDetailModal = ({ entry, onClose }: { entry: GreenEntry | null; onClos
       <div
         className="relative w-full max-w-md rounded-2xl p-5 space-y-5 animate-scale-in"
         style={{
-          background: "#0A0A0A",
-          border: `2px solid ${style.border}`,
+          background: "#0D1929",
+          borderTop: `3px solid ${style.border}`,
+          border: "1.5px solid rgba(255,255,255,0.08)",
           boxShadow: `0 0 30px ${style.color}22, inset 0 1px 0 rgba(255,255,255,0.05)`,
         }}
         onClick={(e) => e.stopPropagation()}
@@ -183,11 +184,24 @@ const GreenDetailModal = ({ entry, onClose }: { entry: GreenEntry | null; onClos
 
         {/* Result banner */}
         <div
-          className="flex items-center justify-center gap-2 py-3 rounded-xl"
-          style={{ background: "rgba(0,255,0,0.08)", border: "1px solid rgba(0,255,0,0.25)" }}
+          className="flex items-center justify-center gap-2"
+          style={{
+            background: "transparent",
+            border: "1.5px solid #00FF7F",
+            color: "#00FF7F",
+            fontFamily: "'Barlow Condensed', sans-serif",
+            fontWeight: 800,
+            fontSize: 14,
+            padding: "12px 0",
+            borderRadius: 10,
+            width: "100%",
+            cursor: "default",
+            letterSpacing: "0.05em",
+            textTransform: "uppercase" as const,
+          }}
         >
-          <Trophy className="w-5 h-5" style={{ color: "#00FF00" }} />
-          <span className="text-sm font-black tracking-wider" style={{ color: "#00FF00" }}>GREEN CONFIRMADO ✅</span>
+          <Trophy className="w-5 h-5" style={{ color: "#00FF7F" }} />
+          <span>GREEN CONFIRMADO ✅</span>
         </div>
       </div>
     </div>
@@ -321,11 +335,17 @@ const UltimosGreens = () => {
                 <Popover key={f.key}>
                   <PopoverTrigger asChild>
                     <button
-                      className="px-3 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1"
+                      className="flex items-center gap-1 transition-all"
                       style={{
-                        background: filter === "custom" ? "rgba(0,255,0,0.15)" : "rgba(255,255,255,0.05)",
-                        border: filter === "custom" ? "1px solid rgba(0,255,0,0.5)" : "1px solid rgba(255,255,255,0.1)",
-                        color: filter === "custom" ? "#00FF00" : "#AAAAAA",
+                        background: filter === "custom" ? "#00FF7F" : "transparent",
+                        border: filter === "custom" ? "1.5px solid #00FF7F" : "1.5px solid rgba(255,255,255,0.07)",
+                        color: filter === "custom" ? "#060D1E" : "rgba(255,255,255,0.6)",
+                        fontFamily: "'Barlow Condensed', sans-serif",
+                        fontWeight: 700,
+                        fontSize: 13,
+                        padding: "6px 14px",
+                        borderRadius: 20,
+                        cursor: "pointer",
                       }}
                     >
                       <Calendar className="w-3 h-3" />
@@ -350,11 +370,17 @@ const UltimosGreens = () => {
               <button
                 key={f.key}
                 onClick={() => setFilter(f.key)}
-                className="px-3 py-1.5 rounded-full text-xs font-semibold transition-all"
+                className="transition-all"
                 style={{
-                  background: filter === f.key ? "rgba(0,255,0,0.15)" : "rgba(255,255,255,0.05)",
-                  border: filter === f.key ? "1px solid rgba(0,255,0,0.5)" : "1px solid rgba(255,255,255,0.1)",
-                  color: filter === f.key ? "#00FF00" : "#AAAAAA",
+                  background: filter === f.key ? "#00FF7F" : "transparent",
+                  border: filter === f.key ? "1.5px solid #00FF7F" : "1.5px solid rgba(255,255,255,0.07)",
+                  color: filter === f.key ? "#060D1E" : "rgba(255,255,255,0.6)",
+                  fontFamily: "'Barlow Condensed', sans-serif",
+                  fontWeight: 700,
+                  fontSize: 13,
+                  padding: "6px 14px",
+                  borderRadius: 20,
+                  cursor: "pointer",
                 }}
               >
                 {f.label}
@@ -394,9 +420,9 @@ const UltimosGreens = () => {
                         onClick={() => setSelectedEntry(entry)}
                         className="flex items-center gap-3 p-3.5 rounded-xl cursor-pointer transition-all duration-200 hover:scale-[1.01] active:scale-[0.99]"
                         style={{
-                          background: style.bg,
+                          background: "#0D1929",
                           border: `1.5px solid ${style.border}`,
-                          boxShadow: style.glow,
+                          boxShadow: "none",
                           animationDelay: `${idx * 50}ms`,
                         }}
                       >
@@ -435,25 +461,29 @@ const UltimosGreens = () => {
                               {entry.market || entry.category || "—"}
                             </p>
                             <span
-                              className="text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0"
-                              style={{ background: `${style.color}22`, color: style.color, border: `1px solid ${style.color}44` }}
+                              style={{
+                                background: `${style.color}26`,
+                                border: `1px solid ${style.color}40`,
+                                color: style.color,
+                                fontFamily: "'Barlow Condensed', sans-serif",
+                                fontWeight: 700,
+                                fontSize: 11,
+                                padding: "3px 8px",
+                                borderRadius: 6,
+                                letterSpacing: "0.05em",
+                                textTransform: "uppercase" as const,
+                              }}
                             >
                               {style.label}
                             </span>
                           </div>
                         </div>
 
-                        {/* Odd + Check */}
-                        <div className="flex items-center gap-2 shrink-0">
+                        {/* Odd */}
+                        <div className="flex items-center shrink-0">
                           <span className="text-base font-black" style={{ color: style.color }}>
                             {entry.odd != null ? entry.odd.toFixed(2) : "—"}
                           </span>
-                          <div
-                            className="w-7 h-7 rounded-full flex items-center justify-center"
-                            style={{ background: "rgba(0,255,0,0.15)", border: "1px solid rgba(0,255,0,0.4)" }}
-                          >
-                            <Check className="w-4 h-4" style={{ color: "#00FF00" }} />
-                          </div>
                         </div>
                       </div>
                     );
