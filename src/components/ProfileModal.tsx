@@ -199,30 +199,6 @@ const ProfileModal = ({ isOpen, onClose }: ProfileModalProps) => {
               userAchievements={userAchievements}
             />
 
-            {/* Referral */}
-            <div
-              className="rounded-2xl p-5"
-              style={{
-                background: 'linear-gradient(135deg, rgba(168,85,247,0.1), rgba(126,34,206,0.08))',
-                border: '1px solid rgba(168,85,247,0.25)',
-              }}
-            >
-              <div className="flex items-center gap-3 mb-3">
-                <Share2 className="w-5 h-5" style={{ color: '#A855F7' }} />
-                <h3 className="font-bold text-white" style={{ color: '#A855F7' }}>Convide Amigos</h3>
-              </div>
-              <p className="text-sm opacity-70 mb-3 text-white">Ganhe <span className="font-bold" style={{ color: '#00FF00' }}>+100 XP</span> para cada amigo!</p>
-              <button
-                onClick={copyReferralLink}
-                className="w-full py-3 rounded-xl flex items-center justify-center gap-2 font-bold text-sm text-white transition-all hover:scale-[1.02]"
-                style={{
-                  background: 'linear-gradient(135deg, #A855F7, #7C3AED)',
-                  boxShadow: '0 4px 15px rgba(168,85,247,0.3)',
-                }}
-              >
-                <Copy className="w-4 h-4" /> Copiar Link de Convite
-              </button>
-            </div>
           </div>
         </DialogContent>
       </Dialog>

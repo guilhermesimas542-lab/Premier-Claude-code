@@ -380,44 +380,6 @@ const Support = () => {
 
         <PlanUpgradeCard />
 
-        {/* Invite Friends Card */}
-        <section
-          className="rounded-2xl p-4 sm:p-5"
-          style={{
-            background: "#112236",
-            border: "1.5px solid rgba(255,255,255,0.30)",
-            borderRadius: 16,
-          }}
-        >
-          <div className="flex items-center gap-3 mb-3">
-            <Share2 className="w-5 h-5" style={{ color: '#FFFFFF' }} />
-            <h3 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 18, color: "#FFFFFF" }}>Convide Amigos</h3>
-          </div>
-          <p className="text-sm mb-3" style={{ color: '#CCCCCC' }}>
-            Ganhe <span className="font-bold" style={{ color: '#00FF7F' }}>+100 XP</span> para cada amigo convidado!
-          </p>
-          <button
-            onClick={copyReferralLink}
-            className="w-full transition-all hover:scale-[1.02]"
-            style={{
-              background: "transparent",
-              border: "1.5px solid rgba(255,255,255,0.3)",
-              color: "#FFFFFF",
-              fontFamily: "'Barlow Condensed', sans-serif",
-              fontWeight: 700,
-              fontSize: 14,
-              padding: "10px 0",
-              borderRadius: 10,
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 8,
-            }}
-          >
-            <Copy className="w-4 h-4" /> Copiar Link de Convite
-          </button>
-        </section>
 
         {/* Support Card */}
         <section className="rounded-2xl p-4 sm:p-5 space-y-4" style={{ background: "#112236", border: "1.5px solid rgba(255,255,255,0.30)", borderRadius: 16 }}>
