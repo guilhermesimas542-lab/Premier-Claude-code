@@ -201,23 +201,6 @@ const Sport = () => {
     .join(":");
   const [error, setError] = useState<string | null>(null);
   const mockUser = mockGetUser();
-  const [isLifetime, setIsLifetime] = useState(false);
-  useEffect(() => {
-    const checkLifetime = async () => {
-      if (!mockUser) return;
-      const { data: userData } = await supabase.from("users").select("id").eq("email", mockUser.email.toLowerCase().trim()).maybeSingle();
-      if (!userData?.id) return;
-      const { data: entitlement } = await supabase
-        .from("entitlements")
-        .select("id")
-        .eq("user_id", userData.id)
-        .eq("product_key", "acesso_vitalicio")
-        .eq("status", "active")
-        .maybeSingle();
-      setIsLifetime(!!entitlement);
-    };
-    checkLifetime();
-  }, []);
   
   const activeCarouselRef = useRef<HTMLDivElement>(null);
   const activeCardRefs = useRef<(HTMLDivElement | null)[]>([]);
