@@ -403,18 +403,16 @@ const UltimosGreens = () => {
                         {/* Team shirts or icon */}
                         {entry.team1_name && entry.team2_name ? (
                           <div className="flex items-center -space-x-1 shrink-0">
-                            <ShirtIcon
-                              variant={(entry.team1_shirt_variant as "solid" | "stripes") || "solid"}
-                              primaryColor={entry.team1_primary_color || "#3B82F6"}
-                              secondaryColor={entry.team1_secondary_color || "#FFFFFF"}
-                              size={24}
-                            />
-                            <ShirtIcon
-                              variant={(entry.team2_shirt_variant as "solid" | "stripes") || "solid"}
-                              primaryColor={entry.team2_primary_color || "#EF4444"}
-                              secondaryColor={entry.team2_secondary_color || "#FFFFFF"}
-                              size={24}
-                            />
+                            {entry.team1_logo_url ? (
+                              <img src={entry.team1_logo_url} alt={entry.team1_name || "Time 1"} style={{ width: 28, height: 28, objectFit: "contain", borderRadius: 4 }} />
+                            ) : (
+                              <ShirtIcon variant={(entry.team1_shirt_variant as "solid" | "stripes") || "solid"} primaryColor={entry.team1_primary_color || "#3B82F6"} secondaryColor={entry.team1_secondary_color || "#FFFFFF"} size={24} />
+                            )}
+                            {entry.team2_logo_url ? (
+                              <img src={entry.team2_logo_url} alt={entry.team2_name || "Time 2"} style={{ width: 28, height: 28, objectFit: "contain", borderRadius: 4 }} />
+                            ) : (
+                              <ShirtIcon variant={(entry.team2_shirt_variant as "solid" | "stripes") || "solid"} primaryColor={entry.team2_primary_color || "#EF4444"} secondaryColor={entry.team2_secondary_color || "#FFFFFF"} size={24} />
+                            )}
                           </div>
                         ) : (
                           <div
