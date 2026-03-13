@@ -442,8 +442,8 @@ const UltimosGreens = () => {
             {sortedDates.map((date) => (
               <div key={date} className="space-y-2.5">
                 {/* Date Header */}
-                <div className="sticky top-[73px] z-20 py-2 backdrop-blur-sm" style={{ background: "rgba(0,0,0,0.85)" }}>
-                  <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "#FFFFFF" }}>
+                <div className="sticky top-[73px] z-20 py-2" style={{ background: "transparent" }}>
+                  <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "#94A3B8" }}>
                     {formatDateHeader(date)}
                   </span>
                 </div>
