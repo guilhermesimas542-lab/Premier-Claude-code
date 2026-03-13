@@ -48,9 +48,8 @@ const Home = () => {
   const { triggerPayCard, payCard: pcData, open: pcOpen, closePayCard } = usePayCardTrigger();
   const { links } = useLinks();
 
-  // Derive lifetime & telegram from entitlements table (single source of truth)
+  // Derive lifetime for info modal only
   const [isLifetime, setIsLifetime] = useState(false);
-  const [isTelegramMember, setIsTelegramMember] = useState(false);
   const [telegramGroupUrl, setTelegramGroupUrl] = useState<string | null>(null);
   useEffect(() => {
     const checkEntitlements = async () => {
@@ -64,23 +63,9 @@ const Home = () => {
         .eq("status", "active");
       const keys = (ents ?? []).map((e) => e.product_key);
       setIsLifetime(keys.includes("acesso_vitalicio"));
-      setIsTelegramMember(keys.includes("live_telegram"));
     };
     checkEntitlements();
   }, []);
-
-  // Load telegram group URL from the user's betting house
-  useEffect(() => {
-    if (!userHouse?.id) return;
-    supabase
-      .from("betting_houses")
-      .select("telegram_group_url")
-      .eq("id", userHouse.id)
-      .maybeSingle()
-      .then(({ data }) => {
-        setTelegramGroupUrl((data as any)?.telegram_group_url ?? null);
-      });
-  }, [userHouse?.id]);
 
   // Track app_open event once on mount
   useEffect(() => {
