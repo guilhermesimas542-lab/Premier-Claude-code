@@ -3,7 +3,6 @@ import { Card } from "@/components/ui/card";
 import { Anchor, Gift, Clock, HelpCircle, BarChart3, Info, Lock } from "lucide-react";
 import { useState, useEffect } from "react";
 
-
 type SpecialCardType = "ALAVANCAGEM" | "ODDS_ALTAS";
 
 interface SpecialBettingCardProps {
@@ -24,46 +23,30 @@ interface SpecialBettingCardProps {
   onLockedClick?: () => void;
 }
 
-// Helper function to format countdown
 const formatCountdown = (totalSeconds: number): string => {
   if (totalSeconds <= 0) return "00:00:00";
-  
   const hours = Math.floor(totalSeconds / 3600);
   const minutes = Math.floor((totalSeconds % 3600) / 60);
   const seconds = totalSeconds % 60;
-  
   const pad = (n: number) => n.toString().padStart(2, "0");
   return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
 };
 
-// Get card config based on type
-// Border colors: ALAVANCAGEM = #F0B429 (gold), ODDS_ALTAS = #F97316 (laranja)
-const getCardConfig = (type: SpecialCardType) => {
-  if (type === "ALAVANCAGEM") {
-    return {
-      icon: Anchor,
-      title: "Alavancagem",
-      subtitle: "Sequência do dia",
-      bgColor: "bg-gradient-to-r from-teal-600 to-emerald-700",
-      textColor: "text-white",
-      glowColor: "",
-      borderColor: "border-[#F0B429]",
-      iconBg: "bg-[#F0B429]/30",
-      iconColor: "text-[#F0B429]",
-    };
-  }
-  // ODDS_ALTAS
-  return {
+const CARD_CONFIG: Record<SpecialCardType, { icon: typeof Anchor; label: string; color: string; gradient: string; subtitle: string }> = {
+  ALAVANCAGEM: {
+    icon: Anchor,
+    label: "ALAVANCAGEM",
+    color: "#F0B429",
+    gradient: "linear-gradient(135deg, rgba(240,180,41,0.08) 0%, transparent 60%)",
+    subtitle: "Alavancagem do Dia",
+  },
+  ODDS_ALTAS: {
     icon: Gift,
-    title: "Odds Altas",
-    subtitle: "Seleções especiais",
-    bgColor: "bg-[#F97316]",
-    textColor: "text-white",
-    glowColor: "",
-    borderColor: "border-[#F97316]",
-    iconBg: "bg-[#F97316]/30",
-    iconColor: "text-[#FF8C42]",
-  };
+    label: "ODDS ALTAS",
+    color: "#F97316",
+    gradient: "linear-gradient(135deg, rgba(249,115,22,0.08) 0%, transparent 60%)",
+    subtitle: "Múltipla do Dia",
+  },
 };
 
 export const SpecialBettingCard = ({
@@ -85,13 +68,13 @@ export const SpecialBettingCard = ({
 }: SpecialBettingCardProps) => {
   const [countdown, setCountdown] = useState<string>("");
   const [isExpiredLocal, setIsExpiredLocal] = useState(false);
-  
 
-  const config = getCardConfig(type);
+  const config = CARD_CONFIG[type];
   const IconComponent = config.icon;
   const isExpired = isExpiredProp || isExpiredLocal;
+  const tierColor = config.color;
+  const expiredColor = "#4B5563";
 
-  // Textos fixos de justificativa por categoria
   const getFixedJustificativaTexto = () => {
     if (type === "ALAVANCAGEM") {
       return "Alavancagem é uma sequência progressiva de entradas, feita em etapas.\n\nVocê segue a ordem do dia e avança etapa por etapa, sem pular.\n\nO foco é progressão controlada: consistência, disciplina e crescimento gradual da banca.";
@@ -103,283 +86,173 @@ export const SpecialBettingCard = ({
     onOpenJustificativa?.(getFixedJustificativaTexto());
   };
 
-  // Countdown timer: counts down to startsAt; shows "AO VIVO" after game starts
   useEffect(() => {
-    if (!startsAt || isExpiredProp) {
-      setCountdown("");
-      return;
-    }
-
+    if (!startsAt || isExpiredProp) { setCountdown(""); return; }
     const updateCountdown = () => {
       const now = new Date().getTime();
       const target = new Date(startsAt).getTime();
       const remaining = Math.floor((target - now) / 1000);
       setCountdown(remaining > 0 ? formatCountdown(remaining) : "AO VIVO");
     };
-
     updateCountdown();
     const interval = setInterval(updateCountdown, 1000);
     return () => clearInterval(interval);
   }, [startsAt, isExpiredProp]);
 
-
   return (
-    <Card
-      className={`select-none relative rounded-xl border-2 transition-all duration-300 flex flex-col
-        w-[min(85vw,360px)] sm:w-[400px] md:w-[420px] lg:w-[332px]
-        ${isExpired 
-          ? "border-gray-600/50 shadow-none grayscale-[60%]" 
-          : isLocked
-            ? `${config.borderColor}`
-            : `${config.borderColor} hover:scale-[1.02]`
-      }`}
+    <div
+      className="select-none relative flex flex-col w-full h-full"
       style={{
-        aspectRatio: '332 / 213',
-        minHeight: 0,
-        overflow: 'visible',
+        background: isExpired ? "#0A0F1A" : `${config.gradient}, #060D1E`,
+        border: `1.5px solid ${isExpired ? expiredColor : tierColor}`,
+        borderRadius: 16,
+        boxShadow: isExpired ? "none" : `0 0 20px ${tierColor}1A`,
+        overflow: "hidden",
+        position: "relative",
       }}
     >
-      {/* Floating Type Badge - Outside card */}
-      <div 
-        className="absolute z-50 pointer-events-none"
-        style={{
-          top: '-14px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-        }}
-      >
-        {isExpired ? (
-          <div 
-            className="bg-gray-600 text-gray-300 font-extrabold tracking-wide shadow-lg uppercase"
-            style={{
-              height: '30px',
-              padding: '0 14px',
-              fontSize: '13px',
-              borderRadius: '999px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            EXPIRADA
-          </div>
-        ) : (
-          <div 
-            className={`${config.bgColor} ${config.textColor} font-extrabold tracking-wide shadow-lg uppercase`}
-            style={{
-              height: '30px',
-              padding: '0 14px',
-              fontSize: '13px',
-              borderRadius: '999px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            {type === "ALAVANCAGEM" ? "ALAVANCAGEM" : "ODDS ALTAS"}
-          </div>
-        )}
-      </div>
-
-      {/* Stadium Background Image */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat pointer-events-none rounded-xl overflow-hidden"
-        style={{ backgroundImage: `url('/images/futsal-arena.jpg')` }}
-      />
-
-      {/* Dark Overlay with gradient based on type */}
-      
-      {/* Dark Overlay with gradient based on type */}
-      <div className={`absolute inset-0 pointer-events-none rounded-xl overflow-hidden ${
-        isExpired 
-          ? "bg-gradient-to-b from-gray-900/70 via-gray-900/80 to-gray-900/90" 
-         : type === "ALAVANCAGEM"
-            ? "bg-gradient-to-b from-teal-900/60 via-black/60 to-black/80"
-            : "bg-gradient-to-b from-red-900/60 via-black/60 to-black/80"
-      }`} />
-
-      {/* Saturation overlay — makes everything below it grayscale */}
+      {/* Saturation overlay for locked */}
       {isLocked && !isExpired && (
-        <div 
-          className="absolute inset-0 rounded-xl pointer-events-none"
-          style={{ backgroundColor: 'black', mixBlendMode: 'saturation', zIndex: 15 }}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{ backgroundColor: 'black', mixBlendMode: 'saturation', zIndex: 15, borderRadius: 16 }}
         />
       )}
-      
-      {/* Locked Overlay with Lock Icon + CTA — above saturation overlay */}
+
+      {/* Locked Overlay */}
       {isLocked && !isExpired && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-xl" style={{ zIndex: 20 }}>
-            {lockedLabel && (
-              <span className="text-white/80 text-sm font-semibold bg-black/80 px-2 py-1 rounded-md">
-                Exclusivo do {lockedLabel}
-              </span>
-            )}
-            <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center" style={{ boxShadow: '0 2px 8px rgba(255,255,255,0.15)' }}>
-              <Lock className="w-6 h-6 text-black" />
-            </div>
-            <button
-              onClick={(e) => { e.stopPropagation(); onLockedClick?.(); }}
-              className="mt-1 px-6 py-3 rounded-full bg-emerald-500 hover:bg-emerald-400 text-white text-sm font-bold shadow-lg transition-all hover:scale-105 animate-pulse-glow-green"
-            >
-              Adquira já
-            </button>
-        </div>
-      )}
-
-      {/* Countdown Timer - Top Left Corner - Hidden when locked */}
-      {!isExpired && !isLocked && countdown && (
-        <div 
-          className="absolute z-40 flex items-center gap-1 bg-black/70 backdrop-blur-sm rounded-full"
-          style={{
-            top: '10px',
-            left: '12px',
-            height: '28px',
-            padding: '0 10px',
-          }}
-        >
-          <Clock className="w-3.5 h-3.5 text-white/80" />
-          <span 
-            className="text-white/95 font-bold tabular-nums"
-            style={{ fontSize: '13px' }}
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3" style={{ zIndex: 20, borderRadius: 16 }}>
+          {lockedLabel && (
+            <span style={{ color: "rgba(255,255,255,0.8)", fontSize: 13, fontWeight: 600, background: "rgba(0,0,0,0.8)", padding: "4px 10px", borderRadius: 6 }}>
+              Exclusivo do {lockedLabel}
+            </span>
+          )}
+          <div style={{ width: 48, height: 48, borderRadius: "50%", background: "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 8px rgba(255,255,255,0.15)" }}>
+            <Lock className="w-6 h-6 text-black" />
+          </div>
+          <button
+            onClick={(e) => { e.stopPropagation(); onLockedClick?.(); }}
+            className="animate-pulse-glow-green"
+            style={{ padding: "10px 24px", borderRadius: 999, background: "#00FF7F", color: "#000", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 14, border: "none", cursor: "pointer", letterSpacing: "0.5px" }}
           >
-            {countdown}
-          </span>
+            Adquira já
+          </button>
         </div>
-      )}
-
-      {/* Info Button - Top Right Corner */}
-      {!isLocked && (
-        <button
-          onClick={handleOpenJustificativaClick}
-          className={`absolute z-30 rounded-full backdrop-blur-sm border flex items-center justify-center transition-colors pointer-events-auto ${
-            isExpired 
-              ? "bg-gray-700/70 border-gray-600/50 hover:bg-gray-700/90" 
-              : "bg-black/50 border-white/30 hover:bg-black/70 hover:border-white/50"
-          }`}
-          style={{
-            top: '10px',
-            right: '12px',
-            width: '32px',
-            height: '32px',
-          }}
-          aria-label="Informações"
-        >
-          <Info className={`w-4 h-4 ${isExpired ? "text-gray-500" : "text-white/90"}`} />
-        </button>
       )}
 
       {/* Content */}
-      <div className="relative z-10 p-2 flex flex-col flex-1 min-h-0 overflow-hidden">
-        
-        {/* Spacer for floating badge */}
-        <div style={{ height: '16px' }} />
+      <div className="relative z-10 flex flex-col flex-1 min-h-0">
 
-        {/* Match Date - Hidden when locked */}
-        <div className="flex items-center justify-center" style={{ height: '18px' }}>
-          {matchDate && !isLocked && (
-            <p 
-              className={`font-bold ${isExpired ? "text-gray-400" : "text-white/90"}`}
-              style={{ fontSize: '12px' }}
-            >
-              {matchDate}
-            </p>
+        {/* Badge */}
+        <div style={{ display: "flex", justifyContent: "center", paddingTop: 12 }}>
+          {isExpired ? (
+            <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", background: "rgba(75,85,99,0.25)", border: "1px solid rgba(75,85,99,0.5)", color: expiredColor, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 12, letterSpacing: "1.5px", textTransform: "uppercase" as const, padding: "4px 14px", borderRadius: 8 }}>
+              EXPIRADA
+            </div>
+          ) : (
+            <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", background: `${tierColor}26`, border: `1px solid ${tierColor}66`, color: tierColor, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 12, letterSpacing: "1.5px", textTransform: "uppercase" as const, padding: "4px 14px", borderRadius: 8 }}>
+              {config.label}
+            </div>
           )}
         </div>
 
-        {/* Special Icon Section - Hidden when locked */}
+        {/* Timer + Match Time row */}
         {!isLocked && (
-          <div className="flex flex-col items-center justify-center gap-1 w-full" style={{ height: '60px' }}>
-            <div className={`w-14 h-14 rounded-full ${config.iconBg} backdrop-blur-sm flex items-center justify-center ring-1 shadow-lg ${
-              isExpired ? "ring-gray-600/30" : "ring-white/20"
-            }`}>
-              <IconComponent className={`w-8 h-8 ${isExpired ? "text-gray-500" : config.iconColor}`} />
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 16px", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              {countdown === "AO VIVO" ? (
+                <>
+                  <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#EF4444", display: "inline-block", animation: "pulse 1.5s infinite" }} />
+                  <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 12, color: "#EF4444" }}>AO VIVO</span>
+                </>
+              ) : countdown ? (
+                <>
+                  <Clock className="w-3 h-3" style={{ color: "#94A3B8" }} />
+                  <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600, fontSize: 12, color: "#94A3B8" }}>{countdown}</span>
+                </>
+              ) : (
+                <span style={{ fontSize: 12, color: "transparent" }}>—</span>
+              )}
             </div>
+            {matchDate && (
+              <>
+                <div style={{ width: 1, height: 14, background: "rgba(255,255,255,0.07)" }} />
+                <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 13, color: isExpired ? "#6B7280" : "#FFFFFF" }}>{matchDate}</span>
+              </>
+            )}
           </div>
         )}
 
-        {/* Odds only - Hidden when locked */}
+        {/* Central Icon */}
         {!isLocked && (
-          <div 
-            className={`w-full backdrop-blur-sm rounded-lg px-3 flex items-center justify-between ${
-              isExpired ? "bg-gray-800/50" : "bg-black/50"
-            }`}
-            style={{ height: '36px', marginTop: '4px' }}
-          >
-            <span className={`text-xs font-bold ${isExpired ? "text-gray-500" : "text-emerald-400"}`}>
+          <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "center", padding: "20px 0" }}>
+            <div style={{ width: 56, height: 56, borderRadius: "50%", background: `${tierColor}1A`, display: "flex", alignItems: "center", justifyContent: "center", border: `1.5px solid ${tierColor}33` }}>
+              <IconComponent style={{ width: 28, height: 28, color: isExpired ? "#6B7280" : tierColor }} />
+            </div>
+            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: "#94A3B8", marginTop: 8 }}>
+              {config.subtitle}
+            </span>
+          </div>
+        )}
+
+        {/* Odd row */}
+        {!isLocked && (
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 16px 8px" }}>
+            <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 13, color: isExpired ? "#6B7280" : tierColor }}>
               {type === "ALAVANCAGEM" ? "Alavancagem do Dia" : "Múltipla do Dia"}
             </span>
-            <div className="flex items-center gap-1.5">
-              <span className={`text-xs font-medium ${isExpired ? "text-gray-500" : "text-emerald-400"}`}>Odd</span>
-              <span 
-                className={`font-black ${isExpired ? "text-gray-500" : "text-emerald-400"}`}
-                style={{ fontSize: '20px' }}
-              >
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, color: "#94A3B8" }}>Odd</span>
+              <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: 24, color: isExpired ? "#6B7280" : tierColor }}>
                 {odds.toFixed(2)}
               </span>
             </div>
           </div>
         )}
 
-        {/* Spacer to push buttons to bottom */}
-        <div className="flex-1 min-h-1" />
+        {/* Spacer */}
+        <div style={{ flex: 1 }} />
 
-        {/* Action Buttons Row */}
+        {/* Action Buttons */}
         {!isLocked && (
-          <div className="flex items-center gap-1.5 w-full mt-auto">
-            {/* Main Add Button */}
-            <Button
+          <div style={{ display: "flex", gap: 8, padding: "0 16px 16px" }}>
+            <button
               onClick={isExpired ? undefined : onAddTip}
               disabled={isExpired}
-              size="sm"
-              className={`flex-1 font-extrabold shadow-lg transition-all duration-300 ${
-                isExpired 
-                  ? "bg-gray-600 text-gray-400 cursor-not-allowed shadow-none" 
-                  : "bg-emerald-500 hover:bg-emerald-400 text-white shadow-emerald-500/40 hover:scale-[1.03]"
-              }`}
               style={{
-                height: '40px',
-                fontSize: '14px',
+                flex: 1,
+                background: isExpired ? "#374151" : "#00FF7F",
+                color: isExpired ? "#6B7280" : "#000000",
+                fontFamily: "'Barlow Condensed', sans-serif",
+                fontWeight: 800,
+                fontSize: 14,
+                letterSpacing: "0.5px",
+                padding: "10px 0",
+                borderRadius: 10,
+                border: "none",
+                cursor: isExpired ? "not-allowed" : "pointer",
+                textTransform: "uppercase" as const,
               }}
             >
-              {isExpired ? "Expirada" : "Adicionar"}
-            </Button>
+              {isExpired ? "EXPIRADA" : "ADICIONAR"}
+            </button>
 
-            {/* Help Icon Button */}
             <button
               onClick={handleOpenJustificativaClick}
-              className={`rounded-lg backdrop-blur-sm border flex items-center justify-center transition-colors pointer-events-auto z-20 ${
-                isExpired 
-                  ? "bg-gray-700/50 border-gray-600/30 hover:bg-gray-700/70" 
-                  : "bg-white/10 border-white/20 hover:bg-white/20"
-              }`}
-              style={{
-                width: '40px',
-                height: '40px',
-              }}
-              aria-label="Ajuda"
+              style={{ width: 40, height: 40, borderRadius: 10, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
             >
               <HelpCircle className={`w-5 h-5 ${isExpired ? "text-gray-500" : "text-white/80"}`} />
             </button>
 
-            {/* Stats/Justificativa Icon Button */}
             <button
               onClick={handleOpenJustificativaClick}
-              className={`rounded-lg backdrop-blur-sm border flex items-center justify-center transition-colors pointer-events-auto z-20 ${
-                isExpired 
-                  ? "bg-gray-700/50 border-gray-600/30 hover:bg-gray-700/70" 
-                  : "bg-white/10 border-white/20 hover:bg-white/20"
-              }`}
-              style={{
-                width: '40px',
-                height: '40px',
-              }}
-              aria-label="Dados / Justificativa"
+              style={{ width: 40, height: 40, borderRadius: 10, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
             >
               <BarChart3 className={`w-5 h-5 ${isExpired ? "text-gray-500" : "text-white/80"}`} />
             </button>
           </div>
         )}
       </div>
-    </Card>
+    </div>
   );
 };

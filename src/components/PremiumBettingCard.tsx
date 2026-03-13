@@ -4,7 +4,6 @@ import { HelpCircle, Info, Link2, Clock, Layers, BarChart3, Lock } from "lucide-
 import { useState, useEffect, useRef } from "react";
 import { ShirtIcon } from "./ShirtIcon";
 
-
 export interface ShirtConfig {
   variant: "solid" | "stripes";
   primaryColor: string;
@@ -43,124 +42,55 @@ interface PremiumBettingCardProps {
   onLockedClick?: () => void;
 }
 
-// Helper function to generate market explanation
-const getMarketExplanation = (market: string): string => {
-  const marketLower = market.toLowerCase();
-  
-  if (marketLower.includes("total de gols")) {
-    return "Total de gols = soma dos gols dos dois times.";
-  }
-  if (marketLower.includes("escanteios")) {
-    return "Escanteios = total de escanteios dos dois times.";
-  }
-  if (marketLower.includes("ambas marcam")) {
-    return "Ambas marcam = os dois times precisam fazer gol.";
-  }
-  if (marketLower.includes("resultado final")) {
-    return "Resultado final = quem vence ou se empata.";
-  }
-  if (marketLower.includes("handicap")) {
-    return "Handicap = vantagem/desvantagem aplicada ao placar.";
-  }
-  if (marketLower.includes("cartões")) {
-    return "Cartões = total de cartões mostrados no jogo.";
-  }
-  
-  return "Esse é o tipo de mercado da aposta.";
+const TIER_COLORS: Record<string, string> = {
+  "GRÁTIS": "#94A3B8",
+  "BÁSICO": "#60A5FA",
+  "PRO": "#00E87A",
+  "ULTRA": "#7C3AED",
+  "MÚLTIPLA": "#7C3AED",
+};
+
+const TIER_GRADIENTS: Record<string, string> = {
+  "GRÁTIS": "none",
+  "BÁSICO": "linear-gradient(135deg, rgba(96,165,250,0.08) 0%, transparent 60%)",
+  "PRO": "linear-gradient(135deg, rgba(0,232,122,0.08) 0%, transparent 60%)",
+  "ULTRA": "linear-gradient(135deg, rgba(124,58,237,0.08) 0%, transparent 60%)",
+  "MÚLTIPLA": "linear-gradient(135deg, rgba(124,58,237,0.08) 0%, transparent 60%)",
 };
 
 // Helper function to generate bet explanation
 const getBetExplanation = (betChoice: string): string => {
   const betLower = betChoice.toLowerCase();
-  
   const maisDeMatch = betLower.match(/mais de\s*(\d+[.,]?\d*)/);
   if (maisDeMatch) {
     const value = parseFloat(maisDeMatch[1].replace(",", "."));
-    const needed = Math.ceil(value);
-    return `Precisa sair ${needed} ou mais para bater.`;
+    return `Precisa sair ${Math.ceil(value)} ou mais para bater.`;
   }
-  
   const menosDeMatch = betLower.match(/menos de\s*(\d+[.,]?\d*)/);
   if (menosDeMatch) {
     const value = parseFloat(menosDeMatch[1].replace(",", "."));
-    const max = Math.floor(value);
-    return `Precisa ter no máximo ${max} para bater.`;
+    return `Precisa ter no máximo ${Math.floor(value)} para bater.`;
   }
-  
-  if (betLower === "sim") {
-    return "A condição do mercado precisa acontecer.";
-  }
-  if (betLower === "não") {
-    return "A condição do mercado NÃO pode acontecer.";
-  }
-  
+  if (betLower === "sim") return "A condição do mercado precisa acontecer.";
+  if (betLower === "não") return "A condição do mercado NÃO pode acontecer.";
   return "O jogo precisa seguir exatamente essa condição.";
 };
 
-// Helper function to format countdown
 const formatCountdown = (totalSeconds: number): string => {
   if (totalSeconds <= 0) return "00:00:00";
-  
   const hours = Math.floor(totalSeconds / 3600);
   const minutes = Math.floor((totalSeconds % 3600) / 60);
   const seconds = totalSeconds % 60;
-  
   const pad = (n: number) => n.toString().padStart(2, "0");
   return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
 };
 
-// Get display tier - MÚLTIPLA maps to PRO (never show MÚLTIPLA as badge)
 const getDisplayTier = (tier: string): "GRÁTIS" | "BÁSICO" | "PRO" | "ULTRA" => {
-  if (tier === "MÚLTIPLA") return "PRO"; // Múltipla uses PRO styling
+  if (tier === "MÚLTIPLA") return "PRO";
   if (tier === "ULTRA") return "ULTRA";
   if (tier === "PRO") return "PRO";
   if (tier === "GRÁTIS") return "GRÁTIS";
   return "BÁSICO";
-};
-
-// Get tier styling configuration (only 4 tiers now)
-// Border colors per category (2px solid)
-const getTierConfig = (tier: string) => {
-  const displayTier = getDisplayTier(tier);
-  
-  switch (displayTier) {
-    case "ULTRA":
-      return {
-        bgColor: "bg-[#9333EA]",
-        textColor: "text-white",
-        glowColor: "", // Removed glow
-        borderColor: "border-[#A855F7]", // Roxo
-        iconColor: "text-purple-400",
-        iconBorderColor: "border-purple-500/50",
-      };
-    case "PRO":
-      return {
-        bgColor: "bg-[#FFD700]",
-        textColor: "text-black",
-        glowColor: "",
-        borderColor: "border-[#FFD700]", // Dourado
-        iconColor: "text-[#FFD700]",
-        iconBorderColor: "border-[#FFD700]/50",
-      };
-    case "GRÁTIS":
-      return {
-        bgColor: "bg-[#808080]",
-        textColor: "text-white",
-        glowColor: "",
-        borderColor: "border-[#808080]", // Cinza
-        iconColor: "text-[#808080]",
-        iconBorderColor: "border-[#808080]/50",
-      };
-    default: // BÁSICO
-      return {
-        bgColor: "bg-gradient-to-r from-emerald-500 to-emerald-600",
-        textColor: "text-white",
-        glowColor: "", // Removed glow
-        borderColor: "border-[#22C55E]", // Verde
-        iconColor: "text-emerald-400",
-        iconBorderColor: "border-emerald-500/50",
-      };
-  }
 };
 
 export const PremiumBettingCard = ({
@@ -183,361 +113,250 @@ export const PremiumBettingCard = ({
   onOpenJustificativa,
   onLockedClick,
 }: PremiumBettingCardProps) => {
-  const [showMarketHelp, setShowMarketHelp] = useState(false);
   const [showBetHelp, setShowBetHelp] = useState(false);
   const [countdown, setCountdown] = useState<string>("");
   const [isExpiredLocal, setIsExpiredLocal] = useState(false);
-  const marketHelpRef = useRef<HTMLDivElement>(null);
   const betHelpRef = useRef<HTMLDivElement>(null);
-  
 
-  // Get display tier (never MÚLTIPLA)
   const displayTier = getDisplayTier(tier);
-  const config = getTierConfig(tier);
-  const marketExplanation = getMarketExplanation(market);
+  const tierColor = TIER_COLORS[displayTier] || TIER_COLORS["BÁSICO"];
+  const tierGradient = TIER_GRADIENTS[displayTier] || "none";
   const betExplanation = getBetExplanation(betChoice);
-  
-  // Combine prop expired with local expired state
   const isExpired = isExpiredProp || isExpiredLocal;
-  
-  // Detect if it's a multiple bet (by selectionsCount or MÚLTIPLA tier or ULTRA tier)
   const isMultiple = tier === "MÚLTIPLA" || tier === "ULTRA" || (selectionsCount && selectionsCount > 1);
-  
-  // For ULTRA, always show at least 3 selections as fallback
   const displaySelectionsCount = selectionsCount || (tier === "ULTRA" ? 3 : 2);
 
-  // Countdown timer: counts down to startsAt; shows "EM JOGO" after game starts
   useEffect(() => {
-    if (!startsAt || isExpiredProp) {
-      setCountdown("");
-      return;
-    }
-
+    if (!startsAt || isExpiredProp) { setCountdown(""); return; }
     const updateCountdown = () => {
       const now = new Date().getTime();
       const target = new Date(startsAt).getTime();
       const remaining = Math.floor((target - now) / 1000);
-
-      if (remaining > 0) {
-        setCountdown(formatCountdown(remaining));
-      } else {
-        // Game already started — show "EM JOGO" indicator
-        setCountdown("AO VIVO");
-      }
+      setCountdown(remaining > 0 ? formatCountdown(remaining) : "AO VIVO");
     };
-
     updateCountdown();
     const interval = setInterval(updateCountdown, 1000);
     return () => clearInterval(interval);
   }, [startsAt, isExpiredProp]);
 
-  // Close tooltips when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (marketHelpRef.current && !marketHelpRef.current.contains(event.target as Node)) {
-        setShowMarketHelp(false);
-      }
       if (betHelpRef.current && !betHelpRef.current.contains(event.target as Node)) {
         setShowBetHelp(false);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const expiredColor = "#4B5563";
 
   return (
-    <Card
-      className={`select-none relative rounded-xl border-2 transition-all duration-300 flex flex-col
-        w-[min(85vw,360px)] sm:w-[400px] md:w-[420px] lg:w-[332px]
-        ${isExpired 
-          ? "border-gray-600/50 shadow-none grayscale-[60%]" 
-          : isLocked
-            ? `${config.borderColor}`
-            : `${config.borderColor} hover:scale-[1.02]`
-      }`}
+    <div
+      className="select-none relative flex flex-col w-full h-full"
       style={{
-        aspectRatio: '332 / 213',
-        minHeight: 0,
-        overflow: 'visible',
+        background: isExpired ? "#0A0F1A" : `${tierGradient}, #060D1E`,
+        border: `1.5px solid ${isExpired ? expiredColor : tierColor}`,
+        borderRadius: 16,
+        boxShadow: isExpired ? "none" : `0 0 20px ${tierColor}1A`,
+        overflow: "hidden",
+        position: "relative",
       }}
     >
-      {/* Stadium Background Image */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat rounded-xl"
-        style={{ backgroundImage: `url('/images/futsal-arena.jpg')` }}
-      />
-
-      {/* Dark gradient overlay */}
-      
-      {/* Dark Overlay for readability */}
-      <div className={`absolute inset-0 rounded-xl ${
-        isExpired 
-          ? "bg-gradient-to-b from-gray-900/70 via-gray-900/80 to-gray-900/90" 
-          : "bg-gradient-to-b from-black/40 via-black/50 to-black/80"
-      }`} />
-
-      {/* Saturation overlay — makes everything below it grayscale */}
+      {/* Saturation overlay for locked */}
       {isLocked && !isExpired && (
-        <div 
-          className="absolute inset-0 rounded-xl pointer-events-none"
-          style={{ backgroundColor: 'black', mixBlendMode: 'saturation', zIndex: 15 }}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{ backgroundColor: 'black', mixBlendMode: 'saturation', zIndex: 15, borderRadius: 16 }}
         />
       )}
-      
-      {/* Expired Chain Pattern Overlay */}
-      {isExpired && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
-          <Link2 className="w-20 h-20 text-gray-500/20 rotate-45" />
-        </div>
-      )}
-      
-      {/* Locked Overlay with Lock Icon + CTA — above saturation overlay */}
+
+      {/* Locked Overlay */}
       {isLocked && !isExpired && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 rounded-xl" style={{ zIndex: 20 }}>
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3" style={{ zIndex: 20, borderRadius: 16 }}>
           {lockedLabel && (
-            <span className="text-white/80 text-sm font-semibold bg-black/80 px-2 py-1 rounded-md">
+            <span style={{ color: "rgba(255,255,255,0.8)", fontSize: 13, fontWeight: 600, background: "rgba(0,0,0,0.8)", padding: "4px 10px", borderRadius: 6 }}>
               Exclusivo do {lockedLabel}
             </span>
           )}
-          <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center" style={{ boxShadow: '0 2px 8px rgba(255,255,255,0.15)' }}>
+          <div style={{ width: 48, height: 48, borderRadius: "50%", background: "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 8px rgba(255,255,255,0.15)" }}>
             <Lock className="w-6 h-6 text-black" />
           </div>
           <button
             onClick={(e) => { e.stopPropagation(); onLockedClick?.(); }}
-            className="mt-1 px-6 py-3 rounded-full bg-emerald-500 hover:bg-emerald-400 text-white text-sm font-bold shadow-lg transition-all hover:scale-105 animate-pulse-glow-green"
+            className="animate-pulse-glow-green"
+            style={{ padding: "10px 24px", borderRadius: 999, background: "#00FF7F", color: "#000", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 14, border: "none", cursor: "pointer", letterSpacing: "0.5px" }}
           >
             Adquira já
           </button>
         </div>
       )}
 
-      {/* Floating Tier Badge - OUTSIDE the card */}
-      <div 
-        className="absolute left-1/2 -translate-x-1/2 z-50"
-        style={{ top: '-14px' }}
-      >
-        {isExpired ? (
-          <div 
-            className="bg-gray-600 text-gray-200 rounded-full font-extrabold uppercase tracking-wide shadow-lg flex items-center justify-center"
-            style={{ height: '30px', padding: '0 14px', fontSize: '13px', letterSpacing: '0.5px' }}
-          >
-            EXPIRADA
-          </div>
-        ) : (
-          <div 
-            className={`${config.bgColor} ${config.textColor} rounded-full font-extrabold uppercase tracking-wide shadow-lg flex items-center justify-center`}
-            style={{ height: '30px', padding: '0 14px', fontSize: '13px', letterSpacing: '0.5px' }}
-          >
-            {displayTier}
+      {/* Expired overlay */}
+      {isExpired && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ zIndex: 10, borderRadius: 16 }}>
+          <Link2 className="w-20 h-20 text-gray-500/20 rotate-45" />
+        </div>
+      )}
+
+      {/* Content */}
+      <div className="relative z-10 flex flex-col flex-1 min-h-0">
+
+        {/* Badge */}
+        <div style={{ display: "flex", justifyContent: "center", paddingTop: 12 }}>
+          {isExpired ? (
+            <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", background: "rgba(75,85,99,0.25)", border: "1px solid rgba(75,85,99,0.5)", color: expiredColor, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 12, letterSpacing: "1.5px", textTransform: "uppercase" as const, padding: "4px 14px", borderRadius: 8 }}>
+              EXPIRADA
+            </div>
+          ) : (
+            <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", background: `${tierColor}26`, border: `1px solid ${tierColor}66`, color: tierColor, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 12, letterSpacing: "1.5px", textTransform: "uppercase" as const, padding: "4px 14px", borderRadius: 8 }}>
+              {displayTier}
+            </div>
+          )}
+        </div>
+
+        {/* Timer + Match Time row */}
+        {!isLocked && (
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 16px", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              {countdown === "AO VIVO" ? (
+                <>
+                  <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#EF4444", display: "inline-block", animation: "pulse 1.5s infinite" }} />
+                  <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 12, color: "#EF4444" }}>AO VIVO</span>
+                </>
+              ) : countdown ? (
+                <>
+                  <Clock className="w-3 h-3" style={{ color: "#94A3B8" }} />
+                  <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600, fontSize: 12, color: "#94A3B8" }}>{countdown}</span>
+                </>
+              ) : (
+                <span style={{ fontSize: 12, color: "transparent" }}>—</span>
+              )}
+            </div>
+            {matchDate && (
+              <>
+                <div style={{ width: 1, height: 14, background: "rgba(255,255,255,0.07)" }} />
+                <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 13, color: isExpired ? "#6B7280" : "#FFFFFF" }}>{matchDate}</span>
+              </>
+            )}
           </div>
         )}
-      </div>
 
-      {/* Content - Improved legibility layout */}
-      <div className="relative z-10 p-3 flex flex-col flex-1 min-h-0 overflow-hidden rounded-xl">
-        
-        {/* Top Row - Timer (left), Info (right) - no badge here anymore */}
-        <div className="relative h-7 mb-0.5">
-          {/* Timer - Top Left Corner - Always visible (locked or not) — hidden when locked to avoid overlap */}
-          {!isExpired && countdown && !isLocked && (
-            <div 
-              className={`absolute flex items-center gap-1 backdrop-blur-sm rounded-full z-40 ${
-                countdown === "AO VIVO"
-                  ? "bg-red-600/80"
-                  : "bg-black/70"
-              }`}
-              style={{ top: '0px', left: '0px', height: '28px', padding: '0 10px' }}
-            >
-              {countdown === "AO VIVO" ? (
-                <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
-              ) : (
-                <Clock className="w-3.5 h-3.5 text-white/80" />
-              )}
-              <span className="text-[13px] text-white font-bold tabular-nums">
-                {countdown}
-              </span>
-            </div>
-          )}
-
-          {/* Info Button - Top Right */}
-          {!isLocked && (
-            <div className="absolute top-0 right-0" ref={marketHelpRef}>
-              <button
-                onClick={() => setShowMarketHelp(!showMarketHelp)}
-                className={`w-7 h-7 rounded-full bg-black/50 backdrop-blur-sm border ${
-                  isExpired ? "border-gray-500/50" : config.iconBorderColor
-                } flex items-center justify-center hover:bg-black/70 transition-colors`}
-                aria-label="Ajuda do mercado"
-              >
-                <Info className={`w-3.5 h-3.5 ${isExpired ? "text-gray-400" : config.iconColor}`} />
-              </button>
-              
-              {showMarketHelp && (
-                <div className="absolute right-0 top-8 w-44 bg-black/90 backdrop-blur-md border border-white/20 rounded-lg p-2 shadow-xl z-50">
-                  <p className="text-[10px] text-white/60 uppercase tracking-wide mb-1">Mercado</p>
-                  <p className="text-[12px] text-white font-bold mb-1">{market}</p>
-                  <p className="text-[11px] text-white/90 leading-relaxed">
-                    {marketExplanation}
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Match Date - Hidden when locked */}
-        <div className="flex items-center justify-center" style={{ height: '16px' }}>
-          {matchDate && !isLocked && (
-            <p 
-              className={`font-bold ${isExpired ? "text-gray-400" : "text-white/90"}`}
-              style={{ fontSize: '12px' }}
-            >
-              {matchDate}
-            </p>
-          )}
-        </div>
-
-        {/* Teams Section - LARGER shirts and names */}
-        <div className="flex items-center justify-center gap-4 sm:gap-6 w-full" style={{ height: '70px', marginTop: '4px' }}>
+        {/* Teams section */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 16, padding: "14px 0 8px" }}>
           {/* Team 1 */}
-          <div className="flex flex-col items-center gap-1">
-            <div className={`rounded-full backdrop-blur-sm flex items-center justify-center ring-1 shadow-lg ${
-              isExpired ? "bg-gray-800/50 ring-gray-600/30" : "bg-white/10 ring-white/20"
-            }`} style={{ width: '48px', height: '48px' }}>
+          <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 6 }}>
+            <div style={{ width: 44, height: 44, borderRadius: "50%", border: "1.5px solid rgba(255,255,255,0.15)", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(255,255,255,0.05)" }}>
               {team1.logo ? (
-                <img src={team1.logo} alt={team1.name} className={`object-contain ${isExpired ? "opacity-50" : ""}`} style={{ width: '32px', height: '32px' }} />
+                <img src={team1.logo} alt={team1.name} className={isExpired ? "opacity-50" : ""} style={{ width: 30, height: 30, objectFit: "contain" }} />
               ) : team1.shirt ? (
-                <ShirtIcon variant={team1.shirt.variant} primaryColor={team1.shirt.primaryColor} secondaryColor={team1.shirt.secondaryColor} size={36} />
+                <ShirtIcon variant={team1.shirt.variant} primaryColor={team1.shirt.primaryColor} secondaryColor={team1.shirt.secondaryColor} size={32} />
               ) : (
-                <ShirtIcon variant="solid" primaryColor="#6B7280" size={36} />
+                <ShirtIcon variant="solid" primaryColor="#6B7280" size={32} />
               )}
             </div>
-            <span className={`font-extrabold text-center max-w-[80px] leading-tight line-clamp-1 ${isExpired ? "text-gray-400" : "text-white"}`} style={{ fontSize: '13px' }}>
+            <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 12, color: isExpired ? "#6B7280" : "#FFFFFF", textAlign: "center" as const, maxWidth: 80, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
               {team1.name}
             </span>
           </div>
 
-          <div className="text-white/50 font-extrabold" style={{ fontSize: '13px' }}>VS</div>
+          {/* VS */}
+          <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600, fontSize: 13, color: "#94A3B8" }}>VS</span>
 
           {/* Team 2 */}
-          <div className="flex flex-col items-center gap-1">
-            <div className={`rounded-full backdrop-blur-sm flex items-center justify-center ring-1 shadow-lg ${
-              isExpired ? "bg-gray-800/50 ring-gray-600/30" : "bg-white/10 ring-white/20"
-            }`} style={{ width: '48px', height: '48px' }}>
+          <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 6 }}>
+            <div style={{ width: 44, height: 44, borderRadius: "50%", border: "1.5px solid rgba(255,255,255,0.15)", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(255,255,255,0.05)" }}>
               {team2.logo ? (
-                <img src={team2.logo} alt={team2.name} className={`object-contain ${isExpired ? "opacity-50" : ""}`} style={{ width: '32px', height: '32px' }} />
+                <img src={team2.logo} alt={team2.name} className={isExpired ? "opacity-50" : ""} style={{ width: 30, height: 30, objectFit: "contain" }} />
               ) : team2.shirt ? (
-                <ShirtIcon variant={team2.shirt.variant} primaryColor={team2.shirt.primaryColor} secondaryColor={team2.shirt.secondaryColor} size={36} />
+                <ShirtIcon variant={team2.shirt.variant} primaryColor={team2.shirt.primaryColor} secondaryColor={team2.shirt.secondaryColor} size={32} />
               ) : (
-                <ShirtIcon variant="solid" primaryColor="#6B7280" size={36} />
+                <ShirtIcon variant="solid" primaryColor="#6B7280" size={32} />
               )}
             </div>
-            <span className={`font-extrabold text-center max-w-[80px] leading-tight line-clamp-1 ${isExpired ? "text-gray-400" : "text-white"}`} style={{ fontSize: '13px' }}>
+            <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 12, color: isExpired ? "#6B7280" : "#FFFFFF", textAlign: "center" as const, maxWidth: 80, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
               {team2.name}
             </span>
           </div>
         </div>
 
-        {/* Multiple Bet Label - Compact (always reserve space) - hidden when locked */}
-        <div className="flex items-center justify-center" style={{ height: '16px' }}>
-          {isMultiple && !isExpired && !isLocked && (
-            <div className="flex items-center gap-1 bg-purple-500/20 backdrop-blur-sm px-2 py-0.5 rounded-full border border-purple-500/30">
+        {/* Multiple bet label */}
+        {isMultiple && !isExpired && !isLocked && (
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: 4 }}>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 4, background: "rgba(124,58,237,0.15)", padding: "2px 8px", borderRadius: 999, border: "1px solid rgba(124,58,237,0.3)" }}>
               <Layers className="w-2.5 h-2.5 text-purple-400" />
-              <span className="text-[9px] text-purple-300 font-semibold">
-                Bilhete ({displaySelectionsCount})
-              </span>
+              <span style={{ fontSize: 9, color: "#C084FC", fontWeight: 600 }}>Bilhete ({displaySelectionsCount})</span>
             </div>
-          )}
-        </div>
-
-        {/* Bet Details Row - Hidden when locked (sensitive content) */}
-        {!isLocked && (
-          <div 
-            className={`w-full backdrop-blur-sm rounded-lg flex items-center justify-between ${
-              isExpired 
-                ? "bg-gray-800/60" 
-                : "bg-black/60"
-            }`}
-            style={{ height: '42px', padding: '0 14px', marginTop: '6px' }}
-          >
-            <span 
-              className={`font-extrabold line-clamp-2 ${isExpired ? "text-gray-500" : "text-emerald-400"}`}
-              style={{ fontSize: '16px', lineHeight: '1.15', maxWidth: '65%' }}
-            >
-              {betChoice}
-            </span>
-            <span 
-              className={`font-black ${isExpired ? "text-gray-500" : "text-white"}`}
-              style={{ fontSize: '20px' }}
-            >
-              {odds.toFixed(2)}
-            </span>
           </div>
         )}
 
-        {/* Spacer to push buttons to bottom */}
-        <div className="flex-1 min-h-0.5" />
-
-        {/* Action Buttons Row - Aligned (hidden when locked) */}
+        {/* Recommendation + Odd */}
         {!isLocked && (
-          <div className="flex items-center gap-2 w-full mt-auto">
-            <Button
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 16px 8px" }}>
+            <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 18, color: isExpired ? "#6B7280" : "#FFFFFF", flex: 1, paddingRight: 12, lineHeight: 1.15 }}>
+              {betChoice}
+            </span>
+            <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "flex-end" }}>
+              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, color: "#94A3B8" }}>Odd</span>
+              <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: 24, color: isExpired ? "#6B7280" : tierColor }}>
+                {odds.toFixed(2)}
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* Spacer */}
+        <div style={{ flex: 1 }} />
+
+        {/* Action Buttons */}
+        {!isLocked && (
+          <div style={{ display: "flex", gap: 8, padding: "0 16px 16px" }}>
+            <button
               onClick={isExpired ? undefined : onAddTip}
               disabled={isExpired}
-              size="sm"
-              className={`flex-1 font-extrabold shadow-lg transition-all duration-300 ${
-                isExpired 
-                  ? "bg-gray-600 text-gray-400 cursor-not-allowed shadow-none" 
-                  : "bg-emerald-500 hover:bg-emerald-400 text-white shadow-emerald-500/40 hover:scale-[1.03]"
-              }`}
-              style={{ height: '40px', fontSize: '14px' }}
+              style={{
+                flex: 1,
+                background: isExpired ? "#374151" : "#00FF7F",
+                color: isExpired ? "#6B7280" : "#000000",
+                fontFamily: "'Barlow Condensed', sans-serif",
+                fontWeight: 800,
+                fontSize: 14,
+                letterSpacing: "0.5px",
+                padding: "10px 0",
+                borderRadius: 10,
+                border: "none",
+                cursor: isExpired ? "not-allowed" : "pointer",
+                textTransform: "uppercase" as const,
+              }}
             >
-              {isExpired ? "Expirada" : "Adicionar"}
-            </Button>
+              {isExpired ? "EXPIRADA" : "ADICIONAR"}
+            </button>
 
-            <div className="flex items-center gap-1.5">
-              <div className="relative" ref={betHelpRef}>
-                <button
-                  onClick={() => setShowBetHelp(!showBetHelp)}
-                  className={`rounded-lg backdrop-blur-sm border flex items-center justify-center transition-colors ${
-                    isExpired 
-                      ? "bg-gray-700/50 border-gray-600/30 hover:bg-gray-700/70" 
-                      : "bg-white/10 border-white/20 hover:bg-white/20"
-                  }`}
-                  style={{ width: '40px', height: '40px' }}
-                  aria-label="Como bater?"
-                >
-                  <HelpCircle className={`w-5 h-5 ${isExpired ? "text-gray-500" : "text-white/80"}`} />
-                </button>
-                
-                {showBetHelp && (
-                  <div className="absolute right-0 bottom-12 w-44 bg-black/90 backdrop-blur-md border border-white/20 rounded-lg p-2 shadow-xl z-50">
-                    <p className="text-[11px] text-white/90 leading-relaxed">
-                      <strong className="text-emerald-400">{betChoice}:</strong>{" "}
-                      {betExplanation}
-                    </p>
-                  </div>
-                )}
-              </div>
-
+            <div className="relative" ref={betHelpRef}>
               <button
-                onClick={() => onOpenJustificativa?.(justificativa || "Em breve: dados e percentuais do confronto.")}
-                className={`rounded-lg backdrop-blur-sm border flex items-center justify-center transition-colors cursor-pointer ${
-                  isExpired 
-                    ? "bg-gray-700/50 border-gray-600/30 hover:bg-gray-700/70" 
-                    : "bg-white/10 border-white/20 hover:bg-white/20 active:scale-95"
-                }`}
-                style={{ width: '40px', height: '40px' }}
-                aria-label="Justificativa da entrada"
+                onClick={() => setShowBetHelp(!showBetHelp)}
+                style={{ width: 40, height: 40, borderRadius: 10, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
               >
-                <BarChart3 className={`w-5 h-5 ${isExpired ? "text-gray-500" : "text-white/80"}`} />
+                <HelpCircle className={`w-5 h-5 ${isExpired ? "text-gray-500" : "text-white/80"}`} />
               </button>
+              {showBetHelp && (
+                <div className="absolute right-0 bottom-12 w-44 bg-black/90 backdrop-blur-md border border-white/20 rounded-lg p-2 shadow-xl z-50">
+                  <p className="text-[11px] text-white/90 leading-relaxed">
+                    <strong className="text-emerald-400">{betChoice}:</strong> {betExplanation}
+                  </p>
+                </div>
+              )}
             </div>
+
+            <button
+              onClick={() => onOpenJustificativa?.(justificativa || "Em breve: dados e percentuais do confronto.")}
+              style={{ width: 40, height: 40, borderRadius: 10, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
+            >
+              <BarChart3 className={`w-5 h-5 ${isExpired ? "text-gray-500" : "text-white/80"}`} />
+            </button>
           </div>
         )}
       </div>
-    </Card>
+    </div>
   );
 };
