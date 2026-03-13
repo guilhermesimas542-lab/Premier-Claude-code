@@ -21,7 +21,7 @@ import { useUserBettingHouse } from "@/hooks/useUserBettingHouse";
 import { UpgradePopup } from "@/components/HousePopups";
 import { usePayCardByPlan, type PayCardData } from "@/hooks/usePayCards";
 import { PayCardFunnelModal } from "@/components/PayCardFunnelModal";
-
+import AppHeader from "@/components/AppHeader";
 
 // ============ TIPOS ============
 type TierType = "GRÁTIS" | "ALAVANCAGEM" | "ODDS_ALTAS" | "BÁSICO" | "PRO" | "ULTRA" | "MÚLTIPLA";
