@@ -300,7 +300,7 @@ const Support = () => {
                 {nickname ? `@${nickname}` : mockUser?.email || '—'}
               </h2>
               {nickname && (
-                <p className="text-xs truncate" style={{ color: '#94A3B8' }}>{mockUser?.email}</p>
+                <p className="text-xs truncate" style={{ color: '#94A3B8', fontFamily: "'DM Sans', sans-serif", fontSize: 14 }}>{mockUser?.email}</p>
               )}
 
               {/* Level Badge */}
@@ -404,17 +404,21 @@ const Support = () => {
           </p>
           <button
             onClick={copyReferralLink}
-            className="w-full flex items-center justify-center gap-2 transition-all hover:scale-[1.02]"
+            className="w-full transition-all hover:scale-[1.02]"
             style={{
               background: "transparent",
-              border: "1.5px solid rgba(255,255,255,0.30)",
+              border: "1.5px solid rgba(255,255,255,0.3)",
               color: "#FFFFFF",
               fontFamily: "'Barlow Condensed', sans-serif",
-              fontWeight: 800,
-              fontSize: 13,
-              padding: "8px 0",
-              borderRadius: 8,
+              fontWeight: 700,
+              fontSize: 14,
+              padding: "10px 0",
+              borderRadius: 10,
               cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 8,
             }}
           >
             <Copy className="w-4 h-4" /> Copiar Link de Convite
@@ -434,17 +438,21 @@ const Support = () => {
           </p>
           <button
             onClick={handleOpenSupport}
-            className="w-full flex items-center justify-center gap-2 transition-all"
+            className="w-full transition-all"
             style={{
               background: "transparent",
-              border: "1.5px solid rgba(255,255,255,0.30)",
+              border: "1.5px solid rgba(255,255,255,0.3)",
               color: "#FFFFFF",
               fontFamily: "'Barlow Condensed', sans-serif",
-              fontWeight: 800,
-              fontSize: 13,
-              padding: "8px 16px",
-              borderRadius: 8,
+              fontWeight: 700,
+              fontSize: 14,
+              padding: "10px 0",
+              borderRadius: 10,
               cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 8,
             }}
           >
             <MessageCircle className="w-4 h-4" />
@@ -454,7 +462,7 @@ const Support = () => {
 
         {/* Logout */}
         <section className="rounded-2xl p-4 sm:p-5 space-y-3" style={{ background: "#112236", border: "1.5px solid rgba(255,255,255,0.30)", borderRadius: 16 }}>
-          <p className="text-sm" style={{ color: "#CCCCCC" }}>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: "#94A3B8", lineHeight: 1.5 }}>
             Deseja sair da sua conta? Você precisará fazer login novamente.
           </p>
           <button
