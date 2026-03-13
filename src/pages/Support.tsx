@@ -325,9 +325,6 @@ const Support = () => {
         onClose={() => setSelectedPreviewAch(null)}
       />
 
-      {pcHeaderData && (
-        <PayCardFunnelModal payCard={pcHeaderData} open={pcHeaderOpen} onClose={closePayCardHeader} />
-      )}
 
       <BottomNav />
     </div>
