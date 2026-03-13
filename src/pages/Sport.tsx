@@ -717,29 +717,46 @@ const Sport = () => {
 
         {!isLoading && !error && activeEntries.length > 0 && (
           <section className="relative w-full">
-            {canScrollLeft && (
-              <button onClick={() => scrollByArrow('left')} className="absolute left-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full bg-green-500/20 border-2 border-green-400 shadow-[0_0_15px_rgba(74,222,128,0.8)] hover:bg-green-500/40 text-green-300 flex items-center justify-center transition-all hover:scale-105 -ml-2 md:-ml-4" aria-label="Anterior">
-                <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
-              </button>
-            )}
-            {canScrollRight && (
-              <button onClick={() => scrollByArrow('right')} className="absolute right-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full bg-green-500/20 border-2 border-green-400 shadow-[0_0_15px_rgba(74,222,128,0.8)] hover:bg-green-500/40 text-green-300 flex items-center justify-center transition-all hover:scale-105 -mr-2 md:-mr-4" aria-label="Próximo">
-                <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
-              </button>
-            )}
-
             <div 
               ref={activeCarouselRef}
-              className="w-full overflow-x-auto snap-x snap-mandatory scroll-smooth px-6 md:px-8 select-none"
-              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', cursor: isDragging ? 'grabbing' : 'grab', overflow: 'visible', overflowX: 'auto' }}
+              className="w-full select-none"
+              style={{
+                display: "flex",
+                gap: 12,
+                overflowX: "auto",
+                scrollSnapType: "x mandatory",
+                scrollBehavior: "smooth",
+                paddingLeft: 16,
+                paddingRight: 16,
+                paddingBottom: 8,
+                paddingTop: 8,
+                WebkitOverflowScrolling: "touch",
+                scrollbarWidth: 'none',
+                msOverflowStyle: 'none',
+                cursor: isDragging ? 'grabbing' : 'grab',
+              }}
               onMouseDown={handleMouseDown}
               onMouseMove={handleMouseMove}
               onMouseUp={handleMouseUp}
               onMouseLeave={handleMouseLeave}
             >
-              <div className="flex gap-4 md:gap-5 py-4" style={{ paddingTop: '18px' }}>
-                {activeEntries.map((entry, index) => renderEntryCard(entry, index, false))}
-              </div>
+              {activeEntries.map((entry, index) => renderEntryCard(entry, index, false))}
+            </div>
+
+            {/* Dots */}
+            <div style={{ display: "flex", justifyContent: "center", gap: 6, marginTop: 12 }}>
+              {activeEntries.map((_, i) => (
+                <div
+                  key={i}
+                  style={{
+                    width: activeCardIndex === i ? 16 : 4,
+                    height: 4,
+                    borderRadius: 2,
+                    background: activeCardIndex === i ? (activeTierHighlight ? TIER_TAB_COLORS[TIER_TABS.find(t => t.tier === activeTierHighlight)?.colorKey || "basic"] || "#60A5FA" : "#60A5FA") : "rgba(255,255,255,0.2)",
+                    transition: "all 0.3s ease",
+                  }}
+                />
+              ))}
             </div>
           </section>
         )}
