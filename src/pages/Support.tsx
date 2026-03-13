@@ -300,7 +300,7 @@ const Support = () => {
                 {nickname ? `@${nickname}` : mockUser?.email || '—'}
               </h2>
               {nickname && (
-                <p className="text-xs truncate" style={{ color: '#94A3B8' }}>{mockUser?.email}</p>
+                <p className="text-xs truncate" style={{ color: '#94A3B8', fontFamily: "'DM Sans', sans-serif", fontSize: 14 }}>{mockUser?.email}</p>
               )}
 
               {/* Level Badge */}
