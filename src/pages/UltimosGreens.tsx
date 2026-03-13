@@ -210,7 +210,7 @@ const UltimosGreens = () => {
   const offsetRef = useRef(0);
   const observerRef = useRef<HTMLDivElement>(null);
 
-  const SELECT_FIELDS = "id, date, team1_name, team2_name, team1_shirt_variant, team1_primary_color, team1_secondary_color, team2_shirt_variant, team2_primary_color, team2_secondary_color, market, odd, tier_required, addon_required, category, category_explanation, condition_to_win, classification, justification, title, starts_at";
+  const SELECT_FIELDS = "id, date, team1_name, team2_name, team1_shirt_variant, team1_primary_color, team1_secondary_color, team2_shirt_variant, team2_primary_color, team2_secondary_color, team1_logo_url, team2_logo_url, market, odd, tier_required, addon_required, category, category_explanation, condition_to_win, classification, justification, title, starts_at";
 
   const buildQuery = useCallback((offset: number) => {
     let q = (supabase
