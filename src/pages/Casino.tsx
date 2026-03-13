@@ -253,7 +253,118 @@ const Casino = () => {
         </section>
       </main>
 
+      {/* Footer */}
+      <footer className="mt-12 pb-8">
+        <div className="container max-w-7xl mx-auto px-4">
+          <div className="pt-6 text-center space-y-2" style={{ borderTop: "1px solid rgba(0,255,0,0.1)" }}>
+            <p className="text-sm font-medium" style={{ color: "#FFFFFF" }}>Premier Ultra ©</p>
+            <p className="text-xs" style={{ color: "#AAAAAA" }}>Análises processadas continuamente</p>
+            <p className="text-[11px] pt-2" style={{ color: "#888888" }}>
+              Dados protegidos • 18+ • Jogue com responsabilidade
+            </p>
+            <div className="flex items-center justify-center gap-2 text-[11px]" style={{ color: "#AAAAAA" }}>
+              <button onClick={() => setShowTermsModal(true)} className="transition-colors hover:underline" style={{ color: "#CCCCCC" }}>
+                Termos & Privacidade
+              </button>
+              <span style={{ color: "#555555" }}>|</span>
+              <a href={links.support_whatsapp_url || "https://wa.link/1p68qg"} target="_blank" rel="noopener noreferrer" className="transition-colors hover:underline" style={{ color: "#CCCCCC" }}>
+                Suporte
+              </a>
+            </div>
+          </div>
+        </div>
+      </footer>
+
       <BottomNav />
+
+      {/* Modal Termos */}
+      {showTermsModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={() => setShowTermsModal(false)}>
+          <div className="w-full max-w-md rounded-2xl shadow-2xl overflow-hidden max-h-[80vh] overflow-y-auto" style={{ background: "rgba(0,8,0,0.97)", border: "1px solid rgba(0,255,0,0.25)" }} onClick={(e) => e.stopPropagation()}>
+            <div className="relative px-6 py-5 sticky top-0 z-10" style={{ background: "rgba(0,8,0,0.97)", borderBottom: "1px solid rgba(0,255,0,0.15)" }}>
+              <h2 className="text-lg font-bold" style={{ color: "#FFFFFF" }}>Termos de Uso & Privacidade</h2>
+              <button onClick={() => setShowTermsModal(false)} className="absolute top-4 right-4 p-1.5 rounded-lg transition-colors hover:bg-[rgba(0,255,0,0.08)]">
+                <X className="w-5 h-5" style={{ color: "#00FF00" }} />
+              </button>
+            </div>
+            <div className="px-6 py-5 space-y-4 text-sm leading-relaxed" style={{ color: "#CCCCCC" }}>
+              <p>O Premier Ultra é uma plataforma de análise e previsão de resultados esportivos. Ao utilizar nossos serviços, você concorda com os seguintes termos:</p>
+              <p><strong style={{ color: "#FFFFFF" }}>1. Natureza do serviço:</strong> Fornecemos análises estatísticas e palpites baseados em dados. Não garantimos resultados.</p>
+              <p><strong style={{ color: "#FFFFFF" }}>2. Responsabilidade:</strong> O usuário é responsável por suas decisões de apostas. Jogue com responsabilidade.</p>
+              <p><strong style={{ color: "#FFFFFF" }}>3. Idade mínima:</strong> É necessário ter 18 anos ou mais para utilizar nossos serviços.</p>
+              <p><strong style={{ color: "#FFFFFF" }}>4. Privacidade:</strong> Seus dados são protegidos e utilizados apenas para melhorar sua experiência na plataforma.</p>
+              <p><strong style={{ color: "#FFFFFF" }}>5. Reembolso:</strong> Política de reembolso conforme termos do provedor de pagamento.</p>
+            </div>
+            <div className="px-6 pb-6">
+              <button onClick={() => setShowTermsModal(false)} className="w-full py-3 rounded-xl font-medium transition-colors" style={{ background: "rgba(0,255,0,0.08)", border: "1px solid rgba(0,255,0,0.3)", color: "#FFFFFF" }}>
+                Entendi
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Compra Vitalício */}
+      {showLifetimeModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={() => setShowLifetimeModal(false)}>
+          <div className="w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden" style={{ background: "rgba(0,8,0,0.97)", border: "1px solid rgba(0,255,0,0.25)", boxShadow: "0 0 40px rgba(0,255,0,0.1)" }} onClick={(e) => e.stopPropagation()}>
+            <div className="relative px-6 py-5" style={{ borderBottom: "1px solid rgba(0,255,0,0.15)" }}>
+              <div className="relative flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(0,255,0,0.1)", border: "1px solid rgba(0,255,0,0.3)" }}>
+                  <Crown className="w-5 h-5" style={{ color: "#00FF00" }} />
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold" style={{ color: "#FFFFFF" }}>Acesso Vitalício</h2>
+                  <p className="text-xs mt-0.5" style={{ color: "#AAAAAA" }}>Pagamento único • Acesso permanente</p>
+                </div>
+              </div>
+              <button onClick={() => setShowLifetimeModal(false)} className="absolute top-4 right-4 p-1.5 rounded-lg transition-colors hover:bg-[rgba(0,255,0,0.08)]">
+                <X className="w-5 h-5" style={{ color: "#00FF00" }} />
+              </button>
+            </div>
+            <div className="px-6 py-6">
+              <button onClick={() => { window.open(CHECKOUT_LINKS.vitalicio, '_blank'); setShowLifetimeModal(false); }} className="w-full py-3.5 rounded-xl font-bold text-sm transition-all" style={{ background: "#00FF00", color: "#000000", boxShadow: "0 0 20px rgba(0,255,0,0.4)" }}>
+                Quero Acesso Vitalício
+              </button>
+              <button onClick={() => setShowLifetimeModal(false)} className="w-full text-center mt-3 text-xs py-2 transition-colors" style={{ color: "#AAAAAA" }}>
+                Não agora
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Info Vitalício */}
+      {showLifetimeInfoModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={() => setShowLifetimeInfoModal(false)}>
+          <div className="w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden" style={{ background: "rgba(0,8,0,0.97)", border: "1px solid rgba(0,255,0,0.25)", boxShadow: "0 0 40px rgba(0,255,0,0.1)" }} onClick={(e) => e.stopPropagation()}>
+            <div className="relative px-6 py-5" style={{ borderBottom: "1px solid rgba(0,255,0,0.15)" }}>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(0,255,0,0.1)", border: "1px solid rgba(0,255,0,0.3)" }}>
+                  <Crown className="w-5 h-5" style={{ color: "#00FF00" }} />
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold" style={{ color: "#FFFFFF" }}>Parabéns! 🎉</h2>
+                  <p className="text-xs mt-0.5" style={{ color: "#AAAAAA" }}>Membro Vitalício</p>
+                </div>
+              </div>
+              <button onClick={() => setShowLifetimeInfoModal(false)} className="absolute top-4 right-4 p-1.5 rounded-lg transition-colors hover:bg-[rgba(0,255,0,0.08)]">
+                <X className="w-5 h-5" style={{ color: "#00FF00" }} />
+              </button>
+            </div>
+            <div className="px-6 py-6">
+              <p className="text-sm leading-relaxed" style={{ color: "#CCCCCC" }}>
+                Você tem <span style={{ color: "#00FF00", fontWeight: 600 }}>acesso vitalício e ilimitado</span> a todas as funcionalidades e futuras atualizações do Premier Ultra. Aproveite!
+              </p>
+            </div>
+            <div className="px-6 pb-6">
+              <button onClick={() => setShowLifetimeInfoModal(false)} className="w-full py-3 rounded-xl font-medium transition-colors" style={{ background: "rgba(0,255,0,0.08)", border: "1px solid rgba(0,255,0,0.3)", color: "#FFFFFF" }}>
+                Entendi
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {funnelCard && (
         <CardFunnelModal
