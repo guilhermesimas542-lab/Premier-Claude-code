@@ -170,7 +170,7 @@ const ProfileModal = ({ isOpen, onClose }: ProfileModalProps) => {
                 { icon: Flame, label: 'Streak', value: `${gamification?.current_streak || 0} dias`, color: '#FF6B35' },
                 { icon: Trophy, label: 'Maior Streak', value: `${gamification?.longest_streak || 0} dias`, color: '#FFD700' },
                 { icon: Calendar, label: 'Total Logins', value: `${gamification?.total_logins || 0}`, color: '#00BFFF' },
-                { icon: Users, label: 'Convidados', value: `${gamification?.friends_invited || 0}`, color: '#A855F7' },
+                
               ].map(({ icon: Icon, label, value, color }) => (
                 <div
                   key={label}
