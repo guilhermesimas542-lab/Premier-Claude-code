@@ -101,7 +101,7 @@ export const SpecialBettingCard = ({
 
   return (
     <div
-      className="select-none relative flex flex-col w-full h-full"
+      className="select-none relative flex flex-col w-full"
       style={{
         background: isExpired ? "#0A0F1A" : `${config.gradient}, #060D1E`,
         border: `1.5px solid ${isExpired ? expiredColor : tierColor}`,
@@ -141,16 +141,16 @@ export const SpecialBettingCard = ({
       )}
 
       {/* Content */}
-      <div className="relative z-10 flex flex-col flex-1 min-h-0">
+      <div className="relative z-10 flex flex-col">
 
         {/* Badge */}
-        <div style={{ display: "flex", justifyContent: "center", paddingTop: 8 }}>
+        <div style={{ display: "flex", justifyContent: "center", marginTop: 8, marginBottom: 4 }}>
           {isExpired ? (
-            <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", background: "rgba(75,85,99,0.25)", border: "1px solid rgba(75,85,99,0.5)", color: expiredColor, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 11, letterSpacing: "1.5px", textTransform: "uppercase" as const, padding: "3px 12px", borderRadius: 8 }}>
+            <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", background: "rgba(75,85,99,0.25)", border: "1px solid rgba(75,85,99,0.5)", color: expiredColor, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 11, letterSpacing: "1.5px", textTransform: "uppercase" as const, padding: "2px 10px", borderRadius: 8 }}>
               EXPIRADA
             </div>
           ) : (
-            <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", background: `${tierColor}26`, border: `1px solid ${tierColor}66`, color: tierColor, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 11, letterSpacing: "1.5px", textTransform: "uppercase" as const, padding: "3px 12px", borderRadius: 8 }}>
+            <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", background: `${tierColor}26`, border: `1px solid ${tierColor}66`, color: tierColor, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 11, letterSpacing: "1.5px", textTransform: "uppercase" as const, padding: "2px 10px", borderRadius: 8 }}>
               {config.label}
             </div>
           )}
@@ -158,7 +158,7 @@ export const SpecialBettingCard = ({
 
         {/* Timer + Match Time row */}
         {!isLocked && (
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "5px 14px", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "4px 14px", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
               {countdown === "AO VIVO" ? (
                 <>
@@ -185,8 +185,8 @@ export const SpecialBettingCard = ({
 
         {/* Central Icon */}
         {!isLocked && (
-          <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "center", padding: "20px 0" }}>
-            <div style={{ width: 56, height: 56, borderRadius: "50%", background: `${tierColor}1A`, display: "flex", alignItems: "center", justifyContent: "center", border: `1.5px solid ${tierColor}33` }}>
+          <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "center", paddingTop: 8, paddingBottom: 8 }}>
+            <div style={{ width: 48, height: 48, borderRadius: "50%", background: `${tierColor}1A`, display: "flex", alignItems: "center", justifyContent: "center", border: `1.5px solid ${tierColor}33` }}>
               <IconComponent style={{ width: 28, height: 28, color: isExpired ? "#6B7280" : tierColor }} />
             </div>
             <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: "#94A3B8", marginTop: 8 }}>
@@ -197,7 +197,7 @@ export const SpecialBettingCard = ({
 
         {/* Odd row */}
         {!isLocked && (
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 14px 8px" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "4px 14px 0 14px" }}>
             <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 13, color: isExpired ? "#6B7280" : tierColor }}>
               {type === "ALAVANCAGEM" ? "Alavancagem do Dia" : "Múltipla do Dia"}
             </span>
@@ -210,12 +210,9 @@ export const SpecialBettingCard = ({
           </div>
         )}
 
-        {/* Spacer */}
-        <div style={{ flex: 1 }} />
-
         {/* Action Buttons */}
         {!isLocked && (
-          <div style={{ display: "flex", gap: 8, padding: "0 14px 12px" }}>
+          <div style={{ display: "flex", gap: 8, padding: "6px 14px 12px 14px" }}>
             <button
               onClick={isExpired ? undefined : onAddTip}
               disabled={isExpired}
