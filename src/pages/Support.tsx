@@ -99,6 +99,11 @@ const Support = () => {
 
   const [showLifetimeInfoModal, setShowLifetimeInfoModal] = useState(false);
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    if (!isAuthenticated()) { navigate("/login"); return; }
+  }, [navigate]);
+
   // Fetch user profile
   useEffect(() => {
     if (!userId) return;
