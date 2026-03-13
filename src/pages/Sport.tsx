@@ -156,8 +156,7 @@ const Sport = () => {
   const [iframeUrl, setIframeUrl] = useState<string>("");
 
   const [activeTierHighlight, setActiveTierHighlight] = useState<TierType | null>(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(true);
+  const [activeCardIndex, setActiveCardIndex] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeftStart, setScrollLeftStart] = useState(0);
