@@ -403,14 +403,14 @@ const Sport = () => {
   useEffect(() => {
     const container = activeCarouselRef.current;
     if (!container) return;
-    updateScrollButtons();
-    container.addEventListener('scroll', updateScrollButtons);
-    window.addEventListener('resize', updateScrollButtons);
+    updateActiveCardIndex();
+    container.addEventListener('scroll', updateActiveCardIndex);
+    window.addEventListener('resize', updateActiveCardIndex);
     return () => {
-      container.removeEventListener('scroll', updateScrollButtons);
-      window.removeEventListener('resize', updateScrollButtons);
+      container.removeEventListener('scroll', updateActiveCardIndex);
+      window.removeEventListener('resize', updateActiveCardIndex);
     };
-  }, [updateScrollButtons, activeEntries]);
+  }, [updateActiveCardIndex, activeEntries]);
 
   const handleLogout = () => {
     clearAuth();
