@@ -85,9 +85,9 @@ export function useGamificationCore() {
                 description: `${ach.icon} ${ach.name} — +${ach.xp_reward} XP`,
                 duration: 4000,
                 style: {
-                  background: '#212529',
-                  border: '1px solid rgba(76,175,80,0.5)',
-                  color: '#fff',
+                  background: '#FFFFFF',
+                  border: '1.5px solid rgba(0,255,127,0.4)',
+                  color: '#0D1929',
                 },
               });
             }
@@ -132,9 +132,9 @@ export function useGamificationCore() {
               description: `${ach.icon} ${ach.name} — +${ach.xp_reward} XP`,
               duration: 4000,
               style: {
-                background: '#212529',
-                border: '1px solid rgba(76,175,80,0.5)',
-                color: '#fff',
+                background: '#FFFFFF',
+                border: '1.5px solid rgba(0,255,127,0.4)',
+                color: '#0D1929',
               },
             });
           }
