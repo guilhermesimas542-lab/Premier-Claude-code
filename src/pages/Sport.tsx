@@ -130,14 +130,23 @@ const TIER_DISPLAY_ORDER: Record<TierType, number> = {
   "MÚLTIPLA": 6,
 };
 
-const TIER_TABS: { tier: TierType; label: string; labelShort: string }[] = [
-  { tier: "GRÁTIS", label: "Grátis", labelShort: "Grátis" },
-  { tier: "ALAVANCAGEM", label: "Alavancagem", labelShort: "Alav." },
-  { tier: "ODDS_ALTAS", label: "Odds Altas", labelShort: "Odds Alt." },
-  { tier: "BÁSICO", label: "Básico", labelShort: "Basic" },
-  { tier: "PRO", label: "Pro", labelShort: "Pro" },
-  { tier: "ULTRA", label: "Ultra", labelShort: "Ultra" },
+const TIER_TABS: { tier: TierType; label: string; labelShort: string; colorKey: string }[] = [
+  { tier: "GRÁTIS", label: "Grátis", labelShort: "Grátis", colorKey: "free" },
+  { tier: "ALAVANCAGEM", label: "Alavancagem", labelShort: "Alav.", colorKey: "alavancagem" },
+  { tier: "ODDS_ALTAS", label: "Odds Altas", labelShort: "Odds Alt.", colorKey: "odds_altas" },
+  { tier: "BÁSICO", label: "Básico", labelShort: "Basic", colorKey: "basic" },
+  { tier: "PRO", label: "Pro", labelShort: "Pro", colorKey: "pro" },
+  { tier: "ULTRA", label: "Ultra", labelShort: "Ultra", colorKey: "ultra" },
 ];
+
+const TIER_TAB_COLORS: Record<string, string> = {
+  free: "#94A3B8",
+  basic: "#60A5FA",
+  pro: "#00E87A",
+  ultra: "#7C3AED",
+  alavancagem: "#F0B429",
+  odds_altas: "#F97316",
+};
 
 const Sport = () => {
   const navigate = useNavigate();
