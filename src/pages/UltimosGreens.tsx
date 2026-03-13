@@ -21,6 +21,8 @@ interface GreenEntry {
   team2_shirt_variant: string | null;
   team2_primary_color: string | null;
   team2_secondary_color: string | null;
+  team1_logo_url: string | null;
+  team2_logo_url: string | null;
   market: string | null;
   odd: number | null;
   tier_required: string;
