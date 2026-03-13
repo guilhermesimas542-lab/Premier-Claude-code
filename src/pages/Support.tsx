@@ -171,8 +171,6 @@ const Support = () => {
   const { xpInLevel, xpNeeded, progress } = getXpProgress(totalXp, level);
   const currentAvatar = getAvatarById(currentAvatarId);
   const levelTitle = LEVEL_TITLES[level] || 'Novato';
-  const referralLink = userId ? `${window.location.origin}/login?ref=${userId}` : '';
-
   const { links } = useLinks();
 
   const handleOpenSupport = () => {
