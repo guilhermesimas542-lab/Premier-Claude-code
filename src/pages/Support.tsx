@@ -462,7 +462,7 @@ const Support = () => {
 
         {/* Logout */}
         <section className="rounded-2xl p-4 sm:p-5 space-y-3" style={{ background: "#112236", border: "1.5px solid rgba(255,255,255,0.30)", borderRadius: 16 }}>
-          <p className="text-sm" style={{ color: "#CCCCCC" }}>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: "#94A3B8", lineHeight: 1.5 }}>
             Deseja sair da sua conta? Você precisará fazer login novamente.
           </p>
           <button
