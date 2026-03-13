@@ -1,4 +1,4 @@
-import { ArrowLeft, LogOut, ChevronLeft, ChevronRight, Loader2, Lock, Menu, X, Gift, Headphones, Crown } from "lucide-react";
+import { ArrowLeft, LogOut, Loader2, Lock, Menu, X, Gift, Headphones, Crown } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState, useRef, useCallback } from "react";
 import { PremiumBettingCard } from "@/components/PremiumBettingCard";
@@ -130,14 +130,23 @@ const TIER_DISPLAY_ORDER: Record<TierType, number> = {
   "MÚLTIPLA": 6,
 };
 
-const TIER_TABS: { tier: TierType; label: string; labelShort: string }[] = [
-  { tier: "GRÁTIS", label: "Grátis", labelShort: "Grátis" },
-  { tier: "ALAVANCAGEM", label: "Alavancagem", labelShort: "Alav." },
-  { tier: "ODDS_ALTAS", label: "Odds Altas", labelShort: "Odds Alt." },
-  { tier: "BÁSICO", label: "Básico", labelShort: "Basic" },
-  { tier: "PRO", label: "Pro", labelShort: "Pro" },
-  { tier: "ULTRA", label: "Ultra", labelShort: "Ultra" },
+const TIER_TABS: { tier: TierType; label: string; labelShort: string; colorKey: string }[] = [
+  { tier: "GRÁTIS", label: "Grátis", labelShort: "Grátis", colorKey: "free" },
+  { tier: "ALAVANCAGEM", label: "Alavancagem", labelShort: "Alav.", colorKey: "alavancagem" },
+  { tier: "ODDS_ALTAS", label: "Odds Altas", labelShort: "Odds Alt.", colorKey: "odds_altas" },
+  { tier: "BÁSICO", label: "Básico", labelShort: "Basic", colorKey: "basic" },
+  { tier: "PRO", label: "Pro", labelShort: "Pro", colorKey: "pro" },
+  { tier: "ULTRA", label: "Ultra", labelShort: "Ultra", colorKey: "ultra" },
 ];
+
+const TIER_TAB_COLORS: Record<string, string> = {
+  free: "#94A3B8",
+  basic: "#60A5FA",
+  pro: "#00E87A",
+  ultra: "#7C3AED",
+  alavancagem: "#F0B429",
+  odds_altas: "#F97316",
+};
 
 const Sport = () => {
   const navigate = useNavigate();
@@ -147,8 +156,7 @@ const Sport = () => {
   const [iframeUrl, setIframeUrl] = useState<string>("");
 
   const [activeTierHighlight, setActiveTierHighlight] = useState<TierType | null>(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(true);
+  const [activeCardIndex, setActiveCardIndex] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeftStart, setScrollLeftStart] = useState(0);
@@ -340,19 +348,13 @@ const Sport = () => {
     }
   };
 
-  const updateScrollButtons = useCallback(() => {
+  const updateActiveCardIndex = useCallback(() => {
     const container = activeCarouselRef.current;
     if (!container) return;
-    setCanScrollLeft(container.scrollLeft > 10);
-    setCanScrollRight(container.scrollLeft < container.scrollWidth - container.clientWidth - 10);
+    const cardWidth = Math.min(420, window.innerWidth * 0.88) + 12;
+    const idx = Math.round(container.scrollLeft / cardWidth);
+    setActiveCardIndex(idx);
   }, []);
-
-  const scrollByArrow = (direction: 'left' | 'right') => {
-    const container = activeCarouselRef.current;
-    if (!container) return;
-    const cardWidth = Math.min(420, window.innerWidth * 0.92) + 16;
-    container.scrollBy({ left: direction === 'left' ? -cardWidth : cardWidth, behavior: 'smooth' });
-  };
 
   const handleMouseDown = (e: React.MouseEvent) => {
     const container = activeCarouselRef.current;
@@ -401,14 +403,14 @@ const Sport = () => {
   useEffect(() => {
     const container = activeCarouselRef.current;
     if (!container) return;
-    updateScrollButtons();
-    container.addEventListener('scroll', updateScrollButtons);
-    window.addEventListener('resize', updateScrollButtons);
+    updateActiveCardIndex();
+    container.addEventListener('scroll', updateActiveCardIndex);
+    window.addEventListener('resize', updateActiveCardIndex);
     return () => {
-      container.removeEventListener('scroll', updateScrollButtons);
-      window.removeEventListener('resize', updateScrollButtons);
+      container.removeEventListener('scroll', updateActiveCardIndex);
+      window.removeEventListener('resize', updateActiveCardIndex);
     };
-  }, [updateScrollButtons, activeEntries]);
+  }, [updateActiveCardIndex, activeEntries]);
 
   const handleLogout = () => {
     clearAuth();
@@ -585,11 +587,11 @@ const Sport = () => {
       <div
         key={entry.id}
         ref={isExpiredSection ? undefined : (el) => { activeCardRefs.current[index] = el; }}
-        className={`flex-shrink-0 snap-center ${isLocked ? "cursor-pointer" : ""} ${isExpired ? "pointer-events-none" : ""}`}
-        style={{ width: 'min(420px, 92vw)', minWidth: '280px', overflow: 'visible' }}
+        className={`flex-shrink-0 ${isLocked ? "cursor-pointer" : ""} ${isExpired ? "pointer-events-none" : ""}`}
+        style={{ width: '88vw', minWidth: 280, maxWidth: 420, flexShrink: 0, scrollSnapAlign: 'start' as const }}
         onClick={isLocked ? () => handleLockedClick(entry) : undefined}
       >
-        <div style={{ height: 'calc(min(420px, 92vw) * 213 / 332)' }}>
+        <div style={{ aspectRatio: '332 / 280' }}>
           {isSpecial ? (
             <SpecialBettingCard
               tipId={0}
@@ -655,20 +657,45 @@ const Sport = () => {
         <div className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-2 px-1 sm:justify-center" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
           {TIER_TABS.map((tab) => {
             const isActive = activeTierHighlight === tab.tier;
-            const hasContent = tipsByTier[tab.tier]?.length > 0;
+            const count = tipsByTier[tab.tier]?.length || 0;
+            const hasContent = count > 0;
+            const tabColor = TIER_TAB_COLORS[tab.colorKey] || "#94A3B8";
+
+            // Check if user has access to this tier
+            const tierKey = tab.colorKey;
+            const userHasAccess = tierKey === "free"
+              || (tierKey === "alavancagem" || tierKey === "odds_altas")
+              || (mockUser && (() => {
+                // Derive from tips — if there's any unlocked entry in this tier, user has access
+                return tipsByTier[tab.tier]?.some(t => t.display_status === "unlocked");
+              })());
+
             return (
               <button
                 key={tab.tier}
-                onClick={() => scrollToTier(tab.tier)}
-                disabled={!hasContent}
-                className={`px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-xs font-bold whitespace-nowrap transition-all duration-200 active:scale-95 border focus:outline-none focus:ring-2 focus:ring-white/20 flex-shrink-0 min-h-[32px] sm:min-h-[36px] ${
-                  !hasContent ? 'bg-transparent text-white/30 border-white/10 cursor-not-allowed'
-                    : isActive ? 'bg-white/10 text-white border-white/40 shadow-[0_0_8px_rgba(255,255,255,0.15)]'
-                    : 'bg-transparent text-white/80 border-white/20 hover:bg-white/5 hover:border-white/40 hover:text-white'
-                }`}
+                onClick={() => {
+                  if (!hasContent) return;
+                  if (!userHasAccess && hasContent) {
+                    // Find a locked entry from this tier to trigger locked click
+                    const lockedEntry = tipsByTier[tab.tier]?.find(t => t.display_status === "locked");
+                    if (lockedEntry) { handleLockedClick(lockedEntry); return; }
+                  }
+                  scrollToTier(tab.tier);
+                }}
+                style={
+                  !hasContent
+                    ? { background: "transparent", border: "1.5px solid rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.25)", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 13, padding: "6px 14px", borderRadius: 20, cursor: "not-allowed", whiteSpace: "nowrap" as const, flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 4 }
+                    : isActive
+                      ? { background: `${tabColor}26`, border: `1.5px solid ${tabColor}`, color: tabColor, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 13, padding: "6px 14px", borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" as const, flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 4 }
+                      : !userHasAccess
+                        ? { background: "transparent", border: "1.5px solid rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.4)", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 13, padding: "6px 14px", borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" as const, opacity: 0.7, flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 4 }
+                        : { background: "transparent", border: "1.5px solid rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.5)", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 13, padding: "6px 14px", borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" as const, flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 4 }
+                }
               >
                 <span className="sm:hidden">{tab.labelShort}</span>
                 <span className="hidden sm:inline">{tab.label}</span>
+                {hasContent && !userHasAccess && <Lock className="w-2.5 h-2.5" style={{ opacity: 0.7 }} />}
+                {hasContent && <span style={{ fontSize: 11, opacity: 0.7 }}>({count})</span>}
               </button>
             );
           })}
@@ -690,29 +717,46 @@ const Sport = () => {
 
         {!isLoading && !error && activeEntries.length > 0 && (
           <section className="relative w-full">
-            {canScrollLeft && (
-              <button onClick={() => scrollByArrow('left')} className="absolute left-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full bg-green-500/20 border-2 border-green-400 shadow-[0_0_15px_rgba(74,222,128,0.8)] hover:bg-green-500/40 text-green-300 flex items-center justify-center transition-all hover:scale-105 -ml-2 md:-ml-4" aria-label="Anterior">
-                <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
-              </button>
-            )}
-            {canScrollRight && (
-              <button onClick={() => scrollByArrow('right')} className="absolute right-0 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full bg-green-500/20 border-2 border-green-400 shadow-[0_0_15px_rgba(74,222,128,0.8)] hover:bg-green-500/40 text-green-300 flex items-center justify-center transition-all hover:scale-105 -mr-2 md:-mr-4" aria-label="Próximo">
-                <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
-              </button>
-            )}
-
             <div 
               ref={activeCarouselRef}
-              className="w-full overflow-x-auto snap-x snap-mandatory scroll-smooth px-6 md:px-8 select-none"
-              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', cursor: isDragging ? 'grabbing' : 'grab', overflow: 'visible', overflowX: 'auto' }}
+              className="w-full select-none"
+              style={{
+                display: "flex",
+                gap: 12,
+                overflowX: "auto",
+                scrollSnapType: "x mandatory",
+                scrollBehavior: "smooth",
+                paddingLeft: 16,
+                paddingRight: 16,
+                paddingBottom: 8,
+                paddingTop: 8,
+                WebkitOverflowScrolling: "touch",
+                scrollbarWidth: 'none',
+                msOverflowStyle: 'none',
+                cursor: isDragging ? 'grabbing' : 'grab',
+              }}
               onMouseDown={handleMouseDown}
               onMouseMove={handleMouseMove}
               onMouseUp={handleMouseUp}
               onMouseLeave={handleMouseLeave}
             >
-              <div className="flex gap-4 md:gap-5 py-4" style={{ paddingTop: '18px' }}>
-                {activeEntries.map((entry, index) => renderEntryCard(entry, index, false))}
-              </div>
+              {activeEntries.map((entry, index) => renderEntryCard(entry, index, false))}
+            </div>
+
+            {/* Dots */}
+            <div style={{ display: "flex", justifyContent: "center", gap: 6, marginTop: 12 }}>
+              {activeEntries.map((_, i) => (
+                <div
+                  key={i}
+                  style={{
+                    width: activeCardIndex === i ? 16 : 4,
+                    height: 4,
+                    borderRadius: 2,
+                    background: activeCardIndex === i ? (activeTierHighlight ? TIER_TAB_COLORS[TIER_TABS.find(t => t.tier === activeTierHighlight)?.colorKey || "basic"] || "#60A5FA" : "#60A5FA") : "rgba(255,255,255,0.2)",
+                    transition: "all 0.3s ease",
+                  }}
+                />
+              ))}
             </div>
           </section>
         )}
