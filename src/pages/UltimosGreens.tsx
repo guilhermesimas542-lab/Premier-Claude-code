@@ -305,7 +305,7 @@ const UltimosGreens = () => {
               <ArrowLeft className="w-5 h-5" style={{ color: "#00FF00" }} />
             </button>
             <div>
-              <h1 className="text-xl font-bold" style={{ color: "#FFFFFF" }}>Últimos Bilhetes</h1>
+              <h1 className="text-xl font-bold" style={{ color: "#FFFFFF" }}>Últimos Greens</h1>
               <p className="text-xs" style={{ color: "#AAAAAA" }}>Histórico completo de greens</p>
             </div>
           </div>
