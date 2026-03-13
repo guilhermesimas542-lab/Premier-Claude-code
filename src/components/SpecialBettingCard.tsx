@@ -185,8 +185,8 @@ export const SpecialBettingCard = ({
 
         {/* Central Icon */}
         {!isLocked && (
-          <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "center", padding: "20px 0" }}>
-            <div style={{ width: 56, height: 56, borderRadius: "50%", background: `${tierColor}1A`, display: "flex", alignItems: "center", justifyContent: "center", border: `1.5px solid ${tierColor}33` }}>
+          <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "center", paddingTop: 8, paddingBottom: 8 }}>
+            <div style={{ width: 48, height: 48, borderRadius: "50%", background: `${tierColor}1A`, display: "flex", alignItems: "center", justifyContent: "center", border: `1.5px solid ${tierColor}33` }}>
               <IconComponent style={{ width: 28, height: 28, color: isExpired ? "#6B7280" : tierColor }} />
             </div>
             <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: "#94A3B8", marginTop: 8 }}>
