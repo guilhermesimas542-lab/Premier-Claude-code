@@ -153,7 +153,7 @@ export const PremiumBettingCard = ({
 
   return (
     <div
-      className="select-none relative flex flex-col w-full h-full"
+      className="select-none relative flex flex-col w-full"
       style={{
         background: isExpired ? "#0A0F1A" : `${tierGradient}, #060D1E`,
         border: `1.5px solid ${isExpired ? expiredColor : tierColor}`,
