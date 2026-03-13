@@ -122,12 +122,11 @@ const GreenDetailModal = ({ entry, onClose }: { entry: GreenEntry | null; onClos
 
             <div className="flex flex-col items-center gap-1.5">
               <div className="w-14 h-14 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}>
-                <ShirtIcon
-                  variant={(entry.team2_shirt_variant as "solid" | "stripes") || "solid"}
-                  primaryColor={entry.team2_primary_color || "#EF4444"}
-                  secondaryColor={entry.team2_secondary_color || "#FFFFFF"}
-                  size={36}
-                />
+                {entry.team2_logo_url ? (
+                  <img src={entry.team2_logo_url} alt={entry.team2_name || "Time 2"} style={{ width: 40, height: 40, objectFit: "contain", borderRadius: 4 }} />
+                ) : (
+                  <ShirtIcon variant={(entry.team2_shirt_variant as "solid" | "stripes") || "solid"} primaryColor={entry.team2_primary_color || "#EF4444"} secondaryColor={entry.team2_secondary_color || "#FFFFFF"} size={36} />
+                )}
               </div>
               <span className="text-xs font-semibold text-center max-w-[80px] truncate" style={{ color: "#FFFFFF" }}>
                 {entry.team2_name}
