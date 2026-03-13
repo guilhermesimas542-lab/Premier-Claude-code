@@ -1,4 +1,4 @@
-import { Check, Calendar, X, Trophy, Crown } from "lucide-react";
+import { Check, Calendar, X, Trophy } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -7,7 +7,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { getTierStyle, type TierColorStyle } from "@/lib/tierColors";
-import logoImg from "@/assets/premier-logo-custom.png";
+import AppHeader from "@/components/AppHeader";
 
 import { ShirtIcon } from "@/components/ShirtIcon";
 
