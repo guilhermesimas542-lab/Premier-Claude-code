@@ -435,25 +435,29 @@ const UltimosGreens = () => {
                               {entry.market || entry.category || "—"}
                             </p>
                             <span
-                              className="text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0"
-                              style={{ background: `${style.color}22`, color: style.color, border: `1px solid ${style.color}44` }}
+                              style={{
+                                background: `${style.color}26`,
+                                border: `1px solid ${style.color}40`,
+                                color: style.color,
+                                fontFamily: "'Barlow Condensed', sans-serif",
+                                fontWeight: 700,
+                                fontSize: 11,
+                                padding: "3px 8px",
+                                borderRadius: 6,
+                                letterSpacing: "0.05em",
+                                textTransform: "uppercase" as const,
+                              }}
                             >
                               {style.label}
                             </span>
                           </div>
                         </div>
 
-                        {/* Odd + Check */}
-                        <div className="flex items-center gap-2 shrink-0">
+                        {/* Odd */}
+                        <div className="flex items-center shrink-0">
                           <span className="text-base font-black" style={{ color: style.color }}>
                             {entry.odd != null ? entry.odd.toFixed(2) : "—"}
                           </span>
-                          <div
-                            className="w-7 h-7 rounded-full flex items-center justify-center"
-                            style={{ background: "rgba(0,255,0,0.15)", border: "1px solid rgba(0,255,0,0.4)" }}
-                          >
-                            <Check className="w-4 h-4" style={{ color: "#00FF00" }} />
-                          </div>
                         </div>
                       </div>
                     );
