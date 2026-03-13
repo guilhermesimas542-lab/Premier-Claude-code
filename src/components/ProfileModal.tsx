@@ -1,4 +1,4 @@
-import { Copy, Flame, Trophy, Users, Calendar, Star, Lock, Check, LogOut, Share2 } from "lucide-react";
+import { Flame, Trophy, Calendar, Star, Lock, Check, LogOut } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
