@@ -73,8 +73,9 @@ const GreenDetailModal = ({ entry, onClose }: { entry: GreenEntry | null; onClos
       <div
         className="relative w-full max-w-md rounded-2xl p-5 space-y-5 animate-scale-in"
         style={{
-          background: "#0A0A0A",
-          border: `2px solid ${style.border}`,
+          background: "#0D1929",
+          borderTop: `3px solid ${style.border}`,
+          border: "1.5px solid rgba(255,255,255,0.08)",
           boxShadow: `0 0 30px ${style.color}22, inset 0 1px 0 rgba(255,255,255,0.05)`,
         }}
         onClick={(e) => e.stopPropagation()}
