@@ -96,10 +96,6 @@ const ProfileModal = ({ isOpen, onClose }: ProfileModalProps) => {
     }
   };
 
-  const copyReferralLink = () => {
-    navigator.clipboard.writeText(referralLink);
-    toast.success("Link copiado!");
-  };
 
   const handleLogout = () => {
     mockLogout();
