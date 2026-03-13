@@ -189,8 +189,10 @@ const Home = () => {
                   className="inline-flex items-center gap-1.5 rounded-full cursor-pointer transition-all hover:scale-105"
                   style={{
                     padding: '6px 12px',
-                    background: 'rgba(0,255,127,0.08)',
-                    border: '1px solid rgba(0,255,127,0.2)',
+                    background: 'rgba(0,255,127,0.1)',
+                    border: '1px solid rgba(0,255,127,0.4)',
+                    borderRadius: '999px',
+                    boxShadow: '0 0 10px rgba(0,255,127,0.2)',
                     animation: 'telegramPulse 2s ease-in-out infinite',
                   }}
                 >
@@ -222,10 +224,10 @@ const Home = () => {
                     alignItems: 'center',
                     gap: '6px',
                     padding: '6px 12px',
-                    background: 'rgba(0,255,0,0.1)',
-                    border: '1px solid rgba(0,255,0,0.4)',
+                    background: 'rgba(0,255,127,0.1)',
+                    border: '1px solid rgba(0,255,127,0.4)',
                     borderRadius: '999px',
-                    boxShadow: '0 0 10px rgba(0,255,0,0.2)',
+                    boxShadow: '0 0 10px rgba(0,255,127,0.2)',
                     cursor: 'pointer',
                     fontFamily: "'Barlow Condensed', sans-serif",
                     fontWeight: 700,

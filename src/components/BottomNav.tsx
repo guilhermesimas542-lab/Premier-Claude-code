@@ -62,7 +62,7 @@ export const BottomNav = () => {
               <svg
                 className="relative z-10 w-5 h-5 transition-colors"
                 viewBox="0 0 24 24"
-                fill={active ? "#00FF7F" : "#4A5568"}
+                fill={"#FFFFFF"}
                 xmlns="http://www.w3.org/2000/svg"
               >
                 <path d={item.iconPath} />
@@ -70,7 +70,7 @@ export const BottomNav = () => {
               <span
                 className="relative z-10 transition-colors"
                 style={{
-                  color: active ? "#FFFFFF" : "#4A5568",
+                  color: active ? "#00FF7F" : "#FFFFFF",
                   fontFamily: "'Barlow Condensed', sans-serif",
                   fontWeight: 700,
                   fontSize: '10px',
