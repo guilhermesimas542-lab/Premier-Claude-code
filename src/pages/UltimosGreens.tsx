@@ -140,22 +140,16 @@ const GreenDetailModal = ({ entry, onClose }: { entry: GreenEntry | null; onClos
 
         {/* Info Grid */}
         <div className="grid grid-cols-2 gap-2">
-          {entry.market && (
+          {entry.condition_to_win && (
             <div className="rounded-lg p-2.5" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
-              <p className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: "#666" }}>Mercado</p>
-              <p className="text-xs font-semibold" style={{ color: "#FFFFFF" }}>{entry.market}</p>
+              <p style={{ color: "#94A3B8", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase" }}>Palpite</p>
+              <p style={{ color: "#FFFFFF", fontFamily: "'DM Sans', sans-serif", fontWeight: 600, fontSize: 15 }}>{entry.condition_to_win}</p>
             </div>
           )}
           {entry.odd != null && (
             <div className="rounded-lg p-2.5" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
               <p className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: "#666" }}>Odd</p>
               <p className="text-base font-black" style={{ color: style.color }}>{entry.odd.toFixed(2)}</p>
-            </div>
-          )}
-          {entry.category && (
-            <div className="rounded-lg p-2.5" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
-              <p className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: "#666" }}>Categoria</p>
-              <p className="text-xs font-semibold" style={{ color: "#FFFFFF" }}>{entry.category}</p>
             </div>
           )}
           {entry.classification && (
@@ -169,7 +163,7 @@ const GreenDetailModal = ({ entry, onClose }: { entry: GreenEntry | null; onClos
         {/* Condition */}
         {entry.condition_to_win && (
           <div className="rounded-lg p-3" style={{ background: `${style.color}08`, border: `1px solid ${style.color}22` }}>
-            <p className="text-[10px] uppercase tracking-wider mb-1" style={{ color: style.color }}>Condição para Green</p>
+            <p className="mb-1" style={{ color: "#94A3B8", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase" }}>Condição para Green</p>
             <p className="text-xs" style={{ color: "#CCCCCC" }}>{entry.condition_to_win}</p>
           </div>
         )}
@@ -177,14 +171,13 @@ const GreenDetailModal = ({ entry, onClose }: { entry: GreenEntry | null; onClos
         {/* Justification */}
         {entry.justification && (
           <div className="rounded-lg p-3" style={{ background: "rgba(0,255,0,0.03)", border: "1px solid rgba(0,255,0,0.1)" }}>
-            <p className="text-[10px] uppercase tracking-wider mb-1" style={{ color: "#00CC00" }}>📝 Justificativa</p>
+            <p className="mb-1" style={{ color: "#94A3B8", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase" }}>Justificativa</p>
             <p className="text-xs leading-relaxed" style={{ color: "#AAAAAA" }}>{entry.justification}</p>
           </div>
         )}
 
         {/* Result banner */}
         <div
-          className="flex items-center justify-center gap-2"
           style={{
             background: "transparent",
             border: "1.5px solid #00FF7F",
@@ -196,8 +189,12 @@ const GreenDetailModal = ({ entry, onClose }: { entry: GreenEntry | null; onClos
             borderRadius: 10,
             width: "100%",
             cursor: "default",
-            letterSpacing: "0.05em",
-            textTransform: "uppercase" as const,
+            letterSpacing: "0.06em",
+            textTransform: "uppercase",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 8,
           }}
         >
           <Trophy className="w-5 h-5" style={{ color: "#00FF7F" }} />
