@@ -74,7 +74,7 @@ const CardType2Top = ({ card, hasAccess, onAction }: Props) => {
         <span style={{
           fontFamily: "'Barlow Condensed', sans-serif",
           fontWeight: 800,
-          fontSize: '15px',
+          fontSize: '20px',
           color: '#FFFFFF',
           lineHeight: 1.2,
         }}>
@@ -83,7 +83,7 @@ const CardType2Top = ({ card, hasAccess, onAction }: Props) => {
         <span style={{
           fontFamily: "'DM Sans', sans-serif",
           fontWeight: 400,
-          fontSize: '11px',
+          fontSize: '12px',
           color: '#94A3B8',
           lineHeight: 1.3,
           marginBottom: '6px',

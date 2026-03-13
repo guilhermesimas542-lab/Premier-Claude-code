@@ -112,7 +112,7 @@ export function CardType1Lateral({ card, onAction }: Props) {
           <p style={{
             fontFamily: "'DM Sans', sans-serif",
             fontWeight: 400,
-            fontSize: '13px',
+            fontSize: '12px',
             color: '#94A3B8',
           }}>{card.subtitle}</p>
         )}
