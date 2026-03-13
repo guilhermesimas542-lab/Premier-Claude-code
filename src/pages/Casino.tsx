@@ -30,6 +30,7 @@ const Casino = () => {
   const [cardPayCard, setCardPayCard] = useState<PayCardData | null>(null);
   const { triggerPayCard } = usePayCardTrigger();
   const mockUser = mockGetUser();
+  const { links } = useLinks();
 
   // Derive lifetime & telegram from entitlements (same as Home)
   const [isLifetime, setIsLifetime] = useState(false);
@@ -37,6 +38,7 @@ const Casino = () => {
   const [telegramGroupUrl, setTelegramGroupUrl] = useState<string | null>(null);
   const [showLifetimeModal, setShowLifetimeModal] = useState(false);
   const [showLifetimeInfoModal, setShowLifetimeInfoModal] = useState(false);
+  const [showTermsModal, setShowTermsModal] = useState(false);
 
   useEffect(() => {
     const checkEntitlements = async () => {
