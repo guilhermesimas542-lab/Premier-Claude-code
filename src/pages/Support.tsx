@@ -1,4 +1,4 @@
-import { MessageCircle, Headphones, Star, Flame, Trophy, Users, Calendar, Rocket, Crown, LogOut, Lock, ShoppingCart } from "lucide-react";
+import { MessageCircle, Headphones, Star, Flame, Trophy, Users, Calendar, Rocket, Crown, LogOut, Lock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -18,7 +18,7 @@ import { useUserAccess } from "@/hooks/useUserAccess";
 import { getUpgradeLinkForTier } from "@/lib/checkoutLinks";
 import { usePayCardTrigger } from "@/hooks/usePayCardTrigger";
 import { PayCardFunnelModal } from "@/components/PayCardFunnelModal";
-import { useUserBettingHouse } from "@/hooks/useUserBettingHouse";
+import AppHeader from "@/components/AppHeader";
 import logoImg from "@/assets/premier-logo-custom.png";
 
 const TIER_LABELS: Record<string, string> = {
