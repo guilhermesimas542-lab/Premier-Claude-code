@@ -1,4 +1,4 @@
-import { Crown, ShoppingCart } from "lucide-react";
+import { Crown, ShoppingCart, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { getStoredConfig, isAuthenticated } from "@/lib/auth";
 import { useEffect, useState } from "react";
@@ -19,6 +19,7 @@ import { PayCardFunnelModal } from "@/components/PayCardFunnelModal";
 import { usePayCardTrigger } from "@/hooks/usePayCardTrigger";
 import { mockGetUser } from "@/mocks/user";
 import { CHECKOUT_LINKS } from "@/lib/checkoutLinks";
+import { useLinks } from "@/contexts/LinksContext";
 
 const Casino = () => {
   const navigate = useNavigate();
