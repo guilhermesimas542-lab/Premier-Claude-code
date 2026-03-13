@@ -654,33 +654,18 @@ const Sport = () => {
 
   return (
     <div className="min-h-screen overflow-x-hidden w-full max-w-full pb-20 md:pb-0 relative bg-navy-dark">
-      <header className="sticky top-0 z-50 backdrop-blur-xl border-b" style={{ background: "rgba(0,0,0,0.92)", borderColor: "rgba(0,255,0,0.15)" }}>
-        <div className="container max-w-7xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
-          <div className="flex items-center justify-between gap-2 sm:gap-4">
-            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-              <button className="p-1.5 rounded-lg transition-colors hover:bg-[rgba(0,255,0,0.08)]" onClick={() => navigate("/")}>
-                <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6" style={{ color: "#00FF00" }} />
-              </button>
-              <img src={logoImg} alt="Premier" className="h-10 sm:h-12 w-auto" style={{ filter: "drop-shadow(0 0 10px rgba(0,255,0,0.5))" }} />
-              <span className="text-2xl sm:text-4xl font-bold" style={{ color: "#FFFFFF", textShadow: "0 0 14px rgba(0,255,0,0.3)" }}>Futebol</span>
-            </div>
-            <div className="flex items-center gap-2 sm:gap-3">
-              {isLifetime ? (
-                <button onClick={() => setShowLifetimeInfoModal(true)} className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-semibold cursor-pointer transition-all hover:scale-105" style={{ background: "rgba(0,255,0,0.1)", color: "#FFFFFF", border: "1px solid rgba(0,255,0,0.4)", boxShadow: "0 0 10px rgba(0,255,0,0.2)" }}>
-                  <Crown className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-                  <span className="hidden sm:inline">Acesso</span> vitalício
-                </button>
-              ) : (
-                <button onClick={async () => { const pc = await fetchByPlan('vitalicio'); if (pc) { setPayCardData(pc); setPayCardModalOpen(true); } }} className="inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-semibold transition-colors cursor-pointer"
-                  style={{ background: "rgba(255,0,0,0.1)", color: "#FF4444", border: "1px solid rgba(255,0,0,0.3)" }}>
-                  <span className="hidden sm:inline">Sem</span> vitalício
-                  <ShoppingCart className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-                </button>
-              )}
-            </div>
+      <AppHeader
+        onShowLifetimeInfoModal={() => setShowLifetimeInfoModal(true)}
+        leftContent={
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            <button className="p-1.5 rounded-lg transition-colors hover:bg-[rgba(0,255,0,0.08)]" onClick={() => navigate("/")}>
+              <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6" style={{ color: "#00FF00" }} />
+            </button>
+            <img src={logoImg} alt="Premier" className="h-10 sm:h-12 w-auto" style={{ filter: "drop-shadow(0 0 10px rgba(0,255,0,0.5))" }} />
+            <span className="text-2xl sm:text-4xl font-bold" style={{ color: "#FFFFFF", textShadow: "0 0 14px rgba(0,255,0,0.3)" }}>Futebol</span>
           </div>
-        </div>
-      </header>
+        }
+      />
 
       <main className="w-full max-w-7xl mx-auto px-4 pt-2 pb-6 space-y-2 overflow-x-hidden">
         {/* Tier Tabs */}
