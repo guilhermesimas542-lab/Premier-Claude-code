@@ -32,42 +32,8 @@ const Casino = () => {
   const mockUser = mockGetUser();
   const { links } = useLinks();
 
-  // Derive lifetime & telegram from entitlements (same as Home)
-  const [isLifetime, setIsLifetime] = useState(false);
-  const [isTelegramMember, setIsTelegramMember] = useState(false);
-  const [telegramGroupUrl, setTelegramGroupUrl] = useState<string | null>(null);
-  const [showLifetimeModal, setShowLifetimeModal] = useState(false);
   const [showLifetimeInfoModal, setShowLifetimeInfoModal] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
-
-  useEffect(() => {
-    const checkEntitlements = async () => {
-      if (!mockUser) return;
-      const { data: userData } = await supabase.from("users").select("id").eq("email", mockUser.email.toLowerCase().trim()).maybeSingle();
-      if (!userData?.id) return;
-      const { data: ents } = await supabase
-        .from("entitlements")
-        .select("product_key")
-        .eq("user_id", userData.id)
-        .eq("status", "active");
-      const keys = (ents ?? []).map((e) => e.product_key);
-      setIsLifetime(keys.includes("acesso_vitalicio"));
-      setIsTelegramMember(keys.includes("live_telegram"));
-    };
-    checkEntitlements();
-  }, []);
-
-  useEffect(() => {
-    if (!userHouse?.id) return;
-    supabase
-      .from("betting_houses")
-      .select("telegram_group_url")
-      .eq("id", userHouse.id)
-      .maybeSingle()
-      .then(({ data }) => {
-        setTelegramGroupUrl((data as any)?.telegram_group_url ?? null);
-      });
-  }, [userHouse?.id]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
