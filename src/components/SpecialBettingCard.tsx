@@ -144,13 +144,13 @@ export const SpecialBettingCard = ({
       <div className="relative z-10 flex flex-col flex-1 min-h-0">
 
         {/* Badge */}
-        <div style={{ display: "flex", justifyContent: "center", paddingTop: 12 }}>
+        <div style={{ display: "flex", justifyContent: "center", paddingTop: 8 }}>
           {isExpired ? (
-            <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", background: "rgba(75,85,99,0.25)", border: "1px solid rgba(75,85,99,0.5)", color: expiredColor, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 12, letterSpacing: "1.5px", textTransform: "uppercase" as const, padding: "4px 14px", borderRadius: 8 }}>
+            <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", background: "rgba(75,85,99,0.25)", border: "1px solid rgba(75,85,99,0.5)", color: expiredColor, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 11, letterSpacing: "1.5px", textTransform: "uppercase" as const, padding: "3px 12px", borderRadius: 8 }}>
               EXPIRADA
             </div>
           ) : (
-            <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", background: `${tierColor}26`, border: `1px solid ${tierColor}66`, color: tierColor, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 12, letterSpacing: "1.5px", textTransform: "uppercase" as const, padding: "4px 14px", borderRadius: 8 }}>
+            <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", background: `${tierColor}26`, border: `1px solid ${tierColor}66`, color: tierColor, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 11, letterSpacing: "1.5px", textTransform: "uppercase" as const, padding: "3px 12px", borderRadius: 8 }}>
               {config.label}
             </div>
           )}
@@ -158,7 +158,7 @@ export const SpecialBettingCard = ({
 
         {/* Timer + Match Time row */}
         {!isLocked && (
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 16px", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "5px 14px", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
               {countdown === "AO VIVO" ? (
                 <>
@@ -197,7 +197,7 @@ export const SpecialBettingCard = ({
 
         {/* Odd row */}
         {!isLocked && (
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 16px 8px" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 14px 8px" }}>
             <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 13, color: isExpired ? "#6B7280" : tierColor }}>
               {type === "ALAVANCAGEM" ? "Alavancagem do Dia" : "Múltipla do Dia"}
             </span>
@@ -215,7 +215,7 @@ export const SpecialBettingCard = ({
 
         {/* Action Buttons */}
         {!isLocked && (
-          <div style={{ display: "flex", gap: 8, padding: "0 16px 16px" }}>
+          <div style={{ display: "flex", gap: 8, padding: "0 14px 12px" }}>
             <button
               onClick={isExpired ? undefined : onAddTip}
               disabled={isExpired}
@@ -227,7 +227,7 @@ export const SpecialBettingCard = ({
                 fontWeight: 800,
                 fontSize: 14,
                 letterSpacing: "0.5px",
-                padding: "10px 0",
+                padding: "8px 0",
                 borderRadius: 10,
                 border: "none",
                 cursor: isExpired ? "not-allowed" : "pointer",

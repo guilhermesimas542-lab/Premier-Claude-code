@@ -203,13 +203,13 @@ export const PremiumBettingCard = ({
       <div className="relative z-10 flex flex-col flex-1 min-h-0">
 
         {/* Badge */}
-        <div style={{ display: "flex", justifyContent: "center", paddingTop: 12 }}>
+        <div style={{ display: "flex", justifyContent: "center", paddingTop: 8 }}>
           {isExpired ? (
-            <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", background: "rgba(75,85,99,0.25)", border: "1px solid rgba(75,85,99,0.5)", color: expiredColor, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 12, letterSpacing: "1.5px", textTransform: "uppercase" as const, padding: "4px 14px", borderRadius: 8 }}>
+            <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", background: "rgba(75,85,99,0.25)", border: "1px solid rgba(75,85,99,0.5)", color: expiredColor, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 11, letterSpacing: "1.5px", textTransform: "uppercase" as const, padding: "3px 12px", borderRadius: 8 }}>
               EXPIRADA
             </div>
           ) : (
-            <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", background: `${tierColor}26`, border: `1px solid ${tierColor}66`, color: tierColor, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 12, letterSpacing: "1.5px", textTransform: "uppercase" as const, padding: "4px 14px", borderRadius: 8 }}>
+            <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", background: `${tierColor}26`, border: `1px solid ${tierColor}66`, color: tierColor, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 11, letterSpacing: "1.5px", textTransform: "uppercase" as const, padding: "3px 12px", borderRadius: 8 }}>
               {displayTier}
             </div>
           )}
@@ -217,7 +217,7 @@ export const PremiumBettingCard = ({
 
         {/* Timer + Match Time row */}
         {!isLocked && (
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 16px", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "5px 14px", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
               {countdown === "AO VIVO" ? (
                 <>
@@ -243,12 +243,12 @@ export const PremiumBettingCard = ({
         )}
 
         {/* Teams section */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 16, padding: "14px 0 8px" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 16, padding: "10px 0" }}>
           {/* Team 1 */}
           <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 6 }}>
-            <div style={{ width: 44, height: 44, borderRadius: "50%", border: "1.5px solid rgba(255,255,255,0.15)", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(255,255,255,0.05)" }}>
+            <div style={{ width: 40, height: 40, borderRadius: "50%", border: "1.5px solid rgba(255,255,255,0.15)", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(255,255,255,0.05)" }}>
               {team1.logo ? (
-                <img src={team1.logo} alt={team1.name} className={isExpired ? "opacity-50" : ""} style={{ width: 30, height: 30, objectFit: "contain" }} />
+                <img src={team1.logo} alt={team1.name} className={isExpired ? "opacity-50" : ""} style={{ width: 28, height: 28, objectFit: "contain" }} />
               ) : team1.shirt ? (
                 <ShirtIcon variant={team1.shirt.variant} primaryColor={team1.shirt.primaryColor} secondaryColor={team1.shirt.secondaryColor} size={32} />
               ) : (
@@ -265,9 +265,9 @@ export const PremiumBettingCard = ({
 
           {/* Team 2 */}
           <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 6 }}>
-            <div style={{ width: 44, height: 44, borderRadius: "50%", border: "1.5px solid rgba(255,255,255,0.15)", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(255,255,255,0.05)" }}>
+            <div style={{ width: 40, height: 40, borderRadius: "50%", border: "1.5px solid rgba(255,255,255,0.15)", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(255,255,255,0.05)" }}>
               {team2.logo ? (
-                <img src={team2.logo} alt={team2.name} className={isExpired ? "opacity-50" : ""} style={{ width: 30, height: 30, objectFit: "contain" }} />
+                <img src={team2.logo} alt={team2.name} className={isExpired ? "opacity-50" : ""} style={{ width: 28, height: 28, objectFit: "contain" }} />
               ) : team2.shirt ? (
                 <ShirtIcon variant={team2.shirt.variant} primaryColor={team2.shirt.primaryColor} secondaryColor={team2.shirt.secondaryColor} size={32} />
               ) : (
@@ -292,8 +292,8 @@ export const PremiumBettingCard = ({
 
         {/* Recommendation + Odd */}
         {!isLocked && (
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 16px 8px" }}>
-            <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 18, color: isExpired ? "#6B7280" : "#FFFFFF", flex: 1, paddingRight: 12, lineHeight: 1.15 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 14px 8px" }}>
+            <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 16, color: isExpired ? "#6B7280" : "#FFFFFF", flex: 1, paddingRight: 12, lineHeight: 1.15 }}>
               {betChoice}
             </span>
             <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "flex-end" }}>
@@ -310,7 +310,7 @@ export const PremiumBettingCard = ({
 
         {/* Action Buttons */}
         {!isLocked && (
-          <div style={{ display: "flex", gap: 8, padding: "0 16px 16px" }}>
+          <div style={{ display: "flex", gap: 8, padding: "0 14px 12px" }}>
             <button
               onClick={isExpired ? undefined : onAddTip}
               disabled={isExpired}
@@ -322,7 +322,7 @@ export const PremiumBettingCard = ({
                 fontWeight: 800,
                 fontSize: 14,
                 letterSpacing: "0.5px",
-                padding: "10px 0",
+                padding: "8px 0",
                 borderRadius: 10,
                 border: "none",
                 cursor: isExpired ? "not-allowed" : "pointer",
