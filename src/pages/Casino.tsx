@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { parseAudience, matchesAudienceCriteria } from "@/lib/audienceUtils";
 import { BottomNav } from "@/components/BottomNav";
 import { PromoCarousel } from "@/components/PromoCarousel";
-import logoImg from "@/assets/premier-logo-custom.png";
+import AppHeader from "@/components/AppHeader";
 
 import { useUserBettingHouse } from "@/hooks/useUserBettingHouse";
 import { useCards, CardData } from "@/hooks/useCards";
