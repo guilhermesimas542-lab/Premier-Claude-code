@@ -53,11 +53,10 @@ export function CardType1Lateral({ card, onAction }: Props) {
   const imgs = card.image_urls;
   const mobileImg = imgs?.mobile || imgs?.tablet || imgs?.desktop || null;
 
-  // If button bg is green, force black text
-  const buttonBg = card.button_bg_color || "hsl(var(--primary))";
-  const buttonColor = isGreenColor(card.button_bg_color)
-    ? '#000000'
-    : (card.button_font_color || "hsl(var(--primary-foreground))");
+  const buttonBg = card.button_bg_color || '#00FF7F';
+  const buttonColor = card.button_font_color
+    ? card.button_font_color
+    : (isGreenColor(card.button_bg_color) ? '#000000' : '#FFFFFF');
 
   return (
     <button
