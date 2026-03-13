@@ -177,10 +177,6 @@ const Support = () => {
     window.open(links.support_whatsapp_url || SUPPORT_WHATSAPP_URL_FALLBACK, "_blank");
   };
 
-  const copyReferralLink = () => {
-    navigator.clipboard.writeText(referralLink);
-    toast.success("Link copiado!");
-  };
 
   return (
     <div className="min-h-screen relative overflow-hidden pb-24" style={{ background: "#060D1E" }}>
