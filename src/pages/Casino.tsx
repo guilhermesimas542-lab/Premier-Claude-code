@@ -240,7 +240,7 @@ const Casino = () => {
             letterSpacing: '0.5px',
             padding: '16px 12px 8px',
           }}>
-            ⚡ JOGOS DISPONÍVEIS
+            🎲 JOGOS DISPONÍVEIS
           </h2>
           <div style={{
             display: 'grid',
