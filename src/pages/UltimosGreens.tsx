@@ -140,22 +140,16 @@ const GreenDetailModal = ({ entry, onClose }: { entry: GreenEntry | null; onClos
 
         {/* Info Grid */}
         <div className="grid grid-cols-2 gap-2">
-          {entry.market && (
+          {entry.condition_to_win && (
             <div className="rounded-lg p-2.5" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
-              <p className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: "#666" }}>Mercado</p>
-              <p className="text-xs font-semibold" style={{ color: "#FFFFFF" }}>{entry.market}</p>
+              <p style={{ color: "#94A3B8", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase" }}>Palpite</p>
+              <p style={{ color: "#FFFFFF", fontFamily: "'DM Sans', sans-serif", fontWeight: 600, fontSize: 15 }}>{entry.condition_to_win}</p>
             </div>
           )}
           {entry.odd != null && (
             <div className="rounded-lg p-2.5" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
               <p className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: "#666" }}>Odd</p>
               <p className="text-base font-black" style={{ color: style.color }}>{entry.odd.toFixed(2)}</p>
-            </div>
-          )}
-          {entry.category && (
-            <div className="rounded-lg p-2.5" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
-              <p className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: "#666" }}>Categoria</p>
-              <p className="text-xs font-semibold" style={{ color: "#FFFFFF" }}>{entry.category}</p>
             </div>
           )}
           {entry.classification && (
