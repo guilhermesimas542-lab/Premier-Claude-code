@@ -105,7 +105,7 @@ const Casino = () => {
     );
   };
 
-  const handleBuyLifetime = () => { window.open(CHECKOUT_LINKS.vitalicio, '_blank'); setShowLifetimeModal(false); };
+  // handleBuyLifetime now handled by AppHeader
 
   return (
     <div className="min-h-screen relative overflow-hidden pb-20 md:pb-0 bg-navy-dark">
