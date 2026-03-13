@@ -438,17 +438,21 @@ const Support = () => {
           </p>
           <button
             onClick={handleOpenSupport}
-            className="w-full flex items-center justify-center gap-2 transition-all"
+            className="w-full transition-all"
             style={{
               background: "transparent",
-              border: "1.5px solid rgba(255,255,255,0.30)",
+              border: "1.5px solid rgba(255,255,255,0.3)",
               color: "#FFFFFF",
               fontFamily: "'Barlow Condensed', sans-serif",
-              fontWeight: 800,
-              fontSize: 13,
-              padding: "8px 16px",
-              borderRadius: 8,
+              fontWeight: 700,
+              fontSize: 14,
+              padding: "10px 0",
+              borderRadius: 10,
               cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 8,
             }}
           >
             <MessageCircle className="w-4 h-4" />
