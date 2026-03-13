@@ -394,9 +394,9 @@ const UltimosGreens = () => {
                         onClick={() => setSelectedEntry(entry)}
                         className="flex items-center gap-3 p-3.5 rounded-xl cursor-pointer transition-all duration-200 hover:scale-[1.01] active:scale-[0.99]"
                         style={{
-                          background: style.bg,
+                          background: "#0D1929",
                           border: `1.5px solid ${style.border}`,
-                          boxShadow: style.glow,
+                          boxShadow: "none",
                           animationDelay: `${idx * 50}ms`,
                         }}
                       >
