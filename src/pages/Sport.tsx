@@ -1,4 +1,4 @@
-import { ArrowLeft, LogOut, ChevronLeft, ChevronRight, Loader2, Lock, Menu, X, Gift, Headphones, Crown, ShoppingCart } from "lucide-react";
+import { ArrowLeft, LogOut, ChevronLeft, ChevronRight, Loader2, Lock, Menu, X, Gift, Headphones, Crown } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState, useRef, useCallback } from "react";
 import { PremiumBettingCard } from "@/components/PremiumBettingCard";
