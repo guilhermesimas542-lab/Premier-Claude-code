@@ -20,5 +20,5 @@ export function useGamification() {
   return ctx;
 }
 
-// Re-export utility functions
+// Re-export utility functions for convenience
 export { getXpForLevel, getXpProgress };
