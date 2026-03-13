@@ -370,11 +370,17 @@ const UltimosGreens = () => {
               <button
                 key={f.key}
                 onClick={() => setFilter(f.key)}
-                className="px-3 py-1.5 rounded-full text-xs font-semibold transition-all"
+                className="transition-all"
                 style={{
-                  background: filter === f.key ? "rgba(0,255,0,0.15)" : "rgba(255,255,255,0.05)",
-                  border: filter === f.key ? "1px solid rgba(0,255,0,0.5)" : "1px solid rgba(255,255,255,0.1)",
-                  color: filter === f.key ? "#00FF00" : "#AAAAAA",
+                  background: filter === f.key ? "#00FF7F" : "transparent",
+                  border: filter === f.key ? "1.5px solid #00FF7F" : "1.5px solid rgba(255,255,255,0.07)",
+                  color: filter === f.key ? "#060D1E" : "rgba(255,255,255,0.6)",
+                  fontFamily: "'Barlow Condensed', sans-serif",
+                  fontWeight: 700,
+                  fontSize: 13,
+                  padding: "6px 14px",
+                  borderRadius: 20,
+                  cursor: "pointer",
                 }}
               >
                 {f.label}
