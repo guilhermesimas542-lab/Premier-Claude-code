@@ -12,9 +12,11 @@ import { X } from "lucide-react";
 
 interface AppHeaderProps {
   onShowLifetimeInfoModal?: () => void;
+  leftContent?: React.ReactNode;
+  headerStyle?: React.CSSProperties;
 }
 
-const AppHeader = ({ onShowLifetimeInfoModal }: AppHeaderProps) => {
+const AppHeader = ({ onShowLifetimeInfoModal, leftContent, headerStyle }: AppHeaderProps) => {
   const mockUser = mockGetUser();
   const { house: userHouse } = useUserBettingHouse();
   const { triggerPayCard, payCard: pcData, open: pcOpen, closePayCard } = usePayCardTrigger();
