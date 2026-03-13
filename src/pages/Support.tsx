@@ -1,4 +1,4 @@
-import { MessageCircle, Headphones, Star, Flame, Trophy, Users, Calendar, Rocket, Crown, LogOut, Lock, ShoppingCart } from "lucide-react";
+import { MessageCircle, Headphones, Star, Flame, Trophy, Users, Calendar, Rocket, Crown, LogOut, Lock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -18,7 +18,7 @@ import { useUserAccess } from "@/hooks/useUserAccess";
 import { getUpgradeLinkForTier } from "@/lib/checkoutLinks";
 import { usePayCardTrigger } from "@/hooks/usePayCardTrigger";
 import { PayCardFunnelModal } from "@/components/PayCardFunnelModal";
-import { useUserBettingHouse } from "@/hooks/useUserBettingHouse";
+import AppHeader from "@/components/AppHeader";
 import logoImg from "@/assets/premier-logo-custom.png";
 
 const TIER_LABELS: Record<string, string> = {
@@ -97,50 +97,12 @@ const Support = () => {
   const [isProfileModalOpen, setProfileModalOpen] = useState(false);
   const [selectedPreviewAch, setSelectedPreviewAch] = useState<any>(null);
 
-  // Header pills state
-  const [isLifetime, setIsLifetime] = useState(false);
-  const [isTelegramMember, setIsTelegramMember] = useState(false);
-  const [telegramGroupUrl, setTelegramGroupUrl] = useState<string | null>(null);
-  const { house: userHouse } = useUserBettingHouse();
-  const { triggerPayCard: triggerPayCardHeader, payCard: pcHeaderData, open: pcHeaderOpen, closePayCard: closePayCardHeader } = usePayCardTrigger();
-  const [showLifetimeModal, setShowLifetimeModal] = useState(false);
   const [showLifetimeInfoModal, setShowLifetimeInfoModal] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
     if (!isAuthenticated()) { navigate("/login"); return; }
   }, [navigate]);
-
-  // Check entitlements for header pills
-  useEffect(() => {
-    const checkEntitlements = async () => {
-      if (!mockUser) return;
-      const { data: userData } = await supabase.from("users").select("id").eq("email", mockUser.email.toLowerCase().trim()).maybeSingle();
-      if (!userData?.id) return;
-      const { data: ents } = await supabase
-        .from("entitlements")
-        .select("product_key")
-        .eq("user_id", userData.id)
-        .eq("status", "active");
-      const keys = (ents ?? []).map((e) => e.product_key);
-      setIsLifetime(keys.includes("acesso_vitalicio"));
-      setIsTelegramMember(keys.includes("live_telegram"));
-    };
-    checkEntitlements();
-  }, []);
-
-  // Load telegram group URL
-  useEffect(() => {
-    if (!userHouse?.id) return;
-    supabase
-      .from("betting_houses")
-      .select("telegram_group_url")
-      .eq("id", userHouse.id)
-      .maybeSingle()
-      .then(({ data }) => {
-        setTelegramGroupUrl((data as any)?.telegram_group_url ?? null);
-      });
-  }, [userHouse?.id]);
 
   // Fetch user profile
   useEffect(() => {
@@ -182,85 +144,7 @@ const Support = () => {
     <div className="min-h-screen relative overflow-hidden pb-24" style={{ background: "#060D1E" }}>
       <div className="absolute top-0 left-1/4 w-96 h-96 rounded-full blur-[120px] pointer-events-none" style={{ background: "rgba(0,255,127,0.04)" }} />
 
-      {/* Standardized Header */}
-      <header className="sticky top-0 z-50" style={{ background: 'transparent', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
-        <div className="container max-w-7xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
-          <div className="flex items-center justify-between gap-2 sm:gap-4">
-            <div className="shrink-0">
-              <img src={logoImg} alt="Premier Ultra" className="h-10 sm:h-12 w-auto" style={{ filter: "drop-shadow(0 0 10px rgba(0,255,0,0.5))" }} />
-            </div>
-            
-            <div className="flex items-center gap-2 sm:gap-3">
-              {/* CANAL pill */}
-              {isTelegramMember ? (
-                <a
-                  href={telegramGroupUrl || "#"}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 rounded-full cursor-pointer transition-all hover:scale-105"
-                  style={{
-                    padding: '6px 12px',
-                    background: 'rgba(0,255,127,0.1)',
-                    border: '1px solid rgba(0,255,127,0.4)',
-                    borderRadius: '999px',
-                    boxShadow: '0 0 10px rgba(0,255,127,0.2)',
-                    animation: 'telegramPulse 2s ease-in-out infinite',
-                  }}
-                >
-                  <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor" style={{ color: "#FFFFFF" }}>
-                    <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121L9.1 13.617l-2.97-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/>
-                  </svg>
-                  <span style={{
-                    fontFamily: "'Barlow Condensed', sans-serif",
-                    fontWeight: 700,
-                    fontSize: '13px',
-                    color: '#FFFFFF',
-                    letterSpacing: '1px',
-                  }}>
-                    CANAL
-                  </span>
-                </a>
-              ) : (
-                <button onClick={async () => { await triggerPayCardHeader('live_telegram'); }} className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-semibold transition-colors cursor-pointer" style={{ background: "rgba(255,0,0,0.1)", color: "#FF4444", border: "1px solid rgba(255,0,0,0.3)" }}>
-                  Live <ShoppingCart className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-                </button>
-              )}
-
-              {/* VITALÍCIO pill */}
-              {isLifetime ? (
-                <div
-                  onClick={() => setShowLifetimeInfoModal(true)}
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    padding: '6px 12px',
-                    background: 'rgba(0,255,127,0.1)',
-                    border: '1px solid rgba(0,255,127,0.4)',
-                    borderRadius: '999px',
-                    boxShadow: '0 0 10px rgba(0,255,127,0.2)',
-                    cursor: 'pointer',
-                    fontFamily: "'Barlow Condensed', sans-serif",
-                    fontWeight: 700,
-                    fontSize: '13px',
-                    color: '#FFFFFF',
-                    letterSpacing: '0.5px',
-                    transition: 'transform 0.2s',
-                  }}
-                >
-                  <Crown size={14} color="#FFFFFF" />
-                  VITALÍCIO
-                </div>
-              ) : (
-                <button onClick={async () => { const found = await triggerPayCardHeader('vitalicio'); if (!found) setShowLifetimeModal(true); }} className="inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-semibold transition-colors cursor-pointer" style={{ background: "rgba(255,0,0,0.1)", color: "#FF4444", border: "1px solid rgba(255,0,0,0.3)" }}>
-                  <span className="hidden sm:inline">Sem</span> vitalício
-                  <ShoppingCart className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-      </header>
+      <AppHeader onShowLifetimeInfoModal={() => setShowLifetimeInfoModal(true)} />
 
       {/* Main Content */}
       <main className="container max-w-2xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 relative z-10">
@@ -441,9 +325,6 @@ const Support = () => {
         onClose={() => setSelectedPreviewAch(null)}
       />
 
-      {pcHeaderData && (
-        <PayCardFunnelModal payCard={pcHeaderData} open={pcHeaderOpen} onClose={closePayCardHeader} />
-      )}
 
       <BottomNav />
     </div>

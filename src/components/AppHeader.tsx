@@ -12,9 +12,11 @@ import { X } from "lucide-react";
 
 interface AppHeaderProps {
   onShowLifetimeInfoModal?: () => void;
+  leftContent?: React.ReactNode;
+  headerStyle?: React.CSSProperties;
 }
 
-const AppHeader = ({ onShowLifetimeInfoModal }: AppHeaderProps) => {
+const AppHeader = ({ onShowLifetimeInfoModal, leftContent, headerStyle }: AppHeaderProps) => {
   const mockUser = mockGetUser();
   const { house: userHouse } = useUserBettingHouse();
   const { triggerPayCard, payCard: pcData, open: pcOpen, closePayCard } = usePayCardTrigger();
@@ -60,13 +62,15 @@ const AppHeader = ({ onShowLifetimeInfoModal }: AppHeaderProps) => {
 
   return (
     <>
-      <header className="sticky top-0 z-50" style={{ background: 'transparent', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+      <header className="sticky top-0 z-50" style={{ background: 'transparent', borderBottom: '1px solid rgba(255,255,255,0.07)', ...headerStyle }}>
         <div className="container max-w-7xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
           <div className="flex items-center justify-between gap-2 sm:gap-4">
-            {/* Logo */}
-            <div className="shrink-0">
-              <img src={logoImg} alt="Premier Ultra" className="h-10 sm:h-12 w-auto" style={{ filter: "drop-shadow(0 0 10px rgba(0,255,0,0.5))" }} />
-            </div>
+            {/* Logo or custom left content */}
+            {leftContent ? leftContent : (
+              <div className="shrink-0">
+                <img src={logoImg} alt="Premier Ultra" className="h-10 sm:h-12 w-auto" style={{ filter: "drop-shadow(0 0 10px rgba(0,255,0,0.5))" }} />
+              </div>
+            )}
 
             <div className="flex items-center gap-2 sm:gap-3">
               {/* Live Telegram pill */}
