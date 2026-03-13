@@ -169,7 +169,7 @@ const GreenDetailModal = ({ entry, onClose }: { entry: GreenEntry | null; onClos
         {/* Condition */}
         {entry.condition_to_win && (
           <div className="rounded-lg p-3" style={{ background: `${style.color}08`, border: `1px solid ${style.color}22` }}>
-            <p className="text-[10px] uppercase tracking-wider mb-1" style={{ color: style.color }}>Condição para Green</p>
+            <p className="mb-1" style={{ color: "#94A3B8", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase" }}>Condição para Green</p>
             <p className="text-xs" style={{ color: "#CCCCCC" }}>{entry.condition_to_win}</p>
           </div>
         )}
@@ -177,7 +177,7 @@ const GreenDetailModal = ({ entry, onClose }: { entry: GreenEntry | null; onClos
         {/* Justification */}
         {entry.justification && (
           <div className="rounded-lg p-3" style={{ background: "rgba(0,255,0,0.03)", border: "1px solid rgba(0,255,0,0.1)" }}>
-            <p className="text-[10px] uppercase tracking-wider mb-1" style={{ color: "#00CC00" }}>📝 Justificativa</p>
+            <p className="mb-1" style={{ color: "#94A3B8", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase" }}>Justificativa</p>
             <p className="text-xs leading-relaxed" style={{ color: "#AAAAAA" }}>{entry.justification}</p>
           </div>
         )}
