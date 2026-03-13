@@ -97,50 +97,7 @@ const Support = () => {
   const [isProfileModalOpen, setProfileModalOpen] = useState(false);
   const [selectedPreviewAch, setSelectedPreviewAch] = useState<any>(null);
 
-  // Header pills state
-  const [isLifetime, setIsLifetime] = useState(false);
-  const [isTelegramMember, setIsTelegramMember] = useState(false);
-  const [telegramGroupUrl, setTelegramGroupUrl] = useState<string | null>(null);
-  const { house: userHouse } = useUserBettingHouse();
-  const { triggerPayCard: triggerPayCardHeader, payCard: pcHeaderData, open: pcHeaderOpen, closePayCard: closePayCardHeader } = usePayCardTrigger();
-  const [showLifetimeModal, setShowLifetimeModal] = useState(false);
   const [showLifetimeInfoModal, setShowLifetimeInfoModal] = useState(false);
-
-  useEffect(() => {
-    window.scrollTo(0, 0);
-    if (!isAuthenticated()) { navigate("/login"); return; }
-  }, [navigate]);
-
-  // Check entitlements for header pills
-  useEffect(() => {
-    const checkEntitlements = async () => {
-      if (!mockUser) return;
-      const { data: userData } = await supabase.from("users").select("id").eq("email", mockUser.email.toLowerCase().trim()).maybeSingle();
-      if (!userData?.id) return;
-      const { data: ents } = await supabase
-        .from("entitlements")
-        .select("product_key")
-        .eq("user_id", userData.id)
-        .eq("status", "active");
-      const keys = (ents ?? []).map((e) => e.product_key);
-      setIsLifetime(keys.includes("acesso_vitalicio"));
-      setIsTelegramMember(keys.includes("live_telegram"));
-    };
-    checkEntitlements();
-  }, []);
-
-  // Load telegram group URL
-  useEffect(() => {
-    if (!userHouse?.id) return;
-    supabase
-      .from("betting_houses")
-      .select("telegram_group_url")
-      .eq("id", userHouse.id)
-      .maybeSingle()
-      .then(({ data }) => {
-        setTelegramGroupUrl((data as any)?.telegram_group_url ?? null);
-      });
-  }, [userHouse?.id]);
 
   // Fetch user profile
   useEffect(() => {
