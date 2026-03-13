@@ -191,67 +191,7 @@ const Casino = () => {
         </div>
       )}
 
-      {/* Modal Compra Vitalício */}
-      {showLifetimeModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={() => setShowLifetimeModal(false)}>
-          <div className="w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden" style={{ background: "rgba(0,8,0,0.97)", border: "1px solid rgba(0,255,0,0.25)", boxShadow: "0 0 40px rgba(0,255,0,0.1)" }} onClick={(e) => e.stopPropagation()}>
-            <div className="relative px-6 py-5" style={{ borderBottom: "1px solid rgba(0,255,0,0.15)" }}>
-              <div className="relative flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(0,255,0,0.1)", border: "1px solid rgba(0,255,0,0.3)" }}>
-                  <Crown className="w-5 h-5" style={{ color: "#00FF00" }} />
-                </div>
-                <div>
-                  <h2 className="text-lg font-bold" style={{ color: "#FFFFFF" }}>Acesso Vitalício</h2>
-                  <p className="text-xs mt-0.5" style={{ color: "#AAAAAA" }}>Pagamento único • Acesso permanente</p>
-                </div>
-              </div>
-              <button onClick={() => setShowLifetimeModal(false)} className="absolute top-4 right-4 p-1.5 rounded-lg transition-colors hover:bg-[rgba(0,255,0,0.08)]">
-                <X className="w-5 h-5" style={{ color: "#00FF00" }} />
-              </button>
-            </div>
-            <div className="px-6 py-6">
-              <button onClick={() => { window.open(CHECKOUT_LINKS.vitalicio, '_blank'); setShowLifetimeModal(false); }} className="w-full py-3.5 rounded-xl font-bold text-sm transition-all" style={{ background: "#00FF00", color: "#000000", boxShadow: "0 0 20px rgba(0,255,0,0.4)" }}>
-                Quero Acesso Vitalício
-              </button>
-              <button onClick={() => setShowLifetimeModal(false)} className="w-full text-center mt-3 text-xs py-2 transition-colors" style={{ color: "#AAAAAA" }}>
-                Não agora
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Modal Info Vitalício */}
-      {showLifetimeInfoModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={() => setShowLifetimeInfoModal(false)}>
-          <div className="w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden" style={{ background: "rgba(0,8,0,0.97)", border: "1px solid rgba(0,255,0,0.25)", boxShadow: "0 0 40px rgba(0,255,0,0.1)" }} onClick={(e) => e.stopPropagation()}>
-            <div className="relative px-6 py-5" style={{ borderBottom: "1px solid rgba(0,255,0,0.15)" }}>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(0,255,0,0.1)", border: "1px solid rgba(0,255,0,0.3)" }}>
-                  <Crown className="w-5 h-5" style={{ color: "#00FF00" }} />
-                </div>
-                <div>
-                  <h2 className="text-lg font-bold" style={{ color: "#FFFFFF" }}>Parabéns! 🎉</h2>
-                  <p className="text-xs mt-0.5" style={{ color: "#AAAAAA" }}>Membro Vitalício</p>
-                </div>
-              </div>
-              <button onClick={() => setShowLifetimeInfoModal(false)} className="absolute top-4 right-4 p-1.5 rounded-lg transition-colors hover:bg-[rgba(0,255,0,0.08)]">
-                <X className="w-5 h-5" style={{ color: "#00FF00" }} />
-              </button>
-            </div>
-            <div className="px-6 py-6">
-              <p className="text-sm leading-relaxed" style={{ color: "#CCCCCC" }}>
-                Você tem <span style={{ color: "#00FF00", fontWeight: 600 }}>acesso vitalício e ilimitado</span> a todas as funcionalidades e futuras atualizações do Premier Ultra. Aproveite!
-              </p>
-            </div>
-            <div className="px-6 pb-6">
-              <button onClick={() => setShowLifetimeInfoModal(false)} className="w-full py-3 rounded-xl font-medium transition-colors" style={{ background: "rgba(0,255,0,0.08)", border: "1px solid rgba(0,255,0,0.3)", color: "#FFFFFF" }}>
-                Entendi
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Lifetime modals now handled by AppHeader */}
 
       {funnelCard && (
         <CardFunnelModal
