@@ -184,11 +184,24 @@ const GreenDetailModal = ({ entry, onClose }: { entry: GreenEntry | null; onClos
 
         {/* Result banner */}
         <div
-          className="flex items-center justify-center gap-2 py-3 rounded-xl"
-          style={{ background: "rgba(0,255,0,0.08)", border: "1px solid rgba(0,255,0,0.25)" }}
+          className="flex items-center justify-center gap-2"
+          style={{
+            background: "transparent",
+            border: "1.5px solid #00FF7F",
+            color: "#00FF7F",
+            fontFamily: "'Barlow Condensed', sans-serif",
+            fontWeight: 800,
+            fontSize: 14,
+            padding: "12px 0",
+            borderRadius: 10,
+            width: "100%",
+            cursor: "default",
+            letterSpacing: "0.05em",
+            textTransform: "uppercase" as const,
+          }}
         >
-          <Trophy className="w-5 h-5" style={{ color: "#00FF00" }} />
-          <span className="text-sm font-black tracking-wider" style={{ color: "#00FF00" }}>GREEN CONFIRMADO ✅</span>
+          <Trophy className="w-5 h-5" style={{ color: "#00FF7F" }} />
+          <span>GREEN CONFIRMADO ✅</span>
         </div>
       </div>
     </div>
