@@ -335,11 +335,17 @@ const UltimosGreens = () => {
                 <Popover key={f.key}>
                   <PopoverTrigger asChild>
                     <button
-                      className="px-3 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1"
+                      className="flex items-center gap-1 transition-all"
                       style={{
-                        background: filter === "custom" ? "rgba(0,255,0,0.15)" : "rgba(255,255,255,0.05)",
-                        border: filter === "custom" ? "1px solid rgba(0,255,0,0.5)" : "1px solid rgba(255,255,255,0.1)",
-                        color: filter === "custom" ? "#00FF00" : "#AAAAAA",
+                        background: filter === "custom" ? "#00FF7F" : "transparent",
+                        border: filter === "custom" ? "1.5px solid #00FF7F" : "1.5px solid rgba(255,255,255,0.07)",
+                        color: filter === "custom" ? "#060D1E" : "rgba(255,255,255,0.6)",
+                        fontFamily: "'Barlow Condensed', sans-serif",
+                        fontWeight: 700,
+                        fontSize: 13,
+                        padding: "6px 14px",
+                        borderRadius: 20,
+                        cursor: "pointer",
                       }}
                     >
                       <Calendar className="w-3 h-3" />
