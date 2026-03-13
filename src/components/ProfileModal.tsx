@@ -1,4 +1,4 @@
-import { Copy, Flame, Trophy, Users, Calendar, Star, Lock, Check, LogOut, Share2 } from "lucide-react";
+import { Flame, Trophy, Calendar, Star, Lock, Check, LogOut } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -53,7 +53,7 @@ const ProfileModal = ({ isOpen, onClose }: ProfileModalProps) => {
   const { xpInLevel, xpNeeded, progress } = getXpProgress(totalXp, level);
   const currentAvatar = getAvatarById(currentAvatarId);
   const levelTitle = LEVEL_TITLES[level] || 'Novato';
-  const referralLink = userId ? `${window.location.origin}/login?ref=${userId}` : '';
+  
 
   const handleSaveNickname = async () => {
     if (!userId || !nicknameInput.trim()) {
@@ -96,10 +96,6 @@ const ProfileModal = ({ isOpen, onClose }: ProfileModalProps) => {
     }
   };
 
-  const copyReferralLink = () => {
-    navigator.clipboard.writeText(referralLink);
-    toast.success("Link copiado!");
-  };
 
   const handleLogout = () => {
     mockLogout();
@@ -174,7 +170,7 @@ const ProfileModal = ({ isOpen, onClose }: ProfileModalProps) => {
                 { icon: Flame, label: 'Streak', value: `${gamification?.current_streak || 0} dias`, color: '#FF6B35' },
                 { icon: Trophy, label: 'Maior Streak', value: `${gamification?.longest_streak || 0} dias`, color: '#FFD700' },
                 { icon: Calendar, label: 'Total Logins', value: `${gamification?.total_logins || 0}`, color: '#00BFFF' },
-                { icon: Users, label: 'Convidados', value: `${gamification?.friends_invited || 0}`, color: '#A855F7' },
+                
               ].map(({ icon: Icon, label, value, color }) => (
                 <div
                   key={label}
@@ -203,30 +199,6 @@ const ProfileModal = ({ isOpen, onClose }: ProfileModalProps) => {
               userAchievements={userAchievements}
             />
 
-            {/* Referral */}
-            <div
-              className="rounded-2xl p-5"
-              style={{
-                background: 'linear-gradient(135deg, rgba(168,85,247,0.1), rgba(126,34,206,0.08))',
-                border: '1px solid rgba(168,85,247,0.25)',
-              }}
-            >
-              <div className="flex items-center gap-3 mb-3">
-                <Share2 className="w-5 h-5" style={{ color: '#A855F7' }} />
-                <h3 className="font-bold text-white" style={{ color: '#A855F7' }}>Convide Amigos</h3>
-              </div>
-              <p className="text-sm opacity-70 mb-3 text-white">Ganhe <span className="font-bold" style={{ color: '#00FF00' }}>+100 XP</span> para cada amigo!</p>
-              <button
-                onClick={copyReferralLink}
-                className="w-full py-3 rounded-xl flex items-center justify-center gap-2 font-bold text-sm text-white transition-all hover:scale-[1.02]"
-                style={{
-                  background: 'linear-gradient(135deg, #A855F7, #7C3AED)',
-                  boxShadow: '0 4px 15px rgba(168,85,247,0.3)',
-                }}
-              >
-                <Copy className="w-4 h-4" /> Copiar Link de Convite
-              </button>
-            </div>
           </div>
         </DialogContent>
       </Dialog>

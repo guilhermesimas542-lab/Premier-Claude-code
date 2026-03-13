@@ -11,7 +11,6 @@ export interface GamificationData {
   longest_streak: number;
   last_login_date: string | null;
   total_logins: number;
-  friends_invited: number;
 }
 
 const LEVEL_THRESHOLDS: Record<number, number> = {
