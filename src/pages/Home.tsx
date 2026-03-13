@@ -463,9 +463,7 @@ const Home = () => {
       {funnelCard && (
         <CardFunnelModal card={funnelCard} open={!!funnelCard} onClose={() => setFunnelCard(null)} />
       )}
-      {pcData && (
-        <PayCardFunnelModal payCard={pcData} open={pcOpen} onClose={closePayCard} />
-      )}
+      {/* PayCard modal now in AppHeader for header pills; keep for banner pay cards */}
       {bannerPayCard && (
         <PayCardFunnelModal payCard={bannerPayCard} open={!!bannerPayCard} onClose={() => setBannerPayCard(null)} />
       )}
