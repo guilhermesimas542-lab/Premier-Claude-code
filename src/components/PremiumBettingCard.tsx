@@ -293,8 +293,8 @@ export const PremiumBettingCard = ({
 
         {/* Recommendation + Odd */}
         {!isLocked && (
-          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", padding: "0 14px 0 14px", marginBottom: 0 }}>
-            <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 16, color: isExpired ? "#6B7280" : "#FFFFFF", flex: 1, paddingRight: 12, lineHeight: 1.1, marginBottom: 0 }}>
+          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", padding: "4px 14px 0 14px", marginTop: 0, marginBottom: 0 }}>
+            <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 16, color: isExpired ? "#6B7280" : "#FFFFFF", flex: 1, paddingRight: 12, lineHeight: 1.1 }}>
               {betChoice}
             </span>
             <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "flex-end" }}>
