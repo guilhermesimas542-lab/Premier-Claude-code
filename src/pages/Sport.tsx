@@ -743,7 +743,7 @@ const Sport = () => {
             </div>
 
             {/* Dots */}
-            <div style={{ display: "flex", justifyContent: "center", gap: 6, marginTop: 12 }}>
+            <div style={{ display: "flex", justifyContent: "center", gap: 6, marginTop: 6 }}>
               {activeEntries.map((_, i) => (
                 <div
                   key={i}
