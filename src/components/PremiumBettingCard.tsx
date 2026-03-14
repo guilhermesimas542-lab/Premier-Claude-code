@@ -244,7 +244,7 @@ export const PremiumBettingCard = ({
         )}
 
         {/* Teams section */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 16, paddingTop: 8, paddingBottom: 8 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 16, paddingTop: 8, paddingBottom: 4, marginTop: 0, marginBottom: 0 }}>
           {/* Team 1 */}
           <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 6 }}>
             <div style={{ width: 40, height: 40, borderRadius: "50%", border: "1.5px solid rgba(255,255,255,0.15)", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(255,255,255,0.05)" }}>
