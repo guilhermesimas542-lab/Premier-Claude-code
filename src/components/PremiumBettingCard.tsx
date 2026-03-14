@@ -256,16 +256,16 @@ export const PremiumBettingCard = ({
         }}>
           {/* Team 1 */}
           <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 4 }}>
-            <div style={{ width: 36, height: 36, borderRadius: "50%", border: "1.5px solid rgba(255,255,255,0.15)", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(255,255,255,0.05)" }}>
+            <div style={{ width: 60, height: 60, borderRadius: "50%", border: "1.5px solid rgba(255,255,255,0.15)", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(255,255,255,0.05)" }}>
               {team1.logo ? (
-                <img src={team1.logo} alt={team1.name} className={isExpired ? "opacity-50" : ""} style={{ width: 26, height: 26, objectFit: "contain" }} />
+                <img src={team1.logo} alt={team1.name} className={isExpired ? "opacity-50" : ""} style={{ width: 42, height: 42, objectFit: "contain" }} />
               ) : team1.shirt ? (
-                <ShirtIcon variant={team1.shirt.variant} primaryColor={team1.shirt.primaryColor} secondaryColor={team1.shirt.secondaryColor} size={28} />
+                <ShirtIcon variant={team1.shirt.variant} primaryColor={team1.shirt.primaryColor} secondaryColor={team1.shirt.secondaryColor} size={44} />
               ) : (
-                <ShirtIcon variant="solid" primaryColor="#6B7280" size={28} />
+                <ShirtIcon variant="solid" primaryColor="#6B7280" size={44} />
               )}
             </div>
-            <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 11, color: isExpired ? "#6B7280" : "#FFFFFF", textAlign: "center" as const, maxWidth: 70, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
+            <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 13, color: isExpired ? "#6B7280" : "#FFFFFF", textAlign: "center" as const, maxWidth: 80, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
               {team1.name}
             </span>
           </div>
