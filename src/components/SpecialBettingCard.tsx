@@ -197,7 +197,7 @@ export const SpecialBettingCard = ({
 
         {/* Odd row */}
         {!isLocked && (
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "4px 14px 0 14px" }}>
+          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", padding: "0 14px 0 14px", marginBottom: 0 }}>
             <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 13, color: isExpired ? "#6B7280" : tierColor }}>
               {type === "ALAVANCAGEM" ? "Alavancagem do Dia" : "Múltipla do Dia"}
             </span>
@@ -212,7 +212,7 @@ export const SpecialBettingCard = ({
 
         {/* Action Buttons */}
         {!isLocked && (
-          <div style={{ display: "flex", gap: 8, padding: "6px 14px 12px 14px" }}>
+          <div style={{ display: "flex", gap: 8, padding: "2px 14px 12px 14px", marginTop: 0 }}>
             <button
               onClick={isExpired ? undefined : onAddTip}
               disabled={isExpired}
