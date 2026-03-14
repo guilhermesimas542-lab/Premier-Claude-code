@@ -212,7 +212,7 @@ export const SpecialBettingCard = ({
 
         {/* Action Buttons */}
         {!isLocked && (
-          <div style={{ display: "flex", gap: 8, padding: "6px 14px 12px 14px" }}>
+          <div style={{ display: "flex", gap: 8, padding: "2px 14px 12px 14px", marginTop: 0 }}>
             <button
               onClick={isExpired ? undefined : onAddTip}
               disabled={isExpired}
