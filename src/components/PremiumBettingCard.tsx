@@ -204,7 +204,7 @@ export const PremiumBettingCard = ({
       <div className="relative z-10 flex flex-col">
 
         {/* Badge */}
-        <div style={{ display: "flex", justifyContent: "center", marginTop: 8, marginBottom: 4 }}>
+        <div style={{ display: "flex", justifyContent: "center", marginTop: 8, marginBottom: 0, paddingTop: 0, paddingBottom: 0 }}>
           {isExpired ? (
             <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", background: "rgba(75,85,99,0.25)", border: "1px solid rgba(75,85,99,0.5)", color: expiredColor, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 11, letterSpacing: "1.5px", textTransform: "uppercase" as const, padding: "2px 10px", borderRadius: 8 }}>
               EXPIRADA
