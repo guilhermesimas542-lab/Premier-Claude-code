@@ -720,14 +720,15 @@ const Sport = () => {
               className="w-full select-none"
               style={{
                 display: "flex",
+                alignItems: "flex-start",
                 gap: 12,
                 overflowX: "auto",
                 scrollSnapType: "x mandatory",
                 scrollBehavior: "smooth",
                 paddingLeft: 16,
                 paddingRight: 16,
-                paddingBottom: 8,
-                paddingTop: 8,
+                paddingBottom: 4,
+                paddingTop: 4,
                 WebkitOverflowScrolling: "touch",
                 scrollbarWidth: 'none',
                 msOverflowStyle: 'none',
@@ -742,7 +743,7 @@ const Sport = () => {
             </div>
 
             {/* Dots */}
-            <div style={{ display: "flex", justifyContent: "center", gap: 6, marginTop: 12 }}>
+            <div style={{ display: "flex", justifyContent: "center", gap: 6, marginTop: 6 }}>
               {activeEntries.map((_, i) => (
                 <div
                   key={i}

@@ -109,6 +109,7 @@ export const SpecialBettingCard = ({
         boxShadow: isExpired ? "none" : `0 0 20px ${tierColor}1A`,
         overflow: "hidden",
         position: "relative",
+        gap: 0,
       }}
     >
       {/* Saturation overlay for locked */}
@@ -144,7 +145,7 @@ export const SpecialBettingCard = ({
       <div className="relative z-10 flex flex-col">
 
         {/* Badge */}
-        <div style={{ display: "flex", justifyContent: "center", marginTop: 8, marginBottom: 4 }}>
+        <div style={{ display: "flex", justifyContent: "center", marginTop: 8, marginBottom: 0, paddingTop: 0, paddingBottom: 0 }}>
           {isExpired ? (
             <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", background: "rgba(75,85,99,0.25)", border: "1px solid rgba(75,85,99,0.5)", color: expiredColor, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 11, letterSpacing: "1.5px", textTransform: "uppercase" as const, padding: "2px 10px", borderRadius: 8 }}>
               EXPIRADA
@@ -158,7 +159,7 @@ export const SpecialBettingCard = ({
 
         {/* Timer + Match Time row */}
         {!isLocked && (
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "4px 14px", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "4px 14px", marginTop: 4, marginBottom: 0, borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
               {countdown === "AO VIVO" ? (
                 <>
@@ -185,7 +186,7 @@ export const SpecialBettingCard = ({
 
         {/* Central Icon */}
         {!isLocked && (
-          <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "center", paddingTop: 8, paddingBottom: 8 }}>
+          <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "center", paddingTop: 12, paddingBottom: 8, marginTop: 0, marginBottom: 0 }}>
             <div style={{ width: 48, height: 48, borderRadius: "50%", background: `${tierColor}1A`, display: "flex", alignItems: "center", justifyContent: "center", border: `1.5px solid ${tierColor}33` }}>
               <IconComponent style={{ width: 28, height: 28, color: isExpired ? "#6B7280" : tierColor }} />
             </div>
@@ -212,7 +213,7 @@ export const SpecialBettingCard = ({
 
         {/* Action Buttons */}
         {!isLocked && (
-          <div style={{ display: "flex", gap: 8, padding: "2px 14px 12px 14px", marginTop: 0 }}>
+          <div style={{ display: "flex", gap: 8, padding: "8px 14px 12px 14px", marginTop: 0 }}>
             <button
               onClick={isExpired ? undefined : onAddTip}
               disabled={isExpired}
