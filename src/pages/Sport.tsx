@@ -591,48 +591,46 @@ const Sport = () => {
         style={{ width: '88vw', minWidth: 280, maxWidth: 420, flexShrink: 0, scrollSnapAlign: 'start' as const }}
         onClick={isLocked ? () => handleLockedClick(entry) : undefined}
       >
-        <div style={{ aspectRatio: '332 / 280' }}>
-          {isSpecial ? (
-            <SpecialBettingCard
-              tipId={0}
-              type={entry.addon_required === "alavancagem" ? "ALAVANCAGEM" : "ODDS_ALTAS"}
-              market={market}
-              betChoice={betChoice}
-              odds={entry.odd || 0}
-              matchDate={matchDate}
-              startsAt={startsAt}
-              expirationDate={expirationDate}
-              isLocked={isLocked}
-              lockedLabel={lockedLabel}
-              isExpired={isExpired}
-              justificativa={entry.justification || undefined}
-              onAddTip={() => handleAddTip(entry)}
-              onOpenJustificativa={handleOpenJustificativa}
-              onLockedClick={() => handleLockedClick(entry)}
-            />
-          ) : (
-            <PremiumBettingCard
-              tipId={0}
-              tier={displayTier as "BÁSICO" | "PRO" | "GRÁTIS" | "MÚLTIPLA" | "ULTRA"}
-              team1={team1}
-              team2={team2}
-              market={market}
-              betChoice={betChoice}
-              odds={entry.odd || 0}
-              matchDate={matchDate}
-              startsAt={startsAt}
-              expirationDate={expirationDate}
-              selectionsCount={displayTier === "ULTRA" ? 3 : undefined}
-              justificativa={entry.justification || undefined}
-              isLocked={isLocked}
-              lockedLabel={lockedLabel}
-              isExpired={isExpired}
-              onAddTip={() => handleAddTip(entry)}
-              onOpenJustificativa={handleOpenJustificativa}
-              onLockedClick={() => handleLockedClick(entry)}
-            />
-          )}
-        </div>
+        {isSpecial ? (
+          <SpecialBettingCard
+            tipId={0}
+            type={entry.addon_required === "alavancagem" ? "ALAVANCAGEM" : "ODDS_ALTAS"}
+            market={market}
+            betChoice={betChoice}
+            odds={entry.odd || 0}
+            matchDate={matchDate}
+            startsAt={startsAt}
+            expirationDate={expirationDate}
+            isLocked={isLocked}
+            lockedLabel={lockedLabel}
+            isExpired={isExpired}
+            justificativa={entry.justification || undefined}
+            onAddTip={() => handleAddTip(entry)}
+            onOpenJustificativa={handleOpenJustificativa}
+            onLockedClick={() => handleLockedClick(entry)}
+          />
+        ) : (
+          <PremiumBettingCard
+            tipId={0}
+            tier={displayTier as "BÁSICO" | "PRO" | "GRÁTIS" | "MÚLTIPLA" | "ULTRA"}
+            team1={team1}
+            team2={team2}
+            market={market}
+            betChoice={betChoice}
+            odds={entry.odd || 0}
+            matchDate={matchDate}
+            startsAt={startsAt}
+            expirationDate={expirationDate}
+            selectionsCount={displayTier === "ULTRA" ? 3 : undefined}
+            justificativa={entry.justification || undefined}
+            isLocked={isLocked}
+            lockedLabel={lockedLabel}
+            isExpired={isExpired}
+            onAddTip={() => handleAddTip(entry)}
+            onOpenJustificativa={handleOpenJustificativa}
+            onLockedClick={() => handleLockedClick(entry)}
+          />
+        )}
       </div>
     );
   };
