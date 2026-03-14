@@ -300,39 +300,23 @@ export const PremiumBettingCard = ({
           </div>
         )}
 
-        {/* Line 3: recommendation (centered) */}
-        {/* Line 4: odd (centered, below recommendation) */}
+        {/* Line 3: recommendation + odd */}
         {!isLocked && (
           <div style={{
             display: "flex",
-            flexDirection: "column" as const,
             alignItems: "center",
-            justifyContent: "center",
+            justifyContent: "space-between",
             padding: "4px 12px 6px 12px",
-            gap: 2,
           }}>
-            {/* Recommendation */}
-            <span style={{
-              fontFamily: "'Barlow Condensed', sans-serif",
-              fontWeight: 800,
-              fontSize: 20,
-              color: isExpired ? "#6B7280" : "#FFFFFF",
-              textAlign: "center" as const,
-              lineHeight: 1.2,
-            }}>
+            <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 15, color: isExpired ? "#6B7280" : "#FFFFFF", flex: 1, paddingRight: 8, lineHeight: 1.2 }}>
               {betChoice}
             </span>
-            {/* Odd (no label) */}
-            <span style={{
-              fontFamily: "'Barlow Condensed', sans-serif",
-              fontWeight: 900,
-              fontSize: 32,
-              color: isExpired ? "#6B7280" : tierColor,
-              lineHeight: 1,
-              textAlign: "center" as const,
-            }}>
-              {odds.toFixed(2)}
-            </span>
+            <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "flex-end" }}>
+              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 9, color: "#94A3B8" }}>Odd</span>
+              <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: 22, color: isExpired ? "#6B7280" : tierColor, lineHeight: 1 }}>
+                {odds.toFixed(2)}
+              </span>
+            </div>
           </div>
         )}
 
