@@ -109,6 +109,7 @@ export const SpecialBettingCard = ({
         boxShadow: isExpired ? "none" : `0 0 20px ${tierColor}1A`,
         overflow: "hidden",
         position: "relative",
+        gap: 0,
       }}
     >
       {/* Saturation overlay for locked */}
