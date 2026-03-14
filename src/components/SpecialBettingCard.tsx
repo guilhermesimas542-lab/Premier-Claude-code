@@ -141,79 +141,91 @@ export const SpecialBettingCard = ({
         </div>
       )}
 
-      {/* Content */}
+      {/* Content — 4-line compact layout */}
       <div className="relative z-10 flex flex-col">
 
-        {/* Badge */}
-        <div style={{ display: "flex", justifyContent: "center", marginTop: 8, marginBottom: 0, paddingTop: 0, paddingBottom: 0 }}>
+        {/* Line 1: timer | badge | match time */}
+        <div style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "10px 12px 6px 12px",
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 4, minWidth: 70 }}>
+            {isLocked ? (
+              <span style={{ fontSize: 12, color: "transparent" }}>—</span>
+            ) : countdown === "AO VIVO" ? (
+              <>
+                <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#EF4444", display: "inline-block", animation: "pulse 1.5s infinite" }} />
+                <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 12, color: "#EF4444" }}>AO VIVO</span>
+              </>
+            ) : countdown ? (
+              <>
+                <Clock className="w-3 h-3" style={{ color: "#94A3B8" }} />
+                <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600, fontSize: 12, color: "#94A3B8" }}>{countdown}</span>
+              </>
+            ) : (
+              <span style={{ fontSize: 12, color: "transparent" }}>—</span>
+            )}
+          </div>
+
           {isExpired ? (
-            <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", background: "rgba(75,85,99,0.25)", border: "1px solid rgba(75,85,99,0.5)", color: expiredColor, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 11, letterSpacing: "1.5px", textTransform: "uppercase" as const, padding: "2px 10px", borderRadius: 8 }}>
+            <div style={{ background: "rgba(75,85,99,0.25)", border: "1px solid rgba(75,85,99,0.5)", color: expiredColor, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 11, letterSpacing: "1px", textTransform: "uppercase" as const, padding: "2px 10px", borderRadius: 6 }}>
               EXPIRADA
             </div>
           ) : (
-            <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", background: `${tierColor}26`, border: `1px solid ${tierColor}66`, color: tierColor, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 11, letterSpacing: "1.5px", textTransform: "uppercase" as const, padding: "2px 10px", borderRadius: 8 }}>
+            <div style={{ background: `${tierColor}26`, border: `1px solid ${tierColor}66`, color: tierColor, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 11, letterSpacing: "1px", textTransform: "uppercase" as const, padding: "2px 10px", borderRadius: 6 }}>
               {config.label}
             </div>
           )}
+
+          <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 14, color: isExpired ? "#6B7280" : "#FFFFFF", minWidth: 40, textAlign: "right" as const }}>
+            {matchDate || "—"}
+          </span>
         </div>
 
-        {/* Timer + Match Time row */}
+        {/* Line 2: central icon */}
         {!isLocked && (
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "4px 14px", marginTop: 4, marginBottom: 0, borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-              {countdown === "AO VIVO" ? (
-                <>
-                  <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#EF4444", display: "inline-block", animation: "pulse 1.5s infinite" }} />
-                  <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 12, color: "#EF4444" }}>AO VIVO</span>
-                </>
-              ) : countdown ? (
-                <>
-                  <Clock className="w-3 h-3" style={{ color: "#94A3B8" }} />
-                  <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600, fontSize: 12, color: "#94A3B8" }}>{countdown}</span>
-                </>
-              ) : (
-                <span style={{ fontSize: 12, color: "transparent" }}>—</span>
-              )}
+          <div style={{
+            display: "flex",
+            flexDirection: "column" as const,
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "8px 12px",
+            gap: 4,
+          }}>
+            <div style={{ width: 40, height: 40, borderRadius: "50%", background: `${tierColor}1A`, display: "flex", alignItems: "center", justifyContent: "center", border: `1.5px solid ${tierColor}33` }}>
+              <IconComponent style={{ width: 24, height: 24, color: isExpired ? "#6B7280" : tierColor }} />
             </div>
-            {matchDate && (
-              <>
-                <div style={{ width: 1, height: 14, background: "rgba(255,255,255,0.07)" }} />
-                <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 13, color: isExpired ? "#6B7280" : "#FFFFFF" }}>{matchDate}</span>
-              </>
-            )}
-          </div>
-        )}
-
-        {/* Central Icon */}
-        {!isLocked && (
-          <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", justifyContent: "center", paddingTop: 12, paddingBottom: 8, marginTop: 0, marginBottom: 0 }}>
-            <div style={{ width: 48, height: 48, borderRadius: "50%", background: `${tierColor}1A`, display: "flex", alignItems: "center", justifyContent: "center", border: `1.5px solid ${tierColor}33` }}>
-              <IconComponent style={{ width: 28, height: 28, color: isExpired ? "#6B7280" : tierColor }} />
-            </div>
-            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: "#94A3B8", marginTop: 8 }}>
+            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: "#94A3B8" }}>
               {config.subtitle}
             </span>
           </div>
         )}
 
-        {/* Odd row */}
+        {/* Line 3: recommendation + odd */}
         {!isLocked && (
-          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", padding: "0 14px 0 14px", marginBottom: 0 }}>
-            <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 13, color: isExpired ? "#6B7280" : tierColor }}>
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "4px 12px 6px 12px",
+          }}>
+            <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 15, color: isExpired ? "#6B7280" : "#FFFFFF", flex: 1, paddingRight: 8, lineHeight: 1.2 }}>
               {type === "ALAVANCAGEM" ? "Alavancagem do Dia" : "Múltipla do Dia"}
             </span>
-            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, color: "#94A3B8" }}>Odd</span>
-              <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: 24, color: isExpired ? "#6B7280" : tierColor }}>
+            <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "flex-end" }}>
+              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 9, color: "#94A3B8" }}>Odd</span>
+              <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: 22, color: isExpired ? "#6B7280" : tierColor, lineHeight: 1 }}>
                 {odds.toFixed(2)}
               </span>
             </div>
           </div>
         )}
 
-        {/* Action Buttons */}
+        {/* Line 4: buttons */}
         {!isLocked && (
-          <div style={{ display: "flex", gap: 8, padding: "8px 14px 12px 14px", marginTop: 0 }}>
+          <div style={{ display: "flex", gap: 8, padding: "0 12px 12px 12px" }}>
             <button
               onClick={isExpired ? undefined : onAddTip}
               disabled={isExpired}
@@ -223,10 +235,10 @@ export const SpecialBettingCard = ({
                 color: isExpired ? "#6B7280" : "#000000",
                 fontFamily: "'Barlow Condensed', sans-serif",
                 fontWeight: 800,
-                fontSize: 14,
+                fontSize: 13,
                 letterSpacing: "0.5px",
-                padding: "8px 0",
-                borderRadius: 10,
+                padding: "9px 0",
+                borderRadius: 8,
                 border: "none",
                 cursor: isExpired ? "not-allowed" : "pointer",
                 textTransform: "uppercase" as const,
@@ -237,14 +249,14 @@ export const SpecialBettingCard = ({
 
             <button
               onClick={handleOpenJustificativaClick}
-              style={{ width: 40, height: 40, borderRadius: 10, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
+              style={{ width: 38, height: 38, borderRadius: 8, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
             >
               <HelpCircle className={`w-5 h-5 ${isExpired ? "text-gray-500" : "text-white/80"}`} />
             </button>
 
             <button
               onClick={handleOpenJustificativaClick}
-              style={{ width: 40, height: 40, borderRadius: 10, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
+              style={{ width: 38, height: 38, borderRadius: 8, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
             >
               <BarChart3 className={`w-5 h-5 ${isExpired ? "text-gray-500" : "text-white/80"}`} />
             </button>
