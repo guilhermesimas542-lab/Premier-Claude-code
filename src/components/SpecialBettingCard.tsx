@@ -149,7 +149,7 @@ export const SpecialBettingCard = ({
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          padding: "6px 12px 4px 12px",
+          padding: "6px 10px 4px 10px",
         }}>
           <div style={{ display: "flex", alignItems: "center", gap: 4, minWidth: 70 }}>
             {isLocked ? (
@@ -191,7 +191,7 @@ export const SpecialBettingCard = ({
             flexDirection: "column" as const,
             alignItems: "center",
             justifyContent: "center",
-            padding: "4px 12px",
+            padding: "4px 10px",
             height: "72px",
             position: "relative",
             gap: 4,
@@ -211,7 +211,7 @@ export const SpecialBettingCard = ({
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            padding: "2px 12px 4px 12px",
+            padding: "2px 10px 4px 10px",
           }}>
             <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 15, color: isExpired ? "#6B7280" : "#FFFFFF", flex: 1, paddingRight: 8, lineHeight: 1.2 }}>
               {type === "ALAVANCAGEM" ? "Alavancagem do Dia" : "Múltipla do Dia"}
@@ -227,7 +227,7 @@ export const SpecialBettingCard = ({
 
         {/* Line 4: buttons */}
         {!isLocked && (
-          <div style={{ display: "flex", gap: 8, padding: "0 12px 8px 12px" }}>
+          <div style={{ display: "flex", gap: 8, padding: "0 10px 8px 10px" }}>
             <button
               onClick={isExpired ? undefined : onAddTip}
               disabled={isExpired}
@@ -237,9 +237,9 @@ export const SpecialBettingCard = ({
                 color: isExpired ? "#6B7280" : "#000000",
                 fontFamily: "'Barlow Condensed', sans-serif",
                 fontWeight: 800,
-                fontSize: 13,
+                fontSize: 12,
                 letterSpacing: "0.5px",
-                padding: "9px 0",
+                padding: "7px 0",
                 borderRadius: 8,
                 border: "none",
                 cursor: isExpired ? "not-allowed" : "pointer",
@@ -251,14 +251,14 @@ export const SpecialBettingCard = ({
 
             <button
               onClick={handleOpenJustificativaClick}
-              style={{ width: 38, height: 38, borderRadius: 8, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
+              style={{ width: 34, height: 34, borderRadius: 8, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
             >
               <HelpCircle className={`w-5 h-5 ${isExpired ? "text-gray-500" : "text-white/80"}`} />
             </button>
 
             <button
               onClick={handleOpenJustificativaClick}
-              style={{ width: 38, height: 38, borderRadius: 8, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
+              style={{ width: 34, height: 34, borderRadius: 8, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
             >
               <BarChart3 className={`w-5 h-5 ${isExpired ? "text-gray-500" : "text-white/80"}`} />
             </button>
