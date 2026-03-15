@@ -241,7 +241,7 @@ export const PremiumBettingCard = ({
           )}
 
           {/* Match time */}
-          <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 14, color: isExpired ? "#6B7280" : "#FFFFFF", minWidth: 40, textAlign: "right" as const }}>
+          <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 14, color: isExpired ? "#6B7280" : "#FFFFFF", width: 70, flexShrink: 0, textAlign: "right" as const }}>
             {matchDate || "—"}
           </span>
         </div>
