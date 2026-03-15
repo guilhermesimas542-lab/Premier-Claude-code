@@ -588,7 +588,7 @@ const Sport = () => {
         key={entry.id}
         ref={isExpiredSection ? undefined : (el) => { activeCardRefs.current[index] = el; }}
         className={`flex-shrink-0 ${isLocked ? "cursor-pointer" : ""} ${isExpired ? "pointer-events-none" : ""}`}
-        style={{ width: '88vw', minWidth: 280, maxWidth: 420, flexShrink: 0, scrollSnapAlign: 'start' as const, display: 'flex', flexDirection: 'column' as const }}
+        style={{ width: '88vw', minWidth: 280, maxWidth: 420, flexShrink: 0, scrollSnapAlign: 'start' as const }}
         onClick={isLocked ? () => handleLockedClick(entry) : undefined}
       >
         {isSpecial ? (
@@ -720,7 +720,7 @@ const Sport = () => {
               className="w-full select-none"
               style={{
                 display: "flex",
-                alignItems: "flex-start",
+                alignItems: "stretch",
                 gap: 12,
                 overflowX: "auto",
                 scrollSnapType: "x mandatory",

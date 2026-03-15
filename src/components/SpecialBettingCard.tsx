@@ -101,7 +101,7 @@ export const SpecialBettingCard = ({
 
   return (
     <div
-      className="select-none relative flex flex-col w-full flex-1"
+      className="select-none relative flex flex-col w-full"
       style={{
         background: isExpired ? "#0A0F1A" : `${config.gradient}, #060D1E`,
         border: `1.5px solid ${isExpired ? expiredColor : tierColor}`,
@@ -142,7 +142,7 @@ export const SpecialBettingCard = ({
       )}
 
       {/* Content — 4-line compact layout */}
-      <div className="relative z-10 flex flex-col flex-1 justify-between">
+      <div className="relative z-10 flex flex-col">
 
         {/* Line 1: timer | badge | match time */}
         <div style={{
@@ -170,11 +170,11 @@ export const SpecialBettingCard = ({
           </div>
 
           {isExpired ? (
-            <div style={{ background: "rgba(75,85,99,0.25)", border: "1px solid rgba(75,85,99,0.5)", color: expiredColor, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 13, letterSpacing: "1.5px", textTransform: "uppercase" as const, padding: "8px 20px", borderRadius: 8 }}>
+            <div style={{ background: "rgba(75,85,99,0.25)", border: "1px solid rgba(75,85,99,0.5)", color: expiredColor, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 11, letterSpacing: "1px", textTransform: "uppercase" as const, padding: "2px 10px", borderRadius: 6 }}>
               EXPIRADA
             </div>
           ) : (
-            <div style={{ background: `${tierColor}26`, border: `1px solid ${tierColor}66`, color: tierColor, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 13, letterSpacing: "1.5px", textTransform: "uppercase" as const, padding: "8px 20px", borderRadius: 8 }}>
+            <div style={{ background: `${tierColor}26`, border: `1px solid ${tierColor}66`, color: tierColor, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 11, letterSpacing: "1px", textTransform: "uppercase" as const, padding: "2px 10px", borderRadius: 6 }}>
               {config.label}
             </div>
           )}
@@ -191,13 +191,13 @@ export const SpecialBettingCard = ({
             flexDirection: "column" as const,
             alignItems: "center",
             justifyContent: "center",
-            padding: "14px 12px 12px 12px",
-            gap: 6,
+            padding: "8px 12px",
+            gap: 4,
           }}>
-            <div style={{ width: 60, height: 60, borderRadius: "50%", background: `${tierColor}1A`, display: "flex", alignItems: "center", justifyContent: "center", border: `1.5px solid ${tierColor}33` }}>
-              <IconComponent style={{ width: 30, height: 30, color: isExpired ? "#6B7280" : tierColor }} />
+            <div style={{ width: 40, height: 40, borderRadius: "50%", background: `${tierColor}1A`, display: "flex", alignItems: "center", justifyContent: "center", border: `1.5px solid ${tierColor}33` }}>
+              <IconComponent style={{ width: 24, height: 24, color: isExpired ? "#6B7280" : tierColor }} />
             </div>
-            <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 13, fontWeight: 700, color: "#94A3B8" }}>
+            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: "#94A3B8" }}>
               {config.subtitle}
             </span>
           </div>
