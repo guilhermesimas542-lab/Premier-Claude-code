@@ -142,7 +142,7 @@ export const SpecialBettingCard = ({
       )}
 
       {/* Content — 4-line compact layout */}
-      <div className="relative z-10 flex flex-col">
+      <div className="relative z-10 flex flex-col flex-1 justify-between">
 
         {/* Line 1: timer | badge | match time */}
         <div style={{
