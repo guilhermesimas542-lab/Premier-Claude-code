@@ -32,16 +32,16 @@ const formatCountdown = (totalSeconds: number): string => {
   return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
 };
 
-const CARD_CONFIG: Record<SpecialCardType, { icon: typeof Anchor; label: string; color: string; gradient: string; subtitle: string }> = {
+const CARD_CONFIG: Record<SpecialCardType, { icon: typeof TrendingUp; label: string; color: string; gradient: string; subtitle: string }> = {
   ALAVANCAGEM: {
-    icon: Anchor,
+    icon: TrendingUp,
     label: "ALAVANCAGEM",
     color: "#F0B429",
     gradient: "linear-gradient(135deg, rgba(240,180,41,0.08) 0%, transparent 60%)",
     subtitle: "Alavancagem do Dia",
   },
   ODDS_ALTAS: {
-    icon: Gift,
+    icon: Trophy,
     label: "ODDS ALTAS",
     color: "#F97316",
     gradient: "linear-gradient(135deg, rgba(249,115,22,0.08) 0%, transparent 60%)",
