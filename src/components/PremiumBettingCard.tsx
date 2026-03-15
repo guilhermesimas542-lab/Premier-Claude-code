@@ -349,7 +349,7 @@ export const PremiumBettingCard = ({
             <div className="relative" ref={betHelpRef}>
               <button
                 onClick={() => setShowBetHelp(!showBetHelp)}
-                style={{ width: 38, height: 38, borderRadius: 8, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
+                style={{ width: 34, height: 34, borderRadius: 8, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
               >
                 <HelpCircle className={`w-5 h-5 ${isExpired ? "text-gray-500" : "text-white/80"}`} />
               </button>
