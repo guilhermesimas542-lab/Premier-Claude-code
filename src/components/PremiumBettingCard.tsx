@@ -208,7 +208,7 @@ export const PremiumBettingCard = ({
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          padding: "6px 12px 4px 12px",
+          padding: "6px 10px 4px 10px",
         }}>
           {/* Timer */}
           <div style={{ display: "flex", alignItems: "center", gap: 4, minWidth: 70 }}>
