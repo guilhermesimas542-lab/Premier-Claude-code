@@ -211,7 +211,7 @@ export const PremiumBettingCard = ({
           padding: "6px 10px 4px 10px",
         }}>
           {/* Timer */}
-          <div style={{ display: "flex", alignItems: "center", gap: 4, minWidth: 70 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 4, width: 70, flexShrink: 0 }}>
             {isLocked ? (
               <span style={{ fontSize: 12, color: "transparent" }}>—</span>
             ) : countdown === "AO VIVO" ? (
