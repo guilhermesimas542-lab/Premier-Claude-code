@@ -324,7 +324,7 @@ export const PremiumBettingCard = ({
 
         {/* Line 4: buttons */}
         {!isLocked && (
-          <div style={{ display: "flex", gap: 8, padding: "0 12px 8px 12px" }}>
+          <div style={{ display: "flex", gap: 8, padding: "0 10px 8px 10px" }}>
             <button
               onClick={isExpired ? undefined : onAddTip}
               disabled={isExpired}
