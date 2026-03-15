@@ -720,7 +720,7 @@ const Sport = () => {
               className="w-full select-none"
               style={{
                 display: "flex",
-                alignItems: "stretch",
+                alignItems: "flex-start",
                 gap: 12,
                 overflowX: "auto",
                 scrollSnapType: "x mandatory",

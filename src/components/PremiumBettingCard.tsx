@@ -252,7 +252,7 @@ export const PremiumBettingCard = ({
           alignItems: "center",
           justifyContent: "center",
           gap: 12,
-          padding: "6px 12px",
+          padding: isMultiple ? "2px 12px 0 12px" : "6px 12px",
         }}>
           {/* Team 1 */}
           <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 4 }}>
@@ -306,7 +306,7 @@ export const PremiumBettingCard = ({
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            padding: "4px 12px 6px 12px",
+            padding: isMultiple ? "2px 12px 4px 12px" : "4px 12px 6px 12px",
           }}>
             <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 15, color: isExpired ? "#6B7280" : "#FFFFFF", flex: 1, paddingRight: 8, lineHeight: 1.2 }}>
               {betChoice}
