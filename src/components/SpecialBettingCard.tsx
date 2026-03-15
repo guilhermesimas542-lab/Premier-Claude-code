@@ -211,7 +211,7 @@ export const SpecialBettingCard = ({
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            padding: "4px 12px 6px 12px",
+            padding: "2px 12px 4px 12px",
           }}>
             <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 15, color: isExpired ? "#6B7280" : "#FFFFFF", flex: 1, paddingRight: 8, lineHeight: 1.2 }}>
               {type === "ALAVANCAGEM" ? "Alavancagem do Dia" : "Múltipla do Dia"}
