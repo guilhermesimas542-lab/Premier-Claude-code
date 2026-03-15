@@ -252,7 +252,9 @@ export const PremiumBettingCard = ({
           alignItems: "center",
           justifyContent: "center",
           gap: 12,
-          padding: "6px 12px",
+          padding: "8px 12px",
+          height: "88px",
+          position: "relative",
         }}>
           {/* Team 1 */}
           <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 4 }}>
