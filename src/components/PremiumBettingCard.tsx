@@ -252,7 +252,7 @@ export const PremiumBettingCard = ({
           alignItems: "center",
           justifyContent: "center",
           gap: 12,
-          padding: "4px 12px",
+          padding: "4px 10px",
           height: "72px",
           position: "relative",
         }}>
