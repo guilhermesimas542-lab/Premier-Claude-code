@@ -208,7 +208,7 @@ export const PremiumBettingCard = ({
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          padding: "10px 12px 6px 12px",
+          padding: "6px 12px 4px 12px",
         }}>
           {/* Timer */}
           <div style={{ display: "flex", alignItems: "center", gap: 4, minWidth: 70 }}>
@@ -252,8 +252,8 @@ export const PremiumBettingCard = ({
           alignItems: "center",
           justifyContent: "center",
           gap: 12,
-          padding: "8px 12px",
-          height: "88px",
+          padding: "4px 12px",
+          height: "72px",
           position: "relative",
         }}>
           {/* Team 1 */}
@@ -308,7 +308,7 @@ export const PremiumBettingCard = ({
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            padding: "4px 12px 6px 12px",
+            padding: "2px 12px 4px 12px",
           }}>
             <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 15, color: isExpired ? "#6B7280" : "#FFFFFF", flex: 1, paddingRight: 8, lineHeight: 1.2 }}>
               {betChoice}
@@ -324,7 +324,7 @@ export const PremiumBettingCard = ({
 
         {/* Line 4: buttons */}
         {!isLocked && (
-          <div style={{ display: "flex", gap: 8, padding: "0 12px 12px 12px" }}>
+          <div style={{ display: "flex", gap: 8, padding: "0 12px 8px 12px" }}>
             <button
               onClick={isExpired ? undefined : onAddTip}
               disabled={isExpired}

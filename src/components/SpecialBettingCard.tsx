@@ -149,7 +149,7 @@ export const SpecialBettingCard = ({
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          padding: "10px 12px 6px 12px",
+          padding: "6px 12px 4px 12px",
         }}>
           <div style={{ display: "flex", alignItems: "center", gap: 4, minWidth: 70 }}>
             {isLocked ? (
@@ -191,8 +191,8 @@ export const SpecialBettingCard = ({
             flexDirection: "column" as const,
             alignItems: "center",
             justifyContent: "center",
-            padding: "8px 12px",
-            height: "88px",
+            padding: "4px 12px",
+            height: "72px",
             position: "relative",
             gap: 4,
           }}>
@@ -211,7 +211,7 @@ export const SpecialBettingCard = ({
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            padding: "4px 12px 6px 12px",
+            padding: "2px 12px 4px 12px",
           }}>
             <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 15, color: isExpired ? "#6B7280" : "#FFFFFF", flex: 1, paddingRight: 8, lineHeight: 1.2 }}>
               {type === "ALAVANCAGEM" ? "Alavancagem do Dia" : "Múltipla do Dia"}
@@ -227,7 +227,7 @@ export const SpecialBettingCard = ({
 
         {/* Line 4: buttons */}
         {!isLocked && (
-          <div style={{ display: "flex", gap: 8, padding: "0 12px 12px 12px" }}>
+          <div style={{ display: "flex", gap: 8, padding: "0 12px 8px 12px" }}>
             <button
               onClick={isExpired ? undefined : onAddTip}
               disabled={isExpired}
