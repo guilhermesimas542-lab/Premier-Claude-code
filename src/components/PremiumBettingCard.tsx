@@ -252,44 +252,9 @@ export const PremiumBettingCard = ({
           alignItems: "center",
           justifyContent: "center",
           gap: 12,
-          padding: "6px 12px",
+          padding: isMultiple ? "2px 12px 0 12px" : "6px 12px",
         }}>
-          {/* Team 1 */}
-          <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 4 }}>
-            <div style={{ width: 60, height: 60, borderRadius: "50%", border: "1.5px solid rgba(255,255,255,0.15)", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(255,255,255,0.05)" }}>
-              {team1.logo ? (
-                <img src={team1.logo} alt={team1.name} className={isExpired ? "opacity-50" : ""} style={{ width: 42, height: 42, objectFit: "contain" }} />
-              ) : team1.shirt ? (
-                <ShirtIcon variant={team1.shirt.variant} primaryColor={team1.shirt.primaryColor} secondaryColor={team1.shirt.secondaryColor} size={44} />
-              ) : (
-                <ShirtIcon variant="solid" primaryColor="#6B7280" size={44} />
-              )}
-            </div>
-            <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 13, color: isExpired ? "#6B7280" : "#FFFFFF", textAlign: "center" as const, maxWidth: 80, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
-              {team1.name}
-            </span>
-          </div>
-
-          {/* VS */}
-          <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600, fontSize: 12, color: "#94A3B8" }}>VS</span>
-
-          {/* Team 2 */}
-          <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 4 }}>
-            <div style={{ width: 60, height: 60, borderRadius: "50%", border: "1.5px solid rgba(255,255,255,0.15)", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(255,255,255,0.05)" }}>
-              {team2.logo ? (
-                <img src={team2.logo} alt={team2.name} className={isExpired ? "opacity-50" : ""} style={{ width: 42, height: 42, objectFit: "contain" }} />
-              ) : team2.shirt ? (
-                <ShirtIcon variant={team2.shirt.variant} primaryColor={team2.shirt.primaryColor} secondaryColor={team2.shirt.secondaryColor} size={44} />
-              ) : (
-                <ShirtIcon variant="solid" primaryColor="#6B7280" size={44} />
-              )}
-            </div>
-            <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 13, color: isExpired ? "#6B7280" : "#FFFFFF", textAlign: "center" as const, maxWidth: 80, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
-              {team2.name}
-            </span>
-          </div>
-        </div>
-
+...
         {/* Multiple bet label */}
         {isMultiple && !isExpired && !isLocked && (
           <div style={{ display: "flex", justifyContent: "center", marginBottom: 2 }}>
@@ -306,7 +271,7 @@ export const PremiumBettingCard = ({
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            padding: "4px 12px 6px 12px",
+            padding: isMultiple ? "2px 12px 4px 12px" : "4px 12px 6px 12px",
           }}>
             <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 15, color: isExpired ? "#6B7280" : "#FFFFFF", flex: 1, paddingRight: 8, lineHeight: 1.2 }}>
               {betChoice}
