@@ -193,6 +193,7 @@ export const SpecialBettingCard = ({
             justifyContent: "center",
             padding: "8px 12px",
             height: "88px",
+            position: "relative",
             gap: 4,
           }}>
             <div style={{ width: 40, height: 40, borderRadius: "50%", background: `${tierColor}1A`, display: "flex", alignItems: "center", justifyContent: "center", border: `1.5px solid ${tierColor}33` }}>

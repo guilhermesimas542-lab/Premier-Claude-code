@@ -231,11 +231,11 @@ export const PremiumBettingCard = ({
 
           {/* Badge — center */}
           {isExpired ? (
-            <div style={{ background: "rgba(75,85,99,0.25)", border: "1px solid rgba(75,85,99,0.5)", color: expiredColor, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 13, letterSpacing: "1.5px", textTransform: "uppercase" as const, padding: "8px 20px", borderRadius: 8 }}>
+            <div style={{ background: "rgba(75,85,99,0.25)", border: "1px solid rgba(75,85,99,0.5)", color: expiredColor, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 11, letterSpacing: "1px", textTransform: "uppercase" as const, padding: "2px 10px", borderRadius: 6 }}>
               EXPIRADA
             </div>
           ) : (
-            <div style={{ background: `${tierColor}26`, border: `1px solid ${tierColor}66`, color: tierColor, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 13, letterSpacing: "1.5px", textTransform: "uppercase" as const, padding: "8px 20px", borderRadius: 8 }}>
+            <div style={{ background: `${tierColor}26`, border: `1px solid ${tierColor}66`, color: tierColor, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 11, letterSpacing: "1px", textTransform: "uppercase" as const, padding: "2px 10px", borderRadius: 6 }}>
               {displayTier}
             </div>
           )}
