@@ -252,7 +252,9 @@ export const PremiumBettingCard = ({
           alignItems: "center",
           justifyContent: "center",
           gap: 12,
-          padding: "6px 12px",
+          padding: "8px 12px",
+          height: "88px",
+          position: "relative",
         }}>
           {/* Team 1 */}
           <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 4 }}>
@@ -292,7 +294,7 @@ export const PremiumBettingCard = ({
 
         {/* Multiple bet label */}
         {isMultiple && !isExpired && !isLocked && (
-          <div style={{ display: "flex", justifyContent: "center", marginBottom: 2 }}>
+          <div style={{ position: "absolute", bottom: "4px", left: "50%", transform: "translateX(-50%)" }}>
             <div style={{ display: "inline-flex", alignItems: "center", gap: 4, background: "rgba(124,58,237,0.15)", padding: "2px 8px", borderRadius: 999, border: "1px solid rgba(124,58,237,0.3)" }}>
               <Layers className="w-2.5 h-2.5 text-purple-400" />
               <span style={{ fontSize: 9, color: "#C084FC", fontWeight: 600 }}>Bilhete ({displaySelectionsCount})</span>
