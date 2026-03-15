@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Anchor, Gift, Clock, HelpCircle, BarChart3, Info, Lock } from "lucide-react";
+import { TrendingUp, Trophy, Clock, HelpCircle, BarChart3, Info, Lock } from "lucide-react";
 import { useState, useEffect } from "react";
 
 type SpecialCardType = "ALAVANCAGEM" | "ODDS_ALTAS";
