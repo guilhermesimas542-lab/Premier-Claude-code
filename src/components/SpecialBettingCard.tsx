@@ -101,7 +101,7 @@ export const SpecialBettingCard = ({
 
   return (
     <div
-      className="select-none relative flex flex-col w-full"
+      className="select-none relative flex flex-col w-full flex-1"
       style={{
         background: isExpired ? "#0A0F1A" : `${config.gradient}, #060D1E`,
         border: `1.5px solid ${isExpired ? expiredColor : tierColor}`,
@@ -142,7 +142,7 @@ export const SpecialBettingCard = ({
       )}
 
       {/* Content — 4-line compact layout */}
-      <div className="relative z-10 flex flex-col">
+      <div className="relative z-10 flex flex-col flex-1 justify-between">
 
         {/* Line 1: timer | badge | match time */}
         <div style={{
