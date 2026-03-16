@@ -178,6 +178,7 @@ const Sport = () => {
 
   const [tips, setTips] = useState<DisplayTip[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isPaidUser, setIsPaidUser] = useState(false);
 
   // Tick every second so expired tips disappear in real-time
   const [tick, setTick] = useState(0);
