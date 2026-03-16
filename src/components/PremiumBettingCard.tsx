@@ -294,7 +294,7 @@ export const PremiumBettingCard = ({
 
 
         {/* Line 3: recommendation + odd */}
-        {!isLocked && (
+        {!isLocked ? (
           <div style={{
             display: "flex",
             alignItems: "flex-end",
@@ -311,10 +311,12 @@ export const PremiumBettingCard = ({
               </span>
             </div>
           </div>
+        ) : (
+          <div style={{ height: 36 }} />
         )}
 
         {/* Line 4: buttons */}
-        {!isLocked && (
+        {!isLocked ? (
           <div style={{ display: "flex", gap: 8, padding: "0 10px 4px 10px" }}>
             <button
               onClick={isExpired ? undefined : onAddTip}
@@ -360,6 +362,8 @@ export const PremiumBettingCard = ({
               <BarChart3 className={`w-5 h-5 ${isExpired ? "text-gray-500" : "text-white/80"}`} />
             </button>
           </div>
+        ) : (
+          <div style={{ height: 42 }} />
         )}
       </div>
     </div>
