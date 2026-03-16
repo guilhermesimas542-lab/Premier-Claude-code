@@ -677,11 +677,6 @@ const Sport = () => {
                 key={tab.tier}
                 onClick={() => {
                   if (!hasContent) return;
-                  if (!userHasAccess && hasContent) {
-                    // Find a locked entry from this tier to trigger locked click
-                    const lockedEntry = tipsByTier[tab.tier]?.find(t => t.display_status === "locked");
-                    if (lockedEntry) { handleLockedClick(lockedEntry); return; }
-                  }
                   scrollToTier(tab.tier);
                 }}
                 style={
