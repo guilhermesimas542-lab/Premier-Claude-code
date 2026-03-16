@@ -201,48 +201,52 @@ export default function AdminTipsCreate() {
           </div>
         </div>
 
-        {/* Time 1 */}
-        <div className="border border-border rounded-lg p-3 space-y-3">
-          <span className="text-xs text-muted-foreground font-semibold uppercase">Time 1</span>
-          <TeamAutocomplete
-            label="Time 1"
-            value={form.team1_name}
-            logoUrl={form.team1_logo_url}
-            onChange={(name, logoUrl) => setForm(f => ({ ...f, team1_name: name, team1_logo_url: logoUrl }))}
-          />
+        {/* Categoria */}
+        <div>
+          <label className="text-xs text-muted-foreground">Categoria *</label>
+          <Select value={form.categoria} onValueChange={(v) => set("categoria", v)}>
+            <SelectTrigger className="bg-muted/30 border-border"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="free">Free</SelectItem>
+              <SelectItem value="basico">Básico</SelectItem>
+              <SelectItem value="pro">Pro</SelectItem>
+              <SelectItem value="ultra">Ultra</SelectItem>
+              <SelectItem value="alavancagem">Alavancagem</SelectItem>
+              <SelectItem value="odds_altas">Odds Altas</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
+
+        {/* Time 1 */}
+        {!isSpecialCategory && (
+          <div className="border border-border rounded-lg p-3 space-y-3">
+            <span className="text-xs text-muted-foreground font-semibold uppercase">Time 1</span>
+            <TeamAutocomplete
+              label="Time 1"
+              value={form.team1_name}
+              logoUrl={form.team1_logo_url}
+              onChange={(name, logoUrl) => setForm(f => ({ ...f, team1_name: name, team1_logo_url: logoUrl }))}
+            />
+          </div>
+        )}
 
         {/* Time 2 */}
-        <div className="border border-border rounded-lg p-3 space-y-3">
-          <span className="text-xs text-muted-foreground font-semibold uppercase">Time 2</span>
-          <TeamAutocomplete
-            label="Time 2"
-            value={form.team2_name}
-            logoUrl={form.team2_logo_url}
-            onChange={(name, logoUrl) => setForm(f => ({ ...f, team2_name: name, team2_logo_url: logoUrl }))}
-          />
-        </div>
+        {!isSpecialCategory && (
+          <div className="border border-border rounded-lg p-3 space-y-3">
+            <span className="text-xs text-muted-foreground font-semibold uppercase">Time 2</span>
+            <TeamAutocomplete
+              label="Time 2"
+              value={form.team2_name}
+              logoUrl={form.team2_logo_url}
+              onChange={(name, logoUrl) => setForm(f => ({ ...f, team2_name: name, team2_logo_url: logoUrl }))}
+            />
+          </div>
+        )}
 
-        {/* Categoria, Odd */}
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="text-xs text-muted-foreground">Categoria *</label>
-            <Select value={form.categoria} onValueChange={(v) => set("categoria", v)}>
-              <SelectTrigger className="bg-muted/30 border-border"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="free">Free</SelectItem>
-                <SelectItem value="basico">Básico</SelectItem>
-                <SelectItem value="pro">Pro</SelectItem>
-                <SelectItem value="ultra">Ultra</SelectItem>
-                <SelectItem value="alavancagem">Alavancagem</SelectItem>
-                <SelectItem value="odds_altas">Odds Altas</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <label className="text-xs text-muted-foreground">Odd *</label>
-            <Input type="number" step="0.01" value={form.odd} onChange={(e) => set("odd", e.target.value)} className="bg-muted/30 border-border" />
-          </div>
+        {/* Odd */}
+        <div>
+          <label className="text-xs text-muted-foreground">Odd *</label>
+          <Input type="number" step="0.01" value={form.odd} onChange={(e) => set("odd", e.target.value)} className="bg-muted/30 border-border" />
         </div>
 
         {!isSpecialCategory && (
