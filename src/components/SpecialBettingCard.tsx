@@ -191,8 +191,8 @@ export const SpecialBettingCard = ({
             flexDirection: "column" as const,
             alignItems: "center",
             justifyContent: "center",
-            padding: "4px 10px",
-            height: "72px",
+            padding: "6px 10px 2px 10px",
+            height: "82px",
             position: "relative",
             gap: 4,
           }}>
