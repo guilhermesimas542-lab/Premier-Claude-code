@@ -149,7 +149,7 @@ export const SpecialBettingCard = ({
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          padding: "6px 10px 4px 10px",
+          padding: "2px 10px 2px 10px",
         }}>
           <div style={{ display: "flex", alignItems: "center", gap: 4, minWidth: 70 }}>
             {isLocked ? (
@@ -191,13 +191,13 @@ export const SpecialBettingCard = ({
             flexDirection: "column" as const,
             alignItems: "center",
             justifyContent: "center",
-            padding: "4px 10px",
-            height: "72px",
+            padding: "6px 10px 2px 10px",
+            height: "82px",
             position: "relative",
             gap: 4,
           }}>
-            <div style={{ width: 40, height: 40, borderRadius: "50%", background: `${tierColor}1A`, display: "flex", alignItems: "center", justifyContent: "center", border: `1.5px solid ${tierColor}33` }}>
-              <IconComponent style={{ width: 24, height: 24, color: isExpired ? "#6B7280" : tierColor }} />
+            <div style={{ width: 52, height: 52, borderRadius: "50%", background: `${tierColor}1A`, display: "flex", alignItems: "center", justifyContent: "center", border: `1.5px solid ${tierColor}33` }}>
+              <IconComponent style={{ width: 28, height: 28, color: isExpired ? "#6B7280" : tierColor }} />
             </div>
             <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: "#94A3B8" }}>
               {config.subtitle}
@@ -209,11 +209,11 @@ export const SpecialBettingCard = ({
         {!isLocked && (
           <div style={{
             display: "flex",
-            alignItems: "center",
+            alignItems: "flex-end",
             justifyContent: "space-between",
-            padding: "2px 10px 4px 10px",
+            padding: "0px 10px 4px 10px",
           }}>
-            <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 15, color: isExpired ? "#6B7280" : "#FFFFFF", flex: 1, paddingRight: 8, lineHeight: 1.2 }}>
+            <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 17, color: isExpired ? "#6B7280" : "#FFFFFF", flex: 1, paddingRight: 8, lineHeight: 1.2 }}>
               {type === "ALAVANCAGEM" ? "Alavancagem do Dia" : "Múltipla do Dia"}
             </span>
             <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "flex-end" }}>
@@ -227,7 +227,7 @@ export const SpecialBettingCard = ({
 
         {/* Line 4: buttons */}
         {!isLocked && (
-          <div style={{ display: "flex", gap: 8, padding: "0 10px 8px 10px" }}>
+          <div style={{ display: "flex", gap: 8, padding: "0 10px 4px 10px" }}>
             <button
               onClick={isExpired ? undefined : onAddTip}
               disabled={isExpired}
