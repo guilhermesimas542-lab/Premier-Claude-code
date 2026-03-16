@@ -149,7 +149,7 @@ export const SpecialBettingCard = ({
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          padding: "6px 10px 4px 10px",
+          padding: "2px 10px 2px 10px",
         }}>
           <div style={{ display: "flex", alignItems: "center", gap: 4, minWidth: 70 }}>
             {isLocked ? (
