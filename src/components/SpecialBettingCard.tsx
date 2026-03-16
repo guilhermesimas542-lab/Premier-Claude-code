@@ -207,10 +207,10 @@ export const SpecialBettingCard = ({
           <div style={{
             display: "flex",
             alignItems: "flex-end",
-            justifyContent: "space-between",
+            justifyContent: "center",
             padding: "0px 10px 4px 10px",
           }}>
-            <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 17, color: isExpired ? "#6B7280" : "#FFFFFF", flex: 1, paddingRight: 8, lineHeight: 1.2 }}>
+            <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 17, color: isExpired ? "#6B7280" : "#FFFFFF", textAlign: "center" as const, lineHeight: 1.2 }}>
               {type === "ALAVANCAGEM" ? "Alavancagem do Dia" : "Múltipla do Dia"}
             </span>
             <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "flex-end" }}>
