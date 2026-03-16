@@ -122,7 +122,7 @@ export const SpecialBettingCard = ({
 
       {/* Locked Overlay */}
       {isLocked && !isExpired && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3" style={{ zIndex: 20, borderRadius: 16 }}>
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3" style={{ zIndex: 20, borderRadius: 16, paddingTop: 16 }}>
           {lockedLabel && (
             <span style={{ color: "rgba(255,255,255,0.8)", fontSize: 13, fontWeight: 600, background: "rgba(0,0,0,0.8)", padding: "4px 10px", borderRadius: 6 }}>
               Exclusivo do {lockedLabel}
