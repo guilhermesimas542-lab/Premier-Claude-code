@@ -208,7 +208,7 @@ export const PremiumBettingCard = ({
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          padding: "6px 10px 4px 10px",
+          padding: "4px 10px 2px 10px",
         }}>
           {/* Timer */}
           <div style={{ display: "flex", alignItems: "center", gap: 4, width: 70, flexShrink: 0 }}>
@@ -253,21 +253,21 @@ export const PremiumBettingCard = ({
           justifyContent: "center",
           gap: 12,
           padding: "4px 10px",
-          height: "72px",
+          height: "84px",
           position: "relative",
         }}>
           {/* Team 1 */}
           <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 4 }}>
-            <div style={{ width: 52, height: 52, borderRadius: "50%", border: "1.5px solid rgba(255,255,255,0.15)", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(255,255,255,0.05)" }}>
+            <div style={{ width: 58, height: 58, borderRadius: "50%", border: "1.5px solid rgba(255,255,255,0.15)", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(255,255,255,0.05)" }}>
               {team1.logo ? (
-                <img src={team1.logo} alt={team1.name} className={isExpired ? "opacity-50" : ""} style={{ width: 42, height: 42, objectFit: "contain" }} />
+                <img src={team1.logo} alt={team1.name} className={isExpired ? "opacity-50" : ""} style={{ width: 48, height: 48, objectFit: "contain" }} />
               ) : team1.shirt ? (
-                <ShirtIcon variant={team1.shirt.variant} primaryColor={team1.shirt.primaryColor} secondaryColor={team1.shirt.secondaryColor} size={44} />
+                <ShirtIcon variant={team1.shirt.variant} primaryColor={team1.shirt.primaryColor} secondaryColor={team1.shirt.secondaryColor} size={50} />
               ) : (
-                <ShirtIcon variant="solid" primaryColor="#6B7280" size={44} />
+                <ShirtIcon variant="solid" primaryColor="#6B7280" size={50} />
               )}
             </div>
-            <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 15, color: isExpired ? "#6B7280" : "#FFFFFF", textAlign: "center" as const, maxWidth: 80, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const, marginTop: 4 }}>
+            <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 16, color: isExpired ? "#6B7280" : "#FFFFFF", textAlign: "center" as const, maxWidth: 80, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const, marginTop: 7 }}>
               {team1.name}
             </span>
           </div>
@@ -277,16 +277,16 @@ export const PremiumBettingCard = ({
 
           {/* Team 2 */}
           <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 4 }}>
-            <div style={{ width: 52, height: 52, borderRadius: "50%", border: "1.5px solid rgba(255,255,255,0.15)", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(255,255,255,0.05)" }}>
+            <div style={{ width: 58, height: 58, borderRadius: "50%", border: "1.5px solid rgba(255,255,255,0.15)", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(255,255,255,0.05)" }}>
               {team2.logo ? (
-                <img src={team2.logo} alt={team2.name} className={isExpired ? "opacity-50" : ""} style={{ width: 42, height: 42, objectFit: "contain" }} />
+                <img src={team2.logo} alt={team2.name} className={isExpired ? "opacity-50" : ""} style={{ width: 48, height: 48, objectFit: "contain" }} />
               ) : team2.shirt ? (
-                <ShirtIcon variant={team2.shirt.variant} primaryColor={team2.shirt.primaryColor} secondaryColor={team2.shirt.secondaryColor} size={44} />
+                <ShirtIcon variant={team2.shirt.variant} primaryColor={team2.shirt.primaryColor} secondaryColor={team2.shirt.secondaryColor} size={50} />
               ) : (
-                <ShirtIcon variant="solid" primaryColor="#6B7280" size={44} />
+                <ShirtIcon variant="solid" primaryColor="#6B7280" size={50} />
               )}
             </div>
-            <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 15, color: isExpired ? "#6B7280" : "#FFFFFF", textAlign: "center" as const, maxWidth: 80, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const, marginTop: 4 }}>
+            <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 16, color: isExpired ? "#6B7280" : "#FFFFFF", textAlign: "center" as const, maxWidth: 80, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const, marginTop: 7 }}>
               {team2.name}
             </span>
           </div>
@@ -308,7 +308,7 @@ export const PremiumBettingCard = ({
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            padding: "2px 10px 2px 10px",
+            padding: "0px 10px 2px 10px",
           }}>
             <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 15, color: isExpired ? "#6B7280" : "#FFFFFF", flex: 1, paddingRight: 8, lineHeight: 1.2 }}>
               {betChoice}
@@ -324,7 +324,7 @@ export const PremiumBettingCard = ({
 
         {/* Line 4: buttons */}
         {!isLocked && (
-          <div style={{ display: "flex", gap: 8, padding: "0 10px 8px 10px" }}>
+          <div style={{ display: "flex", gap: 8, padding: "0 10px 4px 10px" }}>
             <button
               onClick={isExpired ? undefined : onAddTip}
               disabled={isExpired}
