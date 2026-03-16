@@ -209,9 +209,9 @@ export const SpecialBettingCard = ({
         {!isLocked && (
           <div style={{
             display: "flex",
-            alignItems: "center",
+            alignItems: "flex-end",
             justifyContent: "space-between",
-            padding: "2px 10px 4px 10px",
+            padding: "0px 10px 4px 10px",
           }}>
             <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 15, color: isExpired ? "#6B7280" : "#FFFFFF", flex: 1, paddingRight: 8, lineHeight: 1.2 }}>
               {type === "ALAVANCAGEM" ? "Alavancagem do Dia" : "Múltipla do Dia"}
