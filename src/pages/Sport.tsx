@@ -662,13 +662,13 @@ const Sport = () => {
             const count = tipsByTier[tab.tier]?.length || 0;
             const hasContent = count > 0;
             const tabColor = TIER_TAB_COLORS[tab.colorKey] || "#94A3B8";
+            const isPaidTier = ["BÁSICO", "PRO", "ULTRA"].includes(tab.tier);
 
             // Check if user has access to this tier
             const tierKey = tab.colorKey;
             const userHasAccess = tierKey === "free"
               || (tierKey === "alavancagem" || tierKey === "odds_altas")
               || (mockUser && (() => {
-                // Derive from tips — if there's any unlocked entry in this tier, user has access
                 return tipsByTier[tab.tier]?.some(t => t.display_status === "unlocked");
               })());
 
@@ -676,12 +676,19 @@ const Sport = () => {
               <button
                 key={tab.tier}
                 onClick={() => {
-                  if (!hasContent) return;
-                  scrollToTier(tab.tier);
+                  if (hasContent) {
+                    scrollToTier(tab.tier);
+                  } else if (isPaidTier) {
+                    // Paid tier with no entries today — open quiz via handleLockedClick
+                    const lockedEntry = Object.values(tipsByTier).flat().find(t => t.display_status === "locked");
+                    if (lockedEntry) handleLockedClick(lockedEntry);
+                  }
                 }}
                 style={
-                  !hasContent
+                  (!hasContent && !isPaidTier)
                     ? { background: "transparent", border: "1.5px solid rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.25)", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 11, padding: "4px 8px", borderRadius: 20, cursor: "not-allowed", whiteSpace: "nowrap" as const, flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 4 }
+                    : (!hasContent && isPaidTier)
+                      ? { background: "transparent", border: "1.5px solid rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.4)", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 11, padding: "4px 8px", borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" as const, opacity: 0.7, flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 4 }
                     : isActive
                       ? { background: `${tabColor}26`, border: `1.5px solid ${tabColor}`, color: tabColor, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 11, padding: "4px 8px", borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" as const, flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 4 }
                       : !userHasAccess
@@ -691,7 +698,7 @@ const Sport = () => {
               >
                 <span className="sm:hidden">{tab.labelShort}</span>
                 <span className="hidden sm:inline">{tab.label}</span>
-                {hasContent && !userHasAccess && <Lock className="w-2.5 h-2.5" style={{ opacity: 0.7 }} />}
+                {(hasContent && !userHasAccess || !hasContent && isPaidTier) && <Lock className="w-2.5 h-2.5" style={{ opacity: 0.7 }} />}
                 {hasContent && <span style={{ fontSize: 11, opacity: 0.7 }}>({count})</span>}
               </button>
             );
