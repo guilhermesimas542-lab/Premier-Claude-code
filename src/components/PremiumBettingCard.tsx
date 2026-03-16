@@ -273,7 +273,7 @@ export const PremiumBettingCard = ({
           </div>
 
           {/* VS */}
-          <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600, fontSize: 12, color: "#94A3B8", marginTop: 28 }}>VS</span>
+          <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 16, color: "#94A3B8", marginTop: 28 }}>VS</span>
 
           {/* Team 2 */}
           <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 4 }}>
