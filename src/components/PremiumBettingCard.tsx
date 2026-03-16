@@ -308,7 +308,7 @@ export const PremiumBettingCard = ({
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            padding: "2px 10px 2px 10px",
+            padding: "0px 10px 2px 10px",
           }}>
             <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 15, color: isExpired ? "#6B7280" : "#FFFFFF", flex: 1, paddingRight: 8, lineHeight: 1.2 }}>
               {betChoice}
