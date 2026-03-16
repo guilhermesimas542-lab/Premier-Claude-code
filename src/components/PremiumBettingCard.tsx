@@ -294,7 +294,7 @@ export const PremiumBettingCard = ({
 
 
         {/* Line 3: recommendation + odd */}
-        {!isLocked && (
+        {!isLocked ? (
           <div style={{
             display: "flex",
             alignItems: "flex-end",
@@ -311,6 +311,8 @@ export const PremiumBettingCard = ({
               </span>
             </div>
           </div>
+        ) : (
+          <div style={{ height: 36 }} />
         )}
 
         {/* Line 4: buttons */}
