@@ -278,7 +278,7 @@ const Sport = () => {
       const processed: DisplayTip[] = rawEntries
         .filter((e: ContentEntry) => {
           // Paid users don't see free-tier entries (unless addon)
-          if (isPaidUser && e.tier_required === "free" && !e.addon_required) return false;
+          if (_isPaidUser && e.tier_required === "free" && !e.addon_required) return false;
           return true;
         })
         .map((e: ContentEntry) => ({
