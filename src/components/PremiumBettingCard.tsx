@@ -267,7 +267,7 @@ export const PremiumBettingCard = ({
                 <ShirtIcon variant="solid" primaryColor="#6B7280" size={44} />
               )}
             </div>
-            <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 13, color: isExpired ? "#6B7280" : "#FFFFFF", textAlign: "center" as const, maxWidth: 80, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
+            <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 15, color: isExpired ? "#6B7280" : "#FFFFFF", textAlign: "center" as const, maxWidth: 80, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const, marginTop: 4 }}>
               {team1.name}
             </span>
           </div>
@@ -286,7 +286,7 @@ export const PremiumBettingCard = ({
                 <ShirtIcon variant="solid" primaryColor="#6B7280" size={44} />
               )}
             </div>
-            <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 13, color: isExpired ? "#6B7280" : "#FFFFFF", textAlign: "center" as const, maxWidth: 80, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
+            <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 15, color: isExpired ? "#6B7280" : "#FFFFFF", textAlign: "center" as const, maxWidth: 80, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const, marginTop: 4 }}>
               {team2.name}
             </span>
           </div>
@@ -308,14 +308,14 @@ export const PremiumBettingCard = ({
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            padding: "2px 10px 4px 10px",
+            padding: "2px 10px 2px 10px",
           }}>
             <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 15, color: isExpired ? "#6B7280" : "#FFFFFF", flex: 1, paddingRight: 8, lineHeight: 1.2 }}>
               {betChoice}
             </span>
             <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "flex-end" }}>
               <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 9, color: "#94A3B8" }}>Odd</span>
-              <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: 22, color: isExpired ? "#6B7280" : tierColor, lineHeight: 1 }}>
+              <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: 20, color: isExpired ? "#6B7280" : tierColor, lineHeight: 1 }}>
                 {odds.toFixed(2)}
               </span>
             </div>
