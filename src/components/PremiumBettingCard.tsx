@@ -253,7 +253,7 @@ export const PremiumBettingCard = ({
           justifyContent: "center",
           gap: 12,
           padding: "4px 10px",
-          height: "72px",
+          height: "84px",
           position: "relative",
         }}>
           {/* Team 1 */}
