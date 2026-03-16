@@ -264,7 +264,7 @@ export const PremiumBettingCard = ({
               ) : team1.shirt ? (
                 <ShirtIcon variant={team1.shirt.variant} primaryColor={team1.shirt.primaryColor} secondaryColor={team1.shirt.secondaryColor} size={50} />
               ) : (
-                <ShirtIcon variant="solid" primaryColor="#6B7280" size={44} />
+                <ShirtIcon variant="solid" primaryColor="#6B7280" size={50} />
               )}
             </div>
             <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 15, color: isExpired ? "#6B7280" : "#FFFFFF", textAlign: "center" as const, maxWidth: 80, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const, marginTop: 4 }}>
