@@ -178,6 +178,7 @@ const Sport = () => {
 
   const [tips, setTips] = useState<DisplayTip[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isPaidUser, setIsPaidUser] = useState(false);
 
   // Tick every second so expired tips disappear in real-time
   const [tick, setTick] = useState(0);
@@ -251,7 +252,8 @@ const Sport = () => {
       }
 
       const allowedTiers = getAllowedTiers(userTier);
-      const isPaidUser = userTier !== "free";
+      const _isPaidUser = userTier !== "free";
+      setIsPaidUser(_isPaidUser);
       const today = getTodayInBrazil();
       console.log("[Sport] getTodayInBrazil() =", today, "| UTC now =", new Date().toISOString());
 
@@ -276,7 +278,7 @@ const Sport = () => {
       const processed: DisplayTip[] = rawEntries
         .filter((e: ContentEntry) => {
           // Paid users don't see free-tier entries (unless addon)
-          if (isPaidUser && e.tier_required === "free" && !e.addon_required) return false;
+          if (_isPaidUser && e.tier_required === "free" && !e.addon_required) return false;
           return true;
         })
         .map((e: ContentEntry) => ({
@@ -653,7 +655,9 @@ const Sport = () => {
       <main className="w-full max-w-7xl mx-auto px-4 pt-2 pb-6 space-y-2 overflow-x-hidden">
         {/* Tier Tabs */}
         <div className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-2 px-1 sm:justify-center" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
-          {TIER_TABS.map((tab) => {
+          {TIER_TABS
+            .filter(tab => !(isPaidUser && tab.tier === "GRÁTIS"))
+            .map((tab) => {
             const isActive = activeTierHighlight === tab.tier;
             const count = tipsByTier[tab.tier]?.length || 0;
             const hasContent = count > 0;
@@ -682,12 +686,12 @@ const Sport = () => {
                 }}
                 style={
                   !hasContent
-                    ? { background: "transparent", border: "1.5px solid rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.25)", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 13, padding: "6px 14px", borderRadius: 20, cursor: "not-allowed", whiteSpace: "nowrap" as const, flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 4 }
+                    ? { background: "transparent", border: "1.5px solid rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.25)", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 11, padding: "4px 8px", borderRadius: 20, cursor: "not-allowed", whiteSpace: "nowrap" as const, flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 4 }
                     : isActive
-                      ? { background: `${tabColor}26`, border: `1.5px solid ${tabColor}`, color: tabColor, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 13, padding: "6px 14px", borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" as const, flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 4 }
+                      ? { background: `${tabColor}26`, border: `1.5px solid ${tabColor}`, color: tabColor, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 11, padding: "4px 8px", borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" as const, flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 4 }
                       : !userHasAccess
-                        ? { background: "transparent", border: "1.5px solid rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.4)", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 13, padding: "6px 14px", borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" as const, opacity: 0.7, flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 4 }
-                        : { background: "transparent", border: "1.5px solid rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.5)", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 13, padding: "6px 14px", borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" as const, flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 4 }
+                        ? { background: "transparent", border: "1.5px solid rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.4)", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 11, padding: "4px 8px", borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" as const, opacity: 0.7, flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 4 }
+                        : { background: "transparent", border: "1.5px solid rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.5)", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 11, padding: "4px 8px", borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" as const, flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 4 }
                 }
               >
                 <span className="sm:hidden">{tab.labelShort}</span>
