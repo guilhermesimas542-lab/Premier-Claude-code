@@ -151,7 +151,7 @@ export const SpecialBettingCard = ({
           justifyContent: "space-between",
           padding: "2px 10px 2px 10px",
         }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 4, minWidth: 70 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 4, width: 70, flexShrink: 0 }}>
             {isLocked ? (
               <span style={{ fontSize: 12, color: "transparent" }}>—</span>
             ) : countdown === "AO VIVO" ? (
@@ -179,7 +179,7 @@ export const SpecialBettingCard = ({
             </div>
           )}
 
-          <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 14, color: isExpired ? "#6B7280" : "#FFFFFF", minWidth: 40, textAlign: "right" as const }}>
+          <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 14, color: isExpired ? "#6B7280" : "#FFFFFF", width: 70, flexShrink: 0, textAlign: "right" as const }}>
             {matchDate || "—"}
           </span>
         </div>
@@ -210,7 +210,7 @@ export const SpecialBettingCard = ({
             justifyContent: "space-between",
             padding: "0px 10px 4px 10px",
           }}>
-            <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 17, color: isExpired ? "#6B7280" : "#FFFFFF", flex: 1, textAlign: "center" as const, paddingRight: 8, lineHeight: 1.2 }}>
+            <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 17, color: isExpired ? "#6B7280" : "#FFFFFF", flex: 1, paddingRight: 8, lineHeight: 1.2 }}>
               {type === "ALAVANCAGEM" ? "Alavancagem do Dia" : "Múltipla do Dia"}
             </span>
             <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "flex-end" }}>
