@@ -281,7 +281,7 @@ export const PremiumBettingCard = ({
               {team2.logo ? (
                 <img src={team2.logo} alt={team2.name} className={isExpired ? "opacity-50" : ""} style={{ width: 48, height: 48, objectFit: "contain" }} />
               ) : team2.shirt ? (
-                <ShirtIcon variant={team2.shirt.variant} primaryColor={team2.shirt.primaryColor} secondaryColor={team2.shirt.secondaryColor} size={44} />
+                <ShirtIcon variant={team2.shirt.variant} primaryColor={team2.shirt.primaryColor} secondaryColor={team2.shirt.secondaryColor} size={50} />
               ) : (
                 <ShirtIcon variant="solid" primaryColor="#6B7280" size={44} />
               )}
