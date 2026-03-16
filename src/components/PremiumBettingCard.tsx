@@ -260,7 +260,7 @@ export const PremiumBettingCard = ({
           <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 4 }}>
             <div style={{ width: 58, height: 58, borderRadius: "50%", border: "1.5px solid rgba(255,255,255,0.15)", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(255,255,255,0.05)" }}>
               {team1.logo ? (
-                <img src={team1.logo} alt={team1.name} className={isExpired ? "opacity-50" : ""} style={{ width: 42, height: 42, objectFit: "contain" }} />
+                <img src={team1.logo} alt={team1.name} className={isExpired ? "opacity-50" : ""} style={{ width: 48, height: 48, objectFit: "contain" }} />
               ) : team1.shirt ? (
                 <ShirtIcon variant={team1.shirt.variant} primaryColor={team1.shirt.primaryColor} secondaryColor={team1.shirt.secondaryColor} size={44} />
               ) : (
