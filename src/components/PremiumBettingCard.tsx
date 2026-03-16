@@ -249,11 +249,11 @@ export const PremiumBettingCard = ({
         {/* Line 2: shields */}
         <div style={{
           display: "flex",
-          alignItems: "center",
+          alignItems: "flex-start",
           justifyContent: "center",
           gap: 12,
-          padding: "4px 10px",
-          height: "78px",
+          padding: "6px 10px 2px 10px",
+          height: "82px",
           position: "relative",
         }}>
           {/* Team 1 */}
