@@ -151,7 +151,7 @@ export const SpecialBettingCard = ({
           justifyContent: "space-between",
           padding: "2px 10px 2px 10px",
         }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 4, minWidth: 70 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 4, width: 70, flexShrink: 0 }}>
             {isLocked ? (
               <span style={{ fontSize: 12, color: "transparent" }}>—</span>
             ) : countdown === "AO VIVO" ? (
