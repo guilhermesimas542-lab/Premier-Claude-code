@@ -200,34 +200,7 @@ export const SpecialBettingCard = ({
               <IconComponent style={{ width: 28, height: 28, color: isExpired ? "#6B7280" : tierColor }} />
             </div>
           </div>
-        ) : (
-          <div style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            height: 82,
-            padding: "6px 10px 2px 10px",
-            filter: "saturate(0)",
-            opacity: 0.4
-          }}>
-            <div style={{
-              width: 52,
-              height: 52,
-              borderRadius: "50%",
-              background: "rgba(255,255,255,0.1)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              border: "1.5px solid rgba(255,255,255,0.2)"
-            }}>
-              {type === "ALAVANCAGEM"
-                ? <TrendingUp style={{ width: 28, height: 28, color: "#fff" }} />
-                : <Trophy style={{ width: 28, height: 28, color: "#fff" }} />
-              }
-            </div>
-          </div>
-        )}
+        ) : null}
 
         {/* Line 3: recommendation + odd */}
         {!isLocked ? (
