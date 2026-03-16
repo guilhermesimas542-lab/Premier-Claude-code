@@ -185,7 +185,7 @@ export const SpecialBettingCard = ({
         </div>
 
         {/* Line 2: central icon */}
-        {!isLocked && (
+        {!isLocked ? (
           <div style={{
             display: "flex",
             flexDirection: "column" as const,
@@ -200,6 +200,8 @@ export const SpecialBettingCard = ({
               <IconComponent style={{ width: 28, height: 28, color: isExpired ? "#6B7280" : tierColor }} />
             </div>
           </div>
+        ) : (
+          <div style={{ height: 82 }} />
         )}
 
         {/* Line 3: recommendation + odd */}
