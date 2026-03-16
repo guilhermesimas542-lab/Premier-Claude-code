@@ -196,8 +196,8 @@ export const SpecialBettingCard = ({
             position: "relative",
             gap: 4,
           }}>
-            <div style={{ width: 40, height: 40, borderRadius: "50%", background: `${tierColor}1A`, display: "flex", alignItems: "center", justifyContent: "center", border: `1.5px solid ${tierColor}33` }}>
-              <IconComponent style={{ width: 24, height: 24, color: isExpired ? "#6B7280" : tierColor }} />
+            <div style={{ width: 52, height: 52, borderRadius: "50%", background: `${tierColor}1A`, display: "flex", alignItems: "center", justifyContent: "center", border: `1.5px solid ${tierColor}33` }}>
+              <IconComponent style={{ width: 28, height: 28, color: isExpired ? "#6B7280" : tierColor }} />
             </div>
             <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: "#94A3B8" }}>
               {config.subtitle}
