@@ -148,6 +148,17 @@ Deno.serve(async (req) => {
       productIds = products.map((p) => (p.Id ?? p.id) as string).filter(Boolean);
       productNames = products.map((p) => (p.Name ?? p.name ?? '') as string).filter(Boolean);
 
+      // Fallback: Subscription_Product_Access envia Data.Product (singular)
+      if (productIds.length === 0) {
+        const singleProduct = (data.Product ?? data.product) as Record<string, unknown> | undefined;
+        if (singleProduct) {
+          const singleId = (singleProduct.Id ?? singleProduct.id) as string;
+          const singleName = (singleProduct.Name ?? singleProduct.name ?? '') as string;
+          if (singleId) productIds = [singleId];
+          if (singleName) productNames = [singleName];
+        }
+      }
+
       const purchase = (data.Purchase ?? data.purchase ?? {}) as Record<string, unknown>;
       const purchasePayment = (purchase.Payment ?? purchase.payment ?? {}) as Record<string, unknown>;
       paymentId = (purchase.PaymentId ?? purchasePayment.PaymentId ?? data.PaymentId ?? data.SubscriptionId ?? data.OrderId ?? `ll-${Date.now()}`) as string;
