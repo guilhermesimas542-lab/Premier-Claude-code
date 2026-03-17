@@ -116,7 +116,7 @@ export default function InteractivePreview({ form, previewMode }: Props) {
                   title: form.final_title || "Título Final",
                   benefits,
                   checkoutLink: form.checkout_link || null,
-                  checkoutLink2: (form as any).checkout_url_2 || null,
+                  checkoutLink2: form.checkout_link_2 || null,
                   onCheckout: () => {},
                   onClose: () => {},
                   config,
