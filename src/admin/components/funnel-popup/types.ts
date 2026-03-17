@@ -84,6 +84,7 @@ export const emptyForm: PopupFormState = {
   final_title: "",
   final_benefits: [],
   checkout_link: "",
+  checkout_link_2: "",
   final_template: "default",
   final_config: {},
   button_color: "",
