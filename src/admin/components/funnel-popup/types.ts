@@ -33,6 +33,7 @@ export interface PopupRow {
   final_title: string | null;
   final_benefits: string[] | null;
   checkout_link: string | null;
+  checkout_link_2?: string | null;
   final_template: string | null;
   final_config: Record<string, any> | null;
   created_at: string;
