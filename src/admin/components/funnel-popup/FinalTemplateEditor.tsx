@@ -49,8 +49,8 @@ export default function FinalTemplateEditor({ form, onChange }: Props) {
         </Select>
       </div>
 
-      {/* Subtitle — shared by all non-default templates */}
-      {template !== "default" && (
+      {/* Subtitle — shared by all non-default templates (except plan_comparison which manages its own order) */}
+      {template !== "default" && template !== "plan_comparison" && (
         <div>
           <Label className="text-gray-500 text-[11px]">Subtítulo</Label>
           <Input
@@ -62,8 +62,8 @@ export default function FinalTemplateEditor({ form, onChange }: Props) {
         </div>
       )}
 
-      {/* Button text — shared by all non-default */}
-      {template !== "default" && (
+      {/* Button text — shared by all non-default (except plan_comparison) */}
+      {template !== "default" && template !== "plan_comparison" && (
         <div>
           <Label className="text-gray-500 text-[11px]">Texto do Botão</Label>
           <Input
