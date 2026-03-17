@@ -215,7 +215,18 @@ export default function FinalTemplateEditor({ form, onChange }: Props) {
             </button>
           </div>
 
-          {/* 4. Cor do Texto dos Botões */}
+          {/* 4. Nota de Ancoragem */}
+          <div>
+            <Label className="text-gray-500 text-[11px]">Nota de Ancoragem (opcional)</Label>
+            <Input
+              placeholder="Ex: Menos de R$1,57 por dia"
+              value={(config as any).anchor_note || ""}
+              onChange={(e) => setConfig({ anchor_note: e.target.value } as any)}
+              className="bg-gray-800 border-gray-700 text-xs"
+            />
+          </div>
+
+          {/* 5. Cor do Texto dos Botões */}
           <div>
             <Label className="text-gray-500 text-[11px]">Cor do Texto dos Botões</Label>
             <div className="flex items-center gap-2">

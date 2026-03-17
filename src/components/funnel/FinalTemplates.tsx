@@ -259,6 +259,17 @@ export function TemplatePlanComparison({ title, benefits, checkoutLink, checkout
           </div>
         ))}
       </div>
+      {(config as any).anchor_note && (
+        <p style={{
+          textAlign: "center",
+          fontSize: "12px",
+          color: "rgba(255,255,255,0.5)",
+          marginBottom: "12px",
+          marginTop: "8px",
+        }}>
+          {(config as any).anchor_note}
+        </p>
+      )}
       <CTAButton text={config.button_text || "FAZER UPGRADE →"} url={checkoutLink} onClick={onCheckout} color={buttonColor} textColor={config.button_text_color} />
       {checkoutLink2 && (
         <button
