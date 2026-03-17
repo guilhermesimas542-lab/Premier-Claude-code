@@ -235,38 +235,13 @@ export function WelcomePopup({ house }: { house: HousePopupData | null }) {
 
   // No quiz: simple image popup with embedded checkout on click
   return (
-    <>
-      <Dialog open={open} onOpenChange={(o) => { if (!o) handleClose(); }}>
-        <DialogContent className="p-0 border-0 bg-transparent max-w-sm overflow-hidden">
-          <button
-            onClick={handleClose}
-            className="absolute top-2 right-2 z-10 bg-black/60 rounded-full p-1 text-white hover:bg-black/80 transition-colors"
-          >
-            <X className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => {
-              const link = popupData.button_url || popupData.checkout_link;
-              if (link) {
-                handleClose();
-                setCheckoutUrl(link);
-              }
-            }}
-            className="w-full cursor-pointer focus:outline-none"
-          >
-            <img src={popupData.image_url!} alt="Popup" className="w-full rounded-xl" />
-          </button>
-        </DialogContent>
-      </Dialog>
-
-      {checkoutUrl && (
-        <EmbeddedCheckout
-          open={!!checkoutUrl}
-          onClose={() => setCheckoutUrl(null)}
-          url={checkoutUrl}
-        />
-      )}
-    </>
+    <SimpleImagePopup
+      popupData={popupData}
+      open={open}
+      handleClose={handleClose}
+      checkoutUrl={checkoutUrl}
+      setCheckoutUrl={setCheckoutUrl}
+    />
   );
 }
 
