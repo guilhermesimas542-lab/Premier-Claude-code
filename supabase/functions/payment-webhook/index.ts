@@ -238,6 +238,7 @@ Deno.serve(async (req) => {
       eventName === "Subscription_Renewed" ||
       eventName === "Pagamento_de_Renovacao_Efetuado" ||
       eventName === "Subscription_Reactivated" ||
+      eventName === "Subscription_Product_Access" ||
       eventName === "purchase" ||
       eventName === "approved";
 
