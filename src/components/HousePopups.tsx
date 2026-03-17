@@ -112,6 +112,68 @@ function isEligibleForType(
  * Fetches all active on_load popups, filters by user eligibility,
  * sorts by priority, and shows the first unseen one per session.
  */
+function SimpleImagePopup({
+  popupData,
+  open,
+  handleClose,
+  checkoutUrl,
+  setCheckoutUrl,
+}: {
+  popupData: FunnelPopupData;
+  open: boolean;
+  handleClose: () => void;
+  checkoutUrl: string | null;
+  setCheckoutUrl: (url: string | null) => void;
+}) {
+  useEffect(() => {
+    trackFunnel({
+      entityType: 'popup',
+      entityId: popupData.id,
+      eventType: 'view',
+      houseId: popupData.betting_house_id || undefined,
+    });
+  }, []);
+
+  return (
+    <>
+      <Dialog open={open} onOpenChange={(o) => { if (!o) handleClose(); }}>
+        <DialogContent className="p-0 border-0 bg-transparent max-w-sm overflow-hidden">
+          <button
+            onClick={handleClose}
+            className="absolute top-2 right-2 z-10 bg-black/60 rounded-full p-1 text-white hover:bg-black/80 transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => {
+              if (popupData.type === "casino_welcome") {
+                handleClose();
+                return;
+              }
+              const link = popupData.button_url || popupData.checkout_link;
+              if (link) {
+                handleClose();
+                setCheckoutUrl(link);
+              }
+            }}
+            className="w-full cursor-pointer focus:outline-none"
+          >
+            <img src={popupData.image_url!} alt="Popup" className="w-full rounded-xl" />
+          </button>
+        </DialogContent>
+      </Dialog>
+
+      {checkoutUrl && (
+        <EmbeddedCheckout
+          open={!!checkoutUrl}
+          onClose={() => setCheckoutUrl(null)}
+          url={checkoutUrl}
+        />
+      )}
+    </>
+  );
+}
+
 export function WelcomePopup({ house }: { house: HousePopupData | null }) {
   const location = useLocation();
   const [open, setOpen] = useState(false);
