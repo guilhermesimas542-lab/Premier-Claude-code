@@ -268,7 +268,7 @@ export function TemplatePlanComparison({ title, benefits, checkoutLink, checkout
             marginTop: "12px",
             border: "1.5px solid rgba(255,255,255,0.3)",
             background: "transparent",
-            color: config.button_text_color || "#ffffff",
+            color: "#ffffff",
           }}
         >
           {config.button_text_2 || "Basic — R$27"}
