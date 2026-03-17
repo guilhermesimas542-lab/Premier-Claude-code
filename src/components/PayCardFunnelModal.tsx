@@ -158,7 +158,11 @@ export function PayCardFunnelModal({ payCard, open, onClose }: Props) {
               checkoutLink2: checkoutUrl2 || null,
               onCheckout: goToCheckout,
               onClose: handleClose,
-              config: checkoutFinalConfig,
+      config: {
+        ...checkoutFinalConfig,
+        button_text: checkoutFinalConfig?.button_text || checkout?.checkout_label_1 || null,
+        button_text_2: checkoutFinalConfig?.button_text_2 || checkout?.checkout_label_2 || null,
+      },
               buttonColor,
             });
           }
