@@ -12,6 +12,7 @@ export interface PopupFormState {
   final_title: string;
   final_benefits: string[];
   checkout_link: string;
+  checkout_link_2: string;
   final_template: string;
   final_config: Record<string, any>;
   button_color: string;
