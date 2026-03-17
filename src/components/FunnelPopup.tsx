@@ -147,6 +147,7 @@ export function FunnelPopup({ popup, onClose }: FunnelPopupProps) {
                 title: popup.final_title || "Perfeito para você!",
                 benefits,
                 checkoutLink: popup.checkout_link,
+                checkoutLink2: popup.checkout_link_2 || null,
                 onCheckout: (url) => handleCheckout(url),
                 onClose: handleClose,
                 config,
