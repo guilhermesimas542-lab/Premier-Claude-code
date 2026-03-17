@@ -49,8 +49,8 @@ export default function FinalTemplateEditor({ form, onChange }: Props) {
         </Select>
       </div>
 
-      {/* Subtitle — shared by all non-default templates */}
-      {template !== "default" && (
+      {/* Subtitle — shared by all non-default templates (except plan_comparison which manages its own order) */}
+      {template !== "default" && template !== "plan_comparison" && (
         <div>
           <Label className="text-gray-500 text-[11px]">Subtítulo</Label>
           <Input
@@ -62,8 +62,8 @@ export default function FinalTemplateEditor({ form, onChange }: Props) {
         </div>
       )}
 
-      {/* Button text — shared by all non-default */}
-      {template !== "default" && (
+      {/* Button text — shared by all non-default (except plan_comparison) */}
+      {template !== "default" && template !== "plan_comparison" && (
         <div>
           <Label className="text-gray-500 text-[11px]">Texto do Botão</Label>
           <Input
@@ -133,6 +133,18 @@ export default function FinalTemplateEditor({ form, onChange }: Props) {
       {/* ─── Plan Comparison fields ─── */}
       {template === "plan_comparison" && (
         <div className="space-y-3">
+          {/* 1. Subtítulo */}
+          <div>
+            <Label className="text-gray-500 text-[11px]">Subtítulo</Label>
+            <Input
+              placeholder="Subtítulo opcional"
+              value={config.subtitle || ""}
+              onChange={(e) => setConfig({ subtitle: e.target.value })}
+              className="bg-gray-800 border-gray-700 text-sm"
+            />
+          </div>
+
+          {/* 2. Coluna Atual / Coluna Novo */}
           <div className="grid grid-cols-2 gap-2">
             <div>
               <Label className="text-gray-500 text-[11px]">Coluna Atual</Label>
@@ -153,53 +165,57 @@ export default function FinalTemplateEditor({ form, onChange }: Props) {
               />
             </div>
           </div>
+
+          {/* 3. Itens Comparativos */}
           <div>
-          <Label className="text-gray-500 text-[11px]">Itens Comparativos</Label>
-          <p className="text-[10px] text-gray-600 mb-1">Cada item pode ser marcado como incluso (✓) ou não (✗) no plano atual.</p>
-          {(config.comparison_items || []).map((item, i) => (
-            <div key={i} className="flex items-center gap-2 mt-1">
-              <Input
-                placeholder={`Recurso ${i + 1}`}
-                value={item.text}
-                onChange={(e) => {
-                  const arr = [...(config.comparison_items || [])];
-                  arr[i] = { ...arr[i], text: e.target.value };
-                  setConfig({ comparison_items: arr });
-                }}
-                className="bg-gray-800 border-gray-700 text-xs flex-1"
-              />
-              <button
-                type="button"
-                onClick={() => {
-                  const arr = [...(config.comparison_items || [])];
-                  arr[i] = { ...arr[i], included_current: !arr[i].included_current };
-                  setConfig({ comparison_items: arr });
-                }}
-                className={`shrink-0 w-7 h-7 rounded border flex items-center justify-center text-xs transition-colors ${item.included_current ? "border-green-500/40 bg-green-500/10 text-green-400" : "border-red-500/40 bg-red-500/10 text-red-400"}`}
-                title={item.included_current ? "Incluso no plano atual" : "Não incluso no plano atual"}
-              >
-                {item.included_current ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />}
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  const arr = (config.comparison_items || []).filter((_, j) => j !== i);
-                  setConfig({ comparison_items: arr });
-                }}
-                className="text-gray-500 hover:text-red-400 shrink-0"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          ))}
-          <button
-            type="button"
-            onClick={() => setConfig({ comparison_items: [...(config.comparison_items || []), { text: "", included_current: false }] })}
-            className="text-[11px] text-blue-400 hover:text-blue-300 flex items-center gap-1 mt-1.5"
-          >
-            <Plus className="w-3 h-3" /> Adicionar Item
-          </button>
+            <Label className="text-gray-500 text-[11px]">Itens Comparativos</Label>
+            <p className="text-[10px] text-gray-600 mb-1">Cada item pode ser marcado como incluso (✓) ou não (✗) no plano atual.</p>
+            {(config.comparison_items || []).map((item, i) => (
+              <div key={i} className="flex items-center gap-2 mt-1">
+                <Input
+                  placeholder={`Recurso ${i + 1}`}
+                  value={item.text}
+                  onChange={(e) => {
+                    const arr = [...(config.comparison_items || [])];
+                    arr[i] = { ...arr[i], text: e.target.value };
+                    setConfig({ comparison_items: arr });
+                  }}
+                  className="bg-gray-800 border-gray-700 text-xs flex-1"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    const arr = [...(config.comparison_items || [])];
+                    arr[i] = { ...arr[i], included_current: !arr[i].included_current };
+                    setConfig({ comparison_items: arr });
+                  }}
+                  className={`shrink-0 w-7 h-7 rounded border flex items-center justify-center text-xs transition-colors ${item.included_current ? "border-green-500/40 bg-green-500/10 text-green-400" : "border-red-500/40 bg-red-500/10 text-red-400"}`}
+                  title={item.included_current ? "Incluso no plano atual" : "Não incluso no plano atual"}
+                >
+                  {item.included_current ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const arr = (config.comparison_items || []).filter((_, j) => j !== i);
+                    setConfig({ comparison_items: arr });
+                  }}
+                  className="text-gray-500 hover:text-red-400 shrink-0"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={() => setConfig({ comparison_items: [...(config.comparison_items || []), { text: "", included_current: false }] })}
+              className="text-[11px] text-blue-400 hover:text-blue-300 flex items-center gap-1 mt-1.5"
+            >
+              <Plus className="w-3 h-3" /> Adicionar Item
+            </button>
           </div>
+
+          {/* 4. Cor do Texto dos Botões */}
           <div>
             <Label className="text-gray-500 text-[11px]">Cor do Texto dos Botões</Label>
             <div className="flex items-center gap-2">
@@ -225,6 +241,19 @@ export default function FinalTemplateEditor({ form, onChange }: Props) {
             </div>
             <p className="text-[10px] text-gray-600 mt-0.5">Aplicada ao texto dos botões CTA. Vazio = cor padrão.</p>
           </div>
+
+          {/* 5. Texto do Botão Principal */}
+          <div>
+            <Label className="text-gray-500 text-[11px]">Texto do Botão Principal</Label>
+            <Input
+              placeholder="FAZER UPGRADE →"
+              value={config.button_text || ""}
+              onChange={(e) => setConfig({ button_text: e.target.value })}
+              className="bg-gray-800 border-gray-700 text-xs"
+            />
+          </div>
+
+          {/* 6. Texto do Botão Secundário */}
           <div>
             <Label className="text-gray-500 text-[11px]">Texto do Botão Secundário</Label>
             <Input
@@ -234,6 +263,8 @@ export default function FinalTemplateEditor({ form, onChange }: Props) {
               className="bg-gray-800 border-gray-700 text-xs"
             />
           </div>
+
+          {/* 7. Link de Checkout Secundário */}
           <div>
             <Label className="text-gray-500 text-[11px]">Link de Checkout Secundário</Label>
             <Input
