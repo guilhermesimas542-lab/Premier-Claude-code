@@ -260,6 +260,26 @@ Deno.serve(async (req) => {
       eventName === "refund" ||
       eventName === "cancel";
 
+    // ── Subscription_Product_Access: verificar Action (Add vs Remove) ────
+    if (eventName === "Subscription_Product_Access") {
+      const spData = (payload.Data ?? payload.data ?? {}) as Record<string, unknown>;
+      const action = ((spData.Action ?? spData.action ?? "Add") as string).trim();
+      console.log("[WEBHOOK] Subscription_Product_Access Action:", action);
+
+      if (action === "Remove") {
+        // Tratar como revogação — não liberar acesso
+        await supabase
+          .from("webhook_logs")
+          .update({ processed_ok: true })
+          .eq("id", logId);
+
+        return new Response(
+          JSON.stringify({ status: "access_removed", event: eventName, action }),
+          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    }
+
     if (!isPurchaseApproved && !isRefundOrCancel) {
       await supabase
         .from("webhook_logs")
