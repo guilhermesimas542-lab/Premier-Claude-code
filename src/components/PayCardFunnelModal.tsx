@@ -155,6 +155,7 @@ export function PayCardFunnelModal({ payCard, open, onClose }: Props) {
               title: checkout?.title || "Perfeito para você!",
               benefits,
               checkoutLink: checkoutUrl || null,
+              checkoutLink2: checkoutUrl2 || null,
               onCheckout: goToCheckout,
               onClose: handleClose,
               config: checkoutFinalConfig,
