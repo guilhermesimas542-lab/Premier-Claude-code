@@ -200,6 +200,40 @@ export default function FinalTemplateEditor({ form, onChange }: Props) {
             <Plus className="w-3 h-3" /> Adicionar Item
           </button>
           </div>
+          <div>
+            <Label className="text-gray-500 text-[11px]">Cor do Texto dos Botões</Label>
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded border border-gray-700 shrink-0 cursor-pointer overflow-hidden">
+                <input
+                  type="color"
+                  value={config.button_text_color || "#000000"}
+                  onChange={(e) => setConfig({ button_text_color: e.target.value })}
+                  className="w-10 h-10 -m-1 cursor-pointer"
+                />
+              </div>
+              <Input
+                placeholder="#000000"
+                value={config.button_text_color || ""}
+                onChange={(e) => setConfig({ button_text_color: e.target.value })}
+                className="bg-gray-800 border-gray-700 text-xs flex-1"
+              />
+              {config.button_text_color && (
+                <button type="button" onClick={() => setConfig({ button_text_color: undefined })} className="text-gray-500 hover:text-red-400">
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+            <p className="text-[10px] text-gray-600 mt-0.5">Aplicada ao texto dos botões CTA. Vazio = cor padrão.</p>
+          </div>
+          <div>
+            <Label className="text-gray-500 text-[11px]">Texto do Botão Secundário</Label>
+            <Input
+              placeholder="Basic — R$27"
+              value={config.button_text_2 || ""}
+              onChange={(e) => setConfig({ button_text_2: e.target.value })}
+              className="bg-gray-800 border-gray-700 text-xs"
+            />
+          </div>
         </div>
       )}
     </div>

@@ -13,6 +13,8 @@ export type FinalTemplateType =
 export interface FinalConfig {
   subtitle?: string;
   button_text?: string;
+  button_text_2?: string;
+  button_text_color?: string;
   old_price?: string;
   new_price?: string;
   client_count?: number;
@@ -52,13 +54,14 @@ const BenefitsList = ({ benefits }: { benefits: string[] }) => (
   </ul>
 );
 
-const CTAButton = ({ text, url, onClick, color }: { text: string; url: string | null; onClick: (u: string) => void; color?: string | null }) =>
+const CTAButton = ({ text, url, onClick, color, textColor }: { text: string; url: string | null; onClick: (u: string) => void; color?: string | null; textColor?: string | null }) =>
   url ? (
     <button
       onClick={() => onClick(url)}
-      className="block w-full py-4 text-center font-bold text-primary-foreground rounded-xl text-sm tracking-wide transition-transform hover:scale-[1.02] active:scale-[0.98] animate-[cta-pulse_2s_ease-in-out_infinite]"
+      className="block w-full py-4 text-center font-bold rounded-xl text-sm tracking-wide transition-transform hover:scale-[1.02] active:scale-[0.98] animate-[cta-pulse_2s_ease-in-out_infinite]"
       style={{
         backgroundColor: color || "hsl(var(--primary))",
+        color: textColor || undefined,
         boxShadow: `0 0 20px ${color ? color + "4d" : "hsl(var(--primary) / 0.3)"}`,
       }}
     >
@@ -256,18 +259,19 @@ export function TemplatePlanComparison({ title, benefits, checkoutLink, checkout
           </div>
         ))}
       </div>
-      <CTAButton text={config.button_text || "FAZER UPGRADE →"} url={checkoutLink} onClick={onCheckout} color={buttonColor} />
+      <CTAButton text={config.button_text || "FAZER UPGRADE →"} url={checkoutLink} onClick={onCheckout} color={buttonColor} textColor={config.button_text_color} />
       {checkoutLink2 && (
         <button
           onClick={() => onCheckout(checkoutLink2)}
-          className="block w-full py-3 text-center font-bold text-white rounded-xl text-sm tracking-wide transition-transform hover:scale-[1.02] active:scale-[0.98]"
+          className="block w-full py-3 text-center font-bold rounded-xl text-sm tracking-wide transition-transform hover:scale-[1.02] active:scale-[0.98]"
           style={{
             marginTop: "12px",
             border: "1.5px solid rgba(255,255,255,0.3)",
             background: "transparent",
+            color: config.button_text_color || "#ffffff",
           }}
         >
-          {(config as any).button_text_2 || "Basic — R$27"}
+          {config.button_text_2 || "Basic — R$27"}
         </button>
       )}
     </div>
