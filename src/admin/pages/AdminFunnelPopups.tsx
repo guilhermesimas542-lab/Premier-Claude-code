@@ -86,7 +86,7 @@ export default function AdminFunnelPopups() {
   const handleSave = async () => {
     const hasButton = form.checkout_link.trim() && form.final_title.trim();
     const hasFunnel = form.questions.some((q) => q.text.trim());
-    if (!hasButton && !hasFunnel && form.type !== "casino_welcome") {
+    if (!hasButton && !hasFunnel && form.type !== "casino_welcome" && form.type !== "welcome_paid") {
       toast.error("Erro: O pop-up precisa ter um 'Botão com URL' ou, no mínimo, a 'Pergunta 1' do funil preenchida.");
       return;
     }
