@@ -13,6 +13,8 @@ export type FinalTemplateType =
 export interface FinalConfig {
   subtitle?: string;
   button_text?: string;
+  button_text_2?: string;
+  button_text_color?: string;
   old_price?: string;
   new_price?: string;
   client_count?: number;
