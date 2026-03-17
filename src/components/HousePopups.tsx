@@ -146,7 +146,7 @@ function SimpleImagePopup({
           </button>
           <button
             onClick={() => {
-              if (popupData.type === "casino_welcome") {
+              if (popupData.type === "casino_welcome" || popupData.type === "welcome_paid") {
                 handleClose();
                 return;
               }
