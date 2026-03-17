@@ -20,6 +20,7 @@ export interface FunnelPopupData {
   final_title: string | null;
   final_benefits: string[] | null;
   checkout_link: string | null;
+  checkout_link_2?: string | null;
   betting_house_id?: string | null;
   final_template?: string | null;
   final_config?: Record<string, any> | null;
