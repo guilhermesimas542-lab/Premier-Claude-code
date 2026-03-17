@@ -132,7 +132,28 @@ export default function FinalTemplateEditor({ form, onChange }: Props) {
 
       {/* ─── Plan Comparison fields ─── */}
       {template === "plan_comparison" && (
-        <div>
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <Label className="text-gray-500 text-[11px]">Coluna Atual</Label>
+              <Input
+                placeholder="Atual"
+                value={config.header_current || ""}
+                onChange={(e) => setConfig({ header_current: e.target.value })}
+                className="bg-gray-800 border-gray-700 text-xs"
+              />
+            </div>
+            <div>
+              <Label className="text-gray-500 text-[11px]">Coluna Novo</Label>
+              <Input
+                placeholder="Novo"
+                value={config.header_new || ""}
+                onChange={(e) => setConfig({ header_new: e.target.value })}
+                className="bg-gray-800 border-gray-700 text-xs"
+              />
+            </div>
+          </div>
+          <div>
           <Label className="text-gray-500 text-[11px]">Itens Comparativos</Label>
           <p className="text-[10px] text-gray-600 mb-1">Cada item pode ser marcado como incluso (✓) ou não (✗) no plano atual.</p>
           {(config.comparison_items || []).map((item, i) => (
@@ -178,6 +199,7 @@ export default function FinalTemplateEditor({ form, onChange }: Props) {
           >
             <Plus className="w-3 h-3" /> Adicionar Item
           </button>
+          </div>
         </div>
       )}
     </div>
