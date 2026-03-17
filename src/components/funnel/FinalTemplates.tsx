@@ -259,18 +259,19 @@ export function TemplatePlanComparison({ title, benefits, checkoutLink, checkout
           </div>
         ))}
       </div>
-      <CTAButton text={config.button_text || "FAZER UPGRADE →"} url={checkoutLink} onClick={onCheckout} color={buttonColor} />
+      <CTAButton text={config.button_text || "FAZER UPGRADE →"} url={checkoutLink} onClick={onCheckout} color={buttonColor} textColor={config.button_text_color} />
       {checkoutLink2 && (
         <button
           onClick={() => onCheckout(checkoutLink2)}
-          className="block w-full py-3 text-center font-bold text-white rounded-xl text-sm tracking-wide transition-transform hover:scale-[1.02] active:scale-[0.98]"
+          className="block w-full py-3 text-center font-bold rounded-xl text-sm tracking-wide transition-transform hover:scale-[1.02] active:scale-[0.98]"
           style={{
             marginTop: "12px",
             border: "1.5px solid rgba(255,255,255,0.3)",
             background: "transparent",
+            color: config.button_text_color || "#ffffff",
           }}
         >
-          {(config as any).button_text_2 || "Basic — R$27"}
+          {config.button_text_2 || "Basic — R$27"}
         </button>
       )}
     </div>
