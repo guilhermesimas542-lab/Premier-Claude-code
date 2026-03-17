@@ -132,6 +132,7 @@ export function rowToForm(row: PopupRow): PopupFormState {
     final_title: row.final_title ?? "",
     final_benefits: (row.final_benefits as string[]) ?? [],
     checkout_link: row.checkout_link ?? "",
+    checkout_link_2: (row as any).checkout_link_2 ?? "",
     final_template: row.final_template ?? "default",
     final_config: (row.final_config as Record<string, any>) ?? {},
     button_color: (row as any).button_color ?? "",
