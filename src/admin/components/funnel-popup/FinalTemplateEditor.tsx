@@ -199,6 +199,7 @@ export default function FinalTemplateEditor({ form, onChange }: Props) {
           >
             <Plus className="w-3 h-3" /> Adicionar Item
           </button>
+          </div>
         </div>
       )}
     </div>
