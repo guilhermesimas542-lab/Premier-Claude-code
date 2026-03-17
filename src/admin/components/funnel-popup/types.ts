@@ -109,6 +109,7 @@ export function formToPayload(form: PopupFormState, selectedHouseId: string | nu
     final_title: form.final_title || null,
     final_benefits: form.final_benefits.filter(Boolean).length ? form.final_benefits.filter(Boolean) : null,
     checkout_link: form.checkout_link || null,
+    checkout_link_2: form.checkout_link_2 || null,
     final_template: form.final_template || "default",
     final_config: Object.keys(form.final_config || {}).length > 0 ? form.final_config : null,
     button_color: form.button_color || null,
