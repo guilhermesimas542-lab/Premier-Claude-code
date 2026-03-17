@@ -224,7 +224,7 @@ export function TemplateBonusOffer({ title, benefits, checkoutLink, onCheckout, 
 }
 
 /* ─── Template 6: Comparativo de Planos ─── */
-export function TemplatePlanComparison({ title, benefits, checkoutLink, onCheckout, config, buttonColor }: BaseProps) {
+export function TemplatePlanComparison({ title, benefits, checkoutLink, checkoutLink2, onCheckout, config, buttonColor }: BaseProps) {
   const items = config.comparison_items ?? benefits.map((b) => ({ text: b, included_current: false }));
   return (
     <div className="p-5 space-y-4">
@@ -255,6 +255,19 @@ export function TemplatePlanComparison({ title, benefits, checkoutLink, onChecko
         ))}
       </div>
       <CTAButton text={config.button_text || "FAZER UPGRADE →"} url={checkoutLink} onClick={onCheckout} color={buttonColor} />
+      {checkoutLink2 && (
+        <button
+          onClick={() => onCheckout(checkoutLink2)}
+          className="block w-full py-3 text-center font-bold text-white rounded-xl text-sm tracking-wide transition-transform hover:scale-[1.02] active:scale-[0.98]"
+          style={{
+            marginTop: "12px",
+            border: "1.5px solid rgba(255,255,255,0.3)",
+            background: "transparent",
+          }}
+        >
+          {(config as any).button_text_2 || "Basic — R$27"}
+        </button>
+      )}
     </div>
   );
 }
