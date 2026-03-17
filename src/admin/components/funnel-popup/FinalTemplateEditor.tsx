@@ -75,6 +75,19 @@ export default function FinalTemplateEditor({ form, onChange }: Props) {
         </div>
       )}
 
+      {/* ─── Urgency: Anchor Note ─── */}
+      {template === "urgency" && (
+        <div>
+          <Label className="text-gray-500 text-[11px]">Nota de Ancoragem (opcional)</Label>
+          <Input
+            placeholder="Ex: Produto isolado: R$47 — Bundle: R$37"
+            value={(config as any).anchor_note || ""}
+            onChange={(e) => setConfig({ anchor_note: e.target.value } as any)}
+            className="bg-gray-800 border-gray-700 text-sm"
+          />
+        </div>
+      )}
+
       {/* ─── Price Anchor fields ─── */}
       {template === "price_anchor" && (
         <div className="grid grid-cols-2 gap-2">
