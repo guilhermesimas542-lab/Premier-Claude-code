@@ -7,6 +7,7 @@ import { mockGetUser } from "@/mocks/user";
 import { FunnelPopup, FunnelPopupData } from "@/components/FunnelPopup";
 import { EmbeddedCheckout } from "@/components/EmbeddedCheckout";
 import { POPUP_PRIORITY } from "@/admin/components/funnel-popup/types";
+import { trackFunnel } from "@/lib/funnelTracker";
 
 interface HousePopupData {
   popup_welcome_image?: string | null;
