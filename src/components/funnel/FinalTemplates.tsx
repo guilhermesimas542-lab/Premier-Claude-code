@@ -23,6 +23,8 @@ export interface FinalConfig {
   bonus_description?: string;
   bonus_value?: string;
   comparison_items?: { text: string; included_current: boolean }[];
+  header_current?: string;
+  header_new?: string;
 }
 
 export interface BaseProps {
