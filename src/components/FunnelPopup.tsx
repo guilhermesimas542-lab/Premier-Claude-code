@@ -72,7 +72,7 @@ export function FunnelPopup({ popup, onClose }: FunnelPopupProps) {
   };
 
   const handleImageClick = () => {
-    if (popup.type === "casino_welcome") {
+    if (popup.type === "casino_welcome" || popup.type === "welcome_paid") {
       handleClose();
       return;
     }
