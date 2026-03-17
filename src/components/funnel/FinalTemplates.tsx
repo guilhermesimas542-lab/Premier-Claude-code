@@ -81,6 +81,17 @@ export function TemplateUrgency({ title, benefits, checkoutLink, checkoutLink2, 
         <div className="w-3/4 h-[2px] rounded-full bg-red-500 animate-pulse" />
       </div>
       <BenefitsList benefits={benefits} />
+      {(config as any).anchor_note && (
+        <p style={{
+          textAlign: "center",
+          fontSize: "12px",
+          color: "rgba(255,255,255,0.5)",
+          marginBottom: "12px",
+          marginTop: "8px",
+        }}>
+          {(config as any).anchor_note}
+        </p>
+      )}
       <CTAButton text={config.button_text || "QUERO ACESSAR AGORA →"} url={checkoutLink} onClick={onCheckout} color={buttonColor} textColor={config.button_text_color} />
       {checkoutLink2 && (
         <button
