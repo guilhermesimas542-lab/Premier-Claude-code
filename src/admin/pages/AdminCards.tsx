@@ -272,6 +272,7 @@ export default function AdminCards() {
     target_audience: "all",
     image_url: form.image_mobile,
     checkout_link: form.checkout_url,
+    checkout_link_2: "",
     questions,
     final_title: "",
     final_benefits: [],

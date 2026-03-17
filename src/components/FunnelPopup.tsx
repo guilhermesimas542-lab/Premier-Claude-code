@@ -20,6 +20,7 @@ export interface FunnelPopupData {
   final_title: string | null;
   final_benefits: string[] | null;
   checkout_link: string | null;
+  checkout_link_2?: string | null;
   betting_house_id?: string | null;
   final_template?: string | null;
   final_config?: Record<string, any> | null;
@@ -146,6 +147,7 @@ export function FunnelPopup({ popup, onClose }: FunnelPopupProps) {
                 title: popup.final_title || "Perfeito para você!",
                 benefits,
                 checkoutLink: popup.checkout_link,
+                checkoutLink2: popup.checkout_link_2 || null,
                 onCheckout: (url) => handleCheckout(url),
                 onClose: handleClose,
                 config,

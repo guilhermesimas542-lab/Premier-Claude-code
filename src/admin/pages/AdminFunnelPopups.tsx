@@ -328,13 +328,15 @@ export default function AdminFunnelPopups() {
               <div className="space-y-3 p-3 rounded-xl" style={{ background: "rgba(0,200,255,0.03)", border: "1px dashed rgba(0,200,255,0.15)" }}>
                 <p className="text-xs font-semibold text-white">Tela Final</p>
 
-                {/* Template selector + dynamic fields */}
-                <FinalTemplateEditor form={form} onChange={setForm} />
-
+                {/* Título — acima do template editor */}
                 <div>
                   <Label className="text-gray-500 text-[11px]">Título</Label>
                   <Input placeholder="O Plano PRO é perfeito para você!" value={form.final_title} onChange={(e) => f("final_title", e.target.value)} className="bg-gray-800 border-gray-700 text-sm" />
                 </div>
+
+                {/* Template selector + dynamic fields */}
+                <FinalTemplateEditor form={form} onChange={setForm} />
+
                 <div>
                   <Label className="text-gray-500 text-[11px]">Benefícios</Label>
                   {form.final_benefits.map((b, i) => (
@@ -362,10 +364,13 @@ export default function AdminFunnelPopups() {
                     <Plus className="w-3 h-3" /> Adicionar Benefício
                   </button>
                 </div>
-                <div>
-                  <Label className="text-gray-500 text-[11px]">Link de Checkout</Label>
-                  <Input placeholder="https://pay.hotmart.com/..." value={form.checkout_link} onChange={(e) => f("checkout_link", e.target.value)} className="bg-gray-800 border-gray-700 text-sm" />
-                </div>
+                {/* Link de Checkout — escondido quando plan_comparison (usa os links dentro do FinalTemplateEditor) */}
+                {form.final_template !== "plan_comparison" && (
+                  <div>
+                    <Label className="text-gray-500 text-[11px]">Link de Checkout</Label>
+                    <Input placeholder="https://pay.hotmart.com/..." value={form.checkout_link} onChange={(e) => f("checkout_link", e.target.value)} className="bg-gray-800 border-gray-700 text-sm" />
+                  </div>
+                )}
               </div>
 
               {/* Actions */}

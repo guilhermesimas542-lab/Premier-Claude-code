@@ -280,6 +280,7 @@ export default function AdminPayCards() {
     target_audience: "all",
     image_url: form.popup_image_url,
     checkout_link: form.checkout_url,
+    checkout_link_2: form.checkout_url_2 || "",
     questions,
     final_title: form.checkout_title,
     final_benefits: form.checkout_benefits ? form.checkout_benefits.split("\n").filter(Boolean) : [],

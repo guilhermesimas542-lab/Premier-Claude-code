@@ -253,7 +253,18 @@ export default function FinalTemplateEditor({ form, onChange }: Props) {
             />
           </div>
 
-          {/* 6. Texto do Botão Secundário */}
+          {/* 6. Link de Checkout Principal */}
+          <div>
+            <Label className="text-gray-500 text-[11px]">Link de Checkout Principal</Label>
+            <Input
+              placeholder="https://lastlink.com/..."
+              value={form.checkout_link || ""}
+              onChange={(e) => onChange({ ...form, checkout_link: e.target.value })}
+              className="bg-gray-800 border-gray-700 text-xs"
+            />
+          </div>
+
+          {/* 7. Texto do Botão Secundário */}
           <div>
             <Label className="text-gray-500 text-[11px]">Texto do Botão Secundário</Label>
             <Input
@@ -264,13 +275,13 @@ export default function FinalTemplateEditor({ form, onChange }: Props) {
             />
           </div>
 
-          {/* 7. Link de Checkout Secundário */}
+          {/* 8. Link de Checkout Secundário */}
           <div>
             <Label className="text-gray-500 text-[11px]">Link de Checkout Secundário</Label>
             <Input
               placeholder="https://lastlink.com/..."
-              value={(form as any).checkout_url_2 || ""}
-              onChange={(e) => onChange({ ...form, checkout_url_2: e.target.value } as any)}
+              value={form.checkout_link_2 || ""}
+              onChange={(e) => onChange({ ...form, checkout_link_2: e.target.value })}
               className="bg-gray-800 border-gray-700 text-xs"
             />
           </div>
