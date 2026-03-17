@@ -613,7 +613,28 @@ export default function AdminPayCards() {
                     <button onClick={() => set("button_color", "")} className="text-xs text-gray-500 hover:text-gray-300">Resetar</button>
                   )}
                 </div>
-              </div>
+                </div>
+                <label className="text-sm font-medium mt-3 block">✏️ Cor do Texto dos Botões</label>
+                <div className="flex items-center gap-3 mt-1">
+                  <input
+                    type="color"
+                    value={form.checkout_final_config?.button_text_color || "#000000"}
+                    onChange={(e) => set("checkout_final_config", { ...form.checkout_final_config, button_text_color: e.target.value })}
+                    className="w-10 h-10 rounded cursor-pointer border border-white/10 bg-transparent"
+                  />
+                  <Input
+                    value={form.checkout_final_config?.button_text_color || ""}
+                    onChange={(e) => set("checkout_final_config", { ...form.checkout_final_config, button_text_color: e.target.value })}
+                    placeholder="#000000"
+                    className="bg-gray-900 border-gray-800 flex-1"
+                  />
+                  {form.checkout_final_config?.button_text_color && (
+                    <button onClick={() => {
+                      const { button_text_color, ...rest } = form.checkout_final_config;
+                      set("checkout_final_config", rest);
+                    }} className="text-xs text-gray-500 hover:text-gray-300">Resetar</button>
+                  )}
+                </div>
 
               {/* Checkout Section */}
               <div className="p-3 rounded-lg bg-gray-800 space-y-3">

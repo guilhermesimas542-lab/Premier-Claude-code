@@ -70,7 +70,7 @@ const CTAButton = ({ text, url, onClick, color, textColor }: { text: string; url
   ) : null;
 
 /* ─── Template 1: Urgência Simples ─── */
-export function TemplateUrgency({ title, benefits, checkoutLink, onCheckout, config, buttonColor }: BaseProps) {
+export function TemplateUrgency({ title, benefits, checkoutLink, checkoutLink2, onCheckout, config, buttonColor }: BaseProps) {
   return (
     <div className="p-5 space-y-4">
       <div className="text-center">
@@ -81,7 +81,21 @@ export function TemplateUrgency({ title, benefits, checkoutLink, onCheckout, con
         <div className="w-3/4 h-[2px] rounded-full bg-red-500 animate-pulse" />
       </div>
       <BenefitsList benefits={benefits} />
-      <CTAButton text={config.button_text || "QUERO ACESSAR AGORA →"} url={checkoutLink} onClick={onCheckout} color={buttonColor} />
+      <CTAButton text={config.button_text || "QUERO ACESSAR AGORA →"} url={checkoutLink} onClick={onCheckout} color={buttonColor} textColor={config.button_text_color} />
+      {checkoutLink2 && (
+        <button
+          onClick={() => onCheckout(checkoutLink2)}
+          className="block w-full py-3 text-center font-bold rounded-xl text-sm tracking-wide transition-transform hover:scale-[1.02] active:scale-[0.98]"
+          style={{
+            marginTop: "12px",
+            border: "1.5px solid rgba(255,255,255,0.3)",
+            background: "transparent",
+            color: "#ffffff",
+          }}
+        >
+          {config.button_text_2 || "Ver outra opção"}
+        </button>
+      )}
     </div>
   );
 }
