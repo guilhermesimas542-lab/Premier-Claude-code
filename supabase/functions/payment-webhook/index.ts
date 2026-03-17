@@ -148,6 +148,17 @@ Deno.serve(async (req) => {
       productIds = products.map((p) => (p.Id ?? p.id) as string).filter(Boolean);
       productNames = products.map((p) => (p.Name ?? p.name ?? '') as string).filter(Boolean);
 
+      // Fallback: Subscription_Product_Access envia Data.Product (singular)
+      if (productIds.length === 0) {
+        const singleProduct = (data.Product ?? data.product) as Record<string, unknown> | undefined;
+        if (singleProduct) {
+          const singleId = (singleProduct.Id ?? singleProduct.id) as string;
+          const singleName = (singleProduct.Name ?? singleProduct.name ?? '') as string;
+          if (singleId) productIds = [singleId];
+          if (singleName) productNames = [singleName];
+        }
+      }
+
       const purchase = (data.Purchase ?? data.purchase ?? {}) as Record<string, unknown>;
       const purchasePayment = (purchase.Payment ?? purchase.payment ?? {}) as Record<string, unknown>;
       paymentId = (purchase.PaymentId ?? purchasePayment.PaymentId ?? data.PaymentId ?? data.SubscriptionId ?? data.OrderId ?? `ll-${Date.now()}`) as string;
@@ -248,6 +259,26 @@ Deno.serve(async (req) => {
       eventName === "Chargeback" ||
       eventName === "refund" ||
       eventName === "cancel";
+
+    // ── Subscription_Product_Access: verificar Action (Add vs Remove) ────
+    if (eventName === "Subscription_Product_Access") {
+      const spData = (payload.Data ?? payload.data ?? {}) as Record<string, unknown>;
+      const action = ((spData.Action ?? spData.action ?? "Add") as string).trim();
+      console.log("[WEBHOOK] Subscription_Product_Access Action:", action);
+
+      if (action === "Remove") {
+        // Tratar como revogação — não liberar acesso
+        await supabase
+          .from("webhook_logs")
+          .update({ processed_ok: true })
+          .eq("id", logId);
+
+        return new Response(
+          JSON.stringify({ status: "access_removed", event: eventName, action }),
+          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    }
 
     if (!isPurchaseApproved && !isRefundOrCancel) {
       await supabase
