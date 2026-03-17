@@ -76,6 +76,8 @@ export function FunnelPopup({ popup, onClose }: FunnelPopupProps) {
       setStep(firstQuestionStep);
     } else if (popup.button_url || popup.checkout_link) {
       setCheckoutUrl(popup.button_url || popup.checkout_link!);
+    } else {
+      handleClose();
     }
   };
 
