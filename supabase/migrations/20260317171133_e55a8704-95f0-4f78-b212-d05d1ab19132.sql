@@ -1,0 +1,1 @@
+ALTER TABLE popups ADD COLUMN IF NOT EXISTS checkout_link_2 text;

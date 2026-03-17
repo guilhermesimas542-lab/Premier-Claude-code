@@ -994,6 +994,7 @@ export type Database = {
           button_text: string | null
           button_url: string | null
           checkout_link: string | null
+          checkout_link_2: string | null
           created_at: string
           final_benefits: Json | null
           final_config: Json | null
@@ -1022,6 +1023,7 @@ export type Database = {
           button_text?: string | null
           button_url?: string | null
           checkout_link?: string | null
+          checkout_link_2?: string | null
           created_at?: string
           final_benefits?: Json | null
           final_config?: Json | null
@@ -1050,6 +1052,7 @@ export type Database = {
           button_text?: string | null
           button_url?: string | null
           checkout_link?: string | null
+          checkout_link_2?: string | null
           created_at?: string
           final_benefits?: Json | null
           final_config?: Json | null
