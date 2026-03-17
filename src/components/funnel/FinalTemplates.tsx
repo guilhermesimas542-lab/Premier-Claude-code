@@ -29,6 +29,7 @@ export interface BaseProps {
   title: string;
   benefits: string[];
   checkoutLink: string | null;
+  checkoutLink2?: string | null;
   onCheckout: (url: string) => void;
   onClose: () => void;
   config: FinalConfig;
