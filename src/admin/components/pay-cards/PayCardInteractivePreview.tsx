@@ -146,6 +146,7 @@ export function PayCardInteractivePreview({ data }: { data: PreviewData }) {
               title: data.checkout_title || "Perfeito para você!",
               benefits,
               checkoutLink: data.checkout_url || null,
+              checkoutLink2: data.checkout_url_2 || null,
               onCheckout: () => {},
               onClose: () => {},
               config: checkoutFinalConfig,
