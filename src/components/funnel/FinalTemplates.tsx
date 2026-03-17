@@ -235,8 +235,8 @@ export function TemplatePlanComparison({ title, benefits, checkoutLink, checkout
       <div className="rounded-lg border border-border overflow-hidden text-xs">
         <div className="grid grid-cols-[1fr,80px,80px] bg-muted/40 text-muted-foreground font-semibold">
           <div className="px-3 py-2">Recurso</div>
-          <div className="px-2 py-2 text-center">Atual</div>
-          <div className="px-2 py-2 text-center text-primary">Novo</div>
+          <div className="px-2 py-2 text-center">{config.header_current ?? "Atual"}</div>
+          <div className="px-2 py-2 text-center text-primary">{config.header_new ?? "Novo"}</div>
         </div>
         {items.map((item, i) => (
           <div key={i} className="grid grid-cols-[1fr,80px,80px] border-t border-border">
