@@ -234,6 +234,15 @@ export default function FinalTemplateEditor({ form, onChange }: Props) {
               className="bg-gray-800 border-gray-700 text-xs"
             />
           </div>
+          <div>
+            <Label className="text-gray-500 text-[11px]">Link de Checkout Secundário</Label>
+            <Input
+              placeholder="https://lastlink.com/..."
+              value={(form as any).checkout_url_2 || ""}
+              onChange={(e) => onChange({ ...form, checkout_url_2: e.target.value } as any)}
+              className="bg-gray-800 border-gray-700 text-xs"
+            />
+          </div>
         </div>
       )}
     </div>
