@@ -72,12 +72,14 @@ export function FunnelPopup({ popup, onClose }: FunnelPopupProps) {
   };
 
   const handleImageClick = () => {
+    if (popup.type === "casino_welcome") {
+      handleClose();
+      return;
+    }
     if (hasFunnel) {
       setStep(firstQuestionStep);
     } else if (popup.button_url || popup.checkout_link) {
       setCheckoutUrl(popup.button_url || popup.checkout_link!);
-    } else {
-      handleClose();
     }
   };
 
