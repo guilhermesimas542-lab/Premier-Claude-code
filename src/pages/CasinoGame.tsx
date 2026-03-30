@@ -379,15 +379,11 @@ const CasinoGame = () => {
   const isButtonDisabled = phase === 'loading' || cooldown > 0;
 
   return (
-    <div className="min-h-screen pb-20 md:pb-0" style={{ background: "#000000" }}>
+    <div className="min-h-screen pb-20 md:pb-0" style={{ background: "#060D1E" }}>
       <AppHeader
         showTelegramPill={false}
         showVitalicioPill={false}
-        leftContent={
-          <span className="font-bold text-white text-sm">
-            {gameConfig.name}
-          </span>
-        }
+        title={gameConfig.name}
       />
 
 
