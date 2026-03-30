@@ -17,6 +17,7 @@ interface AppHeaderProps {
   headerStyle?: React.CSSProperties;
   showTelegramPill?: boolean;
   showVitalicioPill?: boolean;
+  title?: string;
 }
 
 const AppHeader = ({ onShowLifetimeInfoModal, leftContent, headerStyle, showTelegramPill = true, showVitalicioPill = true }: AppHeaderProps) => {
