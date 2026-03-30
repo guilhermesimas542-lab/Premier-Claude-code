@@ -380,22 +380,18 @@ const CasinoGame = () => {
 
   return (
     <div className="min-h-screen pb-20 md:pb-0" style={{ background: "#000000" }}>
-      {/* Header */}
-      <header className="sticky top-0 z-50 backdrop-blur-xl" style={{ background: "rgba(0,0,0,0.92)", borderBottom: "1px solid rgba(0,255,0,0.15)" }}>
-        <div className="container max-w-lg mx-auto px-4 py-4 flex items-center gap-4">
-          <button
-            onClick={() => navigate("/cassino")}
-            className="p-2 rounded-lg transition-colors"
-            style={{ background: "rgba(0,255,0,0.05)", border: "1px solid rgba(0,255,0,0.2)" }}
-          >
-            <ArrowLeft className="w-6 h-6" style={{ color: "#00FF00" }} />
-          </button>
-          <div className="flex-1">
-            <h1 className="text-xl font-bold" style={{ color: "#00FF00", textShadow: "0 0 10px rgba(0,255,0,0.3)" }}>
-              {gameConfig.name} - IA
-            </h1>
-          </div>
-          <div className="flex items-center gap-2">
+      <AppHeader
+        leftContent={
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => navigate("/cassino")}
+              className="p-1"
+            >
+              <ArrowLeft className="w-5 h-5" style={{ color: "#00FF7F" }} />
+            </button>
+            <span className="text-base font-bold" style={{ color: "#FFFFFF", fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: "0.5px" }}>
+              {gameConfig.name}
+            </span>
             <div className="flex items-center gap-1 px-2 py-0.5 rounded-full" style={{ background: "rgba(0,0,0,0.65)", border: "1px solid rgba(255,140,0,0.7)", boxShadow: "0 0 6px rgba(255,140,0,0.4)" }}>
               <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#FF8C00", boxShadow: "0 0 4px rgba(255,140,0,0.9)", display: "inline-block", flexShrink: 0 }} />
               <span className="text-[9px] font-bold tracking-wider" style={{ color: "#FF8C00" }}>BETA</span>
@@ -405,8 +401,8 @@ const CasinoGame = () => {
               <span className="text-[9px] font-bold tracking-wider" style={{ color: "#A855F7" }}>IA ATIVADA</span>
             </div>
           </div>
-        </div>
-      </header>
+        }
+      />
 
 
       {/* Main Content */}
