@@ -7,6 +7,7 @@ import { usePayCardTrigger } from "@/hooks/usePayCardTrigger";
 import { CHECKOUT_LINKS } from "@/lib/checkoutLinks";
 import { PayCardFunnelModal } from "@/components/PayCardFunnelModal";
 import logoImg from "@/assets/premier-logo-custom.png";
+import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { X } from "lucide-react";
 
@@ -17,6 +18,7 @@ interface AppHeaderProps {
 }
 
 const AppHeader = ({ onShowLifetimeInfoModal, leftContent, headerStyle }: AppHeaderProps) => {
+  const navigate = useNavigate();
   const mockUser = mockGetUser();
   const { house: userHouse } = useUserBettingHouse();
   const { triggerPayCard, payCard: pcData, open: pcOpen, closePayCard } = usePayCardTrigger();
@@ -68,7 +70,7 @@ const AppHeader = ({ onShowLifetimeInfoModal, leftContent, headerStyle }: AppHea
             {/* Logo or custom left content */}
             {leftContent ? leftContent : (
               <div className="shrink-0">
-                <img src={logoImg} alt="Premier Ultra" className="h-10 sm:h-12 w-auto" style={{ filter: "drop-shadow(0 0 10px rgba(0,255,0,0.5))" }} />
+                <img src={logoImg} alt="Premier Ultra" className="h-10 sm:h-12 w-auto" onClick={() => navigate("/")} style={{ cursor: "pointer", filter: "drop-shadow(0 0 10px rgba(0,255,0,0.5))" }} />
               </div>
             )}
 
