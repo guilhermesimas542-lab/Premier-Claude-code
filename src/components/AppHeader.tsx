@@ -20,7 +20,7 @@ interface AppHeaderProps {
   title?: string;
 }
 
-const AppHeader = ({ onShowLifetimeInfoModal, leftContent, headerStyle, showTelegramPill = true, showVitalicioPill = true }: AppHeaderProps) => {
+const AppHeader = ({ onShowLifetimeInfoModal, leftContent, headerStyle, showTelegramPill = true, showVitalicioPill = true, title }: AppHeaderProps) => {
   const navigate = useNavigate();
   const mockUser = mockGetUser();
   const { house: userHouse } = useUserBettingHouse();
