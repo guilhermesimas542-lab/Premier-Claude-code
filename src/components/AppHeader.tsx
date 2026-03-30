@@ -7,6 +7,7 @@ import { usePayCardTrigger } from "@/hooks/usePayCardTrigger";
 import { CHECKOUT_LINKS } from "@/lib/checkoutLinks";
 import { PayCardFunnelModal } from "@/components/PayCardFunnelModal";
 import logoImg from "@/assets/premier-logo-custom.png";
+import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { X } from "lucide-react";
 
