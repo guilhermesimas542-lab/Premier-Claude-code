@@ -15,9 +15,10 @@ interface AppHeaderProps {
   onShowLifetimeInfoModal?: () => void;
   leftContent?: React.ReactNode;
   headerStyle?: React.CSSProperties;
+  showTelegramPill?: boolean;
 }
 
-const AppHeader = ({ onShowLifetimeInfoModal, leftContent, headerStyle }: AppHeaderProps) => {
+const AppHeader = ({ onShowLifetimeInfoModal, leftContent, headerStyle, showTelegramPill = true }: AppHeaderProps) => {
   const navigate = useNavigate();
   const mockUser = mockGetUser();
   const { house: userHouse } = useUserBettingHouse();
@@ -76,7 +77,7 @@ const AppHeader = ({ onShowLifetimeInfoModal, leftContent, headerStyle }: AppHea
 
             <div className="flex items-center gap-2 sm:gap-3">
               {/* Live Telegram pill */}
-              {isTelegramMember ? (
+              {showTelegramPill && (isTelegramMember ? (
                 <a
                   href={telegramGroupUrl || "#"}
                   target="_blank"
@@ -125,7 +126,7 @@ const AppHeader = ({ onShowLifetimeInfoModal, leftContent, headerStyle }: AppHea
                 >
                   🛒 LIVE
                 </button>
-              )}
+              ))}
 
               {/* Vitalício pill */}
               {isLifetime ? (

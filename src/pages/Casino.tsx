@@ -111,7 +111,7 @@ const Casino = () => {
     <div className="min-h-screen relative overflow-hidden pb-20 md:pb-0 bg-navy-dark">
       <div className="absolute top-0 left-1/4 w-96 h-96 rounded-full blur-[120px] pointer-events-none" style={{ background: "rgba(0,255,127,0.05)" }} />
 
-      <AppHeader onShowLifetimeInfoModal={() => setShowLifetimeInfoModal(true)} />
+      <AppHeader onShowLifetimeInfoModal={() => setShowLifetimeInfoModal(true)} showTelegramPill={false} />
 
       {/* Main Content */}
       <main className="container max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6 relative z-10">
