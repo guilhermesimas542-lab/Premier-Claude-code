@@ -1,4 +1,5 @@
 import { ArrowLeft, Lightbulb, Plane, CircleDot, Gem, Dices } from "lucide-react";
+import AppHeader from "@/components/AppHeader";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
