@@ -130,7 +130,7 @@ const AppHeader = ({ onShowLifetimeInfoModal, leftContent, headerStyle, showTele
               ))}
 
               {/* Vitalício pill */}
-              {isLifetime ? (
+              {showVitalicioPill && (isLifetime ? (
                 <div
                   onClick={() => onShowLifetimeInfoModal?.()}
                   style={{
@@ -175,7 +175,7 @@ const AppHeader = ({ onShowLifetimeInfoModal, leftContent, headerStyle, showTele
                 >
                   👑 VITALÍCIO
                 </button>
-              )}
+              ))}
             </div>
           </div>
         </div>
