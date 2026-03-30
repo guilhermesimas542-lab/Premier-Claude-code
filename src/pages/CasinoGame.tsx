@@ -381,26 +381,12 @@ const CasinoGame = () => {
   return (
     <div className="min-h-screen pb-20 md:pb-0" style={{ background: "#000000" }}>
       <AppHeader
+        showTelegramPill={false}
+        showVitalicioPill={false}
         leftContent={
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => navigate("/cassino")}
-              className="p-1"
-            >
-              <ArrowLeft className="w-5 h-5" style={{ color: "#00FF7F" }} />
-            </button>
-            <span className="text-base font-bold" style={{ color: "#FFFFFF", fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: "0.5px" }}>
-              {gameConfig.name}
-            </span>
-            <div className="flex items-center gap-1 px-2 py-0.5 rounded-full" style={{ background: "rgba(0,0,0,0.65)", border: "1px solid rgba(255,140,0,0.7)", boxShadow: "0 0 6px rgba(255,140,0,0.4)" }}>
-              <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#FF8C00", boxShadow: "0 0 4px rgba(255,140,0,0.9)", display: "inline-block", flexShrink: 0 }} />
-              <span className="text-[9px] font-bold tracking-wider" style={{ color: "#FF8C00" }}>BETA</span>
-            </div>
-            <div className="flex items-center gap-1 px-2 py-0.5 rounded-full" style={{ background: "rgba(0,0,0,0.65)", border: "1px solid rgba(168,85,247,0.7)", boxShadow: "0 0 6px rgba(168,85,247,0.4)" }}>
-              <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#A855F7", boxShadow: "0 0 4px rgba(168,85,247,0.9)", display: "inline-block", flexShrink: 0 }} />
-              <span className="text-[9px] font-bold tracking-wider" style={{ color: "#A855F7" }}>IA ATIVADA</span>
-            </div>
-          </div>
+          <span className="font-bold text-white text-sm">
+            {gameConfig.name}
+          </span>
         }
       />
 

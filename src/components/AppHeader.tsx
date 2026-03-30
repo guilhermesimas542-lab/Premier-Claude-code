@@ -16,9 +16,10 @@ interface AppHeaderProps {
   leftContent?: React.ReactNode;
   headerStyle?: React.CSSProperties;
   showTelegramPill?: boolean;
+  showVitalicioPill?: boolean;
 }
 
-const AppHeader = ({ onShowLifetimeInfoModal, leftContent, headerStyle, showTelegramPill = true }: AppHeaderProps) => {
+const AppHeader = ({ onShowLifetimeInfoModal, leftContent, headerStyle, showTelegramPill = true, showVitalicioPill = true }: AppHeaderProps) => {
   const navigate = useNavigate();
   const mockUser = mockGetUser();
   const { house: userHouse } = useUserBettingHouse();
@@ -129,7 +130,7 @@ const AppHeader = ({ onShowLifetimeInfoModal, leftContent, headerStyle, showTele
               ))}
 
               {/* Vitalício pill */}
-              {isLifetime ? (
+              {showVitalicioPill && (isLifetime ? (
                 <div
                   onClick={() => onShowLifetimeInfoModal?.()}
                   style={{
@@ -174,7 +175,7 @@ const AppHeader = ({ onShowLifetimeInfoModal, leftContent, headerStyle, showTele
                 >
                   👑 VITALÍCIO
                 </button>
-              )}
+              ))}
             </div>
           </div>
         </div>
