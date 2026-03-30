@@ -17,9 +17,10 @@ interface AppHeaderProps {
   headerStyle?: React.CSSProperties;
   showTelegramPill?: boolean;
   showVitalicioPill?: boolean;
+  title?: string;
 }
 
-const AppHeader = ({ onShowLifetimeInfoModal, leftContent, headerStyle, showTelegramPill = true, showVitalicioPill = true }: AppHeaderProps) => {
+const AppHeader = ({ onShowLifetimeInfoModal, leftContent, headerStyle, showTelegramPill = true, showVitalicioPill = true, title }: AppHeaderProps) => {
   const navigate = useNavigate();
   const mockUser = mockGetUser();
   const { house: userHouse } = useUserBettingHouse();
@@ -71,8 +72,11 @@ const AppHeader = ({ onShowLifetimeInfoModal, leftContent, headerStyle, showTele
           <div className="flex items-center justify-between gap-2 sm:gap-4">
             {/* Logo or custom left content */}
             {leftContent ? leftContent : (
-              <div className="shrink-0">
+              <div className="flex items-center gap-3 shrink-0">
                 <img src={logoImg} alt="Premier Ultra" className="h-10 sm:h-12 w-auto" onClick={() => navigate("/")} style={{ cursor: "pointer", filter: "drop-shadow(0 0 10px rgba(0,255,0,0.5))" }} />
+                {title && (
+                  <span className="font-bold text-white text-sm">{title}</span>
+                )}
               </div>
             )}
 
