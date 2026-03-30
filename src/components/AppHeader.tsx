@@ -70,7 +70,7 @@ const AppHeader = ({ onShowLifetimeInfoModal, leftContent, headerStyle }: AppHea
             {/* Logo or custom left content */}
             {leftContent ? leftContent : (
               <div className="shrink-0">
-                <img src={logoImg} alt="Premier Ultra" className="h-10 sm:h-12 w-auto" style={{ filter: "drop-shadow(0 0 10px rgba(0,255,0,0.5))" }} />
+                <img src={logoImg} alt="Premier Ultra" className="h-10 sm:h-12 w-auto" onClick={() => navigate("/")} style={{ cursor: "pointer", filter: "drop-shadow(0 0 10px rgba(0,255,0,0.5))" }} />
               </div>
             )}
 
