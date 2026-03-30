@@ -77,7 +77,7 @@ const AppHeader = ({ onShowLifetimeInfoModal, leftContent, headerStyle, showTele
 
             <div className="flex items-center gap-2 sm:gap-3">
               {/* Live Telegram pill */}
-              {isTelegramMember ? (
+              {showTelegramPill && (isTelegramMember ? (
                 <a
                   href={telegramGroupUrl || "#"}
                   target="_blank"
@@ -126,7 +126,7 @@ const AppHeader = ({ onShowLifetimeInfoModal, leftContent, headerStyle, showTele
                 >
                   🛒 LIVE
                 </button>
-              )}
+              ))}
 
               {/* Vitalício pill */}
               {isLifetime ? (
