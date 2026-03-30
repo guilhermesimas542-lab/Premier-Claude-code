@@ -18,6 +18,7 @@ interface AppHeaderProps {
 }
 
 const AppHeader = ({ onShowLifetimeInfoModal, leftContent, headerStyle }: AppHeaderProps) => {
+  const navigate = useNavigate();
   const mockUser = mockGetUser();
   const { house: userHouse } = useUserBettingHouse();
   const { triggerPayCard, payCard: pcData, open: pcOpen, closePayCard } = usePayCardTrigger();
