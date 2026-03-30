@@ -15,9 +15,10 @@ interface AppHeaderProps {
   onShowLifetimeInfoModal?: () => void;
   leftContent?: React.ReactNode;
   headerStyle?: React.CSSProperties;
+  showTelegramPill?: boolean;
 }
 
-const AppHeader = ({ onShowLifetimeInfoModal, leftContent, headerStyle }: AppHeaderProps) => {
+const AppHeader = ({ onShowLifetimeInfoModal, leftContent, headerStyle, showTelegramPill = true }: AppHeaderProps) => {
   const navigate = useNavigate();
   const mockUser = mockGetUser();
   const { house: userHouse } = useUserBettingHouse();
