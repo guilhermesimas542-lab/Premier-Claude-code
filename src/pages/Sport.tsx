@@ -154,6 +154,7 @@ const Sport = () => {
   const { house: userHouse } = useUserBettingHouse();
   const { sendXpEvent } = useGamification();
   const [iframeUrl, setIframeUrl] = useState<string>("");
+  const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const [activeTierHighlight, setActiveTierHighlight] = useState<TierType | null>(null);
   const [activeCardIndex, setActiveCardIndex] = useState(0);
