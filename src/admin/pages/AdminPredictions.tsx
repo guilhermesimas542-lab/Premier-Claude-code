@@ -35,7 +35,7 @@ export default function AdminPredictions() {
     setLoading(false);
   };
 
-  useEffect(() => { fetchItems(); }, []);
+  useEffect(() => { fetchItems(); }, [sortField]);
 
   const openNew = () => {
     setEditingId(null);
