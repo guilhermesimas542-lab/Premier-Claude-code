@@ -1,6 +1,6 @@
 import { ArrowLeft, LogOut, Loader2, Lock, Menu, X, Gift, Headphones, Crown } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { PremiumBettingCard } from "@/components/PremiumBettingCard";
 import { SpecialBettingCard } from "@/components/SpecialBettingCard";
 import { JustificativaModal } from "@/components/JustificativaModal";
@@ -154,7 +154,6 @@ const Sport = () => {
   const { house: userHouse } = useUserBettingHouse();
   const { sendXpEvent } = useGamification();
   const [iframeUrl, setIframeUrl] = useState<string>("");
-  const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const [activeTierHighlight, setActiveTierHighlight] = useState<TierType | null>(null);
   const [activeCardIndex, setActiveCardIndex] = useState(0);
@@ -457,15 +456,7 @@ const Sport = () => {
         window.open(url, '_blank', 'noopener,noreferrer');
         toast.success("Tip adicionada!", { description: "Link aberto em nova aba" });
       } else {
-        // Navigate iframe via link target to preserve session
-        const tempLink = document.createElement('a');
-        tempLink.href = url;
-        tempLink.target = 'bet-iframe';
-        tempLink.rel = 'noopener';
-        tempLink.style.display = 'none';
-        document.body.appendChild(tempLink);
-        tempLink.click();
-        document.body.removeChild(tempLink);
+        setIframeUrl(url);
         toast.success("Tip adicionada!", { description: "Cupom carregado no site de apostas abaixo" });
         setTimeout(() => {
           document.getElementById("bet-iframe-section")?.scrollIntoView({ behavior: "smooth" });
@@ -812,7 +803,7 @@ const Sport = () => {
           ) : (
             <div className="w-full h-[1000px] bg-gradient-to-br from-muted/40 to-muted/20 rounded-xl overflow-hidden border border-border/30 backdrop-blur-sm">
               {iframeUrl ? (
-                <iframe ref={iframeRef} name="bet-iframe" src={userHouse?.iframe_url || ""} title="Bet Site" className="w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+                <iframe key={iframeUrl} src={iframeUrl} title="Bet Site" className="w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
                   <p className="text-muted-foreground">Carregando...</p>
