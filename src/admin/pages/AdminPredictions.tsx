@@ -144,7 +144,6 @@ export default function AdminPredictions() {
             ))}
           </TableBody>
         </Table>
-        </>
       )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
