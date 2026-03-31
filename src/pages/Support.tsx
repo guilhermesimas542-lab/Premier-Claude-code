@@ -19,6 +19,7 @@ import { getUpgradeLinkForTier } from "@/lib/checkoutLinks";
 import { usePayCardTrigger } from "@/hooks/usePayCardTrigger";
 import { PayCardFunnelModal } from "@/components/PayCardFunnelModal";
 import AppHeader from "@/components/AppHeader";
+import FeedbackModal from "@/components/FeedbackModal";
 import logoImg from "@/assets/premier-logo-custom.png";
 
 const TIER_LABELS: Record<string, string> = {
