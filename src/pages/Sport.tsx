@@ -392,12 +392,6 @@ const Sport = () => {
     }
   }, [userHouse]);
 
-  // Navigate iframe via ref to avoid DOM destruction and session loss
-  useEffect(() => {
-    if (iframeRef.current && iframeUrl) {
-      iframeRef.current.src = iframeUrl;
-    }
-  }, [iframeUrl]);
 
 
   useEffect(() => {
@@ -463,7 +457,15 @@ const Sport = () => {
         window.open(url, '_blank', 'noopener,noreferrer');
         toast.success("Tip adicionada!", { description: "Link aberto em nova aba" });
       } else {
-        setIframeUrl(url);
+        // Navigate iframe via link target to preserve session
+        const tempLink = document.createElement('a');
+        tempLink.href = url;
+        tempLink.target = 'bet-iframe';
+        tempLink.rel = 'noopener';
+        tempLink.style.display = 'none';
+        document.body.appendChild(tempLink);
+        tempLink.click();
+        document.body.removeChild(tempLink);
         toast.success("Tip adicionada!", { description: "Cupom carregado no site de apostas abaixo" });
         setTimeout(() => {
           document.getElementById("bet-iframe-section")?.scrollIntoView({ behavior: "smooth" });
@@ -810,7 +812,7 @@ const Sport = () => {
           ) : (
             <div className="w-full h-[1000px] bg-gradient-to-br from-muted/40 to-muted/20 rounded-xl overflow-hidden border border-border/30 backdrop-blur-sm">
               {iframeUrl ? (
-                <iframe ref={iframeRef} title="Bet Site" className="w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+                <iframe ref={iframeRef} name="bet-iframe" src={userHouse?.iframe_url || ""} title="Bet Site" className="w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
                   <p className="text-muted-foreground">Carregando...</p>
