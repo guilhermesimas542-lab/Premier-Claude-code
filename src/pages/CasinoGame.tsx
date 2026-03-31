@@ -424,7 +424,6 @@ const CasinoGame = () => {
           <section className="w-full">
             <div className="w-full rounded-xl overflow-hidden" style={{ background: "rgba(0,10,0,0.4)", border: "1px solid rgba(0,255,0,0.15)", height: "1000px" }}>
               <iframe
-                
                 src={gameUrl}
                 title={gameConfig.name}
                 className="w-full h-full"
