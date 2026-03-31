@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { MessageSquare, Trash2, Image, ChevronUp, ChevronDown, ChevronsUpDown } from "lucide-react";
+import { MessageSquare, Trash2, Image, ChevronUp, ChevronDown, ChevronsUpDown, X, Copy } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
@@ -44,6 +44,8 @@ export default function AdminFeedback() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [imageModal, setImageModal] = useState<string | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [detailFeedback, setDetailFeedback] = useState<Feedback | null>(null);
+  const [detailDeleteConfirm, setDetailDeleteConfirm] = useState(false);
 
   const fetchFeedbacks = useCallback(async () => {
     setLoading(true);
@@ -69,6 +71,7 @@ export default function AdminFeedback() {
     const { error } = await (supabase.from("user_feedback" as any).update({ status: newStatus } as any).eq("id", id) as any);
     if (error) { toast.error("Erro ao atualizar status"); return; }
     setFeedbacks((prev) => prev.map((f) => (f.id === id ? { ...f, status: newStatus } : f)));
+    if (detailFeedback?.id === id) setDetailFeedback((prev) => prev ? { ...prev, status: newStatus } : null);
   };
 
   const handleDelete = async (id: string) => {
@@ -76,6 +79,7 @@ export default function AdminFeedback() {
     if (error) { toast.error("Erro ao excluir"); return; }
     setFeedbacks((prev) => prev.filter((f) => f.id !== id));
     setDeleteConfirm(null);
+    if (detailFeedback?.id === id) { setDetailFeedback(null); setDetailDeleteConfirm(false); }
     toast.success("Feedback excluído");
   };
 
@@ -109,6 +113,18 @@ export default function AdminFeedback() {
       ))}
     </div>
   );
+
+  const handleRowClick = (fb: Feedback, e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    if (target.closest("select") || target.closest("button")) return;
+    setDetailFeedback(fb);
+    setDetailDeleteConfirm(false);
+  };
+
+  const copyEmail = (email: string) => {
+    navigator.clipboard.writeText(email);
+    toast.success("Email copiado!");
+  };
 
   return (
     <div className="space-y-6">
@@ -195,30 +211,20 @@ export default function AdminFeedback() {
               feedbacks.map((fb) => {
                 const cat = CATEGORY_COLORS[fb.category] || CATEGORY_COLORS.outro;
                 const st = STATUS_COLORS[fb.status] || STATUS_COLORS.novo;
-                const isExpanded = expandedId === fb.id;
                 const truncated = fb.message.length > 100 ? fb.message.slice(0, 100) + "…" : fb.message;
 
                 return (
-                  <tr key={fb.id} className="hover:bg-white/5">
+                  <tr key={fb.id} className="hover:bg-white/5 cursor-pointer" onClick={(e) => handleRowClick(fb, e)}>
                     <td className="px-4 py-3 text-white text-xs">{fb.email}</td>
                     <td className="px-4 py-3">
                       <span className="px-2 py-0.5 rounded-full text-[10px] font-bold" style={{ background: cat.bg, color: cat.text }}>
                         {cat.label}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-gray-300 text-xs max-w-[250px]">
-                      <span
-                        className={fb.message.length > 100 ? "cursor-pointer hover:text-white" : ""}
-                        onClick={() => fb.message.length > 100 && setExpandedId(isExpanded ? null : fb.id)}
-                      >
-                        {isExpanded ? fb.message : truncated}
-                      </span>
-                    </td>
+                    <td className="px-4 py-3 text-gray-300 text-xs max-w-[250px]">{truncated}</td>
                     <td className="px-4 py-3">
                       {fb.screenshot_url ? (
-                        <button onClick={() => setImageModal(fb.screenshot_url)} className="text-blue-400 hover:text-blue-300">
-                          <Image className="w-4 h-4" />
-                        </button>
+                        <span className="text-blue-400"><Image className="w-4 h-4" /></span>
                       ) : (
                         <span className="text-gray-600">—</span>
                       )}
@@ -268,6 +274,143 @@ export default function AdminFeedback() {
           <img src={imageModal} alt="Screenshot" className="max-w-full max-h-[80vh] rounded-xl" onClick={(e) => e.stopPropagation()} />
         </div>
       )}
+
+      {/* Detail Modal */}
+      {detailFeedback && (() => {
+        const fb = detailFeedback;
+        const cat = CATEGORY_COLORS[fb.category] || CATEGORY_COLORS.outro;
+        const st = STATUS_COLORS[fb.status] || STATUS_COLORS.novo;
+
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setDetailFeedback(null)}>
+            <div className="absolute inset-0 bg-black/70" />
+            <div
+              className="relative w-full max-w-2xl rounded-2xl p-6 space-y-5 max-h-[90vh] overflow-y-auto"
+              style={{ background: "#0F1A2E", border: "1.5px solid rgba(255,255,255,0.12)" }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Close button */}
+              <button onClick={() => setDetailFeedback(null)} className="absolute top-4 right-4 p-1 rounded-lg hover:bg-white/10 text-gray-400">
+                <X className="w-5 h-5" />
+              </button>
+
+              {/* Header: category badge + status dropdown */}
+              <div className="flex items-center gap-3 flex-wrap">
+                <span className="px-3 py-1 rounded-full text-xs font-bold" style={{ background: cat.bg, color: cat.text }}>
+                  {cat.label}
+                </span>
+                <select
+                  value={fb.status}
+                  onChange={(e) => handleStatusChange(fb.id, e.target.value)}
+                  className="rounded-lg px-3 py-1 text-xs font-bold border-0 outline-none cursor-pointer"
+                  style={{ background: st.bg, color: st.text }}
+                >
+                  <option value="novo">Novo</option>
+                  <option value="lido">Lido</option>
+                  <option value="resolvido">Resolvido</option>
+                </select>
+              </div>
+
+              {/* Email */}
+              <div>
+                <p className="text-[10px] text-gray-500 mb-1">Email</p>
+                <button
+                  onClick={() => copyEmail(fb.email)}
+                  className="flex items-center gap-2 text-sm text-white hover:text-blue-400 transition-colors"
+                >
+                  {fb.email}
+                  <Copy className="w-3.5 h-3.5 opacity-50" />
+                </button>
+              </div>
+
+              {/* Date */}
+              <div>
+                <p className="text-[10px] text-gray-500 mb-1">Data</p>
+                <p className="text-sm text-gray-300">
+                  {format(new Date(fb.created_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                </p>
+              </div>
+
+              {/* Message */}
+              <div>
+                <p className="text-[10px] text-gray-500 mb-1">Mensagem</p>
+                <div
+                  className="rounded-xl p-4 text-sm text-gray-200 whitespace-pre-wrap max-h-[200px] overflow-y-auto"
+                  style={{ background: "#0D1929", border: "1px solid rgba(255,255,255,0.08)" }}
+                >
+                  {fb.message}
+                </div>
+              </div>
+
+              {/* Screenshot */}
+              {fb.screenshot_url && (
+                <div>
+                  <p className="text-[10px] text-gray-500 mb-1">Screenshot</p>
+                  <a href={fb.screenshot_url} target="_blank" rel="noopener noreferrer">
+                    <img
+                      src={fb.screenshot_url}
+                      alt="Screenshot"
+                      className="rounded-xl cursor-pointer hover:opacity-90 transition-opacity"
+                      style={{ maxWidth: "100%", maxHeight: 400, objectFit: "contain" }}
+                    />
+                  </a>
+                </div>
+              )}
+
+              {/* Footer buttons */}
+              <div className="flex flex-wrap gap-2 pt-2 border-t border-white/10">
+                {fb.status === "novo" && (
+                  <Button
+                    size="sm"
+                    className="bg-blue-600 hover:bg-blue-700 text-white text-xs"
+                    onClick={() => handleStatusChange(fb.id, "lido")}
+                  >
+                    Marcar como Lido
+                  </Button>
+                )}
+                {(fb.status === "novo" || fb.status === "lido") && (
+                  <Button
+                    size="sm"
+                    className="text-xs"
+                    style={{ background: "#00CC66", color: "#000" }}
+                    onClick={() => handleStatusChange(fb.id, "resolvido")}
+                  >
+                    Marcar como Resolvido
+                  </Button>
+                )}
+                {detailDeleteConfirm ? (
+                  <div className="flex gap-1 ml-auto">
+                    <span className="text-xs text-red-400 self-center mr-1">Confirmar?</span>
+                    <Button size="sm" variant="destructive" className="text-xs" onClick={() => handleDelete(fb.id)}>
+                      Sim, excluir
+                    </Button>
+                    <Button size="sm" variant="ghost" className="text-xs text-gray-400" onClick={() => setDetailDeleteConfirm(false)}>
+                      Não
+                    </Button>
+                  </div>
+                ) : (
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    className="text-xs ml-auto"
+                    onClick={() => setDetailDeleteConfirm(true)}
+                  >
+                    Excluir
+                  </Button>
+                )}
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="text-xs text-gray-400 border-gray-600"
+                  onClick={() => setDetailFeedback(null)}
+                >
+                  Fechar
+                </Button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }
