@@ -328,6 +328,21 @@ export default function AdminTipsList() {
     <div className="space-y-4">
       <h2 className="text-xl font-bold">Listar Tips</h2>
 
+      {/* Today's category counts */}
+      {todayCategoryCounts.length > 0 && (
+        <div className="flex items-center gap-3 flex-wrap">
+          <span className="text-sm text-gray-400">Entradas hoje:</span>
+          {todayCategoryCounts.map((cat) => (
+            <span
+              key={cat.label}
+              className={`px-2 py-1 rounded text-xs font-medium ${cat.bgClass} ${cat.textClass}`}
+            >
+              {cat.label}: {cat.count}
+            </span>
+          ))}
+        </div>
+      )}
+
       {/* Filters */}
       <div className="flex flex-wrap gap-2">
         <Input placeholder="Time" value={filters.team} onChange={(e) => setF("team", e.target.value)} className="w-36 bg-gray-900 border-gray-800 text-sm" />
