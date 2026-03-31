@@ -99,6 +99,7 @@ const Support = () => {
   const [selectedPreviewAch, setSelectedPreviewAch] = useState<any>(null);
 
   const [showLifetimeInfoModal, setShowLifetimeInfoModal] = useState(false);
+  const [isFeedbackOpen, setFeedbackOpen] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
