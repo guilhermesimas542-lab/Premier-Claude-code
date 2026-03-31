@@ -114,6 +114,7 @@ const App = () => {
               <Route path="cards" element={<AdminCards />} />
               <Route path="pay-cards" element={<AdminPayCards />} />
               <Route path="errors" element={<AdminErrors />} />
+              <Route path="feedback" element={<AdminFeedback />} />
               <Route path="webhook" element={<AdminWebhook />} />
               {/* Cassino placeholders */}
               <Route path="cassino" element={<AdminCassinoPlaceholder />} />

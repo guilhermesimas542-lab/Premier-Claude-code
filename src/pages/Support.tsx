@@ -357,6 +357,13 @@ const Support = () => {
       {/* Profile Modal */}
       <ProfileModal isOpen={isProfileModalOpen} onClose={() => setProfileModalOpen(false)} />
 
+      <FeedbackModal
+        isOpen={isFeedbackOpen}
+        onClose={() => setFeedbackOpen(false)}
+        userId={userId || ""}
+        userEmail={mockUser?.email || ""}
+      />
+
       <AchievementDetailModal
         achievement={selectedPreviewAch}
         userAchievement={selectedPreviewAch ? userAchievements.find((ua: any) => ua.achievement_id === selectedPreviewAch.id) || null : null}

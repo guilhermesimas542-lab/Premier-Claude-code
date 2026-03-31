@@ -64,6 +64,7 @@ const futebolSections: Section[] = [
       { to: "/admin/analytics/events", icon: Activity, label: "Eventos" },
       { to: "/admin/ranking", icon: Trophy, label: "Ranking" },
       { to: "/admin/errors", icon: Bug, label: "Erros" },
+      { to: "/admin/feedback", icon: MessageSquare, label: "Feedback" },
     ],
   },
   {
