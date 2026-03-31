@@ -392,12 +392,6 @@ const Sport = () => {
     }
   }, [userHouse]);
 
-  // Navigate iframe via ref to avoid DOM destruction and session loss
-  useEffect(() => {
-    if (iframeRef.current && iframeUrl) {
-      iframeRef.current.src = iframeUrl;
-    }
-  }, [iframeUrl]);
 
 
   useEffect(() => {
