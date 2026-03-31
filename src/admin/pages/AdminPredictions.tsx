@@ -30,7 +30,7 @@ export default function AdminPredictions() {
     const { data } = await supabase
       .from("market_predictions")
       .select("*")
-      .order("prediction");
+      .order(sortField);
     setItems((data as MarketPrediction[]) ?? []);
     setLoading(false);
   };
