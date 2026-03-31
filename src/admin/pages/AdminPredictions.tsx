@@ -23,18 +23,19 @@ export default function AdminPredictions() {
   const [saving, setSaving] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState({ prediction: "", market: "", market_explanation: "" });
+  const [sortField, setSortField] = useState<"prediction" | "market">("prediction");
 
   const fetchItems = async () => {
     setLoading(true);
     const { data } = await supabase
       .from("market_predictions")
       .select("*")
-      .order("prediction");
+      .order(sortField);
     setItems((data as MarketPrediction[]) ?? []);
     setLoading(false);
   };
 
-  useEffect(() => { fetchItems(); }, []);
+  useEffect(() => { fetchItems(); }, [sortField]);
 
   const openNew = () => {
     setEditingId(null);
@@ -93,6 +94,30 @@ export default function AdminPredictions() {
       ) : items.length === 0 ? (
         <p className="text-muted-foreground text-sm text-center py-8">Nenhum palpite cadastrado ainda.</p>
       ) : (
+        <>
+          <div className="flex items-center gap-2 mb-4">
+            <span className="text-sm text-gray-400">Ordenar por:</span>
+            <button
+              onClick={() => setSortField("prediction")}
+              className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
+                sortField === "prediction"
+                  ? "bg-green-600/30 text-green-400 border border-green-500/50"
+                  : "bg-gray-700/30 text-gray-400 hover:bg-gray-600/30"
+              }`}
+            >
+              Palpite (A-Z)
+            </button>
+            <button
+              onClick={() => setSortField("market")}
+              className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
+                sortField === "market"
+                  ? "bg-green-600/30 text-green-400 border border-green-500/50"
+                  : "bg-gray-700/30 text-gray-400 hover:bg-gray-600/30"
+              }`}
+            >
+              Mercado (A-Z)
+            </button>
+          </div>
         <Table>
           <TableHeader>
             <TableRow>
@@ -118,6 +143,7 @@ export default function AdminPredictions() {
             ))}
           </TableBody>
         </Table>
+        </>
       )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
