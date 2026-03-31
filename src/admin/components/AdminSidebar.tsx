@@ -3,7 +3,7 @@ import {
   LayoutDashboard, Image, PlusCircle, List,
   Users, Bell, BarChart3, ChevronLeft, ChevronRight,
   DollarSign, Activity, Home, Link, Layers, Shield, CreditCard, Bug, Zap,
-  ChevronDown, UserPlus, Trophy,
+  ChevronDown, UserPlus, Trophy, MessageSquare,
 } from "lucide-react";
 import { useState } from "react";
 import { useAdminMode } from "../context/AdminModeContext";
@@ -64,6 +64,7 @@ const futebolSections: Section[] = [
       { to: "/admin/analytics/events", icon: Activity, label: "Eventos" },
       { to: "/admin/ranking", icon: Trophy, label: "Ranking" },
       { to: "/admin/errors", icon: Bug, label: "Erros" },
+      { to: "/admin/feedback", icon: MessageSquare, label: "Feedback" },
     ],
   },
   {

@@ -1,4 +1,4 @@
-import { MessageCircle, Headphones, Star, Flame, Trophy, Users, Calendar, Rocket, Crown, LogOut, Lock } from "lucide-react";
+import { MessageCircle, MessageSquare, Headphones, Star, Flame, Trophy, Users, Calendar, Rocket, Crown, LogOut, Lock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -19,6 +19,7 @@ import { getUpgradeLinkForTier } from "@/lib/checkoutLinks";
 import { usePayCardTrigger } from "@/hooks/usePayCardTrigger";
 import { PayCardFunnelModal } from "@/components/PayCardFunnelModal";
 import AppHeader from "@/components/AppHeader";
+import FeedbackModal from "@/components/FeedbackModal";
 import logoImg from "@/assets/premier-logo-custom.png";
 
 const TIER_LABELS: Record<string, string> = {
@@ -98,6 +99,7 @@ const Support = () => {
   const [selectedPreviewAch, setSelectedPreviewAch] = useState<any>(null);
 
   const [showLifetimeInfoModal, setShowLifetimeInfoModal] = useState(false);
+  const [isFeedbackOpen, setFeedbackOpen] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -264,6 +266,43 @@ const Support = () => {
 
         <PlanUpgradeCard />
 
+        {/* Feedback Card */}
+        <section
+          className="rounded-2xl p-4 sm:p-5 space-y-4"
+          style={{ background: "#112236", border: "1.5px solid rgba(255,255,255,0.30)", borderRadius: 16 }}
+        >
+          <div className="flex items-center gap-3">
+            <MessageSquare className="w-5 h-5" style={{ color: '#FFFFFF' }} />
+            <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 18, color: "#FFFFFF" }}>
+              Feedback
+            </h2>
+          </div>
+          <p className="text-sm" style={{ color: "#CCCCCC" }}>
+            Encontrou um problema ou tem uma sugestão? Nos conte.
+          </p>
+          <button
+            onClick={() => setFeedbackOpen(true)}
+            className="w-full transition-all"
+            style={{
+              background: "transparent",
+              border: "1.5px solid rgba(255,255,255,0.3)",
+              color: "#FFFFFF",
+              fontFamily: "'Barlow Condensed', sans-serif",
+              fontWeight: 700,
+              fontSize: 14,
+              padding: "10px 0",
+              borderRadius: 10,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 8,
+            }}
+          >
+            <MessageSquare className="w-4 h-4" />
+            Enviar Feedback
+          </button>
+        </section>
 
         {/* Support Card */}
         <section className="rounded-2xl p-4 sm:p-5 space-y-4" style={{ background: "#112236", border: "1.5px solid rgba(255,255,255,0.30)", borderRadius: 16 }}>
@@ -317,6 +356,13 @@ const Support = () => {
 
       {/* Profile Modal */}
       <ProfileModal isOpen={isProfileModalOpen} onClose={() => setProfileModalOpen(false)} />
+
+      <FeedbackModal
+        isOpen={isFeedbackOpen}
+        onClose={() => setFeedbackOpen(false)}
+        userId={userId || ""}
+        userEmail={mockUser?.email || ""}
+      />
 
       <AchievementDetailModal
         achievement={selectedPreviewAch}

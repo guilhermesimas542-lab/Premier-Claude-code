@@ -44,6 +44,7 @@ import AdminPredictions from "./admin/pages/AdminPredictions";
 import AdminCards from "./admin/pages/AdminCards";
 import AdminPayCards from "./admin/pages/AdminPayCards";
 import AdminErrors from "./admin/pages/AdminErrors";
+import AdminFeedback from "./admin/pages/AdminFeedback";
 import AdminWebhook from "./admin/pages/AdminWebhook";
 import { Navigate } from "react-router-dom";
 import { FunnelPopupProvider } from "./context/FunnelPopupContext";
@@ -113,6 +114,7 @@ const App = () => {
               <Route path="cards" element={<AdminCards />} />
               <Route path="pay-cards" element={<AdminPayCards />} />
               <Route path="errors" element={<AdminErrors />} />
+              <Route path="feedback" element={<AdminFeedback />} />
               <Route path="webhook" element={<AdminWebhook />} />
               {/* Cassino placeholders */}
               <Route path="cassino" element={<AdminCassinoPlaceholder />} />
