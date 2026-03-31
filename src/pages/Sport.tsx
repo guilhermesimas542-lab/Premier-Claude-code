@@ -803,7 +803,7 @@ const Sport = () => {
           ) : (
             <div className="w-full h-[1000px] bg-gradient-to-br from-muted/40 to-muted/20 rounded-xl overflow-hidden border border-border/30 backdrop-blur-sm">
               {iframeUrl ? (
-                <iframe key={iframeUrl} src={iframeUrl} title="Bet Site" className="w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+                <iframe src={iframeUrl} title="Bet Site" className="w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
                   <p className="text-muted-foreground">Carregando...</p>
