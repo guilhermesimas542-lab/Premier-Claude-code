@@ -104,7 +104,6 @@ export default function AdminPredictions() {
       ) : items.length === 0 ? (
         <p className="text-muted-foreground text-sm text-center py-8">Nenhum palpite cadastrado ainda.</p>
       ) : (
-        <>
         <Table>
           <TableHeader>
             <TableRow>
