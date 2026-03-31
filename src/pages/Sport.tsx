@@ -1,6 +1,6 @@
 import { ArrowLeft, LogOut, Loader2, Lock, Menu, X, Gift, Headphones, Crown } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { PremiumBettingCard } from "@/components/PremiumBettingCard";
 import { SpecialBettingCard } from "@/components/SpecialBettingCard";
 import { JustificativaModal } from "@/components/JustificativaModal";
