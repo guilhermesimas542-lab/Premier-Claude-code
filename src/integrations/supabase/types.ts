@@ -74,6 +74,27 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_last_seen: {
+        Row: {
+          admin_email: string
+          id: string
+          last_seen_at: string
+          section: string
+        }
+        Insert: {
+          admin_email: string
+          id?: string
+          last_seen_at?: string
+          section: string
+        }
+        Update: {
+          admin_email?: string
+          id?: string
+          last_seen_at?: string
+          section?: string
+        }
+        Relationships: []
+      }
       app_errors: {
         Row: {
           component: string | null
