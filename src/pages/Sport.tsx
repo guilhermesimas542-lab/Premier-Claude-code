@@ -154,6 +154,7 @@ const Sport = () => {
   const { house: userHouse } = useUserBettingHouse();
   const { sendXpEvent } = useGamification();
   const [iframeUrl, setIframeUrl] = useState<string>("");
+  const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const [activeTierHighlight, setActiveTierHighlight] = useState<TierType | null>(null);
   const [activeCardIndex, setActiveCardIndex] = useState(0);
@@ -390,6 +391,13 @@ const Sport = () => {
       setIframeUrl(userHouse.iframe_url);
     }
   }, [userHouse]);
+
+  // Navigate iframe via ref to avoid DOM destruction and session loss
+  useEffect(() => {
+    if (iframeRef.current && iframeUrl) {
+      iframeRef.current.src = iframeUrl;
+    }
+  }, [iframeUrl]);
 
 
   useEffect(() => {
@@ -802,7 +810,7 @@ const Sport = () => {
           ) : (
             <div className="w-full h-[1000px] bg-gradient-to-br from-muted/40 to-muted/20 rounded-xl overflow-hidden border border-border/30 backdrop-blur-sm">
               {iframeUrl ? (
-                <iframe key={iframeUrl} src={iframeUrl} title="Bet Site" className="w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+                <iframe ref={iframeRef} title="Bet Site" className="w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
                   <p className="text-muted-foreground">Carregando...</p>
