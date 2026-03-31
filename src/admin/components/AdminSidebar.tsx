@@ -5,8 +5,10 @@ import {
   DollarSign, Activity, Home, Link, Layers, Shield, CreditCard, Bug, Zap,
   ChevronDown, UserPlus, Trophy, MessageSquare,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAdminMode } from "../context/AdminModeContext";
+import { useAdmin } from "../hooks/useAdmin";
+import { useAdminBadges } from "../hooks/useAdminBadges";
 
 interface MenuItem {
   to: string;
@@ -14,6 +16,8 @@ interface MenuItem {
   label: string;
   end?: boolean;
   children?: { to: string; icon: React.ElementType; label: string; end?: boolean }[];
+  badge?: number | null;
+  badgeColor?: string; // tailwind bg class, defaults to bg-red-500
 }
 
 interface Section {
@@ -21,93 +25,105 @@ interface Section {
   items: MenuItem[];
 }
 
-const futebolSections: Section[] = [
-  {
-    label: "Gestão",
-    items: [
-      { to: "/admin", icon: LayoutDashboard, label: "Dashboard", end: true },
-      { to: "/admin/banners", icon: Image, label: "Banners" },
-      {
-        to: "/admin/clients",
-        icon: Users,
-        label: "Clientes",
-        children: [
-          { to: "/admin/clients", icon: List, label: "Lista de Clientes", end: true },
-          { to: "/admin/clients/create", icon: UserPlus, label: "Cadastrar Novo" },
-        ],
-      },
-      { to: "/admin/notifications", icon: Bell, label: "Notificações" },
-    ],
-  },
-  {
-    label: "Entradas",
-    items: [
-      { to: "/admin/tips/create", icon: PlusCircle, label: "Tips: Cadastrar" },
-      { to: "/admin/tips/list", icon: List, label: "Tips: Listar" },
-      { to: "/admin/teams", icon: Shield, label: "Times (Logos)" },
-      { to: "/admin/predictions", icon: Layers, label: "Palpites/Mercado" },
-    ],
-  },
-  {
-    label: "Links e Pop-ups",
-    items: [
-      { to: "/admin/default-links", icon: Link, label: "Links Padrão" },
-      { to: "/admin/popups", icon: Layers, label: "Pop-ups e Funis" },
-      { to: "/admin/cards", icon: Layers, label: "Cards e Funis" },
-      { to: "/admin/pay-cards", icon: CreditCard, label: "Pay Cards" },
-    ],
-  },
-  {
-    label: "Analytics",
-    items: [
-      { to: "/admin/analytics", icon: BarChart3, label: "Visão Geral" },
-      { to: "/admin/analytics/events", icon: Activity, label: "Eventos" },
-      { to: "/admin/ranking", icon: Trophy, label: "Ranking" },
-      { to: "/admin/errors", icon: Bug, label: "Erros" },
-      { to: "/admin/feedback", icon: MessageSquare, label: "Feedback" },
-    ],
-  },
-  {
-    label: "Finanças",
-    items: [
-      { to: "/admin/revenue", icon: DollarSign, label: "Receita" },
-    ],
-  },
-  {
-    label: "Integrações",
-    items: [
-      { to: "/admin/betting-houses", icon: Home, label: "Casas Parceiras" },
-      { to: "/admin/webhook", icon: Zap, label: "Webhook" },
-    ],
-  },
-];
-
-const cassinoSections: Section[] = [
-  {
-    label: "Gestão",
-    items: [
-      { to: "/admin/cassino", icon: LayoutDashboard, label: "Dashboard", end: true },
-    ],
-  },
-  {
-    label: "Analytics",
-    items: [
-      { to: "/admin/cassino/analytics", icon: BarChart3, label: "Visão Geral" },
-    ],
-  },
-  {
-    label: "Finanças",
-    items: [
-      { to: "/admin/cassino/revenue", icon: DollarSign, label: "Receita" },
-    ],
-  },
-];
-
 export function AdminSidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const { mode, setMode } = useAdminMode();
   const location = useLocation();
   const [expandedMenus, setExpandedMenus] = useState<Set<string>>(new Set());
+  const { user } = useAdmin();
+  const { counts, markSeen } = useAdminBadges(user?.email ?? null);
+
+  // Mark seen when navigating to specific sections
+  useEffect(() => {
+    if (location.pathname.startsWith("/admin/clients")) {
+      markSeen("clients");
+    } else if (location.pathname === "/admin/errors") {
+      markSeen("errors");
+    }
+  }, [location.pathname, markSeen]);
+
+  const futebolSections: Section[] = [
+    {
+      label: "Gestão",
+      items: [
+        { to: "/admin", icon: LayoutDashboard, label: "Dashboard", end: true },
+        { to: "/admin/banners", icon: Image, label: "Banners" },
+        {
+          to: "/admin/clients",
+          icon: Users,
+          label: "Clientes",
+          badge: counts.clients,
+          children: [
+            { to: "/admin/clients", icon: List, label: "Lista de Clientes", end: true },
+            { to: "/admin/clients/create", icon: UserPlus, label: "Cadastrar Novo" },
+          ],
+        },
+        { to: "/admin/notifications", icon: Bell, label: "Notificações" },
+      ],
+    },
+    {
+      label: "Entradas",
+      items: [
+        { to: "/admin/tips/create", icon: PlusCircle, label: "Tips: Cadastrar" },
+        { to: "/admin/tips/list", icon: List, label: "Tips: Listar", badge: counts.tips, badgeColor: "bg-blue-500" },
+        { to: "/admin/teams", icon: Shield, label: "Times (Logos)" },
+        { to: "/admin/predictions", icon: Layers, label: "Palpites/Mercado" },
+      ],
+    },
+    {
+      label: "Links e Pop-ups",
+      items: [
+        { to: "/admin/default-links", icon: Link, label: "Links Padrão" },
+        { to: "/admin/popups", icon: Layers, label: "Pop-ups e Funis" },
+        { to: "/admin/cards", icon: Layers, label: "Cards e Funis" },
+        { to: "/admin/pay-cards", icon: CreditCard, label: "Pay Cards" },
+      ],
+    },
+    {
+      label: "Analytics",
+      items: [
+        { to: "/admin/analytics", icon: BarChart3, label: "Visão Geral" },
+        { to: "/admin/analytics/events", icon: Activity, label: "Eventos" },
+        { to: "/admin/ranking", icon: Trophy, label: "Ranking" },
+        { to: "/admin/errors", icon: Bug, label: "Erros", badge: counts.errors },
+        { to: "/admin/feedback", icon: MessageSquare, label: "Feedback", badge: counts.feedback },
+      ],
+    },
+    {
+      label: "Finanças",
+      items: [
+        { to: "/admin/revenue", icon: DollarSign, label: "Receita" },
+      ],
+    },
+    {
+      label: "Integrações",
+      items: [
+        { to: "/admin/betting-houses", icon: Home, label: "Casas Parceiras" },
+        { to: "/admin/webhook", icon: Zap, label: "Webhook" },
+      ],
+    },
+  ];
+
+  const cassinoSections: Section[] = [
+    {
+      label: "Gestão",
+      items: [
+        { to: "/admin/cassino", icon: LayoutDashboard, label: "Dashboard", end: true },
+      ],
+    },
+    {
+      label: "Analytics",
+      items: [
+        { to: "/admin/cassino/analytics", icon: BarChart3, label: "Visão Geral" },
+      ],
+    },
+    {
+      label: "Finanças",
+      items: [
+        { to: "/admin/cassino/revenue", icon: DollarSign, label: "Receita" },
+      ],
+    },
+  ];
 
   const sections = mode === "futebol" ? futebolSections : cassinoSections;
 
@@ -125,6 +141,16 @@ export function AdminSidebar() {
 
   const isExpanded = (item: MenuItem) =>
     expandedMenus.has(item.to) || isChildActive(item);
+
+  const BadgeSpan = ({ count, color }: { count: number; color?: string }) => {
+    if (!count || count <= 0) return null;
+    const bg = color || "bg-red-500";
+    return (
+      <span className={`ml-auto ${bg} text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1`}>
+        {count > 99 ? "99+" : count}
+      </span>
+    );
+  };
 
   return (
     <aside
@@ -188,8 +214,13 @@ export function AdminSidebar() {
                       {!collapsed && (
                         <>
                           <span className="truncate flex-1 text-left">{item.label}</span>
+                          {item.badge != null && item.badge > 0 && (
+                            <span className={`mr-1 ${item.badgeColor || "bg-red-500"} text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1`}>
+                              {item.badge > 99 ? "99+" : item.badge}
+                            </span>
+                          )}
                           <ChevronDown
-                            className={`w-3 h-3 transition-transform ${isExpanded(item) ? "rotate-180" : ""}`}
+                            className={`w-3 h-3 transition-transform shrink-0 ${isExpanded(item) ? "rotate-180" : ""}`}
                           />
                         </>
                       )}
@@ -231,6 +262,7 @@ export function AdminSidebar() {
                   >
                     <item.icon className="w-4 h-4 shrink-0" />
                     {!collapsed && <span className="truncate">{item.label}</span>}
+                    {!collapsed && <BadgeSpan count={item.badge ?? 0} color={item.badgeColor} />}
                   </NavLink>
                 )
               )}
