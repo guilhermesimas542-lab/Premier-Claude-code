@@ -457,15 +457,7 @@ const Sport = () => {
         window.open(url, '_blank', 'noopener,noreferrer');
         toast.success("Tip adicionada!", { description: "Link aberto em nova aba" });
       } else {
-        // Navigate iframe via link target to preserve session
-        const tempLink = document.createElement('a');
-        tempLink.href = url;
-        tempLink.target = 'bet-iframe';
-        tempLink.rel = 'noopener';
-        tempLink.style.display = 'none';
-        document.body.appendChild(tempLink);
-        tempLink.click();
-        document.body.removeChild(tempLink);
+        setIframeUrl(url);
         toast.success("Tip adicionada!", { description: "Cupom carregado no site de apostas abaixo" });
         setTimeout(() => {
           document.getElementById("bet-iframe-section")?.scrollIntoView({ behavior: "smooth" });
