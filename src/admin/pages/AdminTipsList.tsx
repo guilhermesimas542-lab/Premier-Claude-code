@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { getTodayInBrazil } from "@/lib/timezone";
 import { fromZonedTime } from "date-fns-tz";
@@ -44,6 +44,22 @@ const ADDON_ORDER: Record<string, number> = { alavancagem: 4, desaltas: 5 };
 // House index → link column
 const HOUSE_LINK_COLS = ["link_house_1", "link_house_2", "link_house_3"] as const;
 
+interface CategoryCount {
+  label: string;
+  count: number;
+  bgClass: string;
+  textClass: string;
+}
+
+const CATEGORY_STYLES: Record<string, { label: string; bg: string; text: string }> = {
+  free: { label: "Free", bg: "bg-gray-600/30", text: "text-gray-300" },
+  basic: { label: "Basic", bg: "bg-blue-600/30", text: "text-blue-400" },
+  pro: { label: "Pro", bg: "bg-green-600/30", text: "text-green-400" },
+  ultra: { label: "Ultra", bg: "bg-purple-600/30", text: "text-purple-400" },
+  alavancagem: { label: "Alavancagem", bg: "bg-yellow-600/30", text: "text-yellow-400" },
+  desaltas: { label: "Odds Altas", bg: "bg-orange-600/30", text: "text-orange-400" },
+};
+
 export default function AdminTipsList() {
   const { selectedHouseId, houses } = useBettingHouseAdmin();
   const [items, setItems] = useState<AdminContentEntry[]>([]);
@@ -58,6 +74,30 @@ export default function AdminTipsList() {
   const [bulkDeleting, setBulkDeleting] = useState(false);
   const [sortCol, setSortCol] = useState<SortColumn | null>(null);
   const [sortDir, setSortDir] = useState<SortDir>("asc");
+  const [todayCategoryCounts, setTodayCategoryCounts] = useState<CategoryCount[]>([]);
+
+  // Fetch today's tips by category
+  const fetchTodayCounts = useCallback(async () => {
+    const { data } = await supabase
+      .from("content_entries")
+      .select("tier_required, addon_required")
+      .eq("date", today);
+    if (!data) return;
+    const map: Record<string, number> = {};
+    for (const row of data) {
+      const key = (row as any).addon_required || (row as any).tier_required || "free";
+      map[key] = (map[key] || 0) + 1;
+    }
+    const cats: CategoryCount[] = Object.entries(map)
+      .map(([key, count]) => {
+        const style = CATEGORY_STYLES[key] || { label: key, bg: "bg-gray-600/30", text: "text-gray-300" };
+        return { label: style.label, count, bgClass: style.bg, textClass: style.text };
+      })
+      .sort((a, b) => b.count - a.count);
+    setTodayCategoryCounts(cats);
+  }, [today]);
+
+  useEffect(() => { fetchTodayCounts(); }, [fetchTodayCounts]);
 
   const hourOptions = useMemo(() => Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, "0")), []);
   const minuteOptions = useMemo(() => Array.from({ length: 12 }, (_, i) => (i * 5).toString().padStart(2, "0")), []);
@@ -287,6 +327,21 @@ export default function AdminTipsList() {
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-bold">Listar Tips</h2>
+
+      {/* Today's category counts */}
+      {todayCategoryCounts.length > 0 && (
+        <div className="flex items-center gap-3 flex-wrap">
+          <span className="text-sm text-gray-400">Entradas hoje:</span>
+          {todayCategoryCounts.map((cat) => (
+            <span
+              key={cat.label}
+              className={`px-2 py-1 rounded text-xs font-medium ${cat.bgClass} ${cat.textClass}`}
+            >
+              {cat.label}: {cat.count}
+            </span>
+          ))}
+        </div>
+      )}
 
       {/* Filters */}
       <div className="flex flex-wrap gap-2">
