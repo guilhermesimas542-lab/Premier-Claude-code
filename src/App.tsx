@@ -44,6 +44,7 @@ import AdminPredictions from "./admin/pages/AdminPredictions";
 import AdminCards from "./admin/pages/AdminCards";
 import AdminPayCards from "./admin/pages/AdminPayCards";
 import AdminErrors from "./admin/pages/AdminErrors";
+import AdminFeedback from "./admin/pages/AdminFeedback";
 import AdminWebhook from "./admin/pages/AdminWebhook";
 import { Navigate } from "react-router-dom";
 import { FunnelPopupProvider } from "./context/FunnelPopupContext";
