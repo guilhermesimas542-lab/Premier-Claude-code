@@ -23,6 +23,7 @@ export default function AdminPredictions() {
   const [saving, setSaving] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState({ prediction: "", market: "", market_explanation: "" });
+  const [sortField, setSortField] = useState<"prediction" | "market">("prediction");
 
   const fetchItems = async () => {
     setLoading(true);
