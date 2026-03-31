@@ -105,35 +105,27 @@ export default function AdminPredictions() {
         <p className="text-muted-foreground text-sm text-center py-8">Nenhum palpite cadastrado ainda.</p>
       ) : (
         <>
-          <div className="flex items-center gap-2 mb-4">
-            <span className="text-sm text-gray-400">Ordenar por:</span>
-            <button
-              onClick={() => setSortField("prediction")}
-              className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
-                sortField === "prediction"
-                  ? "bg-green-600/30 text-green-400 border border-green-500/50"
-                  : "bg-gray-700/30 text-gray-400 hover:bg-gray-600/30"
-              }`}
-            >
-              Palpite (A-Z)
-            </button>
-            <button
-              onClick={() => setSortField("market")}
-              className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
-                sortField === "market"
-                  ? "bg-green-600/30 text-green-400 border border-green-500/50"
-                  : "bg-gray-700/30 text-gray-400 hover:bg-gray-600/30"
-              }`}
-            >
-              Mercado (A-Z)
-            </button>
-          </div>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Palpite</TableHead>
-              <TableHead>Mercado</TableHead>
-              <TableHead>Explicação</TableHead>
+              <TableHead onClick={() => toggleSort("prediction")} className="cursor-pointer select-none hover:text-white transition-colors">
+                <span className="inline-flex items-center gap-1">
+                  Palpite
+                  <span className="text-xs opacity-50">{sortField === "prediction" ? (sortDir === "asc" ? "▲" : "▼") : "⇅"}</span>
+                </span>
+              </TableHead>
+              <TableHead onClick={() => toggleSort("market")} className="cursor-pointer select-none hover:text-white transition-colors">
+                <span className="inline-flex items-center gap-1">
+                  Mercado
+                  <span className="text-xs opacity-50">{sortField === "market" ? (sortDir === "asc" ? "▲" : "▼") : "⇅"}</span>
+                </span>
+              </TableHead>
+              <TableHead onClick={() => toggleSort("market_explanation")} className="cursor-pointer select-none hover:text-white transition-colors">
+                <span className="inline-flex items-center gap-1">
+                  Explicação
+                  <span className="text-xs opacity-50">{sortField === "market_explanation" ? (sortDir === "asc" ? "▲" : "▼") : "⇅"}</span>
+                </span>
+              </TableHead>
               <TableHead className="w-24">Ações</TableHead>
             </TableRow>
           </TableHeader>
