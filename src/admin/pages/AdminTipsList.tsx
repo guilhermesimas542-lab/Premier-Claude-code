@@ -35,7 +35,7 @@ function tierToCategoria(tier: string, addon: string | null): string {
   return tier;
 }
 
-type SortColumn = "title" | "teams" | "date" | "starts_at" | "odd" | "tier_required" | "result";
+type SortColumn = "title" | "palpite" | "date" | "starts_at" | "odd" | "tier_required" | "result";
 type SortDir = "asc" | "desc";
 
 const TIER_ORDER: Record<string, number> = { free: 0, basic: 1, pro: 2, ultra: 3 };
