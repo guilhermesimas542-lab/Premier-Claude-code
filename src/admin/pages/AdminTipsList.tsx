@@ -35,7 +35,7 @@ function tierToCategoria(tier: string, addon: string | null): string {
   return tier;
 }
 
-type SortColumn = "title" | "teams" | "date" | "starts_at" | "odd" | "tier_required" | "result";
+type SortColumn = "title" | "palpite" | "date" | "starts_at" | "odd" | "tier_required" | "result";
 type SortDir = "asc" | "desc";
 
 const TIER_ORDER: Record<string, number> = { free: 0, basic: 1, pro: 2, ultra: 3 };
@@ -290,9 +290,9 @@ export default function AdminTipsList() {
     if (!sortCol) return 0;
     const dir = sortDir === "asc" ? 1 : -1;
     if (sortCol === "title") return dir * a.title.localeCompare(b.title);
-    if (sortCol === "teams") {
-      const aT = `${a.team1_name ?? ""} ${a.team2_name ?? ""}`;
-      const bT = `${b.team1_name ?? ""} ${b.team2_name ?? ""}`;
+    if (sortCol === "palpite") {
+      const aT = a.condition_to_win ?? "";
+      const bT = b.condition_to_win ?? "";
       return dir * aT.localeCompare(bT);
     }
     if (sortCol === "date") return dir * a.date.localeCompare(b.date);
@@ -431,8 +431,8 @@ export default function AdminTipsList() {
                 <th className={thClass("title")} onClick={() => handleSort("title")}>
                   <span className="flex items-center gap-1">Título <SortIcon col="title" /></span>
                 </th>
-                <th className={thClass("teams")} onClick={() => handleSort("teams")}>
-                  <span className="flex items-center gap-1">Times <SortIcon col="teams" /></span>
+                <th className={thClass("palpite")} onClick={() => handleSort("palpite")}>
+                  <span className="flex items-center gap-1">Palpite <SortIcon col="palpite" /></span>
                 </th>
                 <th className={thClass("date")} onClick={() => handleSort("date")}>
                   <span className="flex items-center gap-1">Data <SortIcon col="date" /></span>
@@ -463,7 +463,7 @@ export default function AdminTipsList() {
                     <Checkbox checked={selectedIds.has(t.id)} onCheckedChange={() => toggleSelect(t.id)} />
                   </td>
                   <td className="px-3 py-2 max-w-[150px] truncate">{t.title}</td>
-                  <td className="px-3 py-2">{t.team1_name ?? "—"} × {t.team2_name ?? "—"}</td>
+                  <td className="px-3 py-2">{t.condition_to_win ?? "—"}</td>
                   <td className="px-3 py-2">{t.date}</td>
                   <td className="px-3 py-2">{t.starts_at ? new Date(t.starts_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : "—"}</td>
                   <td className="px-3 py-2">{t.odd != null ? t.odd.toFixed(2) : "—"}</td>
