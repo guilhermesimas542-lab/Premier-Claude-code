@@ -173,7 +173,7 @@ const Login = () => {
       const url = links.acquire_access_url || CHECKOUT_LINKS.paywall_default;
       window.open(url, "_blank");
     }
-    setShowAcquireModal(false);
+    
   };
 
   const isDisabled = !email.trim() || isLoading;
