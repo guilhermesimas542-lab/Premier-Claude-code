@@ -431,8 +431,8 @@ export default function AdminTipsList() {
                 <th className={thClass("title")} onClick={() => handleSort("title")}>
                   <span className="flex items-center gap-1">Título <SortIcon col="title" /></span>
                 </th>
-                <th className={thClass("teams")} onClick={() => handleSort("teams")}>
-                  <span className="flex items-center gap-1">Times <SortIcon col="teams" /></span>
+                <th className={thClass("palpite")} onClick={() => handleSort("palpite")}>
+                  <span className="flex items-center gap-1">Palpite <SortIcon col="palpite" /></span>
                 </th>
                 <th className={thClass("date")} onClick={() => handleSort("date")}>
                   <span className="flex items-center gap-1">Data <SortIcon col="date" /></span>
