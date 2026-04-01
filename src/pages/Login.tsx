@@ -85,7 +85,6 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [emailError, setEmailError] = useState("");
-  const [showAcquireModal, setShowAcquireModal] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
   const navigate = useNavigate();
   const { subscribe } = usePushNotifications();
@@ -174,7 +173,7 @@ const Login = () => {
       const url = links.acquire_access_url || CHECKOUT_LINKS.paywall_default;
       window.open(url, "_blank");
     }
-    setShowAcquireModal(false);
+    
   };
 
   const isDisabled = !email.trim() || isLoading;
@@ -448,7 +447,7 @@ const Login = () => {
 
         {/* Secondary CTA */}
         <button
-          onClick={() => setShowAcquireModal(true)}
+          onClick={handleAcquireAccess}
           className="w-full h-12 rounded-[10px] font-display font-bold text-sm uppercase flex items-center justify-center gap-2 transition-colors duration-200 active:scale-[0.98] text-white border-2 border-white/15 bg-transparent hover:border-white/30"
         >
           <ShoppingCart className="w-4 h-4" />
@@ -504,35 +503,6 @@ const Login = () => {
           <p className="text-xs text-[#4A5568]">18+ • Jogue com responsabilidade.</p>
         </div>
       </main>
-
-      {/* Acquire Modal */}
-      <Dialog open={showAcquireModal} onOpenChange={setShowAcquireModal}>
-        <DialogContent className="max-w-sm bg-card border border-white/[0.07]" style={{ backdropFilter: "blur(20px)" }}>
-          <DialogHeader>
-            <DialogTitle className="text-lg font-display font-bold flex items-center gap-2 text-foreground">
-              <Crown className="w-5 h-5 text-primary" />
-              Acesso Exclusivo Premier Ultra
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-2">
-            <p className="text-sm text-muted-foreground">
-              Você está a um passo de receber as melhores análises por IA. Adquira seu acesso para continuar.
-            </p>
-            <button
-              onClick={handleAcquireAccess}
-              className="w-full h-12 rounded-[10px] font-display font-bold text-sm uppercase bg-primary text-background transition-opacity hover:opacity-90"
-            >
-              Adquirir Acesso Agora
-            </button>
-            <button
-              onClick={() => setShowAcquireModal(false)}
-              className="w-full py-2.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Fechar
-            </button>
-          </div>
-        </DialogContent>
-      </Dialog>
 
       {/* Terms Modal */}
       <Dialog open={showTermsModal} onOpenChange={setShowTermsModal}>
