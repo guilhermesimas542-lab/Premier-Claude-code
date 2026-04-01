@@ -87,7 +87,8 @@ export default function AdminTipsCreate() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.gameDate || !form.team1_name || !form.team2_name || !form.odd || !form.palpite) {
+    const teamsRequired = !isSpecialCategory && (!form.team1_name || !form.team2_name);
+    if (!form.gameDate || teamsRequired || !form.odd || !form.palpite) {
       toast.error("Preencha os campos obrigatórios");
       return;
     }
