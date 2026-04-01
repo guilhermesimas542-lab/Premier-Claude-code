@@ -463,7 +463,7 @@ export default function AdminTipsList() {
                     <Checkbox checked={selectedIds.has(t.id)} onCheckedChange={() => toggleSelect(t.id)} />
                   </td>
                   <td className="px-3 py-2 max-w-[150px] truncate">{t.title}</td>
-                  <td className="px-3 py-2">{t.team1_name ?? "—"} × {t.team2_name ?? "—"}</td>
+                  <td className="px-3 py-2">{t.condition_to_win ?? "—"}</td>
                   <td className="px-3 py-2">{t.date}</td>
                   <td className="px-3 py-2">{t.starts_at ? new Date(t.starts_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : "—"}</td>
                   <td className="px-3 py-2">{t.odd != null ? t.odd.toFixed(2) : "—"}</td>
