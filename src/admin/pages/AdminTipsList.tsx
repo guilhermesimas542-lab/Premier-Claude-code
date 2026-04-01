@@ -153,12 +153,9 @@ export default function AdminTipsList() {
 
     // Filter by selected house — show tips that have a link for the house OR have NO links at all (backward compat)
     if (selectedHouseId) {
-      const houseIdx = houses.findIndex((h) => h.id === selectedHouseId);
-      if (houseIdx >= 0 && houseIdx < HOUSE_LINK_COLS.length) {
-        const col = HOUSE_LINK_COLS[houseIdx];
-        // Show tips that have the house link OR tips that have NO house links at all (legacy tips)
-        q = (q as any).or(`${col}.not.is.null,and(link_house_1.is.null,link_house_2.is.null,link_house_3.is.null)`);
-      }
+      q = (q as any).or(
+        "link_house_1.not.is.null,link_house_2.not.is.null,link_house_3.not.is.null"
+      );
     }
 
     const { data } = await q;
