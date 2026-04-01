@@ -85,7 +85,6 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [emailError, setEmailError] = useState("");
-  const [showAcquireModal, setShowAcquireModal] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
   const navigate = useNavigate();
   const { subscribe } = usePushNotifications();
