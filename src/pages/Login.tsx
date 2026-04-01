@@ -504,35 +504,6 @@ const Login = () => {
         </div>
       </main>
 
-      {/* Acquire Modal */}
-      <Dialog open={showAcquireModal} onOpenChange={setShowAcquireModal}>
-        <DialogContent className="max-w-sm bg-card border border-white/[0.07]" style={{ backdropFilter: "blur(20px)" }}>
-          <DialogHeader>
-            <DialogTitle className="text-lg font-display font-bold flex items-center gap-2 text-foreground">
-              <Crown className="w-5 h-5 text-primary" />
-              Acesso Exclusivo Premier Ultra
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-2">
-            <p className="text-sm text-muted-foreground">
-              Você está a um passo de receber as melhores análises por IA. Adquira seu acesso para continuar.
-            </p>
-            <button
-              onClick={handleAcquireAccess}
-              className="w-full h-12 rounded-[10px] font-display font-bold text-sm uppercase bg-primary text-background transition-opacity hover:opacity-90"
-            >
-              Adquirir Acesso Agora
-            </button>
-            <button
-              onClick={() => setShowAcquireModal(false)}
-              className="w-full py-2.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Fechar
-            </button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
       {/* Terms Modal */}
       <Dialog open={showTermsModal} onOpenChange={setShowTermsModal}>
         <DialogContent className="max-w-sm bg-card border border-white/[0.07]" style={{ backdropFilter: "blur(20px)" }}>
