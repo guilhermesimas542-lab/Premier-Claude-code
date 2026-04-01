@@ -290,9 +290,9 @@ export default function AdminTipsList() {
     if (!sortCol) return 0;
     const dir = sortDir === "asc" ? 1 : -1;
     if (sortCol === "title") return dir * a.title.localeCompare(b.title);
-    if (sortCol === "teams") {
-      const aT = `${a.team1_name ?? ""} ${a.team2_name ?? ""}`;
-      const bT = `${b.team1_name ?? ""} ${b.team2_name ?? ""}`;
+    if (sortCol === "palpite") {
+      const aT = a.condition_to_win ?? "";
+      const bT = b.condition_to_win ?? "";
       return dir * aT.localeCompare(bT);
     }
     if (sortCol === "date") return dir * a.date.localeCompare(b.date);
