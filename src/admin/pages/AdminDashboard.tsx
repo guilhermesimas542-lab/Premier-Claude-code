@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { format, startOfDay, endOfDay, startOfWeek, startOfMonth, subDays, eachDayOfInterval } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useBettingHouseAdmin } from "@/admin/context/BettingHouseContext";
-import { Users, UserPlus, AlertTriangle, Wifi, Info, CalendarIcon, RefreshCw } from "lucide-react";
+import { Users, UserPlus, AlertTriangle, Wifi, Info, CalendarIcon, RefreshCw, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
