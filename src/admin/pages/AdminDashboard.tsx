@@ -92,9 +92,10 @@ export default function AdminDashboard() {
   const [planFilter, setPlanFilter] = useState<PlanFilter>("geral");
 
   const [loading, setLoading] = useState(true);
+  const [showExportMenu, setShowExportMenu] = useState(false);
 
   // Raw data
-  const [allUsers, setAllUsers] = useState<{ id: string; main_tier: string; last_seen_at: string | null }[]>([]);
+  const [allUsers, setAllUsers] = useState<{ id: string; email?: string; nickname?: string | null; main_tier: string; created_at?: string; last_seen_at: string | null }[]>([]);
   const [allEntitlements, setAllEntitlements] = useState<{ product_key: string; user_id: string }[]>([]);
   const [newSignups, setNewSignups] = useState(0);
   const [onlineCount, setOnlineCount] = useState(0);
