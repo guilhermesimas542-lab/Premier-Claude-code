@@ -144,7 +144,7 @@ export default function AdminDashboard() {
       const fifteenDaysAgo = new Date(Date.now() - 15 * 86400000).toISOString();
 
       // Build user queries filtered by house
-      let usersQ = supabase.from("users").select("id, main_tier, last_seen_at") as any;
+      let usersQ = supabase.from("users").select("id, email, nickname, main_tier, created_at, last_seen_at") as any;
       let newUsersQ = supabase.from("users").select("id", { count: "exact", head: true }).gte("created_at", since).lte("created_at", until) as any;
       let paidQ = supabase.from("users").select("id").neq("main_tier", "free") as any;
 
