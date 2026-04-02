@@ -314,16 +314,77 @@ export default function AdminDashboard() {
     { key: "30d", label: "Últimos 30 dias" },
   ];
 
+  const exportUsersCSV = (users: typeof allUsers, filename: string) => {
+    const headers = ['ID', 'Email', 'Nome', 'Plano', 'Cadastro', 'Último Acesso'];
+    const rows = users.map((u: any) => [
+      u.id ?? '', u.email ?? '', u.nickname ?? '', u.main_tier ?? '',
+      u.created_at ? u.created_at.substring(0, 10) : '',
+      u.last_seen_at ? u.last_seen_at.substring(0, 10) : ''
+    ]);
+    const csvContent = [headers, ...rows]
+      .map((row) => row.map((cell: any) => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+      .join('\n');
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleExportFiltered = () => {
+    exportUsersCSV(
+      relevantUsers,
+      `clientes_filtrado_${dateFrom.toISOString().split('T')[0]}_${planFilter}.csv`
+    );
+  };
+
+  const handleExportAll = () => {
+    exportUsersCSV(
+      allUsers,
+      `clientes_completo_${new Date().toISOString().split('T')[0]}.csv`
+    );
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold">Dashboard — Futebol</h2>
-        <Button variant="outline" size="sm" className="border-gray-700 text-gray-400 hover:text-white gap-2"
-          disabled={loading}
-          onClick={() => { setDateFrom(new Date(dateFrom)); }}>
-          <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
-          Atualizar
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" className="border-gray-700 text-gray-400 hover:text-white gap-2"
+            disabled={loading}
+            onClick={() => { setDateFrom(new Date(dateFrom)); }}>
+            <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
+            Atualizar
+          </Button>
+          <div className="relative">
+            <Button variant="outline" size="sm" className="border-gray-700 text-gray-400 hover:text-white gap-2"
+              onClick={() => setShowExportMenu((v) => !v)}>
+              <Download className="w-4 h-4" />
+              Exportar CSV ▾
+            </Button>
+            {showExportMenu && (
+              <div
+                className="absolute right-0 mt-1 w-52 bg-popover border border-border rounded-lg shadow-lg z-50"
+                onMouseLeave={() => setShowExportMenu(false)}
+              >
+                <button
+                  onClick={() => { handleExportFiltered(); setShowExportMenu(false); }}
+                  className="block w-full text-left px-4 py-2 text-sm text-foreground hover:bg-muted/50 rounded-t-lg"
+                >
+                  Exportar filtrado
+                </button>
+                <button
+                  onClick={() => { handleExportAll(); setShowExportMenu(false); }}
+                  className="block w-full text-left px-4 py-2 text-sm text-foreground hover:bg-muted/50 rounded-b-lg"
+                >
+                  Exportar tudo (all time)
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Period + Plan Filters */}
