@@ -315,14 +315,43 @@ export default function AdminDashboard() {
   ];
 
   const exportUsersCSV = (users: typeof allUsers, filename: string) => {
-    const headers = ['ID', 'Email', 'Nome', 'Plano', 'Cadastro', 'Último Acesso'];
+    const csvTotalUsers = allUsers.length;
+    const csvActiveCount = relevantUsers.length;
+    const csvPctAtivos = csvTotalUsers > 0 ? ((csvActiveCount / csvTotalUsers) * 100).toFixed(1) : '0.0';
+    const csvPctNovos = csvTotalUsers > 0 ? ((newSignups / csvTotalUsers) * 100).toFixed(1) : '0.0';
+    const csvPctOnline = csvActiveCount > 0 ? ((onlineCount / csvActiveCount) * 100).toFixed(1) : '0.0';
+    const csvPctChurn = paidIds.length > 0 ? ((churnIds.length / paidIds.length) * 100).toFixed(1) : '0.0';
+
+    const summary: any[][] = [
+      ['Exportado em', new Date().toLocaleString('pt-BR')],
+      ['Período', `${dateFrom.toISOString().split('T')[0]} até ${dateTo.toISOString().split('T')[0]}`],
+      ['Filtro de Plano', planFilter],
+      [],
+      ['MÉTRICAS'],
+      ['Usuários Totais', csvTotalUsers],
+      ['Usuários Ativos', csvActiveCount],
+      ['Usuários Online', onlineCount],
+      ['Churn (Risco)', churnIds.length],
+      [],
+      ['PERCENTUAIS'],
+      ['% Ativos / Total', `${csvPctAtivos}%`],
+      ['% Novos no Período', `${csvPctNovos}%`],
+      ['% Online / Ativos', `${csvPctOnline}%`],
+      ['% Churn / Pagos', `${csvPctChurn}%`],
+      [],
+      ['CLIENTES'],
+      ['ID', 'Email', 'Nome', 'Plano', 'Cadastro', 'Último Acesso'],
+    ];
+
     const rows = users.map((u: any) => [
       u.id ?? '', u.email ?? '', u.nickname ?? '', u.main_tier ?? '',
       u.created_at ? u.created_at.substring(0, 10) : '',
       u.last_seen_at ? u.last_seen_at.substring(0, 10) : ''
     ]);
-    const csvContent = [headers, ...rows]
-      .map((row) => row.map((cell: any) => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+
+    const allRows = [...summary, ...rows];
+    const csvContent = allRows
+      .map((row) => (row as any[]).map((cell) => `"${String(cell ?? '').replace(/"/g, '""')}"`).join(','))
       .join('\n');
     const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
