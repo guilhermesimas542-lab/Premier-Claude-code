@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { format, startOfDay, endOfDay, startOfWeek, startOfMonth, subDays, eachDayOfInterval } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useBettingHouseAdmin } from "@/admin/context/BettingHouseContext";
-import { Users, UserPlus, AlertTriangle, Wifi, Info, CalendarIcon, RefreshCw } from "lucide-react";
+import { Users, UserPlus, AlertTriangle, Wifi, Info, CalendarIcon, RefreshCw, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
@@ -92,9 +92,10 @@ export default function AdminDashboard() {
   const [planFilter, setPlanFilter] = useState<PlanFilter>("geral");
 
   const [loading, setLoading] = useState(true);
+  const [showExportMenu, setShowExportMenu] = useState(false);
 
   // Raw data
-  const [allUsers, setAllUsers] = useState<{ id: string; main_tier: string; last_seen_at: string | null }[]>([]);
+  const [allUsers, setAllUsers] = useState<{ id: string; email?: string; nickname?: string | null; main_tier: string; created_at?: string; last_seen_at: string | null }[]>([]);
   const [allEntitlements, setAllEntitlements] = useState<{ product_key: string; user_id: string }[]>([]);
   const [newSignups, setNewSignups] = useState(0);
   const [onlineCount, setOnlineCount] = useState(0);
@@ -143,7 +144,7 @@ export default function AdminDashboard() {
       const fifteenDaysAgo = new Date(Date.now() - 15 * 86400000).toISOString();
 
       // Build user queries filtered by house
-      let usersQ = supabase.from("users").select("id, main_tier, last_seen_at") as any;
+      let usersQ = supabase.from("users").select("id, email, nickname, main_tier, created_at, last_seen_at") as any;
       let newUsersQ = supabase.from("users").select("id", { count: "exact", head: true }).gte("created_at", since).lte("created_at", until) as any;
       let paidQ = supabase.from("users").select("id").neq("main_tier", "free") as any;
 
@@ -313,16 +314,77 @@ export default function AdminDashboard() {
     { key: "30d", label: "Últimos 30 dias" },
   ];
 
+  const exportUsersCSV = (users: typeof allUsers, filename: string) => {
+    const headers = ['ID', 'Email', 'Nome', 'Plano', 'Cadastro', 'Último Acesso'];
+    const rows = users.map((u: any) => [
+      u.id ?? '', u.email ?? '', u.nickname ?? '', u.main_tier ?? '',
+      u.created_at ? u.created_at.substring(0, 10) : '',
+      u.last_seen_at ? u.last_seen_at.substring(0, 10) : ''
+    ]);
+    const csvContent = [headers, ...rows]
+      .map((row) => row.map((cell: any) => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+      .join('\n');
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleExportFiltered = () => {
+    exportUsersCSV(
+      relevantUsers,
+      `clientes_filtrado_${dateFrom.toISOString().split('T')[0]}_${planFilter}.csv`
+    );
+  };
+
+  const handleExportAll = () => {
+    exportUsersCSV(
+      allUsers,
+      `clientes_completo_${new Date().toISOString().split('T')[0]}.csv`
+    );
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold">Dashboard — Futebol</h2>
-        <Button variant="outline" size="sm" className="border-gray-700 text-gray-400 hover:text-white gap-2"
-          disabled={loading}
-          onClick={() => { setDateFrom(new Date(dateFrom)); }}>
-          <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
-          Atualizar
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" className="border-gray-700 text-gray-400 hover:text-white gap-2"
+            disabled={loading}
+            onClick={() => { setDateFrom(new Date(dateFrom)); }}>
+            <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
+            Atualizar
+          </Button>
+          <div className="relative">
+            <Button variant="outline" size="sm" className="border-gray-700 text-gray-400 hover:text-white gap-2"
+              onClick={() => setShowExportMenu((v) => !v)}>
+              <Download className="w-4 h-4" />
+              Exportar CSV ▾
+            </Button>
+            {showExportMenu && (
+              <div
+                className="absolute right-0 mt-1 w-52 bg-popover border border-border rounded-lg shadow-lg z-50"
+                onMouseLeave={() => setShowExportMenu(false)}
+              >
+                <button
+                  onClick={() => { handleExportFiltered(); setShowExportMenu(false); }}
+                  className="block w-full text-left px-4 py-2 text-sm text-foreground hover:bg-muted/50 rounded-t-lg"
+                >
+                  Exportar filtrado
+                </button>
+                <button
+                  onClick={() => { handleExportAll(); setShowExportMenu(false); }}
+                  className="block w-full text-left px-4 py-2 text-sm text-foreground hover:bg-muted/50 rounded-b-lg"
+                >
+                  Exportar tudo (all time)
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Period + Plan Filters */}
