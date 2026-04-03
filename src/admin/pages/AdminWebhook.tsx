@@ -726,10 +726,20 @@ function ProductModal({
 
           <div>
             <label className="text-xs text-gray-400 block mb-1">
-              {provider === "lastlink" ? "ID do Produto (UUID da Lastlink)" : "ID do produto na plataforma"}
+              {provider === "lastlink"
+                ? "ID do Produto (UUID da Lastlink)"
+                : provider === "payt"
+                ? "Code do produto no PayT"
+                : "ID do produto na plataforma"}
             </label>
             <Input
-              placeholder={provider === "lastlink" ? "Ex: 037d5e50-ab28-47dd-a916-b4f9916dcd8a" : "Ex: C343583F8"}
+              placeholder={
+                provider === "lastlink"
+                  ? "Ex: 037d5e50-ab28-47dd-a916-b4f9916dcd8a"
+                  : provider === "payt"
+                  ? "Ex: R28BKV"
+                  : "Ex: C343583F8"
+              }
               value={externalId}
               onChange={(e) => setExternalId(e.target.value)}
               className="bg-gray-800 border-white/10"
@@ -739,6 +749,11 @@ function ProductModal({
                 <strong className="text-gray-400">Onde encontrar:</strong> Na Lastlink, vá em <strong className="text-gray-400">Produtos</strong>, clique para editar o produto e copie o código da URL:
                 <br />
                 <code className="text-yellow-400/80">.../products/<strong>[este-código]</strong>/edit</code>
+              </p>
+            )}
+            {provider === "payt" && (
+              <p className="text-[11px] text-gray-500 mt-1.5 leading-relaxed">
+                <strong className="text-gray-400">Onde encontrar:</strong> No PayT, vá em <strong className="text-gray-400">Ofertas & Produtos</strong>, clique no produto e copie o código (ex: <code className="text-yellow-400/80">R28BKV</code>).
               </p>
             )}
           </div>

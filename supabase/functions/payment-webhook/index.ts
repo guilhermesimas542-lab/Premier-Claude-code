@@ -74,6 +74,27 @@ Deno.serve(async (req) => {
     const provider = url.searchParams.get("provider") ?? "lastlink";
     const tokenFromQuery = url.searchParams.get("token");
 
+    // ── Detect PayT format ─────────────────────────────────────────────────────
+    const isPayt = provider === "payt" || !!(payload.customer && payload.transaction_id);
+
+    // ── Handle PayT test payloads early ─────────────────────────────────────────
+    if (isPayt && payload.test === true) {
+      await supabase.from("webhook_logs").insert({
+        provider: "payt",
+        event_name: `payt_${(payload as any).status ?? "test"}`,
+        buyer_email: ((payload as any).customer?.email ?? "").toLowerCase().trim() || null,
+        unique_key: `payt_test_${(payload as any).transaction_id ?? Date.now()}`,
+        processed_ok: true,
+        raw_payload: payload,
+        is_test: true,
+        provider_event_id: (payload as any).transaction_id ?? null,
+      });
+      return new Response(
+        JSON.stringify({ status: "ok", message: "Test webhook processed" }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     // ── Validação de Segurança ─────────────────────────────────────────────
     const lastlinkSecret = Deno.env.get("LASTLINK_WEBHOOK_SECRET");
     const signature = req.headers.get("x-lastlink-signature");
@@ -151,7 +172,51 @@ Deno.serve(async (req) => {
     let isTest = false;
     let amount: number | null = null;
 
-    if (payload.EventName || payload.Event) {
+    if (isPayt) {
+      // ── PayT parser ──────────────────────────────────────────────────────────
+      const customer = (payload.customer ?? {}) as Record<string, unknown>;
+      buyerEmail = ((customer.email as string) ?? "").toLowerCase().trim();
+      buyerName = (customer.name as string) ?? null;
+      buyerPhone = (customer.phone as string) ?? null;
+
+      const paytStatus = payload.status as string;
+      if (paytStatus === "paid") {
+        eventName = "Purchase_Order_Confirmed";
+      } else if (paytStatus === "refunded") {
+        eventName = "Purchase_Refunded";
+      } else if (paytStatus === "canceled") {
+        eventName = "Subscription_Cancelled";
+      } else {
+        eventName = `payt_${paytStatus ?? "unknown"}`;
+      }
+
+      const paytProduct = (payload.product ?? {}) as Record<string, unknown>;
+      if (paytProduct.code) productIds.push(paytProduct.code as string);
+      if (paytProduct.items && Array.isArray(paytProduct.items)) {
+        for (const item of paytProduct.items as Array<Record<string, unknown>>) {
+          if (item.code) productIds.push(item.code as string);
+        }
+      }
+      if (payload.order_bumps && Array.isArray(payload.order_bumps)) {
+        for (const bump of payload.order_bumps as Array<Record<string, unknown>>) {
+          const bumpProduct = (bump.product ?? {}) as Record<string, unknown>;
+          if (bumpProduct.code) productIds.push(bumpProduct.code as string);
+        }
+      }
+
+      productNames = [(paytProduct.name as string) ?? ""].filter(Boolean);
+
+      const transaction = (payload.transaction ?? {}) as Record<string, unknown>;
+      const valueCentsPayt = Number(transaction.total_price ?? paytProduct.price ?? 0) || 0;
+      amount = valueCentsPayt / 100; // normalize to reais for consistency with Lastlink flow
+
+      paymentId = (payload.transaction_id ?? payload.cart_id ?? `payt-${Date.now()}`) as string;
+      subscriptionId = null;
+      isTest = payload.test === true || !!(payload._admin_simulation);
+
+      console.log("[webhook] PayT parsed:", { eventName, buyerEmail, paymentId, productIds, productNames, amount });
+    } else if (payload.EventName || payload.Event) {
+      // ── Lastlink parser ──────────────────────────────────────────────────────
       eventName = (payload.Event ?? payload.EventName) as string;
       const data = (payload.Data ?? payload.data ?? {}) as Record<string, unknown>;
       const buyer = (data.Buyer ?? data.buyer ?? {}) as Record<string, unknown>;
@@ -190,6 +255,7 @@ Deno.serve(async (req) => {
 
       console.log("[webhook] Lastlink parsed:", { eventName, buyerEmail, paymentId, productIds, productNames, subscriptionId, amount });
     } else {
+      // ── Generic / simulation parser ──────────────────────────────────────────
       eventName = (payload.action as string) ?? "purchase";
       buyerEmail = ((payload.email as string) ?? "").toLowerCase().trim();
       paymentId = (payload.order_id ?? payload.payment_id ?? `manual-${Date.now()}`) as string;
@@ -242,7 +308,7 @@ Deno.serve(async (req) => {
     const { data: logEntry, error: logInsertError } = await supabase
       .from("webhook_logs")
       .insert({
-        provider,
+        provider: isPayt ? "payt" : provider,
         event_name: eventName,
         buyer_email: buyerEmail,
         unique_key: uniqueKey,
@@ -334,23 +400,25 @@ Deno.serve(async (req) => {
     // ── Map products via products_catalog ──────────────────────────────────
     let tierToSet: string | null = null;
     const entitlementKeysToGrant: string[] = [];
+    const effectiveProvider = isPayt ? "payt" : provider;
 
     if (productIds.length > 0) {
       const { data: catalogItems, error: catalogError } = await supabase
         .from("products_catalog")
         .select("provider_product_id, tier, entitlement_key")
-        .eq("provider", provider)
+        .eq("provider", effectiveProvider)
         .in("provider_product_id", productIds)
         .eq("active", true);
 
-      console.log("[webhook] catalog lookup by provider_product_id:", { productIds, provider, catalogItems, catalogError });
+      console.log("[webhook] catalog lookup by provider_product_id:", { productIds, provider: effectiveProvider, catalogItems, catalogError });
 
       if (catalogItems && catalogItems.length > 0) {
         for (const item of catalogItems) {
           if (item.tier) tierToSet = item.tier;
           if (item.entitlement_key) entitlementKeysToGrant.push(item.entitlement_key);
         }
-      } else {
+      } else if (!isPayt) {
+        // Fallback por lastlink_product_uuid — SOMENTE para Lastlink
         const { data: uuidItems, error: uuidError } = await supabase
           .from("products_catalog")
           .select("provider_product_id, tier, entitlement_key")
@@ -383,7 +451,7 @@ Deno.serve(async (req) => {
 
     // ── Fail explicitly if no product matched ─────────────────────────────
     if (!tierToSet && entitlementKeysToGrant.length === 0 && productIds.length > 0) {
-      const errMsg = `Produto não encontrado no catálogo para IDs: ${productIds.join(", ")} (provider: ${provider})`;
+      const errMsg = `Produto não encontrado no catálogo para IDs: ${productIds.join(", ")} (provider: ${effectiveProvider})`;
       console.error("[webhook]", errMsg);
       await supabase
         .from("webhook_logs")
@@ -440,7 +508,7 @@ Deno.serve(async (req) => {
 
     // ── Record in orders ───────────────────────────────────────────────────
     await supabase.from("orders").insert({
-      provider,
+      provider: effectiveProvider,
       provider_order_id: paymentId,
       provider_event_id: paymentId,
       event_name: eventName,
@@ -462,7 +530,7 @@ Deno.serve(async (req) => {
         user_id: userId,
         event_name: `payment_${isPurchaseApproved ? "purchase" : "refund"}`,
         metadata: {
-          provider,
+          provider: effectiveProvider,
           product_ids: productIds,
           tier: tierToSet,
           entitlements: entitlementKeysToGrant,
