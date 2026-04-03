@@ -16,6 +16,13 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  if (req.method === "GET" || req.method === "HEAD") {
+    return new Response(JSON.stringify({ status: "ok", message: "Webhook endpoint active" }), {
+      status: 200,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
   if (req.method !== "POST") {
     return new Response(JSON.stringify({ error: "Method Not Allowed" }), {
       status: 405,
@@ -27,6 +34,14 @@ Deno.serve(async (req) => {
 
   try {
     const rawBody = await req.text();
+
+    if (!rawBody || rawBody.trim() === "") {
+      return new Response(JSON.stringify({ status: "ok", message: "Webhook endpoint active" }), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     let payload: Record<string, unknown>;
 
     try {
