@@ -109,6 +109,7 @@ function sortUsers(users: UserWithUpsells[], key: SortKey, dir: SortDir): UserWi
     else if (key === "main_tier") { av = TIER_ORDER[a.main_tier] ?? -1; bv = TIER_ORDER[b.main_tier] ?? -1; }
     else if (key === "upsells") { av = a.upsells.join(","); bv = b.upsells.join(","); }
     else if (key === "created_at") { av = a.created_at ?? ""; bv = b.created_at ?? ""; }
+    else if (key === "first_access_at") { av = (a as any).first_access_at ?? ""; bv = (b as any).first_access_at ?? ""; }
     else if (key === "last_seen_at") { av = a.last_seen_at ?? ""; bv = b.last_seen_at ?? ""; }
 
     if (av < bv) return dir === "asc" ? -1 : 1;
