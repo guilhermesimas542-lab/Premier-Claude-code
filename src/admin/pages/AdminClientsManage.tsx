@@ -214,6 +214,7 @@ export default function AdminClientsManage() {
     lastSeenTo?: string;
     selectedTier?: string | null;
     selectedAddons?: string[];
+    filterNotAccessed?: boolean;
   }) => {
     setLoading(true);
 
