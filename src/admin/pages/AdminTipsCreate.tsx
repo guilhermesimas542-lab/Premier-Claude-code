@@ -26,6 +26,12 @@ const CATEGORIA_MAP: Record<string, { tier: string; addon: string | null }> = {
   odds_altas: { tier: "pro", addon: "desaltas" },
 };
 
+function getTodayBrasilia(): string {
+  const now = new Date();
+  const brasiliaStr = now.toLocaleDateString("en-CA", { timeZone: "America/Sao_Paulo" });
+  return brasiliaStr;
+}
+
 function getTomorrowDate(): string {
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
@@ -88,6 +94,10 @@ export default function AdminTipsCreate() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const teamsRequired = !isSpecialCategory && (!form.team1_name || !form.team2_name);
+    if (form.gameDate < getTodayBrasilia()) {
+      toast.error("Não é possível cadastrar tips para datas passadas.");
+      return;
+    }
     if (!form.gameDate || teamsRequired || !form.odd || !form.palpite) {
       toast.error("Preencha os campos obrigatórios");
       return;
@@ -175,6 +185,7 @@ export default function AdminTipsCreate() {
               type="date"
               value={form.gameDate}
               onChange={(e) => set("gameDate", e.target.value)}
+              min={getTodayBrasilia()}
               className="bg-muted/30 border-border"
             />
           </div>
