@@ -237,7 +237,7 @@ export default function AdminClientsManage() {
       .order("last_seen_at", { ascending: false, nullsFirst: false })
       .limit(200);
 
-    if (s) q = q.ilike("email", `%${s}%`);
+    if (s) q = q.or(`email.ilike.%${s}%,phone.ilike.%${s}%`);
     if (tier) q = q.eq("main_tier", tier as any);
     if (cf) q = q.gte("created_at", cf);
     if (ct) q = q.lte("created_at", ct + "T23:59:59");
@@ -462,6 +462,59 @@ export default function AdminClientsManage() {
       hour: "2-digit", minute: "2-digit", second: "2-digit",
     }) : "—";
 
+  const handleExportCSV = () => {
+    const headers = ["Email", "Telefone", "Plano", "Casa", "Liberação", "1º Acesso", "Último Acesso", "Acessou"];
+    const rows = users.map((u: any) => [
+      u.email ?? "",
+      u.phone ?? "",
+      u.main_tier ?? "",
+      "Esportiva Bet",
+      u.created_at ? new Date(u.created_at).toLocaleString("pt-BR") : "",
+      u.first_access_at ? new Date(u.first_access_at).toLocaleString("pt-BR") : "Não acessou",
+      u.last_seen_at ? new Date(u.last_seen_at).toLocaleString("pt-BR") : "—",
+      u.first_access_at ? "Sim" : "Não",
+    ]);
+    const csvContent = [headers, ...rows]
+      .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(","))
+      .join("\n");
+    const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `clientes_premier_${new Date().toISOString().split("T")[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleExportAll = async () => {
+    const { data } = await supabase
+      .from("users")
+      .select("*")
+      .order("last_seen_at", { ascending: false, nullsFirst: false });
+    if (!data) return;
+    const headers = ["Email", "Telefone", "Plano", "Casa", "Liberação", "1º Acesso", "Último Acesso", "Acessou"];
+    const rows = data.map((u: any) => [
+      u.email ?? "",
+      u.phone ?? "",
+      u.main_tier ?? "",
+      "Esportiva Bet",
+      u.created_at ? new Date(u.created_at).toLocaleString("pt-BR") : "",
+      u.first_access_at ? new Date(u.first_access_at).toLocaleString("pt-BR") : "Não acessou",
+      u.last_seen_at ? new Date(u.last_seen_at).toLocaleString("pt-BR") : "—",
+      u.first_access_at ? "Sim" : "Não",
+    ]);
+    const csvContent = [headers, ...rows]
+      .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(","))
+      .join("\n");
+    const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `clientes_premier_todos_${new Date().toISOString().split("T")[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const thClass = "px-3 py-2 cursor-pointer select-none hover:text-gray-300 transition-colors";
 
   return (
@@ -494,7 +547,7 @@ export default function AdminClientsManage() {
       <div className="bg-gray-900 border border-white/10 rounded-xl p-4 space-y-3">
         <div className="flex gap-2 flex-wrap">
           <Input
-            placeholder="Buscar email"
+            placeholder="Buscar email ou telefone"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-64 bg-gray-800 border-gray-700"
@@ -503,6 +556,18 @@ export default function AdminClientsManage() {
           <Button size="sm" variant="outline" onClick={handleClearFilters} className="border-gray-700 text-gray-400">
             Limpar filtros
           </Button>
+          <button
+            onClick={handleExportCSV}
+            className="px-4 py-2 rounded-lg bg-green-600/20 text-green-400 hover:bg-green-600/30 text-sm font-medium transition-colors"
+          >
+            Exportar filtrados
+          </button>
+          <button
+            onClick={handleExportAll}
+            className="px-4 py-2 rounded-lg bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 text-sm font-medium transition-colors"
+          >
+            Exportar todos
+          </button>
         </div>
 
         {/* Pill filters */}
