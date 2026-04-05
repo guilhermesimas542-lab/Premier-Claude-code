@@ -237,7 +237,7 @@ export default function AdminClientsManage() {
       .order("last_seen_at", { ascending: false, nullsFirst: false })
       .limit(200);
 
-    if (s) q = q.ilike("email", `%${s}%`);
+    if (s) q = q.or(`email.ilike.%${s}%,phone.ilike.%${s}%`);
     if (tier) q = q.eq("main_tier", tier as any);
     if (cf) q = q.gte("created_at", cf);
     if (ct) q = q.lte("created_at", ct + "T23:59:59");
