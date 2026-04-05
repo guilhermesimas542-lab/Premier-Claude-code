@@ -604,8 +604,8 @@ export default function AdminClientsManage() {
                 <th className={thClass} onClick={() => handleSort("upsells")}>
                   <span className="flex items-center">Upsell <SortIcon col="upsells" sortKey={sortKey} sortDir={sortDir} /></span>
                 </th>
-                <th className={thClass} onClick={() => handleSort("created_at")}>
-                  <span className="flex items-center">Liberação <SortIcon col="created_at" sortKey={sortKey} sortDir={sortDir} /></span>
+                <th className={`${thClass} text-center`} onClick={() => handleSort("created_at")}>
+                  <span className="flex items-center justify-center">Liberação <SortIcon col="created_at" sortKey={sortKey} sortDir={sortDir} /></span>
                 </th>
                 <th className={thClass} onClick={() => handleSort("first_access_at")}>
                   <span className="flex items-center">1º Acesso <SortIcon col="first_access_at" sortKey={sortKey} sortDir={sortDir} /></span>
