@@ -141,6 +141,26 @@ export const SpecialBettingCard = ({
         </div>
       )}
 
+      {isLocked && !isExpired && odds > 0 && (
+        <div
+          className="animate-pulse-glow-green"
+          style={{
+            position: "absolute",
+            bottom: 12,
+            right: 14,
+            zIndex: 25,
+            fontFamily: "'Barlow Condensed', sans-serif",
+            fontWeight: 800,
+            fontSize: 28,
+            color: "#00FF7F",
+            lineHeight: 1,
+            pointerEvents: "none",
+          }}
+        >
+          {(odds * 2).toFixed(2)}
+        </div>
+      )}
+
       {/* Content — 4-line compact layout */}
       <div className="relative z-10 flex flex-col">
 

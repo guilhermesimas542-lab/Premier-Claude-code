@@ -193,6 +193,26 @@ export const PremiumBettingCard = ({
         </div>
       )}
 
+      {isLocked && !isExpired && odds > 0 && (
+        <div
+          className="animate-pulse-glow-green"
+          style={{
+            position: "absolute",
+            bottom: 12,
+            right: 14,
+            zIndex: 25,
+            fontFamily: "'Barlow Condensed', sans-serif",
+            fontWeight: 800,
+            fontSize: 28,
+            color: "#00FF7F",
+            lineHeight: 1,
+            pointerEvents: "none",
+          }}
+        >
+          {(odds * 2).toFixed(2)}
+        </div>
+      )}
+
       {/* Expired overlay */}
       {isExpired && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ zIndex: 10, borderRadius: 16 }}>
