@@ -109,7 +109,8 @@ Deno.serve(async (req) => {
         main_tier: user.main_tier,
         is_vitalicio: activeAddons.includes('acesso_vitalicio'),
         created_at: user.created_at,
-        last_seen_at: user.last_seen_at,
+        last_seen_at: new Date().toISOString(),
+        first_access_at: user.first_access_at || new Date().toISOString(),
       },
       entitlements: entitlements || [],
       allowed_access: {
