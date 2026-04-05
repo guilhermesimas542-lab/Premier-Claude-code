@@ -686,7 +686,13 @@ export default function AdminClientsManage() {
                   <td className="px-3 py-2">
                     <UpsellBadges upsells={u.upsells} />
                   </td>
-                  <td className="px-3 py-2">{fmt(u.created_at)}</td>
+                  <td className="px-3 py-2 text-center">
+                    {u.main_tier !== 'free' ? (
+                      <span className="text-green-400 text-lg" title={fmt(u.created_at)}>✅</span>
+                    ) : (
+                      <span className="text-red-400 text-lg" title="Plano Free">❌</span>
+                    )}
+                  </td>
                   <td className="px-3 py-2">
                     {(u as any).first_access_at ? (
                       <span className="flex items-center gap-1.5">
