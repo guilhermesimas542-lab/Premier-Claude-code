@@ -185,6 +185,7 @@ export default function AdminTipsCreate() {
               type="date"
               value={form.gameDate}
               onChange={(e) => set("gameDate", e.target.value)}
+              min={getTodayBrasilia()}
               className="bg-muted/30 border-border"
             />
           </div>
