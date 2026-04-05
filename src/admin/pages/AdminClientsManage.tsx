@@ -177,6 +177,7 @@ export default function AdminClientsManage() {
   // Tier & addon pill filters
   const [selectedTier, setSelectedTier] = useState<string | null>(null);
   const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
+  const [filterNotAccessed, setFilterNotAccessed] = useState(false);
 
   // Build a map of house id → badge color
   const houseColorMap: Record<string, string> = {};
