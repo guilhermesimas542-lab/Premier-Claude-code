@@ -306,7 +306,7 @@ export default function AdminClientsManage() {
   // Reactive filter on tier/addon changes
   useEffect(() => {
     load();
-  }, [selectedTier, selectedAddons]);
+  }, [selectedTier, selectedAddons, filterNotAccessed]);
 
   const handleTierFilter = (tier: string) => {
     setSelectedTier((prev) => (prev === tier ? null : tier));
