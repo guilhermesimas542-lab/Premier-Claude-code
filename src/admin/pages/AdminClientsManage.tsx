@@ -39,7 +39,7 @@ const HOUSE_BADGE_COLORS = [
 ];
 
 
-type SortKey = "email" | "phone" | "main_tier" | "upsells" | "created_at" | "last_seen_at";
+type SortKey = "email" | "phone" | "main_tier" | "upsells" | "created_at" | "first_access_at" | "last_seen_at";
 type SortDir = "asc" | "desc";
 
 const UPSELL_KEYS = ["alavancagem", "desaltas", "acesso_vitalicio", "live_telegram"];
