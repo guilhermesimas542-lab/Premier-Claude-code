@@ -533,6 +533,17 @@ export default function AdminClientsManage() {
               </button>
             ))}
           </div>
+          <div className="w-px h-5 bg-gray-700" />
+          <button
+            onClick={() => setFilterNotAccessed(!filterNotAccessed)}
+            className={`px-3 py-1 rounded-full text-xs font-bold transition-colors ${
+              filterNotAccessed
+                ? 'bg-red-600/30 text-red-400 ring-1 ring-red-400'
+                : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+            }`}
+          >
+            Não acessou
+          </button>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
