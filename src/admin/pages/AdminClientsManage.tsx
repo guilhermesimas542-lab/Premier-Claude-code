@@ -240,6 +240,11 @@ export default function AdminClientsManage() {
     if (lt) q = q.lte("last_seen_at", lt + "T23:59:59");
     if (selectedHouseId) q = q.or(`betting_house_id.eq.${selectedHouseId},betting_house_id.is.null`);
 
+    const notAccessed = overrides?.filterNotAccessed !== undefined ? overrides.filterNotAccessed : filterNotAccessed;
+    if (notAccessed) {
+      q = q.is("first_access_at", null).neq("main_tier", "free" as any);
+    }
+
     const { data, count } = await q;
     const rawUsers = (data as unknown as AdminUser[]) ?? [];
     setTotalCount(count ?? 0);
