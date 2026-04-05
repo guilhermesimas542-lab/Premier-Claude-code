@@ -62,6 +62,15 @@ Deno.serve(async (req) => {
       );
     }
 
+    // Atualizar last_seen_at e setar first_access_at no primeiro acesso real
+    await supabase
+      .from('users')
+      .update({
+        last_seen_at: new Date().toISOString(),
+        first_access_at: user.first_access_at || new Date().toISOString(),
+      })
+      .eq('id', user.id);
+
     // Buscar entitlements ativos do usuário (add-ons são independentes do tier)
     const { data: entitlements, error: entError } = await supabase
       .from('entitlements')
@@ -100,7 +109,8 @@ Deno.serve(async (req) => {
         main_tier: user.main_tier,
         is_vitalicio: activeAddons.includes('acesso_vitalicio'),
         created_at: user.created_at,
-        last_seen_at: user.last_seen_at,
+        last_seen_at: new Date().toISOString(),
+        first_access_at: user.first_access_at || new Date().toISOString(),
       },
       entitlements: entitlements || [],
       allowed_access: {

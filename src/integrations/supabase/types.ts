@@ -1483,6 +1483,7 @@ export type Database = {
           betting_house_id: string | null
           created_at: string
           email: string
+          first_access_at: string | null
           id: string
           last_event_at: string | null
           last_seen_at: string | null
@@ -1496,6 +1497,7 @@ export type Database = {
           betting_house_id?: string | null
           created_at?: string
           email: string
+          first_access_at?: string | null
           id?: string
           last_event_at?: string | null
           last_seen_at?: string | null
@@ -1509,6 +1511,7 @@ export type Database = {
           betting_house_id?: string | null
           created_at?: string
           email?: string
+          first_access_at?: string | null
           id?: string
           last_event_at?: string | null
           last_seen_at?: string | null
@@ -1651,6 +1654,7 @@ export type Database = {
               betting_house_id: string | null
               created_at: string
               email: string
+              first_access_at: string | null
               id: string
               last_event_at: string | null
               last_seen_at: string | null
@@ -1673,6 +1677,7 @@ export type Database = {
               betting_house_id: string | null
               created_at: string
               email: string
+              first_access_at: string | null
               id: string
               last_event_at: string | null
               last_seen_at: string | null
@@ -1696,6 +1701,10 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: never; Returns: boolean }
+      update_user_access: {
+        Args: { p_now: string; p_user_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       entitlement_source: "purchase" | "manual" | "admin"

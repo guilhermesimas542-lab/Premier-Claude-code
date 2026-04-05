@@ -81,11 +81,11 @@ serve(async (req) => {
         );
       }
 
-      // AJUSTE 2: Atualizar last_seen_at SOMENTE no start da sessão
-      await supabase
-        .from('users')
-        .update({ last_seen_at: now.toISOString() })
-        .eq('id', userId);
+      // Atualizar last_seen_at e first_access_at via RPC
+      await supabase.rpc('update_user_access', {
+        p_user_id: userId,
+        p_now: now.toISOString(),
+      });
 
       return new Response(
         JSON.stringify({
