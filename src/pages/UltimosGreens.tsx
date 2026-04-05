@@ -229,7 +229,7 @@ const UltimosGreens = () => {
       .eq("result", "green")
       .eq("active", true)
       .order("date", { ascending: false })
-      .order("created_at", { ascending: false })
+      .order("odd", { ascending: false })
       .range(offset, offset + PER_PAGE - 1);
 
     const today = new Date().toISOString().split("T")[0];
