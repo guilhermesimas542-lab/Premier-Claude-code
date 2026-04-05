@@ -604,8 +604,8 @@ export default function AdminClientsManage() {
                 <th className={thClass} onClick={() => handleSort("upsells")}>
                   <span className="flex items-center">Upsell <SortIcon col="upsells" sortKey={sortKey} sortDir={sortDir} /></span>
                 </th>
-                <th className={thClass} onClick={() => handleSort("created_at")}>
-                  <span className="flex items-center">Liberação <SortIcon col="created_at" sortKey={sortKey} sortDir={sortDir} /></span>
+                <th className={`${thClass} text-center`} onClick={() => handleSort("created_at")}>
+                  <span className="flex items-center justify-center">Liberação <SortIcon col="created_at" sortKey={sortKey} sortDir={sortDir} /></span>
                 </th>
                 <th className={thClass} onClick={() => handleSort("first_access_at")}>
                   <span className="flex items-center">1º Acesso <SortIcon col="first_access_at" sortKey={sortKey} sortDir={sortDir} /></span>
@@ -686,7 +686,13 @@ export default function AdminClientsManage() {
                   <td className="px-3 py-2">
                     <UpsellBadges upsells={u.upsells} />
                   </td>
-                  <td className="px-3 py-2">{fmt(u.created_at)}</td>
+                  <td className="px-3 py-2 text-center">
+                    {u.main_tier !== 'free' ? (
+                      <span className="text-green-400 text-lg" title={fmt(u.created_at)}>✅</span>
+                    ) : (
+                      <span className="text-red-400 text-lg" title="Plano Free">❌</span>
+                    )}
+                  </td>
                   <td className="px-3 py-2">
                     {(u as any).first_access_at ? (
                       <span className="flex items-center gap-1.5">
