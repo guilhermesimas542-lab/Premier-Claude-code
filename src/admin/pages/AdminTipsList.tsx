@@ -288,6 +288,46 @@ export default function AdminTipsList() {
     return 0;
   });
 
+  const categoryCounts = useMemo(() => {
+    const map: Record<string, number> = {};
+    let total = 0;
+    for (const row of items) {
+      const key = (row as any).addon_required || row.tier_required || "free";
+      map[key] = (map[key] || 0) + 1;
+      total++;
+    }
+    const cats = Object.entries(map)
+      .map(([key, count]) => {
+        const style = CATEGORY_STYLES[key] || { label: key, bg: "bg-gray-600/30", text: "text-gray-300" };
+        return { label: style.label, count, bgClass: style.bg, textClass: style.text };
+      })
+      .sort((a, b) => b.count - a.count);
+    return { cats, total };
+  }, [items]);
+
+  const resultCounts = useMemo(() => {
+    let green = 0;
+    let red = 0;
+    let pending = 0;
+    for (const row of items) {
+      if ((row as any).result === "green") green++;
+      else if ((row as any).result === "red") red++;
+      else pending++;
+    }
+    return { green, red, total: green + red, pending };
+  }, [items]);
+
+  const filterLabel = useMemo(() => {
+    switch (activePeriod) {
+      case "hoje": return "Entradas hoje:";
+      case "ontem": return "Entradas ontem:";
+      case "amanha": return "Entradas amanhã:";
+      case "prox_7": return "Entradas próximos 7 dias:";
+      case "ult_7": return "Entradas últimos 7 dias:";
+      default: return "Entradas no período:";
+    }
+  }, [activePeriod]);
+
   const SortIcon = ({ col }: { col: SortColumn }) => {
     if (sortCol !== col) return <ArrowUpDown className="w-3 h-3 opacity-40" />;
     return sortDir === "asc"
@@ -302,20 +342,32 @@ export default function AdminTipsList() {
     <div className="space-y-4">
       <h2 className="text-xl font-bold">Listar Tips</h2>
 
-      {/* Today's category counts */}
-      {todayCategoryCounts.length > 0 && (
-        <div className="flex items-center gap-3 flex-wrap">
-          <span className="text-sm text-gray-400">Entradas hoje:</span>
-          {todayCategoryCounts.map((cat) => (
-            <span
-              key={cat.label}
-              className={`px-2 py-1 rounded text-xs font-medium ${cat.bgClass} ${cat.textClass}`}
-            >
-              {cat.label}: {cat.count}
-            </span>
-          ))}
-        </div>
-      )}
+      {/* Contagem por categoria */}
+      <div className="flex flex-wrap items-center gap-2 text-sm">
+        <span className="text-muted-foreground font-medium">{filterLabel}</span>
+        <span className="px-2 py-0.5 rounded text-xs font-bold bg-white/10 text-white">
+          Todas: {categoryCounts.total}
+        </span>
+        {categoryCounts.cats.map((cat) => (
+          <span key={cat.label} className={`px-2 py-0.5 rounded text-xs font-bold ${cat.bgClass} ${cat.textClass}`}>
+            {cat.label}: {cat.count}
+          </span>
+        ))}
+      </div>
+      {/* Contagem de resultados */}
+      <div className="flex flex-wrap items-center gap-2 text-sm mt-1">
+        <span className="text-muted-foreground font-medium">Resultados:</span>
+        <span className="px-2 py-0.5 rounded text-xs font-bold bg-green-600/30 text-green-400">
+          Green: {resultCounts.green}
+        </span>
+        <span className="px-2 py-0.5 rounded text-xs font-bold bg-red-600/30 text-red-400">
+          Red: {resultCounts.red}
+        </span>
+        <span className="px-2 py-0.5 rounded text-xs font-bold bg-white/10 text-white">
+          Total: {resultCounts.total}
+        </span>
+      </div>
+
 
       {/* Filters */}
       <div className="flex flex-wrap gap-2">
