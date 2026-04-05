@@ -294,7 +294,7 @@ export default function AdminClientsManage() {
       }))
     );
     setLoading(false);
-  }, [search, createdFrom, createdTo, lastSeenFrom, lastSeenTo, selectedHouseId, selectedTier, selectedAddons]);
+  }, [search, createdFrom, createdTo, lastSeenFrom, lastSeenTo, selectedHouseId, selectedTier, selectedAddons, filterNotAccessed]);
 
   useEffect(() => {
     load();
