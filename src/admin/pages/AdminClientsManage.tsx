@@ -687,6 +687,18 @@ export default function AdminClientsManage() {
                     <UpsellBadges upsells={u.upsells} />
                   </td>
                   <td className="px-3 py-2">{fmt(u.created_at)}</td>
+                  <td className="px-3 py-2">
+                    {(u as any).first_access_at ? (
+                      <span className="flex items-center gap-1.5">
+                        <span className="text-green-400 text-xs">✅</span>
+                        <span>{fmt((u as any).first_access_at)}</span>
+                      </span>
+                    ) : (
+                      <span className="px-2 py-0.5 rounded text-xs font-bold bg-red-600/30 text-red-400">
+                        Não acessou
+                      </span>
+                    )}
+                  </td>
                   <td className="px-3 py-2">{fmt(u.last_seen_at)}</td>
                   <td className="px-3 py-2">
                     <div className="flex items-center gap-2">
