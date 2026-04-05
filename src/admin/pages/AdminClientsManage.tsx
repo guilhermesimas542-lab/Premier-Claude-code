@@ -39,7 +39,7 @@ const HOUSE_BADGE_COLORS = [
 ];
 
 
-type SortKey = "email" | "phone" | "main_tier" | "upsells" | "created_at" | "last_seen_at";
+type SortKey = "email" | "phone" | "main_tier" | "upsells" | "created_at" | "first_access_at" | "last_seen_at";
 type SortDir = "asc" | "desc";
 
 const UPSELL_KEYS = ["alavancagem", "desaltas", "acesso_vitalicio", "live_telegram"];
@@ -109,6 +109,7 @@ function sortUsers(users: UserWithUpsells[], key: SortKey, dir: SortDir): UserWi
     else if (key === "main_tier") { av = TIER_ORDER[a.main_tier] ?? -1; bv = TIER_ORDER[b.main_tier] ?? -1; }
     else if (key === "upsells") { av = a.upsells.join(","); bv = b.upsells.join(","); }
     else if (key === "created_at") { av = a.created_at ?? ""; bv = b.created_at ?? ""; }
+    else if (key === "first_access_at") { av = (a as any).first_access_at ?? ""; bv = (b as any).first_access_at ?? ""; }
     else if (key === "last_seen_at") { av = a.last_seen_at ?? ""; bv = b.last_seen_at ?? ""; }
 
     if (av < bv) return dir === "asc" ? -1 : 1;
@@ -176,6 +177,7 @@ export default function AdminClientsManage() {
   // Tier & addon pill filters
   const [selectedTier, setSelectedTier] = useState<string | null>(null);
   const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
+  const [filterNotAccessed, setFilterNotAccessed] = useState(false);
 
   // Build a map of house id → badge color
   const houseColorMap: Record<string, string> = {};
@@ -212,6 +214,7 @@ export default function AdminClientsManage() {
     lastSeenTo?: string;
     selectedTier?: string | null;
     selectedAddons?: string[];
+    filterNotAccessed?: boolean;
   }) => {
     setLoading(true);
 
@@ -236,6 +239,11 @@ export default function AdminClientsManage() {
     if (lf) q = q.gte("last_seen_at", lf);
     if (lt) q = q.lte("last_seen_at", lt + "T23:59:59");
     if (selectedHouseId) q = q.or(`betting_house_id.eq.${selectedHouseId},betting_house_id.is.null`);
+
+    const notAccessed = overrides?.filterNotAccessed !== undefined ? overrides.filterNotAccessed : filterNotAccessed;
+    if (notAccessed) {
+      q = q.is("first_access_at", null).neq("main_tier", "free" as any);
+    }
 
     const { data, count } = await q;
     const rawUsers = (data as unknown as AdminUser[]) ?? [];
@@ -286,7 +294,7 @@ export default function AdminClientsManage() {
       }))
     );
     setLoading(false);
-  }, [search, createdFrom, createdTo, lastSeenFrom, lastSeenTo, selectedHouseId, selectedTier, selectedAddons]);
+  }, [search, createdFrom, createdTo, lastSeenFrom, lastSeenTo, selectedHouseId, selectedTier, selectedAddons, filterNotAccessed]);
 
   useEffect(() => {
     load();
@@ -298,7 +306,7 @@ export default function AdminClientsManage() {
   // Reactive filter on tier/addon changes
   useEffect(() => {
     load();
-  }, [selectedTier, selectedAddons]);
+  }, [selectedTier, selectedAddons, filterNotAccessed]);
 
   const handleTierFilter = (tier: string) => {
     setSelectedTier((prev) => (prev === tier ? null : tier));
@@ -318,7 +326,8 @@ export default function AdminClientsManage() {
     setLastSeenTo("");
     setSelectedTier(null);
     setSelectedAddons([]);
-    load({ search: "", createdFrom: "", createdTo: "", lastSeenFrom: "", lastSeenTo: "", selectedTier: null, selectedAddons: [] });
+    setFilterNotAccessed(false);
+    load({ search: "", createdFrom: "", createdTo: "", lastSeenFrom: "", lastSeenTo: "", selectedTier: null, selectedAddons: [], filterNotAccessed: false });
   };
 
   const sortedUsers = sortUsers(users, sortKey, sortDir);
@@ -524,6 +533,17 @@ export default function AdminClientsManage() {
               </button>
             ))}
           </div>
+          <div className="w-px h-5 bg-gray-700" />
+          <button
+            onClick={() => setFilterNotAccessed(!filterNotAccessed)}
+            className={`px-3 py-1 rounded-full text-xs font-bold transition-colors ${
+              filterNotAccessed
+                ? 'bg-red-600/30 text-red-400 ring-1 ring-red-400'
+                : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+            }`}
+          >
+            Não acessou
+          </button>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -585,7 +605,10 @@ export default function AdminClientsManage() {
                   <span className="flex items-center">Upsell <SortIcon col="upsells" sortKey={sortKey} sortDir={sortDir} /></span>
                 </th>
                 <th className={thClass} onClick={() => handleSort("created_at")}>
-                  <span className="flex items-center">Primeiro Acesso <SortIcon col="created_at" sortKey={sortKey} sortDir={sortDir} /></span>
+                  <span className="flex items-center">Liberação <SortIcon col="created_at" sortKey={sortKey} sortDir={sortDir} /></span>
+                </th>
+                <th className={thClass} onClick={() => handleSort("first_access_at")}>
+                  <span className="flex items-center">1º Acesso <SortIcon col="first_access_at" sortKey={sortKey} sortDir={sortDir} /></span>
                 </th>
                 <th className={thClass} onClick={() => handleSort("last_seen_at")}>
                   <span className="flex items-center">Último Acesso <SortIcon col="last_seen_at" sortKey={sortKey} sortDir={sortDir} /></span>
@@ -664,6 +687,18 @@ export default function AdminClientsManage() {
                     <UpsellBadges upsells={u.upsells} />
                   </td>
                   <td className="px-3 py-2">{fmt(u.created_at)}</td>
+                  <td className="px-3 py-2">
+                    {(u as any).first_access_at ? (
+                      <span className="flex items-center gap-1.5">
+                        <span className="text-green-400 text-xs">✅</span>
+                        <span>{fmt((u as any).first_access_at)}</span>
+                      </span>
+                    ) : (
+                      <span className="px-2 py-0.5 rounded text-xs font-bold bg-red-600/30 text-red-400">
+                        Não acessou
+                      </span>
+                    )}
+                  </td>
                   <td className="px-3 py-2">{fmt(u.last_seen_at)}</td>
                   <td className="px-3 py-2">
                     <div className="flex items-center gap-2">
@@ -679,7 +714,7 @@ export default function AdminClientsManage() {
               ))}
               {sortedUsers.length === 0 && (
                 <tr>
-                  <td colSpan={9} className="px-3 py-8 text-center text-gray-600">
+                  <td colSpan={10} className="px-3 py-8 text-center text-gray-600">
                     Nenhum cliente encontrado
                   </td>
                 </tr>
