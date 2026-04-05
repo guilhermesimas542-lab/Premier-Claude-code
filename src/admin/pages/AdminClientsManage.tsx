@@ -687,11 +687,20 @@ export default function AdminClientsManage() {
                     <UpsellBadges upsells={u.upsells} />
                   </td>
                   <td className="px-3 py-2 text-center">
-                    {u.main_tier !== 'free' ? (
-                      <span className="text-green-400 text-lg" title={fmt(u.created_at)}>✅</span>
-                    ) : (
-                      <span className="text-red-400 text-lg" title="Plano Free">❌</span>
-                    )}
+                    <button
+                      onClick={() => setLiberacaoPopup({
+                        email: u.email,
+                        createdAt: u.created_at,
+                        tier: u.main_tier,
+                      })}
+                      className="cursor-pointer hover:scale-110 transition-transform"
+                    >
+                      {u.main_tier !== 'free' ? (
+                        <span className="text-green-400 text-lg">✅</span>
+                      ) : (
+                        <span className="text-red-400 text-lg">❌</span>
+                      )}
+                    </button>
                   </td>
                   <td className="px-3 py-2">
                     {(u as any).first_access_at ? (
