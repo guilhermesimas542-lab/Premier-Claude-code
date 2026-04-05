@@ -94,6 +94,10 @@ export default function AdminTipsCreate() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const teamsRequired = !isSpecialCategory && (!form.team1_name || !form.team2_name);
+    if (form.gameDate < getTodayBrasilia()) {
+      toast.error("Não é possível cadastrar tips para datas passadas.");
+      return;
+    }
     if (!form.gameDate || teamsRequired || !form.odd || !form.palpite) {
       toast.error("Preencha os campos obrigatórios");
       return;
