@@ -26,6 +26,12 @@ const CATEGORIA_MAP: Record<string, { tier: string; addon: string | null }> = {
   odds_altas: { tier: "pro", addon: "desaltas" },
 };
 
+function getTodayBrasilia(): string {
+  const now = new Date();
+  const brasiliaStr = now.toLocaleDateString("en-CA", { timeZone: "America/Sao_Paulo" });
+  return brasiliaStr;
+}
+
 function getTomorrowDate(): string {
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
