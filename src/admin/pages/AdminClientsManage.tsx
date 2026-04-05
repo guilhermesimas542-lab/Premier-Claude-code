@@ -178,6 +178,11 @@ export default function AdminClientsManage() {
   const [selectedTier, setSelectedTier] = useState<string | null>(null);
   const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
   const [filterNotAccessed, setFilterNotAccessed] = useState(false);
+  const [liberacaoPopup, setLiberacaoPopup] = useState<{
+    email: string;
+    createdAt: string;
+    tier: string;
+  } | null>(null);
 
   // Build a map of house id → badge color
   const houseColorMap: Record<string, string> = {};
