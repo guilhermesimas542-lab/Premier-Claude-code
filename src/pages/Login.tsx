@@ -57,7 +57,7 @@ const useLastGreens = () => {
           .select("title, condition_to_win, odd, tier_required, addon_required, created_at")
           .eq("result", "green")
           .eq("date", dateStr)
-          .order("created_at", { ascending: false });
+          .order("odd", { ascending: false });
 
         if (data && data.length > 0) {
           setGreens(
