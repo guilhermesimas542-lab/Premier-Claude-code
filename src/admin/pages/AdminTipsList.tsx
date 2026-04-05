@@ -74,30 +74,7 @@ export default function AdminTipsList() {
   const [bulkDeleting, setBulkDeleting] = useState(false);
   const [sortCol, setSortCol] = useState<SortColumn | null>(null);
   const [sortDir, setSortDir] = useState<SortDir>("asc");
-  const [todayCategoryCounts, setTodayCategoryCounts] = useState<CategoryCount[]>([]);
 
-  // Fetch today's tips by category
-  const fetchTodayCounts = useCallback(async () => {
-    const { data } = await supabase
-      .from("content_entries")
-      .select("tier_required, addon_required")
-      .eq("date", today);
-    if (!data) return;
-    const map: Record<string, number> = {};
-    for (const row of data) {
-      const key = (row as any).addon_required || (row as any).tier_required || "free";
-      map[key] = (map[key] || 0) + 1;
-    }
-    const cats: CategoryCount[] = Object.entries(map)
-      .map(([key, count]) => {
-        const style = CATEGORY_STYLES[key] || { label: key, bg: "bg-gray-600/30", text: "text-gray-300" };
-        return { label: style.label, count, bgClass: style.bg, textClass: style.text };
-      })
-      .sort((a, b) => b.count - a.count);
-    setTodayCategoryCounts(cats);
-  }, [today]);
-
-  useEffect(() => { fetchTodayCounts(); }, [fetchTodayCounts]);
 
   const hourOptions = useMemo(() => Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, "0")), []);
   const minuteOptions = useMemo(() => Array.from({ length: 12 }, (_, i) => (i * 5).toString().padStart(2, "0")), []);
