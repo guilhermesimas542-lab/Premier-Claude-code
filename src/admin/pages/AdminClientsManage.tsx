@@ -326,7 +326,8 @@ export default function AdminClientsManage() {
     setLastSeenTo("");
     setSelectedTier(null);
     setSelectedAddons([]);
-    load({ search: "", createdFrom: "", createdTo: "", lastSeenFrom: "", lastSeenTo: "", selectedTier: null, selectedAddons: [] });
+    setFilterNotAccessed(false);
+    load({ search: "", createdFrom: "", createdTo: "", lastSeenFrom: "", lastSeenTo: "", selectedTier: null, selectedAddons: [], filterNotAccessed: false });
   };
 
   const sortedUsers = sortUsers(users, sortKey, sortDir);
