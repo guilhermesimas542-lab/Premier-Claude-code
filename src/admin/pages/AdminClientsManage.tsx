@@ -178,6 +178,11 @@ export default function AdminClientsManage() {
   const [selectedTier, setSelectedTier] = useState<string | null>(null);
   const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
   const [filterNotAccessed, setFilterNotAccessed] = useState(false);
+  const [liberacaoPopup, setLiberacaoPopup] = useState<{
+    email: string;
+    createdAt: string;
+    tier: string;
+  } | null>(null);
 
   // Build a map of house id → badge color
   const houseColorMap: Record<string, string> = {};
@@ -687,11 +692,20 @@ export default function AdminClientsManage() {
                     <UpsellBadges upsells={u.upsells} />
                   </td>
                   <td className="px-3 py-2 text-center">
-                    {u.main_tier !== 'free' ? (
-                      <span className="text-green-400 text-lg" title={fmt(u.created_at)}>✅</span>
-                    ) : (
-                      <span className="text-red-400 text-lg" title="Plano Free">❌</span>
-                    )}
+                    <button
+                      onClick={() => setLiberacaoPopup({
+                        email: u.email,
+                        createdAt: u.created_at,
+                        tier: u.main_tier,
+                      })}
+                      className="cursor-pointer hover:scale-110 transition-transform"
+                    >
+                      {u.main_tier !== 'free' ? (
+                        <span className="text-green-400 text-lg">✅</span>
+                      ) : (
+                        <span className="text-red-400 text-lg">❌</span>
+                      )}
+                    </button>
                   </td>
                   <td className="px-3 py-2">
                     {(u as any).first_access_at ? (
@@ -861,6 +875,42 @@ export default function AdminClientsManage() {
 
       {/* Client Profile Modal */}
       <ClientProfileModal userId={profileUserId} onClose={() => setProfileUserId(null)} />
+
+      {liberacaoPopup && (
+        <div 
+          className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center"
+          onClick={() => setLiberacaoPopup(null)}
+        >
+          <div 
+            className="bg-[#0a1628] border border-border rounded-xl p-6 max-w-sm w-full mx-4 space-y-3"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-foreground font-bold text-lg">
+              Detalhes da Liberação
+            </h3>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Cliente:</span>
+                <span className="text-foreground">{liberacaoPopup.email}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Plano:</span>
+                <span className="text-foreground capitalize">{liberacaoPopup.tier}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Liberado em:</span>
+                <span className="text-foreground">{fmt(liberacaoPopup.createdAt)}</span>
+              </div>
+            </div>
+            <button
+              onClick={() => setLiberacaoPopup(null)}
+              className="w-full mt-4 py-2 rounded-lg bg-muted/30 text-muted-foreground hover:bg-muted/50 text-sm font-medium transition-colors"
+            >
+              Fechar
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
