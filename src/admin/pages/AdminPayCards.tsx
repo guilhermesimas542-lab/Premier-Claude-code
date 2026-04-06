@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, Pencil, Loader2, ArrowUp, ArrowDown, ArrowUpDown, BarChart2, X, ChevronDown } from "lucide-react";
+import { Plus, Pencil, Loader2, ArrowUp, ArrowDown, ArrowUpDown, BarChart2, X, ChevronDown, RefreshCw } from "lucide-react";
 import FunnelAnalyticsModal from "@/admin/components/FunnelAnalyticsModal";
 import { toast } from "sonner";
 import FunnelBuilder from "@/admin/components/funnel-popup/FunnelBuilder";
