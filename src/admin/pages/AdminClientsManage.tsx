@@ -215,8 +215,10 @@ export default function AdminClientsManage() {
 
   const load = useCallback(async (overrides?: {
     search?: string;
-    createdFrom?: string;
-    createdTo?: string;
+    liberacaoFrom?: string;
+    liberacaoTo?: string;
+    firstAccessFrom?: string;
+    firstAccessTo?: string;
     lastSeenFrom?: string;
     lastSeenTo?: string;
     selectedTier?: string | null;
@@ -228,10 +230,6 @@ export default function AdminClientsManage() {
     const s = overrides?.search ?? search;
     const tier = overrides?.selectedTier !== undefined ? overrides.selectedTier : selectedTier;
     const addons = overrides?.selectedAddons !== undefined ? overrides.selectedAddons : selectedAddons;
-    const cf = overrides?.createdFrom ?? createdFrom;
-    const ct = overrides?.createdTo ?? createdTo;
-    const lf = overrides?.lastSeenFrom ?? lastSeenFrom;
-    const lt = overrides?.lastSeenTo ?? lastSeenTo;
 
     let q = supabase
       .from("users")
@@ -241,8 +239,22 @@ export default function AdminClientsManage() {
 
     if (s) q = q.or(`email.ilike.%${s}%,phone.ilike.%${s}%`);
     if (tier) q = q.eq("main_tier", tier as any);
-    if (cf) q = q.gte("created_at", cf);
-    if (ct) q = q.lte("created_at", ct + "T23:59:59");
+
+    // Filtro Liberação (created_at)
+    const libFrom = overrides?.liberacaoFrom ?? liberacaoFrom;
+    const libTo = overrides?.liberacaoTo ?? liberacaoTo;
+    if (libFrom) q = q.gte("created_at", libFrom);
+    if (libTo) q = q.lte("created_at", libTo + "T23:59:59");
+
+    // Filtro 1º Acesso (first_access_at)
+    const faFrom = overrides?.firstAccessFrom ?? firstAccessFrom;
+    const faTo = overrides?.firstAccessTo ?? firstAccessTo;
+    if (faFrom) q = q.gte("first_access_at", faFrom);
+    if (faTo) q = q.lte("first_access_at", faTo + "T23:59:59");
+
+    // Filtro Último Acesso (last_seen_at)
+    const lf = overrides?.lastSeenFrom ?? lastSeenFrom;
+    const lt = overrides?.lastSeenTo ?? lastSeenTo;
     if (lf) q = q.gte("last_seen_at", lf);
     if (lt) q = q.lte("last_seen_at", lt + "T23:59:59");
     if (selectedHouseId) q = q.or(`betting_house_id.eq.${selectedHouseId},betting_house_id.is.null`);
