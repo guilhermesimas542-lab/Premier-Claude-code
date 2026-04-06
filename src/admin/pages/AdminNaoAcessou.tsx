@@ -322,12 +322,26 @@ export default function AdminNaoAcessou() {
           onChange={(e) => setFilterTo(e.target.value)}
           className="bg-gray-800 border-gray-700 text-xs h-8 w-36"
         />
-        <button
-          onClick={exportCSV}
-          className="ml-auto flex items-center gap-1 text-xs bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-md"
-        >
-          <Download className="w-3.5 h-3.5" /> Exportar CSV
-        </button>
+        <div className="ml-auto flex items-center gap-2">
+          <button
+            onClick={() => {
+              const emails = sortedUsers.map((u) => u.email).filter(Boolean).join(", ");
+              if (!emails) { toast.error("Nenhum email para copiar."); return; }
+              navigator.clipboard.writeText(emails).then(() => {
+                toast.success(`${sortedUsers.length} emails copiados!`);
+              }).catch(() => { toast.error("Erro ao copiar. Tente novamente."); });
+            }}
+            className="flex items-center gap-1 text-xs bg-green-600/20 text-green-400 hover:bg-green-600/30 px-3 py-1.5 rounded-md font-medium transition-colors"
+          >
+            <Copy className="w-3.5 h-3.5" /> Copiar emails ({sortedUsers.length})
+          </button>
+          <button
+            onClick={exportCSV}
+            className="flex items-center gap-1 text-xs bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-md"
+          >
+            <Download className="w-3.5 h-3.5" /> Exportar CSV
+          </button>
+        </div>
       </div>
 
       <p className="text-xs text-muted-foreground">
