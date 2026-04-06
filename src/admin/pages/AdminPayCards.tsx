@@ -322,7 +322,16 @@ export default function AdminPayCards() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold">Pay Cards</h2>
+          <div className="flex items-center gap-3">
+            <h2 className="text-xl font-bold">Pay Cards</h2>
+            <button
+              onClick={() => load()}
+              className="p-2 rounded-lg bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-white transition-colors"
+              title="Atualizar"
+            >
+              <RefreshCw className="w-4 h-4" />
+            </button>
+          </div>
           <p className="text-sm text-muted-foreground mt-0.5">
             {selectedHouse ? `Casa: ${selectedHouse.name}` : "Sem casa selecionada (global)"}
           </p>

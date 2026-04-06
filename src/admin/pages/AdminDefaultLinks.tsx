@@ -175,7 +175,16 @@ export default function AdminDefaultLinks() {
   return (
     <div className="space-y-6 max-w-2xl">
       <div>
-        <h2 className="text-xl font-bold">Links Padrão</h2>
+        <div className="flex items-center gap-3">
+          <h2 className="text-xl font-bold">Links Padrão</h2>
+          <button
+            onClick={() => { if (selectedHouse) { setLoading(true); supabase.from("betting_houses").select("*").eq("id", selectedHouse.id).single().then(({ data }) => { if (data) { setLinks(data as any); } setLoading(false); }); } }}
+            className="p-2 rounded-lg bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-white transition-colors"
+            title="Atualizar"
+          >
+            <RefreshCw className="w-4 h-4" />
+          </button>
+        </div>
         <p className="text-sm text-muted-foreground mt-1">
           Configure os links padrão para{" "}
           <span className="text-foreground font-medium">{selectedHouse.name}</span>
