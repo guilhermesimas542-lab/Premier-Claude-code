@@ -71,8 +71,14 @@ export default function AdminAnalytics() {
 
   const applyShortcut = (days: number) => {
     setActiveShortcut(days);
-    setFrom(days === 0 ? startOfDay(today) : subDays(today, days));
-    setTo(today);
+    if (days <= 2) {
+      const targetDay = subDays(today, days);
+      setFrom(startOfDay(targetDay));
+      setTo(targetDay);
+    } else {
+      setFrom(subDays(today, days));
+      setTo(today);
+    }
   };
 
   const load = useCallback(async () => {
