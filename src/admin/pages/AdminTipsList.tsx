@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Pencil, Trash2, ArrowUpDown, ArrowUp, ArrowDown, Snowflake } from "lucide-react";
+import { Pencil, Trash2, ArrowUpDown, ArrowUp, ArrowDown, Snowflake, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { TeamAutocomplete } from "../components/TeamAutocomplete";
@@ -340,7 +340,16 @@ export default function AdminTipsList() {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-xl font-bold">Listar Tips</h2>
+      <div className="flex items-center gap-3">
+        <h2 className="text-xl font-bold">Listar Tips</h2>
+        <button
+          onClick={() => load()}
+          className="p-2 rounded-lg bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-white transition-colors"
+          title="Atualizar lista"
+        >
+          <RefreshCw className="w-4 h-4" />
+        </button>
+      </div>
 
       {/* Contagem por categoria */}
       <div className="flex flex-wrap items-center gap-2 text-sm">
@@ -391,6 +400,38 @@ export default function AdminTipsList() {
           <SelectContent><SelectItem value="all">Todos</SelectItem><SelectItem value="pending">Pendente</SelectItem><SelectItem value="green">Green</SelectItem><SelectItem value="red">Red</SelectItem></SelectContent>
         </Select>
         <Button size="sm" onClick={load}>Filtrar</Button>
+        <button
+          onClick={() => {
+            const formatResult = (r: string | null | undefined) => {
+              if (!r || r === "pending") return "Pendente";
+              if (r === "green") return "Green";
+              if (r === "red") return "Red";
+              if (r === "void") return "Void";
+              return r;
+            };
+            const headers = ["Título", "Palpite", "Data", "Hora", "Odd", "Plano", "Resultado"];
+            const rows = sortedItems.map((item: any) => [
+              item.title ?? `${item.team1_name ?? ""} x ${item.team2_name ?? ""}`,
+              item.condition_to_win ?? item.market ?? "",
+              item.date ?? "",
+              item.starts_at ? item.starts_at.substring(11, 16) : "",
+              item.odd?.toFixed(2) ?? "",
+              item.tier_required ?? item.addon_required ?? "",
+              formatResult(item.result),
+            ]);
+            const csv = [headers, ...rows].map(row => row.map(cell => `"${String(cell ?? "").replace(/"/g, '""')}"`).join(",")).join("\n");
+            const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `tips_premier_${new Date().toISOString().split("T")[0]}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+          }}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-green-600/20 text-green-400 hover:bg-green-600/30 text-sm font-medium transition-colors"
+        >
+          Exportar CSV
+        </button>
       </div>
 
       {/* Date shortcut buttons */}
