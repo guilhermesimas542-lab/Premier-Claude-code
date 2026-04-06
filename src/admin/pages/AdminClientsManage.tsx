@@ -146,8 +146,10 @@ export default function AdminClientsManage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
 
-  const [createdFrom, setCreatedFrom] = useState("");
-  const [createdTo, setCreatedTo] = useState("");
+  const [liberacaoFrom, setLiberacaoFrom] = useState("");
+  const [liberacaoTo, setLiberacaoTo] = useState("");
+  const [firstAccessFrom, setFirstAccessFrom] = useState("");
+  const [firstAccessTo, setFirstAccessTo] = useState("");
   const [lastSeenFrom, setLastSeenFrom] = useState("");
   const [lastSeenTo, setLastSeenTo] = useState("");
 
