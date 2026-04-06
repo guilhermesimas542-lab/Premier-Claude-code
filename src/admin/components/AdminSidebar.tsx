@@ -55,6 +55,7 @@ export function AdminSidebar() {
           badge: counts.clients,
           children: [
             { to: "/admin/clients", icon: List, label: "Lista de Clientes", end: true },
+            { to: "/admin/clients/nao-acessou", icon: UserX, label: "Não Acessou" },
             { to: "/admin/clients/create", icon: UserPlus, label: "Cadastrar Novo" },
           ],
         },
