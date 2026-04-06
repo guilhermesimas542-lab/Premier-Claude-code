@@ -148,9 +148,18 @@ export default function AdminErrors() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-            <Bug className="w-6 h-6 text-red-400" /> Erros do App
-          </h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+              <Bug className="w-6 h-6 text-red-400" /> Erros do App
+            </h1>
+            <button
+              onClick={() => load()}
+              className="p-2 rounded-lg bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-white transition-colors"
+              title="Atualizar"
+            >
+              <RefreshCw className="w-4 h-4" />
+            </button>
+          </div>
           <p className="text-sm text-gray-400 mt-1">
             Erros JavaScript capturados automaticamente no frontend
             {selectedHouse && <span className="text-blue-400 ml-1">— {selectedHouse.name}</span>}
