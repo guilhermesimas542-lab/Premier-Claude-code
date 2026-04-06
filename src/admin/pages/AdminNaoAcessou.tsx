@@ -4,7 +4,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
 } from "recharts";
 import { Input } from "@/components/ui/input";
-import { Copy, Download } from "lucide-react";
+import { Copy, Download, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { getTodayInBrazil } from "@/lib/timezone";
 
