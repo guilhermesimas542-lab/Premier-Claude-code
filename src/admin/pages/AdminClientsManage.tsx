@@ -478,7 +478,42 @@ export default function AdminClientsManage() {
       hour: "2-digit", minute: "2-digit", second: "2-digit",
     }) : "—";
 
-  const handleExportCSV = () => {
+  const handleCopyAllEmails = async () => {
+    const { data } = await supabase
+      .from("users")
+      .select("email")
+      .order("last_seen_at", { ascending: false });
+    if (!data || data.length === 0) {
+      toast.error("Nenhum email encontrado.");
+      return;
+    }
+    const emails = data.map((u: any) => u.email).filter(Boolean).join(", ");
+    navigator.clipboard.writeText(emails).then(() => {
+      toast.success(`${data.length} emails copiados!`);
+    }).catch(() => {
+      toast.error("Erro ao copiar.");
+    });
+  };
+
+  const handleCopyAllPhones = async () => {
+    const { data } = await supabase
+      .from("users")
+      .select("phone")
+      .not("phone", "is", null)
+      .order("last_seen_at", { ascending: false });
+    if (!data || data.length === 0) {
+      toast.error("Nenhum telefone encontrado.");
+      return;
+    }
+    const phones = data.map((u: any) => u.phone).filter(Boolean).join(", ");
+    navigator.clipboard.writeText(phones).then(() => {
+      toast.success(`${data.length} telefones copiados!`);
+    }).catch(() => {
+      toast.error("Erro ao copiar.");
+    });
+  };
+
+
     const headers = ["Email", "Telefone", "Plano", "Casa", "Liberação", "1º Acesso", "Último Acesso", "Acessou"];
     const rows = users.map((u: any) => [
       u.email ?? "",
@@ -583,6 +618,20 @@ export default function AdminClientsManage() {
             className="px-4 py-2 rounded-lg bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 text-sm font-medium transition-colors"
           >
             Exportar todos
+          </button>
+          <button
+            onClick={handleCopyAllEmails}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-green-600/20 text-green-400 hover:bg-green-600/30 text-sm font-medium transition-colors"
+          >
+            <Copy className="w-4 h-4" />
+            Copiar emails
+          </button>
+          <button
+            onClick={handleCopyAllPhones}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 text-sm font-medium transition-colors"
+          >
+            <Copy className="w-4 h-4" />
+            Copiar telefones
           </button>
         </div>
 
