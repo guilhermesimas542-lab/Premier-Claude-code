@@ -619,6 +619,20 @@ export default function AdminClientsManage() {
           >
             Exportar todos
           </button>
+          <button
+            onClick={handleCopyAllEmails}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-green-600/20 text-green-400 hover:bg-green-600/30 text-sm font-medium transition-colors"
+          >
+            <Copy className="w-4 h-4" />
+            Copiar emails
+          </button>
+          <button
+            onClick={handleCopyAllPhones}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 text-sm font-medium transition-colors"
+          >
+            <Copy className="w-4 h-4" />
+            Copiar telefones
+          </button>
         </div>
 
         {/* Pill filters */}
