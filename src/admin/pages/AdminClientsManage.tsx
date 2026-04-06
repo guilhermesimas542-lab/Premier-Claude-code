@@ -478,7 +478,42 @@ export default function AdminClientsManage() {
       hour: "2-digit", minute: "2-digit", second: "2-digit",
     }) : "—";
 
-  const handleExportCSV = () => {
+  const handleCopyAllEmails = async () => {
+    const { data } = await supabase
+      .from("users")
+      .select("email")
+      .order("last_seen_at", { ascending: false });
+    if (!data || data.length === 0) {
+      toast.error("Nenhum email encontrado.");
+      return;
+    }
+    const emails = data.map((u: any) => u.email).filter(Boolean).join(", ");
+    navigator.clipboard.writeText(emails).then(() => {
+      toast.success(`${data.length} emails copiados!`);
+    }).catch(() => {
+      toast.error("Erro ao copiar.");
+    });
+  };
+
+  const handleCopyAllPhones = async () => {
+    const { data } = await supabase
+      .from("users")
+      .select("phone")
+      .not("phone", "is", null)
+      .order("last_seen_at", { ascending: false });
+    if (!data || data.length === 0) {
+      toast.error("Nenhum telefone encontrado.");
+      return;
+    }
+    const phones = data.map((u: any) => u.phone).filter(Boolean).join(", ");
+    navigator.clipboard.writeText(phones).then(() => {
+      toast.success(`${data.length} telefones copiados!`);
+    }).catch(() => {
+      toast.error("Erro ao copiar.");
+    });
+  };
+
+
     const headers = ["Email", "Telefone", "Plano", "Casa", "Liberação", "1º Acesso", "Último Acesso", "Acessou"];
     const rows = users.map((u: any) => [
       u.email ?? "",
