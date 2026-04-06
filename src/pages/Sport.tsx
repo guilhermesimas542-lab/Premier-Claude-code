@@ -414,7 +414,7 @@ const Sport = () => {
       container.removeEventListener('scroll', updateActiveCardIndex);
       window.removeEventListener('resize', updateActiveCardIndex);
     };
-  }, [updateActiveCardIndex, activeEntries]);
+  }, [updateActiveCardIndex, activeEntries.length]);
 
   const handleLogout = () => {
     clearAuth();
