@@ -2,7 +2,8 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { MessageSquare, Trash2, Image, ChevronUp, ChevronDown, ChevronsUpDown, X, Copy } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { MessageSquare, Trash2, Image, ChevronUp, ChevronDown, ChevronsUpDown, X, Copy, RefreshCw } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
@@ -34,11 +35,29 @@ const STATUS_COLORS: Record<string, { bg: string; text: string; label: string }>
   resolvido: { bg: "rgba(148,163,184,0.15)", text: "#94A3B8", label: "Resolvido" },
 };
 
+const getDateStr = (daysAgo: number) => {
+  const d = new Date();
+  d.setDate(d.getDate() - daysAgo);
+  return d.toISOString().split("T")[0];
+};
+
+const datePresets = [
+  { label: "Todos", key: "all" },
+  { label: "Hoje", key: "today", from: getDateStr(0), to: getDateStr(0) },
+  { label: "Ontem", key: "yesterday", from: getDateStr(1), to: getDateStr(1) },
+  { label: "Anteontem", key: "anteontem", from: getDateStr(2), to: getDateStr(2) },
+  { label: "7 dias", key: "7d", from: getDateStr(6), to: getDateStr(0) },
+  { label: "30 dias", key: "30d", from: getDateStr(29), to: getDateStr(0) },
+];
+
 export default function AdminFeedback() {
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterCategory, setFilterCategory] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
+  const [datePreset, setDatePreset] = useState<string>("all");
+  const [customFrom, setCustomFrom] = useState("");
+  const [customTo, setCustomTo] = useState("");
   const [sortField, setSortField] = useState<SortField>("created_at");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -53,6 +72,8 @@ export default function AdminFeedback() {
 
     if (filterCategory !== "all") query = query.eq("category", filterCategory);
     if (filterStatus !== "all") query = query.eq("status", filterStatus);
+    if (customFrom) query = query.gte("created_at", customFrom);
+    if (customTo) query = query.lte("created_at", customTo + "T23:59:59");
 
     query = query.order(sortField, { ascending: sortDir === "asc" });
 
@@ -60,7 +81,7 @@ export default function AdminFeedback() {
     if (error) { console.error(error); toast.error("Erro ao carregar feedbacks"); }
     setFeedbacks((data as Feedback[]) || []);
     setLoading(false);
-  }, [filterCategory, filterStatus, sortField, sortDir]);
+  }, [filterCategory, filterStatus, customFrom, customTo, sortField, sortDir]);
 
   useEffect(() => { fetchFeedbacks(); }, [fetchFeedbacks]);
 
@@ -133,6 +154,13 @@ export default function AdminFeedback() {
         <div className="flex items-center gap-3 mb-1">
           <MessageSquare className="w-6 h-6 text-blue-400" />
           <h1 className="text-2xl font-bold text-white">Feedback dos Clientes</h1>
+          <button
+            onClick={() => fetchFeedbacks()}
+            className="p-2 rounded-lg bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-white transition-colors"
+            title="Atualizar"
+          >
+            <RefreshCw className="w-4 h-4" />
+          </button>
         </div>
         <p className="text-sm text-gray-400">Feedbacks enviados pelos usuários do app</p>
       </div>
@@ -177,6 +205,38 @@ export default function AdminFeedback() {
               { key: "resolvido", label: "Resolvido" },
             ]}
           />
+        </div>
+        <div className="space-y-1">
+          <span className="text-xs text-gray-500 mr-2">Período:</span>
+          <div className="flex items-center gap-2 flex-wrap">
+            {datePresets.map((p) => (
+              <button
+                key={p.key}
+                onClick={() => {
+                  setDatePreset(p.key);
+                  if (p.key === "all") {
+                    setCustomFrom("");
+                    setCustomTo("");
+                  } else {
+                    setCustomFrom((p as any).from!);
+                    setCustomTo((p as any).to!);
+                  }
+                }}
+                className={`px-3 py-1 rounded-full text-xs font-bold transition-colors ${
+                  datePreset === p.key
+                    ? "bg-blue-600/30 text-blue-400 ring-1 ring-blue-400"
+                    : "bg-muted/30 text-muted-foreground hover:bg-muted/50"
+                }`}
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
+          <div className="flex items-center gap-2 mt-1">
+            <Input type="date" value={customFrom} onChange={(e) => { setCustomFrom(e.target.value); setDatePreset("custom"); }} className="bg-gray-800 border-gray-700 text-xs h-8 w-40" />
+            <span className="text-xs text-muted-foreground">até</span>
+            <Input type="date" value={customTo} onChange={(e) => { setCustomTo(e.target.value); setDatePreset("custom"); }} className="bg-gray-800 border-gray-700 text-xs h-8 w-40" />
+          </div>
         </div>
       </div>
 

@@ -3,7 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useBettingHouseAdmin } from "../context/BettingHouseContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle, Bug, Download, ChevronDown, ChevronUp, Users, Hash } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { AlertTriangle, Bug, Download, ChevronDown, ChevronUp, Users, Hash, RefreshCw } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -33,6 +34,8 @@ interface GroupedError {
 
 const periods = [
   { label: "Hoje", days: 0 },
+  { label: "Ontem", days: 1 },
+  { label: "Anteontem", days: 2 },
   { label: "7 dias", days: 7 },
   { label: "30 dias", days: 30 },
   { label: "90 dias", days: 90 },
@@ -43,35 +46,48 @@ export default function AdminErrors() {
   const [errors, setErrors] = useState<AppError[]>([]);
   const [loading, setLoading] = useState(true);
   const [periodDays, setPeriodDays] = useState(7);
+  const [customFrom, setCustomFrom] = useState("");
+  const [customTo, setCustomTo] = useState("");
   const [expandedFp, setExpandedFp] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     if (!selectedHouseId) return;
     setLoading(true);
 
-    const now = new Date();
-    const start = new Date(now);
-    if (periodDays === 0) {
-      start.setHours(0, 0, 0, 0);
+    let startISO: string;
+    let endISO: string | null = null;
+
+    if (periodDays === -1 && customFrom) {
+      startISO = customFrom;
+      endISO = customTo ? customTo + "T23:59:59" : null;
+    } else if (periodDays <= 2) {
+      const d = new Date();
+      d.setDate(d.getDate() - periodDays);
+      d.setHours(0, 0, 0, 0);
+      startISO = d.toISOString();
+      const e = new Date(d);
+      e.setHours(23, 59, 59, 999);
+      endISO = e.toISOString();
     } else {
-      start.setDate(start.getDate() - periodDays);
+      const d = new Date();
+      d.setDate(d.getDate() - periodDays);
+      startISO = d.toISOString();
     }
 
-    // Fetch errors - either house-specific or all (null house_id means unassociated)
     let query = supabase
       .from("app_errors")
       .select("*")
-      .gte("created_at", start.toISOString())
+      .gte("created_at", startISO)
       .order("created_at", { ascending: false })
       .limit(2000);
 
-    // Filter by house if selected
+    if (endISO) query = query.lte("created_at", endISO);
     query = query.or(`house_id.eq.${selectedHouseId},house_id.is.null`);
 
     const { data } = await query;
     setErrors((data as AppError[]) ?? []);
     setLoading(false);
-  }, [selectedHouseId, periodDays]);
+  }, [selectedHouseId, periodDays, customFrom, customTo]);
 
   useEffect(() => {
     load();
@@ -132,9 +148,18 @@ export default function AdminErrors() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-            <Bug className="w-6 h-6 text-red-400" /> Erros do App
-          </h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+              <Bug className="w-6 h-6 text-red-400" /> Erros do App
+            </h1>
+            <button
+              onClick={() => load()}
+              className="p-2 rounded-lg bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-white transition-colors"
+              title="Atualizar"
+            >
+              <RefreshCw className="w-4 h-4" />
+            </button>
+          </div>
           <p className="text-sm text-gray-400 mt-1">
             Erros JavaScript capturados automaticamente no frontend
             {selectedHouse && <span className="text-blue-400 ml-1">— {selectedHouse.name}</span>}
@@ -146,20 +171,27 @@ export default function AdminErrors() {
       </div>
 
       {/* Period filter */}
-      <div className="flex gap-2">
-        {periods.map((p) => (
-          <button
-            key={p.days}
-            onClick={() => setPeriodDays(p.days)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-              periodDays === p.days
-                ? "bg-blue-600 text-white"
-                : "bg-gray-800 text-gray-400 hover:text-white"
-            }`}
-          >
-            {p.label}
-          </button>
-        ))}
+      <div className="space-y-2">
+        <div className="flex gap-2 flex-wrap">
+          {periods.map((p) => (
+            <button
+              key={p.days}
+              onClick={() => { setPeriodDays(p.days); setCustomFrom(""); setCustomTo(""); }}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                periodDays === p.days
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-800 text-gray-400 hover:text-white"
+              }`}
+            >
+              {p.label}
+            </button>
+          ))}
+        </div>
+        <div className="flex items-center gap-2">
+          <Input type="date" value={customFrom} onChange={(e) => { setCustomFrom(e.target.value); setPeriodDays(-1); }} className="bg-gray-800 border-gray-700 text-xs h-8 w-40" />
+          <span className="text-xs text-muted-foreground">até</span>
+          <Input type="date" value={customTo} onChange={(e) => { setCustomTo(e.target.value); setPeriodDays(-1); }} className="bg-gray-800 border-gray-700 text-xs h-8 w-40" />
+        </div>
       </div>
 
       {/* Metric cards */}
