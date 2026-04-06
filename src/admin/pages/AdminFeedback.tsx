@@ -72,6 +72,8 @@ export default function AdminFeedback() {
 
     if (filterCategory !== "all") query = query.eq("category", filterCategory);
     if (filterStatus !== "all") query = query.eq("status", filterStatus);
+    if (customFrom) query = query.gte("created_at", customFrom);
+    if (customTo) query = query.lte("created_at", customTo + "T23:59:59");
 
     query = query.order(sortField, { ascending: sortDir === "asc" });
 
@@ -79,7 +81,7 @@ export default function AdminFeedback() {
     if (error) { console.error(error); toast.error("Erro ao carregar feedbacks"); }
     setFeedbacks((data as Feedback[]) || []);
     setLoading(false);
-  }, [filterCategory, filterStatus, sortField, sortDir]);
+  }, [filterCategory, filterStatus, customFrom, customTo, sortField, sortDir]);
 
   useEffect(() => { fetchFeedbacks(); }, [fetchFeedbacks]);
 
