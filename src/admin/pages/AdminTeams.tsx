@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, Plus, Trash2, Pencil, Search } from "lucide-react";
+import { Loader2, Plus, Trash2, Pencil, Search, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
@@ -28,6 +28,9 @@ export default function AdminTeams() {
   const [formName, setFormName] = useState("");
   const [formLogoUrl, setFormLogoUrl] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [teamUsage, setTeamUsage] = useState<Record<string, number>>({});
+  const [sortKey, setSortKey] = useState<"name" | "usage">("name");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
 
   const fetchTeams = async () => {
     setLoading(true);
@@ -40,7 +43,26 @@ export default function AdminTeams() {
     setLoading(false);
   };
 
-  useEffect(() => { fetchTeams(); }, []);
+  const fetchTeamUsage = async () => {
+    const { data } = await (supabase as any)
+      .from("content_entries")
+      .select("team1_name, team2_name");
+
+    if (!data) return;
+
+    const counts: Record<string, number> = {};
+    for (const entry of data) {
+      if (entry.team1_name) {
+        counts[entry.team1_name] = (counts[entry.team1_name] || 0) + 1;
+      }
+      if (entry.team2_name) {
+        counts[entry.team2_name] = (counts[entry.team2_name] || 0) + 1;
+      }
+    }
+    setTeamUsage(counts);
+  };
+
+  useEffect(() => { fetchTeams(); fetchTeamUsage(); }, []);
 
   const openCreate = () => {
     setEditingTeam(null);
@@ -81,64 +103,129 @@ export default function AdminTeams() {
     setSaving(false);
     setModalOpen(false);
     fetchTeams();
+    fetchTeamUsage();
   };
 
   const handleDelete = async (team: Team) => {
     if (!confirm(`Excluir "${team.name}"?`)) return;
     const { error } = await (supabase as any).from("teams").delete().eq("id", team.id);
     if (error) toast.error(error.message);
-    else { toast.success("Time excluído"); fetchTeams(); }
+    else { toast.success("Time excluído"); fetchTeams(); fetchTeamUsage(); }
+  };
+
+  const toggleSort = (key: typeof sortKey) => {
+    if (sortKey === key) {
+      setSortDir(sortDir === "asc" ? "desc" : "asc");
+    } else {
+      setSortKey(key);
+      setSortDir(key === "usage" ? "desc" : "asc");
+    }
   };
 
   const filtered = teams.filter((t) =>
     t.name.toLowerCase().includes(search.toLowerCase())
   );
 
+  const sortedTeams = useMemo(() => {
+    return [...filtered].sort((a, b) => {
+      if (sortKey === "name") {
+        const cmp = (a.name ?? "").localeCompare(b.name ?? "");
+        return sortDir === "asc" ? cmp : -cmp;
+      } else {
+        const aCount = teamUsage[a.name] || 0;
+        const bCount = teamUsage[b.name] || 0;
+        return sortDir === "asc" ? aCount - bCount : bCount - aCount;
+      }
+    });
+  }, [filtered, teamUsage, sortKey, sortDir]);
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold">Gerenciar Times</h2>
+        <div className="flex items-center gap-3">
+          <h2 className="text-xl font-bold">Gerenciar Times</h2>
+          <span className="px-2 py-0.5 rounded text-xs font-bold bg-white/10 text-white">
+            {teams.length}
+          </span>
+          <button
+            onClick={() => { fetchTeams(); fetchTeamUsage(); }}
+            className="p-2 rounded-lg bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-white transition-colors"
+            title="Atualizar lista"
+          >
+            <RefreshCw className="w-4 h-4" />
+          </button>
+        </div>
         <Button onClick={openCreate} size="sm">
           <Plus className="w-4 h-4 mr-1" /> Novo Time
         </Button>
       </div>
 
       <div className="relative max-w-xs">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <Input
           placeholder="Buscar time..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="pl-9 bg-gray-900 border-gray-800"
+          className="pl-9 bg-muted/30 border-border"
         />
       </div>
 
       {loading ? (
         <div className="flex justify-center py-10"><Loader2 className="w-6 h-6 animate-spin" /></div>
       ) : (
-        <div className="rounded-lg border border-white/10 overflow-hidden">
+        <div className="rounded-lg border border-border overflow-hidden">
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead className="w-16">Logo</TableHead>
-                <TableHead>Nome</TableHead>
+                <TableHead
+                  onClick={() => toggleSort("name")}
+                  className="cursor-pointer hover:text-white transition-colors select-none"
+                >
+                  <span className="flex items-center gap-1">
+                    Nome
+                    {sortKey === "name" && (
+                      <span className="text-xs">{sortDir === "asc" ? "↑" : "↓"}</span>
+                    )}
+                  </span>
+                </TableHead>
+                <TableHead
+                  onClick={() => toggleSort("usage")}
+                  className="w-20 cursor-pointer hover:text-white transition-colors select-none"
+                >
+                  <span className="flex items-center gap-1">
+                    Uso
+                    {sortKey === "usage" && (
+                      <span className="text-xs">{sortDir === "asc" ? "↑" : "↓"}</span>
+                    )}
+                  </span>
+                </TableHead>
                 <TableHead className="w-32 text-right">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filtered.length === 0 ? (
+              {sortedTeams.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={3} className="text-center text-gray-500 py-8">
+                  <TableCell colSpan={4} className="text-center text-muted-foreground py-8">
                     Nenhum time cadastrado
                   </TableCell>
                 </TableRow>
               ) : (
-                filtered.map((team) => (
+                sortedTeams.map((team) => (
                   <TableRow key={team.id}>
                     <TableCell>
                       <img src={team.logo_url} alt={team.name} className="w-10 h-10 object-contain rounded" />
                     </TableCell>
                     <TableCell className="font-medium">{team.name}</TableCell>
+                    <TableCell>
+                      <span className={`px-2 py-0.5 rounded text-xs font-bold ${
+                        (teamUsage[team.name] || 0) > 0
+                          ? "bg-green-600/20 text-green-400"
+                          : "bg-muted/30 text-muted-foreground"
+                      }`}>
+                        {teamUsage[team.name] || 0}
+                      </span>
+                    </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1">
                         <Button variant="ghost" size="sm" onClick={() => openEdit(team)}>
@@ -157,11 +244,11 @@ export default function AdminTeams() {
         </div>
       )}
 
-      <p className="text-xs text-gray-500">{teams.length} times cadastrados</p>
+      <p className="text-xs text-muted-foreground">{teams.length} times cadastrados</p>
 
       {/* Create/Edit Modal */}
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent className="bg-gray-900 border-gray-800 max-w-md">
+        <DialogContent className="bg-background border-border max-w-md">
           <DialogHeader>
             <DialogTitle>{editingTeam ? "Editar Time" : "Novo Time"}</DialogTitle>
           </DialogHeader>
