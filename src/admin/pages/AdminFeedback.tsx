@@ -35,11 +35,29 @@ const STATUS_COLORS: Record<string, { bg: string; text: string; label: string }>
   resolvido: { bg: "rgba(148,163,184,0.15)", text: "#94A3B8", label: "Resolvido" },
 };
 
+const getDateStr = (daysAgo: number) => {
+  const d = new Date();
+  d.setDate(d.getDate() - daysAgo);
+  return d.toISOString().split("T")[0];
+};
+
+const datePresets = [
+  { label: "Todos", key: "all" },
+  { label: "Hoje", key: "today", from: getDateStr(0), to: getDateStr(0) },
+  { label: "Ontem", key: "yesterday", from: getDateStr(1), to: getDateStr(1) },
+  { label: "Anteontem", key: "anteontem", from: getDateStr(2), to: getDateStr(2) },
+  { label: "7 dias", key: "7d", from: getDateStr(6), to: getDateStr(0) },
+  { label: "30 dias", key: "30d", from: getDateStr(29), to: getDateStr(0) },
+];
+
 export default function AdminFeedback() {
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterCategory, setFilterCategory] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
+  const [datePreset, setDatePreset] = useState<string>("all");
+  const [customFrom, setCustomFrom] = useState("");
+  const [customTo, setCustomTo] = useState("");
   const [sortField, setSortField] = useState<SortField>("created_at");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
   const [expandedId, setExpandedId] = useState<string | null>(null);
