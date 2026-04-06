@@ -339,14 +339,16 @@ export default function AdminClientsManage() {
 
   const handleClearFilters = () => {
     setSearch("");
-    setCreatedFrom("");
-    setCreatedTo("");
+    setLiberacaoFrom("");
+    setLiberacaoTo("");
+    setFirstAccessFrom("");
+    setFirstAccessTo("");
     setLastSeenFrom("");
     setLastSeenTo("");
     setSelectedTier(null);
     setSelectedAddons([]);
     setFilterNotAccessed(false);
-    load({ search: "", createdFrom: "", createdTo: "", lastSeenFrom: "", lastSeenTo: "", selectedTier: null, selectedAddons: [], filterNotAccessed: false });
+    load({ search: "", liberacaoFrom: "", liberacaoTo: "", firstAccessFrom: "", firstAccessTo: "", lastSeenFrom: "", lastSeenTo: "", selectedTier: null, selectedAddons: [], filterNotAccessed: false });
   };
 
   const sortedUsers = sortUsers(users, sortKey, sortDir);
