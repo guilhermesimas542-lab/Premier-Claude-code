@@ -46,6 +46,8 @@ export default function AdminErrors() {
   const [errors, setErrors] = useState<AppError[]>([]);
   const [loading, setLoading] = useState(true);
   const [periodDays, setPeriodDays] = useState(7);
+  const [customFrom, setCustomFrom] = useState("");
+  const [customTo, setCustomTo] = useState("");
   const [expandedFp, setExpandedFp] = useState<string | null>(null);
 
   const load = useCallback(async () => {
