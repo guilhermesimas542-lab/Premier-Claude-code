@@ -480,7 +480,15 @@ export default function AdminAnalytics() {
 
           {/* ── User Table ───────────────────────────────────────────────── */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-400 mb-3">Uso por usuário</h3>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-semibold text-gray-400">Uso por usuário</h3>
+              <button
+                onClick={handleExportUserUsageCSV}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-green-600/20 text-green-400 hover:bg-green-600/30 text-xs font-medium transition-colors"
+              >
+                Exportar CSV
+              </button>
+            </div>
             <div className="bg-gray-900 rounded-xl border border-white/10 overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
