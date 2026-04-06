@@ -308,7 +308,7 @@ export default function AdminAnalytics() {
 
   const handleExportUserUsageCSV = () => {
     const headers = ["Email", "Eventos", "Tempo total (seg)", "Último acesso"];
-    const rows = userTable.map((u: any) => [
+    const rows = sortedUserTable.map((u: any) => [
       u.email ?? "",
       String(u.sessions ?? 0),
       String(u.totalTime ?? 0),
