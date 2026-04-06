@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Loader2, Users, Activity, Clock, UserPlus, TrendingUp, Bell, Target, FileText, Trophy, RefreshCw, Info } from "lucide-react";
@@ -68,6 +68,8 @@ export default function AdminAnalytics() {
   const [funnel, setFunnel] = useState<{ name: string; count: number }[]>([]);
   const [userTable, setUserTable] = useState<any[]>([]);
   const [tipsCount, setTipsCount] = useState(0);
+  const [userSortKey, setUserSortKey] = useState<"email" | "sessions" | "totalTime" | "last_seen_at">("sessions");
+  const [userSortDir, setUserSortDir] = useState<"asc" | "desc">("desc");
 
   const applyShortcut = (days: number) => {
     setActiveShortcut(days);
@@ -211,9 +213,14 @@ export default function AdminAnalytics() {
 
     // User table
     const userMap: Record<string, { sessions: number; totalTime: number }> = {};
-    s.forEach((r) => {
+    s.forEach((r: any) => {
+      if (!r.user_id) return;
       if (!userMap[r.user_id]) userMap[r.user_id] = { sessions: 0, totalTime: 0 };
       userMap[r.user_id].sessions++;
+      if (r.event_name === "screen_time") {
+        const sec = Number(r.metadata?.seconds ?? r.properties?.seconds ?? 0);
+        userMap[r.user_id].totalTime += sec;
+      }
     });
     const userIds = Object.keys(userMap);
     if (userIds.length > 0) {
@@ -231,6 +238,33 @@ export default function AdminAnalytics() {
   }, [from, to, selectedHouseId]);
 
   useEffect(() => { load(); }, [load]);
+
+  const toggleUserSort = (key: typeof userSortKey) => {
+    if (userSortKey === key) {
+      setUserSortDir(userSortDir === "asc" ? "desc" : "asc");
+    } else {
+      setUserSortKey(key);
+      setUserSortDir("desc");
+    }
+  };
+
+  const sortedUserTable = useMemo(() => {
+    return [...userTable].sort((a: any, b: any) => {
+      if (userSortKey === "email") {
+        const cmp = (a.email ?? "").localeCompare(b.email ?? "");
+        return userSortDir === "asc" ? cmp : -cmp;
+      }
+      if (userSortKey === "last_seen_at") {
+        const aVal = a.last_seen_at ?? "";
+        const bVal = b.last_seen_at ?? "";
+        const cmp = aVal.localeCompare(bVal);
+        return userSortDir === "asc" ? cmp : -cmp;
+      }
+      const aVal = a[userSortKey] ?? 0;
+      const bVal = b[userSortKey] ?? 0;
+      return userSortDir === "asc" ? aVal - bVal : bVal - aVal;
+    });
+  }, [userTable, userSortKey, userSortDir]);
 
   const maxFunnel = Math.max(...funnel.map((f) => f.count), 1);
 
@@ -274,7 +308,7 @@ export default function AdminAnalytics() {
 
   const handleExportUserUsageCSV = () => {
     const headers = ["Email", "Eventos", "Tempo total (seg)", "Último acesso"];
-    const rows = userTable.map((u: any) => [
+    const rows = sortedUserTable.map((u: any) => [
       u.email ?? "",
       String(u.sessions ?? 0),
       String(u.totalTime ?? 0),
@@ -493,14 +527,22 @@ export default function AdminAnalytics() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-white/10 text-left text-gray-500 text-xs">
-                    <th className="px-3 py-2">Email</th>
-                    <th className="px-3 py-2">Eventos</th>
-                    <th className="px-3 py-2">Tempo total (seg)</th>
-                    <th className="px-3 py-2">Último acesso</th>
+                    <th className="px-3 py-2 cursor-pointer hover:text-white transition-colors select-none" onClick={() => toggleUserSort("email")}>
+                      <span className="flex items-center gap-1">Email {userSortKey === "email" && <span>{userSortDir === "asc" ? "↑" : "↓"}</span>}</span>
+                    </th>
+                    <th className="px-3 py-2 cursor-pointer hover:text-white transition-colors select-none" onClick={() => toggleUserSort("sessions")}>
+                      <span className="flex items-center gap-1">Eventos {userSortKey === "sessions" && <span>{userSortDir === "asc" ? "↑" : "↓"}</span>}</span>
+                    </th>
+                    <th className="px-3 py-2 cursor-pointer hover:text-white transition-colors select-none" onClick={() => toggleUserSort("totalTime")}>
+                      <span className="flex items-center gap-1">Tempo total (seg) {userSortKey === "totalTime" && <span>{userSortDir === "asc" ? "↑" : "↓"}</span>}</span>
+                    </th>
+                    <th className="px-3 py-2 cursor-pointer hover:text-white transition-colors select-none" onClick={() => toggleUserSort("last_seen_at")}>
+                      <span className="flex items-center gap-1">Último acesso {userSortKey === "last_seen_at" && <span>{userSortDir === "asc" ? "↑" : "↓"}</span>}</span>
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
-                  {userTable.map((u) => (
+                  {sortedUserTable.map((u) => (
                     <tr key={u.id} className="border-b border-white/5 text-gray-300 text-xs">
                       <td className="px-3 py-2">{u.email}</td>
                       <td className="px-3 py-2">{u.sessions}</td>
@@ -508,7 +550,7 @@ export default function AdminAnalytics() {
                       <td className="px-3 py-2">{u.last_seen_at ? new Date(u.last_seen_at).toLocaleDateString("pt-BR") : "—"}</td>
                     </tr>
                   ))}
-                  {userTable.length === 0 && (
+                  {sortedUserTable.length === 0 && (
                     <tr><td colSpan={4} className="px-3 py-6 text-center text-gray-600">Sem dados no período</td></tr>
                   )}
                 </tbody>
