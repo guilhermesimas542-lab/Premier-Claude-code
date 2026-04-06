@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Loader2, Users, Activity, Clock, UserPlus, TrendingUp, Bell, Target, FileText, Trophy } from "lucide-react";
+import { Loader2, Users, Activity, Clock, UserPlus, TrendingUp, Bell, Target, FileText, Trophy, RefreshCw, Info } from "lucide-react";
 import { useBettingHouseAdmin } from "../context/BettingHouseContext";
 import {
   LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
