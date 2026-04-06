@@ -266,6 +266,7 @@ export default function AdminAnalytics() {
     });
   }, [userTable, userSortKey, userSortDir]);
 
+  const maxFunnel = Math.max(...funnel.map((f) => f.count), 1);
 
   const fmtDate = (d: Date) => format(d, "dd/MM/yyyy");
 
