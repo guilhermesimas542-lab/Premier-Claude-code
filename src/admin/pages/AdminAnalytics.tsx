@@ -377,7 +377,14 @@ export default function AdminAnalytics() {
               <div key={k.label} className="bg-gray-900 rounded-xl p-4 border border-white/10 flex flex-col gap-2">
                 <div className={cn("flex items-center gap-1.5 text-xs font-medium", k.color)}>
                   {k.icon}
-                  {k.label}
+                  <div className="flex items-center gap-1.5">
+                    <span>{k.label}</span>
+                    {KPI_TOOLTIPS[k.label] && (
+                      <span title={KPI_TOOLTIPS[k.label]} className="cursor-help text-muted-foreground hover:text-white transition-colors">
+                        <Info className="w-3.5 h-3.5" />
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <div className="text-2xl font-bold text-white">{k.value}</div>
               </div>
@@ -385,7 +392,14 @@ export default function AdminAnalytics() {
             <div className="bg-gray-900 rounded-xl p-4 border border-white/10 flex flex-col gap-2">
               <div className="flex items-center gap-1.5 text-xs font-medium text-teal-400">
                 <FileText className="w-4 h-4" />
-                Tips cadastradas
+                <div className="flex items-center gap-1.5">
+                  <span>Tips cadastradas</span>
+                  {KPI_TOOLTIPS["Tips cadastradas"] && (
+                    <span title={KPI_TOOLTIPS["Tips cadastradas"]} className="cursor-help text-muted-foreground hover:text-white transition-colors">
+                      <Info className="w-3.5 h-3.5" />
+                    </span>
+                  )}
+                </div>
               </div>
               <div className="text-2xl font-bold text-white">{tipsCount}</div>
             </div>
