@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, Save, Check, AlertTriangle, CheckCircle2, XCircle } from "lucide-react";
+import { Loader2, Save, Check, AlertTriangle, CheckCircle2, XCircle, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { useBettingHouseAdmin } from "../context/BettingHouseContext";
 
