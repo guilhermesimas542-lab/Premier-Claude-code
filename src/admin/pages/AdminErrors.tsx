@@ -171,20 +171,27 @@ export default function AdminErrors() {
       </div>
 
       {/* Period filter */}
-      <div className="flex gap-2">
-        {periods.map((p) => (
-          <button
-            key={p.days}
-            onClick={() => setPeriodDays(p.days)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-              periodDays === p.days
-                ? "bg-blue-600 text-white"
-                : "bg-gray-800 text-gray-400 hover:text-white"
-            }`}
-          >
-            {p.label}
-          </button>
-        ))}
+      <div className="space-y-2">
+        <div className="flex gap-2 flex-wrap">
+          {periods.map((p) => (
+            <button
+              key={p.days}
+              onClick={() => { setPeriodDays(p.days); setCustomFrom(""); setCustomTo(""); }}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                periodDays === p.days
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-800 text-gray-400 hover:text-white"
+              }`}
+            >
+              {p.label}
+            </button>
+          ))}
+        </div>
+        <div className="flex items-center gap-2">
+          <Input type="date" value={customFrom} onChange={(e) => { setCustomFrom(e.target.value); setPeriodDays(-1); }} className="bg-gray-800 border-gray-700 text-xs h-8 w-40" />
+          <span className="text-xs text-muted-foreground">até</span>
+          <Input type="date" value={customTo} onChange={(e) => { setCustomTo(e.target.value); setPeriodDays(-1); }} className="bg-gray-800 border-gray-700 text-xs h-8 w-40" />
+        </div>
       </div>
 
       {/* Metric cards */}

@@ -206,6 +206,38 @@ export default function AdminFeedback() {
             ]}
           />
         </div>
+        <div className="space-y-1">
+          <span className="text-xs text-gray-500 mr-2">Período:</span>
+          <div className="flex items-center gap-2 flex-wrap">
+            {datePresets.map((p) => (
+              <button
+                key={p.key}
+                onClick={() => {
+                  setDatePreset(p.key);
+                  if (p.key === "all") {
+                    setCustomFrom("");
+                    setCustomTo("");
+                  } else {
+                    setCustomFrom((p as any).from!);
+                    setCustomTo((p as any).to!);
+                  }
+                }}
+                className={`px-3 py-1 rounded-full text-xs font-bold transition-colors ${
+                  datePreset === p.key
+                    ? "bg-blue-600/30 text-blue-400 ring-1 ring-blue-400"
+                    : "bg-muted/30 text-muted-foreground hover:bg-muted/50"
+                }`}
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
+          <div className="flex items-center gap-2 mt-1">
+            <Input type="date" value={customFrom} onChange={(e) => { setCustomFrom(e.target.value); setDatePreset("custom"); }} className="bg-gray-800 border-gray-700 text-xs h-8 w-40" />
+            <span className="text-xs text-muted-foreground">até</span>
+            <Input type="date" value={customTo} onChange={(e) => { setCustomTo(e.target.value); setDatePreset("custom"); }} className="bg-gray-800 border-gray-700 text-xs h-8 w-40" />
+          </div>
+        </div>
       </div>
 
       {/* Table */}
