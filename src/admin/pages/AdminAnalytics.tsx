@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Loader2, Users, Activity, Clock, UserPlus, TrendingUp, Bell, Target, FileText, Trophy } from "lucide-react";
+import { Loader2, Users, Activity, Clock, UserPlus, TrendingUp, Bell, Target, FileText, Trophy, RefreshCw, Info } from "lucide-react";
 import { useBettingHouseAdmin } from "../context/BettingHouseContext";
 import {
   LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
@@ -34,10 +34,23 @@ const ADDON_COLOR = "#6366f1";
 
 const PERIOD_SHORTCUTS = [
   { label: "Hoje", days: 0 },
+  { label: "Ontem", days: 1 },
+  { label: "Anteontem", days: 2 },
   { label: "7 dias", days: 7 },
   { label: "30 dias", days: 30 },
   { label: "90 dias", days: 90 },
 ];
+
+const KPI_TOOLTIPS: Record<string, string> = {
+  "Usuários únicos": "Quantidade de usuários distintos que geraram pelo menos um evento no período selecionado.",
+  "Sessões": "Número total de sessões únicas registradas no período. Uma sessão é contada cada vez que o usuário abre o app.",
+  "Tempo médio": "Tempo médio por sessão, calculado a partir dos eventos de screen_time dividido pelo número de sessões.",
+  "Novos cadastros": "Usuários criados (liberados) dentro do período selecionado.",
+  "Taxa de conversão": "Percentual de usuários únicos que clicaram em \"comprar\" nos popups de funil.",
+  "Ativos hoje": "Usuários distintos que geraram eventos hoje, independente do período filtrado.",
+  "Notificações enviadas": "Total de notificações disparadas no período.",
+  "Tips cadastradas": "Total de tips criadas no período selecionado.",
+};
 
 // ─── Component ───────────────────────────────────────────────────────────────
 export default function AdminAnalytics() {
@@ -58,8 +71,14 @@ export default function AdminAnalytics() {
 
   const applyShortcut = (days: number) => {
     setActiveShortcut(days);
-    setFrom(days === 0 ? startOfDay(today) : subDays(today, days));
-    setTo(today);
+    if (days <= 2) {
+      const targetDay = subDays(today, days);
+      setFrom(startOfDay(targetDay));
+      setTo(targetDay);
+    } else {
+      setFrom(subDays(today, days));
+      setTo(today);
+    }
   };
 
   const load = useCallback(async () => {
@@ -228,9 +247,63 @@ export default function AdminAnalytics() {
     { label: "Notificações enviadas", value: kpis.notificationsSent, icon: <Bell className="w-4 h-4" />, color: "text-indigo-400" },
   ];
 
+  const handleExportGeneralCSV = () => {
+    const headers = ["Métrica", "Valor"];
+    const rows = [
+      ["Período", `${from.toLocaleDateString("pt-BR")} até ${to.toLocaleDateString("pt-BR")}`],
+      ["Usuários únicos", String(kpis.uniqueUsers)],
+      ["Sessões", String(kpis.totalSessions)],
+      ["Tempo médio (seg)", String(kpis.avgDuration)],
+      ["Novos cadastros", String(kpis.newUsers)],
+      ["Taxa de conversão", `${kpis.conversionRate}%`],
+      ["Ativos hoje", String(kpis.activeToday)],
+      ["Notificações enviadas", String(kpis.notificationsSent)],
+      ["Tips cadastradas", String(tipsCount)],
+    ];
+    const csvContent = [headers, ...rows]
+      .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(","))
+      .join("\n");
+    const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `analytics_geral_${new Date().toISOString().split("T")[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleExportUserUsageCSV = () => {
+    const headers = ["Email", "Eventos", "Tempo total (seg)", "Último acesso"];
+    const rows = userTable.map((u: any) => [
+      u.email ?? "",
+      String(u.sessions ?? 0),
+      String(u.totalTime ?? 0),
+      u.last_seen_at ? new Date(u.last_seen_at).toLocaleDateString("pt-BR") : "—",
+    ]);
+    const csvContent = [headers, ...rows]
+      .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(","))
+      .join("\n");
+    const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `uso_por_usuario_${new Date().toISOString().split("T")[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="space-y-6">
-      <h2 className="text-xl font-bold">Analytics — {selectedHouse?.name ?? "Visão Geral"}</h2>
+      <div className="flex items-center gap-3">
+        <h2 className="text-xl font-bold">Analytics — {selectedHouse?.name ?? "Visão Geral"}</h2>
+        <button
+          onClick={() => load()}
+          className="p-2 rounded-lg bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-white transition-colors"
+          title="Atualizar dados"
+        >
+          <RefreshCw className="w-4 h-4" />
+        </button>
+      </div>
 
 
 
@@ -289,6 +362,13 @@ export default function AdminAnalytics() {
             </Popover>
 
             {loading && <Loader2 className="w-4 h-4 animate-spin text-gray-500 ml-1" />}
+
+            <button
+              onClick={handleExportGeneralCSV}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-green-600/20 text-green-400 hover:bg-green-600/30 text-sm font-medium transition-colors"
+            >
+              Exportar CSV
+            </button>
           </div>
 
           {/* ── KPI Grid ─────────────────────────────────────────────────── */}
@@ -297,7 +377,14 @@ export default function AdminAnalytics() {
               <div key={k.label} className="bg-gray-900 rounded-xl p-4 border border-white/10 flex flex-col gap-2">
                 <div className={cn("flex items-center gap-1.5 text-xs font-medium", k.color)}>
                   {k.icon}
-                  {k.label}
+                  <div className="flex items-center gap-1.5">
+                    <span>{k.label}</span>
+                    {KPI_TOOLTIPS[k.label] && (
+                      <span title={KPI_TOOLTIPS[k.label]} className="cursor-help text-muted-foreground hover:text-white transition-colors">
+                        <Info className="w-3.5 h-3.5" />
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <div className="text-2xl font-bold text-white">{k.value}</div>
               </div>
@@ -305,7 +392,14 @@ export default function AdminAnalytics() {
             <div className="bg-gray-900 rounded-xl p-4 border border-white/10 flex flex-col gap-2">
               <div className="flex items-center gap-1.5 text-xs font-medium text-teal-400">
                 <FileText className="w-4 h-4" />
-                Tips cadastradas
+                <div className="flex items-center gap-1.5">
+                  <span>Tips cadastradas</span>
+                  {KPI_TOOLTIPS["Tips cadastradas"] && (
+                    <span title={KPI_TOOLTIPS["Tips cadastradas"]} className="cursor-help text-muted-foreground hover:text-white transition-colors">
+                      <Info className="w-3.5 h-3.5" />
+                    </span>
+                  )}
+                </div>
               </div>
               <div className="text-2xl font-bold text-white">{tipsCount}</div>
             </div>
@@ -386,7 +480,15 @@ export default function AdminAnalytics() {
 
           {/* ── User Table ───────────────────────────────────────────────── */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-400 mb-3">Uso por usuário</h3>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-semibold text-gray-400">Uso por usuário</h3>
+              <button
+                onClick={handleExportUserUsageCSV}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-green-600/20 text-green-400 hover:bg-green-600/30 text-xs font-medium transition-colors"
+              >
+                Exportar CSV
+              </button>
+            </div>
             <div className="bg-gray-900 rounded-xl border border-white/10 overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
