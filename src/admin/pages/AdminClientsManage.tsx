@@ -513,7 +513,7 @@ export default function AdminClientsManage() {
     });
   };
 
-
+  const handleExportCSV = () => {
     const headers = ["Email", "Telefone", "Plano", "Casa", "Liberação", "1º Acesso", "Último Acesso", "Acessou"];
     const rows = users.map((u: any) => [
       u.email ?? "",
