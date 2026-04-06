@@ -3,7 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useBettingHouseAdmin } from "../context/BettingHouseContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle, Bug, Download, ChevronDown, ChevronUp, Users, Hash } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { AlertTriangle, Bug, Download, ChevronDown, ChevronUp, Users, Hash, RefreshCw } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
