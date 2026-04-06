@@ -3,7 +3,7 @@ import {
   LayoutDashboard, Image, PlusCircle, List,
   Users, Bell, BarChart3, ChevronLeft, ChevronRight,
   DollarSign, Activity, Home, Link, Layers, Shield, CreditCard, Bug, Zap,
-  ChevronDown, UserPlus, Trophy, MessageSquare,
+  ChevronDown, UserPlus, UserX, Trophy, MessageSquare,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAdminMode } from "../context/AdminModeContext";
@@ -55,6 +55,7 @@ export function AdminSidebar() {
           badge: counts.clients,
           children: [
             { to: "/admin/clients", icon: List, label: "Lista de Clientes", end: true },
+            { to: "/admin/clients/nao-acessou", icon: UserX, label: "Não Acessou" },
             { to: "/admin/clients/create", icon: UserPlus, label: "Cadastrar Novo" },
           ],
         },
