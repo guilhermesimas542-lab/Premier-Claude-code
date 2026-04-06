@@ -16,7 +16,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, Pencil, Loader2, Trash2, ChevronsUpDown, ChevronUp, ChevronDown, Copy, X } from "lucide-react";
+import { Plus, Pencil, Loader2, Trash2, ChevronsUpDown, ChevronUp, ChevronDown, Copy, X, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import type { AdminUser } from "../types";
 import { ClientProfileModal } from "../components/ClientProfileModal";
