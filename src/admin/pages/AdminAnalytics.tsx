@@ -362,6 +362,13 @@ export default function AdminAnalytics() {
             </Popover>
 
             {loading && <Loader2 className="w-4 h-4 animate-spin text-gray-500 ml-1" />}
+
+            <button
+              onClick={handleExportGeneralCSV}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-green-600/20 text-green-400 hover:bg-green-600/30 text-sm font-medium transition-colors"
+            >
+              Exportar CSV
+            </button>
           </div>
 
           {/* ── KPI Grid ─────────────────────────────────────────────────── */}
