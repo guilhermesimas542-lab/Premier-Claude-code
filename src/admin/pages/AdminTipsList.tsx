@@ -400,6 +400,38 @@ export default function AdminTipsList() {
           <SelectContent><SelectItem value="all">Todos</SelectItem><SelectItem value="pending">Pendente</SelectItem><SelectItem value="green">Green</SelectItem><SelectItem value="red">Red</SelectItem></SelectContent>
         </Select>
         <Button size="sm" onClick={load}>Filtrar</Button>
+        <button
+          onClick={() => {
+            const formatResult = (r: string | null | undefined) => {
+              if (!r || r === "pending") return "Pendente";
+              if (r === "green") return "Green";
+              if (r === "red") return "Red";
+              if (r === "void") return "Void";
+              return r;
+            };
+            const headers = ["Título", "Palpite", "Data", "Hora", "Odd", "Plano", "Resultado"];
+            const rows = sortedItems.map((item: any) => [
+              item.title ?? `${item.team1_name ?? ""} x ${item.team2_name ?? ""}`,
+              item.condition_to_win ?? item.market ?? "",
+              item.date ?? "",
+              item.starts_at ? item.starts_at.substring(11, 16) : "",
+              item.odd?.toFixed(2) ?? "",
+              item.tier_required ?? item.addon_required ?? "",
+              formatResult(item.result),
+            ]);
+            const csv = [headers, ...rows].map(row => row.map(cell => `"${String(cell ?? "").replace(/"/g, '""')}"`).join(",")).join("\n");
+            const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `tips_premier_${new Date().toISOString().split("T")[0]}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+          }}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-green-600/20 text-green-400 hover:bg-green-600/30 text-sm font-medium transition-colors"
+        >
+          Exportar CSV
+        </button>
       </div>
 
       {/* Date shortcut buttons */}
