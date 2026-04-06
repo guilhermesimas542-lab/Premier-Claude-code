@@ -215,9 +215,18 @@ export default function AdminNaoAcessou() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-white" style={{ fontFamily: "Barlow Condensed, sans-serif" }}>
-          Não Acessou
-        </h1>
+        <div className="flex items-center gap-3">
+          <h1 className="text-2xl font-bold text-white" style={{ fontFamily: "Barlow Condensed, sans-serif" }}>
+            Não Acessou
+          </h1>
+          <button
+            onClick={() => load()}
+            className="p-2 rounded-lg bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-white transition-colors"
+            title="Atualizar dados"
+          >
+            <RefreshCw className="w-4 h-4" />
+          </button>
+        </div>
         <p className="text-sm text-muted-foreground">Clientes liberados que ainda não abriram o app</p>
       </div>
 
