@@ -46,6 +46,7 @@ import AdminPayCards from "./admin/pages/AdminPayCards";
 import AdminErrors from "./admin/pages/AdminErrors";
 import AdminFeedback from "./admin/pages/AdminFeedback";
 import AdminWebhook from "./admin/pages/AdminWebhook";
+import AdminNaoAcessou from "./admin/pages/AdminNaoAcessou";
 import { Navigate } from "react-router-dom";
 import { FunnelPopupProvider } from "./context/FunnelPopupContext";
 
