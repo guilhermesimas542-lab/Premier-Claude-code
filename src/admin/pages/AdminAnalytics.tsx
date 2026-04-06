@@ -247,9 +247,63 @@ export default function AdminAnalytics() {
     { label: "Notificações enviadas", value: kpis.notificationsSent, icon: <Bell className="w-4 h-4" />, color: "text-indigo-400" },
   ];
 
+  const handleExportGeneralCSV = () => {
+    const headers = ["Métrica", "Valor"];
+    const rows = [
+      ["Período", `${from.toLocaleDateString("pt-BR")} até ${to.toLocaleDateString("pt-BR")}`],
+      ["Usuários únicos", String(kpis.uniqueUsers)],
+      ["Sessões", String(kpis.totalSessions)],
+      ["Tempo médio (seg)", String(kpis.avgDuration)],
+      ["Novos cadastros", String(kpis.newUsers)],
+      ["Taxa de conversão", `${kpis.conversionRate}%`],
+      ["Ativos hoje", String(kpis.activeToday)],
+      ["Notificações enviadas", String(kpis.notificationsSent)],
+      ["Tips cadastradas", String(tipsCount)],
+    ];
+    const csvContent = [headers, ...rows]
+      .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(","))
+      .join("\n");
+    const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `analytics_geral_${new Date().toISOString().split("T")[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleExportUserUsageCSV = () => {
+    const headers = ["Email", "Eventos", "Tempo total (seg)", "Último acesso"];
+    const rows = userTable.map((u: any) => [
+      u.email ?? "",
+      String(u.sessions ?? 0),
+      String(u.totalTime ?? 0),
+      u.last_seen_at ? new Date(u.last_seen_at).toLocaleDateString("pt-BR") : "—",
+    ]);
+    const csvContent = [headers, ...rows]
+      .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(","))
+      .join("\n");
+    const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `uso_por_usuario_${new Date().toISOString().split("T")[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="space-y-6">
-      <h2 className="text-xl font-bold">Analytics — {selectedHouse?.name ?? "Visão Geral"}</h2>
+      <div className="flex items-center gap-3">
+        <h2 className="text-xl font-bold">Analytics — {selectedHouse?.name ?? "Visão Geral"}</h2>
+        <button
+          onClick={() => load()}
+          className="p-2 rounded-lg bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-white transition-colors"
+          title="Atualizar dados"
+        >
+          <RefreshCw className="w-4 h-4" />
+        </button>
+      </div>
 
 
 
