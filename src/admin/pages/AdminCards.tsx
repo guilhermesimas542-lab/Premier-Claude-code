@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, Pencil, Loader2, Monitor, Smartphone, Tablet, ChevronDown } from "lucide-react";
+import { Plus, Pencil, Loader2, Monitor, Smartphone, Tablet, ChevronDown, RefreshCw } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { AUDIENCE_SEGMENTS, getSegmentLabel, parseAudience } from "@/lib/audienceUtils";
 import { toast } from "sonner";
@@ -314,7 +314,16 @@ export default function AdminCards() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold">Cards e Funis</h2>
+        <div className="flex items-center gap-3">
+          <h2 className="text-xl font-bold">Cards e Funis</h2>
+          <button
+            onClick={() => load()}
+            className="p-2 rounded-lg bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-white transition-colors"
+            title="Atualizar"
+          >
+            <RefreshCw className="w-4 h-4" />
+          </button>
+        </div>
         <Button size="sm" onClick={openCreate}>
           <Plus className="w-4 h-4" /> Novo Card
         </Button>

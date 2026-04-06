@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, Pencil, Loader2, ArrowUp, ArrowDown, ArrowUpDown, BarChart2, X, ChevronDown } from "lucide-react";
+import { Plus, Pencil, Loader2, ArrowUp, ArrowDown, ArrowUpDown, BarChart2, X, ChevronDown, RefreshCw } from "lucide-react";
 import FunnelAnalyticsModal from "@/admin/components/FunnelAnalyticsModal";
 import { toast } from "sonner";
 import FunnelBuilder from "@/admin/components/funnel-popup/FunnelBuilder";
@@ -322,7 +322,16 @@ export default function AdminPayCards() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold">Pay Cards</h2>
+          <div className="flex items-center gap-3">
+            <h2 className="text-xl font-bold">Pay Cards</h2>
+            <button
+              onClick={() => load()}
+              className="p-2 rounded-lg bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-white transition-colors"
+              title="Atualizar"
+            >
+              <RefreshCw className="w-4 h-4" />
+            </button>
+          </div>
           <p className="text-sm text-muted-foreground mt-0.5">
             {selectedHouse ? `Casa: ${selectedHouse.name}` : "Sem casa selecionada (global)"}
           </p>

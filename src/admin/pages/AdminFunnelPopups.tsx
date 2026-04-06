@@ -7,7 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Plus, Pencil, Trash2, Loader2, Upload, X, Eye, BarChart2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, Upload, X, Eye, BarChart2, RefreshCw } from "lucide-react";
 import FunnelAnalyticsModal from "@/admin/components/FunnelAnalyticsModal";
 import { toast } from "sonner";
 import { useBettingHouseAdmin } from "@/admin/context/BettingHouseContext";
@@ -126,7 +126,16 @@ export default function AdminFunnelPopups() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold">Pop-ups de Funil</h2>
+          <div className="flex items-center gap-3">
+            <h2 className="text-xl font-bold">Pop-ups de Funil</h2>
+            <button
+              onClick={() => load()}
+              className="p-2 rounded-lg bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-white transition-colors"
+              title="Atualizar"
+            >
+              <RefreshCw className="w-4 h-4" />
+            </button>
+          </div>
           <p className="text-sm text-gray-400 mt-0.5">
             {selectedHouse ? `Casa: ${selectedHouse.name}` : "Sem casa selecionada (global)"}
           </p>
