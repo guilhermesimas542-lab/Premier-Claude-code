@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, Pencil, Loader2, Monitor, Smartphone, Tablet, ChevronDown } from "lucide-react";
+import { Plus, Pencil, Loader2, Monitor, Smartphone, Tablet, ChevronDown, RefreshCw } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { AUDIENCE_SEGMENTS, getSegmentLabel, parseAudience } from "@/lib/audienceUtils";
 import { toast } from "sonner";
