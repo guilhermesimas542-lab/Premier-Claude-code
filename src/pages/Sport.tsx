@@ -306,21 +306,22 @@ const Sport = () => {
   // Derived data — re-filter on every tick so expired tips disappear in real-time
   // Uses São Paulo timezone for all comparisons
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const activeEntries = tips.filter(entry => {
-    const now = toZonedTime(new Date(), BRAZIL_TZ);
+  const activeEntries = useMemo(() => {
+    return tips.filter(entry => {
+      const now = toZonedTime(new Date(), BRAZIL_TZ);
 
-    // starts_at check: entries expire 1h after match starts
-    if (entry.starts_at) {
-      const expiryFromStart = new Date(new Date(entry.starts_at).getTime() + 60 * 60 * 1000);
-      if (now > toZonedTime(expiryFromStart, BRAZIL_TZ)) return false;
-    }
+      // starts_at check: entries expire 1h after match starts
+      if (entry.starts_at) {
+        const expiryFromStart = new Date(new Date(entry.starts_at).getTime() + 60 * 60 * 1000);
+        if (now > toZonedTime(expiryFromStart, BRAZIL_TZ)) return false;
+      }
 
-    // explicit expires_at check
-    if (entry.expires_at && now > toZonedTime(new Date(entry.expires_at), BRAZIL_TZ)) return false;
+      // explicit expires_at check
+      if (entry.expires_at && now > toZonedTime(new Date(entry.expires_at), BRAZIL_TZ)) return false;
 
-    return true;
-  });
-  void tick; // referenced to force re-evaluation every second
+      return true;
+    });
+  }, [tips, tick]);
 
   const tipsByTier = activeEntries.reduce((acc, entry) => {
     const tier = mapTierToDisplay(entry.tier_required, entry.addon_required);
