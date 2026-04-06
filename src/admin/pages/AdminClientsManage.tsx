@@ -16,7 +16,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, Pencil, Loader2, Trash2, ChevronsUpDown, ChevronUp, ChevronDown, Copy, X } from "lucide-react";
+import { Plus, Pencil, Loader2, Trash2, ChevronsUpDown, ChevronUp, ChevronDown, Copy, X, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import type { AdminUser } from "../types";
 import { ClientProfileModal } from "../components/ClientProfileModal";
@@ -571,7 +571,16 @@ export default function AdminClientsManage() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold">Clientes</h2>
+        <div className="flex items-center gap-3">
+          <h2 className="text-xl font-bold">Clientes</h2>
+          <button
+            onClick={() => load()}
+            className="p-2 rounded-lg bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-white transition-colors"
+            title="Atualizar lista"
+          >
+            <RefreshCw className="w-4 h-4" />
+          </button>
+        </div>
         <Button size="sm" onClick={() => setShowCreate(true)}>
           <Plus className="w-4 h-4" /> Novo
         </Button>
