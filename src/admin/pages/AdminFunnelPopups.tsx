@@ -7,7 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Plus, Pencil, Trash2, Loader2, Upload, X, Eye, BarChart2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, Upload, X, Eye, BarChart2, RefreshCw } from "lucide-react";
 import FunnelAnalyticsModal from "@/admin/components/FunnelAnalyticsModal";
 import { toast } from "sonner";
 import { useBettingHouseAdmin } from "@/admin/context/BettingHouseContext";
