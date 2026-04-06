@@ -527,14 +527,22 @@ export default function AdminAnalytics() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-white/10 text-left text-gray-500 text-xs">
-                    <th className="px-3 py-2">Email</th>
-                    <th className="px-3 py-2">Eventos</th>
-                    <th className="px-3 py-2">Tempo total (seg)</th>
-                    <th className="px-3 py-2">Último acesso</th>
+                    <th className="px-3 py-2 cursor-pointer hover:text-white transition-colors select-none" onClick={() => toggleUserSort("email")}>
+                      <span className="flex items-center gap-1">Email {userSortKey === "email" && <span>{userSortDir === "asc" ? "↑" : "↓"}</span>}</span>
+                    </th>
+                    <th className="px-3 py-2 cursor-pointer hover:text-white transition-colors select-none" onClick={() => toggleUserSort("sessions")}>
+                      <span className="flex items-center gap-1">Eventos {userSortKey === "sessions" && <span>{userSortDir === "asc" ? "↑" : "↓"}</span>}</span>
+                    </th>
+                    <th className="px-3 py-2 cursor-pointer hover:text-white transition-colors select-none" onClick={() => toggleUserSort("totalTime")}>
+                      <span className="flex items-center gap-1">Tempo total (seg) {userSortKey === "totalTime" && <span>{userSortDir === "asc" ? "↑" : "↓"}</span>}</span>
+                    </th>
+                    <th className="px-3 py-2 cursor-pointer hover:text-white transition-colors select-none" onClick={() => toggleUserSort("last_seen_at")}>
+                      <span className="flex items-center gap-1">Último acesso {userSortKey === "last_seen_at" && <span>{userSortDir === "asc" ? "↑" : "↓"}</span>}</span>
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
-                  {userTable.map((u) => (
+                  {sortedUserTable.map((u) => (
                     <tr key={u.id} className="border-b border-white/5 text-gray-300 text-xs">
                       <td className="px-3 py-2">{u.email}</td>
                       <td className="px-3 py-2">{u.sessions}</td>
@@ -542,7 +550,7 @@ export default function AdminAnalytics() {
                       <td className="px-3 py-2">{u.last_seen_at ? new Date(u.last_seen_at).toLocaleDateString("pt-BR") : "—"}</td>
                     </tr>
                   ))}
-                  {userTable.length === 0 && (
+                  {sortedUserTable.length === 0 && (
                     <tr><td colSpan={4} className="px-3 py-6 text-center text-gray-600">Sem dados no período</td></tr>
                   )}
                 </tbody>
