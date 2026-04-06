@@ -3,7 +3,7 @@ import {
   LayoutDashboard, Image, PlusCircle, List,
   Users, Bell, BarChart3, ChevronLeft, ChevronRight,
   DollarSign, Activity, Home, Link, Layers, Shield, CreditCard, Bug, Zap,
-  ChevronDown, UserPlus, Trophy, MessageSquare,
+  ChevronDown, UserPlus, UserX, Trophy, MessageSquare,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAdminMode } from "../context/AdminModeContext";
