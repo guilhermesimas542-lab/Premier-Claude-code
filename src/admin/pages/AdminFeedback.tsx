@@ -154,6 +154,13 @@ export default function AdminFeedback() {
         <div className="flex items-center gap-3 mb-1">
           <MessageSquare className="w-6 h-6 text-blue-400" />
           <h1 className="text-2xl font-bold text-white">Feedback dos Clientes</h1>
+          <button
+            onClick={() => fetchFeedbacks()}
+            className="p-2 rounded-lg bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-white transition-colors"
+            title="Atualizar"
+          >
+            <RefreshCw className="w-4 h-4" />
+          </button>
         </div>
         <p className="text-sm text-gray-400">Feedbacks enviados pelos usuários do app</p>
       </div>
