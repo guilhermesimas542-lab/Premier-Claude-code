@@ -34,10 +34,23 @@ const ADDON_COLOR = "#6366f1";
 
 const PERIOD_SHORTCUTS = [
   { label: "Hoje", days: 0 },
+  { label: "Ontem", days: 1 },
+  { label: "Anteontem", days: 2 },
   { label: "7 dias", days: 7 },
   { label: "30 dias", days: 30 },
   { label: "90 dias", days: 90 },
 ];
+
+const KPI_TOOLTIPS: Record<string, string> = {
+  "Usuários únicos": "Quantidade de usuários distintos que geraram pelo menos um evento no período selecionado.",
+  "Sessões": "Número total de sessões únicas registradas no período. Uma sessão é contada cada vez que o usuário abre o app.",
+  "Tempo médio": "Tempo médio por sessão, calculado a partir dos eventos de screen_time dividido pelo número de sessões.",
+  "Novos cadastros": "Usuários criados (liberados) dentro do período selecionado.",
+  "Taxa de conversão": "Percentual de usuários únicos que clicaram em \"comprar\" nos popups de funil.",
+  "Ativos hoje": "Usuários distintos que geraram eventos hoje, independente do período filtrado.",
+  "Notificações enviadas": "Total de notificações disparadas no período.",
+  "Tips cadastradas": "Total de tips criadas no período selecionado.",
+};
 
 // ─── Component ───────────────────────────────────────────────────────────────
 export default function AdminAnalytics() {
