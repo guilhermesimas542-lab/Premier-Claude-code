@@ -178,7 +178,7 @@ export default function AdminDefaultLinks() {
         <div className="flex items-center gap-3">
           <h2 className="text-xl font-bold">Links Padrão</h2>
           <button
-            onClick={() => { if (selectedHouse) { setLoading(true); supabase.from("betting_houses").select("*").eq("id", selectedHouse.id).single().then(({ data }) => { if (data) { setLinks(data as any); } setLoading(false); }); } }}
+            onClick={async () => { if (selectedHouse) { setLoading(true); const { data } = await supabase.from("betting_houses").select("iframe_url, telegram_group_url, aviator_url, roleta_url, mines_url, football_studio_url, support_whatsapp_url, acquire_access_url").eq("id", selectedHouse.id).maybeSingle(); if (data) { setForm({ iframe_url: data.iframe_url ?? "", telegram_group_url: (data as any).telegram_group_url ?? "", aviator_url: (data as any).aviator_url ?? "", roleta_url: (data as any).roleta_url ?? "", mines_url: (data as any).mines_url ?? "", football_studio_url: (data as any).football_studio_url ?? "", support_whatsapp_url: (data as any).support_whatsapp_url ?? "", acquire_access_url: (data as any).acquire_access_url ?? "" }); } setLoading(false); } }}
             className="p-2 rounded-lg bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-white transition-colors"
             title="Atualizar"
           >
