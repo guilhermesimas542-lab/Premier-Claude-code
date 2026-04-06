@@ -68,6 +68,8 @@ export default function AdminAnalytics() {
   const [funnel, setFunnel] = useState<{ name: string; count: number }[]>([]);
   const [userTable, setUserTable] = useState<any[]>([]);
   const [tipsCount, setTipsCount] = useState(0);
+  const [userSortKey, setUserSortKey] = useState<"email" | "sessions" | "totalTime" | "last_seen_at">("sessions");
+  const [userSortDir, setUserSortDir] = useState<"asc" | "desc">("desc");
 
   const applyShortcut = (days: number) => {
     setActiveShortcut(days);
