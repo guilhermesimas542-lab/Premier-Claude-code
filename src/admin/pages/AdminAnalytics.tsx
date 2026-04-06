@@ -239,7 +239,33 @@ export default function AdminAnalytics() {
 
   useEffect(() => { load(); }, [load]);
 
-  const maxFunnel = Math.max(...funnel.map((f) => f.count), 1);
+  const toggleUserSort = (key: typeof userSortKey) => {
+    if (userSortKey === key) {
+      setUserSortDir(userSortDir === "asc" ? "desc" : "asc");
+    } else {
+      setUserSortKey(key);
+      setUserSortDir("desc");
+    }
+  };
+
+  const sortedUserTable = useMemo(() => {
+    return [...userTable].sort((a: any, b: any) => {
+      if (userSortKey === "email") {
+        const cmp = (a.email ?? "").localeCompare(b.email ?? "");
+        return userSortDir === "asc" ? cmp : -cmp;
+      }
+      if (userSortKey === "last_seen_at") {
+        const aVal = a.last_seen_at ?? "";
+        const bVal = b.last_seen_at ?? "";
+        const cmp = aVal.localeCompare(bVal);
+        return userSortDir === "asc" ? cmp : -cmp;
+      }
+      const aVal = a[userSortKey] ?? 0;
+      const bVal = b[userSortKey] ?? 0;
+      return userSortDir === "asc" ? aVal - bVal : bVal - aVal;
+    });
+  }, [userTable, userSortKey, userSortDir]);
+
 
   const fmtDate = (d: Date) => format(d, "dd/MM/yyyy");
 
