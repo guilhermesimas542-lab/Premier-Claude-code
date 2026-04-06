@@ -146,8 +146,10 @@ export default function AdminClientsManage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
 
-  const [createdFrom, setCreatedFrom] = useState("");
-  const [createdTo, setCreatedTo] = useState("");
+  const [liberacaoFrom, setLiberacaoFrom] = useState("");
+  const [liberacaoTo, setLiberacaoTo] = useState("");
+  const [firstAccessFrom, setFirstAccessFrom] = useState("");
+  const [firstAccessTo, setFirstAccessTo] = useState("");
   const [lastSeenFrom, setLastSeenFrom] = useState("");
   const [lastSeenTo, setLastSeenTo] = useState("");
 
@@ -213,8 +215,10 @@ export default function AdminClientsManage() {
 
   const load = useCallback(async (overrides?: {
     search?: string;
-    createdFrom?: string;
-    createdTo?: string;
+    liberacaoFrom?: string;
+    liberacaoTo?: string;
+    firstAccessFrom?: string;
+    firstAccessTo?: string;
     lastSeenFrom?: string;
     lastSeenTo?: string;
     selectedTier?: string | null;
@@ -226,10 +230,6 @@ export default function AdminClientsManage() {
     const s = overrides?.search ?? search;
     const tier = overrides?.selectedTier !== undefined ? overrides.selectedTier : selectedTier;
     const addons = overrides?.selectedAddons !== undefined ? overrides.selectedAddons : selectedAddons;
-    const cf = overrides?.createdFrom ?? createdFrom;
-    const ct = overrides?.createdTo ?? createdTo;
-    const lf = overrides?.lastSeenFrom ?? lastSeenFrom;
-    const lt = overrides?.lastSeenTo ?? lastSeenTo;
 
     let q = supabase
       .from("users")
@@ -239,8 +239,22 @@ export default function AdminClientsManage() {
 
     if (s) q = q.or(`email.ilike.%${s}%,phone.ilike.%${s}%`);
     if (tier) q = q.eq("main_tier", tier as any);
-    if (cf) q = q.gte("created_at", cf);
-    if (ct) q = q.lte("created_at", ct + "T23:59:59");
+
+    // Filtro Liberação (created_at)
+    const libFrom = overrides?.liberacaoFrom ?? liberacaoFrom;
+    const libTo = overrides?.liberacaoTo ?? liberacaoTo;
+    if (libFrom) q = q.gte("created_at", libFrom);
+    if (libTo) q = q.lte("created_at", libTo + "T23:59:59");
+
+    // Filtro 1º Acesso (first_access_at)
+    const faFrom = overrides?.firstAccessFrom ?? firstAccessFrom;
+    const faTo = overrides?.firstAccessTo ?? firstAccessTo;
+    if (faFrom) q = q.gte("first_access_at", faFrom);
+    if (faTo) q = q.lte("first_access_at", faTo + "T23:59:59");
+
+    // Filtro Último Acesso (last_seen_at)
+    const lf = overrides?.lastSeenFrom ?? lastSeenFrom;
+    const lt = overrides?.lastSeenTo ?? lastSeenTo;
     if (lf) q = q.gte("last_seen_at", lf);
     if (lt) q = q.lte("last_seen_at", lt + "T23:59:59");
     if (selectedHouseId) q = q.or(`betting_house_id.eq.${selectedHouseId},betting_house_id.is.null`);
@@ -299,7 +313,7 @@ export default function AdminClientsManage() {
       }))
     );
     setLoading(false);
-  }, [search, createdFrom, createdTo, lastSeenFrom, lastSeenTo, selectedHouseId, selectedTier, selectedAddons, filterNotAccessed]);
+  }, [search, liberacaoFrom, liberacaoTo, firstAccessFrom, firstAccessTo, lastSeenFrom, lastSeenTo, selectedHouseId, selectedTier, selectedAddons, filterNotAccessed]);
 
   useEffect(() => {
     load();
@@ -325,14 +339,16 @@ export default function AdminClientsManage() {
 
   const handleClearFilters = () => {
     setSearch("");
-    setCreatedFrom("");
-    setCreatedTo("");
+    setLiberacaoFrom("");
+    setLiberacaoTo("");
+    setFirstAccessFrom("");
+    setFirstAccessTo("");
     setLastSeenFrom("");
     setLastSeenTo("");
     setSelectedTier(null);
     setSelectedAddons([]);
     setFilterNotAccessed(false);
-    load({ search: "", createdFrom: "", createdTo: "", lastSeenFrom: "", lastSeenTo: "", selectedTier: null, selectedAddons: [], filterNotAccessed: false });
+    load({ search: "", liberacaoFrom: "", liberacaoTo: "", firstAccessFrom: "", firstAccessTo: "", lastSeenFrom: "", lastSeenTo: "", selectedTier: null, selectedAddons: [], filterNotAccessed: false });
   };
 
   const sortedUsers = sortUsers(users, sortKey, sortDir);
@@ -616,22 +632,24 @@ export default function AdminClientsManage() {
           </button>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="space-y-1">
-            <p className="text-xs text-gray-500 font-medium">Primeiro Acesso</p>
-            <div className="flex gap-2 items-center">
-              <Input type="date" value={createdFrom} onChange={(e) => setCreatedFrom(e.target.value)} className="bg-gray-800 border-gray-700 text-xs h-8" />
-              <span className="text-gray-600 text-xs">até</span>
-              <Input type="date" value={createdTo} onChange={(e) => setCreatedTo(e.target.value)} className="bg-gray-800 border-gray-700 text-xs h-8" />
-            </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground whitespace-nowrap">Liberação</span>
+            <Input type="date" value={liberacaoFrom} onChange={(e) => setLiberacaoFrom(e.target.value)} className="bg-gray-800 border-gray-700 text-xs h-8" />
+            <span className="text-xs text-muted-foreground">até</span>
+            <Input type="date" value={liberacaoTo} onChange={(e) => setLiberacaoTo(e.target.value)} className="bg-gray-800 border-gray-700 text-xs h-8" />
           </div>
-          <div className="space-y-1">
-            <p className="text-xs text-gray-500 font-medium">Último Acesso</p>
-            <div className="flex gap-2 items-center">
-              <Input type="date" value={lastSeenFrom} onChange={(e) => setLastSeenFrom(e.target.value)} className="bg-gray-800 border-gray-700 text-xs h-8" />
-              <span className="text-gray-600 text-xs">até</span>
-              <Input type="date" value={lastSeenTo} onChange={(e) => setLastSeenTo(e.target.value)} className="bg-gray-800 border-gray-700 text-xs h-8" />
-            </div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground whitespace-nowrap">1º Acesso</span>
+            <Input type="date" value={firstAccessFrom} onChange={(e) => setFirstAccessFrom(e.target.value)} className="bg-gray-800 border-gray-700 text-xs h-8" />
+            <span className="text-xs text-muted-foreground">até</span>
+            <Input type="date" value={firstAccessTo} onChange={(e) => setFirstAccessTo(e.target.value)} className="bg-gray-800 border-gray-700 text-xs h-8" />
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground whitespace-nowrap">Último Acesso</span>
+            <Input type="date" value={lastSeenFrom} onChange={(e) => setLastSeenFrom(e.target.value)} className="bg-gray-800 border-gray-700 text-xs h-8" />
+            <span className="text-xs text-muted-foreground">até</span>
+            <Input type="date" value={lastSeenTo} onChange={(e) => setLastSeenTo(e.target.value)} className="bg-gray-800 border-gray-700 text-xs h-8" />
           </div>
         </div>
       </div>
