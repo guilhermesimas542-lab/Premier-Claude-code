@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
 } from "recharts";
 import { Input } from "@/components/ui/input";
 import { Copy, Download } from "lucide-react";
@@ -15,6 +15,13 @@ interface UserRow {
   main_tier: string;
   created_at: string;
   first_access_at: string | null;
+}
+
+interface ActivatedRow {
+  id: string;
+  first_access_at: string | null;
+  created_at: string;
+  main_tier: string;
 }
 
 const getDateStr = (daysAgo: number) => {
@@ -34,6 +41,7 @@ type SortKey = "email" | "phone" | "main_tier" | "created_at";
 
 export default function AdminNaoAcessou() {
   const [users, setUsers] = useState<UserRow[]>([]);
+  const [activatedUsers, setActivatedUsers] = useState<ActivatedRow[]>([]);
   const [totalPagantes, setTotalPagantes] = useState(0);
   const [loading, setLoading] = useState(true);
   const [filterFrom, setFilterFrom] = useState("");
@@ -43,7 +51,7 @@ export default function AdminNaoAcessou() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    const [res, pagRes] = await Promise.all([
+    const [res, pagRes, activatedRes] = await Promise.all([
       supabase
         .from("users")
         .select("id, email, phone, main_tier, created_at, first_access_at", { count: "exact" })
@@ -54,9 +62,16 @@ export default function AdminNaoAcessou() {
         .from("users")
         .select("id", { count: "exact", head: true })
         .neq("main_tier", "free"),
+      supabase
+        .from("users")
+        .select("id, first_access_at, created_at, main_tier")
+        .not("first_access_at", "is", null)
+        .neq("main_tier", "free")
+        .order("first_access_at", { ascending: false }),
     ]);
     setUsers((res.data as UserRow[]) ?? []);
     setTotalPagantes(pagRes.count ?? 0);
+    setActivatedUsers((activatedRes.data as ActivatedRow[]) ?? []);
     setLoading(false);
   }, []);
 
@@ -89,7 +104,7 @@ export default function AdminNaoAcessou() {
     }
   };
 
-  // KPIs
+  // Date helpers
   const today = getTodayInBrazil();
   const yesterday = useMemo(() => {
     const d = new Date(today);
@@ -102,32 +117,59 @@ export default function AdminNaoAcessou() {
     return d.toISOString().substring(0, 10);
   }, [today]);
 
+  // KPIs — Situação atual
   const kpis = useMemo(() => {
     const total = filtered.length;
     const liberadosHoje = filtered.filter((u) => u.created_at.substring(0, 10) === today).length;
     const liberadosOntem = filtered.filter((u) => u.created_at.substring(0, 10) === yesterday).length;
-    const liberados7d = filtered.filter((u) => u.created_at.substring(0, 10) >= sevenDaysAgo).length;
     const taxa = totalPagantes > 0 ? ((users.length / totalPagantes) * 100).toFixed(1) : "0";
-    return { total, liberadosHoje, liberadosOntem, liberados7d, taxa };
-  }, [filtered, users.length, totalPagantes, today, yesterday, sevenDaysAgo]);
+    return { total, liberadosHoje, liberadosOntem, taxa };
+  }, [filtered, users.length, totalPagantes, today, yesterday]);
 
-  // Chart data (uses unfiltered `users` for full picture, highlights selected)
+  // KPIs — Progresso
+  const progressKpis = useMemo(() => {
+    const ativadosHoje = activatedUsers.filter(
+      (u) => u.first_access_at?.substring(0, 10) === today
+    ).length;
+    const ativadosOntem = activatedUsers.filter(
+      (u) => u.first_access_at?.substring(0, 10) === yesterday
+    ).length;
+    const ativados7d = activatedUsers.filter(
+      (u) => (u.first_access_at?.substring(0, 10) ?? "") >= sevenDaysAgo
+    ).length;
+    const totalAtivados = activatedUsers.length;
+    return { ativadosHoje, ativadosOntem, ativados7d, totalAtivados };
+  }, [activatedUsers, today, yesterday, sevenDaysAgo]);
+
+  // Chart data — combined
   const chartData = useMemo(() => {
-    const map: Record<string, number> = {};
+    const naoAcessouMap: Record<string, number> = {};
+    const ativadosMap: Record<string, number> = {};
+
     for (const u of users) {
       const day = u.created_at?.substring(0, 10) ?? "desconhecido";
-      map[day] = (map[day] || 0) + 1;
+      naoAcessouMap[day] = (naoAcessouMap[day] || 0) + 1;
     }
-    return Object.entries(map)
-      .map(([date, count]) => ({
+
+    for (const u of activatedUsers) {
+      const day = u.first_access_at?.substring(0, 10);
+      if (day) {
+        ativadosMap[day] = (ativadosMap[day] || 0) + 1;
+      }
+    }
+
+    const allDates = new Set([...Object.keys(naoAcessouMap), ...Object.keys(ativadosMap)]);
+
+    return Array.from(allDates)
+      .map((date) => ({
         date: new Date(date).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }),
         rawDate: date,
-        count,
-        fill: (filterFrom === date && filterTo === date) ? "#f97316" : "#ef4444",
+        naoAcessou: naoAcessouMap[date] || 0,
+        ativados: ativadosMap[date] || 0,
       }))
       .sort((a, b) => a.rawDate.localeCompare(b.rawDate))
       .slice(-14);
-  }, [users, filterFrom, filterTo]);
+  }, [users, activatedUsers]);
 
   // CSV export
   const exportCSV = useCallback(() => {
@@ -155,14 +197,6 @@ export default function AdminNaoAcessou() {
     toast.success("Copiado!");
   };
 
-  const kpiCards = [
-    { label: "Total não acessou", value: kpis.total, color: "text-red-400" },
-    { label: "Liberados hoje", value: kpis.liberadosHoje, color: "text-yellow-400" },
-    { label: "Liberados ontem", value: kpis.liberadosOntem, color: "text-orange-400" },
-    { label: "Últimos 7 dias", value: kpis.liberados7d, color: "text-blue-400" },
-    { label: "Taxa não ativação", value: `${kpis.taxa}%`, color: "text-red-500" },
-  ];
-
   const SortHeader = ({ label, field }: { label: string; field: SortKey }) => (
     <th
       onClick={() => toggleSort(field)}
@@ -187,12 +221,34 @@ export default function AdminNaoAcessou() {
         <p className="text-sm text-muted-foreground">Clientes liberados que ainda não abriram o app</p>
       </div>
 
-      {/* KPIs */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-        {kpiCards.map((k) => (
-          <div key={k.label} className="rounded-lg border border-border bg-muted/10 p-4">
-            <p className="text-[11px] text-muted-foreground uppercase tracking-wider mb-1">{k.label}</p>
-            <p className={`text-2xl font-bold ${k.color}`} style={{ fontFamily: "Barlow Condensed, sans-serif" }}>
+      {/* KPIs Linha 1 — Situação atual */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {[
+          { label: "Total não acessou", value: kpis.total, color: "text-red-400" },
+          { label: "Novos hoje", value: kpis.liberadosHoje, color: "text-yellow-400" },
+          { label: "Novos ontem", value: kpis.liberadosOntem, color: "text-yellow-400" },
+          { label: "Taxa não ativação", value: `${kpis.taxa}%`, color: "text-red-400" },
+        ].map((k) => (
+          <div key={k.label} className="rounded-xl border border-border bg-muted/10 p-4">
+            <p className="text-[11px] text-muted-foreground uppercase tracking-wider font-bold mb-1">{k.label}</p>
+            <p className={`text-3xl font-bold ${k.color}`} style={{ fontFamily: "Barlow Condensed, sans-serif" }}>
+              {loading ? "…" : k.value}
+            </p>
+          </div>
+        ))}
+      </div>
+
+      {/* KPIs Linha 2 — Progresso */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {[
+          { label: "Ativados hoje", value: progressKpis.ativadosHoje },
+          { label: "Ativados ontem", value: progressKpis.ativadosOntem },
+          { label: "Ativados 7 dias", value: progressKpis.ativados7d },
+          { label: "Total já ativados", value: progressKpis.totalAtivados },
+        ].map((k) => (
+          <div key={k.label} className="rounded-xl border border-border bg-muted/10 p-4">
+            <p className="text-[11px] text-muted-foreground uppercase tracking-wider font-bold mb-1">{k.label}</p>
+            <p className="text-3xl font-bold text-green-400" style={{ fontFamily: "Barlow Condensed, sans-serif" }}>
               {loading ? "…" : k.value}
             </p>
           </div>
@@ -201,8 +257,8 @@ export default function AdminNaoAcessou() {
 
       {/* Chart */}
       <div className="rounded-lg border border-border bg-muted/10 p-4">
-        <h2 className="text-sm font-semibold text-white mb-4">Não acessou por dia de liberação</h2>
-        <ResponsiveContainer width="100%" height={220}>
+        <h2 className="text-sm font-semibold text-white mb-4">Não acessou vs Ativados por dia</h2>
+        <ResponsiveContainer width="100%" height={250}>
           <BarChart
             data={chartData}
             onClick={(state: any) => {
@@ -213,18 +269,16 @@ export default function AdminNaoAcessou() {
               }
             }}
           >
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-            <XAxis dataKey="date" tick={{ fill: "#9ca3af", fontSize: 11 }} />
-            <YAxis tick={{ fill: "#9ca3af", fontSize: 11 }} allowDecimals={false} />
+            <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+            <XAxis dataKey="date" tick={{ fill: "#94a3b8", fontSize: 12 }} />
+            <YAxis tick={{ fill: "#94a3b8", fontSize: 12 }} allowDecimals={false} />
             <Tooltip
-              contentStyle={{ backgroundColor: "#1f2937", border: "1px solid #374151", borderRadius: 8, fontSize: 12 }}
+              contentStyle={{ backgroundColor: "#0f172a", border: "1px solid #1e293b", borderRadius: 8 }}
               labelStyle={{ color: "#fff" }}
             />
-            <Bar dataKey="count" radius={[4, 4, 0, 0]} name="Não acessou" cursor="pointer">
-              {chartData.map((entry, index) => (
-                <Cell key={index} fill={entry.fill} />
-              ))}
-            </Bar>
+            <Legend />
+            <Bar dataKey="naoAcessou" name="Não acessou" fill="#ef4444" radius={[4, 4, 0, 0]} cursor="pointer" />
+            <Bar dataKey="ativados" name="Ativados" fill="#22c55e" radius={[4, 4, 0, 0]} cursor="pointer" />
           </BarChart>
         </ResponsiveContainer>
       </div>
