@@ -54,29 +54,40 @@ export default function AdminErrors() {
     if (!selectedHouseId) return;
     setLoading(true);
 
-    const now = new Date();
-    const start = new Date(now);
-    if (periodDays === 0) {
-      start.setHours(0, 0, 0, 0);
+    let startISO: string;
+    let endISO: string | null = null;
+
+    if (periodDays === -1 && customFrom) {
+      startISO = customFrom;
+      endISO = customTo ? customTo + "T23:59:59" : null;
+    } else if (periodDays <= 2) {
+      const d = new Date();
+      d.setDate(d.getDate() - periodDays);
+      d.setHours(0, 0, 0, 0);
+      startISO = d.toISOString();
+      const e = new Date(d);
+      e.setHours(23, 59, 59, 999);
+      endISO = e.toISOString();
     } else {
-      start.setDate(start.getDate() - periodDays);
+      const d = new Date();
+      d.setDate(d.getDate() - periodDays);
+      startISO = d.toISOString();
     }
 
-    // Fetch errors - either house-specific or all (null house_id means unassociated)
     let query = supabase
       .from("app_errors")
       .select("*")
-      .gte("created_at", start.toISOString())
+      .gte("created_at", startISO)
       .order("created_at", { ascending: false })
       .limit(2000);
 
-    // Filter by house if selected
+    if (endISO) query = query.lte("created_at", endISO);
     query = query.or(`house_id.eq.${selectedHouseId},house_id.is.null`);
 
     const { data } = await query;
     setErrors((data as AppError[]) ?? []);
     setLoading(false);
-  }, [selectedHouseId, periodDays]);
+  }, [selectedHouseId, periodDays, customFrom, customTo]);
 
   useEffect(() => {
     load();
