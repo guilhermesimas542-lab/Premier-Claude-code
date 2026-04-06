@@ -211,9 +211,14 @@ export default function AdminAnalytics() {
 
     // User table
     const userMap: Record<string, { sessions: number; totalTime: number }> = {};
-    s.forEach((r) => {
+    s.forEach((r: any) => {
+      if (!r.user_id) return;
       if (!userMap[r.user_id]) userMap[r.user_id] = { sessions: 0, totalTime: 0 };
       userMap[r.user_id].sessions++;
+      if (r.event_name === "screen_time") {
+        const sec = Number(r.metadata?.seconds ?? r.properties?.seconds ?? 0);
+        userMap[r.user_id].totalTime += sec;
+      }
     });
     const userIds = Object.keys(userMap);
     if (userIds.length > 0) {
