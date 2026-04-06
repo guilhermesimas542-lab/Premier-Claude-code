@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, Copy, Search, Trophy, Plus, X, Phone, ArrowUp, ArrowDown } from "lucide-react";
+import { Loader2, Copy, Search, Trophy, Plus, X, Phone, ArrowUp, ArrowDown, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { getAvatarById, LEVEL_TITLES } from "@/lib/avatars";
 
@@ -13,6 +13,7 @@ interface RankingUser {
   nickname: string | null;
   avatar_id: string | null;
   last_seen_at: string | null;
+  first_access_at: string | null;
   total_xp: number;
   current_level: number;
   current_streak: number;
@@ -38,15 +39,28 @@ type SortDir = 'asc' | 'desc' | null;
 const TIER_LABELS: Record<string, string> = { free: 'Gratuito', basic: 'Básico', pro: 'Pro', ultra: 'Ultra' };
 const ADDON_LABELS: Record<string, string> = { alavancagem: 'Alavancagem', desaltas: 'Odds Altas', live_telegram: 'Live', acesso_vitalicio: 'Vitalício' };
 
+const PAGE_SIZE = 50;
+
+const xpPresets = [
+  { label: "0 XP", min: "0", max: "0" },
+  { label: "1-100", min: "1", max: "100" },
+  { label: "100-500", min: "100", max: "500" },
+  { label: "500-1000", min: "500", max: "1000" },
+  { label: "1000+", min: "1000", max: "" },
+];
+
 export default function AdminRankingTab() {
   const [users, setUsers] = useState<RankingUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(0);
-  const PAGE_SIZE = 25;
 
   const [sortKey, setSortKey] = useState<SortKey>('total_xp');
   const [sortDir, setSortDir] = useState<SortDir>('desc');
+
+  const [xpMin, setXpMin] = useState<string>("");
+  const [xpMax, setXpMax] = useState<string>("");
+  const [activeXpPreset, setActiveXpPreset] = useState<string | null>(null);
 
   const [specials, setSpecials] = useState<SpecialAchievement[]>([]);
   const [showCreate, setShowCreate] = useState(false);
@@ -60,7 +74,7 @@ export default function AdminRankingTab() {
 
   const fetchRanking = useCallback(async () => {
     setLoading(true);
-    const { data: usersData } = await supabase.from('users').select('id, email, phone, nickname, avatar_id, last_seen_at') as any;
+    const { data: usersData } = await supabase.from('users').select('id, email, phone, nickname, avatar_id, last_seen_at, first_access_at') as any;
     const { data: gamData } = await supabase.from('user_gamification').select('user_id, total_xp, current_level, current_streak, total_logins') as any;
     const { data: achData } = await supabase.from('user_achievements').select('user_id, achievement_id') as any;
 
@@ -75,12 +89,14 @@ export default function AdminRankingTab() {
     const combined: RankingUser[] = (usersData ?? []).map((u: any) => ({
       ...u,
       last_seen_at: u.last_seen_at ?? null,
+      first_access_at: u.first_access_at ?? null,
       total_xp: gamMap[u.id]?.total_xp ?? 0,
       current_level: gamMap[u.id]?.current_level ?? 1,
       current_streak: gamMap[u.id]?.current_streak ?? 0,
       total_logins: gamMap[u.id]?.total_logins ?? 0,
       achievement_count: achCountMap[u.id]?.size ?? 0,
-    }));
+    })).filter((u: any) => u.first_access_at !== null);
+
     setUsers(combined);
     setLoading(false);
   }, []);
@@ -140,8 +156,17 @@ export default function AdminRankingTab() {
     return list;
   }, [users, search, sortKey, sortDir]);
 
-  const paged = sortedFiltered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
-  const totalPages = Math.ceil(sortedFiltered.length / PAGE_SIZE);
+  const xpFiltered = useMemo(() => {
+    let list = sortedFiltered;
+    const min = xpMin !== "" ? Number(xpMin) : null;
+    const max = xpMax !== "" ? Number(xpMax) : null;
+    if (min !== null) list = list.filter((u) => (u.total_xp ?? 0) >= min);
+    if (max !== null) list = list.filter((u) => (u.total_xp ?? 0) <= max);
+    return list;
+  }, [sortedFiltered, xpMin, xpMax]);
+
+  const paged = xpFiltered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+  const totalPages = Math.ceil(xpFiltered.length / PAGE_SIZE);
 
   const copyText = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
@@ -167,6 +192,31 @@ export default function AdminRankingTab() {
       </span>
     </th>
   );
+
+  const handleExportCSV = () => {
+    const headers = ["Pos", "Email", "Nickname", "Nível", "XP", "Dias", "Streak", "Conquistas", "Último Acesso"];
+    const rows = xpFiltered.map((u, i) => [
+      String(i + 1),
+      u.email ?? "",
+      u.nickname ?? "",
+      String(u.current_level ?? 1),
+      String(u.total_xp ?? 0),
+      String(u.total_logins ?? 0),
+      `${u.current_streak ?? 0}d`,
+      String(u.achievement_count ?? 0),
+      u.last_seen_at ? new Date(u.last_seen_at).toLocaleDateString("pt-BR") : "—",
+    ]);
+    const csvContent = [headers, ...rows]
+      .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(","))
+      .join("\n");
+    const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `ranking_premier_${new Date().toISOString().split("T")[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   const handleCreateSpecial = async () => {
     if (!newName.trim() || !newEntryId) return;
@@ -213,15 +263,81 @@ export default function AdminRankingTab() {
 
   return (
     <div className="space-y-6">
+      {/* Title + Refresh */}
+      <div className="flex items-center gap-3">
+        <h1 className="text-2xl font-bold">🏆 Ranking de Usuários</h1>
+        <button
+          onClick={() => fetchRanking()}
+          className="p-2 rounded-lg bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-white transition-colors"
+          title="Atualizar ranking"
+        >
+          <RefreshCw className="w-4 h-4" />
+        </button>
+      </div>
+
+      {/* Search + Count + CSV */}
       <div className="flex items-center gap-3">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
           <Input value={search} onChange={e => { setSearch(e.target.value); setPage(0); }} placeholder="Buscar por email ou nickname..." className="pl-10 bg-gray-900 border-gray-700 text-white" />
         </div>
-        <span className="text-xs text-gray-500">{sortedFiltered.length} usuários</span>
+        <span className="text-xs text-gray-500">{xpFiltered.length} usuários</span>
+        <button
+          onClick={handleExportCSV}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-green-600/20 text-green-400 hover:bg-green-600/30 text-sm font-medium transition-colors"
+        >
+          Exportar CSV
+        </button>
         {loading && <Loader2 className="w-5 h-5 animate-spin text-gray-500" />}
       </div>
 
+      {/* XP Filter */}
+      <div className="flex items-center gap-2 flex-wrap">
+        <span className="text-xs text-muted-foreground">XP:</span>
+        {xpPresets.map((p) => (
+          <button
+            key={p.label}
+            onClick={() => {
+              setXpMin(p.min);
+              setXpMax(p.max);
+              setActiveXpPreset(p.label);
+              setPage(0);
+            }}
+            className={`px-3 py-1 rounded-full text-xs font-bold transition-colors ${
+              activeXpPreset === p.label
+                ? "bg-purple-600/30 text-purple-400 ring-1 ring-purple-400"
+                : "bg-muted/30 text-muted-foreground hover:bg-muted/50"
+            }`}
+          >
+            {p.label}
+          </button>
+        ))}
+        <div className="flex items-center gap-1.5">
+          <Input
+            type="number"
+            placeholder="Min"
+            value={xpMin}
+            onChange={(e) => { setXpMin(e.target.value); setActiveXpPreset(null); setPage(0); }}
+            className="bg-gray-800 border-gray-700 text-xs h-8 w-20"
+          />
+          <span className="text-xs text-muted-foreground">a</span>
+          <Input
+            type="number"
+            placeholder="Max"
+            value={xpMax}
+            onChange={(e) => { setXpMax(e.target.value); setActiveXpPreset(null); setPage(0); }}
+            className="bg-gray-800 border-gray-700 text-xs h-8 w-20"
+          />
+        </div>
+        <button
+          onClick={() => { setXpMin(""); setXpMax(""); setActiveXpPreset(null); setPage(0); }}
+          className="px-3 py-1 rounded-full text-xs font-bold bg-muted/30 text-muted-foreground hover:bg-muted/50 transition-colors"
+        >
+          Limpar XP
+        </button>
+      </div>
+
+      {/* Table */}
       <div className="bg-gray-900 rounded-xl border border-white/10 overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
