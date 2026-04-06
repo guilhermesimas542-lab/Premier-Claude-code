@@ -632,22 +632,24 @@ export default function AdminClientsManage() {
           </button>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="space-y-1">
-            <p className="text-xs text-gray-500 font-medium">Primeiro Acesso</p>
-            <div className="flex gap-2 items-center">
-              <Input type="date" value={createdFrom} onChange={(e) => setCreatedFrom(e.target.value)} className="bg-gray-800 border-gray-700 text-xs h-8" />
-              <span className="text-gray-600 text-xs">até</span>
-              <Input type="date" value={createdTo} onChange={(e) => setCreatedTo(e.target.value)} className="bg-gray-800 border-gray-700 text-xs h-8" />
-            </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground whitespace-nowrap">Liberação</span>
+            <Input type="date" value={liberacaoFrom} onChange={(e) => setLiberacaoFrom(e.target.value)} className="bg-gray-800 border-gray-700 text-xs h-8" />
+            <span className="text-xs text-muted-foreground">até</span>
+            <Input type="date" value={liberacaoTo} onChange={(e) => setLiberacaoTo(e.target.value)} className="bg-gray-800 border-gray-700 text-xs h-8" />
           </div>
-          <div className="space-y-1">
-            <p className="text-xs text-gray-500 font-medium">Último Acesso</p>
-            <div className="flex gap-2 items-center">
-              <Input type="date" value={lastSeenFrom} onChange={(e) => setLastSeenFrom(e.target.value)} className="bg-gray-800 border-gray-700 text-xs h-8" />
-              <span className="text-gray-600 text-xs">até</span>
-              <Input type="date" value={lastSeenTo} onChange={(e) => setLastSeenTo(e.target.value)} className="bg-gray-800 border-gray-700 text-xs h-8" />
-            </div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground whitespace-nowrap">1º Acesso</span>
+            <Input type="date" value={firstAccessFrom} onChange={(e) => setFirstAccessFrom(e.target.value)} className="bg-gray-800 border-gray-700 text-xs h-8" />
+            <span className="text-xs text-muted-foreground">até</span>
+            <Input type="date" value={firstAccessTo} onChange={(e) => setFirstAccessTo(e.target.value)} className="bg-gray-800 border-gray-700 text-xs h-8" />
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground whitespace-nowrap">Último Acesso</span>
+            <Input type="date" value={lastSeenFrom} onChange={(e) => setLastSeenFrom(e.target.value)} className="bg-gray-800 border-gray-700 text-xs h-8" />
+            <span className="text-xs text-muted-foreground">até</span>
+            <Input type="date" value={lastSeenTo} onChange={(e) => setLastSeenTo(e.target.value)} className="bg-gray-800 border-gray-700 text-xs h-8" />
           </div>
         </div>
       </div>
