@@ -490,6 +490,7 @@ const Home = () => {
         <PayCardFunnelModal payCard={bannerPayCard} open={!!bannerPayCard} onClose={() => setBannerPayCard(null)} />
       )}
     </div>
+    </>
   );
 };
 
