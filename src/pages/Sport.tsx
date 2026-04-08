@@ -461,7 +461,6 @@ const Sport = () => {
     trackEvent("card_click", { tier: entry.tier_required, addon: entry.addon_required, title: entry.title });
 
     // Dispatch XP events for achievements
-    sendXpEvent('VIEW_ANY_TIP');
     if (entry.addon_required === 'alavancagem') {
       sendXpEvent('VIEW_ALAV_TIP');
     } else if (entry.addon_required === 'desaltas') {
