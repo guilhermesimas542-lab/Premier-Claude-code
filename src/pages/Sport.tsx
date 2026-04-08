@@ -307,7 +307,7 @@ const Sport = () => {
   // Uses São Paulo timezone for all comparisons
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const activeEntries = useMemo(() => {
-    return tips.filter(entry => {
+    const filtered = tips.filter(entry => {
       const now = toZonedTime(new Date(), BRAZIL_TZ);
 
       // starts_at check: entries expire 1h after match starts
@@ -320,6 +320,18 @@ const Sport = () => {
       if (entry.expires_at && now > toZonedTime(new Date(entry.expires_at), BRAZIL_TZ)) return false;
 
       return true;
+    });
+    // Sort: tier order first, then starts_at ascending within each tier
+    const getSortTime = (entry: DisplayTip): number => {
+      if (entry.starts_at) return new Date(entry.starts_at).getTime();
+      if (entry.expires_at) return new Date(entry.expires_at).getTime();
+      return Number.MAX_SAFE_INTEGER;
+    };
+    return filtered.sort((a, b) => {
+      const tierA = TIER_DISPLAY_ORDER[mapTierToDisplay(a.tier_required, a.addon_required)] ?? 99;
+      const tierB = TIER_DISPLAY_ORDER[mapTierToDisplay(b.tier_required, b.addon_required)] ?? 99;
+      if (tierA !== tierB) return tierA - tierB;
+      return getSortTime(a) - getSortTime(b);
     });
   }, [tips, tick]);
 
