@@ -201,7 +201,7 @@ const Home = () => {
               <p className="px-1 text-sm text-muted-foreground">Carregando...</p>
             ) : availableEntries.length > 0 ? (
               availableEntries.map((card) => (
-                card.slug === "futebol" ? (
+              card.slug?.toLowerCase() === "futebol" ? (
                   <div key={card.id} className="futebol-glow-wrapper">
                     <CardType1Lateral card={card} onAction={() => handleCardAction(card)} />
                   </div>
