@@ -323,12 +323,23 @@ const Sport = () => {
     });
   }, [tips, tick]);
 
-  const tipsByTier = activeEntries.reduce((acc, entry) => {
-    const tier = mapTierToDisplay(entry.tier_required, entry.addon_required);
-    if (!acc[tier]) acc[tier] = [];
-    acc[tier].push(entry);
-    return acc;
-  }, {} as Record<TierType, DisplayTip[]>);
+  const tipsByTier = useMemo(() => {
+    const getExpiryTime = (entry: DisplayTip): number => {
+      if (entry.expires_at) return new Date(entry.expires_at).getTime();
+      if (entry.starts_at) return new Date(entry.starts_at).getTime() + 60 * 60 * 1000;
+      return Number.MAX_SAFE_INTEGER;
+    };
+    const grouped = activeEntries.reduce((acc, entry) => {
+      const tier = mapTierToDisplay(entry.tier_required, entry.addon_required);
+      if (!acc[tier]) acc[tier] = [];
+      acc[tier].push(entry);
+      return acc;
+    }, {} as Record<TierType, DisplayTip[]>);
+    for (const tier in grouped) {
+      grouped[tier as TierType].sort((a, b) => getExpiryTime(a) - getExpiryTime(b));
+    }
+    return grouped;
+  }, [activeEntries]);
 
   const getFirstIndexOfTier = (tier: TierType): number => {
     return activeEntries.findIndex(entry => mapTierToDisplay(entry.tier_required, entry.addon_required) === tier);
