@@ -180,7 +180,13 @@ const Home = () => {
               <p className="px-1 text-sm text-muted-foreground">Carregando...</p>
             ) : availableEntries.length > 0 ? (
               availableEntries.map((card) => (
-                <CardType1Lateral key={card.id} card={card} onAction={() => handleCardAction(card)} />
+                card.slug === "futebol" ? (
+                  <div key={card.id} className="animate-pulse-glow-green rounded-xl">
+                    <CardType1Lateral card={card} onAction={() => handleCardAction(card)} />
+                  </div>
+                ) : (
+                  <CardType1Lateral key={card.id} card={card} onAction={() => handleCardAction(card)} />
+                )
               ))
             ) : (
               <p className="px-1 text-sm text-muted-foreground">Nenhuma entrada disponível no momento.</p>
