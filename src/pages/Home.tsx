@@ -157,16 +157,16 @@ const Home = () => {
     <style>{`
   @keyframes futebol-frame-pulse {
         0%, 100% {
-      background-color: rgba(0, 255, 127, 0.5);
+      background-color: rgba(0, 255, 127, 0.4);
         }
         50% {
       background-color: rgba(0, 255, 127, 1);
         }
       }
       .futebol-glow-wrapper {
-    animation: futebol-frame-pulse 1.4s ease-in-out infinite;
-    border-radius: 18px;
-    padding: 3px;
+    animation: futebol-frame-pulse 0.9s ease-in-out infinite;
+    border-radius: 20px;
+    padding: 5px;
         display: block;
   }
   .futebol-glow-wrapper > * {
