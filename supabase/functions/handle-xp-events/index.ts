@@ -83,6 +83,9 @@ async function grantDailyAchievement(userId: string, achievementId: string, supa
     .insert({ user_id: userId, achievement_id: achievementId, achievement_date: today });
 
   if (insertError) {
+    if (insertError.code === '23505') {
+      return null; // already granted, ignore silently
+    }
     console.error(`[grantDaily] Erro ao inserir achievement ${achievementId} para user ${userId}:`, insertError.message);
     return null;
   }
@@ -119,7 +122,9 @@ async function checkStreakAchievements(userId: string, currentStreak: number, su
             .insert({ user_id: userId, achievement_id: achievementId, achievement_date: null });
 
           if (insertError) {
-            console.error(`[checkStreak] Erro ao inserir achievement ${achievementId} para user ${userId}:`, insertError.message);
+            if (insertError.code !== '23505') {
+              console.error(`[checkStreak] Erro ao inserir achievement ${achievementId} para user ${userId}:`, insertError.message);
+            }
           } else {
             granted.push({ id: achievementId, ...achievement });
           }
@@ -187,7 +192,9 @@ async function checkPermanentAchievements(userId: string, supabaseAdmin: any) {
         .insert({ user_id: userId, achievement_id: ach.id, achievement_date: null });
 
       if (insertError) {
-        console.error(`[checkPermanent] Erro ao inserir achievement ${ach.id} para user ${userId}:`, insertError.message);
+        if (insertError.code !== '23505') {
+          console.error(`[checkPermanent] Erro ao inserir achievement ${ach.id} para user ${userId}:`, insertError.message);
+        }
       } else {
         granted.push({ id: ach.id, name: ach.name, icon: ach.icon, xp_reward: ach.xp_reward });
       }
