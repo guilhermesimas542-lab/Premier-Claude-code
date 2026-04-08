@@ -483,7 +483,10 @@ const Sport = () => {
         setIframeUrl(url);
         toast.success("Tip adicionada!", { description: "Cupom carregado no site de apostas abaixo" });
         setTimeout(() => {
-          document.getElementById("bet-iframe-section")?.scrollIntoView({ behavior: "smooth" });
+        window.scrollTo({ 
+          top: document.body.scrollHeight, 
+          behavior: "smooth" 
+        });
         }, 100);
       }
     } else {
