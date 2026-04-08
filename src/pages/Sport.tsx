@@ -324,9 +324,9 @@ const Sport = () => {
   }, [tips, tick]);
 
   const tipsByTier = useMemo(() => {
-    const getExpiryTime = (entry: DisplayTip): number => {
+    const getSortTime = (entry: DisplayTip): number => {
+      if (entry.starts_at) return new Date(entry.starts_at).getTime();
       if (entry.expires_at) return new Date(entry.expires_at).getTime();
-      if (entry.starts_at) return new Date(entry.starts_at).getTime() + 60 * 60 * 1000;
       return Number.MAX_SAFE_INTEGER;
     };
     const grouped = activeEntries.reduce((acc, entry) => {
@@ -336,7 +336,7 @@ const Sport = () => {
       return acc;
     }, {} as Record<TierType, DisplayTip[]>);
     for (const tier in grouped) {
-      grouped[tier as TierType].sort((a, b) => getExpiryTime(a) - getExpiryTime(b));
+      grouped[tier as TierType].sort((a, b) => getSortTime(a) - getSortTime(b));
     }
     return grouped;
   }, [activeEntries]);
