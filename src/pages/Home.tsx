@@ -181,7 +181,7 @@ const Home = () => {
             ) : availableEntries.length > 0 ? (
               availableEntries.map((card) => (
                 card.slug === "futebol" ? (
-                  <div key={card.id} className="animate-pulse-glow-green rounded-xl">
+                  <div key={card.id} className="animate-pulse">
                     <CardType1Lateral card={card} onAction={() => handleCardAction(card)} />
                   </div>
                 ) : (
