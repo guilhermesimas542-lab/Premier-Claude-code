@@ -153,6 +153,22 @@ const Home = () => {
   };
 
   return (
+    <>
+    <style>{`
+      @keyframes futebol-card-glow {
+        0%, 100% {
+          box-shadow: 0 0 0 2px rgba(0, 255, 127, 0.5), 0 0 25px 5px rgba(0, 255, 127, 0.4);
+        }
+        50% {
+          box-shadow: 0 0 0 4px rgba(0, 255, 127, 1), 0 0 45px 10px rgba(0, 255, 127, 0.8);
+        }
+      }
+      .futebol-glow-wrapper {
+        animation: futebol-card-glow 1.6s ease-in-out infinite;
+        border-radius: 16px;
+        display: block;
+      }
+    `}</style>
     <div className="min-h-screen relative overflow-hidden pb-20 md:pb-0 bg-navy-dark">
       <div className="absolute top-0 left-1/4 w-96 h-96 rounded-full blur-[140px] pointer-events-none" style={{ background: "rgba(0,255,127,0.06)" }} />
 
@@ -181,7 +197,7 @@ const Home = () => {
             ) : availableEntries.length > 0 ? (
               availableEntries.map((card) => (
                 card.slug === "futebol" ? (
-                  <div key={card.id} className="animate-card-highlight-pulse rounded-2xl" style={{ borderRadius: "16px" }}>
+                  <div key={card.id} className="futebol-glow-wrapper">
                     <CardType1Lateral card={card} onAction={() => handleCardAction(card)} />
                   </div>
                 ) : (
