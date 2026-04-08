@@ -155,19 +155,22 @@ const Home = () => {
   return (
     <>
     <style>{`
-      @keyframes futebol-card-glow {
+  @keyframes futebol-frame-pulse {
         0%, 100% {
-      box-shadow: inset 0 0 0 2px rgba(0, 255, 127, 0.6), inset 0 0 20px rgba(0, 255, 127, 0.3);
+      background-color: rgba(0, 255, 127, 0.5);
         }
         50% {
-      box-shadow: inset 0 0 0 3px rgba(0, 255, 127, 1), inset 0 0 35px rgba(0, 255, 127, 0.7);
+      background-color: rgba(0, 255, 127, 1);
         }
       }
       .futebol-glow-wrapper {
-    animation: futebol-card-glow 1.4s ease-in-out infinite;
-        border-radius: 16px;
+    animation: futebol-frame-pulse 1.4s ease-in-out infinite;
+    border-radius: 18px;
+    padding: 3px;
         display: block;
-    position: relative;
+  }
+  .futebol-glow-wrapper > * {
+    border-radius: 15px;
     overflow: hidden;
       }
     `}</style>
