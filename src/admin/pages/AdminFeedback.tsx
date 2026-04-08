@@ -65,6 +65,7 @@ export default function AdminFeedback() {
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [detailFeedback, setDetailFeedback] = useState<Feedback | null>(null);
   const [detailDeleteConfirm, setDetailDeleteConfirm] = useState(false);
+  const [detailPhone, setDetailPhone] = useState<string | null>(null);
 
   const fetchFeedbacks = useCallback(async () => {
     setLoading(true);
@@ -146,6 +147,22 @@ export default function AdminFeedback() {
     navigator.clipboard.writeText(email);
     toast.success("Email copiado!");
   };
+
+  const copyPhone = (phone: string) => {
+    navigator.clipboard.writeText(phone);
+    toast.success("Telefone copiado!");
+  };
+
+  useEffect(() => {
+    if (!detailFeedback?.user_id) {
+      setDetailPhone(null);
+      return;
+    }
+    (async () => {
+      const { data } = await (supabase.from("users" as any).select("phone").eq("id", detailFeedback.user_id).maybeSingle() as any);
+      setDetailPhone(data?.phone ?? null);
+    })();
+  }, [detailFeedback]);
 
   return (
     <div className="space-y-6">
@@ -381,6 +398,22 @@ export default function AdminFeedback() {
                   {fb.email}
                   <Copy className="w-3.5 h-3.5 opacity-50" />
                 </button>
+              </div>
+
+              {/* Telefone */}
+              <div>
+                <p className="text-[10px] text-gray-500 mb-1">Telefone</p>
+                {detailPhone ? (
+                  <button
+                    onClick={() => copyPhone(detailPhone)}
+                    className="flex items-center gap-2 text-sm text-white hover:text-blue-400 transition-colors"
+                  >
+                    {detailPhone}
+                    <Copy className="w-3.5 h-3.5 opacity-50" />
+                  </button>
+                ) : (
+                  <p className="text-sm text-gray-500">—</p>
+                )}
               </div>
 
               {/* Date */}
