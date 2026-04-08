@@ -167,6 +167,14 @@ export default {
             boxShadow: "0 0 20px rgba(34,197,94,0.7)",
           },
         },
+        "card-highlight-pulse": {
+          "0%, 100%": {
+            boxShadow: "0 0 0 2px rgba(0, 255, 127, 0.4), 0 0 20px rgba(0, 255, 127, 0.3)",
+          },
+          "50%": {
+            boxShadow: "0 0 0 4px rgba(0, 255, 127, 0.8), 0 0 40px rgba(0, 255, 127, 0.6)",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -183,6 +191,7 @@ export default {
         "border-glow": "border-glow 2s ease-in-out infinite",
         "pulse-glow": "pulse-glow 2s ease-in-out infinite",
         "pulse-glow-green": "pulse-glow-green 2s ease-in-out infinite",
+        "card-highlight-pulse": "card-highlight-pulse 1.8s ease-in-out infinite",
       },
     },
   },
