@@ -336,7 +336,7 @@ const Sport = () => {
       return acc;
     }, {} as Record<TierType, DisplayTip[]>);
     for (const tier in grouped) {
-      grouped[tier as TierType].sort((a, b) => getExpiryTime(a) - getExpiryTime(b));
+      grouped[tier as TierType].sort((a, b) => getSortTime(a) - getSortTime(b));
     }
     return grouped;
   }, [activeEntries]);
