@@ -47,6 +47,7 @@ import AdminErrors from "./admin/pages/AdminErrors";
 import AdminFeedback from "./admin/pages/AdminFeedback";
 import AdminWebhook from "./admin/pages/AdminWebhook";
 import AdminNaoAcessou from "./admin/pages/AdminNaoAcessou";
+import AdminClientesFree from "./admin/pages/AdminClientesFree";
 import { Navigate } from "react-router-dom";
 import { FunnelPopupProvider } from "./context/FunnelPopupContext";
 
@@ -104,6 +105,7 @@ const App = () => {
               <Route path="tips/list" element={<AdminTipsList />} />
               <Route path="clients" element={<AdminClientsManage />} />
               <Route path="clients/nao-acessou" element={<AdminNaoAcessou />} />
+              <Route path="clients/free" element={<AdminClientesFree />} />
               <Route path="clients/create" element={<AdminClientsCreate />} />
               <Route path="notifications" element={<AdminNotifications />} />
               <Route path="analytics" element={<AdminAnalytics />} />
