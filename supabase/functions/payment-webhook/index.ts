@@ -491,8 +491,9 @@ Deno.serve(async (req) => {
         }
       }
     } else if (isRefundOrCancel) {
+      // Refund recebido — tier mantido conforme política (acesso já concedido, não revertemos por reembolso).
       if (tierToSet && userId) {
-        await supabase.from("users").update({ main_tier: "free" }).eq("id", userId);
+        console.log(`[refund] User ${userId} refunded but tier kept (was mapped to ${tierToSet}). Acesso permanece.`);
       }
       for (const key of entitlementKeysToGrant) {
         if (userId) {
