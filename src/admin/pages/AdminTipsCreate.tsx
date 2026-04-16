@@ -59,6 +59,8 @@ export default function AdminTipsCreate() {
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({ ...EMPTY_FORM });
   const [houses, setHouses] = useState<BettingHouseOption[]>([]);
+  const [bilheteSearchValue, setBilheteSearchValue] = useState("");
+  const [bilheteAutocompleteKey, setBilheteAutocompleteKey] = useState(0);
 
   useEffect(() => {
     supabase.from("betting_houses").select("id, name, slug").eq("is_active", true).order("created_at").then(({ data }) => {
@@ -69,6 +71,7 @@ export default function AdminTipsCreate() {
   const set = (key: string, val: string) => setForm((f) => ({ ...f, [key]: val }));
 
   const isSpecialCategory = form.categoria === "alavancagem" || form.categoria === "odds_altas";
+  const isBilheteEspecial = form.palpite?.trim().toLowerCase() === "bilhete especial";
 
   useEffect(() => {
     if (form.categoria === "alavancagem") {
@@ -292,7 +295,46 @@ export default function AdminTipsCreate() {
 
         <div>
           <label className="text-xs text-muted-foreground">Justificativa *</label>
-          <Textarea value={form.justification} onChange={(e) => set("justification", e.target.value)} className="bg-muted/30 border-border" rows={3} placeholder="Texto do modal de justificativa (📊)" />
+
+          {isBilheteEspecial && (
+            <div className="mb-2">
+              <label className="text-xs text-muted-foreground mb-1 block">
+                Adicionar palpite ao bilhete (autocomplete)
+              </label>
+              <PredictionAutocomplete
+                key={bilheteAutocompleteKey}
+                value={bilheteSearchValue}
+                onChange={(prediction, market, explanation) => {
+                  if (market) {
+                    // Selection made
+                    const current = form.justification ?? "";
+                    const needsSeparator = current.trim().length > 0 && !current.trim().endsWith(";");
+                    const prefix = needsSeparator ? current.trimEnd() + " " : current;
+                    const appended = `${prefix}✅ ${prediction}; `;
+                    set("justification", appended);
+                    setBilheteSearchValue("");
+                    setBilheteAutocompleteKey(k => k + 1);
+                  } else {
+                    // Typing — just update the search input
+                    setBilheteSearchValue(prediction);
+                  }
+                }}
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Selecione um palpite para adicionar ao bilhete. Separador: ponto e vírgula.
+              </p>
+            </div>
+          )}
+
+          <Textarea
+            value={form.justification}
+            onChange={(e) => set("justification", e.target.value)}
+            className="bg-muted/30 border-border"
+            rows={isBilheteEspecial ? 6 : 3}
+            placeholder={isBilheteEspecial
+              ? "Ex: ✅ Mais de 0.5 gol no 1º Tempo; ✅ Ambas Marcam - Sim;"
+              : "Texto do modal de justificativa (📊)"}
+          />
         </div>
 
         {/* Links por Casa de Apostas */}
