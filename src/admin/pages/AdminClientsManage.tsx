@@ -478,39 +478,34 @@ export default function AdminClientsManage() {
       hour: "2-digit", minute: "2-digit", second: "2-digit",
     }) : "—";
 
-  const handleCopyAllEmails = async () => {
-    const { data } = await supabase
-      .from("users")
-      .select("email")
-      .order("last_seen_at", { ascending: false });
-    if (!data || data.length === 0) {
-      toast.error("Nenhum email encontrado.");
+  const handleCopyFilteredEmails = async () => {
+    const emails = users.map((u: any) => u.email).filter(Boolean);
+    if (emails.length === 0) {
+      toast.error("Nenhum email nos resultados filtrados.");
       return;
     }
-    const emails = data.map((u: any) => u.email).filter(Boolean).join(", ");
-    navigator.clipboard.writeText(emails).then(() => {
-      toast.success(`${data.length} emails copiados!`);
-    }).catch(() => {
+    const text = emails.join(", ");
+    try {
+      await navigator.clipboard.writeText(text);
+      toast.success(`${emails.length} emails filtrados copiados!`);
+    } catch {
       toast.error("Erro ao copiar.");
-    });
+    }
   };
 
-  const handleCopyAllPhones = async () => {
-    const { data } = await supabase
-      .from("users")
-      .select("phone")
-      .not("phone", "is", null)
-      .order("last_seen_at", { ascending: false });
-    if (!data || data.length === 0) {
-      toast.error("Nenhum telefone encontrado.");
+  const handleCopyFilteredPhones = async () => {
+    const phones = users.map((u: any) => u.phone).filter(Boolean);
+    if (phones.length === 0) {
+      toast.error("Nenhum telefone nos resultados filtrados.");
       return;
     }
-    const phones = data.map((u: any) => u.phone).filter(Boolean).join(", ");
-    navigator.clipboard.writeText(phones).then(() => {
-      toast.success(`${data.length} telefones copiados!`);
-    }).catch(() => {
+    const text = phones.join(", ");
+    try {
+      await navigator.clipboard.writeText(text);
+      toast.success(`${phones.length} telefones filtrados copiados!`);
+    } catch {
       toast.error("Erro ao copiar.");
-    });
+    }
   };
 
   const handleExportCSV = () => {
