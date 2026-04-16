@@ -293,7 +293,37 @@ export default function AdminTipsCreate() {
 
         <div>
           <label className="text-xs text-muted-foreground">Justificativa *</label>
-          <Textarea value={form.justification} onChange={(e) => set("justification", e.target.value)} className="bg-muted/30 border-border" rows={3} placeholder="Texto do modal de justificativa (📊)" />
+
+          {isBilheteEspecial && (
+            <div className="mb-2">
+              <label className="text-xs text-muted-foreground mb-1 block">
+                Adicionar palpite ao bilhete (autocomplete)
+              </label>
+              <PredictionAutocomplete
+                value=""
+                onChange={(prediction) => {
+                  const current = form.justification ?? "";
+                  const needsSeparator = current.trim().length > 0 && !current.trim().endsWith(";");
+                  const prefix = needsSeparator ? current.trimEnd() + " " : current;
+                  const appended = `${prefix}✅ ${prediction}; `;
+                  set("justification", appended);
+                }}
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Selecione um palpite para adicionar ao bilhete. Separador: ponto e vírgula.
+              </p>
+            </div>
+          )}
+
+          <Textarea
+            value={form.justification}
+            onChange={(e) => set("justification", e.target.value)}
+            className="bg-muted/30 border-border"
+            rows={isBilheteEspecial ? 6 : 3}
+            placeholder={isBilheteEspecial
+              ? "Ex: ✅ Mais de 0.5 gol no 1º Tempo; ✅ Ambas Marcam - Sim;"
+              : "Texto do modal de justificativa (📊)"}
+          />
         </div>
 
         {/* Links por Casa de Apostas */}
