@@ -87,6 +87,34 @@ function WebhookLogsTab() {
   const [filter, setFilter] = useState<"all" | "ok" | "error">("all");
   const [eventFilter, setEventFilter] = useState<"approved" | "all">("approved");
 
+  // New: email search with debounce
+  const [emailSearch, setEmailSearch] = useState("");
+  const [debouncedEmail, setDebouncedEmail] = useState("");
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleEmailChange = (value: string) => {
+    setEmailSearch(value);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => setDebouncedEmail(value), 400);
+  };
+
+  // New: date filters
+  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
+  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
+
+  // New: sort
+  const [sortColumn, setSortColumn] = useState<"received_at" | "buyer_email">("received_at");
+  const [sortAscending, setSortAscending] = useState(false);
+
+  const handleSort = (col: "received_at" | "buyer_email") => {
+    if (sortColumn === col) {
+      setSortAscending(!sortAscending);
+    } else {
+      setSortColumn(col);
+      setSortAscending(false);
+    }
+  };
+
   const APPROVED_EVENTS = [
     "Purchase_Order_Confirmed",
     "Subscription_Product_Access",
@@ -102,17 +130,20 @@ function WebhookLogsTab() {
     let query = supabase
       .from("webhook_logs")
       .select("*")
-      .order("received_at", { ascending: false })
+      .order(sortColumn, { ascending: sortAscending, nullsFirst: false })
       .limit(50);
 
     if (filter === "ok") query = query.eq("processed_ok", true);
     if (filter === "error") query = query.eq("processed_ok", false);
     if (eventFilter === "approved") query = query.in("event_name", APPROVED_EVENTS);
+    if (debouncedEmail.trim().length >= 2) query = query.ilike("buyer_email", `%${debouncedEmail.trim()}%`);
+    if (startDate) query = query.gte("received_at", format(startDate, "yyyy-MM-dd") + "T00:00:00");
+    if (endDate) query = query.lte("received_at", format(endDate, "yyyy-MM-dd") + "T23:59:59");
 
     const { data } = await query;
     setLogs((data as unknown as WebhookLog[]) ?? []);
     setLoading(false);
-  }, [filter, eventFilter]);
+  }, [filter, eventFilter, debouncedEmail, startDate, endDate, sortColumn, sortAscending]);
 
   useEffect(() => { fetchLogs(); }, [fetchLogs]);
 
@@ -147,6 +178,22 @@ function WebhookLogsTab() {
     (l) => new Date(l.received_at).toDateString() === new Date().toDateString()
   );
   const todayErrors = todayLogs.filter((l) => !l.processed_ok);
+
+  const hasActiveFilters = emailSearch.length > 0 || startDate !== undefined || endDate !== undefined;
+
+  const clearFilters = () => {
+    setEmailSearch("");
+    setDebouncedEmail("");
+    setStartDate(undefined);
+    setEndDate(undefined);
+  };
+
+  const SortIcon = ({ col }: { col: "received_at" | "buyer_email" }) => {
+    if (sortColumn !== col) return null;
+    return sortAscending
+      ? <ChevronUp className="w-3.5 h-3.5 inline ml-0.5" />
+      : <ChevronDown className="w-3.5 h-3.5 inline ml-0.5" />;
+  };
 
   return (
     <div className="space-y-4 mt-4">
@@ -206,16 +253,72 @@ function WebhookLogsTab() {
         </Button>
       </div>
 
+      {/* Date + Email filters */}
+      <div className="flex flex-wrap gap-2 items-end">
+        <div>
+          <label className="text-xs text-gray-400 block mb-1">Data Início</label>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="sm" className={cn("w-[150px] justify-start text-left font-normal", !startDate && "text-muted-foreground")}>
+                <CalendarIcon className="w-3.5 h-3.5 mr-1" />
+                {startDate ? format(startDate, "dd/MM/yyyy") : "Selecionar"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar mode="single" selected={startDate} onSelect={setStartDate} className={cn("p-3 pointer-events-auto")} />
+            </PopoverContent>
+          </Popover>
+        </div>
+        <div>
+          <label className="text-xs text-gray-400 block mb-1">Data Fim</label>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="sm" className={cn("w-[150px] justify-start text-left font-normal", !endDate && "text-muted-foreground")}>
+                <CalendarIcon className="w-3.5 h-3.5 mr-1" />
+                {endDate ? format(endDate, "dd/MM/yyyy") : "Selecionar"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar mode="single" selected={endDate} onSelect={setEndDate} className={cn("p-3 pointer-events-auto")} />
+            </PopoverContent>
+          </Popover>
+        </div>
+        <div>
+          <label className="text-xs text-gray-400 block mb-1">Buscar por email</label>
+          <Input
+            placeholder="Buscar por email..."
+            value={emailSearch}
+            onChange={(e) => handleEmailChange(e.target.value)}
+            className="w-[220px] h-9 bg-gray-800 border-white/10 text-sm"
+          />
+        </div>
+        {hasActiveFilters && (
+          <Button variant="ghost" size="sm" onClick={clearFilters} className="text-gray-400 hover:text-white">
+            <X className="w-3.5 h-3.5 mr-1" /> Limpar
+          </Button>
+        )}
+      </div>
+
       {/* Table */}
       <div className="rounded-lg border border-white/10 overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead className="w-8" />
-              <TableHead>Data/Hora</TableHead>
+              <TableHead
+                className="cursor-pointer hover:text-white select-none"
+                onClick={() => handleSort("received_at")}
+              >
+                Data/Hora <SortIcon col="received_at" />
+              </TableHead>
               <TableHead>Provider</TableHead>
               <TableHead>Evento</TableHead>
-              <TableHead>E-mail</TableHead>
+              <TableHead
+                className="cursor-pointer hover:text-white select-none"
+                onClick={() => handleSort("buyer_email")}
+              >
+                E-mail <SortIcon col="buyer_email" />
+              </TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Teste?</TableHead>
               <TableHead>Ações</TableHead>
