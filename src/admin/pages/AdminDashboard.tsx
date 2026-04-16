@@ -82,11 +82,11 @@ export default function AdminDashboard() {
   const { selectedHouseId } = useBettingHouseAdmin();
 
   // Period filter
-  const [dateFrom, setDateFrom] = useState<Date>(subDays(now, 7));
+  const [dateFrom, setDateFrom] = useState<Date>(startOfDay(now));
   const [dateTo, setDateTo] = useState<Date>(now);
   const [openFrom, setOpenFrom] = useState(false);
   const [openTo, setOpenTo] = useState(false);
-  const [activeShortcut, setActiveShortcut] = useState("7d");
+  const [activeShortcut, setActiveShortcut] = useState("today");
 
   // Plan filter
   const [planFilter, setPlanFilter] = useState<PlanFilter>("geral");
@@ -114,6 +114,7 @@ export default function AdminDashboard() {
       case "month": from = startOfMonth(today); to = today; break;
       case "15d": from = subDays(today, 15); to = today; break;
       case "30d": from = subDays(today, 30); to = today; break;
+      case "all": from = new Date(2026, 0, 1); to = today; break;
       case "7d": default: from = subDays(today, 7); to = today; break;
     }
     setDateFrom(from);
@@ -312,6 +313,7 @@ export default function AdminDashboard() {
     { key: "7d", label: "Últimos 7 dias" },
     { key: "15d", label: "Últimos 15 dias" },
     { key: "30d", label: "Últimos 30 dias" },
+    { key: "all", label: "All Time" },
   ];
 
   const exportUsersCSV = (users: typeof allUsers, filename: string) => {
