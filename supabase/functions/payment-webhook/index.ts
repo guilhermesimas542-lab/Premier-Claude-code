@@ -464,9 +464,34 @@ Deno.serve(async (req) => {
       );
     }
 
+    const TIER_RANK: Record<string, number> = {
+      free: 0,
+      basic: 1,
+      pro: 2,
+      ultra: 3,
+    };
+
     if (isPurchaseApproved) {
       if (tierToSet && userId) {
-        await supabase.from("users").update({ main_tier: tierToSet, origin: "webhook" }).eq("id", userId);
+        // Buscar tier atual para comparar
+        const { data: currentUser } = await supabase
+          .from("users")
+          .select("main_tier")
+          .eq("id", userId)
+          .maybeSingle();
+
+        const currentTier = currentUser?.main_tier ?? "free";
+        const currentRank = TIER_RANK[currentTier] ?? 0;
+        const newRank = TIER_RANK[tierToSet] ?? 0;
+
+        if (newRank > currentRank) {
+          // Upgrade: atualiza tier
+          await supabase.from("users").update({ main_tier: tierToSet, origin: "webhook" }).eq("id", userId);
+          console.log(`[tier-guard] Upgrade aplicado: user=${userId} ${currentTier}(${currentRank}) -> ${tierToSet}(${newRank})`);
+        } else {
+          // Downgrade ou mesmo tier: bloqueia atualização, loga motivo
+          console.log(`[tier-guard] Downgrade BLOQUEADO: user=${userId} atual=${currentTier}(${currentRank}) compra=${tierToSet}(${newRank}). Mantendo tier atual.`);
+        }
       } else if (userId) {
         await supabase.from("users").update({ origin: "webhook" }).eq("id", userId);
       }
