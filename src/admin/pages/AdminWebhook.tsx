@@ -16,8 +16,8 @@ import {
 } from "@/components/ui/select";
 import {
   RefreshCw, Zap, CheckCircle2, XCircle, AlertTriangle,
-  Plus, Pencil, Trash2, Play, ChevronDown, ChevronRight,
-  Download, CalendarIcon,
+  Plus, Pencil, Trash2, Play, ChevronDown, ChevronRight, ChevronUp,
+  Download, CalendarIcon, X,
 } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
