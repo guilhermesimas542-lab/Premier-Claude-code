@@ -302,13 +302,22 @@ export default function AdminTipsCreate() {
                 Adicionar palpite ao bilhete (autocomplete)
               </label>
               <PredictionAutocomplete
-                value=""
-                onChange={(prediction) => {
-                  const current = form.justification ?? "";
-                  const needsSeparator = current.trim().length > 0 && !current.trim().endsWith(";");
-                  const prefix = needsSeparator ? current.trimEnd() + " " : current;
-                  const appended = `${prefix}✅ ${prediction}; `;
-                  set("justification", appended);
+                key={bilheteAutocompleteKey}
+                value={bilheteSearchValue}
+                onChange={(prediction, market, explanation) => {
+                  if (market) {
+                    // Selection made
+                    const current = form.justification ?? "";
+                    const needsSeparator = current.trim().length > 0 && !current.trim().endsWith(";");
+                    const prefix = needsSeparator ? current.trimEnd() + " " : current;
+                    const appended = `${prefix}✅ ${prediction}; `;
+                    set("justification", appended);
+                    setBilheteSearchValue("");
+                    setBilheteAutocompleteKey(k => k + 1);
+                  } else {
+                    // Typing — just update the search input
+                    setBilheteSearchValue(prediction);
+                  }
                 }}
               />
               <p className="text-xs text-muted-foreground mt-1">
