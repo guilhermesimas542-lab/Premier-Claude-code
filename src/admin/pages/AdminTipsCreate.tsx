@@ -59,6 +59,8 @@ export default function AdminTipsCreate() {
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({ ...EMPTY_FORM });
   const [houses, setHouses] = useState<BettingHouseOption[]>([]);
+  const [bilheteSearchValue, setBilheteSearchValue] = useState("");
+  const [bilheteAutocompleteKey, setBilheteAutocompleteKey] = useState(0);
 
   useEffect(() => {
     supabase.from("betting_houses").select("id, name, slug").eq("is_active", true).order("created_at").then(({ data }) => {
