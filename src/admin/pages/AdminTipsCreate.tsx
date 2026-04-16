@@ -69,6 +69,7 @@ export default function AdminTipsCreate() {
   const set = (key: string, val: string) => setForm((f) => ({ ...f, [key]: val }));
 
   const isSpecialCategory = form.categoria === "alavancagem" || form.categoria === "odds_altas";
+  const isBilheteEspecial = form.palpite?.trim().toLowerCase() === "bilhete especial";
 
   useEffect(() => {
     if (form.categoria === "alavancagem") {
