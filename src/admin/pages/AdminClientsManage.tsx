@@ -478,39 +478,34 @@ export default function AdminClientsManage() {
       hour: "2-digit", minute: "2-digit", second: "2-digit",
     }) : "—";
 
-  const handleCopyAllEmails = async () => {
-    const { data } = await supabase
-      .from("users")
-      .select("email")
-      .order("last_seen_at", { ascending: false });
-    if (!data || data.length === 0) {
-      toast.error("Nenhum email encontrado.");
+  const handleCopyFilteredEmails = async () => {
+    const emails = users.map((u: any) => u.email).filter(Boolean);
+    if (emails.length === 0) {
+      toast.error("Nenhum email nos resultados filtrados.");
       return;
     }
-    const emails = data.map((u: any) => u.email).filter(Boolean).join(", ");
-    navigator.clipboard.writeText(emails).then(() => {
-      toast.success(`${data.length} emails copiados!`);
-    }).catch(() => {
+    const text = emails.join(", ");
+    try {
+      await navigator.clipboard.writeText(text);
+      toast.success(`${emails.length} emails filtrados copiados!`);
+    } catch {
       toast.error("Erro ao copiar.");
-    });
+    }
   };
 
-  const handleCopyAllPhones = async () => {
-    const { data } = await supabase
-      .from("users")
-      .select("phone")
-      .not("phone", "is", null)
-      .order("last_seen_at", { ascending: false });
-    if (!data || data.length === 0) {
-      toast.error("Nenhum telefone encontrado.");
+  const handleCopyFilteredPhones = async () => {
+    const phones = users.map((u: any) => u.phone).filter(Boolean);
+    if (phones.length === 0) {
+      toast.error("Nenhum telefone nos resultados filtrados.");
       return;
     }
-    const phones = data.map((u: any) => u.phone).filter(Boolean).join(", ");
-    navigator.clipboard.writeText(phones).then(() => {
-      toast.success(`${data.length} telefones copiados!`);
-    }).catch(() => {
+    const text = phones.join(", ");
+    try {
+      await navigator.clipboard.writeText(text);
+      toast.success(`${phones.length} telefones filtrados copiados!`);
+    } catch {
       toast.error("Erro ao copiar.");
-    });
+    }
   };
 
   const handleExportCSV = () => {
@@ -629,18 +624,18 @@ export default function AdminClientsManage() {
             Exportar todos
           </button>
           <button
-            onClick={handleCopyAllEmails}
+            onClick={handleCopyFilteredEmails}
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-green-600/20 text-green-400 hover:bg-green-600/30 text-sm font-medium transition-colors"
           >
             <Copy className="w-4 h-4" />
-            Copiar emails
+            Copiar emails filtrados
           </button>
           <button
-            onClick={handleCopyAllPhones}
+            onClick={handleCopyFilteredPhones}
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 text-sm font-medium transition-colors"
           >
             <Copy className="w-4 h-4" />
-            Copiar telefones
+            Copiar telefones filtrados
           </button>
         </div>
 
