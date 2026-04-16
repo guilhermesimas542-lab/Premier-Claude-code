@@ -353,7 +353,7 @@ const Login = () => {
                               textTransform: 'uppercase',
                             }}
                           >
-                            ✓ ENTRADA BATEU
+                            ✓ ENTRADA DE ONTEM BATEU
                           </span>
                         </div>
                       </div>
