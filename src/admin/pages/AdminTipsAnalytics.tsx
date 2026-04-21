@@ -106,9 +106,9 @@ function KpiCard({ label, value, sub, icon: Icon, iconColor = "text-blue-400" }:
 
 export default function AdminTipsAnalytics() {
   const now = new Date();
-  const [dateFrom, setDateFrom] = useState<Date>(startOfDay(now));
+  const [dateFrom, setDateFrom] = useState<Date>(new Date(2026, 0, 1));
   const [dateTo, setDateTo] = useState<Date>(now);
-  const [activeShortcut, setActiveShortcut] = useState("today");
+  const [activeShortcut, setActiveShortcut] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>("all");
 
   const [entries, setEntries] = useState<Entry[]>([]);
@@ -116,6 +116,8 @@ export default function AdminTipsAnalytics() {
 
   const [sortKey, setSortKey] = useState<SortKey>("date");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
+
+  const [selectedDay, setSelectedDay] = useState<string | null>(null);
 
   const applyShortcut = (key: string) => {
     setActiveShortcut(key);
