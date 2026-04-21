@@ -568,6 +568,68 @@ export default function AdminTipsAnalytics() {
           </div>
         </>
       )}
+
+      {/* ── Modal: entradas do dia ── */}
+      <Dialog open={!!selectedDay} onOpenChange={(o) => !o && setSelectedDay(null)}>
+        <DialogContent className="max-w-3xl bg-gray-900 border-white/10 text-white">
+          <DialogHeader>
+            <DialogTitle>
+              Entradas de {selectedDay && format(new Date(selectedDay + "T12:00:00"), "dd/MM/yyyy")}
+            </DialogTitle>
+          </DialogHeader>
+          {(() => {
+            const dayEntries = entries.filter((e) => e.date === selectedDay);
+            if (dayEntries.length === 0) {
+              return <div className="text-sm text-gray-400 py-4">Nenhuma entrada neste dia.</div>;
+            }
+            return (
+              <div className="max-h-[60vh] overflow-y-auto">
+                <table className="w-full text-sm">
+                  <thead className="sticky top-0 bg-gray-900">
+                    <tr className="border-b border-white/10 bg-white/5">
+                      <th className="px-3 py-2 text-left text-xs text-muted-foreground font-medium">Título</th>
+                      <th className="px-3 py-2 text-left text-xs text-muted-foreground font-medium">Mercado</th>
+                      <th className="px-3 py-2 text-left text-xs text-muted-foreground font-medium">Categoria</th>
+                      <th className="px-3 py-2 text-right text-xs text-muted-foreground font-medium">Odd</th>
+                      <th className="px-3 py-2 text-center text-xs text-muted-foreground font-medium">Resultado</th>
+                      <th className="px-3 py-2 text-right text-xs text-muted-foreground font-medium">Lucro</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {dayEntries.map((e) => {
+                      const lucro =
+                        e.result === "green" ? (e.odd ?? 0) * STAKE - STAKE :
+                        e.result === "red" ? -STAKE : 0;
+                      const cat = e.addon_required ?? e.tier_required;
+                      return (
+                        <tr key={e.id} className="border-b border-white/5">
+                          <td className="px-3 py-2 text-white">{e.title}</td>
+                          <td className="px-3 py-2 text-gray-300">{e.market ?? "—"}</td>
+                          <td className="px-3 py-2 text-gray-400 capitalize">{cat}</td>
+                          <td className="px-3 py-2 text-right text-gray-300">{e.odd?.toFixed(2) ?? "—"}</td>
+                          <td className="px-3 py-2 text-center">
+                            <span className={cn(
+                              "inline-block px-2 py-0.5 rounded text-xs font-medium uppercase",
+                              e.result === "green" && "bg-green-500/20 text-green-400",
+                              e.result === "red" && "bg-red-500/20 text-red-400",
+                              e.result === "pending" && "bg-gray-500/20 text-gray-400",
+                            )}>
+                              {e.result === "pending" ? "void" : e.result}
+                            </span>
+                          </td>
+                          <td className={cn("px-3 py-2 text-right font-medium", moneyColorClass(lucro))}>
+                            {e.result === "pending" ? "—" : formatBRL(lucro)}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
