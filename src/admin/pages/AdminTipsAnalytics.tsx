@@ -537,7 +537,11 @@ export default function AdminTipsAnalytics() {
                     </tr>
                   ) : (
                     sortedTable.map((d) => (
-                      <tr key={d.date} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                      <tr
+                        key={d.date}
+                        onClick={() => setSelectedDay(d.date)}
+                        className="border-b border-white/5 hover:bg-white/10 transition-colors cursor-pointer"
+                      >
                         <td className="px-3 py-2 text-white">
                           {format(new Date(d.date + "T12:00:00"), "dd/MM/yyyy")}
                         </td>
