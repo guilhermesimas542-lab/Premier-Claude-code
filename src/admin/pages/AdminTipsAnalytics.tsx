@@ -118,6 +118,13 @@ export default function AdminTipsAnalytics() {
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
 
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
+  const [modalSortKey, setModalSortKey] = useState<"title" | "market" | "category" | "odd" | "result" | "lucro">("title");
+  const [modalSortDir, setModalSortDir] = useState<"asc" | "desc">("asc");
+
+  const toggleModalSort = (key: typeof modalSortKey) => {
+    if (modalSortKey === key) setModalSortDir(modalSortDir === "asc" ? "desc" : "asc");
+    else { setModalSortKey(key); setModalSortDir("asc"); }
+  };
 
   const applyShortcut = (key: string) => {
     setActiveShortcut(key);
@@ -578,51 +585,81 @@ export default function AdminTipsAnalytics() {
             </DialogTitle>
           </DialogHeader>
           {(() => {
-            const dayEntries = entries.filter((e) => e.date === selectedDay);
-            if (dayEntries.length === 0) {
+            const dayEntriesRaw = entries.filter((e) => e.date === selectedDay);
+            if (dayEntriesRaw.length === 0) {
               return <div className="text-sm text-gray-400 py-4">Nenhuma entrada neste dia.</div>;
             }
+            const enriched = dayEntriesRaw.map((e) => {
+              const lucro =
+                e.result === "green" ? (e.odd ?? 0) * STAKE - STAKE :
+                e.result === "red" ? -STAKE : 0;
+              const category = e.addon_required ?? e.tier_required;
+              return { ...e, lucro, category };
+            });
+            const resultOrder: Record<string, number> = { green: 0, red: 1, pending: 2 };
+            const sorted = [...enriched].sort((a, b) => {
+              let cmp = 0;
+              switch (modalSortKey) {
+                case "title": cmp = a.title.localeCompare(b.title); break;
+                case "market": cmp = (a.market ?? "").localeCompare(b.market ?? ""); break;
+                case "category": cmp = a.category.localeCompare(b.category); break;
+                case "odd": cmp = (a.odd ?? 0) - (b.odd ?? 0); break;
+                case "result": cmp = (resultOrder[a.result] ?? 99) - (resultOrder[b.result] ?? 99); break;
+                case "lucro": cmp = a.lucro - b.lucro; break;
+              }
+              return modalSortDir === "asc" ? cmp : -cmp;
+            });
+            const ModalHeader = ({ label, field, align = "left" }: { label: string; field: typeof modalSortKey; align?: "left" | "center" | "right" }) => (
+              <th
+                onClick={() => toggleModalSort(field)}
+                className={cn(
+                  "px-3 py-2 text-xs text-muted-foreground font-medium cursor-pointer hover:text-white transition-colors select-none",
+                  align === "left" && "text-left",
+                  align === "center" && "text-center",
+                  align === "right" && "text-right",
+                )}
+              >
+                <span className={cn("inline-flex items-center gap-1", align === "right" && "justify-end", align === "center" && "justify-center")}>
+                  {label}
+                  {modalSortKey === field && <span className="text-xs">{modalSortDir === "asc" ? "↑" : "↓"}</span>}
+                </span>
+              </th>
+            );
             return (
               <div className="max-h-[60vh] overflow-y-auto">
                 <table className="w-full text-sm">
                   <thead className="sticky top-0 bg-gray-900">
                     <tr className="border-b border-white/10 bg-white/5">
-                      <th className="px-3 py-2 text-left text-xs text-muted-foreground font-medium">Título</th>
-                      <th className="px-3 py-2 text-left text-xs text-muted-foreground font-medium">Mercado</th>
-                      <th className="px-3 py-2 text-left text-xs text-muted-foreground font-medium">Categoria</th>
-                      <th className="px-3 py-2 text-right text-xs text-muted-foreground font-medium">Odd</th>
-                      <th className="px-3 py-2 text-center text-xs text-muted-foreground font-medium">Resultado</th>
-                      <th className="px-3 py-2 text-right text-xs text-muted-foreground font-medium">Lucro</th>
+                      <ModalHeader label="Título" field="title" />
+                      <ModalHeader label="Mercado" field="market" />
+                      <ModalHeader label="Categoria" field="category" />
+                      <ModalHeader label="Odd" field="odd" align="right" />
+                      <ModalHeader label="Resultado" field="result" align="center" />
+                      <ModalHeader label="Lucro" field="lucro" align="right" />
                     </tr>
                   </thead>
                   <tbody>
-                    {dayEntries.map((e) => {
-                      const lucro =
-                        e.result === "green" ? (e.odd ?? 0) * STAKE - STAKE :
-                        e.result === "red" ? -STAKE : 0;
-                      const cat = e.addon_required ?? e.tier_required;
-                      return (
-                        <tr key={e.id} className="border-b border-white/5">
-                          <td className="px-3 py-2 text-white">{e.title}</td>
-                          <td className="px-3 py-2 text-gray-300">{e.market ?? "—"}</td>
-                          <td className="px-3 py-2 text-gray-400 capitalize">{cat}</td>
-                          <td className="px-3 py-2 text-right text-gray-300">{e.odd?.toFixed(2) ?? "—"}</td>
-                          <td className="px-3 py-2 text-center">
-                            <span className={cn(
-                              "inline-block px-2 py-0.5 rounded text-xs font-medium uppercase",
-                              e.result === "green" && "bg-green-500/20 text-green-400",
-                              e.result === "red" && "bg-red-500/20 text-red-400",
-                              e.result === "pending" && "bg-gray-500/20 text-gray-400",
-                            )}>
-                              {e.result === "pending" ? "void" : e.result}
-                            </span>
-                          </td>
-                          <td className={cn("px-3 py-2 text-right font-medium", moneyColorClass(lucro))}>
-                            {e.result === "pending" ? "—" : formatBRL(lucro)}
-                          </td>
-                        </tr>
-                      );
-                    })}
+                    {sorted.map((e) => (
+                      <tr key={e.id} className="border-b border-white/5">
+                        <td className="px-3 py-2 text-white">{e.title}</td>
+                        <td className="px-3 py-2 text-gray-300">{e.market ?? "—"}</td>
+                        <td className="px-3 py-2 text-gray-400 capitalize">{e.category}</td>
+                        <td className="px-3 py-2 text-right text-gray-300">{e.odd?.toFixed(2) ?? "—"}</td>
+                        <td className="px-3 py-2 text-center">
+                          <span className={cn(
+                            "inline-block px-2 py-0.5 rounded text-xs font-medium uppercase",
+                            e.result === "green" && "bg-green-500/20 text-green-400",
+                            e.result === "red" && "bg-red-500/20 text-red-400",
+                            e.result === "pending" && "bg-gray-500/20 text-gray-400",
+                          )}>
+                            {e.result === "pending" ? "void" : e.result}
+                          </span>
+                        </td>
+                        <td className={cn("px-3 py-2 text-right font-medium", moneyColorClass(e.lucro))}>
+                          {e.result === "pending" ? "—" : formatBRL(e.lucro)}
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
