@@ -143,64 +143,102 @@ export default function AdminDashboard() {
       const since = startOfDay(dateFrom).toISOString();
       const until = endOfDay(dateTo).toISOString();
       const fifteenDaysAgo = new Date(Date.now() - 15 * 86400000).toISOString();
-
-      // Build user queries filtered by house
-      let usersQ = supabase.from("users").select("id, email, nickname, main_tier, created_at, last_seen_at") as any;
-      let newUsersQ = supabase.from("users").select("id", { count: "exact", head: true }).gte("created_at", since).lte("created_at", until) as any;
-      let paidQ = supabase.from("users").select("id").neq("main_tier", "free") as any;
-
-      if (selectedHouseId) {
-        usersQ = usersQ.eq("betting_house_id", selectedHouseId);
-        newUsersQ = newUsersQ.eq("betting_house_id", selectedHouseId);
-        paidQ = paidQ.eq("betting_house_id", selectedHouseId);
-      }
-
-      const [newUsersRes, usersRes, paidUsersRes] = await Promise.all([newUsersQ, usersQ, paidQ]);
-
-      const users = usersRes.data ?? [];
-      const paid = paidUsersRes.data ?? [];
-
-      // Fetch events for DAU chart (more reliable than sessions)
-      const allEventsData: { user_id: string; created_at: string }[] = [];
-      let eventsPage = 0;
       const PAGE_SIZE = 1000;
-      while (true) {
-        let eq = supabase.from("events").select("user_id, created_at").gte("created_at", since).lte("created_at", until).not("user_id", "is", null);
-        if (selectedHouseId) eq = eq.eq("house_id", selectedHouseId);
-        const { data: eventsChunk } = await eq.range(eventsPage * PAGE_SIZE, (eventsPage + 1) * PAGE_SIZE - 1);
-        if (!eventsChunk || eventsChunk.length === 0) break;
-        allEventsData.push(...(eventsChunk as any[]));
-        if (eventsChunk.length < PAGE_SIZE) break;
-        eventsPage++;
-        if (eventsPage > 10) break;
-      }
-      setSessionsData(allEventsData.map((e: any) => ({ user_id: e.user_id, session_start_at: e.created_at })));
 
-      // Entitlements
-      const houseUserIds = users.map((u: any) => u.id);
-      let entitlementsData: any[] = [];
+      // Helper: paginate any Supabase query to fetch ALL rows beyond the 1000 default cap
+      const fetchAllPaginated = async <T,>(
+        builder: () => any,
+      ): Promise<T[]> => {
+        const all: T[] = [];
+        let page = 0;
+        while (true) {
+          const { data, error } = await builder().range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
+          if (error || !data || data.length === 0) break;
+          all.push(...(data as T[]));
+          if (data.length < PAGE_SIZE) break;
+          page++;
+          if (page > 100) break; // safety cap (~100k rows)
+        }
+        return all;
+      };
 
-      if (houseUserIds.length > 0) {
-        const { data } = await supabase.from("entitlements").select("product_key, user_id").eq("status", "active").in("user_id", houseUserIds.slice(0, 500));
-        entitlementsData = data ?? [];
-      } else if (!selectedHouseId) {
-        const { data } = await supabase.from("entitlements").select("product_key, user_id").eq("status", "active");
-        entitlementsData = data ?? [];
+      // ── Users (paginated full fetch) ───────────────────────────────────────
+      const usersBuilder = () => {
+        let q = supabase.from("users").select("id, email, nickname, main_tier, created_at, last_seen_at, betting_house_id");
+        if (selectedHouseId) q = q.eq("betting_house_id", selectedHouseId);
+        return q;
+      };
+      // ── New signups in period (count only, no row fetch) ───────────────────
+      let newUsersQ = supabase
+        .from("users")
+        .select("id", { count: "exact", head: true })
+        .gte("created_at", since)
+        .lte("created_at", until) as any;
+      if (selectedHouseId) newUsersQ = newUsersQ.eq("betting_house_id", selectedHouseId);
+
+      // ── Paid users (paginated full fetch — needed for churn intersection) ──
+      const paidBuilder = () => {
+        let q = supabase.from("users").select("id").neq("main_tier", "free");
+        if (selectedHouseId) q = q.eq("betting_house_id", selectedHouseId);
+        return q;
+      };
+
+      const [newUsersRes, users, paid] = await Promise.all([
+        newUsersQ,
+        fetchAllPaginated<{ id: string; email?: string; nickname?: string | null; main_tier: string; created_at?: string; last_seen_at: string | null }>(usersBuilder),
+        fetchAllPaginated<{ id: string }>(paidBuilder),
+      ]);
+
+      // ── Events for DAU chart (paginated) ───────────────────────────────────
+      const allEventsData = await fetchAllPaginated<{ user_id: string; created_at: string }>(() => {
+        let q = supabase
+          .from("events")
+          .select("user_id, created_at")
+          .gte("created_at", since)
+          .lte("created_at", until)
+          .not("user_id", "is", null);
+        if (selectedHouseId) q = q.eq("house_id", selectedHouseId);
+        return q;
+      });
+      setSessionsData(allEventsData.map((e) => ({ user_id: e.user_id, session_start_at: e.created_at })));
+
+      // ── Entitlements (paginated; filter by user_id chunks if house-scoped) ─
+      let entitlementsData: { product_key: string; user_id: string }[] = [];
+      if (selectedHouseId) {
+        // House-scoped: intersect with current house users in chunks of 500 ids
+        const houseUserIds = users.map((u) => u.id);
+        const CHUNK = 500;
+        for (let i = 0; i < houseUserIds.length; i += CHUNK) {
+          const slice = houseUserIds.slice(i, i + CHUNK);
+          const chunkData = await fetchAllPaginated<{ product_key: string; user_id: string }>(() =>
+            supabase.from("entitlements").select("product_key, user_id").eq("status", "active").in("user_id", slice),
+          );
+          entitlementsData.push(...chunkData);
+        }
+      } else {
+        entitlementsData = await fetchAllPaginated<{ product_key: string; user_id: string }>(() =>
+          supabase.from("entitlements").select("product_key, user_id").eq("status", "active"),
+        );
       }
 
       setAllUsers(users);
       setAllEntitlements(entitlementsData);
       setNewSignups(newUsersRes.count ?? 0);
-      setPaidIds(paid.map((u: any) => u.id));
+      setPaidIds(paid.map((u) => u.id));
 
-      // Churn — paid users whose last_seen_at is older than 15 days
+      // ── Churn — paid users whose last_seen_at is older than 15 days ───────
       if (paid.length > 0) {
-        const ids = paid.map((u: any) => u.id);
-        const { data: recentUsers } = await supabase
-          .from("users").select("id")
-          .gte("last_seen_at", fifteenDaysAgo)
-          .in("id", ids.slice(0, 500));
-        const recentIds = new Set((recentUsers ?? []).map((u: any) => u.id));
+        const ids = paid.map((u) => u.id);
+        // Fetch all paid users seen recently (paginated, chunked by 500 ids to avoid URL length limits)
+        const recentIds = new Set<string>();
+        const CHUNK = 500;
+        for (let i = 0; i < ids.length; i += CHUNK) {
+          const slice = ids.slice(i, i + CHUNK);
+          const chunk = await fetchAllPaginated<{ id: string }>(() =>
+            supabase.from("users").select("id").gte("last_seen_at", fifteenDaysAgo).in("id", slice),
+          );
+          chunk.forEach((u) => recentIds.add(u.id));
+        }
         setChurnIds(ids.filter((id) => !recentIds.has(id)));
       } else {
         setChurnIds([]);
