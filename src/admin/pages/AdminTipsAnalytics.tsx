@@ -26,7 +26,10 @@ const WIN_THRESHOLD = 55;
 type CategoryFilter = "all" | "free" | "basic" | "pro" | "ultra" | "alavancagem" | "desaltas";
 
 interface Entry {
+  id: string;
   date: string;
+  title: string;
+  market: string | null;
   result: string;
   odd: number | null;
   tier_required: string;
