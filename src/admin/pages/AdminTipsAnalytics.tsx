@@ -118,6 +118,13 @@ export default function AdminTipsAnalytics() {
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
 
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
+  const [modalSortKey, setModalSortKey] = useState<"title" | "market" | "category" | "odd" | "result" | "lucro">("title");
+  const [modalSortDir, setModalSortDir] = useState<"asc" | "desc">("asc");
+
+  const toggleModalSort = (key: typeof modalSortKey) => {
+    if (modalSortKey === key) setModalSortDir(modalSortDir === "asc" ? "desc" : "asc");
+    else { setModalSortKey(key); setModalSortDir("asc"); }
+  };
 
   const applyShortcut = (key: string) => {
     setActiveShortcut(key);
