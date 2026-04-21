@@ -141,7 +141,7 @@ export default function AdminTipsAnalytics() {
     setLoading(true);
     let q = supabase
       .from("content_entries")
-      .select("date, result, odd, tier_required, addon_required, active")
+      .select("id, date, title, market, result, odd, tier_required, addon_required, active")
       .gte("date", format(dateFrom, "yyyy-MM-dd"))
       .lte("date", format(dateTo, "yyyy-MM-dd"))
       .eq("active", true)
