@@ -68,6 +68,7 @@ export function AdminSidebar() {
       items: [
         { to: "/admin/tips/create", icon: PlusCircle, label: "Tips: Cadastrar" },
         { to: "/admin/tips/list", icon: List, label: "Tips: Listar", badge: counts.tips, badgeColor: "bg-blue-500" },
+        { to: "/admin/tips/analytics", icon: BarChart3, label: "Analytics" },
         { to: "/admin/teams", icon: Shield, label: "Times (Logos)" },
         { to: "/admin/predictions", icon: Layers, label: "Palpites/Mercado" },
       ],
