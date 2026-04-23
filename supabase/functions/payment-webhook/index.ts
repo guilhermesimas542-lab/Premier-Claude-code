@@ -191,16 +191,35 @@ Deno.serve(async (req) => {
       }
 
       const paytProduct = (payload.product ?? {}) as Record<string, unknown>;
-      if (paytProduct.code) productIds.push(paytProduct.code as string);
+
+      // Fix: PayT usa o mesmo code "LXGO9W" para Basic, Odds Altas e Alavancagem.
+      // Discriminar pelo link.title para mapear ao code correto na products_catalog.
+      const paytLink = (payload.link ?? {}) as Record<string, unknown>;
+      const linkTitleLower = ((paytLink.title as string) ?? "").toLowerCase();
+      const remapPaytCode = (code: string): string => {
+        if (code !== "LXGO9W") return code;
+        if (linkTitleLower.includes("odds altas")) {
+          console.log("[payt-fix] Remapped LXGO9W -> LY7ON2 (Odds Altas) via link.title");
+          return "LY7ON2";
+        }
+        if (linkTitleLower.includes("alavancagem")) {
+          console.log("[payt-fix] Remapped LXGO9W -> RDEVAP (Alavancagem) via link.title");
+          return "RDEVAP";
+        }
+        console.log("[payt-fix] LXGO9W kept as-is (Basic) - link.title:", linkTitleLower);
+        return code;
+      };
+
+      if (paytProduct.code) productIds.push(remapPaytCode(paytProduct.code as string));
       if (paytProduct.items && Array.isArray(paytProduct.items)) {
         for (const item of paytProduct.items as Array<Record<string, unknown>>) {
-          if (item.code) productIds.push(item.code as string);
+          if (item.code) productIds.push(remapPaytCode(item.code as string));
         }
       }
       if (payload.order_bumps && Array.isArray(payload.order_bumps)) {
         for (const bump of payload.order_bumps as Array<Record<string, unknown>>) {
           const bumpProduct = (bump.product ?? {}) as Record<string, unknown>;
-          if (bumpProduct.code) productIds.push(bumpProduct.code as string);
+          if (bumpProduct.code) productIds.push(remapPaytCode(bumpProduct.code as string));
         }
       }
 
