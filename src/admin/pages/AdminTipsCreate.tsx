@@ -191,6 +191,7 @@ export default function AdminTipsCreate() {
     else {
       toast.success("Tip criada com sucesso");
       setForm({ ...EMPTY_FORM });
+      setWsdkPayload(null);
     }
     setSaving(false);
   };
