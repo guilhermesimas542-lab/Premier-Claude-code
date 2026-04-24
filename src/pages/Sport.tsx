@@ -154,6 +154,7 @@ const Sport = () => {
   const { house: userHouse } = useUserBettingHouse();
   const { sendXpEvent } = useGamification();
   const [iframeUrl, setIframeUrl] = useState<string>("");
+  const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const [activeTierHighlight, setActiveTierHighlight] = useState<TierType | null>(null);
   const [activeCardIndex, setActiveCardIndex] = useState(0);
@@ -473,23 +474,39 @@ const Sport = () => {
       sendXpEvent('VIEW_ULTRA_TIP');
     }
 
-    const url = resolveBetUrl(entry);
-    if (url) {
-      if (userHouse?.force_sports_link_new_tab) {
-        window.open(url, '_blank', 'noopener,noreferrer');
-        toast.success("Tip adicionada!", { description: "Link aberto em nova aba" });
-      } else {
-        setIframeUrl(url);
-        toast.success("Tip adicionada!", { description: "Cupom carregado no site de apostas abaixo" });
-        setTimeout(() => {
-        window.scrollTo({ 
-          top: document.body.scrollHeight, 
-          behavior: "smooth" 
-        });
-        }, 100);
-      }
+    // Verificar se a entry tem payload WSDK para postMessage
+    const wsdkSelections = (entry as any).metadata?.wsdk?.selections;
+    if (wsdkSelections && wsdkSelections.length > 0 && iframeRef.current?.contentWindow) {
+      const targetOrigin = userHouse?.iframe_url
+        ? new URL(userHouse.iframe_url).origin
+        : "*";
+      iframeRef.current.contentWindow.postMessage(
+        { type: "wsdk-toggle-selections", data: { selections: wsdkSelections } },
+        targetOrigin
+      );
+      toast.success("Tip adicionada ao bilhete!", {
+        description: "Seleção enviada para o cupom de apostas",
+      });
+      setTimeout(() => {
+        window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+      }, 100);
     } else {
-      toast.info("Nenhum link de bilhete configurado para esta tip.");
+      // Fallback: comportamento antigo via URL (para tips sem payload WSDK)
+      const url = resolveBetUrl(entry);
+      if (url) {
+        if (userHouse?.force_sports_link_new_tab) {
+          window.open(url, '_blank', 'noopener,noreferrer');
+          toast.success("Tip adicionada!", { description: "Link aberto em nova aba" });
+        } else {
+          setIframeUrl(url);
+          toast.success("Tip adicionada!", { description: "Cupom carregado no site de apostas abaixo" });
+          setTimeout(() => {
+            window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+          }, 100);
+        }
+      } else {
+        toast.info("Nenhum link de bilhete configurado para esta tip.");
+      }
     }
   };
 
@@ -829,7 +846,7 @@ const Sport = () => {
           ) : (
             <div className="w-full h-[1000px] bg-gradient-to-br from-muted/40 to-muted/20 rounded-xl overflow-hidden border border-border/30 backdrop-blur-sm">
               {iframeUrl ? (
-                <iframe src={iframeUrl} title="Bet Site" className="w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+                <iframe ref={iframeRef} src={iframeUrl} title="Bet Site" className="w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
                   <p className="text-muted-foreground">Carregando...</p>
