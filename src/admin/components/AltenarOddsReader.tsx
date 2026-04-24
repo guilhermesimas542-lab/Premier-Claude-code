@@ -43,6 +43,19 @@ export default function AltenarOddsReader({ onSelectionMade }: AltenarOddsReader
         setLoading(false);
         return;
       }
+      // 🔍 DEBUG TEMPORÁRIO
+      console.log("ALTENAR RAW DATA:", JSON.stringify(data).substring(0, 3000));
+      console.log("ALTENAR KEYS:", Object.keys(data));
+      console.log("ALTENAR markets:", data.markets?.length);
+      console.log("ALTENAR marketGroups:", data.marketGroups?.length);
+      console.log("ALTENAR childMarketGroups:", data.childMarketGroups?.length);
+      console.log("ALTENAR odds:", data.odds?.length);
+      if (data.marketGroups?.[0]) {
+        console.log("ALTENAR marketGroups[0]:", JSON.stringify(data.marketGroups[0]).substring(0, 1500));
+      }
+      if (data.odds?.[0]) {
+        console.log("ALTENAR odds[0..2]:", JSON.stringify(data.odds.slice(0, 3)));
+      }
       setEventData(data);
     } catch (err) {
       console.error(err);
