@@ -62,6 +62,24 @@ export default function AdminTipsCreate() {
   const [houses, setHouses] = useState<BettingHouseOption[]>([]);
   const [bilheteSearchValue, setBilheteSearchValue] = useState("");
   const [bilheteAutocompleteKey, setBilheteAutocompleteKey] = useState(0);
+  const [wsdkPayload, setWsdkPayload] = useState<Record<string, unknown> | null>(null);
+
+  const handleAltenarSelection = (data: {
+    wsdkPayload: Record<string, unknown>;
+    eventName: string;
+    marketName: string;
+    oddName: string;
+    oddPrice: number;
+    team1Name: string;
+    team2Name: string;
+  }) => {
+    setWsdkPayload(data.wsdkPayload);
+    if (!form.team1_name) set("team1_name", data.team1Name);
+    if (!form.team2_name) set("team2_name", data.team2Name);
+    if (!form.odd) set("odd", data.oddPrice.toString());
+    if (!form.palpite) set("palpite", data.oddName);
+    if (!form.mercado) set("mercado", data.marketName);
+  };
 
   useEffect(() => {
     supabase.from("betting_houses").select("id, name, slug").eq("is_active", true).order("created_at").then(({ data }) => {
