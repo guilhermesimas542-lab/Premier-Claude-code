@@ -44,24 +44,28 @@ function formatGreenDate(dateStr: string): string {
 
 const useLastGreens = () => {
   const [greens, setGreens] = useState<LastGreen[]>([]);
+  const [greenLabel, setGreenLabel] = useState("ONTEM");
 
   useEffect(() => {
     const fetchGreens = async () => {
       try {
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        const dateStr = yesterday.toISOString().split("T")[0];
+        // Calcular hoje e ontem em Brasília
+        const nowBR = new Date().toLocaleDateString("en-CA", { timeZone: "America/Sao_Paulo" });
+        const yesterdayDate = new Date(nowBR + "T12:00:00");
+        yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+        const yesterdayBR = yesterdayDate.toISOString().split("T")[0];
 
-        const { data } = await supabase
+        // Tentar hoje primeiro
+        const { data: todayData } = await supabase
           .from("content_entries")
           .select("title, condition_to_win, odd, tier_required, addon_required, created_at")
           .eq("result", "green")
-          .eq("date", dateStr)
+          .eq("date", nowBR)
           .order("odd", { ascending: false });
 
-        if (data && data.length > 0) {
+        if (todayData && todayData.length > 0) {
           setGreens(
-            data.map((d) => ({
+            todayData.map((d) => ({
               title: d.title,
               condition_to_win: d.condition_to_win ?? "",
               odd: d.odd ?? 0,
@@ -70,6 +74,30 @@ const useLastGreens = () => {
               created_at: d.created_at,
             }))
           );
+          setGreenLabel("HOJE");
+          return;
+        }
+
+        // Se não tem hoje, buscar ontem
+        const { data: yesterdayData } = await supabase
+          .from("content_entries")
+          .select("title, condition_to_win, odd, tier_required, addon_required, created_at")
+          .eq("result", "green")
+          .eq("date", yesterdayBR)
+          .order("odd", { ascending: false });
+
+        if (yesterdayData && yesterdayData.length > 0) {
+          setGreens(
+            yesterdayData.map((d) => ({
+              title: d.title,
+              condition_to_win: d.condition_to_win ?? "",
+              odd: d.odd ?? 0,
+              tier_required: d.tier_required ?? "",
+              addon_required: d.addon_required ?? null,
+              created_at: d.created_at,
+            }))
+          );
+          setGreenLabel("ONTEM");
         }
       } catch {
         // silently fail
@@ -78,7 +106,7 @@ const useLastGreens = () => {
     fetchGreens();
   }, []);
 
-  return greens;
+  return { greens, greenLabel };
 };
 
 const Login = () => {
@@ -90,7 +118,7 @@ const Login = () => {
   const { subscribe } = usePushNotifications();
   const { triggerPayCard, payCard, open: payCardOpen, closePayCard } = usePayCardTrigger();
   const { links } = useLinks();
-  const greens = useLastGreens();
+  const { greens, greenLabel } = useLastGreens();
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
@@ -353,7 +381,7 @@ const Login = () => {
                               textTransform: 'uppercase',
                             }}
                           >
-                            ✓ ENTRADA DE ONTEM BATEU
+                            ✓ ENTRADA DE {greenLabel} BATEU
                           </span>
                         </div>
                       </div>
