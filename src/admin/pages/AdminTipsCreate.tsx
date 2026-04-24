@@ -10,6 +10,7 @@ import { Loader2, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 import { TeamAutocomplete } from "../components/TeamAutocomplete";
 import { PredictionAutocomplete } from "../components/PredictionAutocomplete";
+import AltenarOddsReader from "../components/AltenarOddsReader";
 
 interface BettingHouseOption {
   id: string;
