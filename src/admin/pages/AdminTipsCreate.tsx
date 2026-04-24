@@ -358,6 +358,9 @@ export default function AdminTipsCreate() {
           />
         </div>
 
+        {/* Leitor Altenar */}
+        <AltenarOddsReader onSelectionMade={handleAltenarSelection} />
+
         {/* Links por Casa de Apostas */}
         {houses.length > 0 && (
           <div className="border border-border rounded-lg p-3 space-y-2">
