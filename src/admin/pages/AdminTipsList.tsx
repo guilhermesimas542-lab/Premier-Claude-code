@@ -128,10 +128,10 @@ export default function AdminTipsList() {
     if (filters.dateTo) q = q.lte("date", filters.dateTo);
     if (filters.team) q = q.or(`team1_name.ilike.%${filters.team}%,team2_name.ilike.%${filters.team}%`);
 
-    // Filter by selected house — show tips that have a link for the house OR have NO links at all (backward compat)
+    // Filter by selected house — show tips that have a link for the house OR have WSDK metadata (Altenar)
     if (selectedHouseId) {
       q = (q as any).or(
-        "link_house_1.not.is.null,link_house_2.not.is.null,link_house_3.not.is.null"
+        "link_house_1.not.is.null,link_house_2.not.is.null,link_house_3.not.is.null,metadata.not.is.null"
       );
     }
 
