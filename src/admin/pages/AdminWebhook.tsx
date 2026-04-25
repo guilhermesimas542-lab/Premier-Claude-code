@@ -529,7 +529,12 @@ function ProductsCatalogTab() {
 
   const handleDelete = async (id: string) => {
     if (!confirm("Excluir este produto do catálogo?")) return;
-    await supabase.from("products_catalog").delete().eq("id", id);
+    const { error: deleteError } = await supabase.from("products_catalog").delete().eq("id", id);
+    if (deleteError) {
+      console.error("Erro ao excluir produto:", deleteError);
+      toast.error(`Erro ao excluir: ${deleteError.message}`);
+      return;
+    }
     toast.success("Produto excluído");
     fetchProducts();
   };
@@ -601,7 +606,12 @@ function ProductsCatalogTab() {
                           </Button>
                           <Button variant="ghost" size="icon" className="h-7 w-7 text-red-400" onClick={async () => {
                             if (!confirm("Excluir todo o bundle?")) return;
-                            await supabase.from("products_catalog").delete().eq("bundle_name", p.bundle_name).eq("provider_product_id", p.provider_product_id);
+                            const { error: bundleDeleteError } = await supabase.from("products_catalog").delete().eq("bundle_name", p.bundle_name).eq("provider_product_id", p.provider_product_id);
+                            if (bundleDeleteError) {
+                              console.error("Erro ao excluir bundle:", bundleDeleteError);
+                              toast.error(`Erro ao excluir: ${bundleDeleteError.message}`);
+                              return;
+                            }
                             toast.success("Bundle excluído");
                             fetchProducts();
                           }}>
@@ -726,7 +736,11 @@ function ProductModal({
       return;
     }
     if (type === "bundle" && bundleAddons.length === 0) {
-      toast.error("Selecione pelo menos um add-on para o bundle.");
+      toast.error("Selecione pelo menos um add-on para o bundle");
+      return;
+    }
+    if (type === "bundle" && !tierValue) {
+      toast.error("Selecione o plano incluído no bundle");
       return;
     }
     setSaving(true);
@@ -757,14 +771,26 @@ function ProductModal({
         ];
 
         if (editing) {
-          await supabase
+          const { error: bundleDeleteError } = await supabase
             .from("products_catalog")
             .delete()
             .eq("bundle_name", editing.bundle_name ?? name)
             .eq("provider_product_id", externalId);
+          if (bundleDeleteError) {
+            console.error("Erro ao remover bundle anterior:", bundleDeleteError);
+            toast.error(`Erro ao salvar: ${bundleDeleteError.message}`);
+            setSaving(false);
+            return;
+          }
         }
 
-        await supabase.from("products_catalog").insert(bundleRows);
+        const { error: bundleInsertError } = await supabase.from("products_catalog").insert(bundleRows);
+        if (bundleInsertError) {
+          console.error("Erro ao inserir bundle:", bundleInsertError);
+          toast.error(`Erro ao salvar: ${bundleInsertError.message}`);
+          setSaving(false);
+          return;
+        }
       } else {
         const row = {
           provider,
@@ -778,20 +804,33 @@ function ProductModal({
         };
 
         if (editing) {
-          await supabase.from("products_catalog").update(row).eq("id", editing.id);
+          const { error: updateError } = await supabase.from("products_catalog").update(row).eq("id", editing.id);
+          if (updateError) {
+            console.error("Erro ao atualizar produto:", updateError);
+            toast.error(`Erro ao salvar: ${updateError.message}`);
+            setSaving(false);
+            return;
+          }
         } else {
-          await supabase.from("products_catalog").insert(row);
+          const { error: insertError } = await supabase.from("products_catalog").insert(row);
+          if (insertError) {
+            console.error("Erro ao inserir produto:", insertError);
+            toast.error(`Erro ao salvar: ${insertError.message}`);
+            setSaving(false);
+            return;
+          }
         }
       }
 
       toast.success("Produto salvo com sucesso!");
-    } catch (err) {
-      toast.error("Erro ao salvar produto.");
-      console.error(err);
-    } finally {
       setSaving(false);
       onClose();
       onDone();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Erro desconhecido";
+      console.error("Exceção ao salvar produto:", err);
+      toast.error(`Erro ao salvar: ${message}`);
+      setSaving(false);
     }
   };
 
