@@ -147,8 +147,8 @@ export default function AdminTipsCreate() {
       toast.error("A justificativa é obrigatória");
       return;
     }
-    if (!form.link_house_1.trim() && !form.link_house_2.trim() && !form.link_house_3.trim()) {
-      toast.error("Preencha pelo menos um link de casa de apostas");
+    if (!wsdkPayload && !form.link_house_1.trim() && !form.link_house_2.trim() && !form.link_house_3.trim()) {
+      toast.error("Preencha pelo menos um link ou importe uma odd do Altenar.");
       return;
     }
     setSaving(true);
