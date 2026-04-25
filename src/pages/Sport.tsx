@@ -480,6 +480,15 @@ const Sport = () => {
       const targetOrigin = userHouse?.iframe_url
         ? new URL(userHouse.iframe_url).origin
         : "*";
+      console.log("=== WSDK DEBUG ===");
+      console.log("SELECTIONS:", JSON.stringify(wsdkSelections, null, 2));
+      console.log("TARGET ORIGIN:", targetOrigin);
+      console.log("IFRAME REF EXISTS:", !!iframeRef.current?.contentWindow);
+      console.log("FULL POSTMESSAGE:", JSON.stringify({
+        type: "wsdk-toggle-selections",
+        data: { selections: wsdkSelections }
+      }));
+      console.log("=== END WSDK DEBUG ===");
       iframeRef.current.contentWindow.postMessage(
         { type: "wsdk-toggle-selections", data: { selections: wsdkSelections } },
         targetOrigin
