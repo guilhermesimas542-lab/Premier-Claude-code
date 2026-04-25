@@ -43,19 +43,6 @@ export default function AltenarOddsReader({ onSelectionMade }: AltenarOddsReader
         setLoading(false);
         return;
       }
-      // 🔍 DEBUG TEMPORÁRIO
-      console.log("ALTENAR RAW DATA:", JSON.stringify(data).substring(0, 3000));
-      console.log("ALTENAR KEYS:", Object.keys(data));
-      console.log("ALTENAR markets:", data.markets?.length);
-      console.log("ALTENAR marketGroups:", data.marketGroups?.length);
-      console.log("ALTENAR childMarketGroups:", data.childMarketGroups?.length);
-      console.log("ALTENAR odds:", data.odds?.length);
-      if (data.marketGroups?.[0]) {
-        console.log("ALTENAR marketGroups[0]:", JSON.stringify(data.marketGroups[0]).substring(0, 1500));
-      }
-      if (data.odds?.[0]) {
-        console.log("ALTENAR odds[0..2]:", JSON.stringify(data.odds.slice(0, 3)));
-      }
       setEventData(data);
     } catch (err) {
       console.error(err);
@@ -156,33 +143,50 @@ export default function AltenarOddsReader({ onSelectionMade }: AltenarOddsReader
     toast.success(`Odd selecionada: ${odd.name || odd.shortName} @ ${odd.price}`);
   };
 
-  // Extrair mercados com odds do eventData
+  // Extrair mercados com odds reidratadas a partir do array data.odds
   const getMarkets = () => {
     if (!eventData) return [];
+
+    // Montar mapa de odds por ID
+    const oddsMap = new Map<number, any>();
+    if (eventData.odds && Array.isArray(eventData.odds)) {
+      for (const odd of eventData.odds) {
+        oddsMap.set(odd.id, odd);
+      }
+    }
+
     const allMarkets: any[] = [];
 
-    if (eventData.markets) {
-      eventData.markets.forEach((m: any) => {
-        if (m.odds && m.odds.length > 0) allMarkets.push(m);
-      });
-    }
-    if (eventData.marketGroups) {
-      eventData.marketGroups.forEach((mg: any) => {
-        if (mg.markets) {
-          mg.markets.forEach((m: any) => {
-            if (m.odds && m.odds.length > 0) allMarkets.push(m);
-          });
+    const processMarkets = (marketsArr: any[] | undefined) => {
+      if (!marketsArr || !Array.isArray(marketsArr)) return;
+      for (const m of marketsArr) {
+        const oddIds: number[] = [
+          ...(m.desktopOddIds || []),
+          ...(m.mobileOddIds || []),
+        ];
+        const uniqueOddIds = [...new Set(oddIds)];
+        const resolvedOdds = uniqueOddIds
+          .map((id: number) => oddsMap.get(id))
+          .filter(Boolean);
+
+        if (resolvedOdds.length > 0) {
+          allMarkets.push({ ...m, odds: resolvedOdds });
         }
-      });
+      }
+    };
+
+    processMarkets(eventData.markets);
+
+    if (eventData.marketGroups && Array.isArray(eventData.marketGroups)) {
+      for (const mg of eventData.marketGroups) {
+        processMarkets(mg.markets);
+      }
     }
-    if (eventData.childMarketGroups) {
-      eventData.childMarketGroups.forEach((cmg: any) => {
-        if (cmg.markets) {
-          cmg.markets.forEach((m: any) => {
-            if (m.odds && m.odds.length > 0) allMarkets.push(m);
-          });
-        }
-      });
+
+    if (eventData.childMarketGroups && Array.isArray(eventData.childMarketGroups)) {
+      for (const cmg of eventData.childMarketGroups) {
+        processMarkets(cmg.markets);
+      }
     }
 
     return allMarkets;
