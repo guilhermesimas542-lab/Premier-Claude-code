@@ -196,12 +196,13 @@ const Login = () => {
   };
 
   const handleAcquireAccess = async () => {
-    const found = await triggerPayCard('basic');
+    // Try the dedicated login acquisition funnel first, then fallback to generic basic plan
+    let found = await triggerPayCard('LOGIN_AQUISICAO');
+    if (!found) found = await triggerPayCard('basic');
     if (!found) {
       const url = links.acquire_access_url || CHECKOUT_LINKS.paywall_default;
       window.open(url, "_blank");
     }
-    
   };
 
   const isDisabled = !email.trim() || isLoading;
