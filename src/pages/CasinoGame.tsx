@@ -395,9 +395,26 @@ const CasinoGame = () => {
     const step2 = totalMs * 0.25;
     const t1 = setTimeout(() => setStepIndex(1), step1);
     const t2 = setTimeout(() => setStepIndex(2), step1 + step2);
-    const t3 = setTimeout(() => { setPhase('result'); setResult(generateResult()); setCooldown(30); }, totalMs);
+    const t3 = setTimeout(() => {
+      const newResult = generateResult();
+      const expiresAt = Date.now() + 30000; // 30s cooldown
+      setPhase('result');
+      setResult(newResult);
+      setCooldown(30);
+
+      try {
+        localStorage.setItem(storageKey, JSON.stringify({
+          phase: 'result',
+          result: newResult,
+          cooldownExpiresAt: expiresAt,
+          gameId, // sanity check on restore
+        }));
+      } catch {
+        // localStorage may fail (private mode, quota); ignore silently
+      }
+    }, totalMs);
     timersRef.current.push(t1, t2, t3);
-  }, [cooldown, phase, generateResult]);
+  }, [cooldown, phase, generateResult, storageKey, gameId]);
 
   if (!gameConfig) {
     return (
