@@ -72,13 +72,35 @@ export default function AdminTipsCreate() {
     oddPrice: number;
     team1Name: string;
     team2Name: string;
+    startDate?: string;
   }) => {
     setWsdkPayload(data.wsdkPayload);
     if (!form.team1_name) set("team1_name", data.team1Name);
     if (!form.team2_name) set("team2_name", data.team2Name);
     if (!form.odd) set("odd", data.oddPrice.toString());
-    if (!form.palpite) set("palpite", data.oddName);
     if (!form.mercado) set("mercado", data.marketName);
+
+    // Auto-preencher data e hora do jogo a partir do evento Altenar
+    if (data.startDate) {
+      try {
+        const eventDate = new Date(data.startDate);
+        const brasiliaDate = eventDate.toLocaleDateString("en-CA", { timeZone: "America/Sao_Paulo" });
+        const parts = new Intl.DateTimeFormat("en-GB", {
+          timeZone: "America/Sao_Paulo",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
+        }).formatToParts(eventDate);
+        const brasiliaHour = parts.find((p) => p.type === "hour")?.value || "";
+        const brasiliaMinute = parts.find((p) => p.type === "minute")?.value || "";
+
+        set("gameDate", brasiliaDate);
+        if (brasiliaHour) set("gameHour", brasiliaHour);
+        if (brasiliaMinute) set("gameMinute", brasiliaMinute);
+      } catch {
+        // Se falhar o parse da data, não preenche
+      }
+    }
   };
 
   useEffect(() => {

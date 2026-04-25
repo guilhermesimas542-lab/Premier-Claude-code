@@ -14,6 +14,7 @@ interface AltenarOddsReaderProps {
     oddPrice: number;
     team1Name: string;
     team2Name: string;
+    startDate?: string;
   }) => void;
 }
 
@@ -137,6 +138,7 @@ export default function AltenarOddsReader({ onSelectionMade }: AltenarOddsReader
       oddPrice: odd.price,
       team1Name: team1,
       team2Name: team2,
+      startDate: eventData.startDate || "",
     });
 
     setSelected(true);
