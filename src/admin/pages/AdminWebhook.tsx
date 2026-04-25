@@ -606,7 +606,12 @@ function ProductsCatalogTab() {
                           </Button>
                           <Button variant="ghost" size="icon" className="h-7 w-7 text-red-400" onClick={async () => {
                             if (!confirm("Excluir todo o bundle?")) return;
-                            await supabase.from("products_catalog").delete().eq("bundle_name", p.bundle_name).eq("provider_product_id", p.provider_product_id);
+                            const { error: bundleDeleteError } = await supabase.from("products_catalog").delete().eq("bundle_name", p.bundle_name).eq("provider_product_id", p.provider_product_id);
+                            if (bundleDeleteError) {
+                              console.error("Erro ao excluir bundle:", bundleDeleteError);
+                              toast.error(`Erro ao excluir: ${bundleDeleteError.message}`);
+                              return;
+                            }
                             toast.success("Bundle excluído");
                             fetchProducts();
                           }}>
