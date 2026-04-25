@@ -529,7 +529,12 @@ function ProductsCatalogTab() {
 
   const handleDelete = async (id: string) => {
     if (!confirm("Excluir este produto do catálogo?")) return;
-    await supabase.from("products_catalog").delete().eq("id", id);
+    const { error: deleteError } = await supabase.from("products_catalog").delete().eq("id", id);
+    if (deleteError) {
+      console.error("Erro ao excluir produto:", deleteError);
+      toast.error(`Erro ao excluir: ${deleteError.message}`);
+      return;
+    }
     toast.success("Produto excluído");
     fetchProducts();
   };
