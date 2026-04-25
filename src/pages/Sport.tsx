@@ -477,9 +477,7 @@ const Sport = () => {
     // Verificar se a entry tem payload WSDK para postMessage
     const wsdkSelections = (entry as any).metadata?.wsdk?.selections;
     if (wsdkSelections && wsdkSelections.length > 0 && iframeRef.current?.contentWindow) {
-      const targetOrigin = userHouse?.iframe_url
-        ? new URL(userHouse.iframe_url).origin
-        : "*";
+      const targetOrigin = "*"; // TEMP: teste sem restrição de origin
       console.log("=== WSDK DEBUG ===");
       console.log("SELECTIONS:", JSON.stringify(wsdkSelections, null, 2));
       console.log("TARGET ORIGIN:", targetOrigin);
