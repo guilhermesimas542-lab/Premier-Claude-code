@@ -283,6 +283,45 @@ const CasinoGame = () => {
 
   const gameConfig = gameId ? GAME_CONFIGS[gameId] : null;
 
+  // Storage key per user + game (uses email as stable id; 'anon' fallback)
+  const userIdForKey = mockGetUser()?.email ?? 'anon';
+  const storageKey = `casino_signal_${userIdForKey}_${gameId ?? 'unknown'}`;
+
+  // Restore persisted signal state on mount / when game or user changes
+  useEffect(() => {
+    if (!gameId) return;
+    try {
+      const raw = localStorage.getItem(storageKey);
+      if (!raw) return;
+
+      const saved = JSON.parse(raw);
+
+      // Sanity check: same game
+      if (saved.gameId !== gameId) {
+        try { localStorage.removeItem(storageKey); } catch {}
+        return;
+      }
+
+      // Discard if expired more than 24h ago (stale data)
+      const ageMs = Date.now() - (saved.cooldownExpiresAt ?? 0);
+      if (ageMs > 24 * 60 * 60 * 1000) {
+        try { localStorage.removeItem(storageKey); } catch {}
+        return;
+      }
+
+      const remainingSeconds = Math.max(
+        0,
+        Math.floor((saved.cooldownExpiresAt - Date.now()) / 1000)
+      );
+
+      setPhase(saved.phase ?? 'idle');
+      setResult(saved.result ?? null);
+      setCooldown(remainingSeconds);
+    } catch {
+      try { localStorage.removeItem(storageKey); } catch {}
+    }
+  }, [storageKey, gameId]);
+
   useEffect(() => {
     window.scrollTo(0, 0);
     if (!isAuthenticated()) navigate("/login");
