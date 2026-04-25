@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { isAuthenticated } from "@/lib/auth";
+import { mockGetUser } from "@/mocks/user";
 import { useUserBettingHouse } from "@/hooks/useUserBettingHouse";
 import { BottomNav } from "@/components/BottomNav";
 
@@ -282,6 +283,45 @@ const CasinoGame = () => {
 
   const gameConfig = gameId ? GAME_CONFIGS[gameId] : null;
 
+  // Storage key per user + game (uses email as stable id; 'anon' fallback)
+  const userIdForKey = mockGetUser()?.email ?? 'anon';
+  const storageKey = `casino_signal_${userIdForKey}_${gameId ?? 'unknown'}`;
+
+  // Restore persisted signal state on mount / when game or user changes
+  useEffect(() => {
+    if (!gameId) return;
+    try {
+      const raw = localStorage.getItem(storageKey);
+      if (!raw) return;
+
+      const saved = JSON.parse(raw);
+
+      // Sanity check: same game
+      if (saved.gameId !== gameId) {
+        try { localStorage.removeItem(storageKey); } catch {}
+        return;
+      }
+
+      // Discard if expired more than 24h ago (stale data)
+      const ageMs = Date.now() - (saved.cooldownExpiresAt ?? 0);
+      if (ageMs > 24 * 60 * 60 * 1000) {
+        try { localStorage.removeItem(storageKey); } catch {}
+        return;
+      }
+
+      const remainingSeconds = Math.max(
+        0,
+        Math.floor((saved.cooldownExpiresAt - Date.now()) / 1000)
+      );
+
+      setPhase(saved.phase ?? 'idle');
+      setResult(saved.result ?? null);
+      setCooldown(remainingSeconds);
+    } catch {
+      try { localStorage.removeItem(storageKey); } catch {}
+    }
+  }, [storageKey, gameId]);
+
   useEffect(() => {
     window.scrollTo(0, 0);
     if (!isAuthenticated()) navigate("/login");
@@ -355,9 +395,26 @@ const CasinoGame = () => {
     const step2 = totalMs * 0.25;
     const t1 = setTimeout(() => setStepIndex(1), step1);
     const t2 = setTimeout(() => setStepIndex(2), step1 + step2);
-    const t3 = setTimeout(() => { setPhase('result'); setResult(generateResult()); setCooldown(30); }, totalMs);
+    const t3 = setTimeout(() => {
+      const newResult = generateResult();
+      const expiresAt = Date.now() + 30000; // 30s cooldown
+      setPhase('result');
+      setResult(newResult);
+      setCooldown(30);
+
+      try {
+        localStorage.setItem(storageKey, JSON.stringify({
+          phase: 'result',
+          result: newResult,
+          cooldownExpiresAt: expiresAt,
+          gameId, // sanity check on restore
+        }));
+      } catch {
+        // localStorage may fail (private mode, quota); ignore silently
+      }
+    }, totalMs);
     timersRef.current.push(t1, t2, t3);
-  }, [cooldown, phase, generateResult]);
+  }, [cooldown, phase, generateResult, storageKey, gameId]);
 
   if (!gameConfig) {
     return (
