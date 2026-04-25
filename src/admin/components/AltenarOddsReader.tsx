@@ -161,8 +161,8 @@ export default function AltenarOddsReader({ onSelectionMade }: AltenarOddsReader
       if (!marketsArr || !Array.isArray(marketsArr)) return;
       for (const m of marketsArr) {
         const oddIds: number[] = [
-          ...(m.desktopOddIds || []),
-          ...(m.mobileOddIds || []),
+          ...(m.desktopOddIds || []).flat(),
+          ...(m.mobileOddIds || []).flat(),
         ];
         const uniqueOddIds = [...new Set(oddIds)];
         const resolvedOdds = uniqueOddIds
