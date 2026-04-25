@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { isAuthenticated } from "@/lib/auth";
+import { mockGetUser } from "@/mocks/user";
 import { useUserBettingHouse } from "@/hooks/useUserBettingHouse";
 import { BottomNav } from "@/components/BottomNav";
 
