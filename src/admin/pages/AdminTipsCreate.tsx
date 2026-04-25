@@ -75,10 +75,7 @@ export default function AdminTipsCreate() {
     startDate?: string;
   }) => {
     setWsdkPayload(data.wsdkPayload);
-    if (!form.team1_name) set("team1_name", data.team1Name);
-    if (!form.team2_name) set("team2_name", data.team2Name);
-    if (!form.odd) set("odd", data.oddPrice.toString());
-    if (!form.mercado) set("mercado", data.marketName);
+    set("odd", data.oddPrice.toString());
 
     // Auto-preencher data e hora do jogo a partir do evento Altenar
     if (data.startDate) {
