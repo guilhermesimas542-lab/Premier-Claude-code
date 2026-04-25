@@ -14,6 +14,7 @@ interface AltenarOddsReaderProps {
     oddPrice: number;
     team1Name: string;
     team2Name: string;
+    startDate?: string;
   }) => void;
 }
 
