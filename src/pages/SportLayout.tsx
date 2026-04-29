@@ -1,0 +1,85 @@
+import { useEffect, useRef, useState, type RefObject, type Dispatch, type SetStateAction } from "react";
+import { Outlet, useOutletContext } from "react-router-dom";
+import { useUserBettingHouse } from "@/hooks/useUserBettingHouse";
+import { BottomNav } from "@/components/BottomNav";
+
+/**
+ * Context exposto às rotas filhas (/sport/:sportId, /alavancagem, /odds-altas).
+ * Permite que cada filho leia o ref do iframe e/ou troque a URL sem que o
+ * iframe seja desmontado ao trocar de rota.
+ */
+export type SportOutletContext = {
+  iframeRef: RefObject<HTMLIFrameElement>;
+  iframeUrl: string;
+  setIframeUrl: Dispatch<SetStateAction<string>>;
+};
+
+/** Hook tipado para os filhos consumirem o context. */
+export function useSportOutletContext(): SportOutletContext {
+  return useOutletContext<SportOutletContext>();
+}
+
+/**
+ * Layout pai persistente para as rotas de tips esportivas.
+ * Monta o iframe da casa de apostas UMA ÚNICA VEZ e o mantém vivo enquanto
+ * o usuário navega entre /sport/:sportId, /alavancagem e /odds-altas.
+ *
+ * Importante: este componente NÃO altera o comportamento de handleAddTip
+ * nem o uso de setIframeUrl. É apenas o passo 1 (persistência entre rotas).
+ */
+const SportLayout = () => {
+  const { house: userHouse } = useUserBettingHouse();
+  const [iframeUrl, setIframeUrl] = useState<string>("");
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  // Inicializa a URL do iframe com a URL padrão da casa do usuário
+  useEffect(() => {
+    if (userHouse?.iframe_url) {
+      setIframeUrl(userHouse.iframe_url);
+    }
+  }, [userHouse]);
+
+  const ctx: SportOutletContext = { iframeRef, iframeUrl, setIframeUrl };
+
+  return (
+    <div className="min-h-screen overflow-x-hidden w-full max-w-full pb-20 md:pb-0 relative bg-navy-dark">
+      {/* Conteúdo específico da rota filha (header, tabs, carrossel, modais) */}
+      <Outlet context={ctx} />
+
+      {/* Iframe persistente — vive aqui no pai, sobrevive a trocas de rota */}
+      <section id="bet-iframe-section" className="w-full mt-2 max-w-7xl mx-auto px-4">
+        {userHouse?.open_in_new_tab ? (
+          <a
+            href={iframeUrl || userHouse.iframe_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center w-full h-20 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 border border-primary/30 text-primary font-semibold hover:from-primary/30 hover:to-primary/20 transition-colors"
+          >
+            Abrir site de apostas ↗
+          </a>
+        ) : (
+          <div className="w-full h-[1000px] bg-gradient-to-br from-muted/40 to-muted/20 rounded-xl overflow-hidden border border-border/30 backdrop-blur-sm">
+            {iframeUrl ? (
+              <iframe
+                ref={iframeRef}
+                src={iframeUrl}
+                title="Bet Site"
+                className="w-full h-full"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <p className="text-muted-foreground">Carregando...</p>
+              </div>
+            )}
+          </div>
+        )}
+      </section>
+
+      <BottomNav />
+    </div>
+  );
+};
+
+export default SportLayout;
