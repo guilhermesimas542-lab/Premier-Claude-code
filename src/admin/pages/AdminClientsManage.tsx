@@ -44,6 +44,8 @@ type SortDir = "asc" | "desc";
 
 const UPSELL_KEYS = ["alavancagem", "desaltas", "acesso_vitalicio", "live_telegram"];
 
+const PAGE_SIZE = 200;
+
 const UPSELL_LABELS: Record<string, string> = {
   alavancagem: "Alavancagem",
   desaltas: "Odds Altas",
@@ -144,6 +146,7 @@ export default function AdminClientsManage() {
   const [users, setUsers] = useState<UserWithUpsells[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(0);
   const [search, setSearch] = useState("");
 
   const [liberacaoFrom, setLiberacaoFrom] = useState("");
@@ -235,8 +238,7 @@ export default function AdminClientsManage() {
       .from("users")
       .select("*", { count: "exact" })
       .order("last_seen_at", { ascending: false, nullsFirst: false })
-      .limit(200);
-
+      .range(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE - 1);
     if (s) q = q.or(`email.ilike.%${s}%,phone.ilike.%${s}%`);
     if (tier) q = q.eq("main_tier", tier as any);
 
@@ -313,7 +315,7 @@ export default function AdminClientsManage() {
       }))
     );
     setLoading(false);
-  }, [search, liberacaoFrom, liberacaoTo, firstAccessFrom, firstAccessTo, lastSeenFrom, lastSeenTo, selectedHouseId, selectedTier, selectedAddons, filterNotAccessed]);
+  }, [search, liberacaoFrom, liberacaoTo, firstAccessFrom, firstAccessTo, lastSeenFrom, lastSeenTo, selectedHouseId, selectedTier, selectedAddons, filterNotAccessed, currentPage]);
 
   useEffect(() => {
     load();
@@ -325,7 +327,50 @@ export default function AdminClientsManage() {
   // Reactive filter on tier/addon changes
   useEffect(() => {
     load();
-  }, [selectedTier, selectedAddons, filterNotAccessed]);
+  }, [selectedTier, selectedAddons, filterNotAccessed, currentPage]);
+
+  // Reset to page 0 when filters change
+  useEffect(() => {
+    setCurrentPage(0);
+  }, [search, selectedTier, selectedAddons, liberacaoFrom, liberacaoTo, firstAccessFrom, firstAccessTo, lastSeenFrom, lastSeenTo, selectedHouseId, filterNotAccessed]);
+
+  // Helper: fetch ALL filtered users (paginating internally beyond Supabase 1000-row cap)
+  // TODO: filtro de add-ons não aplicado aqui (requer join com entitlements).
+  const fetchAllFiltered = async (columns: string = "email,phone"): Promise<any[]> => {
+    const BATCH = 1000;
+    let allData: any[] = [];
+    let from = 0;
+    let hasMore = true;
+    while (hasMore) {
+      let q = supabase
+        .from("users")
+        .select(columns)
+        .order("last_seen_at", { ascending: false, nullsFirst: false })
+        .range(from, from + BATCH - 1);
+
+      const s = search.trim();
+      if (s) q = q.or(`email.ilike.%${s}%,phone.ilike.%${s}%`);
+      if (selectedTier) q = q.eq("main_tier", selectedTier as any);
+      if (liberacaoFrom) q = q.gte("created_at", liberacaoFrom);
+      if (liberacaoTo) q = q.lte("created_at", liberacaoTo + "T23:59:59");
+      if (firstAccessFrom) q = q.gte("first_access_at", firstAccessFrom);
+      if (firstAccessTo) q = q.lte("first_access_at", firstAccessTo + "T23:59:59");
+      if (lastSeenFrom) q = q.gte("last_seen_at", lastSeenFrom);
+      if (lastSeenTo) q = q.lte("last_seen_at", lastSeenTo + "T23:59:59");
+      if (selectedHouseId) q = q.or(`betting_house_id.eq.${selectedHouseId},betting_house_id.is.null`);
+      if (filterNotAccessed) q = q.is("first_access_at", null).neq("main_tier", "free" as any);
+
+      const { data } = await q;
+      if (!data || data.length === 0) {
+        hasMore = false;
+      } else {
+        allData = [...allData, ...data];
+        if (data.length < BATCH) hasMore = false;
+        else from += BATCH;
+      }
+    }
+    return allData;
+  };
 
   const handleTierFilter = (tier: string) => {
     setSelectedTier((prev) => (prev === tier ? null : tier));
@@ -479,32 +524,34 @@ export default function AdminClientsManage() {
     }) : "—";
 
   const handleCopyFilteredEmails = async () => {
-    const emails = users.map((u: any) => u.email).filter(Boolean);
-    if (emails.length === 0) {
-      toast.error("Nenhum email nos resultados filtrados.");
-      return;
-    }
-    const text = emails.join(", ");
+    toast.info("Buscando todos os emails filtrados...");
     try {
-      await navigator.clipboard.writeText(text);
-      toast.success(`${emails.length} emails filtrados copiados!`);
+      const allUsers = await fetchAllFiltered("email");
+      const emails = allUsers.map((u: any) => u.email).filter(Boolean);
+      if (emails.length === 0) {
+        toast.error("Nenhum email nos resultados filtrados.");
+        return;
+      }
+      await navigator.clipboard.writeText(emails.join(", "));
+      toast.success(`${emails.length} emails copiados (todos os filtrados)!`);
     } catch {
-      toast.error("Erro ao copiar.");
+      toast.error("Erro ao copiar emails.");
     }
   };
 
   const handleCopyFilteredPhones = async () => {
-    const phones = users.map((u: any) => u.phone).filter(Boolean);
-    if (phones.length === 0) {
-      toast.error("Nenhum telefone nos resultados filtrados.");
-      return;
-    }
-    const text = phones.join(", ");
+    toast.info("Buscando todos os telefones filtrados...");
     try {
-      await navigator.clipboard.writeText(text);
-      toast.success(`${phones.length} telefones filtrados copiados!`);
+      const allUsers = await fetchAllFiltered("phone");
+      const phones = allUsers.map((u: any) => u.phone).filter(Boolean);
+      if (phones.length === 0) {
+        toast.error("Nenhum telefone nos resultados filtrados.");
+        return;
+      }
+      await navigator.clipboard.writeText(phones.join(", "));
+      toast.success(`${phones.length} telefones copiados (todos os filtrados)!`);
     } catch {
-      toast.error("Erro ao copiar.");
+      toast.error("Erro ao copiar telefones.");
     }
   };
 
@@ -533,32 +580,38 @@ export default function AdminClientsManage() {
   };
 
   const handleExportAll = async () => {
-    const { data } = await supabase
-      .from("users")
-      .select("*")
-      .order("last_seen_at", { ascending: false, nullsFirst: false });
-    if (!data) return;
-    const headers = ["Email", "Telefone", "Plano", "Casa", "Liberação", "1º Acesso", "Último Acesso", "Acessou"];
-    const rows = data.map((u: any) => [
-      u.email ?? "",
-      u.phone ?? "",
-      u.main_tier ?? "",
-      "Esportiva Bet",
-      u.created_at ? new Date(u.created_at).toLocaleString("pt-BR") : "",
-      u.first_access_at ? new Date(u.first_access_at).toLocaleString("pt-BR") : "Não acessou",
-      u.last_seen_at ? new Date(u.last_seen_at).toLocaleString("pt-BR") : "—",
-      u.first_access_at ? "Sim" : "Não",
-    ]);
-    const csvContent = [headers, ...rows]
-      .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(","))
-      .join("\n");
-    const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `clientes_premier_todos_${new Date().toISOString().split("T")[0]}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+    toast.info("Exportando todos os clientes filtrados...");
+    try {
+      const allUsers = await fetchAllFiltered("*");
+      if (!allUsers || allUsers.length === 0) {
+        toast.error("Nenhum cliente encontrado.");
+        return;
+      }
+      const headers = ["Email", "Telefone", "Plano", "Casa", "Liberação", "1º Acesso", "Último Acesso", "Acessou"];
+      const rows = allUsers.map((u: any) => [
+        u.email ?? "",
+        u.phone ?? "",
+        u.main_tier ?? "",
+        "Esportiva Bet",
+        u.created_at ? new Date(u.created_at).toLocaleString("pt-BR") : "",
+        u.first_access_at ? new Date(u.first_access_at).toLocaleString("pt-BR") : "Não acessou",
+        u.last_seen_at ? new Date(u.last_seen_at).toLocaleString("pt-BR") : "—",
+        u.first_access_at ? "Sim" : "Não",
+      ]);
+      const csvContent = [headers, ...rows]
+        .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(","))
+        .join("\n");
+      const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `clientes_premier_todos_${new Date().toISOString().split("T")[0]}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success(`${allUsers.length} clientes exportados!`);
+    } catch {
+      toast.error("Erro ao exportar.");
+    }
   };
 
   const thClass = "px-3 py-2 cursor-pointer select-none hover:text-gray-300 transition-colors";
@@ -877,6 +930,34 @@ export default function AdminClientsManage() {
               )}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* Pagination */}
+      {!loading && totalCount > 0 && (
+        <div className="flex items-center justify-between py-4 px-2">
+          <span className="text-sm text-muted-foreground">
+            Página {currentPage + 1} de {Math.max(1, Math.ceil(totalCount / PAGE_SIZE))}
+            {" · "}Exibindo {currentPage * PAGE_SIZE + 1}–{Math.min((currentPage + 1) * PAGE_SIZE, totalCount)} de {totalCount}
+          </span>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage((p) => Math.max(0, p - 1))}
+              disabled={currentPage === 0}
+            >
+              Anterior
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage((p) => p + 1)}
+              disabled={(currentPage + 1) * PAGE_SIZE >= totalCount}
+            >
+              Próximo
+            </Button>
+          </div>
         </div>
       )}
 
