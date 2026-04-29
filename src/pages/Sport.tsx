@@ -1,6 +1,7 @@
 import { ArrowLeft, LogOut, Loader2, Lock, Menu, X, Gift, Headphones, Crown } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
+import { useSportOutletContext } from "@/pages/SportLayout";
 import { PremiumBettingCard } from "@/components/PremiumBettingCard";
 import { SpecialBettingCard } from "@/components/SpecialBettingCard";
 import { JustificativaModal } from "@/components/JustificativaModal";
