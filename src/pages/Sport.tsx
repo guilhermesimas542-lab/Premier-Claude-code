@@ -687,7 +687,7 @@ const Sport = () => {
   };
 
   return (
-    <div className="min-h-screen overflow-x-hidden w-full max-w-full pb-20 md:pb-0 relative bg-navy-dark">
+    <>
       <AppHeader
         onShowLifetimeInfoModal={() => setShowLifetimeInfoModal(true)}
         leftContent={
