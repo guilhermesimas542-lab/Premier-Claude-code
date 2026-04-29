@@ -146,6 +146,7 @@ export default function AdminClientsManage() {
   const [users, setUsers] = useState<UserWithUpsells[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(0);
   const [search, setSearch] = useState("");
 
   const [liberacaoFrom, setLiberacaoFrom] = useState("");
