@@ -84,9 +84,11 @@ const App = () => {
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/" element={<Home />} />
-            <Route path="/sport/:sportId" element={<Sport />} />
-            <Route path="/alavancagem" element={<Sport />} />
-            <Route path="/odds-altas" element={<Sport />} />
+            <Route element={<SportLayout />}>
+              <Route path="/sport/:sportId" element={<Sport />} />
+              <Route path="/alavancagem" element={<Sport />} />
+              <Route path="/odds-altas" element={<Sport />} />
+            </Route>
             
             <Route path="/ultimos-greens" element={<UltimosGreens />} />
             <Route path="/cassino" element={<Casino />} />
