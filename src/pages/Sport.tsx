@@ -154,8 +154,9 @@ const Sport = () => {
   const { sportId } = useParams<{ sportId: string }>();
   const { house: userHouse } = useUserBettingHouse();
   const { sendXpEvent } = useGamification();
-  const [iframeUrl, setIframeUrl] = useState<string>("");
-  const iframeRef = useRef<HTMLIFrameElement>(null);
+  // iframeRef, iframeUrl e setIframeUrl vêm do SportLayout (pai persistente).
+  // Não criar useState/useRef locais para iframe — isso quebraria a persistência.
+  const { iframeRef, iframeUrl, setIframeUrl } = useSportOutletContext();
 
   const [activeTierHighlight, setActiveTierHighlight] = useState<TierType | null>(null);
   const [activeCardIndex, setActiveCardIndex] = useState(0);
