@@ -238,8 +238,7 @@ export default function AdminClientsManage() {
       .from("users")
       .select("*", { count: "exact" })
       .order("last_seen_at", { ascending: false, nullsFirst: false })
-      .limit(200);
-
+      .range(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE - 1);
     if (s) q = q.or(`email.ilike.%${s}%,phone.ilike.%${s}%`);
     if (tier) q = q.eq("main_tier", tier as any);
 
