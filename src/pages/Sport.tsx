@@ -1,6 +1,7 @@
 import { ArrowLeft, LogOut, Loader2, Lock, Menu, X, Gift, Headphones, Crown } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
+import { useSportOutletContext } from "@/pages/SportLayout";
 import { PremiumBettingCard } from "@/components/PremiumBettingCard";
 import { SpecialBettingCard } from "@/components/SpecialBettingCard";
 import { JustificativaModal } from "@/components/JustificativaModal";
@@ -10,7 +11,7 @@ import { isAuthenticated, clearAuth } from "@/lib/auth";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { getTodayInBrazil, formatDateTimeBR, BRAZIL_TZ } from "@/lib/timezone";
 import { toZonedTime } from "date-fns-tz";
-import { BottomNav } from "@/components/BottomNav";
+
 import { supabase } from "@/integrations/supabase/client";
 import { mockGetUser } from "@/mocks/user";
 
@@ -153,8 +154,9 @@ const Sport = () => {
   const { sportId } = useParams<{ sportId: string }>();
   const { house: userHouse } = useUserBettingHouse();
   const { sendXpEvent } = useGamification();
-  const [iframeUrl, setIframeUrl] = useState<string>("");
-  const iframeRef = useRef<HTMLIFrameElement>(null);
+  // iframeRef, iframeUrl e setIframeUrl vêm do SportLayout (pai persistente).
+  // Não criar useState/useRef locais para iframe — isso quebraria a persistência.
+  const { iframeRef, iframeUrl, setIframeUrl } = useSportOutletContext();
 
   const [activeTierHighlight, setActiveTierHighlight] = useState<TierType | null>(null);
   const [activeCardIndex, setActiveCardIndex] = useState(0);
@@ -409,12 +411,8 @@ const Sport = () => {
     trackEvent("view_entries", { sport: sportId ?? "futebol" });
   }, [navigate, sportId, fetchTips]);
 
-  // Set iframe URL from user's house when house is loaded
-  useEffect(() => {
-    if (userHouse?.iframe_url) {
-      setIframeUrl(userHouse.iframe_url);
-    }
-  }, [userHouse]);
+  // NOTA: a inicialização do iframeUrl com userHouse.iframe_url agora vive no SportLayout (pai).
+
 
 
 
@@ -689,7 +687,7 @@ const Sport = () => {
   };
 
   return (
-    <div className="min-h-screen overflow-x-hidden w-full max-w-full pb-20 md:pb-0 relative bg-navy-dark">
+    <>
       <AppHeader
         onShowLifetimeInfoModal={() => setShowLifetimeInfoModal(true)}
         leftContent={
@@ -840,28 +838,6 @@ const Sport = () => {
           </div>
         )}
 
-        <section id="bet-iframe-section" className="w-full mt-2">
-          {userHouse?.open_in_new_tab ? (
-            <a
-              href={iframeUrl || userHouse.iframe_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center w-full h-20 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 border border-primary/30 text-primary font-semibold hover:from-primary/30 hover:to-primary/20 transition-colors"
-            >
-              Abrir site de apostas ↗
-            </a>
-          ) : (
-            <div className="w-full h-[1000px] bg-gradient-to-br from-muted/40 to-muted/20 rounded-xl overflow-hidden border border-border/30 backdrop-blur-sm">
-              {iframeUrl ? (
-                <iframe ref={iframeRef} src={iframeUrl} title="Bet Site" className="w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <p className="text-muted-foreground">Carregando...</p>
-                </div>
-              )}
-            </div>
-          )}
-        </section>
       </main>
 
       <JustificativaModal isOpen={justificativaModalOpen} onClose={handleCloseJustificativa} texto={justificativaTexto} />
@@ -909,8 +885,8 @@ const Sport = () => {
           </div>
         </div>
       )}
-      <BottomNav />
-    </div>
+    </>
+
   );
 };
 
