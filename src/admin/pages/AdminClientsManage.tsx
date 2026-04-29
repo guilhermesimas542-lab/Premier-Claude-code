@@ -315,7 +315,7 @@ export default function AdminClientsManage() {
       }))
     );
     setLoading(false);
-  }, [search, liberacaoFrom, liberacaoTo, firstAccessFrom, firstAccessTo, lastSeenFrom, lastSeenTo, selectedHouseId, selectedTier, selectedAddons, filterNotAccessed]);
+  }, [search, liberacaoFrom, liberacaoTo, firstAccessFrom, firstAccessTo, lastSeenFrom, lastSeenTo, selectedHouseId, selectedTier, selectedAddons, filterNotAccessed, currentPage]);
 
   useEffect(() => {
     load();
@@ -327,7 +327,50 @@ export default function AdminClientsManage() {
   // Reactive filter on tier/addon changes
   useEffect(() => {
     load();
-  }, [selectedTier, selectedAddons, filterNotAccessed]);
+  }, [selectedTier, selectedAddons, filterNotAccessed, currentPage]);
+
+  // Reset to page 0 when filters change
+  useEffect(() => {
+    setCurrentPage(0);
+  }, [search, selectedTier, selectedAddons, liberacaoFrom, liberacaoTo, firstAccessFrom, firstAccessTo, lastSeenFrom, lastSeenTo, selectedHouseId, filterNotAccessed]);
+
+  // Helper: fetch ALL filtered users (paginating internally beyond Supabase 1000-row cap)
+  // TODO: filtro de add-ons não aplicado aqui (requer join com entitlements).
+  const fetchAllFiltered = async (columns: string = "email,phone"): Promise<any[]> => {
+    const BATCH = 1000;
+    let allData: any[] = [];
+    let from = 0;
+    let hasMore = true;
+    while (hasMore) {
+      let q = supabase
+        .from("users")
+        .select(columns)
+        .order("last_seen_at", { ascending: false, nullsFirst: false })
+        .range(from, from + BATCH - 1);
+
+      const s = search.trim();
+      if (s) q = q.or(`email.ilike.%${s}%,phone.ilike.%${s}%`);
+      if (selectedTier) q = q.eq("main_tier", selectedTier as any);
+      if (liberacaoFrom) q = q.gte("created_at", liberacaoFrom);
+      if (liberacaoTo) q = q.lte("created_at", liberacaoTo + "T23:59:59");
+      if (firstAccessFrom) q = q.gte("first_access_at", firstAccessFrom);
+      if (firstAccessTo) q = q.lte("first_access_at", firstAccessTo + "T23:59:59");
+      if (lastSeenFrom) q = q.gte("last_seen_at", lastSeenFrom);
+      if (lastSeenTo) q = q.lte("last_seen_at", lastSeenTo + "T23:59:59");
+      if (selectedHouseId) q = q.or(`betting_house_id.eq.${selectedHouseId},betting_house_id.is.null`);
+      if (filterNotAccessed) q = q.is("first_access_at", null).neq("main_tier", "free" as any);
+
+      const { data } = await q;
+      if (!data || data.length === 0) {
+        hasMore = false;
+      } else {
+        allData = [...allData, ...data];
+        if (data.length < BATCH) hasMore = false;
+        else from += BATCH;
+      }
+    }
+    return allData;
+  };
 
   const handleTierFilter = (tier: string) => {
     setSelectedTier((prev) => (prev === tier ? null : tier));
