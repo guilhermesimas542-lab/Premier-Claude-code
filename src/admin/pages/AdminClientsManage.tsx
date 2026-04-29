@@ -580,32 +580,38 @@ export default function AdminClientsManage() {
   };
 
   const handleExportAll = async () => {
-    const { data } = await supabase
-      .from("users")
-      .select("*")
-      .order("last_seen_at", { ascending: false, nullsFirst: false });
-    if (!data) return;
-    const headers = ["Email", "Telefone", "Plano", "Casa", "Liberação", "1º Acesso", "Último Acesso", "Acessou"];
-    const rows = data.map((u: any) => [
-      u.email ?? "",
-      u.phone ?? "",
-      u.main_tier ?? "",
-      "Esportiva Bet",
-      u.created_at ? new Date(u.created_at).toLocaleString("pt-BR") : "",
-      u.first_access_at ? new Date(u.first_access_at).toLocaleString("pt-BR") : "Não acessou",
-      u.last_seen_at ? new Date(u.last_seen_at).toLocaleString("pt-BR") : "—",
-      u.first_access_at ? "Sim" : "Não",
-    ]);
-    const csvContent = [headers, ...rows]
-      .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(","))
-      .join("\n");
-    const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `clientes_premier_todos_${new Date().toISOString().split("T")[0]}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+    toast.info("Exportando todos os clientes filtrados...");
+    try {
+      const allUsers = await fetchAllFiltered("*");
+      if (!allUsers || allUsers.length === 0) {
+        toast.error("Nenhum cliente encontrado.");
+        return;
+      }
+      const headers = ["Email", "Telefone", "Plano", "Casa", "Liberação", "1º Acesso", "Último Acesso", "Acessou"];
+      const rows = allUsers.map((u: any) => [
+        u.email ?? "",
+        u.phone ?? "",
+        u.main_tier ?? "",
+        "Esportiva Bet",
+        u.created_at ? new Date(u.created_at).toLocaleString("pt-BR") : "",
+        u.first_access_at ? new Date(u.first_access_at).toLocaleString("pt-BR") : "Não acessou",
+        u.last_seen_at ? new Date(u.last_seen_at).toLocaleString("pt-BR") : "—",
+        u.first_access_at ? "Sim" : "Não",
+      ]);
+      const csvContent = [headers, ...rows]
+        .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(","))
+        .join("\n");
+      const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `clientes_premier_todos_${new Date().toISOString().split("T")[0]}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success(`${allUsers.length} clientes exportados!`);
+    } catch {
+      toast.error("Erro ao exportar.");
+    }
   };
 
   const thClass = "px-3 py-2 cursor-pointer select-none hover:text-gray-300 transition-colors";
