@@ -10,6 +10,7 @@ import { GlobalPopups } from "@/components/GlobalPopups";
 
 import Home from "./pages/Home";
 import Sport from "./pages/Sport";
+import SportLayout from "./pages/SportLayout";
 import Login from "./pages/Login";
 
 import Casino from "./pages/Casino";
