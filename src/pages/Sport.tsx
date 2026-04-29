@@ -885,8 +885,8 @@ const Sport = () => {
           </div>
         </div>
       )}
-      <BottomNav />
-    </div>
+    </>
+
   );
 };
 
