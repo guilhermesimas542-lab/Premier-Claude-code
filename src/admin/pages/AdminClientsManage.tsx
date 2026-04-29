@@ -933,6 +933,34 @@ export default function AdminClientsManage() {
         </div>
       )}
 
+      {/* Pagination */}
+      {!loading && totalCount > 0 && (
+        <div className="flex items-center justify-between py-4 px-2">
+          <span className="text-sm text-muted-foreground">
+            Página {currentPage + 1} de {Math.max(1, Math.ceil(totalCount / PAGE_SIZE))}
+            {" · "}Exibindo {currentPage * PAGE_SIZE + 1}–{Math.min((currentPage + 1) * PAGE_SIZE, totalCount)} de {totalCount}
+          </span>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage((p) => Math.max(0, p - 1))}
+              disabled={currentPage === 0}
+            >
+              Anterior
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage((p) => p + 1)}
+              disabled={(currentPage + 1) * PAGE_SIZE >= totalCount}
+            >
+              Próximo
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Create Dialog */}
       <Dialog open={showCreate} onOpenChange={setShowCreate}>
         <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-sm">
