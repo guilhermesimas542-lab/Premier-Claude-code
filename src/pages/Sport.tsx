@@ -11,7 +11,7 @@ import { isAuthenticated, clearAuth } from "@/lib/auth";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { getTodayInBrazil, formatDateTimeBR, BRAZIL_TZ } from "@/lib/timezone";
 import { toZonedTime } from "date-fns-tz";
-import { BottomNav } from "@/components/BottomNav";
+
 import { supabase } from "@/integrations/supabase/client";
 import { mockGetUser } from "@/mocks/user";
 
