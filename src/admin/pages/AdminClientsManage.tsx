@@ -44,6 +44,8 @@ type SortDir = "asc" | "desc";
 
 const UPSELL_KEYS = ["alavancagem", "desaltas", "acesso_vitalicio", "live_telegram"];
 
+const PAGE_SIZE = 200;
+
 const UPSELL_LABELS: Record<string, string> = {
   alavancagem: "Alavancagem",
   desaltas: "Odds Altas",
