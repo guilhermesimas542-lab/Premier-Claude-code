@@ -524,32 +524,34 @@ export default function AdminClientsManage() {
     }) : "—";
 
   const handleCopyFilteredEmails = async () => {
-    const emails = users.map((u: any) => u.email).filter(Boolean);
-    if (emails.length === 0) {
-      toast.error("Nenhum email nos resultados filtrados.");
-      return;
-    }
-    const text = emails.join(", ");
+    toast.info("Buscando todos os emails filtrados...");
     try {
-      await navigator.clipboard.writeText(text);
-      toast.success(`${emails.length} emails filtrados copiados!`);
+      const allUsers = await fetchAllFiltered("email");
+      const emails = allUsers.map((u: any) => u.email).filter(Boolean);
+      if (emails.length === 0) {
+        toast.error("Nenhum email nos resultados filtrados.");
+        return;
+      }
+      await navigator.clipboard.writeText(emails.join(", "));
+      toast.success(`${emails.length} emails copiados (todos os filtrados)!`);
     } catch {
-      toast.error("Erro ao copiar.");
+      toast.error("Erro ao copiar emails.");
     }
   };
 
   const handleCopyFilteredPhones = async () => {
-    const phones = users.map((u: any) => u.phone).filter(Boolean);
-    if (phones.length === 0) {
-      toast.error("Nenhum telefone nos resultados filtrados.");
-      return;
-    }
-    const text = phones.join(", ");
+    toast.info("Buscando todos os telefones filtrados...");
     try {
-      await navigator.clipboard.writeText(text);
-      toast.success(`${phones.length} telefones filtrados copiados!`);
+      const allUsers = await fetchAllFiltered("phone");
+      const phones = allUsers.map((u: any) => u.phone).filter(Boolean);
+      if (phones.length === 0) {
+        toast.error("Nenhum telefone nos resultados filtrados.");
+        return;
+      }
+      await navigator.clipboard.writeText(phones.join(", "));
+      toast.success(`${phones.length} telefones copiados (todos os filtrados)!`);
     } catch {
-      toast.error("Erro ao copiar.");
+      toast.error("Erro ao copiar telefones.");
     }
   };
 
