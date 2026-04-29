@@ -411,12 +411,8 @@ const Sport = () => {
     trackEvent("view_entries", { sport: sportId ?? "futebol" });
   }, [navigate, sportId, fetchTips]);
 
-  // Set iframe URL from user's house when house is loaded
-  useEffect(() => {
-    if (userHouse?.iframe_url) {
-      setIframeUrl(userHouse.iframe_url);
-    }
-  }, [userHouse]);
+  // NOTA: a inicialização do iframeUrl com userHouse.iframe_url agora vive no SportLayout (pai).
+
 
 
 
