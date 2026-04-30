@@ -483,10 +483,13 @@ const Sport = () => {
       const targetOrigin = "https://esportiva.bet.br";
       const target = iframeRef.current?.contentWindow;
       if (target) {
-        target.postMessage(
-          { type: "wsdk-toggle-selections", data: { selections: wsdkSelections } },
-          targetOrigin
-        );
+        const message = { type: "wsdk-toggle-selections", data: { selections: wsdkSelections } };
+        [0, 200, 500, 1000, 2000].forEach((delay) => {
+          setTimeout(() => {
+            console.log("[WSDK ATTEMPT]", Date.now(), "delay:", delay);
+            iframeRef.current?.contentWindow?.postMessage(message, targetOrigin);
+          }, delay);
+        });
         toast.success("Tip adicionada ao bilhete!", {
           description: "Seleção enviada para o cupom de apostas",
         });
