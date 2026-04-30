@@ -112,6 +112,7 @@ const SportLayout = () => {
               <iframe
                 ref={iframeRef}
                 src={iframeUrl}
+                onLoad={handleIframeLoad}
                 title="Bet Site"
                 className="w-full h-full"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
