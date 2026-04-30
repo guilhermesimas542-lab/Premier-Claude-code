@@ -438,19 +438,6 @@ const Sport = () => {
     };
   }, [updateActiveCardIndex, activeEntries.length]);
 
-  // [DEBUG] Escuta mensagens vindas do iframe da Esportiva para entender
-  // o protocolo de resposta do WSDK. Filtra por origin para segurança.
-  useEffect(() => {
-    const handleEsportivaMessage = (event: MessageEvent) => {
-      if (event.origin !== "https://esportiva.bet.br") return;
-      console.log("[ESPORTIVA RESPONDEU]", event.data);
-    };
-    window.addEventListener("message", handleEsportivaMessage);
-    return () => {
-      window.removeEventListener("message", handleEsportivaMessage);
-    };
-  }, []);
-
   const handleLogout = () => {
     clearAuth();
     toast.success("Logout realizado com sucesso");
