@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState, type RefObject, type Dispatch, type SetStateAction } from "react";
 import { Outlet, useOutletContext } from "react-router-dom";
+import { toast } from "sonner";
 import { useUserBettingHouse } from "@/hooks/useUserBettingHouse";
 import { BottomNav } from "@/components/BottomNav";
+import { usePendingTip } from "@/contexts/PendingTipContext";
 
 /**
  * Context exposto às rotas filhas (/sport/:sportId, /alavancagem, /odds-altas).
@@ -30,6 +32,8 @@ const SportLayout = () => {
   const { house: userHouse } = useUserBettingHouse();
   const [iframeUrl, setIframeUrl] = useState<string>("");
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const iframeLoadedRef = useRef(false);
+  const { pendingTip, clearPendingTip } = usePendingTip();
 
   // Inicializa a URL do iframe com a URL padrão da casa do usuário
   useEffect(() => {
@@ -37,6 +41,11 @@ const SportLayout = () => {
       setIframeUrl(userHouse.iframe_url);
     }
   }, [userHouse]);
+
+  // Reseta flag de "já carregou" sempre que a URL muda
+  useEffect(() => {
+    iframeLoadedRef.current = false;
+  }, [iframeUrl]);
 
   // Listener de debug — registra mensagens vindas da Esportiva para entendermos
   // o protocolo (ex.: iframeReady, iframeLoading, etc.).
@@ -48,6 +57,32 @@ const SportLayout = () => {
     window.addEventListener("message", handleEsportivaMessage);
     return () => window.removeEventListener("message", handleEsportivaMessage);
   }, []);
+
+  // Envia o pendingTip para o iframe e limpa o estado
+  const flushPendingTip = () => {
+    if (!pendingTip) return;
+    const target = iframeRef.current?.contentWindow;
+    if (!target) return;
+    target.postMessage(
+      { type: "wsdk-toggle-selections", data: { selections: pendingTip.selections } },
+      ESPORTIVA_ORIGIN
+    );
+    toast.success("Tip adicionada ao bilhete!");
+    clearPendingTip();
+  };
+
+  // Se o iframe já carregou antes (usuário volta à rota) e há pendente: envia após 500ms
+  useEffect(() => {
+    if (!pendingTip || !iframeLoadedRef.current) return;
+    const t = setTimeout(flushPendingTip, 500);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingTip]);
+
+  const handleIframeLoad = () => {
+    iframeLoadedRef.current = true;
+    if (pendingTip) setTimeout(flushPendingTip, 500);
+  };
 
   const ctx: SportOutletContext = {
     iframeRef,
@@ -77,6 +112,7 @@ const SportLayout = () => {
               <iframe
                 ref={iframeRef}
                 src={iframeUrl}
+                onLoad={handleIframeLoad}
                 title="Bet Site"
                 className="w-full h-full"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"

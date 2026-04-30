@@ -55,6 +55,7 @@ import { FunnelPopupProvider } from "./context/FunnelPopupContext";
 
 import { GamificationProvider } from "./contexts/GamificationContext";
 import { LinksProvider } from "./contexts/LinksContext";
+import { PendingTipProvider } from "./contexts/PendingTipContext";
 
 const queryClient = new QueryClient();
 
@@ -78,6 +79,7 @@ const App = () => {
       <GamificationProvider>
       <LinksProvider>
       <FunnelPopupProvider>
+      <PendingTipProvider>
         <BrowserRouter>
           <AnalyticsRouteTracker />
           <GlobalPopups />
@@ -133,6 +135,7 @@ const App = () => {
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
+      </PendingTipProvider>
       </FunnelPopupProvider>
       </LinksProvider>
       </GamificationProvider>
