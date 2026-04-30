@@ -79,6 +79,7 @@ const App = () => {
       <GamificationProvider>
       <LinksProvider>
       <FunnelPopupProvider>
+      <PendingTipProvider>
         <BrowserRouter>
           <AnalyticsRouteTracker />
           <GlobalPopups />
