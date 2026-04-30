@@ -486,7 +486,6 @@ const Sport = () => {
         const message = { type: "wsdk-toggle-selections", data: { selections: wsdkSelections } };
         [0, 200, 500, 1000, 2000].forEach((delay) => {
           setTimeout(() => {
-            console.log("[WSDK ATTEMPT]", Date.now(), "delay:", delay);
             iframeRef.current?.contentWindow?.postMessage(message, targetOrigin);
           }, delay);
         });
