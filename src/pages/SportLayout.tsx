@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState, type RefObject, type Dispatch, type SetStateAction } from "react";
 import { Outlet, useOutletContext } from "react-router-dom";
+import { toast } from "sonner";
 import { useUserBettingHouse } from "@/hooks/useUserBettingHouse";
 import { BottomNav } from "@/components/BottomNav";
+import { usePendingTip } from "@/contexts/PendingTipContext";
 
 /**
  * Context exposto às rotas filhas (/sport/:sportId, /alavancagem, /odds-altas).
