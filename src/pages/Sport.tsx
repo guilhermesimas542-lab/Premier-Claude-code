@@ -156,7 +156,7 @@ const Sport = () => {
   const { sendXpEvent } = useGamification();
   // iframeRef, iframeUrl e setIframeUrl vêm do SportLayout (pai persistente).
   // Não criar useState/useRef locais para iframe — isso quebraria a persistência.
-  const { iframeRef, iframeUrl, setIframeUrl, enqueueOrSendWsdk } = useSportOutletContext();
+  const { iframeRef, iframeUrl, setIframeUrl } = useSportOutletContext();
 
   const [activeTierHighlight, setActiveTierHighlight] = useState<TierType | null>(null);
   const [activeCardIndex, setActiveCardIndex] = useState(0);
@@ -478,9 +478,13 @@ const Sport = () => {
       console.log("=== WSDK DEBUG ===");
       console.log("SELECTIONS:", JSON.stringify(wsdkSelections, null, 2));
       console.log("=== END WSDK DEBUG ===");
-      enqueueOrSendWsdk({
-        type: "wsdk-toggle-selections",
-        data: { selections: wsdkSelections },
+      const targetOrigin = "https://esportiva.bet.br";
+      iframeRef.current?.contentWindow?.postMessage(
+        { type: "wsdk-toggle-selections", data: { selections: wsdkSelections } },
+        targetOrigin
+      );
+      toast.success("Tip adicionada ao bilhete!", {
+        description: "Seleção enviada para o cupom de apostas",
       });
       setTimeout(() => {
         window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
