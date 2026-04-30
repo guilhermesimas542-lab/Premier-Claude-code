@@ -438,6 +438,19 @@ const Sport = () => {
     };
   }, [updateActiveCardIndex, activeEntries.length]);
 
+  // [DEBUG] Escuta mensagens vindas do iframe da Esportiva para entender
+  // o protocolo de resposta do WSDK. Filtra por origin para segurança.
+  useEffect(() => {
+    const handleEsportivaMessage = (event: MessageEvent) => {
+      if (event.origin !== "https://esportiva.bet.br") return;
+      console.log("[ESPORTIVA RESPONDEU]", event.data);
+    };
+    window.addEventListener("message", handleEsportivaMessage);
+    return () => {
+      window.removeEventListener("message", handleEsportivaMessage);
+    };
+  }, []);
+
   const handleLogout = () => {
     clearAuth();
     toast.success("Logout realizado com sucesso");
@@ -475,7 +488,7 @@ const Sport = () => {
     // Verificar se a entry tem payload WSDK para postMessage
     const wsdkSelections = (entry as any).metadata?.wsdk?.selections;
     if (wsdkSelections && wsdkSelections.length > 0 && iframeRef.current?.contentWindow) {
-      const targetOrigin = "*"; // TEMP: teste sem restrição de origin
+      const targetOrigin = "https://esportiva.bet.br";
       console.log("=== WSDK DEBUG ===");
       console.log("SELECTIONS:", JSON.stringify(wsdkSelections, null, 2));
       console.log("TARGET ORIGIN:", targetOrigin);
