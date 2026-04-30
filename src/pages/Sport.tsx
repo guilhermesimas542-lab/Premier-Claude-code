@@ -158,6 +158,7 @@ const Sport = () => {
   // iframeRef, iframeUrl e setIframeUrl vêm do SportLayout (pai persistente).
   // Não criar useState/useRef locais para iframe — isso quebraria a persistência.
   const { iframeRef, iframeUrl, setIframeUrl } = useSportOutletContext();
+  const { setPendingTip } = usePendingTip();
 
   const [activeTierHighlight, setActiveTierHighlight] = useState<TierType | null>(null);
   const [activeCardIndex, setActiveCardIndex] = useState(0);
