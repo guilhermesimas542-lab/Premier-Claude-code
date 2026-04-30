@@ -481,16 +481,24 @@ const Sport = () => {
       console.log("SELECTIONS:", JSON.stringify(wsdkSelections, null, 2));
       console.log("=== END WSDK DEBUG ===");
       const targetOrigin = "https://esportiva.bet.br";
-      iframeRef.current?.contentWindow?.postMessage(
-        { type: "wsdk-toggle-selections", data: { selections: wsdkSelections } },
-        targetOrigin
-      );
-      toast.success("Tip adicionada ao bilhete!", {
-        description: "Seleção enviada para o cupom de apostas",
-      });
-      setTimeout(() => {
-        window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
-      }, 100);
+      const target = iframeRef.current?.contentWindow;
+      if (target) {
+        target.postMessage(
+          { type: "wsdk-toggle-selections", data: { selections: wsdkSelections } },
+          targetOrigin
+        );
+        toast.success("Tip adicionada ao bilhete!", {
+          description: "Seleção enviada para o cupom de apostas",
+        });
+        setTimeout(() => {
+          window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+        }, 100);
+      } else {
+        // Fallback: iframe ainda não montado (caso defensivo). Enfileira e navega.
+        setPendingTip({ tipId: entry.id, selections: wsdkSelections });
+        toast("Abrindo bilhete...");
+        navigate("/sport/futebol");
+      }
     } else {
       // Fallback: comportamento antigo via URL (para tips sem payload WSDK)
       const url = resolveBetUrl(entry);
