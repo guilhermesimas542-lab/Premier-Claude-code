@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState, type RefObject, type Dispatch, type SetStateAction } from "react";
+import { useCallback, useEffect, useRef, useState, type RefObject, type Dispatch, type SetStateAction } from "react";
 import { Outlet, useOutletContext } from "react-router-dom";
+import { toast } from "sonner";
 import { useUserBettingHouse } from "@/hooks/useUserBettingHouse";
 import { BottomNav } from "@/components/BottomNav";
 
@@ -12,6 +13,8 @@ export type SportOutletContext = {
   iframeRef: RefObject<HTMLIFrameElement>;
   iframeUrl: string;
   setIframeUrl: Dispatch<SetStateAction<string>>;
+  isSportsbookReady: boolean;
+  enqueueOrSendWsdk: (message: unknown) => void;
 };
 
 /** Hook tipado para os filhos consumirem o context. */
@@ -19,18 +22,24 @@ export function useSportOutletContext(): SportOutletContext {
   return useOutletContext<SportOutletContext>();
 }
 
+const ESPORTIVA_ORIGIN = "https://esportiva.bet.br";
+
 /**
  * Layout pai persistente para as rotas de tips esportivas.
  * Monta o iframe da casa de apostas UMA ÚNICA VEZ e o mantém vivo enquanto
  * o usuário navega entre /sport/:sportId, /alavancagem e /odds-altas.
  *
- * Importante: este componente NÃO altera o comportamento de handleAddTip
- * nem o uso de setIframeUrl. É apenas o passo 1 (persistência entre rotas).
+ * Também centraliza:
+ *  - listener de mensagens do iframe (iframeReady / iframeLoading)
+ *  - estado isSportsbookReady
+ *  - fila (tamanho 1) de mensagens WSDK pendentes para enviar quando ready
  */
 const SportLayout = () => {
   const { house: userHouse } = useUserBettingHouse();
   const [iframeUrl, setIframeUrl] = useState<string>("");
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [isSportsbookReady, setIsSportsbookReady] = useState(false);
+  const pendingMessageRef = useRef<unknown | null>(null);
 
   // Inicializa a URL do iframe com a URL padrão da casa do usuário
   useEffect(() => {
@@ -39,7 +48,64 @@ const SportLayout = () => {
     }
   }, [userHouse]);
 
-  const ctx: SportOutletContext = { iframeRef, iframeUrl, setIframeUrl };
+  // Sempre que a URL do iframe muda, ele recarrega -> volta a não estar pronto.
+  useEffect(() => {
+    setIsSportsbookReady(false);
+  }, [iframeUrl]);
+
+  // Listener global de mensagens da Esportiva (vive no Layout para persistir
+  // entre rotas filhas).
+  useEffect(() => {
+    const handleEsportivaMessage = (event: MessageEvent) => {
+      if (event.origin !== ESPORTIVA_ORIGIN) return;
+      console.log("[ESPORTIVA RESPONDEU]", event.data);
+      if (event.data === "iframeReady") {
+        setIsSportsbookReady(true);
+      } else if (event.data === "iframeLoading") {
+        setIsSportsbookReady(false);
+      }
+    };
+    window.addEventListener("message", handleEsportivaMessage);
+    return () => window.removeEventListener("message", handleEsportivaMessage);
+  }, []);
+
+  const enqueueOrSendWsdk = useCallback((message: unknown) => {
+    const cw = iframeRef.current?.contentWindow;
+    if (isSportsbookReady && cw) {
+      cw.postMessage(message, ESPORTIVA_ORIGIN);
+      toast.success("Tip adicionada ao bilhete!", {
+        description: "Seleção enviada para o cupom de apostas",
+      });
+    } else {
+      // Fila de tamanho 1: nova clica substitui mensagem pendente anterior.
+      pendingMessageRef.current = message;
+      toast("Aguarde o sportsbook carregar...", {
+        description: "Sua seleção será enviada assim que o site estiver pronto",
+      });
+    }
+  }, [isSportsbookReady]);
+
+  // Flush da fila quando o iframe ficar pronto.
+  useEffect(() => {
+    if (!isSportsbookReady) return;
+    const pending = pendingMessageRef.current;
+    if (!pending) return;
+    const cw = iframeRef.current?.contentWindow;
+    if (!cw) return;
+    cw.postMessage(pending, ESPORTIVA_ORIGIN);
+    pendingMessageRef.current = null;
+    toast.success("Tip adicionada ao bilhete!", {
+      description: "Seleção enviada para o cupom de apostas",
+    });
+  }, [isSportsbookReady]);
+
+  const ctx: SportOutletContext = {
+    iframeRef,
+    iframeUrl,
+    setIframeUrl,
+    isSportsbookReady,
+    enqueueOrSendWsdk,
+  };
 
   return (
     <div className="min-h-screen overflow-x-hidden w-full max-w-full pb-20 md:pb-0 relative bg-navy-dark">
