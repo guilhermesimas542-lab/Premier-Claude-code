@@ -107,7 +107,7 @@ const SportLayout = () => {
             Abrir site de apostas ↗
           </a>
         ) : (
-          <div className="w-full h-[1000px] bg-gradient-to-br from-muted/40 to-muted/20 rounded-xl overflow-hidden border border-border/30 backdrop-blur-sm">
+          <div className="w-full h-[600px] md:h-[calc(100vh-280px)] bg-gradient-to-br from-muted/40 to-muted/20 rounded-xl overflow-hidden border border-border/30 backdrop-blur-sm">
             {iframeUrl ? (
               <iframe
                 ref={iframeRef}
