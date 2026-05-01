@@ -169,7 +169,7 @@ export default function AdminTipsCreate() {
       date: dateOnly,
       starts_at: startsAtUTC.toISOString(),
       expires_at: expiresAtUTC.toISOString(),
-      odd: parseFloat(form.odd),
+      odd: parseFloat(Number(form.odd).toFixed(2)),
       tier_required: cat.tier,
       addon_required: cat.addon,
       active: true,

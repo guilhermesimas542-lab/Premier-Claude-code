@@ -173,7 +173,7 @@ export default function AdminTipsList() {
       date: dateOnly,
       starts_at: startsAtUTC.toISOString(),
       expires_at: expiresAtUTC.toISOString(),
-      odd: parseFloat(editForm.odd) || null,
+      odd: editForm.odd ? parseFloat(Number(editForm.odd).toFixed(2)) : null,
       tier_required: cat.tier,
       addon_required: cat.addon,
       team1_name: editForm.team1_name,
