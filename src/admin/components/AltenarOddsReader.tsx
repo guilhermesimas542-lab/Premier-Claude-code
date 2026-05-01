@@ -24,6 +24,7 @@ export default function AltenarOddsReader({ onSelectionMade }: AltenarOddsReader
   const [eventData, setEventData] = useState<any>(null);
   const [selectedMarket, setSelectedMarket] = useState<any>(null);
   const [selected, setSelected] = useState(false);
+  const [marketSearch, setMarketSearch] = useState("");
 
   const fetchEvent = async () => {
     if (!eventId.trim()) {
