@@ -24,6 +24,7 @@ export default function AltenarOddsReader({ onSelectionMade }: AltenarOddsReader
   const [eventData, setEventData] = useState<any>(null);
   const [selectedMarket, setSelectedMarket] = useState<any>(null);
   const [selected, setSelected] = useState(false);
+  const [marketSearch, setMarketSearch] = useState("");
 
   const fetchEvent = async () => {
     if (!eventId.trim()) {
@@ -221,29 +222,45 @@ export default function AltenarOddsReader({ onSelectionMade }: AltenarOddsReader
       </div>
 
       {/* Estado 2: Mercados */}
-      {eventData && !selectedMarket && (
-        <div className="space-y-2">
-          <div className="text-xs text-muted-foreground">
-            <span className="font-semibold text-white">
-              {eventData.competitors?.map((c: any) => c.name).join(" vs ")}
-            </span>
-            {" — "}
-            {markets.length} mercados disponíveis
+      {eventData && !selectedMarket && (() => {
+        const q = marketSearch.trim().toLowerCase();
+        const filteredMarkets = markets.filter((m: any) => {
+          if (!q) return true;
+          const name = (m.name || "").toLowerCase();
+          const shortName = (m.shortName || "").toLowerCase();
+          return name.includes(q) || shortName.includes(q);
+        });
+        return (
+          <div className="space-y-2">
+            <div className="text-xs text-muted-foreground">
+              <span className="font-semibold text-white">
+                {eventData.competitors?.map((c: any) => c.name).join(" vs ")}
+              </span>
+              {" — "}
+              {filteredMarkets.length} de {markets.length} mercados
+            </div>
+            <Input
+              type="text"
+              placeholder="Buscar mercado..."
+              value={marketSearch}
+              onChange={(e) => setMarketSearch(e.target.value)}
+              className="bg-muted/30 border-border mb-2"
+            />
+            <div className="flex flex-wrap gap-1.5 max-h-48 overflow-y-auto">
+              {filteredMarkets.map((m: any, idx: number) => (
+                <button
+                  key={`${m.id}-${idx}`}
+                  type="button"
+                  onClick={() => setSelectedMarket(m)}
+                  className="px-3 py-1.5 rounded-lg bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-white text-xs font-medium transition-colors border border-border/50"
+                >
+                  {m.shortName || m.name || `Mercado ${m.id}`}
+                </button>
+              ))}
+            </div>
           </div>
-          <div className="flex flex-wrap gap-1.5 max-h-48 overflow-y-auto">
-            {markets.map((m: any, idx: number) => (
-              <button
-                key={`${m.id}-${idx}`}
-                type="button"
-                onClick={() => setSelectedMarket(m)}
-                className="px-3 py-1.5 rounded-lg bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-white text-xs font-medium transition-colors border border-border/50"
-              >
-                {m.shortName || m.name || `Mercado ${m.id}`}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* Estado 3: Odds do mercado selecionado */}
       {selectedMarket && !selected && (
