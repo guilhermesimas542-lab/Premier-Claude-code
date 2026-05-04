@@ -11,14 +11,16 @@ const CSV_HEADERS = [
 ];
 
 const CATEGORIA_MAP: Record<string, { tier: string; addon: string | null; feature: string | null }> = {
-  free:        { tier: "free",  addon: null,          feature: null },
-  basico:      { tier: "basic", addon: null,          feature: "odds_safes" },
-  basic:       { tier: "basic", addon: null,          feature: "odds_safes" },
-  pro:         { tier: "pro",   addon: null,          feature: "odds_pro" },
-  ultra:       { tier: "ultra", addon: null,          feature: "odds_pro" },
-  premium:     { tier: "pro",   addon: null,          feature: "odds_pro" },
-  alavancagem: { tier: "pro",   addon: "alavancagem", feature: "alavancagem" },
-  odds_altas:  { tier: "pro",   addon: "desaltas",    feature: "desaltas" },
+  free:                 { tier: "free",  addon: null,          feature: null },
+  basico:               { tier: "basic", addon: null,          feature: "odds_safes" },
+  basic:                { tier: "basic", addon: null,          feature: "odds_safes" },
+  pro:                  { tier: "pro",   addon: null,          feature: "odds_pro" },
+  ultra:                { tier: "ultra", addon: null,          feature: "odds_pro" },
+  premium:              { tier: "pro",   addon: null,          feature: "odds_pro" },
+  alavancagem:          { tier: "ultra", addon: "alavancagem", feature: "alavancagem" },
+  multiplas_bingo:      { tier: "ultra", addon: null,          feature: "multiplas_bingo" },
+  mercados_secundarios: { tier: "ultra", addon: null,          feature: "mercados_secundarios" },
+  esportes_americanos:  { tier: "ultra", addon: null,          feature: "esportes_americanos" },
 };
 
 interface Team { id: string; name: string; logo_url: string; }
