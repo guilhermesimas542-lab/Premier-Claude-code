@@ -30,6 +30,8 @@ const DIAMANTE_ONLY: FeatureKey[] = [
   "esportes_americanos",
 ];
 
+export const DIAMANTE_ONLY_FEATURES = DIAMANTE_ONLY;
+
 /** Resolve which paywall variant to show, based on user tier + clicked feature */
 export function resolvePaywallVariant(
   feature: FeatureKey,
@@ -55,17 +57,36 @@ export function variantToPlanKey(v: PaywallVariant): string | null {
   }
 }
 
-/** associated_plan slug for the backredirect (per-feature avulso) */
+/** associated_plan slug for the backredirect (per-feature avulso, full price) */
 export function featureToBackredirectPlanKey(f: FeatureKey): string | null {
   if (f === "free") return null;
   return f; // odds_safes, odds_pro, alavancagem, multiplas_bingo, mercados_secundarios, esportes_americanos
 }
 
+/** associated_plan slug for the DISCOUNTED avulso pay_card (one-time R$ 10 off) */
+export function featureToDiscountPlanKey(f: FeatureKey): string | null {
+  if (f === "free") return null;
+  return `${f}_discount`;
+}
+
+/** Short explanation copy used in step 1 of diamante_upgrade popup (placeholder, will be replaced later) */
+export const FEATURE_EXPLANATIONS: Record<Exclude<FeatureKey, "free">, string> = {
+  odds_safes: "Placeholder: explicação curta de Odds Safes em 2-3 linhas.",
+  odds_pro: "Placeholder: explicação curta de Odds Pró em 2-3 linhas.",
+  alavancagem: "Placeholder: a Alavancagem é uma estratégia avançada que permite multiplicar entradas em sequência. Use pra escalar banca de forma controlada.",
+  multiplas_bingo: "Placeholder: Múltiplas/Bingo é uma estratégia que combina várias odds em um único bilhete. Use pra maximizar retorno em jogos correlacionados.",
+  mercados_secundarios: "Placeholder: Mercados Secundários cobrem apostas além do resultado principal (cantos, cartões, escanteios). Use pra encontrar valor escondido.",
+  esportes_americanos: "Placeholder: Esportes Americanos cobrem NBA, NFL, MLB e NHL. Use pra diversificar sua banca em mercados de alta liquidez.",
+};
+
 export const PRICES = {
   premium: 47,
   diamante: 147,
   diamante_upgrade: 127,
-  backredirect: 37,
+  /** preço cheio do avulso (backredirect / etapa 2 do upgrade) */
+  backredirect: "39,90",
+  /** preço descontado do avulso (backredirect — uso único por user) */
+  backredirect_discount: "29,90",
 } as const;
 
 export const TELEGRAM_URL_PLACEHOLDER = "https://t.me/+placeholder_premier_free";
