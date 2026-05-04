@@ -196,6 +196,7 @@ const Sport = () => {
   const isMobile = useIsMobile();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const tabsScrollRef = useRef<HTMLDivElement>(null);
   
   const [justificativaModalOpen, setJustificativaModalOpen] = useState(false);
   const [justificativaTexto, setJustificativaTexto] = useState("");
