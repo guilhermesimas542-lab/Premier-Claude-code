@@ -379,10 +379,10 @@ const Sport = () => {
     return activeEntries.findIndex(entry => getEntryFeature(entry) === f);
   };
 
-  const scrollToTier = (tier: TierType) => {
-    const firstIndex = getFirstIndexOfTier(tier);
+  const scrollToFeature = (f: FeatureKey) => {
+    const firstIndex = getFirstIndexOfFeature(f);
     if (firstIndex === -1) {
-      toast.info(`Sem entradas de ${tier} hoje`);
+      toast.info(`Sem entradas de ${TAB_META[f].label} hoje`);
       return;
     }
     const targetCard = activeCardRefs.current[firstIndex];
@@ -392,7 +392,7 @@ const Sport = () => {
       const cardRect = targetCard.getBoundingClientRect();
       const scrollLeft = container.scrollLeft + (cardRect.left - containerRect.left) - 16;
       container.scrollTo({ left: scrollLeft, behavior: 'smooth' });
-      setActiveTierHighlight(tier);
+      setActiveFeatureHighlight(f);
     }
   };
 
@@ -438,12 +438,11 @@ const Sport = () => {
   useEffect(() => {
     if (isLoading || activeEntries.length === 0) return;
     const scrollTimeout = setTimeout(() => {
-      if (isAlavancagemRoute) scrollToTier("ALAVANCAGEM");
-      else if (isOddsAltasRoute) scrollToTier("ODDS_ALTAS");
-      else scrollToTier("BÁSICO");
+      if (initialTabParam === "alavancagem") scrollToFeature("alavancagem");
+      else scrollToFeature(isPaidUser ? "odds_safes" : "free");
     }, 500);
     return () => clearTimeout(scrollTimeout);
-  }, [isLoading, activeEntries.length, isAlavancagemRoute, isOddsAltasRoute]);
+  }, [isLoading, activeEntries.length, initialTabParam, isPaidUser]);
 
   useEffect(() => {
     const container = activeCarouselRef.current;
