@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ImageIcon } from "lucide-react";
+import { ImageIcon, ChevronRight } from "lucide-react";
 import {
   type FeatureKey,
   FEATURE_HEADLINES,
@@ -36,7 +36,7 @@ export function PaywallEducationStep({ feature, onContinue }: Props) {
         className="w-full bg-[#00FF7F] hover:bg-[#00FF7F]/90 text-black font-bold"
         onClick={onContinue}
       >
-        Continuar
+        Entendi, tenho interesse <ChevronRight className="w-4 h-4" />
       </Button>
     </div>
   );

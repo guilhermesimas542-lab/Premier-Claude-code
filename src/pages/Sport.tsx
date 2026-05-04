@@ -1,4 +1,4 @@
-import { ArrowLeft, LogOut, Loader2, Lock, Menu, X, Gift, Headphones, Crown } from "lucide-react";
+import { ArrowLeft, LogOut, Loader2, Lock, Menu, X, Gift, Headphones, Crown, ChevronRight } from "lucide-react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { useSportOutletContext } from "@/pages/SportLayout";
@@ -670,6 +670,16 @@ const Sport = () => {
       />
 
       <main className="w-full max-w-7xl mx-auto px-4 pt-2 pb-6 space-y-2 overflow-x-hidden">
+        {/* Section header above feature tabs */}
+        <div className="flex items-center justify-between pt-4 pb-3 px-1">
+          <h2
+            className="text-white font-bold"
+            style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 15 }}
+          >
+            Mercados disponíveis
+          </h2>
+          <ChevronRight className="w-5 h-5 text-white/60" />
+        </div>
         {/* Feature Tabs */}
         <div className="relative">
         <div className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-2 px-1" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
