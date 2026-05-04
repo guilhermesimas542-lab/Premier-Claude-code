@@ -332,35 +332,37 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
 
           {phase === "main_step2" && (
             <div className="space-y-3 pt-2">
-              {/* Card 1: Avulso */}
-              <button
-                disabled={!canBuyAvulso || loadingPayCard}
-                onClick={() => backPayCard && setFunnelOpen(backPayCard)}
-                className="w-full text-left rounded-lg border border-[#00FF7F]/40 bg-[#00FF7F]/10 hover:bg-[#00FF7F]/15 transition px-4 py-4 disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{ minHeight: 75 }}
-              >
-                <div className="font-bold text-white text-base leading-snug">
-                  {canBuyAvulso
-                    ? <>Desbloquear <span className="text-[#00FF7F]">{featureLabel}</span> por R$ {PRICES.backredirect}</>
-                    : <>Desbloquear {featureLabel} — <span className="text-white/60">Em breve</span></>}
-                </div>
-                <div className="text-xs text-white/60 mt-1">Pagamento único, acesso vitalício</div>
-              </button>
+              <div className="flex flex-row gap-2 items-stretch">
+                {/* Card 1: Avulso */}
+                <button
+                  disabled={!canBuyAvulso || loadingPayCard}
+                  onClick={() => backPayCard && setFunnelOpen(backPayCard)}
+                  className="flex-1 min-w-0 text-left rounded-lg border border-[#00FF7F]/40 bg-[#00FF7F]/10 hover:bg-[#00FF7F]/15 transition px-3 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                  style={{ minHeight: 100 }}
+                >
+                  <div className="font-bold text-white text-[13px] sm:text-sm leading-snug break-words">
+                    {canBuyAvulso
+                      ? <>Desbloquear <span className="text-[#00FF7F]">{featureLabel}</span> por R$ {PRICES.backredirect}</>
+                      : <>Desbloquear {featureLabel} — <span className="text-white/60">Em breve</span></>}
+                  </div>
+                  <div className="text-[10px] sm:text-xs text-white/60 mt-1 leading-tight">Pagamento único, acesso vitalício</div>
+                </button>
 
-              {/* Card 2: Upgrade Diamante */}
-              <button
-                disabled={!canBuyUpgrade || loadingPayCard}
-                onClick={() => upgradePayCard && setFunnelOpen(upgradePayCard)}
-                className="w-full text-left rounded-lg border border-[#00FF7F]/60 bg-gradient-to-r from-[#00FF7F]/15 to-[#00FF7F]/5 hover:from-[#00FF7F]/25 transition px-4 py-4 disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{ minHeight: 75 }}
-              >
-                <div className="font-bold text-white text-base leading-snug">
-                  {canBuyUpgrade
-                    ? <>Upgrade pro <span className="text-[#00FF7F]">Plano Diamante</span> por R$ {PRICES.diamante_upgrade}</>
-                    : <>Upgrade Diamante — <span className="text-white/60">Em breve</span></>}
-                </div>
-                <div className="text-xs text-white/60 mt-1">Desbloqueia {otherFeatures}</div>
-              </button>
+                {/* Card 2: Upgrade Diamante */}
+                <button
+                  disabled={!canBuyUpgrade || loadingPayCard}
+                  onClick={() => upgradePayCard && setFunnelOpen(upgradePayCard)}
+                  className="flex-1 min-w-0 text-left rounded-lg border border-[#00FF7F]/60 bg-gradient-to-r from-[#00FF7F]/15 to-[#00FF7F]/5 hover:from-[#00FF7F]/25 transition px-3 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                  style={{ minHeight: 100 }}
+                >
+                  <div className="font-bold text-white text-[13px] sm:text-sm leading-snug break-words">
+                    {canBuyUpgrade
+                      ? <>Upgrade pro <span className="text-[#00FF7F]">Plano Diamante</span> por R$ {PRICES.diamante_upgrade}</>
+                      : <>Upgrade Diamante — <span className="text-white/60">Em breve</span></>}
+                  </div>
+                  <div className="text-[10px] sm:text-xs text-white/60 mt-1 leading-tight break-words">Desbloqueia {otherFeatures}</div>
+                </button>
+              </div>
 
               <button
                 onClick={() => setPhase("main_step1")}
