@@ -1,0 +1,1 @@
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS discount_used boolean NOT NULL DEFAULT false;

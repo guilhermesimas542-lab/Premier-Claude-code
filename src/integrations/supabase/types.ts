@@ -1529,6 +1529,7 @@ export type Database = {
           avatar_id: string | null
           betting_house_id: string | null
           created_at: string
+          discount_used: boolean
           email: string
           first_access_at: string | null
           id: string
@@ -1543,6 +1544,7 @@ export type Database = {
           avatar_id?: string | null
           betting_house_id?: string | null
           created_at?: string
+          discount_used?: boolean
           email: string
           first_access_at?: string | null
           id?: string
@@ -1557,6 +1559,7 @@ export type Database = {
           avatar_id?: string | null
           betting_house_id?: string | null
           created_at?: string
+          discount_used?: boolean
           email?: string
           first_access_at?: string | null
           id?: string
@@ -1760,6 +1763,7 @@ export type Database = {
               avatar_id: string | null
               betting_house_id: string | null
               created_at: string
+              discount_used: boolean
               email: string
               first_access_at: string | null
               id: string
@@ -1783,6 +1787,7 @@ export type Database = {
               avatar_id: string | null
               betting_house_id: string | null
               created_at: string
+              discount_used: boolean
               email: string
               first_access_at: string | null
               id: string
