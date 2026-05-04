@@ -671,7 +671,12 @@ const Sport = () => {
 
       <main className="w-full max-w-7xl mx-auto px-4 pt-2 pb-6 space-y-2 overflow-x-hidden">
         {/* Section header above feature tabs */}
-        <div className="relative flex items-center justify-center pt-4 pb-3 px-1">
+        <button
+          type="button"
+          onClick={() => tabsScrollRef.current?.scrollBy({ left: tabsScrollRef.current.clientWidth * 0.8, behavior: 'smooth' })}
+          className="relative flex items-center justify-center pt-4 pb-3 px-1 w-full cursor-pointer"
+          aria-label="Ver mais mercados"
+        >
           <h2
             className="text-white font-bold"
             style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 15 }}
@@ -679,10 +684,10 @@ const Sport = () => {
             Mercados disponíveis
           </h2>
           <ChevronRight className="w-5 h-5 text-white/60 absolute right-1" />
-        </div>
+        </button>
         {/* Feature Tabs */}
         <div className="relative">
-        <div className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-2 px-1" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
+        <div ref={tabsScrollRef} className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-2 px-1" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
           {TAB_ORDER
             .filter(f => !(isPaidUser && f === "free"))
             .map((f) => {
