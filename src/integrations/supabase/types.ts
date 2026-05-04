@@ -460,6 +460,7 @@ export type Database = {
           created_at: string
           date: string
           expires_at: string | null
+          feature_required: string | null
           id: string
           justification: string | null
           link: string | null
@@ -494,6 +495,7 @@ export type Database = {
           created_at?: string
           date: string
           expires_at?: string | null
+          feature_required?: string | null
           id?: string
           justification?: string | null
           link?: string | null
@@ -528,6 +530,7 @@ export type Database = {
           created_at?: string
           date?: string
           expires_at?: string | null
+          feature_required?: string | null
           id?: string
           justification?: string | null
           link?: string | null
@@ -552,7 +555,15 @@ export type Database = {
           tier_required?: Database["public"]["Enums"]["main_tier"]
           title?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "content_entries_feature_required_fkey"
+            columns: ["feature_required"]
+            isOneToOne: false
+            referencedRelation: "features"
+            referencedColumns: ["key"]
+          },
+        ]
       }
       entitlements: {
         Row: {
@@ -657,6 +668,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      features: {
+        Row: {
+          created_at: string
+          description: string | null
+          included_in_diamante: boolean
+          included_in_premium: boolean
+          is_addon: boolean
+          key: string
+          label: string
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          included_in_diamante?: boolean
+          included_in_premium?: boolean
+          is_addon?: boolean
+          key: string
+          label: string
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          included_in_diamante?: boolean
+          included_in_premium?: boolean
+          is_addon?: boolean
+          key?: string
+          label?: string
+          sort_order?: number
+        }
+        Relationships: []
       }
       financial_events: {
         Row: {
@@ -1114,6 +1158,7 @@ export type Database = {
           entitlement_key: string | null
           id: string
           lastlink_product_uuid: string | null
+          pricing: Json
           product_name: string
           product_type: string
           provider: string
@@ -1127,6 +1172,7 @@ export type Database = {
           entitlement_key?: string | null
           id?: string
           lastlink_product_uuid?: string | null
+          pricing?: Json
           product_name: string
           product_type?: string
           provider: string
@@ -1140,6 +1186,7 @@ export type Database = {
           entitlement_key?: string | null
           id?: string
           lastlink_product_uuid?: string | null
+          pricing?: Json
           product_name?: string
           product_type?: string
           provider?: string
@@ -1709,13 +1756,18 @@ export type Database = {
     Enums: {
       entitlement_source: "purchase" | "manual" | "admin"
       entitlement_status: "active" | "expired" | "revoked"
-      main_tier: "free" | "basic" | "pro" | "ultra"
+      main_tier: "free" | "basic" | "pro" | "ultra" | "premium" | "diamante"
       order_status: "paid" | "refunded" | "chargeback"
       product_key:
         | "alavancagem"
         | "desaltas"
         | "live_telegram"
         | "acesso_vitalicio"
+        | "odds_safes"
+        | "odds_pro"
+        | "multiplas_bingo"
+        | "mercados_secundarios"
+        | "esportes_americanos"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1845,13 +1897,18 @@ export const Constants = {
     Enums: {
       entitlement_source: ["purchase", "manual", "admin"],
       entitlement_status: ["active", "expired", "revoked"],
-      main_tier: ["free", "basic", "pro", "ultra"],
+      main_tier: ["free", "basic", "pro", "ultra", "premium", "diamante"],
       order_status: ["paid", "refunded", "chargeback"],
       product_key: [
         "alavancagem",
         "desaltas",
         "live_telegram",
         "acesso_vitalicio",
+        "odds_safes",
+        "odds_pro",
+        "multiplas_bingo",
+        "mercados_secundarios",
+        "esportes_americanos",
       ],
     },
   },
