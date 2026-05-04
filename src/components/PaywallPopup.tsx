@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Check, X, ArrowLeft, Loader2, ImageIcon } from "lucide-react";
+import { X, ArrowLeft, Loader2 } from "lucide-react";
+import { PaywallEducationStep } from "@/components/PaywallEducationStep";
 import { supabase } from "@/integrations/supabase/client";
 import { PayCardFunnelModal } from "@/components/PayCardFunnelModal";
 import type { PayCardData } from "@/hooks/usePayCards";
