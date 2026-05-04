@@ -825,7 +825,7 @@ const Sport = () => {
                     width: activeCardIndex === i ? 16 : 4,
                     height: 4,
                     borderRadius: 2,
-                    background: activeCardIndex === i ? (activeTierHighlight ? TIER_TAB_COLORS[TIER_TABS.find(t => t.tier === activeTierHighlight)?.colorKey || "basic"] || "#60A5FA" : "#60A5FA") : "rgba(255,255,255,0.2)",
+                    background: activeCardIndex === i ? (activeFeatureHighlight ? TAB_META[activeFeatureHighlight].color : "#60A5FA") : "rgba(255,255,255,0.2)",
                     transition: "all 0.3s ease",
                   }}
                 />
