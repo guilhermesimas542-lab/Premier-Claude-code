@@ -376,28 +376,7 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
         </button>
 
         {phase === "main_step1" && (
-          <div className="space-y-5">
-            <h2
-              className="text-2xl font-bold text-center"
-              style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
-            >
-              {title}
-            </h2>
-            <ul className="space-y-2.5">
-              {benefits.map((b) => (
-                <li key={b} className="flex items-start gap-2 text-sm">
-                  <Check className="w-5 h-5 text-[#00FF7F] shrink-0 mt-0.5" />
-                  <span>{b}</span>
-                </li>
-              ))}
-            </ul>
-            <Button
-              className="w-full bg-[#00FF7F] hover:bg-[#00FF7F]/90 text-black font-bold"
-              onClick={() => setPhase("main_step2")}
-            >
-              Continuar
-            </Button>
-          </div>
+          <PaywallEducationStep feature={feature} onContinue={() => setPhase("main_step2")} />
         )}
 
         {phase === "main_step2" && (
