@@ -69,6 +69,16 @@ export function featureToDiscountPlanKey(f: FeatureKey): string | null {
   return `${f}_discount`;
 }
 
+/** Headline copy for step 1 of diamante_upgrade popup */
+export const FEATURE_HEADLINES: Record<Exclude<FeatureKey, "free">, string> = {
+  odds_safes: "Entenda como funciona as Odds Safes",
+  odds_pro: "Entenda como funciona as Odds Pró",
+  alavancagem: "Entenda como funciona a Alavancagem",
+  multiplas_bingo: "Entenda como funciona as Múltiplas",
+  mercados_secundarios: "Entenda como funciona os Mercados Secundários",
+  esportes_americanos: "Entenda como funciona o mercado de Esportes Americanos",
+};
+
 /** Short explanation copy used in step 1 of diamante_upgrade popup (placeholder, will be replaced later) */
 export const FEATURE_EXPLANATIONS: Record<Exclude<FeatureKey, "free">, string> = {
   odds_safes: "Placeholder: explicação curta de Odds Safes em 2-3 linhas.",

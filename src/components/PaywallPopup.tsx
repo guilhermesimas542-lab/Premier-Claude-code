@@ -12,6 +12,7 @@ import {
   type PaywallVariant,
   FEATURE_LABELS,
   FEATURE_EXPLANATIONS,
+  FEATURE_HEADLINES,
   PRICES,
   TELEGRAM_URL_PLACEHOLDER,
   variantToPlanKey,
@@ -277,6 +278,7 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
   if (isDiamanteUpgrade) {
     const featureLabel = feature !== "free" ? FEATURE_LABELS[feature] : "";
     const explanation = feature !== "free" ? FEATURE_EXPLANATIONS[feature] : "";
+    const headline = feature !== "free" ? FEATURE_HEADLINES[feature] : "";
     const canBuyAvulso = !!backPayCard;
     const canBuyUpgrade = !!upgradePayCard;
 
@@ -288,7 +290,7 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
 
     return (
       <Dialog open={open} onOpenChange={(o) => !o && handleCloseAttempt()}>
-        <DialogContent className="bg-[#112236] border-[#00FF7F]/30 text-white max-w-sm p-6">
+        <DialogContent className="bg-[#112236] border-[#00FF7F]/30 text-white w-[calc(100%-2rem)] max-w-sm p-5 sm:p-6 rounded-2xl">
           <button
             onClick={handleCloseAttempt}
             className="absolute top-3 right-3 p-1 rounded hover:bg-white/10"
@@ -298,12 +300,12 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
           </button>
 
           {phase === "main_step1" && (
-            <div className="space-y-4">
+            <div className="space-y-4 text-center">
               <h2
-                className="text-2xl font-bold leading-tight"
+                className="text-2xl sm:text-3xl font-bold leading-tight text-balance px-2"
                 style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
               >
-                Entenda como funciona {featureLabel}
+                {headline}
               </h2>
               {/* Slot 5:3 placeholder */}
               <div
