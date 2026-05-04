@@ -186,7 +186,8 @@ const Sport = () => {
   const { iframeRef, iframeUrl, setIframeUrl } = useSportOutletContext();
   const { setPendingTip } = usePendingTip();
 
-  const [activeTierHighlight, setActiveTierHighlight] = useState<TierType | null>(null);
+  const [activeFeatureHighlight, setActiveFeatureHighlight] = useState<FeatureKey | null>(null);
+  const [searchParams] = useSearchParams();
   const [activeCardIndex, setActiveCardIndex] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
@@ -245,9 +246,7 @@ const Sport = () => {
   const activeCarouselRef = useRef<HTMLDivElement>(null);
   const activeCardRefs = useRef<(HTMLDivElement | null)[]>([]);
   
-  const pathname = window.location.pathname;
-  const isAlavancagemRoute = pathname === "/alavancagem";
-  const isOddsAltasRoute = pathname === "/odds-altas";
+  const initialTabParam = searchParams.get("tab"); // e.g. "alavancagem"
 
   // Fetch tips directly from content_entries + user tier
   const fetchTips = useCallback(async () => {
