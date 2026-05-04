@@ -1577,6 +1577,30 @@ export type Database = {
           },
         ]
       }
+      users_pending_review: {
+        Row: {
+          created_at: string
+          email: string
+          legacy_main_tier: Database["public"]["Enums"]["main_tier"]
+          reason: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          legacy_main_tier: Database["public"]["Enums"]["main_tier"]
+          reason: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          legacy_main_tier?: Database["public"]["Enums"]["main_tier"]
+          reason?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       webhook_logs: {
         Row: {
           buyer_email: string | null
@@ -1751,6 +1775,10 @@ export type Database = {
       update_user_access: {
         Args: { p_now: string; p_user_id: string }
         Returns: undefined
+      }
+      user_has_feature: {
+        Args: { p_feature: string; p_user: string }
+        Returns: boolean
       }
     }
     Enums: {
