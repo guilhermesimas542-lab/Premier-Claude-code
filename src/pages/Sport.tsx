@@ -671,14 +671,14 @@ const Sport = () => {
 
       <main className="w-full max-w-7xl mx-auto px-4 pt-2 pb-6 space-y-2 overflow-x-hidden">
         {/* Section header above feature tabs */}
-        <div className="flex items-center justify-center gap-1 pt-4 pb-3 px-1">
+        <div className="relative flex items-center justify-center pt-4 pb-3 px-1">
           <h2
             className="text-white font-bold"
             style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 15 }}
           >
             Mercados disponíveis
           </h2>
-          <ChevronRight className="w-5 h-5 text-white/60" />
+          <ChevronRight className="w-5 h-5 text-white/60 absolute right-1" />
         </div>
         {/* Feature Tabs */}
         <div className="relative">
