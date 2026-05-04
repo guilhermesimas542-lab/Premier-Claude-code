@@ -43,8 +43,8 @@ export function resolvePaywallVariant(
   if (userTier === "premium") {
     return isDiamanteOnly ? "diamante_upgrade" : "premium"; // premium fallback shouldn't happen (no lock)
   }
-  // free / legacy basic/pro/ultra → treated as needing the main paywall
-  return isDiamanteOnly ? "diamante" : "premium";
+  // free / legacy basic/pro/ultra → sempre Premium R$47 (qualquer cadeado)
+  return "premium";
 }
 
 /** associated_plan slug for pay_cards lookup per variant */
