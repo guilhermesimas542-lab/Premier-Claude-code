@@ -23,21 +23,29 @@ import FeedbackModal from "@/components/FeedbackModal";
 import logoImg from "@/assets/premier-logo-custom.png";
 
 const TIER_LABELS: Record<string, string> = {
-  free: 'Gratuito', basic: 'Basic', pro: 'Pro', ultra: 'Ultra',
+  free: 'Gratuito',
+  basic: 'Basic',
+  pro: 'Pro',
+  premium: 'Premium',
+  diamante: 'Diamante',
+  ultra: 'Diamante',
 };
 const NEXT_TIER: Record<string, string> = {
-  free: 'basic', basic: 'pro', pro: 'ultra',
+  free: 'premium',
+  premium: 'diamante',
+  basic: 'pro',
+  pro: 'ultra',
 };
 
 const PlanUpgradeCard = () => {
   const { mainTier, loading } = useUserAccess();
   const { triggerPayCard, payCard, open: payCardOpen, closePayCard } = usePayCardTrigger();
   if (loading) return null;
-  const isMaxTier = mainTier === 'ultra';
+  const isMaxTier = mainTier === 'ultra' || mainTier === 'diamante';
   const nextTier = NEXT_TIER[mainTier] || '';
 
   const handleUpgrade = async () => {
-    const planMap: Record<string, string> = { basic: 'basic', pro: 'pro', ultra: 'ultra' };
+    const planMap: Record<string, string> = { premium: 'premium', diamante: 'diamante', basic: 'basic', pro: 'pro', ultra: 'ultra' };
     const planKey = planMap[nextTier];
     if (planKey) {
       const found = await triggerPayCard(planKey);
@@ -63,7 +71,7 @@ const PlanUpgradeCard = () => {
         <p className="text-sm" style={{ color: '#CCCCCC' }}>
           Plano atual:{' '}
           <span style={{ color: isMaxTier ? '#7C3AED' : '#00FF7F', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700 }}>
-            {TIER_LABELS[mainTier] || 'Gratuito'}
+            {TIER_LABELS[mainTier] || mainTier || 'Gratuito'}
           </span>
         </p>
         {!isMaxTier && (
@@ -135,6 +143,7 @@ const Support = () => {
   const { xpInLevel, xpNeeded, progress } = getXpProgress(totalXp, level);
   const currentAvatar = getAvatarById(currentAvatarId);
   const levelTitle = LEVEL_TITLES[level] || 'Novato';
+  const planLabel = mockUser?.mainTier ? TIER_LABELS[mockUser.mainTier] || mockUser.mainTier : null;
   const { links } = useLinks();
 
   const handleOpenSupport = () => {
@@ -184,9 +193,17 @@ const Support = () => {
               )}
 
               {/* Level Badge */}
-              <div className="mt-1.5 inline-flex items-center gap-1.5 px-3 py-1 rounded-full" style={{ background: 'rgba(0,255,127,0.12)', border: '1px solid rgba(0,255,127,0.25)' }}>
-                <Star className="w-3 h-3" style={{ color: '#94A3B8' }} />
-                <span className="text-xs font-bold" style={{ color: '#94A3B8' }}>Nível {level} — {levelTitle}</span>
+              <div className="mt-1.5 flex flex-wrap gap-1.5">
+                {planLabel && (
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full" style={{ background: 'rgba(0,255,127,0.16)', border: '1px solid rgba(0,255,127,0.35)' }}>
+                    <Crown className="w-3 h-3" style={{ color: '#00FF7F' }} />
+                    <span className="text-xs font-bold" style={{ color: '#00FF7F' }}>Plano {planLabel}</span>
+                  </div>
+                )}
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full" style={{ background: 'rgba(0,255,127,0.12)', border: '1px solid rgba(0,255,127,0.25)' }}>
+                  <Star className="w-3 h-3" style={{ color: '#94A3B8' }} />
+                  <span className="text-xs font-bold" style={{ color: '#94A3B8' }}>Nível {level} — {levelTitle}</span>
+                </div>
               </div>
 
               {/* XP Bar */}
