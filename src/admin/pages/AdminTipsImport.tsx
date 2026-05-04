@@ -170,6 +170,7 @@ export default function AdminTipsImport() {
         odd: parseFloat(r.odd),
         tier_required: cat.tier as any,
         addon_required: cat.addon as any,
+        feature_required: cat.feature,
         active: true,
         team1_name: r.team1_name,
         team1_logo_url: r.team1_logo_url || null,
