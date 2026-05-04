@@ -22,6 +22,7 @@ import { useUserBettingHouse } from "@/hooks/useUserBettingHouse";
 import { UpgradePopup } from "@/components/HousePopups";
 import { usePayCardByPlan, type PayCardData } from "@/hooks/usePayCards";
 import { PayCardFunnelModal } from "@/components/PayCardFunnelModal";
+import { PaywallPopup } from "@/components/PaywallPopup";
 import AppHeader from "@/components/AppHeader";
 import { usePendingTip } from "@/contexts/PendingTipContext";
 
