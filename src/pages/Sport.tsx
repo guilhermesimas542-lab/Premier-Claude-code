@@ -203,14 +203,17 @@ const Sport = () => {
   const [upgradePopupImage, setUpgradePopupImage] = useState<string | null>(null);
   const [upgradePopupLink, setUpgradePopupLink] = useState<string | null>(null);
 
-  const [payCardData, setPayCardData] = useState<PayCardData | null>(null);
-  const [payCardModalOpen, setPayCardModalOpen] = useState(false);
   const [showLifetimeInfoModal, setShowLifetimeInfoModal] = useState(false);
-  const { fetchByPlan } = usePayCardByPlan();
+
+  // New paywall popup state
+  const [paywallOpen, setPaywallOpen] = useState(false);
+  const [paywallVariant, setPaywallVariant] = useState<import("@/lib/paywallRouting").PaywallVariant>("premium");
+  const [paywallFeature, setPaywallFeature] = useState<FeatureKey>("free");
 
   const [tips, setTips] = useState<DisplayTip[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isPaidUser, setIsPaidUser] = useState(false);
+  const [userTier, setUserTier] = useState<string>("free");
 
   // Tick every second so expired tips disappear in real-time
   const [tick, setTick] = useState(0);
