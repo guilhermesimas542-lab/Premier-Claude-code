@@ -542,66 +542,14 @@ const Sport = () => {
   };
 
 
-  const handleLockedClick = async (entry: DisplayTip) => {
-    trackEvent("click_locked_entry", { tier: entry.tier_required, addon: entry.addon_required, title: entry.title });
-    // Determine the plan key for pay_cards lookup based on the tip's feature
-    const feat = getEntryFeature(entry);
-    const planKey: string | null = featureToPlanKey(feat);
-
-    // Try house-specific pay card first, then generic
-    if (planKey) {
-      let pc: PayCardData | null = null;
-      if (userHouse?.id) {
-        const { data } = await supabase
-          .from("pay_cards" as any)
-          .select("*")
-          .eq("associated_plan", planKey)
-          .eq("betting_house_id", userHouse.id)
-          .eq("is_active", true)
-          .limit(1)
-          .maybeSingle();
-        pc = data as any;
-      }
-      if (!pc) {
-        pc = await fetchByPlan(planKey);
-      }
-      if (pc) {
-        setPayCardData(pc);
-        setPayCardModalOpen(true);
-        return;
-      }
-    }
-
-    // Fallback to legacy upgrade popup
-    const h = userHouse as any;
-    let image: string | null = null;
-    let link: string | null = null;
-
-    if (entry.addon_required === "alavancagem") {
-      image = h?.popup_alavancagem_image ?? null;
-      link = h?.popup_alavancagem_link ?? null;
-    } else if (entry.addon_required === "desaltas") {
-      image = h?.popup_odds_altas_image ?? null;
-      link = h?.popup_odds_altas_link ?? null;
-    } else if (entry.addon_required === "live_telegram") {
-      image = h?.popup_live_telegram_image ?? null;
-      link = h?.popup_live_telegram_link ?? null;
-    } else if (entry.tier_required === "basic") {
-      image = h?.popup_basic_image ?? null;
-      link = h?.popup_basic_link ?? null;
-    } else if (entry.tier_required === "pro") {
-      image = h?.popup_pro_image ?? null;
-      link = h?.popup_pro_link ?? null;
-    } else if (entry.tier_required === "ultra") {
-      image = h?.popup_ultra_image ?? null;
-      link = h?.popup_ultra_link ?? null;
-    }
-
-    if (image) {
-      setUpgradePopupImage(image);
-      setUpgradePopupLink(link);
-      setUpgradePopupOpen(true);
-    }
+  const handleLockedClick = async (entry: { tier_required: string; addon_required: string | null; feature_required: string | null; title?: string }) => {
+    trackEvent("click_locked_entry", { tier: entry.tier_required, addon: entry.addon_required, title: (entry as any).title });
+    const feat = getEntryFeature(entry as any);
+    const { resolvePaywallVariant } = await import("@/lib/paywallRouting");
+    const variant = resolvePaywallVariant(feat, userTier);
+    setPaywallFeature(feat);
+    setPaywallVariant(variant);
+    setPaywallOpen(true);
   };
 
   const handleOpenJustificativa = useCallback((texto: string) => {
