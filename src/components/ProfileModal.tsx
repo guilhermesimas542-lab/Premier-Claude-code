@@ -12,6 +12,15 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import AchievementsSection from "@/components/AchievementsSection";
 
+const TIER_LABELS: Record<string, string> = {
+  free: "Gratuito",
+  basic: "Basic",
+  pro: "Pro",
+  premium: "Premium",
+  diamante: "Diamante",
+  ultra: "Diamante",
+};
+
 interface ProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -27,6 +36,7 @@ const ProfileModal = ({ isOpen, onClose }: ProfileModalProps) => {
   } = useAchievements(userId);
   const [nickname, setNickname] = useState("");
   const [currentAvatarId, setCurrentAvatarId] = useState("avatar_default_1");
+  const [currentTier, setCurrentTier] = useState<string | null>(null);
   const [showAvatarModal, setShowAvatarModal] = useState(false);
   const [showNicknameModal, setShowNicknameModal] = useState(false);
   const [nicknameInput, setNicknameInput] = useState("");
@@ -37,12 +47,13 @@ const ProfileModal = ({ isOpen, onClose }: ProfileModalProps) => {
     const fetchProfile = async () => {
       const { data } = await supabase
         .from('users')
-        .select('nickname, avatar_id')
+        .select('nickname, avatar_id, main_tier')
         .eq('id', userId)
         .maybeSingle();
       if (data) {
         setNickname((data as any).nickname || "");
         setCurrentAvatarId((data as any).avatar_id || "avatar_default_1");
+        setCurrentTier((data as any).main_tier || null);
       }
     };
     fetchProfile();
@@ -53,6 +64,7 @@ const ProfileModal = ({ isOpen, onClose }: ProfileModalProps) => {
   const { xpInLevel, xpNeeded, progress } = getXpProgress(totalXp, level);
   const currentAvatar = getAvatarById(currentAvatarId);
   const levelTitle = LEVEL_TITLES[level] || 'Novato';
+  const planLabel = currentTier ? TIER_LABELS[currentTier] || currentTier : null;
   
 
   const handleSaveNickname = async () => {
@@ -141,9 +153,17 @@ const ProfileModal = ({ isOpen, onClose }: ProfileModalProps) => {
               </button>
               <p className="text-sm opacity-70 mt-1 text-white">{mockUser.email}</p>
 
-              <div className="mt-4 inline-flex items-center gap-2 px-4 py-1.5 rounded-full" style={{ background: 'rgba(0,255,0,0.15)', border: '1px solid rgba(0,255,0,0.3)' }}>
-                <Star className="w-4 h-4" style={{ color: '#FFD700' }} />
-                <span className="text-sm font-bold" style={{ color: '#FFD700' }}>Nível {level} — {levelTitle}</span>
+              <div className="mt-4 flex flex-wrap justify-center gap-2">
+                {planLabel && (
+                  <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full" style={{ background: 'rgba(0,255,127,0.16)', border: '1px solid rgba(0,255,127,0.35)' }}>
+                    <Trophy className="w-4 h-4" style={{ color: '#00FF7F' }} />
+                    <span className="text-sm font-bold" style={{ color: '#00FF7F' }}>Plano {planLabel}</span>
+                  </div>
+                )}
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full" style={{ background: 'rgba(0,255,0,0.15)', border: '1px solid rgba(0,255,0,0.3)' }}>
+                  <Star className="w-4 h-4" style={{ color: '#FFD700' }} />
+                  <span className="text-sm font-bold" style={{ color: '#FFD700' }}>Nível {level} — {levelTitle}</span>
+                </div>
               </div>
 
               <div className="mt-4">
