@@ -113,7 +113,7 @@ export default function AdminTipsCreate() {
 
   const set = (key: string, val: string) => setForm((f) => ({ ...f, [key]: val }));
 
-  const isSpecialCategory = form.categoria === "alavancagem" || form.categoria === "odds_altas";
+  const isSpecialCategory = form.categoria === "alavancagem";
   const isBilheteEspecial = form.palpite?.trim().toLowerCase() === "bilhete especial";
 
   useEffect(() => {
@@ -123,13 +123,6 @@ export default function AdminTipsCreate() {
         palpite: "Alavancagem do Dia",
         mercado: "Combinação de Mercados",
         mercado_explicacao: "Esta é uma entrada especial que combina múltiplos mercados de baixa odd para criar uma aposta mais segura e com potencial de alavancagem de banca.",
-      }));
-    } else if (form.categoria === "odds_altas") {
-      setForm(f => ({
-        ...f,
-        palpite: "Múltipla do Dia",
-        mercado: "Múltipla de Alto Risco",
-        mercado_explicacao: "Esta é uma aposta múltipla que combina resultados de maior risco para buscar um retorno financeiro significativamente mais alto.",
       }));
     }
   }, [form.categoria]);
