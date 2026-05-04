@@ -168,13 +168,13 @@ const FEATURE_DISPLAY_ORDER: Record<FeatureKey, number> = {
 };
 
 const TAB_META: Record<FeatureKey, { label: string; labelShort: string; color: string }> = {
-  free:                 { label: "Grátis",               labelShort: "Grátis",   color: "#94A3B8" },
-  odds_safes:           { label: "Odds Safes",           labelShort: "Safes",    color: "#60A5FA" },
-  odds_pro:             { label: "Odds Pró",             labelShort: "Pró",      color: "#00E87A" },
-  alavancagem:          { label: "Alavancagem",          labelShort: "Alav.",    color: "#F0B429" },
-  multiplas_bingo:      { label: "Múltiplas Bingo",      labelShort: "Múlt.",    color: "#FF6B9D" },
-  mercados_secundarios: { label: "Mercados Secundários", labelShort: "Merc.",    color: "#A78BFA" },
-  esportes_americanos:  { label: "Esportes Americanos",  labelShort: "EUA",      color: "#EF4444" },
+  free:                 { label: "Grátis",            labelShort: "Grátis",            color: "#94A3B8" },
+  odds_safes:           { label: "Odds Safes",        labelShort: "Odds Safes",        color: "#60A5FA" },
+  odds_pro:             { label: "Odds Pró",          labelShort: "Odds Pró",          color: "#00E87A" },
+  alavancagem:          { label: "Alavancagem",       labelShort: "Alavancagem",       color: "#F0B429" },
+  multiplas_bingo:      { label: "Múltiplas",         labelShort: "Múltiplas",         color: "#FF6B9D" },
+  mercados_secundarios: { label: "Merc. Secundário",  labelShort: "Merc. Secundário",  color: "#A78BFA" },
+  esportes_americanos:  { label: "Ligas Americanas",  labelShort: "Ligas Americanas",  color: "#EF4444" },
 };
 
 const Sport = () => {
