@@ -3,11 +3,16 @@ import { supabase } from "@/integrations/supabase/client";
 import { mockGetUser } from "@/mocks/user";
 
 export interface UserAccess {
-  mainTier: "free" | "basic" | "pro" | "ultra";
+  /** Raw tier string from DB. Use ONLY for display/labels — never gate features by this. */
+  mainTier: string;
+  // Feature flags (gated via user_has_feature server-side)
+  hasOddsSafes: boolean;
+  hasOddsPro: boolean;
   hasAlavancagem: boolean;
   hasOddsAltas: boolean;
   hasLiveTelegram: boolean;
   isVitalicio: boolean;
+  // Legacy display helpers (kept for back-compat with components that rely on tier label)
   isUltra: boolean;
   isPro: boolean;
   isBasic: boolean;
@@ -16,8 +21,10 @@ export interface UserAccess {
   refetch: () => Promise<void>;
 }
 
-const DEFAULT: UserAccess = {
+const DEFAULT: Omit<UserAccess, "refetch"> = {
   mainTier: "free",
+  hasOddsSafes: false,
+  hasOddsPro: false,
   hasAlavancagem: false,
   hasOddsAltas: false,
   hasLiveTelegram: false,
@@ -27,8 +34,17 @@ const DEFAULT: UserAccess = {
   isBasic: false,
   isFree: true,
   loading: true,
-  refetch: async () => {},
 };
+
+// Features checked via DB function user_has_feature
+const FEATURE_KEYS = [
+  "odds_safes",
+  "odds_pro",
+  "alavancagem",
+  "desaltas",
+  "live_telegram",
+  "acesso_vitalicio",
+] as const;
 
 export function useUserAccess(): UserAccess {
   const [state, setState] = useState<Omit<UserAccess, "refetch">>({ ...DEFAULT, loading: true });
@@ -47,30 +63,33 @@ export function useUserAccess(): UserAccess {
       .eq("email", mockUser.email.toLowerCase().trim())
       .maybeSingle();
 
-    const tier = (userData?.main_tier as UserAccess["mainTier"]) || "free";
+    const tier = (userData?.main_tier as string) || "free";
     const userId = userData?.id;
 
-    let addons: string[] = [];
+    // Default all flags to false; only call user_has_feature if we have a user.
+    const flags: Record<string, boolean> = {};
     if (userId) {
-      const { data: ents } = await supabase
-        .from("entitlements")
-        .select("product_key")
-        .eq("user_id", userId)
-        .eq("status", "active");
-      addons = (ents || []).map((e) => e.product_key);
+      const results = await Promise.all(
+        FEATURE_KEYS.map((k) =>
+          supabase.rpc("user_has_feature", { p_user: userId, p_feature: k }),
+        ),
+      );
+      FEATURE_KEYS.forEach((k, i) => {
+        flags[k] = results[i].data === true;
+      });
     }
-
-    const isVitalicio = addons.includes("acesso_vitalicio");
 
     setState({
       mainTier: tier,
-      hasAlavancagem: addons.includes("alavancagem"),
-      hasOddsAltas: addons.includes("desaltas"),
-      hasLiveTelegram: addons.includes("live_telegram"),
-      isVitalicio,
-      isUltra: tier === "ultra",
-      isPro: tier === "pro" || tier === "ultra",
-      isBasic: tier === "basic" || tier === "pro" || tier === "ultra",
+      hasOddsSafes: !!flags.odds_safes,
+      hasOddsPro: !!flags.odds_pro,
+      hasAlavancagem: !!flags.alavancagem,
+      hasOddsAltas: !!flags.desaltas,
+      hasLiveTelegram: !!flags.live_telegram,
+      isVitalicio: !!flags.acesso_vitalicio,
+      isUltra: tier === "ultra" || tier === "diamante",
+      isPro: tier === "pro" || tier === "ultra" || tier === "premium" || tier === "diamante",
+      isBasic: tier !== "free",
       isFree: tier === "free",
       loading: false,
     });
