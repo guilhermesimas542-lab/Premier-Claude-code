@@ -1,4 +1,4 @@
-import { ArrowLeft, LogOut, Loader2, Lock, Menu, X, Gift, Headphones, Crown } from "lucide-react";
+import { ArrowLeft, LogOut, Loader2, Lock, Menu, X, Gift, Headphones, Crown, ChevronRight } from "lucide-react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { useSportOutletContext } from "@/pages/SportLayout";
