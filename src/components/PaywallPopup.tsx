@@ -199,6 +199,11 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
       onClose();
       return;
     }
+    // Free → Premium: no backredirect/avulso offer, just close
+    if (variant === "premium") {
+      onClose();
+      return;
+    }
     setPhase("backredirect");
   };
 
