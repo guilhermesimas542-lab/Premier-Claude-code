@@ -88,9 +88,9 @@ const App = () => {
             <Route path="/" element={<Home />} />
             <Route element={<SportLayout />}>
               <Route path="/sport/:sportId" element={<Sport />} />
-              <Route path="/alavancagem" element={<Sport />} />
-              <Route path="/odds-altas" element={<Sport />} />
             </Route>
+            <Route path="/alavancagem" element={<Navigate to="/sport/1?tab=alavancagem" replace />} />
+            <Route path="/odds-altas" element={<Navigate to="/sport/1" replace />} />
             
             <Route path="/ultimos-greens" element={<UltimosGreens />} />
             <Route path="/cassino" element={<Casino />} />

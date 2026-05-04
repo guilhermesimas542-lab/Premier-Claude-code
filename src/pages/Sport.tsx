@@ -1,5 +1,5 @@
 import { ArrowLeft, LogOut, Loader2, Lock, Menu, X, Gift, Headphones, Crown } from "lucide-react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { useSportOutletContext } from "@/pages/SportLayout";
 import { PremiumBettingCard } from "@/components/PremiumBettingCard";
@@ -25,7 +25,16 @@ import { PayCardFunnelModal } from "@/components/PayCardFunnelModal";
 import AppHeader from "@/components/AppHeader";
 import { usePendingTip } from "@/contexts/PendingTipContext";
 
-// ============ TIPOS ============
+// ============ TIPOS (feature-based) ============
+type FeatureKey =
+  | "free"
+  | "odds_safes"
+  | "odds_pro"
+  | "alavancagem"
+  | "multiplas_bingo"
+  | "mercados_secundarios"
+  | "esportes_americanos";
+
 type TierType = "GRÁTIS" | "ALAVANCAGEM" | "ODDS_ALTAS" | "BÁSICO" | "PRO" | "ULTRA" | "MÚLTIPLA";
 
 interface ContentEntry {
@@ -40,6 +49,7 @@ interface ContentEntry {
   odd: number | null;
   tier_required: string;
   addon_required: string | null;
+  feature_required: string | null;
   starts_at: string | null;
   expires_at: string | null;
   link: string | null;
@@ -61,95 +71,109 @@ interface ContentEntry {
   active: boolean;
 }
 
-
 interface DisplayTip extends ContentEntry {
   display_status: "unlocked" | "locked" | "expired";
 }
 
-// Map DB tier to display tier
-function mapTierToDisplay(tierRequired: string, addonRequired: string | null): TierType {
-  if (addonRequired === "alavancagem") return "ALAVANCAGEM";
-  if (addonRequired === "desaltas") return "ODDS_ALTAS";
-  switch (tierRequired) {
+/** Resolve a tip's effective FeatureKey from feature_required (with legacy fallback) */
+function getEntryFeature(entry: { feature_required: string | null; tier_required: string; addon_required: string | null }): FeatureKey {
+  const f = entry.feature_required;
+  if (f === "odds_safes" || f === "odds_pro" || f === "alavancagem"
+      || f === "multiplas_bingo" || f === "mercados_secundarios" || f === "esportes_americanos") {
+    return f;
+  }
+  // Legacy fallback (defensive — backfill should have populated everything)
+  if (entry.addon_required === "alavancagem") return "alavancagem";
+  if (entry.addon_required === "desaltas") return "odds_pro";
+  if (entry.tier_required === "basic") return "odds_safes";
+  if (entry.tier_required === "pro" || entry.tier_required === "ultra") return "odds_pro";
+  return "free";
+}
+
+/** Visual tier mapping for PremiumBettingCard / SpecialBettingCard */
+function featureToDisplayTier(f: FeatureKey): TierType {
+  switch (f) {
     case "free": return "GRÁTIS";
-    case "basic": return "BÁSICO";
-    case "pro": return "PRO";
-    case "ultra": return "ULTRA";
-    default: return "BÁSICO";
+    case "alavancagem": return "ALAVANCAGEM";
+    case "odds_safes": return "BÁSICO";
+    case "odds_pro": return "PRO";
+    case "multiplas_bingo": return "MÚLTIPLA";
+    case "mercados_secundarios": return "ULTRA";
+    case "esportes_americanos": return "ULTRA";
   }
 }
 
-function getTierLabel(tierRequired: string, addonRequired: string | null): string {
-  if (addonRequired === "alavancagem") return "Alavancagem";
-  if (addonRequired === "desaltas") return "Odds Altas";
-  switch (tierRequired) {
-    case "basic": return "Básico";
-    case "pro": return "Pro";
-    case "ultra": return "Ultra";
+/** Map feature → pay_cards.associated_plan key (for locked-click funnel lookup) */
+function featureToPlanKey(f: FeatureKey): string | null {
+  switch (f) {
+    case "alavancagem": return "alavancagem";
+    case "odds_safes": return "basic";
+    case "odds_pro": return "pro";
+    case "multiplas_bingo":
+    case "mercados_secundarios":
+    case "esportes_americanos": return "ultra";
+    default: return null;
+  }
+}
+
+function getFeatureLabel(f: FeatureKey): string {
+  switch (f) {
+    case "odds_safes": return "Odds Safes";
+    case "odds_pro": return "Odds Pró";
+    case "alavancagem": return "Alavancagem";
+    case "multiplas_bingo": return "Múltiplas Bingo";
+    case "mercados_secundarios": return "Mercados Secundários";
+    case "esportes_americanos": return "Esportes Americanos";
     default: return "Premium";
   }
 }
 
-function getAllowedTiers(mainTier: string): string[] {
-  switch (mainTier) {
-    case "free": return ["free"];
-    case "basic":
-    case "premium": return ["basic"];
-    case "pro": return ["basic", "pro"];
-    case "ultra":
-    case "diamante": return ["basic", "pro", "ultra"];
-    default: return ["free"];
-  }
-}
-
-  function calculateDisplayStatus(
+function calculateDisplayStatus(
   entry: ContentEntry,
-  allowedTiers: string[],
-  activeAddons: string[],
+  userFeatures: Set<string>,
 ): "unlocked" | "locked" | "expired" {
   const now = toZonedTime(new Date(), BRAZIL_TZ);
-
-  // Expiration check: prefer expires_at; fallback to starts_at + 1 hour
   if (entry.expires_at) {
     if (now > toZonedTime(new Date(entry.expires_at), BRAZIL_TZ)) return "expired";
   } else if (entry.starts_at) {
     const startsAt = new Date(entry.starts_at);
     if (now > toZonedTime(new Date(startsAt.getTime() + 60 * 60 * 1000), BRAZIL_TZ)) return "expired";
   }
-
-  // Addon access
-  if (entry.addon_required && activeAddons.includes(entry.addon_required)) return "unlocked";
-  // Tier access (only for non-addon entries)
-  if (!entry.addon_required && allowedTiers.includes(entry.tier_required)) return "unlocked";
+  const feat = getEntryFeature(entry);
+  if (feat === "free") return "unlocked";
+  if (userFeatures.has(feat)) return "unlocked";
   return "locked";
 }
 
-const TIER_DISPLAY_ORDER: Record<TierType, number> = {
-  "GRÁTIS": 0,
-  "ALAVANCAGEM": 1,
-  "ODDS_ALTAS": 2,
-  "BÁSICO": 3,
-  "PRO": 4,
-  "ULTRA": 5,
-  "MÚLTIPLA": 6,
-};
-
-const TIER_TABS: { tier: TierType; label: string; labelShort: string; colorKey: string }[] = [
-  { tier: "GRÁTIS", label: "Grátis", labelShort: "Grátis", colorKey: "free" },
-  { tier: "ALAVANCAGEM", label: "Alavancagem", labelShort: "Alav.", colorKey: "alavancagem" },
-  { tier: "ODDS_ALTAS", label: "Odds Altas", labelShort: "Odds Alt.", colorKey: "odds_altas" },
-  { tier: "BÁSICO", label: "Básico", labelShort: "Basic", colorKey: "basic" },
-  { tier: "PRO", label: "Pro", labelShort: "Pro", colorKey: "pro" },
-  { tier: "ULTRA", label: "Ultra", labelShort: "Ultra", colorKey: "ultra" },
+// 7 tabs in fixed order: Grátis, Odds Safes, Odds Pró, Alavancagem, Múltiplas Bingo, Mercados Sec., Esp. Americanos
+const TAB_ORDER: FeatureKey[] = [
+  "free",
+  "odds_safes",
+  "odds_pro",
+  "alavancagem",
+  "multiplas_bingo",
+  "mercados_secundarios",
+  "esportes_americanos",
 ];
 
-const TIER_TAB_COLORS: Record<string, string> = {
-  free: "#94A3B8",
-  basic: "#60A5FA",
-  pro: "#00E87A",
-  ultra: "#7C3AED",
-  alavancagem: "#F0B429",
-  odds_altas: "#F97316",
+const FEATURE_DISPLAY_ORDER: Record<FeatureKey, number> = {
+  free: 0,
+  odds_safes: 1,
+  odds_pro: 2,
+  alavancagem: 3,
+  multiplas_bingo: 4,
+  mercados_secundarios: 5,
+  esportes_americanos: 6,
+};
+
+const TAB_META: Record<FeatureKey, { label: string; labelShort: string; color: string }> = {
+  free:                 { label: "Grátis",               labelShort: "Grátis",   color: "#94A3B8" },
+  odds_safes:           { label: "Odds Safes",           labelShort: "Safes",    color: "#60A5FA" },
+  odds_pro:             { label: "Odds Pró",             labelShort: "Pró",      color: "#00E87A" },
+  alavancagem:          { label: "Alavancagem",          labelShort: "Alav.",    color: "#F0B429" },
+  multiplas_bingo:      { label: "Múltiplas Bingo",      labelShort: "Múlt.",    color: "#FF6B9D" },
+  mercados_secundarios: { label: "Mercados Secundários", labelShort: "Merc.",    color: "#A78BFA" },
+  esportes_americanos:  { label: "Esportes Americanos",  labelShort: "EUA",      color: "#EF4444" },
 };
 
 const Sport = () => {
@@ -162,7 +186,8 @@ const Sport = () => {
   const { iframeRef, iframeUrl, setIframeUrl } = useSportOutletContext();
   const { setPendingTip } = usePendingTip();
 
-  const [activeTierHighlight, setActiveTierHighlight] = useState<TierType | null>(null);
+  const [activeFeatureHighlight, setActiveFeatureHighlight] = useState<FeatureKey | null>(null);
+  const [searchParams] = useSearchParams();
   const [activeCardIndex, setActiveCardIndex] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
@@ -221,11 +246,11 @@ const Sport = () => {
   const activeCarouselRef = useRef<HTMLDivElement>(null);
   const activeCardRefs = useRef<(HTMLDivElement | null)[]>([]);
   
-  const pathname = window.location.pathname;
-  const isAlavancagemRoute = pathname === "/alavancagem";
-  const isOddsAltasRoute = pathname === "/odds-altas";
+  const initialTabParam = searchParams.get("tab"); // e.g. "alavancagem"
 
-  // Fetch tips directly from content_entries + user tier
+  // Fetch tips directly from content_entries + user features
+  const [userFeatures, setUserFeatures] = useState<Set<string>>(new Set());
+
   const fetchTips = useCallback(async () => {
     setIsLoading(true);
     setError(null);
@@ -237,7 +262,6 @@ const Sport = () => {
         return;
       }
 
-      // Get user tier from DB
       const { data: userData } = await supabase
         .from("users")
         .select("id, main_tier")
@@ -247,24 +271,25 @@ const Sport = () => {
       const userTier = userData?.main_tier || "free";
       const userId = userData?.id;
 
-      // Get active addons
-      let activeAddons: string[] = [];
+      // Resolve feature flags via DB (uses user_has_feature with LEGACY UNIVERSAL fallback)
+      const features = new Set<string>();
       if (userId) {
-        const { data: entitlements } = await supabase
-          .from("entitlements")
-          .select("product_key")
-          .eq("user_id", userId)
-          .eq("status", "active");
-        activeAddons = (entitlements || []).map(e => e.product_key);
+        const featureKeys = [
+          "odds_safes", "odds_pro", "alavancagem",
+          "multiplas_bingo", "mercados_secundarios", "esportes_americanos",
+        ];
+        const results = await Promise.all(
+          featureKeys.map(k => supabase.rpc("user_has_feature", { p_user: userId, p_feature: k })),
+        );
+        featureKeys.forEach((k, i) => { if (results[i].data === true) features.add(k); });
       }
+      setUserFeatures(features);
 
-      const allowedTiers = getAllowedTiers(userTier);
       const _isPaidUser = userTier !== "free";
       setIsPaidUser(_isPaidUser);
       const today = getTodayInBrazil();
       console.log("[Sport] getTodayInBrazil() =", today, "| UTC now =", new Date().toISOString());
 
-      // Fetch today's active entries
       const { data: entries, error: fetchError } = await supabase
         .from("content_entries")
         .select("*")
@@ -280,25 +305,22 @@ const Sport = () => {
         return;
       }
 
-      // Process entries: filter + calculate display_status
       const rawEntries = (entries || []) as unknown as ContentEntry[];
       const processed: DisplayTip[] = rawEntries
         .filter((e: ContentEntry) => {
-          // Paid users don't see free-tier entries (unless addon)
-          if (_isPaidUser && e.tier_required === "free" && !e.addon_required) return false;
+          // Paid users don't see Grátis tab content
+          if (_isPaidUser && getEntryFeature(e) === "free") return false;
           return true;
         })
         .map((e: ContentEntry) => ({
           ...e,
-          display_status: calculateDisplayStatus(e, allowedTiers, activeAddons),
+          display_status: calculateDisplayStatus(e, features),
         }))
-        // Remove expired tips completely — they don't appear at all
         .filter((e) => e.display_status !== "expired")
-        // Sort by fixed tier order: Grátis → Alavancagem → Odds Altas → Básico → Pro → Ultra
         .sort((a, b) => {
-          const tierA = TIER_DISPLAY_ORDER[mapTierToDisplay(a.tier_required, a.addon_required)] ?? 99;
-          const tierB = TIER_DISPLAY_ORDER[mapTierToDisplay(b.tier_required, b.addon_required)] ?? 99;
-          return tierA - tierB;
+          const fa = FEATURE_DISPLAY_ORDER[getEntryFeature(a)] ?? 99;
+          const fb = FEATURE_DISPLAY_ORDER[getEntryFeature(b)] ?? 99;
+          return fa - fb;
         });
 
       setTips(processed);
@@ -311,63 +333,56 @@ const Sport = () => {
   }, []);
 
   // Derived data — re-filter on every tick so expired tips disappear in real-time
-  // Uses São Paulo timezone for all comparisons
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const activeEntries = useMemo(() => {
     const filtered = tips.filter(entry => {
       const now = toZonedTime(new Date(), BRAZIL_TZ);
-
-      // starts_at check: entries expire 1h after match starts
       if (entry.starts_at) {
         const expiryFromStart = new Date(new Date(entry.starts_at).getTime() + 60 * 60 * 1000);
         if (now > toZonedTime(expiryFromStart, BRAZIL_TZ)) return false;
       }
-
-      // explicit expires_at check
       if (entry.expires_at && now > toZonedTime(new Date(entry.expires_at), BRAZIL_TZ)) return false;
-
       return true;
     });
-    // Sort: tier order first, then starts_at ascending within each tier
     const getSortTime = (entry: DisplayTip): number => {
       if (entry.starts_at) return new Date(entry.starts_at).getTime();
       if (entry.expires_at) return new Date(entry.expires_at).getTime();
       return Number.MAX_SAFE_INTEGER;
     };
     return filtered.sort((a, b) => {
-      const tierA = TIER_DISPLAY_ORDER[mapTierToDisplay(a.tier_required, a.addon_required)] ?? 99;
-      const tierB = TIER_DISPLAY_ORDER[mapTierToDisplay(b.tier_required, b.addon_required)] ?? 99;
-      if (tierA !== tierB) return tierA - tierB;
+      const fa = FEATURE_DISPLAY_ORDER[getEntryFeature(a)] ?? 99;
+      const fb = FEATURE_DISPLAY_ORDER[getEntryFeature(b)] ?? 99;
+      if (fa !== fb) return fa - fb;
       return getSortTime(a) - getSortTime(b);
     });
   }, [tips, tick]);
 
-  const tipsByTier = useMemo(() => {
+  const tipsByFeature = useMemo(() => {
     const getSortTime = (entry: DisplayTip): number => {
       if (entry.starts_at) return new Date(entry.starts_at).getTime();
       if (entry.expires_at) return new Date(entry.expires_at).getTime();
       return Number.MAX_SAFE_INTEGER;
     };
     const grouped = activeEntries.reduce((acc, entry) => {
-      const tier = mapTierToDisplay(entry.tier_required, entry.addon_required);
-      if (!acc[tier]) acc[tier] = [];
-      acc[tier].push(entry);
+      const f = getEntryFeature(entry);
+      if (!acc[f]) acc[f] = [];
+      acc[f].push(entry);
       return acc;
-    }, {} as Record<TierType, DisplayTip[]>);
-    for (const tier in grouped) {
-      grouped[tier as TierType].sort((a, b) => getSortTime(a) - getSortTime(b));
+    }, {} as Record<FeatureKey, DisplayTip[]>);
+    for (const f in grouped) {
+      grouped[f as FeatureKey].sort((a, b) => getSortTime(a) - getSortTime(b));
     }
     return grouped;
   }, [activeEntries]);
 
-  const getFirstIndexOfTier = (tier: TierType): number => {
-    return activeEntries.findIndex(entry => mapTierToDisplay(entry.tier_required, entry.addon_required) === tier);
+  const getFirstIndexOfFeature = (f: FeatureKey): number => {
+    return activeEntries.findIndex(entry => getEntryFeature(entry) === f);
   };
 
-  const scrollToTier = (tier: TierType) => {
-    const firstIndex = getFirstIndexOfTier(tier);
+  const scrollToFeature = (f: FeatureKey) => {
+    const firstIndex = getFirstIndexOfFeature(f);
     if (firstIndex === -1) {
-      toast.info(`Sem entradas de ${tier} hoje`);
+      toast.info(`Sem entradas de ${TAB_META[f].label} hoje`);
       return;
     }
     const targetCard = activeCardRefs.current[firstIndex];
@@ -377,7 +392,7 @@ const Sport = () => {
       const cardRect = targetCard.getBoundingClientRect();
       const scrollLeft = container.scrollLeft + (cardRect.left - containerRect.left) - 16;
       container.scrollTo({ left: scrollLeft, behavior: 'smooth' });
-      setActiveTierHighlight(tier);
+      setActiveFeatureHighlight(f);
     }
   };
 
@@ -423,12 +438,11 @@ const Sport = () => {
   useEffect(() => {
     if (isLoading || activeEntries.length === 0) return;
     const scrollTimeout = setTimeout(() => {
-      if (isAlavancagemRoute) scrollToTier("ALAVANCAGEM");
-      else if (isOddsAltasRoute) scrollToTier("ODDS_ALTAS");
-      else scrollToTier("BÁSICO");
+      if (initialTabParam === "alavancagem") scrollToFeature("alavancagem");
+      else scrollToFeature(isPaidUser ? "odds_safes" : "free");
     }, 500);
     return () => clearTimeout(scrollTimeout);
-  }, [isLoading, activeEntries.length, isAlavancagemRoute, isOddsAltasRoute]);
+  }, [isLoading, activeEntries.length, initialTabParam, isPaidUser]);
 
   useEffect(() => {
     const container = activeCarouselRef.current;
@@ -526,13 +540,9 @@ const Sport = () => {
 
   const handleLockedClick = async (entry: DisplayTip) => {
     trackEvent("click_locked_entry", { tier: entry.tier_required, addon: entry.addon_required, title: entry.title });
-    // Determine the plan key for pay_cards lookup
-    let planKey: string | null = null;
-    if (entry.addon_required === "alavancagem") planKey = "alavancagem";
-    else if (entry.addon_required === "desaltas") planKey = "desaltas";
-    else if (entry.tier_required === "basic") planKey = "basic";
-    else if (entry.tier_required === "pro") planKey = "pro";
-    else if (entry.tier_required === "ultra") planKey = "ultra";
+    // Determine the plan key for pay_cards lookup based on the tip's feature
+    const feat = getEntryFeature(entry);
+    const planKey: string | null = featureToPlanKey(feat);
 
     // Try house-specific pay card first, then generic
     if (planKey) {
@@ -600,19 +610,16 @@ const Sport = () => {
   }, []);
 
   const isSpecialEntry = (entry: DisplayTip): boolean => {
-    return entry.addon_required === "alavancagem" || entry.addon_required === "desaltas";
+    return getEntryFeature(entry) === "alavancagem";
   };
 
   const renderEntryCard = (entry: DisplayTip, index: number, isExpiredSection: boolean = false) => {
     const isSpecial = isSpecialEntry(entry);
-    const displayTier = mapTierToDisplay(entry.tier_required, entry.addon_required);
+    const feat = getEntryFeature(entry);
+    const displayTier = featureToDisplayTier(feat);
     const isLocked = entry.display_status === "locked";
     const isExpired = entry.display_status === "expired";
-    const lockedLabel = isLocked
-      ? entry.addon_required
-        ? `add-on ${getTierLabel(entry.tier_required, entry.addon_required)}`
-        : `plano ${getTierLabel(entry.tier_required, null)}`
-      : undefined;
+    const lockedLabel = isLocked ? getFeatureLabel(feat) : undefined;
 
     const team1 = {
       name: entry.team1_name || "Time 1",
@@ -653,7 +660,7 @@ const Sport = () => {
         {isSpecial ? (
           <SpecialBettingCard
             tipId={0}
-            type={entry.addon_required === "alavancagem" ? "ALAVANCAGEM" : "ODDS_ALTAS"}
+            type="ALAVANCAGEM"
             market={market}
             betChoice={betChoice}
             odds={entry.odd || 0}
@@ -710,56 +717,56 @@ const Sport = () => {
       />
 
       <main className="w-full max-w-7xl mx-auto px-4 pt-2 pb-6 space-y-2 overflow-x-hidden">
-        {/* Tier Tabs */}
+        {/* Feature Tabs */}
         <div className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-2 px-1 sm:justify-center" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
-          {TIER_TABS
-            .filter(tab => !(isPaidUser && tab.tier === "GRÁTIS"))
-            .map((tab) => {
-            const isActive = activeTierHighlight === tab.tier;
-            const count = tipsByTier[tab.tier]?.length || 0;
-            const hasContent = count > 0;
-            const tabColor = TIER_TAB_COLORS[tab.colorKey] || "#94A3B8";
-            const isPaidTier = ["BÁSICO", "PRO", "ULTRA"].includes(tab.tier);
+          {TAB_ORDER
+            .filter(f => !(isPaidUser && f === "free"))
+            .map((f) => {
+              const meta = TAB_META[f];
+              const isActive = activeFeatureHighlight === f;
+              const count = tipsByFeature[f]?.length || 0;
+              const hasContent = count > 0;
+              const tabColor = meta.color;
+              const isPaidTab = f !== "free";
+              const userHasAccess = f === "free" || userFeatures.has(f);
 
-            // Check if user has access to this tier
-            const tierKey = tab.colorKey;
-            const userHasAccess = tierKey === "free"
-              || (tierKey === "alavancagem" || tierKey === "odds_altas")
-              || (mockUser && (() => {
-                return tipsByTier[tab.tier]?.some(t => t.display_status === "unlocked");
-              })());
-
-            return (
-              <button
-                key={tab.tier}
-                onClick={() => {
-                  if (hasContent) {
-                    scrollToTier(tab.tier);
-                  } else if (isPaidTier) {
-                    // Paid tier with no entries today — open quiz via handleLockedClick
-                    const lockedEntry = Object.values(tipsByTier).flat().find(t => t.display_status === "locked");
-                    if (lockedEntry) handleLockedClick(lockedEntry);
-                  }
-                }}
-                style={
-                  (!hasContent && !isPaidTier)
-                    ? { background: "transparent", border: "1.5px solid rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.25)", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 11, padding: "4px 8px", borderRadius: 20, cursor: "not-allowed", whiteSpace: "nowrap" as const, flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 4 }
-                    : (!hasContent && isPaidTier)
-                      ? { background: "transparent", border: "1.5px solid rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.4)", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 11, padding: "4px 8px", borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" as const, opacity: 0.7, flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 4 }
-                    : isActive
-                      ? { background: `${tabColor}26`, border: `1.5px solid ${tabColor}`, color: tabColor, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 11, padding: "4px 8px", borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" as const, flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 4 }
-                      : !userHasAccess
-                        ? { background: "transparent", border: "1.5px solid rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.4)", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 11, padding: "4px 8px", borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" as const, opacity: 0.7, flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 4 }
-                        : { background: "transparent", border: "1.5px solid rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.5)", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 11, padding: "4px 8px", borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" as const, flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 4 }
+              const handleClick = () => {
+                if (hasContent && userHasAccess) {
+                  scrollToFeature(f);
+                } else if (hasContent && !userHasAccess) {
+                  // Tab has tips but user lacks access — open paywall via first locked tip in tab
+                  const lockedEntry = tipsByFeature[f]?.find(t => t.display_status === "locked");
+                  if (lockedEntry) handleLockedClick(lockedEntry);
+                } else if (!hasContent && isPaidTab && !userHasAccess) {
+                  // Empty paid tab with no access — open quiz with synthetic locked entry
+                  const synthetic = { tier_required: "ultra", addon_required: null, feature_required: f, title: meta.label } as any;
+                  handleLockedClick(synthetic);
                 }
-              >
-                <span className="sm:hidden">{tab.labelShort}</span>
-                <span className="hidden sm:inline">{tab.label}</span>
-                {(hasContent && !userHasAccess || !hasContent && isPaidTier) && <Lock className="w-2.5 h-2.5" style={{ opacity: 0.7 }} />}
-                {hasContent && <span style={{ fontSize: 11, opacity: 0.7 }}>({count})</span>}
-              </button>
-            );
-          })}
+              };
+
+              return (
+                <button
+                  key={f}
+                  onClick={handleClick}
+                  style={
+                    (!hasContent && !isPaidTab)
+                      ? { background: "transparent", border: "1.5px solid rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.25)", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 11, padding: "4px 8px", borderRadius: 20, cursor: "not-allowed", whiteSpace: "nowrap" as const, flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 4 }
+                      : (!hasContent && isPaidTab)
+                        ? { background: "transparent", border: "1.5px solid rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.4)", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 11, padding: "4px 8px", borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" as const, opacity: 0.7, flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 4 }
+                      : isActive
+                        ? { background: `${tabColor}26`, border: `1.5px solid ${tabColor}`, color: tabColor, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 11, padding: "4px 8px", borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" as const, flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 4 }
+                        : !userHasAccess
+                          ? { background: "transparent", border: "1.5px solid rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.4)", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 11, padding: "4px 8px", borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" as const, opacity: 0.7, flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 4 }
+                          : { background: "transparent", border: "1.5px solid rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.5)", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 11, padding: "4px 8px", borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" as const, flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 4 }
+                  }
+                >
+                  <span className="sm:hidden">{meta.labelShort}</span>
+                  <span className="hidden sm:inline">{meta.label}</span>
+                  {((hasContent && !userHasAccess) || (!hasContent && isPaidTab && !userHasAccess)) && <Lock className="w-2.5 h-2.5" style={{ opacity: 0.7 }} />}
+                  {hasContent && <span style={{ fontSize: 11, opacity: 0.7 }}>({count})</span>}
+                </button>
+              );
+            })}
         </div>
 
         {isLoading && (
@@ -814,7 +821,7 @@ const Sport = () => {
                     width: activeCardIndex === i ? 16 : 4,
                     height: 4,
                     borderRadius: 2,
-                    background: activeCardIndex === i ? (activeTierHighlight ? TIER_TAB_COLORS[TIER_TABS.find(t => t.tier === activeTierHighlight)?.colorKey || "basic"] || "#60A5FA" : "#60A5FA") : "rgba(255,255,255,0.2)",
+                    background: activeCardIndex === i ? (activeFeatureHighlight ? TAB_META[activeFeatureHighlight].color : "#60A5FA") : "rgba(255,255,255,0.2)",
                     transition: "all 0.3s ease",
                   }}
                 />

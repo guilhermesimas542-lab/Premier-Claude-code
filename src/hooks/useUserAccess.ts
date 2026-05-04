@@ -11,6 +11,9 @@ export interface UserAccess {
   hasAlavancagem: boolean;
   hasOddsAltas: boolean;
   hasLiveTelegram: boolean;
+  hasMultiplasBingo: boolean;
+  hasMercadosSecundarios: boolean;
+  hasEsportesAmericanos: boolean;
   isVitalicio: boolean;
   // Legacy display helpers (kept for back-compat with components that rely on tier label)
   isUltra: boolean;
@@ -28,6 +31,9 @@ const DEFAULT: Omit<UserAccess, "refetch"> = {
   hasAlavancagem: false,
   hasOddsAltas: false,
   hasLiveTelegram: false,
+  hasMultiplasBingo: false,
+  hasMercadosSecundarios: false,
+  hasEsportesAmericanos: false,
   isVitalicio: false,
   isUltra: false,
   isPro: false,
@@ -43,6 +49,9 @@ const FEATURE_KEYS = [
   "alavancagem",
   "desaltas",
   "live_telegram",
+  "multiplas_bingo",
+  "mercados_secundarios",
+  "esportes_americanos",
   "acesso_vitalicio",
 ] as const;
 
@@ -86,6 +95,9 @@ export function useUserAccess(): UserAccess {
       hasAlavancagem: !!flags.alavancagem,
       hasOddsAltas: !!flags.desaltas,
       hasLiveTelegram: !!flags.live_telegram,
+      hasMultiplasBingo: !!flags.multiplas_bingo,
+      hasMercadosSecundarios: !!flags.mercados_secundarios,
+      hasEsportesAmericanos: !!flags.esportes_americanos,
       isVitalicio: !!flags.acesso_vitalicio,
       isUltra: tier === "ultra" || tier === "diamante",
       isPro: tier === "pro" || tier === "ultra" || tier === "premium" || tier === "diamante",
