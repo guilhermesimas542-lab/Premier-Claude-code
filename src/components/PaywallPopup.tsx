@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Check, X, ArrowLeft, Loader2, ImageIcon } from "lucide-react";
+import { X, ArrowLeft, Loader2 } from "lucide-react";
+import { PaywallEducationStep } from "@/components/PaywallEducationStep";
 import { supabase } from "@/integrations/supabase/client";
 import { PayCardFunnelModal } from "@/components/PayCardFunnelModal";
 import type { PayCardData } from "@/hooks/usePayCards";
@@ -305,29 +306,7 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
           </button>
 
           {phase === "main_step1" && (
-            <div className="space-y-4 text-center">
-              <h2
-                className="text-2xl sm:text-3xl font-bold leading-tight text-balance px-2"
-                style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
-              >
-                {headline}
-              </h2>
-              {/* Slot 5:3 placeholder */}
-              <div
-                className="w-full rounded-lg border border-dashed border-white/30 bg-white/5 flex flex-col items-center justify-center text-white/40"
-                style={{ aspectRatio: "5 / 3" }}
-              >
-                <ImageIcon className="w-10 h-10 mb-1" />
-                <span className="text-xs">Imagem em breve</span>
-              </div>
-              <p className="text-sm text-white/70 leading-relaxed">{explanation}</p>
-              <Button
-                className="w-full bg-[#00FF7F] hover:bg-[#00FF7F]/90 text-black font-bold"
-                onClick={() => setPhase("main_step2")}
-              >
-                Continuar
-              </Button>
-            </div>
+            <PaywallEducationStep feature={feature} onContinue={() => setPhase("main_step2")} />
           )}
 
           {phase === "main_step2" && (
@@ -397,28 +376,7 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
         </button>
 
         {phase === "main_step1" && (
-          <div className="space-y-5">
-            <h2
-              className="text-2xl font-bold text-center"
-              style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
-            >
-              {title}
-            </h2>
-            <ul className="space-y-2.5">
-              {benefits.map((b) => (
-                <li key={b} className="flex items-start gap-2 text-sm">
-                  <Check className="w-5 h-5 text-[#00FF7F] shrink-0 mt-0.5" />
-                  <span>{b}</span>
-                </li>
-              ))}
-            </ul>
-            <Button
-              className="w-full bg-[#00FF7F] hover:bg-[#00FF7F]/90 text-black font-bold"
-              onClick={() => setPhase("main_step2")}
-            >
-              Continuar
-            </Button>
-          </div>
+          <PaywallEducationStep feature={feature} onContinue={() => setPhase("main_step2")} />
         )}
 
         {phase === "main_step2" && (
