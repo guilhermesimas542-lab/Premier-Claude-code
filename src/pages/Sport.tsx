@@ -685,6 +685,12 @@ const Sport = () => {
               const userHasAccess = f === "free" || userFeatures.has(f);
 
               const handleClick = () => {
+                if (f === "free" && !hasContent) {
+                  // Grátis tab always opens telegram popup, even with no tips
+                  const synthetic = { tier_required: "free", addon_required: null, feature_required: "free", title: meta.label } as any;
+                  handleLockedClick(synthetic);
+                  return;
+                }
                 if (hasContent && userHasAccess) {
                   scrollToFeature(f);
                 } else if (hasContent && !userHasAccess) {
@@ -700,7 +706,7 @@ const Sport = () => {
 
               const style =
                 (!hasContent && !isPaidTab)
-                  ? { ...baseStyle, background: "transparent", border: "1.5px solid rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.25)", cursor: "not-allowed" }
+                  ? { ...baseStyle, background: "transparent", border: "1.5px solid rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.5)", cursor: "pointer" }
                   : (!hasContent && isPaidTab)
                     ? { ...baseStyle, background: "transparent", border: "1.5px solid rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.4)", cursor: "pointer", opacity: 0.7 }
                   : isActive
