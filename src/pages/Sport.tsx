@@ -1,5 +1,5 @@
 import { ArrowLeft, LogOut, Loader2, Lock, Menu, X, Gift, Headphones, Crown } from "lucide-react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { useSportOutletContext } from "@/pages/SportLayout";
 import { PremiumBettingCard } from "@/components/PremiumBettingCard";
@@ -25,7 +25,16 @@ import { PayCardFunnelModal } from "@/components/PayCardFunnelModal";
 import AppHeader from "@/components/AppHeader";
 import { usePendingTip } from "@/contexts/PendingTipContext";
 
-// ============ TIPOS ============
+// ============ TIPOS (feature-based) ============
+type FeatureKey =
+  | "free"
+  | "odds_safes"
+  | "odds_pro"
+  | "alavancagem"
+  | "multiplas_bingo"
+  | "mercados_secundarios"
+  | "esportes_americanos";
+
 type TierType = "GRÁTIS" | "ALAVANCAGEM" | "ODDS_ALTAS" | "BÁSICO" | "PRO" | "ULTRA" | "MÚLTIPLA";
 
 interface ContentEntry {
@@ -40,6 +49,7 @@ interface ContentEntry {
   odd: number | null;
   tier_required: string;
   addon_required: string | null;
+  feature_required: string | null;
   starts_at: string | null;
   expires_at: string | null;
   link: string | null;
@@ -61,95 +71,109 @@ interface ContentEntry {
   active: boolean;
 }
 
-
 interface DisplayTip extends ContentEntry {
   display_status: "unlocked" | "locked" | "expired";
 }
 
-// Map DB tier to display tier
-function mapTierToDisplay(tierRequired: string, addonRequired: string | null): TierType {
-  if (addonRequired === "alavancagem") return "ALAVANCAGEM";
-  if (addonRequired === "desaltas") return "ODDS_ALTAS";
-  switch (tierRequired) {
+/** Resolve a tip's effective FeatureKey from feature_required (with legacy fallback) */
+function getEntryFeature(entry: { feature_required: string | null; tier_required: string; addon_required: string | null }): FeatureKey {
+  const f = entry.feature_required;
+  if (f === "odds_safes" || f === "odds_pro" || f === "alavancagem"
+      || f === "multiplas_bingo" || f === "mercados_secundarios" || f === "esportes_americanos") {
+    return f;
+  }
+  // Legacy fallback (defensive — backfill should have populated everything)
+  if (entry.addon_required === "alavancagem") return "alavancagem";
+  if (entry.addon_required === "desaltas") return "odds_pro";
+  if (entry.tier_required === "basic") return "odds_safes";
+  if (entry.tier_required === "pro" || entry.tier_required === "ultra") return "odds_pro";
+  return "free";
+}
+
+/** Visual tier mapping for PremiumBettingCard / SpecialBettingCard */
+function featureToDisplayTier(f: FeatureKey): TierType {
+  switch (f) {
     case "free": return "GRÁTIS";
-    case "basic": return "BÁSICO";
-    case "pro": return "PRO";
-    case "ultra": return "ULTRA";
-    default: return "BÁSICO";
+    case "alavancagem": return "ALAVANCAGEM";
+    case "odds_safes": return "BÁSICO";
+    case "odds_pro": return "PRO";
+    case "multiplas_bingo": return "MÚLTIPLA";
+    case "mercados_secundarios": return "ULTRA";
+    case "esportes_americanos": return "ULTRA";
   }
 }
 
-function getTierLabel(tierRequired: string, addonRequired: string | null): string {
-  if (addonRequired === "alavancagem") return "Alavancagem";
-  if (addonRequired === "desaltas") return "Odds Altas";
-  switch (tierRequired) {
-    case "basic": return "Básico";
-    case "pro": return "Pro";
-    case "ultra": return "Ultra";
+/** Map feature → pay_cards.associated_plan key (for locked-click funnel lookup) */
+function featureToPlanKey(f: FeatureKey): string | null {
+  switch (f) {
+    case "alavancagem": return "alavancagem";
+    case "odds_safes": return "basic";
+    case "odds_pro": return "pro";
+    case "multiplas_bingo":
+    case "mercados_secundarios":
+    case "esportes_americanos": return "ultra";
+    default: return null;
+  }
+}
+
+function getFeatureLabel(f: FeatureKey): string {
+  switch (f) {
+    case "odds_safes": return "Odds Safes";
+    case "odds_pro": return "Odds Pró";
+    case "alavancagem": return "Alavancagem";
+    case "multiplas_bingo": return "Múltiplas Bingo";
+    case "mercados_secundarios": return "Mercados Secundários";
+    case "esportes_americanos": return "Esportes Americanos";
     default: return "Premium";
   }
 }
 
-function getAllowedTiers(mainTier: string): string[] {
-  switch (mainTier) {
-    case "free": return ["free"];
-    case "basic":
-    case "premium": return ["basic"];
-    case "pro": return ["basic", "pro"];
-    case "ultra":
-    case "diamante": return ["basic", "pro", "ultra"];
-    default: return ["free"];
-  }
-}
-
-  function calculateDisplayStatus(
+function calculateDisplayStatus(
   entry: ContentEntry,
-  allowedTiers: string[],
-  activeAddons: string[],
+  userFeatures: Set<string>,
 ): "unlocked" | "locked" | "expired" {
   const now = toZonedTime(new Date(), BRAZIL_TZ);
-
-  // Expiration check: prefer expires_at; fallback to starts_at + 1 hour
   if (entry.expires_at) {
     if (now > toZonedTime(new Date(entry.expires_at), BRAZIL_TZ)) return "expired";
   } else if (entry.starts_at) {
     const startsAt = new Date(entry.starts_at);
     if (now > toZonedTime(new Date(startsAt.getTime() + 60 * 60 * 1000), BRAZIL_TZ)) return "expired";
   }
-
-  // Addon access
-  if (entry.addon_required && activeAddons.includes(entry.addon_required)) return "unlocked";
-  // Tier access (only for non-addon entries)
-  if (!entry.addon_required && allowedTiers.includes(entry.tier_required)) return "unlocked";
+  const feat = getEntryFeature(entry);
+  if (feat === "free") return "unlocked";
+  if (userFeatures.has(feat)) return "unlocked";
   return "locked";
 }
 
-const TIER_DISPLAY_ORDER: Record<TierType, number> = {
-  "GRÁTIS": 0,
-  "ALAVANCAGEM": 1,
-  "ODDS_ALTAS": 2,
-  "BÁSICO": 3,
-  "PRO": 4,
-  "ULTRA": 5,
-  "MÚLTIPLA": 6,
-};
-
-const TIER_TABS: { tier: TierType; label: string; labelShort: string; colorKey: string }[] = [
-  { tier: "GRÁTIS", label: "Grátis", labelShort: "Grátis", colorKey: "free" },
-  { tier: "ALAVANCAGEM", label: "Alavancagem", labelShort: "Alav.", colorKey: "alavancagem" },
-  { tier: "ODDS_ALTAS", label: "Odds Altas", labelShort: "Odds Alt.", colorKey: "odds_altas" },
-  { tier: "BÁSICO", label: "Básico", labelShort: "Basic", colorKey: "basic" },
-  { tier: "PRO", label: "Pro", labelShort: "Pro", colorKey: "pro" },
-  { tier: "ULTRA", label: "Ultra", labelShort: "Ultra", colorKey: "ultra" },
+// 7 tabs in fixed order: Grátis, Odds Safes, Odds Pró, Alavancagem, Múltiplas Bingo, Mercados Sec., Esp. Americanos
+const TAB_ORDER: FeatureKey[] = [
+  "free",
+  "odds_safes",
+  "odds_pro",
+  "alavancagem",
+  "multiplas_bingo",
+  "mercados_secundarios",
+  "esportes_americanos",
 ];
 
-const TIER_TAB_COLORS: Record<string, string> = {
-  free: "#94A3B8",
-  basic: "#60A5FA",
-  pro: "#00E87A",
-  ultra: "#7C3AED",
-  alavancagem: "#F0B429",
-  odds_altas: "#F97316",
+const FEATURE_DISPLAY_ORDER: Record<FeatureKey, number> = {
+  free: 0,
+  odds_safes: 1,
+  odds_pro: 2,
+  alavancagem: 3,
+  multiplas_bingo: 4,
+  mercados_secundarios: 5,
+  esportes_americanos: 6,
+};
+
+const TAB_META: Record<FeatureKey, { label: string; labelShort: string; color: string }> = {
+  free:                 { label: "Grátis",               labelShort: "Grátis",   color: "#94A3B8" },
+  odds_safes:           { label: "Odds Safes",           labelShort: "Safes",    color: "#60A5FA" },
+  odds_pro:             { label: "Odds Pró",             labelShort: "Pró",      color: "#00E87A" },
+  alavancagem:          { label: "Alavancagem",          labelShort: "Alav.",    color: "#F0B429" },
+  multiplas_bingo:      { label: "Múltiplas Bingo",      labelShort: "Múlt.",    color: "#FF6B9D" },
+  mercados_secundarios: { label: "Mercados Secundários", labelShort: "Merc.",    color: "#A78BFA" },
+  esportes_americanos:  { label: "Esportes Americanos",  labelShort: "EUA",      color: "#EF4444" },
 };
 
 const Sport = () => {
