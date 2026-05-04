@@ -671,7 +671,8 @@ const Sport = () => {
 
       <main className="w-full max-w-7xl mx-auto px-4 pt-2 pb-6 space-y-2 overflow-x-hidden">
         {/* Feature Tabs */}
-        <div className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-2 px-1 sm:justify-center" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
+        <div className="relative">
+        <div className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-2 px-1" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
           {TAB_ORDER
             .filter(f => !(isPaidUser && f === "free"))
             .map((f) => {
@@ -687,39 +688,38 @@ const Sport = () => {
                 if (hasContent && userHasAccess) {
                   scrollToFeature(f);
                 } else if (hasContent && !userHasAccess) {
-                  // Tab has tips but user lacks access — open paywall via first locked tip in tab
                   const lockedEntry = tipsByFeature[f]?.find(t => t.display_status === "locked");
                   if (lockedEntry) handleLockedClick(lockedEntry);
                 } else if (!hasContent && isPaidTab && !userHasAccess) {
-                  // Empty paid tab with no access — open quiz with synthetic locked entry
                   const synthetic = { tier_required: "ultra", addon_required: null, feature_required: f, title: meta.label } as any;
                   handleLockedClick(synthetic);
                 }
               };
 
+              const baseStyle = { fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 13, padding: "9px 14px", borderRadius: 24, whiteSpace: "nowrap" as const, flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 6 };
+
+              const style =
+                (!hasContent && !isPaidTab)
+                  ? { ...baseStyle, background: "transparent", border: "1.5px solid rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.25)", cursor: "not-allowed" }
+                  : (!hasContent && isPaidTab)
+                    ? { ...baseStyle, background: "transparent", border: "1.5px solid rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.4)", cursor: "pointer", opacity: 0.7 }
+                  : isActive
+                    ? { ...baseStyle, background: `${tabColor}26`, border: `1.5px solid ${tabColor}`, color: tabColor, cursor: "pointer" }
+                    : !userHasAccess
+                      ? { ...baseStyle, background: "transparent", border: "1.5px solid rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.4)", cursor: "pointer", opacity: 0.7 }
+                      : { ...baseStyle, background: "transparent", border: "1.5px solid rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.5)", cursor: "pointer" };
+
               return (
-                <button
-                  key={f}
-                  onClick={handleClick}
-                  style={
-                    (!hasContent && !isPaidTab)
-                      ? { background: "transparent", border: "1.5px solid rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.25)", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 11, padding: "4px 8px", borderRadius: 20, cursor: "not-allowed", whiteSpace: "nowrap" as const, flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 4 }
-                      : (!hasContent && isPaidTab)
-                        ? { background: "transparent", border: "1.5px solid rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.4)", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 11, padding: "4px 8px", borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" as const, opacity: 0.7, flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 4 }
-                      : isActive
-                        ? { background: `${tabColor}26`, border: `1.5px solid ${tabColor}`, color: tabColor, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 11, padding: "4px 8px", borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" as const, flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 4 }
-                        : !userHasAccess
-                          ? { background: "transparent", border: "1.5px solid rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.4)", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 11, padding: "4px 8px", borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" as const, opacity: 0.7, flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 4 }
-                          : { background: "transparent", border: "1.5px solid rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.5)", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 11, padding: "4px 8px", borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" as const, flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 4 }
-                  }
-                >
-                  <span className="sm:hidden">{meta.labelShort}</span>
-                  <span className="hidden sm:inline">{meta.label}</span>
-                  {((hasContent && !userHasAccess) || (!hasContent && isPaidTab && !userHasAccess)) && <Lock className="w-2.5 h-2.5" style={{ opacity: 0.7 }} />}
-                  {hasContent && <span style={{ fontSize: 11, opacity: 0.7 }}>({count})</span>}
+                <button key={f} onClick={handleClick} style={style}>
+                  <span>{meta.label}</span>
+                  {((hasContent && !userHasAccess) || (!hasContent && isPaidTab && !userHasAccess)) && <Lock className="w-3 h-3" style={{ opacity: 0.7 }} />}
+                  {hasContent && <span style={{ fontSize: 13, opacity: 0.7 }}>({count})</span>}
                 </button>
               );
             })}
+        </div>
+        {/* Right-edge fade hint indicating horizontal scroll */}
+        <div className="pointer-events-none absolute top-0 right-0 h-full w-10" style={{ background: "linear-gradient(to left, #060D1E, rgba(6,13,30,0))" }} />
         </div>
 
         {isLoading && (
