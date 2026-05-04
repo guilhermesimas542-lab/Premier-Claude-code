@@ -103,6 +103,7 @@ const Support = () => {
   const { permanentAchievements, isUnlocked, unlockedPermanentCount, userAchievements } = useAchievements(userId);
   const [nickname, setNickname] = useState("");
   const [currentAvatarId, setCurrentAvatarId] = useState("avatar_default_1");
+  const [currentTier, setCurrentTier] = useState<string | null>(null);
   const [isProfileModalOpen, setProfileModalOpen] = useState(false);
   const [selectedPreviewAch, setSelectedPreviewAch] = useState<any>(null);
 
@@ -120,12 +121,13 @@ const Support = () => {
     const fetchProfile = async () => {
       const { data } = await supabase
         .from('users')
-        .select('nickname, avatar_id')
+        .select('nickname, avatar_id, main_tier')
         .eq('id', userId)
         .maybeSingle();
       if (data) {
         setNickname((data as any).nickname || "");
         setCurrentAvatarId((data as any).avatar_id || "avatar_default_1");
+        setCurrentTier((data as any).main_tier || null);
       }
     };
     fetchProfile();
@@ -143,7 +145,7 @@ const Support = () => {
   const { xpInLevel, xpNeeded, progress } = getXpProgress(totalXp, level);
   const currentAvatar = getAvatarById(currentAvatarId);
   const levelTitle = LEVEL_TITLES[level] || 'Novato';
-  const planLabel = mockUser?.mainTier ? TIER_LABELS[mockUser.mainTier] || mockUser.mainTier : null;
+  const planLabel = currentTier ? TIER_LABELS[currentTier] || currentTier : null;
   const { links } = useLinks();
 
   const handleOpenSupport = () => {
