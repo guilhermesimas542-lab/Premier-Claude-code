@@ -1,19 +1,23 @@
 import { useEffect, useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Check, X, ArrowLeft, Loader2 } from "lucide-react";
+import { Check, X, ArrowLeft, Loader2, ImageIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { PayCardFunnelModal } from "@/components/PayCardFunnelModal";
 import type { PayCardData } from "@/hooks/usePayCards";
 import { useUserBettingHouse } from "@/hooks/useUserBettingHouse";
+import { mockGetUser } from "@/mocks/user";
 import {
   type FeatureKey,
   type PaywallVariant,
   FEATURE_LABELS,
+  FEATURE_EXPLANATIONS,
   PRICES,
   TELEGRAM_URL_PLACEHOLDER,
   variantToPlanKey,
   featureToBackredirectPlanKey,
+  featureToDiscountPlanKey,
+  DIAMANTE_ONLY_FEATURES,
 } from "@/lib/paywallRouting";
 
 interface Props {
@@ -42,72 +46,100 @@ const DIAMANTE_BENEFITS = [
 
 type Phase = "main_step1" | "main_step2" | "backredirect";
 
+async function fetchPayCardByPlan(plan: string, houseId?: string | null): Promise<PayCardData | null> {
+  if (houseId) {
+    const { data } = await supabase
+      .from("pay_cards" as any)
+      .select("*")
+      .eq("associated_plan", plan)
+      .eq("betting_house_id", houseId)
+      .eq("is_active", true)
+      .limit(1)
+      .maybeSingle();
+    if (data) return data as any;
+  }
+  const { data } = await supabase
+    .from("pay_cards" as any)
+    .select("*")
+    .eq("associated_plan", plan)
+    .is("betting_house_id", null)
+    .eq("is_active", true)
+    .limit(1)
+    .maybeSingle();
+  return (data as any) ?? null;
+}
+
 export function PaywallPopup({ open, onClose, variant, feature }: Props) {
   const { house } = useUserBettingHouse();
   const [phase, setPhase] = useState<Phase>("main_step1");
   const [loadingPayCard, setLoadingPayCard] = useState(false);
   const [mainPayCard, setMainPayCard] = useState<PayCardData | null>(null);
   const [backPayCard, setBackPayCard] = useState<PayCardData | null>(null);
+  const [discountPayCard, setDiscountPayCard] = useState<PayCardData | null>(null);
+  const [upgradePayCard, setUpgradePayCard] = useState<PayCardData | null>(null);
+  const [discountUsed, setDiscountUsed] = useState<boolean>(true); // default safe = no discount
   const [funnelOpen, setFunnelOpen] = useState<PayCardData | null>(null);
   const [hasFetched, setHasFetched] = useState(false);
 
+  const isDiamanteUpgrade = variant === "diamante_upgrade";
+
   useEffect(() => {
     if (!open) {
-      // Reset state on close
       setPhase("main_step1");
       setMainPayCard(null);
       setBackPayCard(null);
+      setDiscountPayCard(null);
+      setUpgradePayCard(null);
       setHasFetched(false);
       return;
     }
   }, [open]);
 
-  // Fetch pay_cards when popup opens
+  // Fetch pay_cards + user discount_used when popup opens
   useEffect(() => {
     if (!open || hasFetched) return;
     if (variant === "telegram") { setHasFetched(true); return; }
     setHasFetched(true);
+
     const fetchAll = async () => {
       setLoadingPayCard(true);
       const mainKey = variantToPlanKey(variant);
       const backKey = featureToBackredirectPlanKey(feature);
-      const fetchByPlan = async (plan: string): Promise<PayCardData | null> => {
-        // try house-specific then generic
-        if (house?.id) {
-          const { data } = await supabase
-            .from("pay_cards" as any)
-            .select("*")
-            .eq("associated_plan", plan)
-            .eq("betting_house_id", house.id)
-            .eq("is_active", true)
-            .limit(1)
-            .maybeSingle();
-          if (data) return data as any;
-        }
-        const { data } = await supabase
-          .from("pay_cards" as any)
-          .select("*")
-          .eq("associated_plan", plan)
-          .is("betting_house_id", null)
-          .eq("is_active", true)
-          .limit(1)
+      const discountKey = featureToDiscountPlanKey(feature);
+      const upgradeKey = "diamante_upgrade";
+      const houseId = house?.id ?? null;
+
+      // discount_used lookup (best-effort)
+      let used = true;
+      const mu = mockGetUser();
+      if (mu?.email) {
+        const { data: udata } = await supabase
+          .from("users")
+          .select("discount_used")
+          .eq("email", mu.email.toLowerCase().trim())
           .maybeSingle();
-        return (data as any) ?? null;
-      };
-      const [m, b] = await Promise.all([
-        mainKey ? fetchByPlan(mainKey) : Promise.resolve(null),
-        backKey ? fetchByPlan(backKey) : Promise.resolve(null),
+        if (udata && (udata as any).discount_used === false) used = false;
+      }
+      setDiscountUsed(used);
+
+      const [m, b, d, up] = await Promise.all([
+        mainKey ? fetchPayCardByPlan(mainKey, houseId) : Promise.resolve(null),
+        backKey ? fetchPayCardByPlan(backKey, houseId) : Promise.resolve(null),
+        discountKey && !used ? fetchPayCardByPlan(discountKey, houseId) : Promise.resolve(null),
+        isDiamanteUpgrade ? fetchPayCardByPlan(upgradeKey, houseId) : Promise.resolve(null),
       ]);
       setMainPayCard(m);
       setBackPayCard(b);
+      setDiscountPayCard(d);
+      setUpgradePayCard(up);
       setLoadingPayCard(false);
     };
     fetchAll();
-  }, [open, variant, feature, house?.id, hasFetched]);
+  }, [open, variant, feature, house?.id, hasFetched, isDiamanteUpgrade]);
 
   if (!open) return null;
 
-  // ===== TELEGRAM (simple, single step) =====
+  // ===== TELEGRAM =====
   if (variant === "telegram") {
     return (
       <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
@@ -134,7 +166,6 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
     );
   }
 
-  // ===== If funnel is open, render it instead =====
   if (funnelOpen) {
     return (
       <PayCardFunnelModal
@@ -142,13 +173,26 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
         open={true}
         onClose={() => {
           setFunnelOpen(null);
-          onClose(); // close paywall too once funnel completes/closes
+          onClose();
         }}
       />
     );
   }
 
-  // ===== Backredirect logic on close =====
+  // Mark discount_used = true and open discounted pay_card funnel
+  const handleBuyDiscount = async () => {
+    if (!discountPayCard) return;
+    const mu = mockGetUser();
+    if (mu?.email) {
+      await supabase
+        .from("users")
+        .update({ discount_used: true } as any)
+        .eq("email", mu.email.toLowerCase().trim());
+    }
+    setDiscountUsed(true);
+    setFunnelOpen(discountPayCard);
+  };
+
   const handleCloseAttempt = () => {
     if (phase === "backredirect") {
       onClose();
@@ -160,7 +204,10 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
   // ===== BACKREDIRECT =====
   if (phase === "backredirect") {
     const featureLabel = feature !== "free" ? FEATURE_LABELS[feature] : "";
-    const canBuy = !!backPayCard;
+    const showDiscount = !discountUsed && isDiamanteUpgrade;
+    const canBuyDiscount = !!discountPayCard;
+    const canBuyFull = !!backPayCard;
+
     return (
       <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
         <DialogContent className="bg-[#112236] border-[#00FF7F]/30 text-white max-w-sm p-6">
@@ -171,49 +218,161 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
           >
             <X className="w-5 h-5" />
           </button>
-          <div className="text-center space-y-4">
-            <h2 className="text-2xl font-bold" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
-              Espera!
-            </h2>
-            <p className="text-sm text-white/70">
-              Você ainda pode liberar só essa categoria
-            </p>
-            <div className="py-4 px-3 rounded-lg bg-[#00FF7F]/10 border border-[#00FF7F]/40">
-              <p className="text-xl font-bold text-[#00FF7F]" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
-                {featureLabel} por apenas R$ {PRICES.backredirect}
+
+          {showDiscount ? (
+            <div className="text-center space-y-4">
+              <h2 className="text-3xl font-extrabold text-[#00FF7F]" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
+                Desconto de R$ 10
+              </h2>
+              <p className="text-base text-white">
+                Desbloqueie só <strong>{featureLabel}</strong> por R$ {PRICES.backredirect_discount}
               </p>
+              <p className="text-xs text-white/50">Oferta única, válida só agora</p>
+              <Button
+                className="w-full bg-[#00FF7F] hover:bg-[#00FF7F]/90 text-black font-bold text-base py-6"
+                disabled={!canBuyDiscount || loadingPayCard}
+                onClick={handleBuyDiscount}
+              >
+                {loadingPayCard
+                  ? <Loader2 className="w-5 h-5 animate-spin" />
+                  : canBuyDiscount
+                    ? `Comprar ${featureLabel} por R$ ${PRICES.backredirect_discount}`
+                    : "Em breve"}
+              </Button>
+              <button onClick={onClose} className="text-sm text-white/50 hover:text-white/80 underline">
+                Não, obrigado
+              </button>
             </div>
-            <Button
-              className="w-full bg-[#00FF7F] hover:bg-[#00FF7F]/90 text-black font-bold text-base py-6"
-              disabled={!canBuy || loadingPayCard}
-              onClick={() => backPayCard && setFunnelOpen(backPayCard)}
-            >
-              {loadingPayCard
-                ? <Loader2 className="w-5 h-5 animate-spin" />
-                : canBuy
-                  ? `Comprar ${featureLabel}`
-                  : "Em breve"}
-            </Button>
-            <button
-              onClick={onClose}
-              className="text-sm text-white/50 hover:text-white/80 underline"
-            >
-              Não, obrigado
-            </button>
-          </div>
+          ) : (
+            <div className="text-center space-y-4">
+              <h2 className="text-2xl font-bold" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
+                Espera!
+              </h2>
+              <p className="text-sm text-white/70">Você ainda pode liberar só essa categoria</p>
+              <div className="py-4 px-3 rounded-lg bg-[#00FF7F]/10 border border-[#00FF7F]/40">
+                <p className="text-xl font-bold text-[#00FF7F]" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
+                  {featureLabel} por apenas R$ {PRICES.backredirect}
+                </p>
+              </div>
+              <Button
+                className="w-full bg-[#00FF7F] hover:bg-[#00FF7F]/90 text-black font-bold text-base py-6"
+                disabled={!canBuyFull || loadingPayCard}
+                onClick={() => backPayCard && setFunnelOpen(backPayCard)}
+              >
+                {loadingPayCard
+                  ? <Loader2 className="w-5 h-5 animate-spin" />
+                  : canBuyFull ? `Comprar ${featureLabel}` : "Em breve"}
+              </Button>
+              <button onClick={onClose} className="text-sm text-white/50 hover:text-white/80 underline">
+                Não, obrigado
+              </button>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     );
   }
 
-  // ===== MAIN PAYWALL (premium / diamante / diamante_upgrade) =====
-  const isDiamante = variant === "diamante" || variant === "diamante_upgrade";
+  // ===== DIAMANTE UPGRADE (refactored) =====
+  if (isDiamanteUpgrade) {
+    const featureLabel = feature !== "free" ? FEATURE_LABELS[feature] : "";
+    const explanation = feature !== "free" ? FEATURE_EXPLANATIONS[feature] : "";
+    const canBuyAvulso = !!backPayCard;
+    const canBuyUpgrade = !!upgradePayCard;
+
+    // Other diamante features (excluding the one shown as principal)
+    const otherFeatures = DIAMANTE_ONLY_FEATURES
+      .filter((f) => f !== feature && f !== "free")
+      .map((f) => FEATURE_LABELS[f as Exclude<FeatureKey, "free">])
+      .join(" + ");
+
+    return (
+      <Dialog open={open} onOpenChange={(o) => !o && handleCloseAttempt()}>
+        <DialogContent className="bg-[#112236] border-[#00FF7F]/30 text-white max-w-sm p-6">
+          <button
+            onClick={handleCloseAttempt}
+            className="absolute top-3 right-3 p-1 rounded hover:bg-white/10"
+            aria-label="Fechar"
+          >
+            <X className="w-5 h-5" />
+          </button>
+
+          {phase === "main_step1" && (
+            <div className="space-y-4">
+              <h2
+                className="text-2xl font-bold leading-tight"
+                style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
+              >
+                Entenda como funciona {featureLabel}
+              </h2>
+              {/* Slot 5:3 placeholder */}
+              <div
+                className="w-full rounded-lg border border-dashed border-white/30 bg-white/5 flex flex-col items-center justify-center text-white/40"
+                style={{ aspectRatio: "5 / 3" }}
+              >
+                <ImageIcon className="w-10 h-10 mb-1" />
+                <span className="text-xs">Imagem em breve</span>
+              </div>
+              <p className="text-sm text-white/70 leading-relaxed">{explanation}</p>
+              <Button
+                className="w-full bg-[#00FF7F] hover:bg-[#00FF7F]/90 text-black font-bold"
+                onClick={() => setPhase("main_step2")}
+              >
+                Continuar
+              </Button>
+            </div>
+          )}
+
+          {phase === "main_step2" && (
+            <div className="space-y-3 pt-2">
+              {/* Card 1: Avulso */}
+              <button
+                disabled={!canBuyAvulso || loadingPayCard}
+                onClick={() => backPayCard && setFunnelOpen(backPayCard)}
+                className="w-full text-left rounded-lg border border-[#00FF7F]/40 bg-[#00FF7F]/10 hover:bg-[#00FF7F]/15 transition px-4 py-4 disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ minHeight: 75 }}
+              >
+                <div className="font-bold text-white text-base leading-snug">
+                  {canBuyAvulso
+                    ? <>Desbloquear <span className="text-[#00FF7F]">{featureLabel}</span> por R$ {PRICES.backredirect}</>
+                    : <>Desbloquear {featureLabel} — <span className="text-white/60">Em breve</span></>}
+                </div>
+                <div className="text-xs text-white/60 mt-1">Pagamento único, acesso vitalício</div>
+              </button>
+
+              {/* Card 2: Upgrade Diamante */}
+              <button
+                disabled={!canBuyUpgrade || loadingPayCard}
+                onClick={() => upgradePayCard && setFunnelOpen(upgradePayCard)}
+                className="w-full text-left rounded-lg border border-[#00FF7F]/60 bg-gradient-to-r from-[#00FF7F]/15 to-[#00FF7F]/5 hover:from-[#00FF7F]/25 transition px-4 py-4 disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ minHeight: 75 }}
+              >
+                <div className="font-bold text-white text-base leading-snug">
+                  {canBuyUpgrade
+                    ? <>Upgrade pro <span className="text-[#00FF7F]">Plano Diamante</span> por R$ {PRICES.diamante_upgrade}</>
+                    : <>Upgrade Diamante — <span className="text-white/60">Em breve</span></>}
+                </div>
+                <div className="text-xs text-white/60 mt-1">Desbloqueia {otherFeatures}</div>
+              </button>
+
+              <button
+                onClick={() => setPhase("main_step1")}
+                className="flex items-center justify-center gap-1 w-full text-xs text-white/50 hover:text-white pt-1"
+              >
+                <ArrowLeft className="w-3 h-3" /> Voltar
+              </button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  // ===== MAIN PAYWALL (premium / diamante) — UNCHANGED =====
+  const isDiamante = variant === "diamante";
   const title = variant === "premium" ? "Plano Premium" : "Plano Diamante";
   const benefits = isDiamante ? DIAMANTE_BENEFITS : PREMIUM_BENEFITS;
-  const price =
-    variant === "premium" ? PRICES.premium
-    : variant === "diamante" ? PRICES.diamante
-    : PRICES.diamante_upgrade;
+  const price = variant === "premium" ? PRICES.premium : PRICES.diamante;
   const ctaLabel = `ASSINAR ${variant === "premium" ? "PREMIUM" : "DIAMANTE"} POR R$ ${price}`;
   const canBuy = !!mainPayCard;
 
