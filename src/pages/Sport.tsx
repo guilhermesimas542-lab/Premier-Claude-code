@@ -93,9 +93,11 @@ function getTierLabel(tierRequired: string, addonRequired: string | null): strin
 function getAllowedTiers(mainTier: string): string[] {
   switch (mainTier) {
     case "free": return ["free"];
-    case "basic": return ["basic"];
+    case "basic":
+    case "premium": return ["basic"];
     case "pro": return ["basic", "pro"];
-    case "ultra": return ["basic", "pro", "ultra"];
+    case "ultra":
+    case "diamante": return ["basic", "pro", "ultra"];
     default: return ["free"];
   }
 }

@@ -48,17 +48,25 @@ export function matchesAudienceCriteria(
 ): boolean {
   if (criteria.length === 0) return true; // No criteria = matches everyone
 
+  // Normalize new tiers (premium/diamante) onto legacy buckets so segments keep
+  // working before AND after the cutover migration.
+  //   premium  ≡ basic
+  //   diamante ≡ ultra (top tier)
+  const tierIsBasic = userTier === "basic" || userTier === "premium";
+  const tierIsPro = userTier === "pro";
+  const tierIsUltra = userTier === "ultra" || userTier === "diamante";
+
   for (const c of criteria) {
     switch (c) {
       case "all": break;
       case "all_paid": if (userTier === "free") return false; break;
       case "all_free": if (userTier !== "free") return false; break;
-      case "has_basic": if (userTier !== "basic") return false; break;
-      case "no_basic": if (userTier === "basic") return false; break;
-      case "has_pro": if (userTier !== "pro") return false; break;
-      case "no_pro": if (userTier === "pro") return false; break;
-      case "has_ultra": if (userTier !== "ultra") return false; break;
-      case "no_ultra": if (userTier === "ultra") return false; break;
+      case "has_basic": if (!tierIsBasic) return false; break;
+      case "no_basic": if (tierIsBasic) return false; break;
+      case "has_pro": if (!tierIsPro) return false; break;
+      case "no_pro": if (tierIsPro) return false; break;
+      case "has_ultra": if (!tierIsUltra) return false; break;
+      case "no_ultra": if (tierIsUltra) return false; break;
       case "has_vitalicio": if (!isVitalicio) return false; break;
       case "no_vitalicio": if (isVitalicio) return false; break;
       case "has_alavancagem": if (!activeAddons.includes("alavancagem")) return false; break;

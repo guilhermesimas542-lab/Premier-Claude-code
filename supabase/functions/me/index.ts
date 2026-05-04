@@ -113,10 +113,12 @@ function getAllowedTiers(mainTier: string): string[] {
     case 'free':
       return ['free'];
     case 'basic':
+    case 'premium':
       return ['basic'];
     case 'pro':
       return ['basic', 'pro'];
     case 'ultra':
+    case 'diamante':
       return ['basic', 'pro', 'ultra'];
     default:
       return ['free'];
