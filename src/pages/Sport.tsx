@@ -290,6 +290,7 @@ const Sport = () => {
 
       const _isPaidUser = userTier !== "free";
       setIsPaidUser(_isPaidUser);
+      setUserTier(userTier);
       const today = getTodayInBrazil();
       console.log("[Sport] getTodayInBrazil() =", today, "| UTC now =", new Date().toISOString());
 
