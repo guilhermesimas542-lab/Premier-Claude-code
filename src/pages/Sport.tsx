@@ -664,7 +664,7 @@ const Sport = () => {
         {isSpecial ? (
           <SpecialBettingCard
             tipId={0}
-            type={entry.addon_required === "alavancagem" ? "ALAVANCAGEM" : "ODDS_ALTAS"}
+            type="ALAVANCAGEM"
             market={market}
             betChoice={betChoice}
             odds={entry.odd || 0}
