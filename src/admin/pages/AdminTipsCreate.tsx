@@ -175,6 +175,7 @@ export default function AdminTipsCreate() {
       odd: parseFloat(Number(form.odd).toFixed(2)),
       tier_required: cat.tier,
       addon_required: cat.addon,
+      feature_required: cat.feature,
       active: true,
       team1_name: form.team1_name,
       team1_logo_url: form.team1_logo_url || null,
