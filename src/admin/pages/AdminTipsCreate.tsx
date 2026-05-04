@@ -20,13 +20,14 @@ interface BettingHouseOption {
 
 // feature corresponds to the new gating system (user_has_feature).
 // Mantemos tier_required + addon_required preenchidos para retrocompat durante a transição.
-const CATEGORIA_MAP: Record<string, { tier: string; addon: string | null; feature: string }> = {
-  free:        { tier: "free",  addon: null,           feature: "odds_safes" },
-  basico:      { tier: "basic", addon: null,           feature: "odds_safes" },
-  pro:         { tier: "pro",   addon: null,           feature: "odds_pro" },
-  ultra:       { tier: "ultra", addon: null,           feature: "odds_pro" },
-  alavancagem: { tier: "pro",   addon: "alavancagem",  feature: "alavancagem" },
-  odds_altas:  { tier: "pro",   addon: "desaltas",     feature: "desaltas" },
+// feature=null => acesso público (não passa por user_has_feature, gateia só por tier_required='free')
+const CATEGORIA_MAP: Record<string, { tier: string; addon: string | null; feature: string | null }> = {
+  free:        { tier: "free",  addon: null,          feature: null },
+  basico:      { tier: "basic", addon: null,          feature: "odds_safes" },
+  pro:         { tier: "pro",   addon: null,          feature: "odds_pro" },
+  ultra:       { tier: "ultra", addon: null,          feature: "odds_pro" },
+  alavancagem: { tier: "pro",   addon: "alavancagem", feature: "alavancagem" },
+  odds_altas:  { tier: "pro",   addon: "desaltas",    feature: "desaltas" },
 };
 
 function getTodayBrasilia(): string {
