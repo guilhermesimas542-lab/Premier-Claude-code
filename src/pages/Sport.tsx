@@ -540,13 +540,9 @@ const Sport = () => {
 
   const handleLockedClick = async (entry: DisplayTip) => {
     trackEvent("click_locked_entry", { tier: entry.tier_required, addon: entry.addon_required, title: entry.title });
-    // Determine the plan key for pay_cards lookup
-    let planKey: string | null = null;
-    if (entry.addon_required === "alavancagem") planKey = "alavancagem";
-    else if (entry.addon_required === "desaltas") planKey = "desaltas";
-    else if (entry.tier_required === "basic") planKey = "basic";
-    else if (entry.tier_required === "pro") planKey = "pro";
-    else if (entry.tier_required === "ultra") planKey = "ultra";
+    // Determine the plan key for pay_cards lookup based on the tip's feature
+    const feat = getEntryFeature(entry);
+    const planKey: string | null = featureToPlanKey(feat);
 
     // Try house-specific pay card first, then generic
     if (planKey) {
