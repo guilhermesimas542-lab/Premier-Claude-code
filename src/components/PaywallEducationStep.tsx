@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ImageIcon } from "lucide-react";
+import { ImageIcon, ChevronRight } from "lucide-react";
 import {
   type FeatureKey,
   FEATURE_HEADLINES,
