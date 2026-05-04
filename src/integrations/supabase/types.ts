@@ -1601,6 +1601,42 @@ export type Database = {
         }
         Relationships: []
       }
+      users_premigration_snapshot: {
+        Row: {
+          betting_house_id: string | null
+          created_at: string | null
+          email: string | null
+          first_access_at: string | null
+          id: string | null
+          last_seen_at: string | null
+          legacy_main_tier: Database["public"]["Enums"]["main_tier"] | null
+          origin: string | null
+          snapshot_taken_at: string | null
+        }
+        Insert: {
+          betting_house_id?: string | null
+          created_at?: string | null
+          email?: string | null
+          first_access_at?: string | null
+          id?: string | null
+          last_seen_at?: string | null
+          legacy_main_tier?: Database["public"]["Enums"]["main_tier"] | null
+          origin?: string | null
+          snapshot_taken_at?: string | null
+        }
+        Update: {
+          betting_house_id?: string | null
+          created_at?: string | null
+          email?: string | null
+          first_access_at?: string | null
+          id?: string | null
+          last_seen_at?: string | null
+          legacy_main_tier?: Database["public"]["Enums"]["main_tier"] | null
+          origin?: string | null
+          snapshot_taken_at?: string | null
+        }
+        Relationships: []
+      }
       webhook_logs: {
         Row: {
           buyer_email: string | null
