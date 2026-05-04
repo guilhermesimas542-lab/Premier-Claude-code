@@ -248,7 +248,9 @@ const Sport = () => {
   
   const initialTabParam = searchParams.get("tab"); // e.g. "alavancagem"
 
-  // Fetch tips directly from content_entries + user tier
+  // Fetch tips directly from content_entries + user features
+  const [userFeatures, setUserFeatures] = useState<Set<string>>(new Set());
+
   const fetchTips = useCallback(async () => {
     setIsLoading(true);
     setError(null);
@@ -260,7 +262,6 @@ const Sport = () => {
         return;
       }
 
-      // Get user tier from DB
       const { data: userData } = await supabase
         .from("users")
         .select("id, main_tier")
@@ -270,24 +271,25 @@ const Sport = () => {
       const userTier = userData?.main_tier || "free";
       const userId = userData?.id;
 
-      // Get active addons
-      let activeAddons: string[] = [];
+      // Resolve feature flags via DB (uses user_has_feature with LEGACY UNIVERSAL fallback)
+      const features = new Set<string>();
       if (userId) {
-        const { data: entitlements } = await supabase
-          .from("entitlements")
-          .select("product_key")
-          .eq("user_id", userId)
-          .eq("status", "active");
-        activeAddons = (entitlements || []).map(e => e.product_key);
+        const featureKeys = [
+          "odds_safes", "odds_pro", "alavancagem",
+          "multiplas_bingo", "mercados_secundarios", "esportes_americanos",
+        ];
+        const results = await Promise.all(
+          featureKeys.map(k => supabase.rpc("user_has_feature", { p_user: userId, p_feature: k })),
+        );
+        featureKeys.forEach((k, i) => { if (results[i].data === true) features.add(k); });
       }
+      setUserFeatures(features);
 
-      const allowedTiers = getAllowedTiers(userTier);
       const _isPaidUser = userTier !== "free";
       setIsPaidUser(_isPaidUser);
       const today = getTodayInBrazil();
       console.log("[Sport] getTodayInBrazil() =", today, "| UTC now =", new Date().toISOString());
 
-      // Fetch today's active entries
       const { data: entries, error: fetchError } = await supabase
         .from("content_entries")
         .select("*")
@@ -303,25 +305,22 @@ const Sport = () => {
         return;
       }
 
-      // Process entries: filter + calculate display_status
       const rawEntries = (entries || []) as unknown as ContentEntry[];
       const processed: DisplayTip[] = rawEntries
         .filter((e: ContentEntry) => {
-          // Paid users don't see free-tier entries (unless addon)
-          if (_isPaidUser && e.tier_required === "free" && !e.addon_required) return false;
+          // Paid users don't see Grátis tab content
+          if (_isPaidUser && getEntryFeature(e) === "free") return false;
           return true;
         })
         .map((e: ContentEntry) => ({
           ...e,
-          display_status: calculateDisplayStatus(e, allowedTiers, activeAddons),
+          display_status: calculateDisplayStatus(e, features),
         }))
-        // Remove expired tips completely — they don't appear at all
         .filter((e) => e.display_status !== "expired")
-        // Sort by fixed tier order: Grátis → Alavancagem → Odds Altas → Básico → Pro → Ultra
         .sort((a, b) => {
-          const tierA = TIER_DISPLAY_ORDER[mapTierToDisplay(a.tier_required, a.addon_required)] ?? 99;
-          const tierB = TIER_DISPLAY_ORDER[mapTierToDisplay(b.tier_required, b.addon_required)] ?? 99;
-          return tierA - tierB;
+          const fa = FEATURE_DISPLAY_ORDER[getEntryFeature(a)] ?? 99;
+          const fb = FEATURE_DISPLAY_ORDER[getEntryFeature(b)] ?? 99;
+          return fa - fb;
         });
 
       setTips(processed);
@@ -334,57 +333,50 @@ const Sport = () => {
   }, []);
 
   // Derived data — re-filter on every tick so expired tips disappear in real-time
-  // Uses São Paulo timezone for all comparisons
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const activeEntries = useMemo(() => {
     const filtered = tips.filter(entry => {
       const now = toZonedTime(new Date(), BRAZIL_TZ);
-
-      // starts_at check: entries expire 1h after match starts
       if (entry.starts_at) {
         const expiryFromStart = new Date(new Date(entry.starts_at).getTime() + 60 * 60 * 1000);
         if (now > toZonedTime(expiryFromStart, BRAZIL_TZ)) return false;
       }
-
-      // explicit expires_at check
       if (entry.expires_at && now > toZonedTime(new Date(entry.expires_at), BRAZIL_TZ)) return false;
-
       return true;
     });
-    // Sort: tier order first, then starts_at ascending within each tier
     const getSortTime = (entry: DisplayTip): number => {
       if (entry.starts_at) return new Date(entry.starts_at).getTime();
       if (entry.expires_at) return new Date(entry.expires_at).getTime();
       return Number.MAX_SAFE_INTEGER;
     };
     return filtered.sort((a, b) => {
-      const tierA = TIER_DISPLAY_ORDER[mapTierToDisplay(a.tier_required, a.addon_required)] ?? 99;
-      const tierB = TIER_DISPLAY_ORDER[mapTierToDisplay(b.tier_required, b.addon_required)] ?? 99;
-      if (tierA !== tierB) return tierA - tierB;
+      const fa = FEATURE_DISPLAY_ORDER[getEntryFeature(a)] ?? 99;
+      const fb = FEATURE_DISPLAY_ORDER[getEntryFeature(b)] ?? 99;
+      if (fa !== fb) return fa - fb;
       return getSortTime(a) - getSortTime(b);
     });
   }, [tips, tick]);
 
-  const tipsByTier = useMemo(() => {
+  const tipsByFeature = useMemo(() => {
     const getSortTime = (entry: DisplayTip): number => {
       if (entry.starts_at) return new Date(entry.starts_at).getTime();
       if (entry.expires_at) return new Date(entry.expires_at).getTime();
       return Number.MAX_SAFE_INTEGER;
     };
     const grouped = activeEntries.reduce((acc, entry) => {
-      const tier = mapTierToDisplay(entry.tier_required, entry.addon_required);
-      if (!acc[tier]) acc[tier] = [];
-      acc[tier].push(entry);
+      const f = getEntryFeature(entry);
+      if (!acc[f]) acc[f] = [];
+      acc[f].push(entry);
       return acc;
-    }, {} as Record<TierType, DisplayTip[]>);
-    for (const tier in grouped) {
-      grouped[tier as TierType].sort((a, b) => getSortTime(a) - getSortTime(b));
+    }, {} as Record<FeatureKey, DisplayTip[]>);
+    for (const f in grouped) {
+      grouped[f as FeatureKey].sort((a, b) => getSortTime(a) - getSortTime(b));
     }
     return grouped;
   }, [activeEntries]);
 
-  const getFirstIndexOfTier = (tier: TierType): number => {
-    return activeEntries.findIndex(entry => mapTierToDisplay(entry.tier_required, entry.addon_required) === tier);
+  const getFirstIndexOfFeature = (f: FeatureKey): number => {
+    return activeEntries.findIndex(entry => getEntryFeature(entry) === f);
   };
 
   const scrollToTier = (tier: TierType) => {
