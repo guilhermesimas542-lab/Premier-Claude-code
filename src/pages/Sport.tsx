@@ -614,19 +614,16 @@ const Sport = () => {
   }, []);
 
   const isSpecialEntry = (entry: DisplayTip): boolean => {
-    return entry.addon_required === "alavancagem" || entry.addon_required === "desaltas";
+    return getEntryFeature(entry) === "alavancagem";
   };
 
   const renderEntryCard = (entry: DisplayTip, index: number, isExpiredSection: boolean = false) => {
     const isSpecial = isSpecialEntry(entry);
-    const displayTier = mapTierToDisplay(entry.tier_required, entry.addon_required);
+    const feat = getEntryFeature(entry);
+    const displayTier = featureToDisplayTier(feat);
     const isLocked = entry.display_status === "locked";
     const isExpired = entry.display_status === "expired";
-    const lockedLabel = isLocked
-      ? entry.addon_required
-        ? `add-on ${getTierLabel(entry.tier_required, entry.addon_required)}`
-        : `plano ${getTierLabel(entry.tier_required, null)}`
-      : undefined;
+    const lockedLabel = isLocked ? getFeatureLabel(feat) : undefined;
 
     const team1 = {
       name: entry.team1_name || "Time 1",
