@@ -269,11 +269,12 @@ export default function AdminTipsCreate() {
             <SelectTrigger className="bg-muted/30 border-border"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="free">Free</SelectItem>
-              <SelectItem value="basico">Básico</SelectItem>
-              <SelectItem value="pro">Pro</SelectItem>
-              <SelectItem value="ultra">Ultra</SelectItem>
+              <SelectItem value="basico">Odds Safes (Básico)</SelectItem>
+              <SelectItem value="pro">Odds Pró</SelectItem>
               <SelectItem value="alavancagem">Alavancagem</SelectItem>
-              <SelectItem value="odds_altas">Odds Altas</SelectItem>
+              <SelectItem value="multiplas_bingo">Múltiplas / Bingo</SelectItem>
+              <SelectItem value="mercados_secundarios">Mercados Secundários</SelectItem>
+              <SelectItem value="esportes_americanos">Esportes Americanos</SelectItem>
             </SelectContent>
           </Select>
         </div>
