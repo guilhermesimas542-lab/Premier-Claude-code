@@ -22,12 +22,14 @@ interface BettingHouseOption {
 // Mantemos tier_required + addon_required preenchidos para retrocompat durante a transição.
 // feature=null => acesso público (não passa por user_has_feature, gateia só por tier_required='free')
 const CATEGORIA_MAP: Record<string, { tier: string; addon: string | null; feature: string | null }> = {
-  free:        { tier: "free",  addon: null,          feature: null },
-  basico:      { tier: "basic", addon: null,          feature: "odds_safes" },
-  pro:         { tier: "pro",   addon: null,          feature: "odds_pro" },
-  ultra:       { tier: "ultra", addon: null,          feature: "odds_pro" },
-  alavancagem: { tier: "pro",   addon: "alavancagem", feature: "alavancagem" },
-  odds_altas:  { tier: "pro",   addon: "desaltas",    feature: "desaltas" },
+  free:                 { tier: "free",  addon: null,          feature: null },
+  basico:               { tier: "basic", addon: null,          feature: "odds_safes" },
+  pro:                  { tier: "pro",   addon: null,          feature: "odds_pro" },
+  ultra:                { tier: "ultra", addon: null,          feature: "odds_pro" },
+  alavancagem:          { tier: "ultra", addon: "alavancagem", feature: "alavancagem" },
+  multiplas_bingo:      { tier: "ultra", addon: null,          feature: "multiplas_bingo" },
+  mercados_secundarios: { tier: "ultra", addon: null,          feature: "mercados_secundarios" },
+  esportes_americanos:  { tier: "ultra", addon: null,          feature: "esportes_americanos" },
 };
 
 function getTodayBrasilia(): string {
@@ -111,7 +113,7 @@ export default function AdminTipsCreate() {
 
   const set = (key: string, val: string) => setForm((f) => ({ ...f, [key]: val }));
 
-  const isSpecialCategory = form.categoria === "alavancagem" || form.categoria === "odds_altas";
+  const isSpecialCategory = form.categoria === "alavancagem";
   const isBilheteEspecial = form.palpite?.trim().toLowerCase() === "bilhete especial";
 
   useEffect(() => {
@@ -121,13 +123,6 @@ export default function AdminTipsCreate() {
         palpite: "Alavancagem do Dia",
         mercado: "Combinação de Mercados",
         mercado_explicacao: "Esta é uma entrada especial que combina múltiplos mercados de baixa odd para criar uma aposta mais segura e com potencial de alavancagem de banca.",
-      }));
-    } else if (form.categoria === "odds_altas") {
-      setForm(f => ({
-        ...f,
-        palpite: "Múltipla do Dia",
-        mercado: "Múltipla de Alto Risco",
-        mercado_explicacao: "Esta é uma aposta múltipla que combina resultados de maior risco para buscar um retorno financeiro significativamente mais alto.",
       }));
     }
   }, [form.categoria]);
@@ -267,11 +262,12 @@ export default function AdminTipsCreate() {
             <SelectTrigger className="bg-muted/30 border-border"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="free">Free</SelectItem>
-              <SelectItem value="basico">Básico</SelectItem>
-              <SelectItem value="pro">Pro</SelectItem>
-              <SelectItem value="ultra">Ultra</SelectItem>
+              <SelectItem value="basico">Odds Safes (Básico)</SelectItem>
+              <SelectItem value="pro">Odds Pró</SelectItem>
               <SelectItem value="alavancagem">Alavancagem</SelectItem>
-              <SelectItem value="odds_altas">Odds Altas</SelectItem>
+              <SelectItem value="multiplas_bingo">Múltiplas / Bingo</SelectItem>
+              <SelectItem value="mercados_secundarios">Mercados Secundários</SelectItem>
+              <SelectItem value="esportes_americanos">Esportes Americanos</SelectItem>
             </SelectContent>
           </Select>
         </div>
