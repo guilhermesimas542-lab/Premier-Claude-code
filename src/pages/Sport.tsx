@@ -808,19 +808,12 @@ const Sport = () => {
       </main>
 
       <JustificativaModal isOpen={justificativaModalOpen} onClose={handleCloseJustificativa} texto={justificativaTexto} />
-      <UpgradePopup
-        open={upgradePopupOpen}
-        onClose={() => setUpgradePopupOpen(false)}
-        image={upgradePopupImage}
-        link={upgradePopupLink}
+      <PaywallPopup
+        open={paywallOpen}
+        onClose={() => setPaywallOpen(false)}
+        variant={paywallVariant}
+        feature={paywallFeature}
       />
-      {payCardData && (
-        <PayCardFunnelModal
-          payCard={payCardData}
-          open={payCardModalOpen}
-          onClose={() => { setPayCardModalOpen(false); setPayCardData(null); }}
-        />
-      )}
       {/* Modal Info Vitalício */}
       {showLifetimeInfoModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={() => setShowLifetimeInfoModal(false)}>
