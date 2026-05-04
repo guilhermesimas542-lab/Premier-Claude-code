@@ -10,15 +10,15 @@ const CSV_HEADERS = [
   "palpite", "mercado", "explicacao", "justificativa",
 ];
 
-const CATEGORIA_MAP: Record<string, { tier: string; addon: string | null }> = {
-  free: { tier: "free", addon: null },
-  basico: { tier: "basic", addon: null },
-  basic: { tier: "basic", addon: null },
-  pro: { tier: "pro", addon: null },
-  ultra: { tier: "ultra", addon: null },
-  premium: { tier: "pro", addon: null },
-  alavancagem: { tier: "pro", addon: "alavancagem" },
-  odds_altas: { tier: "pro", addon: "desaltas" },
+const CATEGORIA_MAP: Record<string, { tier: string; addon: string | null; feature: string | null }> = {
+  free:        { tier: "free",  addon: null,          feature: null },
+  basico:      { tier: "basic", addon: null,          feature: "odds_safes" },
+  basic:       { tier: "basic", addon: null,          feature: "odds_safes" },
+  pro:         { tier: "pro",   addon: null,          feature: "odds_pro" },
+  ultra:       { tier: "ultra", addon: null,          feature: "odds_pro" },
+  premium:     { tier: "pro",   addon: null,          feature: "odds_pro" },
+  alavancagem: { tier: "pro",   addon: "alavancagem", feature: "alavancagem" },
+  odds_altas:  { tier: "pro",   addon: "desaltas",    feature: "desaltas" },
 };
 
 interface Team { id: string; name: string; logo_url: string; }
@@ -170,6 +170,7 @@ export default function AdminTipsImport() {
         odd: parseFloat(r.odd),
         tier_required: cat.tier as any,
         addon_required: cat.addon as any,
+        feature_required: cat.feature,
         active: true,
         team1_name: r.team1_name,
         team1_logo_url: r.team1_logo_url || null,
