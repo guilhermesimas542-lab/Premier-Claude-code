@@ -721,56 +721,56 @@ const Sport = () => {
       />
 
       <main className="w-full max-w-7xl mx-auto px-4 pt-2 pb-6 space-y-2 overflow-x-hidden">
-        {/* Tier Tabs */}
+        {/* Feature Tabs */}
         <div className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-2 px-1 sm:justify-center" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
-          {TIER_TABS
-            .filter(tab => !(isPaidUser && tab.tier === "GRÁTIS"))
-            .map((tab) => {
-            const isActive = activeTierHighlight === tab.tier;
-            const count = tipsByTier[tab.tier]?.length || 0;
-            const hasContent = count > 0;
-            const tabColor = TIER_TAB_COLORS[tab.colorKey] || "#94A3B8";
-            const isPaidTier = ["BÁSICO", "PRO", "ULTRA"].includes(tab.tier);
+          {TAB_ORDER
+            .filter(f => !(isPaidUser && f === "free"))
+            .map((f) => {
+              const meta = TAB_META[f];
+              const isActive = activeFeatureHighlight === f;
+              const count = tipsByFeature[f]?.length || 0;
+              const hasContent = count > 0;
+              const tabColor = meta.color;
+              const isPaidTab = f !== "free";
+              const userHasAccess = f === "free" || userFeatures.has(f);
 
-            // Check if user has access to this tier
-            const tierKey = tab.colorKey;
-            const userHasAccess = tierKey === "free"
-              || (tierKey === "alavancagem" || tierKey === "odds_altas")
-              || (mockUser && (() => {
-                return tipsByTier[tab.tier]?.some(t => t.display_status === "unlocked");
-              })());
-
-            return (
-              <button
-                key={tab.tier}
-                onClick={() => {
-                  if (hasContent) {
-                    scrollToTier(tab.tier);
-                  } else if (isPaidTier) {
-                    // Paid tier with no entries today — open quiz via handleLockedClick
-                    const lockedEntry = Object.values(tipsByTier).flat().find(t => t.display_status === "locked");
-                    if (lockedEntry) handleLockedClick(lockedEntry);
-                  }
-                }}
-                style={
-                  (!hasContent && !isPaidTier)
-                    ? { background: "transparent", border: "1.5px solid rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.25)", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 11, padding: "4px 8px", borderRadius: 20, cursor: "not-allowed", whiteSpace: "nowrap" as const, flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 4 }
-                    : (!hasContent && isPaidTier)
-                      ? { background: "transparent", border: "1.5px solid rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.4)", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 11, padding: "4px 8px", borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" as const, opacity: 0.7, flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 4 }
-                    : isActive
-                      ? { background: `${tabColor}26`, border: `1.5px solid ${tabColor}`, color: tabColor, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 11, padding: "4px 8px", borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" as const, flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 4 }
-                      : !userHasAccess
-                        ? { background: "transparent", border: "1.5px solid rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.4)", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 11, padding: "4px 8px", borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" as const, opacity: 0.7, flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 4 }
-                        : { background: "transparent", border: "1.5px solid rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.5)", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 11, padding: "4px 8px", borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" as const, flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 4 }
+              const handleClick = () => {
+                if (hasContent && userHasAccess) {
+                  scrollToFeature(f);
+                } else if (hasContent && !userHasAccess) {
+                  // Tab has tips but user lacks access — open paywall via first locked tip in tab
+                  const lockedEntry = tipsByFeature[f]?.find(t => t.display_status === "locked");
+                  if (lockedEntry) handleLockedClick(lockedEntry);
+                } else if (!hasContent && isPaidTab && !userHasAccess) {
+                  // Empty paid tab with no access — open quiz with synthetic locked entry
+                  const synthetic = { tier_required: "ultra", addon_required: null, feature_required: f, title: meta.label } as any;
+                  handleLockedClick(synthetic);
                 }
-              >
-                <span className="sm:hidden">{tab.labelShort}</span>
-                <span className="hidden sm:inline">{tab.label}</span>
-                {(hasContent && !userHasAccess || !hasContent && isPaidTier) && <Lock className="w-2.5 h-2.5" style={{ opacity: 0.7 }} />}
-                {hasContent && <span style={{ fontSize: 11, opacity: 0.7 }}>({count})</span>}
-              </button>
-            );
-          })}
+              };
+
+              return (
+                <button
+                  key={f}
+                  onClick={handleClick}
+                  style={
+                    (!hasContent && !isPaidTab)
+                      ? { background: "transparent", border: "1.5px solid rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.25)", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 11, padding: "4px 8px", borderRadius: 20, cursor: "not-allowed", whiteSpace: "nowrap" as const, flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 4 }
+                      : (!hasContent && isPaidTab)
+                        ? { background: "transparent", border: "1.5px solid rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.4)", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 11, padding: "4px 8px", borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" as const, opacity: 0.7, flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 4 }
+                      : isActive
+                        ? { background: `${tabColor}26`, border: `1.5px solid ${tabColor}`, color: tabColor, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 11, padding: "4px 8px", borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" as const, flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 4 }
+                        : !userHasAccess
+                          ? { background: "transparent", border: "1.5px solid rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.4)", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 11, padding: "4px 8px", borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" as const, opacity: 0.7, flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 4 }
+                          : { background: "transparent", border: "1.5px solid rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.5)", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 11, padding: "4px 8px", borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" as const, flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 4 }
+                  }
+                >
+                  <span className="sm:hidden">{meta.labelShort}</span>
+                  <span className="hidden sm:inline">{meta.label}</span>
+                  {((hasContent && !userHasAccess) || (!hasContent && isPaidTab && !userHasAccess)) && <Lock className="w-2.5 h-2.5" style={{ opacity: 0.7 }} />}
+                  {hasContent && <span style={{ fontSize: 11, opacity: 0.7 }}>({count})</span>}
+                </button>
+              );
+            })}
         </div>
 
         {isLoading && (
