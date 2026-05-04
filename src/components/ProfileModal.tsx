@@ -36,6 +36,7 @@ const ProfileModal = ({ isOpen, onClose }: ProfileModalProps) => {
   } = useAchievements(userId);
   const [nickname, setNickname] = useState("");
   const [currentAvatarId, setCurrentAvatarId] = useState("avatar_default_1");
+  const [currentTier, setCurrentTier] = useState<string | null>(null);
   const [showAvatarModal, setShowAvatarModal] = useState(false);
   const [showNicknameModal, setShowNicknameModal] = useState(false);
   const [nicknameInput, setNicknameInput] = useState("");
@@ -46,12 +47,13 @@ const ProfileModal = ({ isOpen, onClose }: ProfileModalProps) => {
     const fetchProfile = async () => {
       const { data } = await supabase
         .from('users')
-        .select('nickname, avatar_id')
+        .select('nickname, avatar_id, main_tier')
         .eq('id', userId)
         .maybeSingle();
       if (data) {
         setNickname((data as any).nickname || "");
         setCurrentAvatarId((data as any).avatar_id || "avatar_default_1");
+        setCurrentTier((data as any).main_tier || null);
       }
     };
     fetchProfile();
@@ -62,7 +64,7 @@ const ProfileModal = ({ isOpen, onClose }: ProfileModalProps) => {
   const { xpInLevel, xpNeeded, progress } = getXpProgress(totalXp, level);
   const currentAvatar = getAvatarById(currentAvatarId);
   const levelTitle = LEVEL_TITLES[level] || 'Novato';
-  const planLabel = mockUser?.mainTier ? TIER_LABELS[mockUser.mainTier] || mockUser.mainTier : null;
+  const planLabel = currentTier ? TIER_LABELS[currentTier] || currentTier : null;
   
 
   const handleSaveNickname = async () => {
