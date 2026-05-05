@@ -100,7 +100,7 @@ export function PayCardFunnelModal({ payCard, open, onClose }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && handleClose()}>
-      <DialogContent className="bg-gradient-to-b from-zinc-900 to-zinc-950 border-white/10 text-white max-w-md p-0 overflow-hidden">
+      <DialogContent className="bg-gradient-to-b from-zinc-900 to-zinc-950 border-white/10 text-white max-w-md p-0 overflow-hidden [&>button]:hidden">
         <button onClick={handleClose} className="absolute top-3 right-3 z-10 text-gray-400 hover:text-white">
           <X className="w-5 h-5" />
         </button>

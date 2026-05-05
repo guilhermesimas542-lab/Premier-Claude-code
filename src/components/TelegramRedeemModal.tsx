@@ -13,7 +13,7 @@ export function TelegramRedeemModal({ open, onClose, telegramUrl }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="bg-[#112236] border-[#0088cc]/30 text-white max-w-sm p-6 rounded-2xl">
+      <DialogContent className="bg-[#112236] border-[#0088cc]/30 text-white max-w-sm p-6 rounded-2xl [&>button]:hidden">
         <button
           onClick={onClose}
           className="absolute top-3 right-3 p-1 rounded hover:bg-white/10"
