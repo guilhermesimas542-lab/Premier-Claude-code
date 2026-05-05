@@ -27,10 +27,10 @@ export function SupportRoomModal({ open, onClose, telegramSupportUrl }: Props) {
             className="text-2xl font-bold leading-tight"
             style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
           >
-            Liberar acesso aos sinais
+            Liberar Acesso à Sala de Sinais
           </h2>
           <p className="text-sm text-white/70">
-            Fale com nosso suporte no Telegram e receba na hora o acesso à sala de sinais + um guia rápido de como aproveitar.
+            Fale com nosso suporte no Telegram e receba o acesso à Sala de Sinais + um guia rápido de como aproveitar.
           </p>
 
           <button
