@@ -6,7 +6,7 @@
  * PRO     — #00FF7F verde
  * ULTRA   — #7C3AED roxo
  * ALAVANCAGEM — #F0B429 gold
- * ODDS ALTAS  — #F97316 laranja
+ * MÚLTIPLAS / BINGO — #F97316 laranja
  */
 
 export interface TierColorStyle {
@@ -53,8 +53,8 @@ const STYLES: Record<string, TierColorStyle> = {
     border: '#F0B429',
     glow: '0 0 15px rgba(240,180,41,0.15)',
   },
-  desaltas: {
-    label: 'ODDS ALTAS',
+  multiplas_bingo: {
+    label: 'MÚLTIPLAS / BINGO',
     color: '#F97316',
     bg: 'rgba(249,115,22,0.15)',
     border: '#F97316',
@@ -64,7 +64,7 @@ const STYLES: Record<string, TierColorStyle> = {
 
 /**
  * Retorna o estilo de cor para um tier + addon.
- * Addon tem prioridade sobre tier (alavancagem, desaltas).
+ * Addon tem prioridade sobre tier (alavancagem, multiplas_bingo).
  */
 export function getTierStyle(tier: string, addon?: string | null): TierColorStyle {
   if (addon && STYLES[addon]) return STYLES[addon];

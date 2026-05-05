@@ -87,7 +87,7 @@ function getEntryFeature(entry: { feature_required: string | null; tier_required
   }
   // Legacy fallback (defensive — backfill should have populated everything)
   if (entry.addon_required === "alavancagem") return "alavancagem";
-  if (entry.addon_required === "desaltas") return "odds_pro";
+  if (entry.addon_required === "multiplas_bingo") return "multiplas_bingo";
   if (entry.tier_required === "basic") return "odds_safes";
   if (entry.tier_required === "pro" || entry.tier_required === "ultra") return "odds_pro";
   return "free";
@@ -495,7 +495,7 @@ const Sport = () => {
     // Dispatch XP events for achievements
     if (entry.addon_required === 'alavancagem') {
       sendXpEvent('VIEW_ALAV_TIP');
-    } else if (entry.addon_required === 'desaltas') {
+    } else if (entry.addon_required === 'multiplas_bingo') {
       sendXpEvent('VIEW_ODDS_TIP');
     } else if (entry.tier_required === 'free') {
       sendXpEvent('VIEW_FREE_TIP');

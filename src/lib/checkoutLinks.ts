@@ -1,3 +1,4 @@
+// TODO: arquitetura legacy — migrar consumidores pra pay_cards/products_catalog em fase futura.
 // Premier Ultra - Checkout Links Configuration
 // Centralized map of all checkout/upgrade links
 
@@ -9,7 +10,7 @@ export const CHECKOUT_LINKS = {
   
   // Add-on purchase links
   addon_alavancagem: 'https://checkout.premierfc.app/alavancagem',
-  addon_desaltas: 'https://checkout.premierfc.app/desaltas',
+  addon_multiplas_bingo: 'https://checkout.premierfc.app/multiplas_bingo',
   
   // Lifetime/Vitalício
   vitalicio: 'https://checkout.premierfc.app/vitalicio',
@@ -43,8 +44,8 @@ export function getAddonLink(addon: string): string {
   switch (addon) {
     case 'alavancagem':
       return CHECKOUT_LINKS.addon_alavancagem;
-    case 'desaltas':
-      return CHECKOUT_LINKS.addon_desaltas;
+    case 'multiplas_bingo':
+      return CHECKOUT_LINKS.addon_multiplas_bingo;
     default:
       return CHECKOUT_LINKS.paywall_default;
   }

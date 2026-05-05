@@ -23,8 +23,8 @@ export const AUDIENCE_SEGMENTS: AudienceSegment[] = [
   { value: "no_vitalicio", label: "Não Possui Plano Vitalício", group: "Add-ons" },
   { value: "has_alavancagem", label: "Possui Add-on Alavancagem", group: "Add-ons" },
   { value: "no_alavancagem", label: "Não Possui Add-on Alavancagem", group: "Add-ons" },
-  { value: "has_desaltas", label: "Possui Add-on Odds Altas", group: "Add-ons" },
-  { value: "no_desaltas", label: "Não Possui Add-on Odds Altas", group: "Add-ons" },
+  { value: "has_multiplas_bingo", label: "Possui Add-on Múltiplas / Bingo", group: "Add-ons" },
+  { value: "no_multiplas_bingo", label: "Não Possui Add-on Múltiplas / Bingo", group: "Add-ons" },
   { value: "has_live_telegram", label: "Possui Add-on Live Telegram", group: "Add-ons" },
   { value: "no_live_telegram", label: "Não Possui Add-on Live Telegram", group: "Add-ons" },
 ];
@@ -71,8 +71,8 @@ export function matchesAudienceCriteria(
       case "no_vitalicio": if (isVitalicio) return false; break;
       case "has_alavancagem": if (!activeAddons.includes("alavancagem")) return false; break;
       case "no_alavancagem": if (activeAddons.includes("alavancagem")) return false; break;
-      case "has_desaltas": if (!activeAddons.includes("desaltas")) return false; break;
-      case "no_desaltas": if (activeAddons.includes("desaltas")) return false; break;
+      case "has_multiplas_bingo": if (!activeAddons.includes("multiplas_bingo")) return false; break;
+      case "no_multiplas_bingo": if (activeAddons.includes("multiplas_bingo")) return false; break;
       case "has_live_telegram": if (!activeAddons.includes("live_telegram")) return false; break;
       case "no_live_telegram": if (activeAddons.includes("live_telegram")) return false; break;
       default: break;
