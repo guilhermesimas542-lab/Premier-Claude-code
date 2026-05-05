@@ -7,6 +7,7 @@ import { useUserBettingHouse } from "@/hooks/useUserBettingHouse";
 import { PayCardFunnelModal } from "@/components/PayCardFunnelModal";
 import type { PayCardData } from "@/hooks/usePayCards";
 import { PRICES } from "@/lib/paywallRouting";
+import { TelegramRedeemModal } from "@/components/TelegramRedeemModal";
 
 interface Props {
   open: boolean;
@@ -68,7 +69,7 @@ const PLAN_META: Record<PlanKey, { title: string; color: string; price: string; 
   diamante: {
     title: "Diamante",
     color: "#A855F7",
-    price: `R$ ${PRICES.diamante}`,
+    price: `R$ ${PRICES.diamante_upgrade}`,
     suffix: "vitalício",
     glow: { border: "#A855F7" },
   },
@@ -105,6 +106,8 @@ export function PlansModal({ open, onClose }: Props) {
   const [diamanteCard, setDiamanteCard] = useState<PayCardData | null>(null);
   const [upgradeCard, setUpgradeCard] = useState<PayCardData | null>(null);
   const [funnel, setFunnel] = useState<PayCardData | null>(null);
+  const [showTelegramModal, setShowTelegramModal] = useState(false);
+  const [telegramGroupUrl, setTelegramGroupUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -130,6 +133,14 @@ export function PlansModal({ open, onClose }: Props) {
       setPremiumCard(p);
       setDiamanteCard(d);
       setUpgradeCard(u);
+      if (houseId) {
+        const { data: hd } = await supabase
+          .from("betting_houses")
+          .select("telegram_group_url")
+          .eq("id", houseId)
+          .maybeSingle();
+        setTelegramGroupUrl((hd as any)?.telegram_group_url ?? null);
+      }
       setLoading(false);
     };
     run();
@@ -155,22 +166,22 @@ export function PlansModal({ open, onClose }: Props) {
   type CtaSpec =
     | { type: "current" }
     | { type: "info"; label: string }
-    | { type: "button"; label: string; card: PayCardData | null };
+    | { type: "button"; label: string; card: PayCardData | null }
+    | { type: "telegram"; label: string };
 
   const getCta = (plan: PlanKey): CtaSpec => {
     if (plan === "free") {
-      if (isFree) return { type: "current" };
-      return { type: "info", label: "Plano gratuito" };
+      return { type: "telegram", label: "Grátis" };
     }
     if (plan === "premium") {
       if (isPremium) return { type: "current" };
       if (isDiamante) return { type: "info", label: "Incluso no Diamante" };
       return { type: "button", label: `Assinar por R$ ${PRICES.premium}`, card: premiumCard };
     }
-    // diamante
+    // diamante — sempre R$ 127, copy "Fazer Upgrade"
     if (isDiamante) return { type: "current" };
-    if (isPremium) return { type: "button", label: `Fazer upgrade por R$ ${PRICES.diamante_upgrade}`, card: upgradeCard };
-    return { type: "button", label: `Assinar por R$ ${PRICES.diamante}`, card: diamanteCard };
+    if (isPremium) return { type: "button", label: `Fazer Upgrade R$ ${PRICES.diamante_upgrade}`, card: upgradeCard };
+    return { type: "button", label: `Fazer Upgrade R$ ${PRICES.diamante_upgrade}`, card: diamanteCard };
   };
 
   const renderCard = (plan: PlanKey) => {
@@ -268,6 +279,15 @@ export function PlansModal({ open, onClose }: Props) {
               )}
             </button>
           )}
+          {cta.type === "telegram" && (
+            <button
+              onClick={() => setShowTelegramModal(true)}
+              className="w-full py-2 rounded-lg text-[11px] md:text-xs font-bold transition-all hover:scale-[1.01] leading-tight"
+              style={{ background: meta.color, color: "#060D1E" }}
+            >
+              {cta.label}
+            </button>
+          )}
         </div>
       </div>
     );
@@ -295,6 +315,11 @@ export function PlansModal({ open, onClose }: Props) {
           {(["free", "premium", "diamante"] as PlanKey[]).map(renderCard)}
         </div>
       </DialogContent>
+      <TelegramRedeemModal
+        open={showTelegramModal}
+        onClose={() => setShowTelegramModal(false)}
+        telegramUrl={telegramGroupUrl}
+      />
     </Dialog>
   );
 }
