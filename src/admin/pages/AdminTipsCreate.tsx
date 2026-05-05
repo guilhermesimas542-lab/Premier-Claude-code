@@ -82,10 +82,15 @@ export default function AdminTipsCreate() {
         setBetBuilderError("Cole o JSON antes de importar.");
         return;
       }
+      // Remover aspas simples ou duplas que envolvem o JSON inteiro (vindas do console)
+      let cleaned = raw;
+      if ((cleaned.startsWith("'") && cleaned.endsWith("'")) || (cleaned.startsWith('"') && cleaned.endsWith('"'))) {
+        cleaned = cleaned.slice(1, -1);
+      }
       let parsed: any;
       try {
         // Sanitizar caracteres invisíveis comuns do clipboard
-        const sanitized = raw
+        const sanitized = cleaned
           .replace(/[\u200B-\u200D\uFEFF]/g, '')  // zero-width spaces, BOM
           .replace(/\u00A0/g, ' ')                  // NBSP → espaço normal
           .replace(/[\u201C\u201D]/g, '"')          // aspas tipográficas → aspas normais
