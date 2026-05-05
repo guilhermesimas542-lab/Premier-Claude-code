@@ -27,7 +27,7 @@ const CATEGORIA_MAP: Record<string, { tier: string; addon: string | null; featur
   pro:                  { tier: "pro",   addon: null,          feature: "odds_pro" },
   ultra:                { tier: "ultra", addon: null,          feature: "odds_pro" },
   alavancagem:          { tier: "ultra", addon: "alavancagem", feature: "alavancagem" },
-  multiplas_bingo:      { tier: "ultra", addon: null,          feature: "multiplas_bingo" },
+  multiplas_bingo:      { tier: "ultra", addon: "multiplas_bingo", feature: "multiplas_bingo" },
   mercados_secundarios: { tier: "ultra", addon: null,          feature: "mercados_secundarios" },
   esportes_americanos:  { tier: "ultra", addon: null,          feature: "esportes_americanos" },
   odds_ultra:           { tier: "ultra", addon: null,          feature: "odds_ultra" },
