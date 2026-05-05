@@ -104,7 +104,7 @@ export function FunnelPopup({ popup, onClose }: FunnelPopupProps) {
     <>
       <Dialog open onOpenChange={(o) => !o && handleClose()}>
         <DialogContent
-          className="p-0 border border-white/10 overflow-hidden max-w-[calc(100vw-2rem)] sm:max-w-md"
+          className="p-0 border border-white/10 overflow-hidden max-w-[calc(100vw-2rem)] sm:max-w-md [&>button]:hidden"
           style={{
             background: "linear-gradient(180deg, hsl(0,0%,8%), hsl(0,0%,4%))",
             borderRadius: "20px",

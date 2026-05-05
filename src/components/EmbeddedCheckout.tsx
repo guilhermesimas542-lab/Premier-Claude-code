@@ -28,7 +28,7 @@ export function EmbeddedCheckout({ open, onClose, url }: EmbeddedCheckoutProps) 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent
-        className="p-0 border border-border/30 overflow-hidden w-[95vw] max-w-2xl h-[90vh] flex flex-col bg-background"
+        className="p-0 border border-border/30 overflow-hidden w-[95vw] max-w-2xl h-[90vh] flex flex-col bg-background [&>button]:hidden"
         style={{ borderRadius: "16px" }}
       >
         {/* Header */}

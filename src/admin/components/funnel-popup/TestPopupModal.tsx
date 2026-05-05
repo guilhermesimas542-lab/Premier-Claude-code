@@ -31,7 +31,7 @@ export default function TestPopupModal({ form, open, onClose }: Props) {
   return (
     <Dialog open={open} onOpenChange={(o) => { if (!o) { onClose(); setStep(0); } }}>
       <DialogContent
-        className="p-0 border border-white/10 overflow-hidden w-full max-w-[calc(100vw-2rem)] sm:max-w-md bg-transparent"
+        className="p-0 border border-white/10 overflow-hidden w-full max-w-[calc(100vw-2rem)] sm:max-w-md bg-transparent [&>button]:hidden"
         style={{
           background: "linear-gradient(180deg, hsl(0,0%,8%), hsl(0,0%,4%))",
           borderRadius: "20px",

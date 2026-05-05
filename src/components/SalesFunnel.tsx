@@ -103,7 +103,7 @@ export function SalesFunnel({ open, onClose, steps, checkoutUrl, cardTitle }: Sa
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && handleClose()}>
-      <DialogContent className="p-0 border-0 bg-transparent max-w-sm overflow-hidden">
+      <DialogContent className="p-0 border-0 bg-transparent max-w-sm overflow-hidden [&>button]:hidden">
         <div className="bg-card rounded-xl border border-border overflow-hidden">
           {/* Close */}
           <button

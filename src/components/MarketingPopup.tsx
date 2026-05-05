@@ -34,7 +34,7 @@ export function MarketingPopup({
     <>
       <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
         <DialogContent
-          className="p-0 border-0 overflow-hidden w-full max-w-[380px] sm:max-w-[420px] bg-transparent animate-in fade-in-0 zoom-in-95 duration-200"
+          className="p-0 border-0 overflow-hidden w-full max-w-[380px] sm:max-w-[420px] bg-transparent animate-in fade-in-0 zoom-in-95 duration-200 [&>button]:hidden"
         >
           {/* Close */}
           <button
