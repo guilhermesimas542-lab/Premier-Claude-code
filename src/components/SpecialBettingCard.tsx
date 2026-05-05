@@ -79,7 +79,7 @@ export const SpecialBettingCard = ({
     if (type === "ALAVANCAGEM") {
       return "Alavancagem é uma sequência progressiva de entradas, feita em etapas.\n\nVocê segue a ordem do dia e avança etapa por etapa, sem pular.\n\nO foco é progressão controlada: consistência, disciplina e crescimento gradual da banca.";
     }
-    return "Odds Altas são seleções com cotação acima do padrão, escolhidas por oportunidade.\n\nA ideia é aproveitar odds valorizadas quando existe lógica e critério por trás da entrada.\n\nVocê recebe a seleção pronta e entra somente quando a oportunidade estiver disponível.";
+    return "Múltiplas / Bingo são combinações de seleções em um único bilhete, com payout potencializado.\n\nA ideia é aproveitar combinações estratégicas onde existe lógica e critério por trás da entrada.\n\nVocê recebe o bilhete pronto e entra somente quando a oportunidade estiver disponível.";
   };
 
   const handleOpenJustificativaClick = () => {
