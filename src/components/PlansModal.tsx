@@ -133,6 +133,14 @@ export function PlansModal({ open, onClose }: Props) {
       setPremiumCard(p);
       setDiamanteCard(d);
       setUpgradeCard(u);
+      if (houseId) {
+        const { data: hd } = await supabase
+          .from("betting_houses")
+          .select("telegram_group_url")
+          .eq("id", houseId)
+          .maybeSingle();
+        setTelegramGroupUrl((hd as any)?.telegram_group_url ?? null);
+      }
       setLoading(false);
     };
     run();
