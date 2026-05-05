@@ -85,7 +85,7 @@ export const FEATURE_HEADLINES: Record<Exclude<FeatureKey, "free">, string> = {
   alavancagem: "Entenda como funciona a Alavancagem",
   multiplas_bingo: "Entenda como funciona as Múltiplas",
   mercados_secundarios: "Entenda como funciona os Mercados Secundários",
-  esportes_americanos: "Entenda como funciona o mercado de Esportes Americanos",
+  esportes_americanos: "Entenda como funciona as Ligas Americanas",
   odds_ultra: "Entenda como funciona as Odds Ultra",
 };
 
