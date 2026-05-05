@@ -188,7 +188,7 @@ export function PlansModal({ open, onClose }: Props) {
     return (
       <div
         key={plan}
-        className="flex flex-col rounded-xl p-3 md:p-4 min-w-0"
+        className="flex-1 basis-0 flex flex-col rounded-xl p-2 md:p-4 min-w-0"
         style={{
           background: isCurrent ? `${meta.color}14` : "rgba(255,255,255,0.03)",
           border: `1px solid ${borderColor}`,
@@ -273,7 +273,7 @@ export function PlansModal({ open, onClose }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="bg-[#112236] border-[#00FF7F]/20 text-white max-w-3xl p-5 md:p-6 rounded-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="bg-[#112236] border-[#00FF7F]/20 text-white w-[98vw] max-w-5xl p-3 md:p-6 rounded-2xl max-h-[90vh] overflow-y-auto">
         <button
           onClick={onClose}
           className="absolute top-3 right-3 p-1 rounded hover:bg-white/10 z-10"
@@ -289,7 +289,7 @@ export function PlansModal({ open, onClose }: Props) {
           Compare os planos
         </h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className="flex flex-row gap-2 md:gap-3">
           {(["free", "premium", "diamante"] as PlanKey[]).map(renderCard)}
         </div>
       </DialogContent>
