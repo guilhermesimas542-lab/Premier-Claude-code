@@ -5,20 +5,28 @@ import { Button } from "@/components/ui/button";
 import { Loader2, Search, ArrowLeft, Check } from "lucide-react";
 import { toast } from "sonner";
 
-interface AltenarOddsReaderProps {
-  onSelectionMade: (payload: {
-    wsdkPayload: Record<string, unknown>;
-    eventName: string;
-    marketName: string;
-    oddName: string;
-    oddPrice: number;
-    team1Name: string;
-    team2Name: string;
-    startDate?: string;
-  }) => void;
+interface SelectionPayload {
+  wsdkPayload: Record<string, unknown>;
+  eventName: string;
+  marketName: string;
+  oddName: string;
+  oddPrice: number;
+  team1Name: string;
+  team2Name: string;
+  startDate?: string;
 }
 
-export default function AltenarOddsReader({ onSelectionMade }: AltenarOddsReaderProps) {
+interface AccumulatedSelection extends SelectionPayload {
+  eventId: string;
+}
+
+interface AltenarOddsReaderProps {
+  onSelectionMade: (payload: SelectionPayload) => void;
+  multiMode?: boolean;
+  onMultiSelectionMade?: (payloads: SelectionPayload[]) => void;
+}
+
+export default function AltenarOddsReader({ onSelectionMade, multiMode, onMultiSelectionMade }: AltenarOddsReaderProps) {
   const [eventId, setEventId] = useState("");
   const [loading, setLoading] = useState(false);
   const [eventData, setEventData] = useState<any>(null);
@@ -26,6 +34,8 @@ export default function AltenarOddsReader({ onSelectionMade }: AltenarOddsReader
   const [selected, setSelected] = useState(false);
   const [selectedOddName, setSelectedOddName] = useState<string>("");
   const [marketSearch, setMarketSearch] = useState("");
+  const [accumulatedSelections, setAccumulatedSelections] = useState<AccumulatedSelection[]>([]);
+  const [confirmed, setConfirmed] = useState(false);
 
   const fetchEvent = async () => {
     if (!eventId.trim()) {
@@ -131,21 +141,65 @@ export default function AltenarOddsReader({ onSelectionMade }: AltenarOddsReader
     const team1 = eventData.competitors?.[0]?.name || "";
     const team2 = eventData.competitors?.[1]?.name || "";
     const eventName = `${team1} vs ${team2}`;
+    const marketName = selectedMarket.name || selectedMarket.shortName || "";
+    const oddName = odd.name || odd.shortName || "";
 
-    onSelectionMade({
+    const sel: SelectionPayload = {
       wsdkPayload: payload,
       eventName,
-      marketName: selectedMarket.name || selectedMarket.shortName || "",
-      oddName: odd.name || odd.shortName || "",
+      marketName,
+      oddName,
       oddPrice: odd.price,
       team1Name: team1,
       team2Name: team2,
       startDate: eventData.startDate || "",
-    });
+    };
 
+    if (multiMode) {
+      const newCount = accumulatedSelections.length + 1;
+      setAccumulatedSelections((prev) => [
+        ...prev,
+        { ...sel, eventId: String(eventData.id) },
+      ]);
+      setSelectedMarket(null);
+      toast.success(`✅ ${oddName} adicionada ao bilhete (${newCount} seleções)`);
+      return;
+    }
+
+    onSelectionMade(sel);
     setSelected(true);
-    setSelectedOddName(odd.name || odd.shortName || "");
-    toast.success(`Odd selecionada: ${odd.name || odd.shortName} @ ${odd.price}`);
+    setSelectedOddName(oddName);
+    toast.success(`Odd selecionada: ${oddName} @ ${odd.price}`);
+  };
+
+  const removeSelection = (idx: number) => {
+    setAccumulatedSelections((prev) => prev.filter((_, i) => i !== idx));
+  };
+
+  const handleConfirmMulti = () => {
+    if (accumulatedSelections.length === 0) return;
+    const payloads = accumulatedSelections.map(({ eventId: _e, ...rest }) => rest);
+    onMultiSelectionMade?.(payloads);
+    setConfirmed(true);
+    setEventData(null);
+    setSelectedMarket(null);
+    setEventId("");
+  };
+
+  const resetAll = () => {
+    setAccumulatedSelections([]);
+    setConfirmed(false);
+    setSelected(false);
+    setSelectedMarket(null);
+    setEventData(null);
+    setEventId("");
+    setSelectedOddName("");
+  };
+
+  const addAnotherGame = () => {
+    setEventData(null);
+    setSelectedMarket(null);
+    setEventId("");
   };
 
   // Extrair mercados com odds reidratadas a partir do array data.odds
@@ -198,33 +252,93 @@ export default function AltenarOddsReader({ onSelectionMade }: AltenarOddsReader
   };
 
   const markets = getMarkets();
+  const combinedOdd = accumulatedSelections.reduce((acc, s) => acc * s.oddPrice, 1);
+  const hasSGM = (() => {
+    if (accumulatedSelections.length < 2) return false;
+    const counts = new Map<string, number>();
+    for (const s of accumulatedSelections) counts.set(s.eventId, (counts.get(s.eventId) || 0) + 1);
+    return Array.from(counts.values()).some((c) => c >= 2);
+  })();
 
   return (
     <div className="border border-primary/30 rounded-lg p-3 space-y-3 bg-primary/5">
       <div className="flex items-center justify-between">
         <span className="text-xs text-primary font-semibold uppercase">
-          🤖 Importar Odd do Altenar
+          🤖 Importar Odd do Altenar {multiMode && "(Múltipla)"}
         </span>
-        {selected && <Check className="w-4 h-4 text-primary" />}
+        {(selected || confirmed) && <Check className="w-4 h-4 text-primary" />}
       </div>
 
-      {/* Estado 1: Input eventId */}
-      <div className="flex gap-2">
-        <Input
-          type="text"
-          placeholder="Cole o Event ID (ex: 12345678)"
-          value={eventId}
-          onChange={(e) => setEventId(e.target.value)}
-          className="bg-muted/30 border-border flex-1"
-        />
-        <Button type="button" onClick={fetchEvent} disabled={loading} size="sm">
-          {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
-          Buscar
-        </Button>
-      </div>
+      {/* Carrinho de seleções (multiMode) */}
+      {multiMode && accumulatedSelections.length > 0 && !confirmed && (
+        <div className="border border-green-500/30 rounded-lg p-3 bg-green-500/5">
+          <div className="text-sm font-medium text-green-400 mb-2">
+            Seleções ({accumulatedSelections.length}) — Odd combinada: {combinedOdd.toFixed(2)}
+          </div>
+          {accumulatedSelections.map((sel, i) => (
+            <div key={i} className="flex items-center justify-between py-1 text-xs text-muted-foreground">
+              <span className="truncate">
+                {sel.eventName} · {sel.marketName} · {sel.oddName} @ {sel.oddPrice.toFixed(2)}
+              </span>
+              <button
+                type="button"
+                onClick={() => removeSelection(i)}
+                className="text-red-400 hover:text-red-300 ml-2 shrink-0"
+              >
+                ✕
+              </button>
+            </div>
+          ))}
+          {hasSGM && (
+            <div className="text-xs text-yellow-400 mt-1">
+              ⚠️ Seleções do mesmo jogo (Criar Aposta): a compatibilidade será validada pela casa no momento da aposta.
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Estado confirmado (multiMode) */}
+      {multiMode && confirmed && (
+        <div className="space-y-2">
+          <div className="text-xs text-primary">
+            ✅ {accumulatedSelections.length} seleções importadas com sucesso — Odd combinada: {combinedOdd.toFixed(2)}
+          </div>
+          <div className="space-y-0.5">
+            {accumulatedSelections.map((sel, i) => (
+              <div key={i} className="text-xs text-muted-foreground truncate">
+                {i + 1}. {sel.eventName} · {sel.marketName} · {sel.oddName} @ {sel.oddPrice.toFixed(2)}
+              </div>
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={resetAll}
+            className="text-xs text-muted-foreground hover:text-white transition-colors"
+          >
+            Refazer
+          </button>
+        </div>
+      )}
+
+      {/* Input eventId */}
+      {!confirmed && !eventData && !selected && (
+        <div className="flex gap-2">
+          <Input
+            type="text"
+            placeholder="Cole o Event ID (ex: 12345678)"
+            value={eventId}
+            onChange={(e) => setEventId(e.target.value)}
+            className="bg-muted/30 border-border flex-1"
+          />
+          <Button type="button" onClick={fetchEvent} disabled={loading} size="sm">
+            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
+            Buscar
+          </Button>
+        </div>
+      )}
 
       {/* Estado 2: Mercados */}
-      {eventData && !selectedMarket && (() => {
+      {!confirmed && eventData && !selectedMarket && !selected && (() => {
         const q = marketSearch.trim().toLowerCase();
         const filteredMarkets = markets.filter((m: any) => {
           if (!q) return true;
@@ -265,7 +379,7 @@ export default function AltenarOddsReader({ onSelectionMade }: AltenarOddsReader
       })()}
 
       {/* Estado 3: Odds do mercado selecionado */}
-      {selectedMarket && !selected && (
+      {!confirmed && selectedMarket && !selected && (
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <button
@@ -301,8 +415,25 @@ export default function AltenarOddsReader({ onSelectionMade }: AltenarOddsReader
         </div>
       )}
 
-      {/* Estado 4: Selecionado */}
-      {selected && (
+      {/* Ações multiMode (após adicionar pelo menos uma) */}
+      {multiMode && !confirmed && accumulatedSelections.length > 0 && !selectedMarket && (
+        <div className="flex flex-wrap gap-2 pt-1">
+          {eventData && (
+            <Button type="button" size="sm" variant="outline" onClick={() => setSelectedMarket(null)}>
+              + Adicionar mais deste jogo
+            </Button>
+          )}
+          <Button type="button" size="sm" variant="outline" onClick={addAnotherGame}>
+            + Adicionar de outro jogo
+          </Button>
+          <Button type="button" size="sm" onClick={handleConfirmMulti}>
+            Confirmar ({accumulatedSelections.length} seleções)
+          </Button>
+        </div>
+      )}
+
+      {/* Estado 4: Selecionado (single mode) */}
+      {!multiMode && selected && (
         <div className="flex items-center justify-between text-xs">
           <span className="text-primary">
             ✅ {selectedOddName ? `${selectedOddName} — ` : ""}Odd importada com sucesso
