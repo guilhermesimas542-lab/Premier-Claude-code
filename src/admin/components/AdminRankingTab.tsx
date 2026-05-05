@@ -37,7 +37,7 @@ type SortKey = 'total_xp' | 'email' | 'current_level' | 'total_logins' | 'curren
 type SortDir = 'asc' | 'desc' | null;
 
 const TIER_LABELS: Record<string, string> = { free: 'Gratuito', basic: 'Básico', pro: 'Pro', ultra: 'Ultra' };
-const ADDON_LABELS: Record<string, string> = { alavancagem: 'Alavancagem', desaltas: 'Odds Altas', live_telegram: 'Live', acesso_vitalicio: 'Vitalício' };
+const ADDON_LABELS: Record<string, string> = { alavancagem: 'Alavancagem', multiplas_bingo: 'Múltiplas / Bingo', live_telegram: 'Live', acesso_vitalicio: 'Vitalício' };
 
 const PAGE_SIZE = 50;
 

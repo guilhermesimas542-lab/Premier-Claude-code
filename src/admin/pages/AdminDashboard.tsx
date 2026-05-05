@@ -11,7 +11,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { cn } from "@/lib/utils";
 
 const PLAN_COLORS: Record<string, string> = { Free: "#3b82f6", "Básico": "#10b981", Pro: "#f59e0b", Ultra: "#8b5cf6" };
-const ADDON_COLORS: Record<string, string> = { Alavancagem: "#10b981", "Odds Altas": "#ef4444", "Live Telegram": "#3b82f6", "Acesso Vitalício": "#f59e0b" };
+const ADDON_COLORS: Record<string, string> = { Alavancagem: "#10b981", "Múltiplas / Bingo": "#ef4444", "Live Telegram": "#3b82f6", "Acesso Vitalício": "#f59e0b" };
 
 /* ── Tooltip texts ── */
 const KPI_TOOLTIPS: Record<string, string> = {
@@ -30,7 +30,7 @@ const PCT_TOOLTIPS: Record<string, string> = {
 
 const PIE_COLORS = ["#3b82f6", "#8b5cf6", "#f59e0b", "#10b981", "#ef4444"];
 
-type PlanFilter = "geral" | "free" | "basic" | "pro" | "ultra" | "alavancagem" | "desaltas" | "live_telegram" | "acesso_vitalicio";
+type PlanFilter = "geral" | "free" | "basic" | "pro" | "ultra" | "alavancagem" | "multiplas_bingo" | "live_telegram" | "acesso_vitalicio";
 
 const PLAN_FILTERS_MAIN: { key: PlanFilter; label: string }[] = [
   { key: "geral", label: "Geral" },
@@ -41,7 +41,7 @@ const PLAN_FILTERS_MAIN: { key: PlanFilter; label: string }[] = [
 ];
 const PLAN_FILTERS_ADDONS: { key: PlanFilter; label: string }[] = [
   { key: "alavancagem", label: "Alavancagem" },
-  { key: "desaltas", label: "Odds Altas" },
+  { key: "multiplas_bingo", label: "Múltiplas / Bingo" },
   { key: "live_telegram", label: "Live Telegram" },
   { key: "acesso_vitalicio", label: "Acesso Vitalício" },
 ];
@@ -255,7 +255,7 @@ export default function AdminDashboard() {
   let filteredUserIds: Set<string> | null = null; // null = no filter (geral)
 
   if (planFilter !== "geral") {
-    if (["alavancagem", "desaltas", "live_telegram", "acesso_vitalicio"].includes(planFilter)) {
+    if (["alavancagem", "multiplas_bingo", "live_telegram", "acesso_vitalicio"].includes(planFilter)) {
       filteredUserIds = new Set(allEntitlements.filter((e) => e.product_key === planFilter).map((e) => e.user_id));
     } else {
       filteredUserIds = new Set(allUsers.filter((u) => u.main_tier === planFilter).map((u) => u.id));
@@ -323,7 +323,7 @@ export default function AdminDashboard() {
     : allEntitlements;
   const addonCounts: Record<string, number> = {};
   relevantEntitlements.forEach((e) => { addonCounts[e.product_key] = (addonCounts[e.product_key] ?? 0) + 1; });
-  const addonLabels: Record<string, string> = { alavancagem: "Alavancagem", desaltas: "Odds Altas", live_telegram: "Live Telegram", acesso_vitalicio: "Acesso Vitalício" };
+  const addonLabels: Record<string, string> = { alavancagem: "Alavancagem", multiplas_bingo: "Múltiplas / Bingo", live_telegram: "Live Telegram", acesso_vitalicio: "Acesso Vitalício" };
   const addonDist = Object.entries(addonCounts).map(([name, value]) => ({
     name: addonLabels[name] ?? name,
     value,

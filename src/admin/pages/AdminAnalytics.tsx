@@ -195,11 +195,11 @@ export default function AdminAnalytics() {
     ]);
 
     // Addon distribution
-    const addonCount: Record<string, number> = { alavancagem: 0, desaltas: 0, acesso_vitalicio: 0, live_telegram: 0 };
+    const addonCount: Record<string, number> = { alavancagem: 0, multiplas_bingo: 0, acesso_vitalicio: 0, live_telegram: 0 };
     (entitlements ?? []).forEach((e: any) => { if (addonCount[e.product_key] !== undefined) addonCount[e.product_key]++; });
     setAddonDist([
       { name: "Alavancagem", count: addonCount.alavancagem },
-      { name: "Odds Altas", count: addonCount.desaltas },
+      { name: "Múltiplas / Bingo", count: addonCount.multiplas_bingo },
       { name: "Vitalício", count: addonCount.acesso_vitalicio },
       { name: "Live", count: addonCount.live_telegram },
     ]);

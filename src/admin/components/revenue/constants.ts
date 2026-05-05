@@ -93,19 +93,19 @@ export const UPSELL_FILTERS = [
   { label: 'Qualquer plano sem Live Telegram', tier: 'any_paid', missingKey: 'live_telegram' },
   // Free
   { label: 'Free sem Alavancagem', tier: 'free', missingKey: 'alavancagem' },
-  { label: 'Free sem Odds Altas', tier: 'free', missingKey: 'desaltas' },
+  { label: 'Free sem Múltiplas / Bingo', tier: 'free', missingKey: 'multiplas_bingo' },
   { label: 'Free sem Live Telegram', tier: 'free', missingKey: 'live_telegram' },
   // Básico
   { label: 'Básico sem Alavancagem', tier: 'basic', missingKey: 'alavancagem' },
-  { label: 'Básico sem Odds Altas', tier: 'basic', missingKey: 'desaltas' },
+  { label: 'Básico sem Múltiplas / Bingo', tier: 'basic', missingKey: 'multiplas_bingo' },
   { label: 'Básico sem Live Telegram', tier: 'basic', missingKey: 'live_telegram' },
   // Pro
   { label: 'Pro sem Alavancagem', tier: 'pro', missingKey: 'alavancagem' },
-  { label: 'Pro sem Odds Altas', tier: 'pro', missingKey: 'desaltas' },
+  { label: 'Pro sem Múltiplas / Bingo', tier: 'pro', missingKey: 'multiplas_bingo' },
   { label: 'Pro sem Live Telegram', tier: 'pro', missingKey: 'live_telegram' },
   // Ultra
   { label: 'Ultra sem Alavancagem', tier: 'ultra', missingKey: 'alavancagem' },
-  { label: 'Ultra sem Odds Altas', tier: 'ultra', missingKey: 'desaltas' },
+  { label: 'Ultra sem Múltiplas / Bingo', tier: 'ultra', missingKey: 'multiplas_bingo' },
   { label: 'Ultra sem Live Telegram', tier: 'ultra', missingKey: 'live_telegram' },
 ];
 
@@ -118,7 +118,7 @@ export const TIER_DISPLAY: Record<string, string> = {
 
 export const ADDON_DISPLAY: Record<string, string> = {
   alavancagem: 'Alavancagem',
-  desaltas: 'Odds Altas',
+  multiplas_bingo: 'Múltiplas / Bingo',
   live_telegram: 'Live Telegram',
   acesso_vitalicio: 'Acesso Vitalício',
 };

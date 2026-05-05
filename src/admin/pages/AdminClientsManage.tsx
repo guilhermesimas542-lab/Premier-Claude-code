@@ -42,20 +42,20 @@ const HOUSE_BADGE_COLORS = [
 type SortKey = "email" | "phone" | "main_tier" | "upsells" | "created_at" | "first_access_at" | "last_seen_at";
 type SortDir = "asc" | "desc";
 
-const UPSELL_KEYS = ["alavancagem", "desaltas", "acesso_vitalicio", "live_telegram"];
+const UPSELL_KEYS = ["alavancagem", "multiplas_bingo", "acesso_vitalicio", "live_telegram"];
 
 const PAGE_SIZE = 200;
 
 const UPSELL_LABELS: Record<string, string> = {
   alavancagem: "Alavancagem",
-  desaltas: "Odds Altas",
+  multiplas_bingo: "Múltiplas / Bingo",
   acesso_vitalicio: "Vitalício",
   live_telegram: "Live",
 };
 
 const UPSELL_BADGES = [
   { key: "alavancagem", letter: "A", activeColor: "bg-blue-500 text-white", title: "Alavancagem" },
-  { key: "desaltas", letter: "O", activeColor: "bg-yellow-500 text-white", title: "Odds Altas" },
+  { key: "multiplas_bingo", letter: "M", activeColor: "bg-yellow-500 text-white", title: "Múltiplas / Bingo" },
   { key: "acesso_vitalicio", letter: "V", activeColor: "bg-purple-500 text-white", title: "Vitalício" },
   { key: "live_telegram", letter: "L", activeColor: "bg-green-500 text-white", title: "Live" },
 ];
@@ -122,7 +122,7 @@ function sortUsers(users: UserWithUpsells[], key: SortKey, dir: SortDir): UserWi
 
 const ADDON_TOGGLES = [
   { key: "alavancagem", label: "Alavancagem" },
-  { key: "desaltas", label: "Odds Altas" },
+  { key: "multiplas_bingo", label: "Múltiplas / Bingo" },
   { key: "live_telegram", label: "Live Telegram" },
   { key: "acesso_vitalicio", label: "Vitalício" },
 ] as const;
@@ -136,7 +136,7 @@ const TIER_PILLS = [
 
 const ADDON_PILLS = [
   { value: "alavancagem", label: "Alavancagem" },
-  { value: "desaltas", label: "Odds Altas" },
+  { value: "multiplas_bingo", label: "Múltiplas / Bingo" },
   { value: "live_telegram", label: "Live Telegram" },
   { value: "acesso_vitalicio", label: "Acesso Vitalício" },
 ] as const;

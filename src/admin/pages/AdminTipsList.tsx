@@ -25,12 +25,12 @@ const CATEGORIA_MAP: Record<string, { tier: string; addon: string | null }> = {
   pro: { tier: "pro", addon: null },
   ultra: { tier: "ultra", addon: null },
   alavancagem: { tier: "pro", addon: "alavancagem" },
-  odds_altas: { tier: "pro", addon: "desaltas" },
+  multiplas_bingo: { tier: "premium", addon: "multiplas_bingo" },
 };
 
 function tierToCategoria(tier: string, addon: string | null): string {
   if (addon === "alavancagem") return "alavancagem";
-  if (addon === "desaltas") return "odds_altas";
+  if (addon === "multiplas_bingo") return "multiplas_bingo";
   if (tier === "basic") return "basico";
   return tier;
 }
@@ -39,7 +39,7 @@ type SortColumn = "title" | "palpite" | "date" | "starts_at" | "odd" | "tier_req
 type SortDir = "asc" | "desc";
 
 const TIER_ORDER: Record<string, number> = { free: 0, basic: 1, pro: 2, ultra: 3 };
-const ADDON_ORDER: Record<string, number> = { alavancagem: 4, desaltas: 5 };
+const ADDON_ORDER: Record<string, number> = { alavancagem: 4, multiplas_bingo: 5 };
 
 // House index → link column
 const HOUSE_LINK_COLS = ["link_house_1", "link_house_2", "link_house_3"] as const;
@@ -57,7 +57,7 @@ const CATEGORY_STYLES: Record<string, { label: string; bg: string; text: string 
   pro: { label: "Pro", bg: "bg-green-600/30", text: "text-green-400" },
   ultra: { label: "Ultra", bg: "bg-purple-600/30", text: "text-purple-400" },
   alavancagem: { label: "Alavancagem", bg: "bg-yellow-600/30", text: "text-yellow-400" },
-  desaltas: { label: "Odds Altas", bg: "bg-orange-600/30", text: "text-orange-400" },
+  multiplas_bingo: { label: "Múltiplas / Bingo", bg: "bg-orange-600/30", text: "text-orange-400" },
 };
 
 export default function AdminTipsList() {
@@ -389,7 +389,7 @@ export default function AdminTipsList() {
         </Select>
         <Select value={filters.addon || "all"} onValueChange={(v) => setF("addon", v === "all" ? "" : v)}>
           <SelectTrigger className="w-32 bg-gray-900 border-gray-800 text-sm"><SelectValue placeholder="Add-on" /></SelectTrigger>
-          <SelectContent><SelectItem value="all">Todos</SelectItem><SelectItem value="alavancagem">Alavancagem</SelectItem><SelectItem value="desaltas">De Altas</SelectItem></SelectContent>
+          <SelectContent><SelectItem value="all">Todos</SelectItem><SelectItem value="alavancagem">Alavancagem</SelectItem><SelectItem value="multiplas_bingo">Múltiplas / Bingo</SelectItem></SelectContent>
         </Select>
         <Select value={filters.active || "all"} onValueChange={(v) => setF("active", v === "all" ? "" : v)}>
           <SelectTrigger className="w-28 bg-gray-900 border-gray-800 text-sm"><SelectValue placeholder="Status" /></SelectTrigger>
@@ -476,7 +476,7 @@ export default function AdminTipsList() {
               </TooltipTrigger><TooltipContent>Plano necessário: Free, Basic, Pro, Ultra</TooltipContent></Tooltip>
               <Tooltip><TooltipTrigger asChild>
                 <span className="flex items-center gap-1 cursor-help"><span className="w-2 h-2 rounded-full bg-blue-400 inline-block" /> Add-on</span>
-              </TooltipTrigger><TooltipContent>Add-on: Alavancagem ou Odds Altas</TooltipContent></Tooltip>
+              </TooltipTrigger><TooltipContent>Add-on: Alavancagem ou Múltiplas / Bingo</TooltipContent></Tooltip>
               <Tooltip><TooltipTrigger asChild>
                 <span className="flex items-center gap-1 cursor-help"><span className="w-2 h-2 rounded-full bg-green-400 inline-block" /> Ativo</span>
               </TooltipTrigger><TooltipContent>Se a tip está visível para os usuários</TooltipContent></Tooltip>
@@ -537,8 +537,8 @@ export default function AdminTipsList() {
                   <td className="px-3 py-2">
                     {(t as any).addon_required === "alavancagem" ? (
                       <span className="text-blue-400 font-medium">Alavancagem</span>
-                    ) : (t as any).addon_required === "desaltas" ? (
-                      <span className="text-yellow-400 font-medium">Odds Altas</span>
+                    ) : (t as any).addon_required === "multiplas_bingo" ? (
+                      <span className="text-yellow-400 font-medium">Múltiplas / Bingo</span>
                     ) : (
                       <span className="capitalize">{t.tier_required}</span>
                     )}
@@ -624,7 +624,7 @@ export default function AdminTipsList() {
                       <SelectItem value="pro">Pro</SelectItem>
                       <SelectItem value="ultra">Ultra</SelectItem>
                       <SelectItem value="alavancagem">Alavancagem</SelectItem>
-                      <SelectItem value="odds_altas">Odds Altas</SelectItem>
+                      <SelectItem value="multiplas_bingo">Múltiplas / Bingo</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -635,7 +635,7 @@ export default function AdminTipsList() {
               </div>
 
               {/* Palpite */}
-              {editForm.categoria !== "alavancagem" && editForm.categoria !== "odds_altas" && (
+              {editForm.categoria !== "alavancagem" && editForm.categoria !== "multiplas_bingo" && (
                 <PredictionAutocomplete value={editForm.palpite} onChange={(prediction, market, explanation) => {
                   setEditForm((f: any) => ({ ...f, palpite: prediction, ...(market ? { mercado: market } : {}), ...(explanation ? { mercado_explicacao: explanation } : {}) }));
                 }} />

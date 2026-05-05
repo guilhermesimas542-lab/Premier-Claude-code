@@ -27,7 +27,7 @@ function getUnlockHint(ach: Achievement): string {
     }
     case 'has_entitlement': {
       const key = ach.condition_value?.key ?? '';
-      const names: Record<string, string> = { alavancagem: 'Alavancagem', odds_altas: 'Odds Altas', live_telegram: 'Live Telegram', acesso_vitalicio: 'Acesso Vitalício' };
+      const names: Record<string, string> = { alavancagem: 'Alavancagem', multiplas_bingo: 'Múltiplas / Bingo', live_telegram: 'Live Telegram', acesso_vitalicio: 'Acesso Vitalício' };
       return `Adquira o add-on ${names[key] || key}`;
     }
     case 'navigation': {

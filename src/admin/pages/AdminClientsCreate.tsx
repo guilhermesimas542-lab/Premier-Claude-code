@@ -12,7 +12,7 @@ interface BettingHouseOption { id: string; name: string; }
 
 const ADDON_TOGGLES = [
   { key: "alavancagem", label: "Alavancagem" },
-  { key: "desaltas", label: "Odds Altas" },
+  { key: "multiplas_bingo", label: "Múltiplas / Bingo" },
   { key: "live_telegram", label: "Live Telegram" },
   { key: "acesso_vitalicio", label: "Acesso Vitalício" },
 ] as const;

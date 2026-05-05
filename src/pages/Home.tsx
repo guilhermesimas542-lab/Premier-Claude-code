@@ -139,7 +139,7 @@ const Home = () => {
     const s = (card.slug || "").toLowerCase();
     if (s === "futebol") { navigate("/sport/1"); return; }
     if (s === "cassino") { navigate("/cassino"); return; }
-    if (s === "odds_altas") { navigate("/odds-altas"); return; }
+    if (s === "multiplas_bingo") { navigate("/odds-altas"); return; }
     if (s === "alavancagem") { navigate("/alavancagem"); return; }
   };
 
