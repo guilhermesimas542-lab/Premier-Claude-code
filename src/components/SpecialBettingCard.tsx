@@ -42,7 +42,7 @@ const CARD_CONFIG: Record<SpecialCardType, { icon: typeof TrendingUp; label: str
   },
   ODDS_ALTAS: {
     icon: Trophy,
-    label: "ODDS ALTAS",
+    label: "MÚLTIPLAS / BINGO",
     color: "#F97316",
     gradient: "linear-gradient(135deg, rgba(249,115,22,0.08) 0%, transparent 60%)",
     subtitle: "Múltipla do Dia",
