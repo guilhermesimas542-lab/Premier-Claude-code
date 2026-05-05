@@ -93,7 +93,7 @@ export const FEATURE_HEADLINES: Record<Exclude<FeatureKey, "free">, string> = {
 export const FEATURE_EXPLANATIONS: Record<Exclude<FeatureKey, "free">, string> = {
   odds_safes: "Odds com alta probabilidade de acerto, geralmente entre 1.5x e 2x. Ideal para construir banca de forma consistente, com risco baixo.",
   odds_pro: "Odds mais agressivas com risco moderado, geralmente entre 3x e 6x. Equilibra retorno maior com chance de acerto razoável.",
-  odds_ultra: "Odds combinadas e agressivas para quem busca multiplicar o retorno. Não é bingo — são entradas calculadas com potencial alto.",
+  odds_ultra: "Odds combinadas e agressivas com retorno de 6x a 12x. Não é bingo — são entradas calculadas com potencial alto.",
   mercados_secundarios: "Apostas além do resultado principal: escanteios, cartões, handicap, ambas marcam. Encontre valor escondido em mercados menos óbvios.",
   multiplas_bingo: "Odds combinadas de múltiplos eventos com retorno entre 10x e 200x. Aposta de baixa entrada e potencial alto de multiplicação.",
   alavancagem: "Sequência de 3 odds de baixo risco no mesmo dia. A cada acerto, o ganho é reinvestido no próximo, multiplicando o retorno final.",
