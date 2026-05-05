@@ -92,7 +92,7 @@ function isEligibleForType(
     case "addon_alavancagem":
       return !addons.includes("alavancagem");
     case "addon_odds":
-      return !addons.includes("desaltas");
+      return !addons.includes("multiplas_bingo");
     case "addon_telegram":
       return !addons.includes("live_telegram");
     case "promotional":

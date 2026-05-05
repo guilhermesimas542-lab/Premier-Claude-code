@@ -17,12 +17,12 @@ interface QuickCard {
 
 const cards: QuickCard[] = [
   {
-    id: "odds-altas",
-    title: "Odds Altas",
-    subtitle: "Seleções com odds maiores",
+    id: "multiplas-bingo",
+    title: "Múltiplas / Bingo",
+    subtitle: "Combinações e bilhetes",
     route: "/odds-altas",
     icon: <Target className="w-5 h-5" />,
-    addonKey: "hasOddsAltas",
+    addonKey: "hasMultiplasBingo",
     popupType: "addon_odds",
   },
   {

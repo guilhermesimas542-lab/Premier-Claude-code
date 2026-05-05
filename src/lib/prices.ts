@@ -1,3 +1,4 @@
+// @deprecated — substituído por financial_events e products_catalog. Não consumido em runtime.
 /**
  * Estimated monthly prices per plan/add-on.
  * Used for MRR estimation on the admin dashboard.
@@ -14,5 +15,5 @@ export const PLAN_PRICES: Record<string, number> = {
 
 export const ADDON_PRICES: Record<string, number> = {
   alavancagem: 19.9,
-  desaltas: 14.9,
+  multiplas_bingo: 39.9,
 };

@@ -9,7 +9,7 @@ export interface UserAccess {
   hasOddsSafes: boolean;
   hasOddsPro: boolean;
   hasAlavancagem: boolean;
-  hasOddsAltas: boolean;
+  
   hasLiveTelegram: boolean;
   hasMultiplasBingo: boolean;
   hasMercadosSecundarios: boolean;
@@ -30,7 +30,7 @@ const DEFAULT: Omit<UserAccess, "refetch"> = {
   hasOddsSafes: false,
   hasOddsPro: false,
   hasAlavancagem: false,
-  hasOddsAltas: false,
+  
   hasLiveTelegram: false,
   hasMultiplasBingo: false,
   hasMercadosSecundarios: false,
@@ -49,7 +49,7 @@ const FEATURE_KEYS = [
   "odds_safes",
   "odds_pro",
   "alavancagem",
-  "desaltas",
+  
   "live_telegram",
   "multiplas_bingo",
   "mercados_secundarios",
@@ -96,7 +96,7 @@ export function useUserAccess(): UserAccess {
       hasOddsSafes: !!flags.odds_safes,
       hasOddsPro: !!flags.odds_pro,
       hasAlavancagem: !!flags.alavancagem,
-      hasOddsAltas: !!flags.desaltas,
+      
       hasLiveTelegram: !!flags.live_telegram,
       hasMultiplasBingo: !!flags.multiplas_bingo,
       hasMercadosSecundarios: !!flags.mercados_secundarios,

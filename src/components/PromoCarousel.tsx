@@ -77,7 +77,7 @@ export const PromoCarousel = ({ context = "futebol" }: PromoCarouselProps) => {
         if (t === "all") return true;
         if (["free", "basic", "pro", "ultra"].includes(t)) return userTier === t;
         if (t === "no_alavancagem") return !activeEntitlements.includes("alavancagem");
-        if (t === "no_desaltas") return !activeEntitlements.includes("desaltas");
+        if (t === "no_multiplas_bingo") return !activeEntitlements.includes("multiplas_bingo");
         if (t === "no_live_telegram") return !activeEntitlements.includes("live_telegram");
         if (t === "no_acesso_vitalicio") return !activeEntitlements.includes("acesso_vitalicio");
         return true;

@@ -64,7 +64,7 @@ const Casino = () => {
       access.isVitalicio,
       [
         ...(access.hasAlavancagem ? ["alavancagem"] : []),
-        ...(access.hasOddsAltas ? ["desaltas"] : []),
+        ...(access.hasMultiplasBingo ? ["multiplas_bingo"] : []),
         ...(access.hasLiveTelegram ? ["live_telegram"] : []),
       ],
     );
