@@ -89,15 +89,15 @@ export const FEATURE_HEADLINES: Record<Exclude<FeatureKey, "free">, string> = {
   odds_ultra: "Entenda como funciona as Odds Ultra",
 };
 
-/** Short explanation copy used in step 1 of diamante_upgrade popup (placeholder, will be replaced later) */
+/** Short explanation copy used in step 1 of the paywall popup */
 export const FEATURE_EXPLANATIONS: Record<Exclude<FeatureKey, "free">, string> = {
-  odds_safes: "Placeholder: explicação curta de Odds Safes em 2-3 linhas.",
-  odds_pro: "Placeholder: explicação curta de Odds Pró em 2-3 linhas.",
-  alavancagem: "Placeholder: a Alavancagem é uma estratégia avançada que permite multiplicar entradas em sequência. Use pra escalar banca de forma controlada.",
-  multiplas_bingo: "Placeholder: Múltiplas/Bingo é uma estratégia que combina várias odds em um único bilhete. Use pra maximizar retorno em jogos correlacionados.",
-  mercados_secundarios: "Placeholder: Mercados Secundários cobrem apostas além do resultado principal (cantos, cartões, escanteios). Use pra encontrar valor escondido.",
-  esportes_americanos: "Placeholder: Esportes Americanos cobrem NBA, NFL, MLB e NHL. Use pra diversificar sua banca em mercados de alta liquidez.",
-  odds_ultra: "Placeholder: Odds Ultra são entradas premium com odds elevadas selecionadas pelo time. Use pra maximizar retorno em jogadas de alto valor.",
+  odds_safes: "Odds com alta probabilidade de acerto, geralmente entre 1.5x e 2x. Ideal para construir banca de forma consistente, com risco baixo.",
+  odds_pro: "Odds mais agressivas com risco moderado, geralmente entre 3x e 6x. Equilibra retorno maior com chance de acerto razoável.",
+  odds_ultra: "Odds combinadas e agressivas para quem busca multiplicar o retorno. Não é bingo — são entradas calculadas com potencial alto.",
+  mercados_secundarios: "Apostas além do resultado principal: escanteios, cartões, handicap, ambas marcam. Encontre valor escondido em mercados menos óbvios.",
+  multiplas_bingo: "Odds combinadas de múltiplos eventos com retorno entre 10x e 200x. Aposta de baixa entrada e potencial alto de multiplicação.",
+  alavancagem: "Sequência de 3 odds de baixo risco no mesmo dia. A cada acerto, o ganho é reinvestido no próximo, multiplicando o retorno final.",
+  esportes_americanos: "Apostas em ligas dos EUA: NBA, NFL, MLB, NHL. Mercados específicos do calendário americano com análise dedicada para cada esporte.",
 };
 
 export const PRICES = {
