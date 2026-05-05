@@ -68,7 +68,38 @@ export default function AdminTipsCreate() {
   const [houses, setHouses] = useState<BettingHouseOption[]>([]);
   const [bilheteSearchValue, setBilheteSearchValue] = useState("");
   const [bilheteAutocompleteKey, setBilheteAutocompleteKey] = useState(0);
-  const [wsdkPayload, setWsdkPayload] = useState<Record<string, unknown> | null>(null);
+  const [wsdkPayload, setWsdkPayload] = useState<Record<string, unknown> | Record<string, unknown>[] | null>(null);
+
+  const isMultiTip = (() => {
+    const p = form.palpite?.trim().toLowerCase();
+    return p === "bilhete especial" || p === "múltipla do dia";
+  })();
+
+  const handleAltenarMultiSelection = (selections: Array<{
+    wsdkPayload: Record<string, unknown>;
+    eventName: string;
+    marketName: string;
+    oddName: string;
+    oddPrice: number;
+    team1Name: string;
+    team2Name: string;
+    startDate?: string;
+  }>) => {
+    if (!selections.length) return;
+    const payloads = selections.map((s) => s.wsdkPayload);
+    setWsdkPayload(payloads);
+    const combinedOdd = selections.reduce((acc, s) => acc * s.oddPrice, 1);
+    const firstSel = selections[0];
+    const allSameEvent = selections.every(
+      (s) => (s.wsdkPayload as any)?.event?.id === (firstSel.wsdkPayload as any)?.event?.id
+    );
+    setForm((f) => ({
+      ...f,
+      odd: combinedOdd.toFixed(2),
+      team1_name: f.team1_name.trim() ? f.team1_name : (allSameEvent ? firstSel.team1Name : f.team1_name),
+      team2_name: f.team2_name.trim() ? f.team2_name : (allSameEvent ? firstSel.team2Name : f.team2_name),
+    }));
+  };
 
   const handleAltenarSelection = (data: {
     wsdkPayload: Record<string, unknown>;
