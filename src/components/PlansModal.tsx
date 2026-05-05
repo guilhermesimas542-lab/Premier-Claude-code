@@ -160,11 +160,11 @@ export function PlansModal({ open, onClose }: Props) {
   const getCta = (plan: PlanKey): CtaSpec => {
     if (plan === "free") {
       if (isFree) return { type: "current" };
-      return { type: "info" };
+      return { type: "info", label: "Plano gratuito" };
     }
     if (plan === "premium") {
       if (isPremium) return { type: "current" };
-      if (isDiamante) return { type: "info" };
+      if (isDiamante) return { type: "info", label: "Incluso no Diamante" };
       return { type: "button", label: `Assinar por R$ ${PRICES.premium}`, card: premiumCard };
     }
     // diamante
