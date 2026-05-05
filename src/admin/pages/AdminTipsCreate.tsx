@@ -73,6 +73,7 @@ export default function AdminTipsCreate() {
   const [betBuilderImported, setBetBuilderImported] = useState(false);
   const [betBuilderError, setBetBuilderError] = useState("");
   const [betBuilderSummary, setBetBuilderSummary] = useState("");
+  const [altenarResetKey, setAltenarResetKey] = useState(0);
 
   const handleBetBuilderImport = () => {
     try {
