@@ -109,6 +109,7 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
       setDiscountPayCard(null);
       setUpgradePayCard(null);
       setHasFetched(false);
+      setPremiumCheckoutUrl(null);
       return;
     }
   }, [open]);
