@@ -88,6 +88,10 @@ const Casino = () => {
       return;
     }
     if (card.slug && card.category === "casino") {
+      if (card.slug && CASINO_GAME_SLUGS_SUPPORT.has(card.slug)) {
+        setShowSupportModal(true);
+        return;
+      }
       const slug = card.slug === "football_studio" ? "football-studio" : card.slug;
       navigate(`/cassino/${slug}`);
       return;
