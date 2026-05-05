@@ -264,7 +264,7 @@ export default function AltenarOddsReader({ onSelectionMade, multiMode, onMultiS
     <div className="border border-primary/30 rounded-lg p-3 space-y-3 bg-primary/5">
       <div className="flex items-center justify-between">
         <span className="text-xs text-primary font-semibold uppercase">
-          🤖 Importar Odd do Altenar {multiMode && "(Múltipla)"}
+          🤖 Importar Odd do Altenar {accumulatedSelections.length > 0 && "(Múltipla)"}
         </span>
         {(selected || confirmed) && <Check className="w-4 h-4 text-primary" />}
       </div>
