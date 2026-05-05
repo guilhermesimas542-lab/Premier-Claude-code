@@ -175,7 +175,7 @@ const FEATURE_DISPLAY_ORDER: Record<FeatureKey, number> = {
 };
 
 const TAB_META: Record<FeatureKey, { label: string; labelShort: string; color: string }> = {
-  free:                 { label: "Grátis",            labelShort: "Grátis",            color: "#94A3B8" },
+  free:                 { label: "Odd Grátis",        labelShort: "Odd Grátis",        color: "#94A3B8" },
   odds_safes:           { label: "Odds Safes",        labelShort: "Odds Safes",        color: "#60A5FA" },
   odds_pro:             { label: "Odds Pró",          labelShort: "Odds Pró",          color: "#00E87A" },
   alavancagem:          { label: "Alavancagem",       labelShort: "Alavancagem",       color: "#F0B429" },
