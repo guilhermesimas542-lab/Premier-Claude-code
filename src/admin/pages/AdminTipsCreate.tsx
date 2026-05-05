@@ -156,11 +156,6 @@ export default function AdminTipsCreate() {
     }
   };
 
-  const isMultiTip = (() => {
-    const p = form.palpite?.trim().toLowerCase();
-    return p === "bilhete especial" || p === "múltipla do dia";
-  })();
-
   const handleAltenarMultiSelection = (selections: Array<{
     wsdkPayload: Record<string, unknown>;
     eventName: string;
