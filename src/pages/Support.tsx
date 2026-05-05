@@ -15,9 +15,7 @@ import { BottomNav } from "@/components/BottomNav";
 
 import ProfileModal from "@/components/ProfileModal";
 import { useUserAccess } from "@/hooks/useUserAccess";
-import { getUpgradeLinkForTier } from "@/lib/checkoutLinks";
-import { usePayCardTrigger } from "@/hooks/usePayCardTrigger";
-import { PayCardFunnelModal } from "@/components/PayCardFunnelModal";
+import { PaywallPopup } from "@/components/PaywallPopup";
 import AppHeader from "@/components/AppHeader";
 import FeedbackModal from "@/components/FeedbackModal";
 import logoImg from "@/assets/premier-logo-custom.png";
