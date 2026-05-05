@@ -84,9 +84,8 @@ function AlavancagemSchema() {
     <div className="space-y-2">
       <div className="flex items-stretch justify-between gap-1">
         {steps.map((s, i) => (
-          <>
+          <div key={s.label} className="flex items-stretch flex-1 gap-1">
             <div
-              key={s.label}
               className="flex-1 rounded-md p-2 text-center"
               style={{
                 background: "rgba(0,255,127,0.06)",
@@ -103,7 +102,7 @@ function AlavancagemSchema() {
                 <ArrowRight className="w-3 h-3 text-[#00FF7F]" />
               </div>
             )}
-          </>
+          </div>
         ))}
       </div>
       <p className="text-[11px] text-white/60 leading-snug text-center px-2">
