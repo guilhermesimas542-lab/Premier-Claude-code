@@ -573,7 +573,8 @@ const Sport = () => {
   }, []);
 
   const isSpecialEntry = (entry: DisplayTip): boolean => {
-    return getEntryFeature(entry) === "alavancagem";
+    const feature = getEntryFeature(entry);
+    return feature === "alavancagem" || feature === "multiplas_bingo";
   };
 
   const renderEntryCard = (entry: DisplayTip, index: number, isExpiredSection: boolean = false) => {
@@ -623,7 +624,7 @@ const Sport = () => {
         {isSpecial ? (
           <SpecialBettingCard
             tipId={0}
-            type="ALAVANCAGEM"
+            type={getEntryFeature(entry) === "multiplas_bingo" ? "ODDS_ALTAS" : "ALAVANCAGEM"}
             market={market}
             betChoice={betChoice}
             odds={entry.odd || 0}
