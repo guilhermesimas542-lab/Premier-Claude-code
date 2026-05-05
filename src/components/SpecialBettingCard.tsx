@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { TrendingUp, Trophy, Clock, HelpCircle, BarChart3, Info, Lock } from "lucide-react";
+import { TrendingUp, Trophy, Sparkles, Clock, HelpCircle, BarChart3, Info, Lock } from "lucide-react";
 import { useState, useEffect } from "react";
 
 type SpecialCardType = "ALAVANCAGEM" | "ODDS_ALTAS";
@@ -41,10 +41,10 @@ const CARD_CONFIG: Record<SpecialCardType, { icon: typeof TrendingUp; label: str
     subtitle: "Alavancagem do Dia",
   },
   ODDS_ALTAS: {
-    icon: Trophy,
-    label: "MÚLTIPLAS / BINGO",
-    color: "#F97316",
-    gradient: "linear-gradient(135deg, rgba(249,115,22,0.08) 0%, transparent 60%)",
+    icon: Sparkles,
+    label: "MÚLTIPLAS",
+    color: "#FF6B9D",
+    gradient: "linear-gradient(135deg, rgba(255,107,157,0.08) 0%, transparent 60%)",
     subtitle: "Múltipla do Dia",
   },
 };
