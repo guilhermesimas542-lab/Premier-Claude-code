@@ -386,7 +386,7 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
               className="text-xl sm:text-2xl font-extrabold text-center text-[#00FF7F] leading-tight text-balance px-2"
               style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
             >
-              {variant === "premium" ? "Plano Premium — +20 odds liberadas todos os dias" : ctaLabel}
+              {variant === "premium" ? "Plano Premium (+20 odds todos os dias)" : ctaLabel}
             </h2>
 
             {variant === "premium" && (
