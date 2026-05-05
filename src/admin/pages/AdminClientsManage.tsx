@@ -59,7 +59,6 @@ const UPSELL_BADGES = [
   { key: "acesso_vitalicio", letter: "V", activeColor: "bg-purple-500 text-white", title: "Vitalício" },
   { key: "live_telegram", letter: "L", activeColor: "bg-green-500 text-white", title: "Live" },
 ];
-...
 const ADDON_TOGGLES = [
   { key: "alavancagem", label: "Alavancagem" },
   { key: "multiplas_bingo", label: "Múltiplas / Bingo" },
