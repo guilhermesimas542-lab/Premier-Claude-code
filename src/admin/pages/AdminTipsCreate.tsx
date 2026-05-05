@@ -534,14 +534,27 @@ export default function AdminTipsCreate() {
               {betBuilderError && (
                 <p className="text-xs text-red-400 mt-1">{betBuilderError}</p>
               )}
-              <Button
-                type="button"
-                size="sm"
-                className="mt-2 bg-yellow-600 hover:bg-yellow-700"
-                onClick={handleBetBuilderImport}
-              >
-                Importar Criar Aposta
-              </Button>
+              <div className="flex gap-2 mt-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  className="bg-yellow-600 hover:bg-yellow-700"
+                  onClick={handleBetBuilderImport}
+                >
+                  Importar Criar Aposta
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    navigator.clipboard.writeText("localStorage.getItem('WSDK_esportiva_betSelections')");
+                    toast.success("Comando copiado! Cole no console da Esportiva.");
+                  }}
+                >
+                  Copiar Comando
+                </Button>
+              </div>
             </>
           ) : (
             <div className="text-xs text-muted-foreground space-y-1">
