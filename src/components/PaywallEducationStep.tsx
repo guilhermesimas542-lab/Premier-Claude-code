@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ImageIcon, ChevronRight } from "lucide-react";
+import { ImageIcon, ChevronRight, ArrowRight } from "lucide-react";
 import {
   type FeatureKey,
   FEATURE_HEADLINES,
@@ -63,12 +63,51 @@ export function PaywallEducationStep({ feature, onContinue, imageOverride }: Pro
         </div>
       )}
       <p className="text-sm text-white/70 leading-relaxed">{explanation}</p>
+      {feature === "alavancagem" && <AlavancagemSchema />}
       <Button
         className="w-full bg-[#00FF7F] hover:bg-[#00FF7F]/90 text-black font-bold"
         onClick={onContinue}
       >
         Entendi, tenho interesse <ChevronRight className="w-4 h-4" />
       </Button>
+    </div>
+  );
+}
+
+function AlavancagemSchema() {
+  const steps = [
+    { label: "ETAPA 1", bet: "Aposta R$ 100", odd: "Odd 1.5x", win: "Ganha R$ 150" },
+    { label: "ETAPA 2", bet: "Aposta R$ 150", odd: "Odd 1.5x", win: "Ganha R$ 225" },
+    { label: "ETAPA 3", bet: "Aposta R$ 225", odd: "Odd 1.5x", win: "Ganha R$ 337" },
+  ];
+  return (
+    <div className="space-y-2">
+      <div className="flex items-stretch justify-between gap-1">
+        {steps.map((s, i) => (
+          <div key={s.label} className="flex items-stretch flex-1 gap-1">
+            <div
+              className="flex-1 rounded-md p-2 text-center"
+              style={{
+                background: "rgba(0,255,127,0.06)",
+                border: "1px solid rgba(0,255,127,0.25)",
+              }}
+            >
+              <div className="text-[9px] font-bold tracking-wider text-[#00FF7F] mb-1">{s.label}</div>
+              <div className="text-[10px] text-white leading-tight">{s.bet}</div>
+              <div className="text-[10px] text-white/60 leading-tight">{s.odd}</div>
+              <div className="text-[10px] font-bold text-[#00FF7F] leading-tight mt-0.5">{s.win}</div>
+            </div>
+            {i < steps.length - 1 && (
+              <div className="flex items-center">
+                <ArrowRight className="w-3 h-3 text-[#00FF7F]" />
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+      <p className="text-[11px] text-white/60 leading-snug text-center px-2">
+        Cada acerto reinveste o ganho na próxima entrada, multiplicando o retorno final.
+      </p>
     </div>
   );
 }
