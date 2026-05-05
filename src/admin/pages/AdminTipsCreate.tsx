@@ -83,9 +83,16 @@ export default function AdminTipsCreate() {
       }
       let parsed: any;
       try {
-        parsed = JSON.parse(raw);
-      } catch {
-        setBetBuilderError("JSON inválido. Verifique se copiou o valor completo do localStorage.");
+        // Sanitizar caracteres invisíveis comuns do clipboard
+        const sanitized = raw
+          .replace(/[\u200B-\u200D\uFEFF]/g, '')  // zero-width spaces, BOM
+          .replace(/\u00A0/g, ' ')                  // NBSP → espaço normal
+          .replace(/[\u201C\u201D]/g, '"')          // aspas tipográficas → aspas normais
+          .replace(/[\u2018\u2019]/g, "'");         // aspas simples tipográficas
+        parsed = JSON.parse(sanitized);
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : "Erro desconhecido";
+        setBetBuilderError("JSON inválido: " + msg);
         return;
       }
       const selections = parsed?.state?.selections;
