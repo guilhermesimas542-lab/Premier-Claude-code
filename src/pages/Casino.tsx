@@ -144,7 +144,7 @@ const Casino = () => {
             gap: '10px',
             padding: '0 12px',
           }}>
-            {casinoCards.filter(c => c.slug !== "cassino").map(renderCard)}
+            {casinoCards.filter(c => c.slug !== "cassino" && !(c.slug && CASINO_GAME_SLUGS_HIDDEN.has(c.slug))).map(renderCard)}
           </div>
         </section>
       </main>
