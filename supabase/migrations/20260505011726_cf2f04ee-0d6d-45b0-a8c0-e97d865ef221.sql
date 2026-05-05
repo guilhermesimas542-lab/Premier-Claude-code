@@ -1,0 +1,1 @@
+ALTER TYPE product_key ADD VALUE IF NOT EXISTS 'odds_ultra';

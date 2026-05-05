@@ -34,7 +34,8 @@ type FeatureKey =
   | "alavancagem"
   | "multiplas_bingo"
   | "mercados_secundarios"
-  | "esportes_americanos";
+  | "esportes_americanos"
+  | "odds_ultra";
 
 type TierType = "GRÁTIS" | "ALAVANCAGEM" | "ODDS_ALTAS" | "BÁSICO" | "PRO" | "ULTRA" | "MÚLTIPLA";
 
@@ -80,7 +81,8 @@ interface DisplayTip extends ContentEntry {
 function getEntryFeature(entry: { feature_required: string | null; tier_required: string; addon_required: string | null }): FeatureKey {
   const f = entry.feature_required;
   if (f === "odds_safes" || f === "odds_pro" || f === "alavancagem"
-      || f === "multiplas_bingo" || f === "mercados_secundarios" || f === "esportes_americanos") {
+      || f === "multiplas_bingo" || f === "mercados_secundarios" || f === "esportes_americanos"
+      || f === "odds_ultra") {
     return f;
   }
   // Legacy fallback (defensive — backfill should have populated everything)
@@ -101,6 +103,7 @@ function featureToDisplayTier(f: FeatureKey): TierType {
     case "multiplas_bingo": return "MÚLTIPLA";
     case "mercados_secundarios": return "ULTRA";
     case "esportes_americanos": return "ULTRA";
+    case "odds_ultra": return "ULTRA";
   }
 }
 
@@ -112,7 +115,8 @@ function featureToPlanKey(f: FeatureKey): string | null {
     case "odds_pro": return "pro";
     case "multiplas_bingo":
     case "mercados_secundarios":
-    case "esportes_americanos": return "ultra";
+    case "esportes_americanos":
+    case "odds_ultra": return "ultra";
     default: return null;
   }
 }
@@ -125,6 +129,7 @@ function getFeatureLabel(f: FeatureKey): string {
     case "multiplas_bingo": return "Múltiplas Bingo";
     case "mercados_secundarios": return "Mercados Secundários";
     case "esportes_americanos": return "Esportes Americanos";
+    case "odds_ultra": return "Odds Ultra";
     default: return "Premium";
   }
 }
@@ -146,7 +151,7 @@ function calculateDisplayStatus(
   return "locked";
 }
 
-// 7 tabs in fixed order: Grátis, Odds Safes, Odds Pró, Alavancagem, Múltiplas Bingo, Mercados Sec., Esp. Americanos
+// 8 tabs in fixed order: Grátis, Odds Safes, Odds Pró, Alavancagem, Múltiplas Bingo, Mercados Sec., Esp. Americanos, Odds Ultra
 const TAB_ORDER: FeatureKey[] = [
   "free",
   "odds_safes",
@@ -155,6 +160,7 @@ const TAB_ORDER: FeatureKey[] = [
   "multiplas_bingo",
   "mercados_secundarios",
   "esportes_americanos",
+  "odds_ultra",
 ];
 
 const FEATURE_DISPLAY_ORDER: Record<FeatureKey, number> = {
@@ -165,6 +171,7 @@ const FEATURE_DISPLAY_ORDER: Record<FeatureKey, number> = {
   multiplas_bingo: 4,
   mercados_secundarios: 5,
   esportes_americanos: 6,
+  odds_ultra: 7,
 };
 
 const TAB_META: Record<FeatureKey, { label: string; labelShort: string; color: string }> = {
@@ -175,6 +182,7 @@ const TAB_META: Record<FeatureKey, { label: string; labelShort: string; color: s
   multiplas_bingo:      { label: "Múltiplas",         labelShort: "Múltiplas",         color: "#FF6B9D" },
   mercados_secundarios: { label: "Merc. Secundário",  labelShort: "Merc. Secundário",  color: "#A78BFA" },
   esportes_americanos:  { label: "Ligas Americanas",  labelShort: "Ligas Americanas",  color: "#EF4444" },
+  odds_ultra:           { label: "Odds Ultra",        labelShort: "Odds Ultra",        color: "#22D3EE" },
 };
 
 const Sport = () => {
@@ -282,6 +290,7 @@ const Sport = () => {
         const featureKeys = [
           "odds_safes", "odds_pro", "alavancagem",
           "multiplas_bingo", "mercados_secundarios", "esportes_americanos",
+          "odds_ultra",
         ];
         const results = await Promise.all(
           featureKeys.map(k => supabase.rpc("user_has_feature", { p_user: userId, p_feature: k })),
