@@ -318,7 +318,7 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
                 >
                   <div className="font-bold text-white text-sm leading-snug break-words">
                     {canBuyUpgrade
-                      ? <>Upgrade pro <span className="text-[#00FF7F]">Plano Diamante</span> por R$ {PRICES.diamante_upgrade}</>
+                      ? <><span className="text-[#00FF7F]">Plano Diamante</span> (todos os mercados liberados — R$ {PRICES.diamante_upgrade})</>
                       : <>Upgrade Diamante — <span className="text-white/60">Em breve</span></>}
                   </div>
                   <div className="text-xs text-white/60 mt-0.5 leading-tight break-words">Desbloqueia {otherFeatures}</div>
