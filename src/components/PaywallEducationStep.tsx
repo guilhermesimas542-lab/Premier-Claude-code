@@ -9,10 +9,15 @@ import alavancagemImg from "@/assets/popups/alavancagem.png";
 import multiplasImg from "@/assets/popups/multiplas_bingo.png";
 import mercadosImg from "@/assets/popups/mercados_secundarios.png";
 import esportesImg from "@/assets/popups/esportes_americanos.png";
+import oddsSafesImg from "@/assets/popups/plano_premium.webp";
+import oddsProImg from "@/assets/popups/plano_premium.webp";
+import oddsUltraImg from "@/assets/popups/plano_diamante.webp";
 
 interface Props {
   feature: FeatureKey;
   onContinue: () => void;
+  /** Optional override image (e.g. plan hero for premium/diamante variants) */
+  imageOverride?: string;
 }
 
 const FEATURE_IMAGES: Partial<Record<FeatureKey, string>> = {
@@ -20,13 +25,16 @@ const FEATURE_IMAGES: Partial<Record<FeatureKey, string>> = {
   multiplas_bingo: multiplasImg,
   mercados_secundarios: mercadosImg,
   esportes_americanos: esportesImg,
+  odds_safes: oddsSafesImg,
+  odds_pro: oddsProImg,
+  odds_ultra: oddsUltraImg,
 };
 
 /** Step 1 shared between `premium` and `diamante_upgrade` paywall variants */
-export function PaywallEducationStep({ feature, onContinue }: Props) {
+export function PaywallEducationStep({ feature, onContinue, imageOverride }: Props) {
   const headline = feature !== "free" ? FEATURE_HEADLINES[feature] : "";
   const explanation = feature !== "free" ? FEATURE_EXPLANATIONS[feature] : "";
-  const image = FEATURE_IMAGES[feature];
+  const image = imageOverride ?? FEATURE_IMAGES[feature];
 
   return (
     <div className="space-y-4 text-center">
