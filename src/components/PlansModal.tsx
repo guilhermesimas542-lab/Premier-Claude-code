@@ -178,13 +178,21 @@ export function PlansModal({ open, onClose }: Props) {
     const cta = getCta(plan);
     const isCurrent = cta.type === "current";
 
+    const glow = meta.glow;
+    const borderColor = isCurrent
+      ? meta.color
+      : glow
+        ? glow.border
+        : "rgba(255,255,255,0.08)";
+
     return (
       <div
         key={plan}
         className="flex flex-col rounded-xl p-3 md:p-4 min-w-0"
         style={{
           background: isCurrent ? `${meta.color}14` : "rgba(255,255,255,0.03)",
-          border: `1px solid ${isCurrent ? meta.color : "rgba(255,255,255,0.08)"}`,
+          border: `1px solid ${borderColor}`,
+          boxShadow: glow ? glow.shadow : undefined,
         }}
       >
         {/* Header */}
@@ -201,40 +209,29 @@ export function PlansModal({ open, onClose }: Props) {
           )}
         </div>
 
-        {/* Atributos */}
+        {/* Bullets unificados */}
         <ul className="flex-1 space-y-2 mb-3">
-          {ATTRIBUTES.map((attr, idx) => {
-            if (attr.kind === "value") {
-              return (
-                <li key={idx} className="text-[11px] md:text-xs">
-                  <div className="text-white/50 text-[9px] md:text-[10px] uppercase tracking-wide">{attr.label}</div>
-                  <div className="text-white font-semibold">{attr.values[plan]}</div>
-                </li>
-              );
-            }
-            const has = attr.available[plan];
-            return (
-              <li
-                key={idx}
-                className="flex items-start gap-1.5 text-[11px] md:text-xs"
+          {BULLETS[plan].map((b, idx) => (
+            <li
+              key={idx}
+              className="flex items-start gap-1.5 text-[11px] md:text-xs"
+            >
+              {b.available ? (
+                <Check className="w-3.5 h-3.5 mt-0.5 shrink-0 text-green-400" strokeWidth={3} />
+              ) : (
+                <X className="w-3.5 h-3.5 mt-0.5 shrink-0 text-white/25" />
+              )}
+              <span
+                className={
+                  b.available
+                    ? "text-white font-semibold"
+                    : "text-white/30 line-through"
+                }
               >
-                {has ? (
-                  <Check className="w-3.5 h-3.5 mt-0.5 shrink-0" style={{ color: meta.color }} />
-                ) : (
-                  <X className="w-3.5 h-3.5 mt-0.5 shrink-0 text-white/25" />
-                )}
-                <span
-                  className={
-                    has
-                      ? "text-white/90 font-medium"
-                      : "text-white/30 line-through"
-                  }
-                >
-                  {attr.label}
-                </span>
-              </li>
-            );
-          })}
+                {b.label}
+              </span>
+            </li>
+          ))}
         </ul>
 
         {/* CTA */}
