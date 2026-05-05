@@ -503,6 +503,58 @@ export default function AdminTipsCreate() {
           onMultiSelectionMade={handleAltenarMultiSelection}
         />
 
+        {/* Importar Criar Aposta (BetBuilder) */}
+        <div className="border border-yellow-500/30 rounded-lg p-4 bg-yellow-500/5">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-yellow-400 font-semibold text-sm">🎯 IMPORTAR CRIAR APOSTA (BetBuilder)</span>
+            {betBuilderImported && <span className="text-green-400 text-sm">✓ Importado</span>}
+          </div>
+          <p className="text-xs text-muted-foreground mb-2">
+            Cole o JSON do campo WSDK_esportiva_betSelections do localStorage da Esportiva.
+          </p>
+          {!betBuilderImported ? (
+            <>
+              <Textarea
+                value={betBuilderJson}
+                onChange={(e) => {
+                  setBetBuilderJson(e.target.value);
+                  setBetBuilderError("");
+                }}
+                className="bg-muted/30 border-border font-mono text-xs"
+                rows={4}
+                placeholder='{"state":{"selections":[...]}}'
+              />
+              {betBuilderError && (
+                <p className="text-xs text-red-400 mt-1">{betBuilderError}</p>
+              )}
+              <Button
+                type="button"
+                size="sm"
+                className="mt-2 bg-yellow-600 hover:bg-yellow-700"
+                onClick={handleBetBuilderImport}
+              >
+                Importar Criar Aposta
+              </Button>
+            </>
+          ) : (
+            <div className="text-xs text-muted-foreground space-y-1">
+              <p>✅ {betBuilderSummary}</p>
+              <button
+                type="button"
+                onClick={() => {
+                  setBetBuilderImported(false);
+                  setBetBuilderJson("");
+                  setBetBuilderError("");
+                  setWsdkPayload(null);
+                }}
+                className="text-yellow-400 hover:text-yellow-300 underline text-xs"
+              >
+                Refazer importação
+              </button>
+            </div>
+          )}
+        </div>
+
         {/* Links por Casa de Apostas */}
         {houses.length > 0 && (
           <div className="border border-border rounded-lg p-3 space-y-2">
