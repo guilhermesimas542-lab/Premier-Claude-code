@@ -83,6 +83,19 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
   const [discountUsed, setDiscountUsed] = useState<boolean>(true); // default safe = no discount
   const [funnelOpen, setFunnelOpen] = useState<PayCardData | null>(null);
   const [hasFetched, setHasFetched] = useState(false);
+  const [telegramGroupUrl, setTelegramGroupUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!house?.id) return;
+    supabase
+      .from("betting_houses")
+      .select("telegram_group_url")
+      .eq("id", house.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        setTelegramGroupUrl((data as any)?.telegram_group_url ?? null);
+      });
+  }, [house?.id]);
 
   const isDiamanteUpgrade = variant === "diamante_upgrade";
 
