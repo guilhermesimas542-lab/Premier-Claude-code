@@ -35,6 +35,7 @@ const DEFAULT: Omit<UserAccess, "refetch"> = {
   hasMultiplasBingo: false,
   hasMercadosSecundarios: false,
   hasEsportesAmericanos: false,
+  hasOddsUltra: false,
   isVitalicio: false,
   isUltra: false,
   isPro: false,
@@ -53,6 +54,7 @@ const FEATURE_KEYS = [
   "multiplas_bingo",
   "mercados_secundarios",
   "esportes_americanos",
+  "odds_ultra",
   "acesso_vitalicio",
 ] as const;
 
@@ -99,6 +101,7 @@ export function useUserAccess(): UserAccess {
       hasMultiplasBingo: !!flags.multiplas_bingo,
       hasMercadosSecundarios: !!flags.mercados_secundarios,
       hasEsportesAmericanos: !!flags.esportes_americanos,
+      hasOddsUltra: !!flags.odds_ultra,
       isVitalicio: !!flags.acesso_vitalicio,
       isUltra: tier === "ultra" || tier === "diamante",
       isPro: tier === "pro" || tier === "ultra" || tier === "premium" || tier === "diamante",
