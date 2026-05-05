@@ -1837,6 +1837,7 @@ export type Database = {
         | "multiplas_bingo"
         | "mercados_secundarios"
         | "esportes_americanos"
+        | "odds_ultra"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1978,6 +1979,7 @@ export const Constants = {
         "multiplas_bingo",
         "mercados_secundarios",
         "esportes_americanos",
+        "odds_ultra",
       ],
     },
   },
