@@ -289,7 +289,7 @@ export function PlansModal({ open, onClose }: Props) {
           Compare os planos
         </h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className="flex flex-row gap-2 md:gap-3">
           {(["free", "premium", "diamante"] as PlanKey[]).map(renderCard)}
         </div>
       </DialogContent>
