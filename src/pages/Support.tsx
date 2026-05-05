@@ -37,20 +37,10 @@ const NEXT_TIER: Record<string, string> = {
 
 const PlanUpgradeCard = () => {
   const { mainTier, loading } = useUserAccess();
-  const { triggerPayCard, payCard, open: payCardOpen, closePayCard } = usePayCardTrigger();
+  const [paywallOpen, setPaywallOpen] = useState(false);
   if (loading) return null;
-  const isMaxTier = mainTier === 'ultra' || mainTier === 'diamante';
-  const nextTier = NEXT_TIER[mainTier] || '';
-
-  const handleUpgrade = async () => {
-    const planMap: Record<string, string> = { premium: 'premium', diamante: 'diamante', basic: 'basic', pro: 'pro', ultra: 'ultra' };
-    const planKey = planMap[nextTier];
-    if (planKey) {
-      const found = await triggerPayCard(planKey);
-      if (found) return;
-    }
-    window.open(getUpgradeLinkForTier(nextTier), '_blank');
-  };
+  // Botão de upgrade só faz sentido para Free
+  if (mainTier !== 'free') return null;
 
   return (
     <section
@@ -62,34 +52,35 @@ const PlanUpgradeCard = () => {
       }}
     >
       <div className="flex items-center gap-3 mb-3">
-        <Crown className="w-5 h-5" style={{ color: isMaxTier ? '#7C3AED' : '#00FF7F' }} />
+        <Crown className="w-5 h-5" style={{ color: '#00FF7F' }} />
         <h3 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 18, color: "#FFFFFF" }}>Seu Plano</h3>
       </div>
       <div className="flex items-center justify-between">
         <p className="text-sm" style={{ color: '#CCCCCC' }}>
           Plano atual:{' '}
-          <span style={{ color: isMaxTier ? '#7C3AED' : '#00FF7F', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700 }}>
-            {TIER_LABELS[mainTier] || mainTier || 'Gratuito'}
+          <span style={{ color: '#00FF7F', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700 }}>
+            Gratuito
           </span>
         </p>
-        {!isMaxTier && (
-          <button
-            onClick={handleUpgrade}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all hover:scale-[1.03]"
-            style={{
-              background: 'linear-gradient(135deg, #00FF7F, #00CC66)',
-              color: '#000000',
-              boxShadow: '0 4px 15px rgba(0,255,127,0.25)',
-            }}
-          >
-            <Rocket className="w-4 h-4" />
-            Upgrade
-          </button>
-        )}
+        <button
+          onClick={() => setPaywallOpen(true)}
+          className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all hover:scale-[1.03]"
+          style={{
+            background: 'linear-gradient(135deg, #00FF7F, #00CC66)',
+            color: '#000000',
+            boxShadow: '0 4px 15px rgba(0,255,127,0.25)',
+          }}
+        >
+          <Rocket className="w-4 h-4" />
+          Upgrade
+        </button>
       </div>
-      {payCard && (
-        <PayCardFunnelModal payCard={payCard} open={payCardOpen} onClose={closePayCard} />
-      )}
+      <PaywallPopup
+        open={paywallOpen}
+        onClose={() => setPaywallOpen(false)}
+        variant="premium"
+        feature="odds_safes"
+      />
     </section>
   );
 };
