@@ -13,16 +13,39 @@ interface Props {
   onClose: () => void;
 }
 
-const PREMIUM_FEATURES = ["Odds Safes", "Odds Pró", "Mercados Secundários"];
-const DIAMANTE_FEATURES = [
-  "Odds Safes",
-  "Odds Pró",
-  "Mercados Secundários",
-  "Alavancagem",
-  "Múltiplas / Bingo",
-  "Esportes Americanos",
-  "Odds Ultra",
+type PlanKey = "free" | "premium" | "diamante";
+
+// Lista mestre de 9 atributos. Os dois primeiros são "valor" (sempre exibidos como texto).
+// Os 7 seguintes são features booleanas, marcadas conforme cada plano.
+type Attr =
+  | { kind: "value"; label: string; values: Record<PlanKey, string> }
+  | { kind: "feature"; label: string; available: Record<PlanKey, boolean> };
+
+const ATTRIBUTES: Attr[] = [
+  {
+    kind: "value",
+    label: "Odds por dia",
+    values: { free: "2 odds", premium: "+20 odds", diamante: "+50 odds" },
+  },
+  {
+    kind: "value",
+    label: "Entrega",
+    values: { free: "Telegram", premium: "App", diamante: "App" },
+  },
+  { kind: "feature", label: "Odds Safes", available: { free: false, premium: true, diamante: true } },
+  { kind: "feature", label: "Odds Pró", available: { free: false, premium: true, diamante: true } },
+  { kind: "feature", label: "Mercados Secundários", available: { free: false, premium: true, diamante: true } },
+  { kind: "feature", label: "Alavancagem", available: { free: false, premium: false, diamante: true } },
+  { kind: "feature", label: "Múltiplas / Bingo", available: { free: false, premium: false, diamante: true } },
+  { kind: "feature", label: "Ligas Americanas", available: { free: false, premium: false, diamante: true } },
+  { kind: "feature", label: "Odds Ultra", available: { free: false, premium: false, diamante: true } },
 ];
+
+const PLAN_META: Record<PlanKey, { title: string; color: string; price: string; suffix?: string }> = {
+  free: { title: "Free", color: "#94A3B8", price: "Grátis" },
+  premium: { title: "Premium", color: "#60A5FA", price: `R$ ${PRICES.premium}`, suffix: "vitalício" },
+  diamante: { title: "Diamante", color: "#A78BFA", price: `R$ ${PRICES.diamante}`, suffix: "vitalício" },
+};
 
 async function fetchPayCardByPlan(plan: string, houseId?: string | null): Promise<PayCardData | null> {
   if (houseId) {
@@ -98,108 +121,152 @@ export function PlansModal({ open, onClose }: Props) {
     );
   }
 
+  const isFree = tier === "free";
   const isPremium = tier === "premium";
   const isDiamante = tier === "diamante" || tier === "ultra";
 
-  const renderPlan = (
-    title: string,
-    price: number,
-    features: string[],
-    isCurrent: boolean,
-    cta: { label: string; card: PayCardData | null } | null,
-    accentColor: string,
-  ) => {
+  type CtaSpec =
+    | { type: "current" }
+    | { type: "info" }
+    | { type: "button"; label: string; card: PayCardData | null };
+
+  const getCta = (plan: PlanKey): CtaSpec => {
+    if (plan === "free") {
+      if (isFree) return { type: "current" };
+      return { type: "info" };
+    }
+    if (plan === "premium") {
+      if (isPremium) return { type: "current" };
+      if (isDiamante) return { type: "info" };
+      return { type: "button", label: `Assinar por R$ ${PRICES.premium}`, card: premiumCard };
+    }
+    // diamante
+    if (isDiamante) return { type: "current" };
+    if (isPremium) return { type: "button", label: `Fazer upgrade por R$ ${PRICES.diamante_upgrade}`, card: upgradeCard };
+    return { type: "button", label: `Assinar por R$ ${PRICES.diamante}`, card: diamanteCard };
+  };
+
+  const renderCard = (plan: PlanKey) => {
+    const meta = PLAN_META[plan];
+    const cta = getCta(plan);
+    const isCurrent = cta.type === "current";
+
     return (
       <div
-        className="rounded-xl p-4 space-y-3"
+        key={plan}
+        className="flex flex-col rounded-xl p-3 md:p-4 min-w-0"
         style={{
-          background: isCurrent ? `${accentColor}14` : "rgba(255,255,255,0.03)",
-          border: `1px solid ${isCurrent ? accentColor : "rgba(255,255,255,0.08)"}`,
+          background: isCurrent ? `${meta.color}14` : "rgba(255,255,255,0.03)",
+          border: `1px solid ${isCurrent ? meta.color : "rgba(255,255,255,0.08)"}`,
         }}
       >
-        <div className="flex items-baseline justify-between gap-2">
+        {/* Header */}
+        <div className="text-center pb-3 mb-3 border-b border-white/10">
           <h3
-            className="text-xl font-bold"
-            style={{ fontFamily: "'Barlow Condensed', sans-serif", color: accentColor }}
+            className="text-lg md:text-xl font-bold"
+            style={{ fontFamily: "'Barlow Condensed', sans-serif", color: meta.color }}
           >
-            {title}
+            {meta.title}
           </h3>
-          <div className="text-right">
-            <div className="text-lg font-bold text-white">R$ {price}</div>
-            <div className="text-[10px] text-white/50 uppercase tracking-wide">vitalício</div>
-          </div>
+          <div className="mt-1 text-lg md:text-xl font-bold text-white leading-tight">{meta.price}</div>
+          {meta.suffix && (
+            <div className="text-[9px] md:text-[10px] text-white/50 uppercase tracking-wide">{meta.suffix}</div>
+          )}
         </div>
 
-        <ul className="space-y-1">
-          {features.map((f) => (
-            <li key={f} className="flex items-center gap-2 text-xs text-white/80">
-              <Check className="w-3.5 h-3.5" style={{ color: accentColor }} />
-              {f}
-            </li>
-          ))}
+        {/* Atributos */}
+        <ul className="flex-1 space-y-2 mb-3">
+          {ATTRIBUTES.map((attr, idx) => {
+            if (attr.kind === "value") {
+              return (
+                <li key={idx} className="text-[11px] md:text-xs">
+                  <div className="text-white/50 text-[9px] md:text-[10px] uppercase tracking-wide">{attr.label}</div>
+                  <div className="text-white font-semibold">{attr.values[plan]}</div>
+                </li>
+              );
+            }
+            const has = attr.available[plan];
+            return (
+              <li
+                key={idx}
+                className="flex items-start gap-1.5 text-[11px] md:text-xs"
+              >
+                {has ? (
+                  <Check className="w-3.5 h-3.5 mt-0.5 shrink-0" style={{ color: meta.color }} />
+                ) : (
+                  <X className="w-3.5 h-3.5 mt-0.5 shrink-0 text-white/25" />
+                )}
+                <span
+                  className={
+                    has
+                      ? "text-white/90 font-medium"
+                      : "text-white/30 line-through"
+                  }
+                >
+                  {attr.label}
+                </span>
+              </li>
+            );
+          })}
         </ul>
 
-        {isCurrent ? (
-          <button
-            disabled
-            className="w-full py-2.5 rounded-lg text-sm font-bold opacity-70 cursor-not-allowed"
-            style={{ background: `${accentColor}26`, color: accentColor, border: `1px solid ${accentColor}` }}
-          >
-            Plano atual
-          </button>
-        ) : cta ? (
-          <button
-            disabled={!cta.card || loading}
-            onClick={() => cta.card && setFunnel(cta.card)}
-            className="w-full py-2.5 rounded-lg text-sm font-bold transition-all hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed"
-            style={{ background: accentColor, color: "#060D1E" }}
-          >
-            {loading ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : cta.card ? cta.label : "Em breve"}
-          </button>
-        ) : null}
+        {/* CTA */}
+        <div className="mt-auto">
+          {cta.type === "current" && (
+            <button
+              disabled
+              className="w-full py-2 rounded-lg text-[11px] md:text-xs font-bold opacity-80 cursor-not-allowed"
+              style={{ background: `${meta.color}26`, color: meta.color, border: `1px solid ${meta.color}` }}
+            >
+              Plano atual
+            </button>
+          )}
+          {cta.type === "info" && (
+            <div className="w-full py-2 rounded-lg text-[10px] md:text-[11px] text-center text-white/40">
+              —
+            </div>
+          )}
+          {cta.type === "button" && (
+            <button
+              disabled={!cta.card || loading}
+              onClick={() => cta.card && setFunnel(cta.card)}
+              className="w-full py-2 rounded-lg text-[11px] md:text-xs font-bold transition-all hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed leading-tight"
+              style={{ background: meta.color, color: "#060D1E" }}
+            >
+              {loading ? (
+                <Loader2 className="w-4 h-4 animate-spin mx-auto" />
+              ) : cta.card ? (
+                cta.label
+              ) : (
+                "Em breve"
+              )}
+            </button>
+          )}
+        </div>
       </div>
     );
   };
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="bg-[#112236] border-[#00FF7F]/20 text-white max-w-md p-6 rounded-2xl">
+      <DialogContent className="bg-[#112236] border-[#00FF7F]/20 text-white max-w-3xl p-5 md:p-6 rounded-2xl max-h-[90vh] overflow-y-auto">
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 p-1 rounded hover:bg-white/10"
+          className="absolute top-3 right-3 p-1 rounded hover:bg-white/10 z-10"
           aria-label="Fechar"
         >
           <X className="w-5 h-5" />
         </button>
 
         <h2
-          className="text-2xl font-bold text-center mb-4"
+          className="text-2xl font-bold text-center mb-5"
           style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
         >
-          Nossos planos
+          Compare os planos
         </h2>
 
-        <div className="space-y-3">
-          {renderPlan(
-            "Plano Premium",
-            PRICES.premium,
-            PREMIUM_FEATURES,
-            isPremium,
-            isDiamante ? null : { label: `Assinar por R$ ${PRICES.premium}`, card: premiumCard },
-            "#60A5FA",
-          )}
-          {renderPlan(
-            "Plano Diamante",
-            PRICES.diamante,
-            DIAMANTE_FEATURES,
-            isDiamante,
-            isDiamante
-              ? null
-              : isPremium
-                ? { label: `Fazer upgrade por R$ ${PRICES.diamante_upgrade}`, card: upgradeCard }
-                : { label: `Assinar por R$ ${PRICES.diamante}`, card: diamanteCard },
-            "#A78BFA",
-          )}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          {(["free", "premium", "diamante"] as PlanKey[]).map(renderCard)}
         </div>
       </DialogContent>
     </Dialog>
