@@ -264,7 +264,7 @@ export default function AltenarOddsReader({ onSelectionMade, multiMode, onMultiS
     <div className="border border-primary/30 rounded-lg p-3 space-y-3 bg-primary/5">
       <div className="flex items-center justify-between">
         <span className="text-xs text-primary font-semibold uppercase">
-          🤖 Importar Odd do Altenar {multiMode && "(Múltipla)"}
+          🤖 Importar Odd do Altenar {accumulatedSelections.length > 0 && "(Múltipla)"}
         </span>
         {(selected || confirmed) && <Check className="w-4 h-4 text-primary" />}
       </div>
@@ -418,16 +418,11 @@ export default function AltenarOddsReader({ onSelectionMade, multiMode, onMultiS
       {/* Ações multiMode (após adicionar pelo menos uma) */}
       {multiMode && !confirmed && accumulatedSelections.length > 0 && !selectedMarket && (
         <div className="flex flex-wrap gap-2 pt-1">
-          {eventData && (
-            <Button type="button" size="sm" variant="outline" onClick={() => setSelectedMarket(null)}>
-              + Adicionar mais deste jogo
-            </Button>
-          )}
           <Button type="button" size="sm" variant="outline" onClick={addAnotherGame}>
             + Adicionar de outro jogo
           </Button>
           <Button type="button" size="sm" onClick={handleConfirmMulti}>
-            Confirmar ({accumulatedSelections.length} seleções)
+            Confirmar ({accumulatedSelections.length} {accumulatedSelections.length === 1 ? "seleção" : "seleções"})
           </Button>
         </div>
       )}

@@ -73,6 +73,7 @@ export default function AdminTipsCreate() {
   const [betBuilderImported, setBetBuilderImported] = useState(false);
   const [betBuilderError, setBetBuilderError] = useState("");
   const [betBuilderSummary, setBetBuilderSummary] = useState("");
+  const [altenarResetKey, setAltenarResetKey] = useState(0);
 
   const handleBetBuilderImport = () => {
     try {
@@ -154,11 +155,6 @@ export default function AdminTipsCreate() {
       console.error("BetBuilder import error:", err);
     }
   };
-
-  const isMultiTip = (() => {
-    const p = form.palpite?.trim().toLowerCase();
-    return p === "bilhete especial" || p === "múltipla do dia";
-  })();
 
   const handleAltenarMultiSelection = (selections: Array<{
     wsdkPayload: Record<string, unknown>;
@@ -335,6 +331,11 @@ export default function AdminTipsCreate() {
       toast.success("Tip criada com sucesso");
       setForm({ ...EMPTY_FORM });
       setWsdkPayload(null);
+      setBetBuilderJson("");
+      setBetBuilderImported(false);
+      setBetBuilderError("");
+      setBetBuilderSummary("");
+      setAltenarResetKey(k => k + 1);
     }
     setSaving(false);
   };
@@ -505,8 +506,9 @@ export default function AdminTipsCreate() {
 
         {/* Leitor Altenar */}
         <AltenarOddsReader
+          key={altenarResetKey}
           onSelectionMade={handleAltenarSelection}
-          multiMode={isMultiTip}
+          multiMode={true}
           onMultiSelectionMade={handleAltenarMultiSelection}
         />
 
@@ -534,14 +536,27 @@ export default function AdminTipsCreate() {
               {betBuilderError && (
                 <p className="text-xs text-red-400 mt-1">{betBuilderError}</p>
               )}
-              <Button
-                type="button"
-                size="sm"
-                className="mt-2 bg-yellow-600 hover:bg-yellow-700"
-                onClick={handleBetBuilderImport}
-              >
-                Importar Criar Aposta
-              </Button>
+              <div className="flex gap-2 mt-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  className="bg-yellow-600 hover:bg-yellow-700"
+                  onClick={handleBetBuilderImport}
+                >
+                  Importar Criar Aposta
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    navigator.clipboard.writeText("localStorage.getItem('WSDK_esportiva_betSelections')");
+                    toast.success("Comando copiado! Cole no console da Esportiva.");
+                  }}
+                >
+                  Copiar Comando
+                </Button>
+              </div>
             </>
           ) : (
             <div className="text-xs text-muted-foreground space-y-1">
