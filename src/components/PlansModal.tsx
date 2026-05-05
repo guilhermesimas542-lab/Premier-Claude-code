@@ -69,7 +69,7 @@ const PLAN_META: Record<PlanKey, { title: string; color: string; price: string; 
   diamante: {
     title: "Diamante",
     color: "#A855F7",
-    price: `R$ ${PRICES.diamante}`,
+    price: `R$ ${PRICES.diamante_upgrade}`,
     suffix: "vitalício",
     glow: { border: "#A855F7" },
   },
