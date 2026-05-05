@@ -336,6 +336,11 @@ export default function AdminTipsCreate() {
       toast.success("Tip criada com sucesso");
       setForm({ ...EMPTY_FORM });
       setWsdkPayload(null);
+      setBetBuilderJson("");
+      setBetBuilderImported(false);
+      setBetBuilderError("");
+      setBetBuilderSummary("");
+      setAltenarResetKey(k => k + 1);
     }
     setSaving(false);
   };
