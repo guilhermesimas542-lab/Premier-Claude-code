@@ -188,7 +188,7 @@ export function PlansModal({ open, onClose }: Props) {
     return (
       <div
         key={plan}
-        className="flex flex-col rounded-xl p-3 md:p-4 min-w-0"
+        className="flex-1 basis-0 flex flex-col rounded-xl p-2 md:p-4 min-w-0"
         style={{
           background: isCurrent ? `${meta.color}14` : "rgba(255,255,255,0.03)",
           border: `1px solid ${borderColor}`,
