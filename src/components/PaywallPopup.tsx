@@ -161,7 +161,7 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
       <TelegramRedeemModal
         open={open}
         onClose={onClose}
-        telegramUrl={(house as any)?.telegram_group_url ?? null}
+        telegramUrl={telegramGroupUrl}
       />
     );
   }
