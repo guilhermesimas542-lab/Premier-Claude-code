@@ -203,9 +203,9 @@ export function PlansModal({ open, onClose }: Props) {
             {meta.title}
           </h3>
           <div className="mt-1 text-lg md:text-xl font-bold text-white leading-tight">{meta.price}</div>
-          {meta.suffix && (
-            <div className="text-[9px] md:text-[10px] text-white/50 uppercase tracking-wide">{meta.suffix}</div>
-          )}
+          <div className="text-[9px] md:text-[10px] text-white/50 uppercase tracking-wide">
+            {meta.suffix ?? "\u00A0"}
+          </div>
         </div>
 
         {/* Bullets unificados */}
