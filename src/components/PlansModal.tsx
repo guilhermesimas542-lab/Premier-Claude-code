@@ -279,6 +279,15 @@ export function PlansModal({ open, onClose }: Props) {
               )}
             </button>
           )}
+          {cta.type === "telegram" && (
+            <button
+              onClick={() => setShowTelegramModal(true)}
+              className="w-full py-2 rounded-lg text-[11px] md:text-xs font-bold transition-all hover:scale-[1.01] leading-tight"
+              style={{ background: meta.color, color: "#060D1E" }}
+            >
+              {cta.label}
+            </button>
+          )}
         </div>
       </div>
     );
