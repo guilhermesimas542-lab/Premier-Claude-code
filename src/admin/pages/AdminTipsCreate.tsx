@@ -185,6 +185,25 @@ export default function AdminTipsCreate() {
       team1_name: f.team1_name.trim() ? f.team1_name : (allSameEvent ? firstSel.team1Name : f.team1_name),
       team2_name: f.team2_name.trim() ? f.team2_name : (allSameEvent ? firstSel.team2Name : f.team2_name),
     }));
+
+    // Preencher data/hora com o jogo mais cedo entre todas as seleções
+    const allDates = selections
+      .map((s) => s.startDate)
+      .filter(Boolean)
+      .map((d) => new Date(d as string));
+    if (allDates.length > 0) {
+      const earliest = new Date(Math.min(...allDates.map((d) => d.getTime())));
+      const localDate = earliest.toISOString().split("T")[0];
+      const hours = earliest.getUTCHours() - 3;
+      const minutes = earliest.getUTCMinutes();
+      const adjustedHours = hours < 0 ? hours + 24 : hours;
+      setForm((f) => ({
+        ...f,
+        gameDate: localDate,
+        gameHour: String(adjustedHours).padStart(2, "0"),
+        gameMinute: String(minutes).padStart(2, "0"),
+      }));
+    }
   };
 
   const handleAltenarSelection = (data: {

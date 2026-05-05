@@ -161,7 +161,10 @@ export default function AltenarOddsReader({ onSelectionMade, multiMode, onMultiS
         ...prev,
         { ...sel, eventId: String(eventData.id) },
       ]);
+      // Limpar evento atual e abrir busca de novo jogo automaticamente
+      setEventData(null);
       setSelectedMarket(null);
+      setEventId("");
       toast.success(`✅ ${oddName} adicionada ao bilhete (${newCount} seleções)`);
       return;
     }
