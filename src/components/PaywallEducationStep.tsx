@@ -11,7 +11,7 @@ import mercadosImg from "@/assets/popups/mercados_secundarios.png";
 import esportesImg from "@/assets/popups/esportes_americanos.png";
 import oddsSafesImg from "@/assets/popups/plano_premium.webp";
 import oddsProImg from "@/assets/popups/plano_premium.webp";
-import oddsUltraImg from "@/assets/popups/plano_diamante.webp";
+import oddsUltraImg from "@/assets/popups/plano_premium.webp";
 
 interface Props {
   feature: FeatureKey;
