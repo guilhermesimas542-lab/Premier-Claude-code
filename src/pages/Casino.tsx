@@ -216,6 +216,11 @@ const Casino = () => {
           onClose={() => setCardPayCard(null)}
         />
       )}
+      <SupportRoomModal
+        open={showSupportModal}
+        onClose={() => setShowSupportModal(false)}
+        telegramSupportUrl={links.support_telegram_url || null}
+      />
     </div>
   );
 };
