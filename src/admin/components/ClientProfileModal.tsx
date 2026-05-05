@@ -6,7 +6,7 @@ import type { AdminUser } from "../types";
 
 const UPSELL_BADGES = [
   { key: "alavancagem", letter: "A", activeColor: "bg-blue-500 text-white", title: "Alavancagem" },
-  { key: "desaltas", letter: "O", activeColor: "bg-yellow-500 text-white", title: "Odds Altas" },
+  { key: "multiplas_bingo", letter: "M", activeColor: "bg-yellow-500 text-white", title: "Múltiplas / Bingo" },
   { key: "acesso_vitalicio", letter: "V", activeColor: "bg-purple-500 text-white", title: "Vitalício" },
   { key: "live_telegram", letter: "L", activeColor: "bg-green-500 text-white", title: "Live" },
 ];

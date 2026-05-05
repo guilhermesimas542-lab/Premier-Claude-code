@@ -23,7 +23,7 @@ import { cn } from "@/lib/utils";
 const STAKE = 100;
 const WIN_THRESHOLD = 55;
 
-type CategoryFilter = "all" | "free" | "basic" | "pro" | "ultra" | "alavancagem" | "desaltas";
+type CategoryFilter = "all" | "free" | "basic" | "pro" | "ultra" | "alavancagem" | "multiplas_bingo";
 
 interface Entry {
   id: string;
@@ -58,7 +58,7 @@ const CATEGORY_OPTIONS: { value: CategoryFilter; label: string }[] = [
   { value: "pro", label: "Pro" },
   { value: "ultra", label: "Ultra" },
   { value: "alavancagem", label: "Alavancagem" },
-  { value: "desaltas", label: "Odds Altas" },
+  { value: "multiplas_bingo", label: "Múltiplas / Bingo" },
 ];
 
 const SHORTCUTS = [
@@ -162,7 +162,7 @@ export default function AdminTipsAnalytics() {
         q = q.eq("tier_required", categoryFilter).is("addon_required", null);
         break;
       case "alavancagem":
-      case "desaltas":
+      case "multiplas_bingo":
         q = q.eq("addon_required", categoryFilter);
         break;
       case "all":

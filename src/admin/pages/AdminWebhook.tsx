@@ -484,7 +484,7 @@ function SimulateModal({ open, onClose, onDone }: { open: boolean; onClose: () =
               <SelectItem value="pro">Plano Pro</SelectItem>
               <SelectItem value="ultra">Plano Ultra</SelectItem>
               <SelectItem value="alavancagem">Add-on: Alavancagem</SelectItem>
-              <SelectItem value="desaltas">Add-on: Desaltas</SelectItem>
+              <SelectItem value="multiplas_bingo">Add-on: Múltiplas / Bingo</SelectItem>
               <SelectItem value="live_telegram">Add-on: Live Telegram</SelectItem>
               <SelectItem value="acesso_vitalicio">Add-on: Acesso Vitalício</SelectItem>
             </SelectContent>
@@ -836,7 +836,7 @@ function ProductModal({
 
   const addonOptions = [
     { key: "alavancagem", label: "Alavancagem" },
-    { key: "desaltas", label: "Odds Altas" },
+    { key: "multiplas_bingo", label: "Múltiplas / Bingo" },
     { key: "live_telegram", label: "Live Telegram" },
     { key: "acesso_vitalicio", label: "Acesso Vitalício" },
   ];

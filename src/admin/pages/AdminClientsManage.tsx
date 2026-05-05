@@ -42,87 +42,27 @@ const HOUSE_BADGE_COLORS = [
 type SortKey = "email" | "phone" | "main_tier" | "upsells" | "created_at" | "first_access_at" | "last_seen_at";
 type SortDir = "asc" | "desc";
 
-const UPSELL_KEYS = ["alavancagem", "desaltas", "acesso_vitalicio", "live_telegram"];
+const UPSELL_KEYS = ["alavancagem", "multiplas_bingo", "acesso_vitalicio", "live_telegram"];
 
 const PAGE_SIZE = 200;
 
 const UPSELL_LABELS: Record<string, string> = {
   alavancagem: "Alavancagem",
-  desaltas: "Odds Altas",
+  multiplas_bingo: "Múltiplas / Bingo",
   acesso_vitalicio: "Vitalício",
   live_telegram: "Live",
 };
 
 const UPSELL_BADGES = [
   { key: "alavancagem", letter: "A", activeColor: "bg-blue-500 text-white", title: "Alavancagem" },
-  { key: "desaltas", letter: "O", activeColor: "bg-yellow-500 text-white", title: "Odds Altas" },
+  { key: "multiplas_bingo", letter: "M", activeColor: "bg-yellow-500 text-white", title: "Múltiplas / Bingo" },
   { key: "acesso_vitalicio", letter: "V", activeColor: "bg-purple-500 text-white", title: "Vitalício" },
   { key: "live_telegram", letter: "L", activeColor: "bg-green-500 text-white", title: "Live" },
 ];
-
-const TIER_COLORS: Record<string, string> = {
-  free: "text-[#94A3B8]",
-  basic: "text-[#60A5FA]",
-  pro: "text-[#00FF7F]",
-  ultra: "text-[#7C3AED]",
-};
-
-function UpsellBadges({ upsells }: { upsells: string[] }) {
-  const allActive = UPSELL_BADGES.every(({ key }) => upsells.includes(UPSELL_LABELS[key]));
-  return (
-    <div className="flex items-center gap-1">
-      {UPSELL_BADGES.map(({ key, letter, activeColor, title }) => {
-        const active = upsells.includes(UPSELL_LABELS[key]);
-        const colorClass = active
-          ? allActive
-            ? "bg-green-500 text-white"
-            : activeColor
-          : "bg-gray-700 text-gray-500";
-        return (
-          <span
-            key={key}
-            title={title}
-            className={`inline-flex items-center justify-center w-5 h-5 rounded text-[10px] font-bold select-none ${colorClass}`}
-          >
-            {letter}
-          </span>
-        );
-      })}
-    </div>
-  );
-}
-
-function SortIcon({ col, sortKey, sortDir }: { col: SortKey; sortKey: SortKey; sortDir: SortDir }) {
-  if (col !== sortKey) return <ChevronsUpDown className="w-3 h-3 ml-1 opacity-40" />;
-  return sortDir === "asc"
-    ? <ChevronUp className="w-3 h-3 ml-1 text-white" />
-    : <ChevronDown className="w-3 h-3 ml-1 text-white" />;
-}
-
-const TIER_ORDER: Record<string, number> = { free: 0, basic: 1, pro: 2, ultra: 3 };
-
-function sortUsers(users: UserWithUpsells[], key: SortKey, dir: SortDir): UserWithUpsells[] {
-  return [...users].sort((a, b) => {
-    let av: string | number = "";
-    let bv: string | number = "";
-
-    if (key === "email") { av = a.email ?? ""; bv = b.email ?? ""; }
-    else if (key === "phone") { av = a.phone ?? ""; bv = b.phone ?? ""; }
-    else if (key === "main_tier") { av = TIER_ORDER[a.main_tier] ?? -1; bv = TIER_ORDER[b.main_tier] ?? -1; }
-    else if (key === "upsells") { av = a.upsells.join(","); bv = b.upsells.join(","); }
-    else if (key === "created_at") { av = a.created_at ?? ""; bv = b.created_at ?? ""; }
-    else if (key === "first_access_at") { av = (a as any).first_access_at ?? ""; bv = (b as any).first_access_at ?? ""; }
-    else if (key === "last_seen_at") { av = a.last_seen_at ?? ""; bv = b.last_seen_at ?? ""; }
-
-    if (av < bv) return dir === "asc" ? -1 : 1;
-    if (av > bv) return dir === "asc" ? 1 : -1;
-    return 0;
-  });
-}
-
+...
 const ADDON_TOGGLES = [
   { key: "alavancagem", label: "Alavancagem" },
-  { key: "desaltas", label: "Odds Altas" },
+  { key: "multiplas_bingo", label: "Múltiplas / Bingo" },
   { key: "live_telegram", label: "Live Telegram" },
   { key: "acesso_vitalicio", label: "Vitalício" },
 ] as const;
@@ -136,7 +76,7 @@ const TIER_PILLS = [
 
 const ADDON_PILLS = [
   { value: "alavancagem", label: "Alavancagem" },
-  { value: "desaltas", label: "Odds Altas" },
+  { value: "multiplas_bingo", label: "Múltiplas / Bingo" },
   { value: "live_telegram", label: "Live Telegram" },
   { value: "acesso_vitalicio", label: "Acesso Vitalício" },
 ] as const;

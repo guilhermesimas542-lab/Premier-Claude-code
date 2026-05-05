@@ -24,7 +24,7 @@ const AUDIENCE_OPTIONS = [
   { value: "pro", label: "Só Pro" },
   { value: "ultra", label: "Só Ultra" },
   { value: "no_alavancagem", label: "Sem Alavancagem" },
-  { value: "no_desaltas", label: "Sem Odds Altas" },
+  { value: "no_multiplas_bingo", label: "Sem Múltiplas / Bingo" },
   { value: "no_live_telegram", label: "Sem Live Telegram" },
   { value: "no_acesso_vitalicio", label: "Sem Acesso Vitalício" },
 ] as const;
@@ -36,7 +36,7 @@ const VIEW_AS_OPTIONS = [
   { value: "pro", label: "Cliente Pro", group: "tier" },
   { value: "ultra", label: "Cliente Ultra", group: "tier" },
   { value: "no_alavancagem", label: "Sem Alavancagem", group: "addon" },
-  { value: "no_desaltas", label: "Sem Odds Altas", group: "addon" },
+  { value: "no_multiplas_bingo", label: "Sem Múltiplas / Bingo", group: "addon" },
   { value: "no_live_telegram", label: "Sem Live Telegram", group: "addon" },
   { value: "no_acesso_vitalicio", label: "Sem Acesso Vitalício", group: "addon" },
 ] as const;
@@ -47,7 +47,7 @@ const LIMIT_CHECK_AUDIENCES = [
   { key: "pro", label: "Cliente Pro" },
   { key: "ultra", label: "Cliente Ultra" },
   { key: "no_alavancagem", label: "Sem Alavancagem" },
-  { key: "no_desaltas", label: "Sem Odds Altas" },
+  { key: "no_multiplas_bingo", label: "Sem Múltiplas / Bingo" },
   { key: "no_live_telegram", label: "Sem Live Telegram" },
   { key: "no_acesso_vitalicio", label: "Sem Acesso Vitalício" },
 ] as const;

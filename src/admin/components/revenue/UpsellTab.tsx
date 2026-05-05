@@ -49,7 +49,7 @@ export default function UpsellTab() {
     return m;
   }, [entitlements]);
 
-  const ALL_ADDON_KEYS = ['alavancagem', 'desaltas', 'live_telegram', 'acesso_vitalicio'];
+  const ALL_ADDON_KEYS = ['alavancagem', 'multiplas_bingo', 'live_telegram', 'acesso_vitalicio'];
 
   const filtered = useMemo(() => {
     const f = UPSELL_FILTERS[Number(filterIdx)];
