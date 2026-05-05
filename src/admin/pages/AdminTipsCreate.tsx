@@ -69,6 +69,84 @@ export default function AdminTipsCreate() {
   const [bilheteSearchValue, setBilheteSearchValue] = useState("");
   const [bilheteAutocompleteKey, setBilheteAutocompleteKey] = useState(0);
   const [wsdkPayload, setWsdkPayload] = useState<Record<string, unknown> | Record<string, unknown>[] | null>(null);
+  const [betBuilderJson, setBetBuilderJson] = useState("");
+  const [betBuilderImported, setBetBuilderImported] = useState(false);
+  const [betBuilderError, setBetBuilderError] = useState("");
+  const [betBuilderSummary, setBetBuilderSummary] = useState("");
+
+  const handleBetBuilderImport = () => {
+    try {
+      const raw = betBuilderJson.trim();
+      if (!raw) {
+        setBetBuilderError("Cole o JSON antes de importar.");
+        return;
+      }
+      let parsed: any;
+      try {
+        parsed = JSON.parse(raw);
+      } catch {
+        setBetBuilderError("JSON inválido. Verifique se copiou o valor completo do localStorage.");
+        return;
+      }
+      const selections = parsed?.state?.selections;
+      if (!selections || !Array.isArray(selections) || selections.length === 0) {
+        setBetBuilderError("Estrutura inválida. O JSON deve ter state.selections com pelo menos 1 item.");
+        return;
+      }
+      const first = selections[0];
+      if (!first.event?.id || !first.odd?.price) {
+        setBetBuilderError("Seleção inválida: falta event.id ou odd.price.");
+        return;
+      }
+      setWsdkPayload(selections);
+
+      const eventName = first.event?.name || "";
+      const team1 = first.competitors?.[0]?.name || "";
+      const team2 = first.competitors?.[1]?.name || "";
+      const startDate = first.event?.startDate || "";
+      const combinedOdd = selections.reduce((acc: number, s: any) => acc * (s.odd?.price || 1), 1);
+      const isBetBuilder = first.isBBMarketGroup === true;
+      const bbCount = first.bbSelections?.length || 0;
+
+      setForm(f => ({
+        ...f,
+        odd: combinedOdd.toFixed(2),
+        team1_name: f.team1_name.trim() ? f.team1_name : team1,
+        team2_name: f.team2_name.trim() ? f.team2_name : team2,
+      }));
+
+      if (startDate) {
+        try {
+          const d = new Date(startDate);
+          const localDate = d.toISOString().split("T")[0];
+          const hours = d.getUTCHours() - 3;
+          const minutes = d.getUTCMinutes();
+          setForm(f => ({
+            ...f,
+            gameDate: localDate,
+            gameHour: String(hours < 0 ? hours + 24 : hours).padStart(2, "0"),
+            gameMinute: String(minutes).padStart(2, "0"),
+          }));
+        } catch { /* ignora erro de parsing de data */ }
+      }
+
+      if (isBetBuilder && bbCount > 0) {
+        const bbNames = first.bbSelections.map((bb: any) =>
+          `${bb.market?.shortName || bb.market?.name || "?"}: ${bb.odd?.name || "?"}`
+        ).join(" · ");
+        setBetBuilderSummary(`Criar Aposta — ${eventName} — ${bbCount} pernas — Odd ${combinedOdd.toFixed(2)} — ${bbNames}`);
+      } else {
+        setBetBuilderSummary(`${selections.length} seleções importadas — Odd combinada ${combinedOdd.toFixed(2)}`);
+      }
+
+      setBetBuilderImported(true);
+      setBetBuilderError("");
+      toast.success(`Criar Aposta importado com sucesso! ${isBetBuilder ? bbCount + " pernas" : selections.length + " seleções"}`);
+    } catch (err) {
+      setBetBuilderError("Erro inesperado ao processar o JSON.");
+      console.error("BetBuilder import error:", err);
+    }
+  };
 
   const isMultiTip = (() => {
     const p = form.palpite?.trim().toLowerCase();
