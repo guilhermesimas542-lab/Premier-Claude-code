@@ -305,7 +305,7 @@ export default function AltenarOddsReader({ onSelectionMade }: AltenarOddsReader
       {selected && (
         <div className="flex items-center justify-between text-xs">
           <span className="text-primary">
-            ✅ Odd importada com sucesso
+            ✅ {selectedOddName ? `${selectedOddName} — ` : ""}Odd importada com sucesso
           </span>
           <button
             type="button"
