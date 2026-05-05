@@ -166,22 +166,22 @@ export function PlansModal({ open, onClose }: Props) {
   type CtaSpec =
     | { type: "current" }
     | { type: "info"; label: string }
-    | { type: "button"; label: string; card: PayCardData | null };
+    | { type: "button"; label: string; card: PayCardData | null }
+    | { type: "telegram"; label: string };
 
   const getCta = (plan: PlanKey): CtaSpec => {
     if (plan === "free") {
-      if (isFree) return { type: "current" };
-      return { type: "info", label: "Plano gratuito" };
+      return { type: "telegram", label: "Grátis" };
     }
     if (plan === "premium") {
       if (isPremium) return { type: "current" };
       if (isDiamante) return { type: "info", label: "Incluso no Diamante" };
       return { type: "button", label: `Assinar por R$ ${PRICES.premium}`, card: premiumCard };
     }
-    // diamante
+    // diamante — sempre R$ 127, copy "Fazer Upgrade"
     if (isDiamante) return { type: "current" };
-    if (isPremium) return { type: "button", label: `Fazer upgrade por R$ ${PRICES.diamante_upgrade}`, card: upgradeCard };
-    return { type: "button", label: `Assinar por R$ ${PRICES.diamante}`, card: diamanteCard };
+    if (isPremium) return { type: "button", label: `Fazer Upgrade R$ ${PRICES.diamante_upgrade}`, card: upgradeCard };
+    return { type: "button", label: `Fazer Upgrade R$ ${PRICES.diamante_upgrade}`, card: diamanteCard };
   };
 
   const renderCard = (plan: PlanKey) => {
