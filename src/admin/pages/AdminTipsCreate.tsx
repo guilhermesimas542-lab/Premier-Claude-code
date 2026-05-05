@@ -506,8 +506,9 @@ export default function AdminTipsCreate() {
 
         {/* Leitor Altenar */}
         <AltenarOddsReader
+          key={altenarResetKey}
           onSelectionMade={handleAltenarSelection}
-          multiMode={isMultiTip}
+          multiMode={true}
           onMultiSelectionMade={handleAltenarMultiSelection}
         />
 
