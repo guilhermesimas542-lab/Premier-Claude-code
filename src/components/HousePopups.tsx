@@ -137,7 +137,7 @@ function SimpleImagePopup({
   return (
     <>
       <Dialog open={open} onOpenChange={(o) => { if (!o) handleClose(); }}>
-        <DialogContent className="p-0 border-0 bg-transparent max-w-sm overflow-hidden">
+        <DialogContent className="p-0 border-0 bg-transparent max-w-sm overflow-hidden [&>button]:hidden">
           <button
             onClick={handleClose}
             className="absolute top-2 right-2 z-10 bg-black/60 rounded-full p-1 text-white hover:bg-black/80 transition-colors"
@@ -313,7 +313,7 @@ export function UpgradePopup({
   if (!image) return null;
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="p-0 border-0 bg-transparent max-w-sm overflow-hidden">
+      <DialogContent className="p-0 border-0 bg-transparent max-w-sm overflow-hidden [&>button]:hidden">
         <button
           onClick={onClose}
           className="absolute top-2 right-2 z-10 bg-black/60 rounded-full p-1 text-white hover:bg-black/80 transition-colors"
