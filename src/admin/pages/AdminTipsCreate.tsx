@@ -419,7 +419,11 @@ export default function AdminTipsCreate() {
         </div>
 
         {/* Leitor Altenar */}
-        <AltenarOddsReader onSelectionMade={handleAltenarSelection} />
+        <AltenarOddsReader
+          onSelectionMade={handleAltenarSelection}
+          multiMode={isMultiTip}
+          onMultiSelectionMade={handleAltenarMultiSelection}
+        />
 
         {/* Links por Casa de Apostas */}
         {houses.length > 0 && (
