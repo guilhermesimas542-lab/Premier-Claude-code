@@ -20,6 +20,10 @@ import { usePayCardTrigger } from "@/hooks/usePayCardTrigger";
 import { mockGetUser } from "@/mocks/user";
 import { CHECKOUT_LINKS } from "@/lib/checkoutLinks";
 import { useLinks } from "@/contexts/LinksContext";
+import { SupportRoomModal } from "@/components/SupportRoomModal";
+
+const CASINO_GAME_SLUGS_HIDDEN = new Set(["aviator", "mines"]);
+const CASINO_GAME_SLUGS_SUPPORT = new Set(["roleta", "football_studio", "football-studio"]);
 
 const Casino = () => {
   const navigate = useNavigate();
