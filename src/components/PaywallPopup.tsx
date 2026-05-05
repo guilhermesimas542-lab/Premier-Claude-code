@@ -357,9 +357,13 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
 
   // ===== MAIN PAYWALL (premium / diamante) =====
   const isDiamante = variant === "diamante";
-  const benefits = isDiamante
-    ? DIAMANTE_BENEFITS
-    : (mainPayCard?.checkout_config?.benefits?.length ? mainPayCard.checkout_config.benefits : PREMIUM_BENEFITS);
+  const PREMIUM_BULLETS = [
+    "Odds Safes — entradas de baixo risco",
+    "Odds Pró — entradas com retorno maior",
+    "Odds Ultra — combinadas calculadas",
+    "Suporte via grupo",
+  ];
+  const benefits = isDiamante ? DIAMANTE_BENEFITS : PREMIUM_BULLETS;
   const price = variant === "premium" ? PRICES.premium : PRICES.diamante;
   const ctaLabel = `ASSINAR ${variant === "premium" ? "PREMIUM" : "DIAMANTE"} POR R$ ${price}`;
   const canBuy = !!mainPayCard;
@@ -371,7 +375,7 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && handleCloseAttempt()}>
-      <DialogContent className="bg-[#112236] border-[#00FF7F]/30 text-white max-w-sm p-6">
+      <DialogContent className="bg-[#112236] border-[#00FF7F]/30 text-white max-w-sm p-6 [&>button]:hidden">
         {phase === "main_step1" && (
           <PaywallEducationStep feature={feature} onContinue={() => setPhase("main_step2")} />
         )}
@@ -379,18 +383,18 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
         {phase === "main_step2" && (
           <div className="space-y-5">
             <h2
-              className="text-2xl font-extrabold text-center text-[#00FF7F] leading-tight"
+              className="text-xl sm:text-2xl font-extrabold text-center text-[#00FF7F] leading-tight text-balance px-2"
               style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
             >
-              {variant === "premium" ? "Plano Premium — Odds liberadas todo dia" : ctaLabel}
+              {variant === "premium" ? "Plano Premium — +20 odds liberadas todos os dias" : ctaLabel}
             </h2>
 
             {variant === "premium" && (
               <ul className="space-y-2">
                 {benefits.map((b, i) => (
-                  <li key={i} className="flex items-start gap-2 text-sm text-white/90">
+                  <li key={i} className="flex items-start gap-2 text-sm text-white/90 leading-snug">
                     <Check className="w-4 h-4 text-[#00FF7F] mt-0.5 shrink-0" />
-                    <span>{b}</span>
+                    <span className="break-words">{b}</span>
                   </li>
                 ))}
               </ul>
