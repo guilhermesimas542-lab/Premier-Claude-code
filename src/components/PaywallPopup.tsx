@@ -5,6 +5,7 @@ import { X, ArrowLeft, Loader2 } from "lucide-react";
 import { PaywallEducationStep } from "@/components/PaywallEducationStep";
 import { supabase } from "@/integrations/supabase/client";
 import { PayCardFunnelModal } from "@/components/PayCardFunnelModal";
+import { TelegramRedeemModal } from "@/components/TelegramRedeemModal";
 import type { PayCardData } from "@/hooks/usePayCards";
 import { useUserBettingHouse } from "@/hooks/useUserBettingHouse";
 import { mockGetUser } from "@/mocks/user";
@@ -144,27 +145,11 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
   // ===== TELEGRAM =====
   if (variant === "telegram") {
     return (
-      <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-        <DialogContent className="bg-[#112236] border-[#00FF7F]/30 text-white max-w-sm p-6">
-          <div className="text-center space-y-4">
-            <h2 className="text-2xl font-bold" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
-              Grupo Grátis no Telegram
-            </h2>
-            <p className="text-sm text-white/70">
-              Entre no grupo free do Telegram e resgate a odd Free do dia
-            </p>
-            <Button
-              className="w-full bg-[#00FF7F] hover:bg-[#00FF7F]/90 text-black font-bold"
-              onClick={() => {
-                window.open(TELEGRAM_URL_PLACEHOLDER, "_blank", "noopener,noreferrer");
-                onClose();
-              }}
-            >
-              Entrar no grupo
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <TelegramRedeemModal
+        open={open}
+        onClose={onClose}
+        telegramUrl={(house as any)?.telegram_group_url ?? null}
+      />
     );
   }
 
