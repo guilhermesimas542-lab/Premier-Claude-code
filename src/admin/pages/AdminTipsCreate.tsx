@@ -223,7 +223,9 @@ export default function AdminTipsCreate() {
       link_house_1: form.link_house_1 || null,
       link_house_2: form.link_house_2 || null,
       link_house_3: form.link_house_3 || null,
-      metadata: wsdkPayload ? { wsdk: { selections: [wsdkPayload] } } : null,
+      metadata: wsdkPayload
+        ? { wsdk: { selections: Array.isArray(wsdkPayload) ? wsdkPayload : [wsdkPayload] } }
+        : null,
     };
 
     // Auto-save new prediction if palpite is filled
