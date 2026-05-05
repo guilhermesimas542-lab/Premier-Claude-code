@@ -85,6 +85,7 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
   const [funnelOpen, setFunnelOpen] = useState<PayCardData | null>(null);
   const [hasFetched, setHasFetched] = useState(false);
   const [telegramGroupUrl, setTelegramGroupUrl] = useState<string | null>(null);
+  const [premiumCheckoutUrl, setPremiumCheckoutUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (!house?.id) return;
