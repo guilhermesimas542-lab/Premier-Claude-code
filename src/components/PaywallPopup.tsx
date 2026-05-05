@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { X, ArrowLeft, Loader2 } from "lucide-react";
+import { X, ArrowLeft, Loader2, Check } from "lucide-react";
 import { PaywallEducationStep } from "@/components/PaywallEducationStep";
 import { supabase } from "@/integrations/supabase/client";
 import { PayCardFunnelModal } from "@/components/PayCardFunnelModal";
+import { EmbeddedCheckout } from "@/components/EmbeddedCheckout";
 import { TelegramRedeemModal } from "@/components/TelegramRedeemModal";
 import type { PayCardData } from "@/hooks/usePayCards";
 import { useUserBettingHouse } from "@/hooks/useUserBettingHouse";
@@ -84,6 +85,7 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
   const [funnelOpen, setFunnelOpen] = useState<PayCardData | null>(null);
   const [hasFetched, setHasFetched] = useState(false);
   const [telegramGroupUrl, setTelegramGroupUrl] = useState<string | null>(null);
+  const [premiumCheckoutUrl, setPremiumCheckoutUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (!house?.id) return;
@@ -107,6 +109,7 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
       setDiscountPayCard(null);
       setUpgradePayCard(null);
       setHasFetched(false);
+      setPremiumCheckoutUrl(null);
       return;
     }
   }, [open]);
@@ -338,13 +341,33 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
     );
   }
 
-  // ===== MAIN PAYWALL (premium / diamante) — UNCHANGED =====
+  // ===== EMBEDDED CHECKOUT (premium direct) =====
+  if (premiumCheckoutUrl) {
+    return (
+      <EmbeddedCheckout
+        open={true}
+        url={premiumCheckoutUrl}
+        onClose={() => {
+          setPremiumCheckoutUrl(null);
+          onClose();
+        }}
+      />
+    );
+  }
+
+  // ===== MAIN PAYWALL (premium / diamante) =====
   const isDiamante = variant === "diamante";
-  const title = variant === "premium" ? "Plano Premium" : "Plano Diamante";
-  const benefits = isDiamante ? DIAMANTE_BENEFITS : PREMIUM_BENEFITS;
+  const benefits = isDiamante
+    ? DIAMANTE_BENEFITS
+    : (mainPayCard?.checkout_config?.benefits?.length ? mainPayCard.checkout_config.benefits : PREMIUM_BENEFITS);
   const price = variant === "premium" ? PRICES.premium : PRICES.diamante;
   const ctaLabel = `ASSINAR ${variant === "premium" ? "PREMIUM" : "DIAMANTE"} POR R$ ${price}`;
   const canBuy = !!mainPayCard;
+
+  const handlePremiumCheckout = () => {
+    const url = mainPayCard?.checkout_config?.checkout_url;
+    if (url) setPremiumCheckoutUrl(url);
+  };
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && handleCloseAttempt()}>
@@ -359,16 +382,31 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
               className="text-2xl font-extrabold text-center text-[#00FF7F] leading-tight"
               style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
             >
-              {ctaLabel}
+              {variant === "premium" ? "Plano Premium — Odds liberadas todo dia" : ctaLabel}
             </h2>
+
+            {variant === "premium" && (
+              <ul className="space-y-2">
+                {benefits.map((b, i) => (
+                  <li key={i} className="flex items-start gap-2 text-sm text-white/90">
+                    <Check className="w-4 h-4 text-[#00FF7F] mt-0.5 shrink-0" />
+                    <span>{b}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+
             <Button
               className="w-full bg-[#00FF7F] hover:bg-[#00FF7F]/90 text-black font-bold text-lg py-6"
               disabled={!canBuy || loadingPayCard}
-              onClick={() => mainPayCard && setFunnelOpen(mainPayCard)}
+              onClick={() => {
+                if (variant === "premium") handlePremiumCheckout();
+                else if (mainPayCard) setFunnelOpen(mainPayCard);
+              }}
             >
               {loadingPayCard
                 ? <Loader2 className="w-5 h-5 animate-spin" />
-                : canBuy ? "Assinar agora" : "Em breve"}
+                : canBuy ? (variant === "premium" ? ctaLabel : "Assinar agora") : "Em breve"}
             </Button>
             <button
               onClick={() => setPhase("main_step1")}

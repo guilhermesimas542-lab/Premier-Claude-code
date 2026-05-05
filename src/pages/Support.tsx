@@ -16,6 +16,7 @@ import { BottomNav } from "@/components/BottomNav";
 import ProfileModal from "@/components/ProfileModal";
 import { useUserAccess } from "@/hooks/useUserAccess";
 import { PaywallPopup } from "@/components/PaywallPopup";
+import { PlansModal } from "@/components/PlansModal";
 import AppHeader from "@/components/AppHeader";
 import FeedbackModal from "@/components/FeedbackModal";
 import logoImg from "@/assets/premier-logo-custom.png";
@@ -38,9 +39,18 @@ const NEXT_TIER: Record<string, string> = {
 const PlanUpgradeCard = () => {
   const { mainTier, loading } = useUserAccess();
   const [paywallOpen, setPaywallOpen] = useState(false);
+  const [plansOpen, setPlansOpen] = useState(false);
   if (loading) return null;
-  // Botão de upgrade só faz sentido para Free
-  if (mainTier !== 'free') return null;
+  // Diamante: já tem tudo, esconde botão
+  if (mainTier === 'diamante' || mainTier === 'ultra') return null;
+
+  const isPremium = mainTier === 'premium';
+  const planLabel = isPremium ? 'Premium' : 'Gratuito';
+
+  const handleClick = () => {
+    if (isPremium) setPlansOpen(true);
+    else setPaywallOpen(true);
+  };
 
   return (
     <section
@@ -59,11 +69,11 @@ const PlanUpgradeCard = () => {
         <p className="text-sm" style={{ color: '#CCCCCC' }}>
           Plano atual:{' '}
           <span style={{ color: '#00FF7F', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700 }}>
-            Gratuito
+            {planLabel}
           </span>
         </p>
         <button
-          onClick={() => setPaywallOpen(true)}
+          onClick={handleClick}
           className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all hover:scale-[1.03]"
           style={{
             background: 'linear-gradient(135deg, #00FF7F, #00CC66)',
@@ -75,12 +85,17 @@ const PlanUpgradeCard = () => {
           Upgrade
         </button>
       </div>
-      <PaywallPopup
-        open={paywallOpen}
-        onClose={() => setPaywallOpen(false)}
-        variant="premium"
-        feature="odds_safes"
-      />
+      {!isPremium && (
+        <PaywallPopup
+          open={paywallOpen}
+          onClose={() => setPaywallOpen(false)}
+          variant="premium"
+          feature="odds_safes"
+        />
+      )}
+      {isPremium && (
+        <PlansModal open={plansOpen} onClose={() => setPlansOpen(false)} />
+      )}
     </section>
   );
 };
