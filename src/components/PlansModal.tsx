@@ -315,6 +315,11 @@ export function PlansModal({ open, onClose }: Props) {
           {(["free", "premium", "diamante"] as PlanKey[]).map(renderCard)}
         </div>
       </DialogContent>
+      <TelegramRedeemModal
+        open={showTelegramModal}
+        onClose={() => setShowTelegramModal(false)}
+        telegramUrl={telegramGroupUrl}
+      />
     </Dialog>
   );
 }
