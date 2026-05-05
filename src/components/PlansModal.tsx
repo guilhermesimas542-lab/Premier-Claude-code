@@ -56,7 +56,7 @@ const BULLETS: Record<PlanKey, Bullet[]> = {
   ],
 };
 
-const PLAN_META: Record<PlanKey, { title: string; color: string; price: string; suffix?: string; glow?: { border: string; shadow: string } }> = {
+const PLAN_META: Record<PlanKey, { title: string; color: string; price: string; suffix?: string; glow?: { border: string } }> = {
   free: { title: "Free", color: "#94A3B8", price: "Grátis" },
   premium: {
     title: "Premium",
