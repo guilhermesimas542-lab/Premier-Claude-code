@@ -156,22 +156,22 @@ const TAB_ORDER: FeatureKey[] = [
   "free",
   "odds_safes",
   "odds_pro",
-  "alavancagem",
+  "odds_ultra",
   "multiplas_bingo",
   "mercados_secundarios",
   "esportes_americanos",
-  "odds_ultra",
+  "alavancagem",
 ];
 
 const FEATURE_DISPLAY_ORDER: Record<FeatureKey, number> = {
   free: 0,
   odds_safes: 1,
   odds_pro: 2,
-  alavancagem: 3,
+  odds_ultra: 3,
   multiplas_bingo: 4,
   mercados_secundarios: 5,
   esportes_americanos: 6,
-  odds_ultra: 7,
+  alavancagem: 7,
 };
 
 const TAB_META: Record<FeatureKey, { label: string; labelShort: string; color: string }> = {
