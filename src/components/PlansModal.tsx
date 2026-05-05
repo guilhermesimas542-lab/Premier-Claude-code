@@ -192,7 +192,6 @@ export function PlansModal({ open, onClose }: Props) {
         style={{
           background: isCurrent ? `${meta.color}14` : "rgba(255,255,255,0.03)",
           border: `1px solid ${borderColor}`,
-          boxShadow: glow ? glow.shadow : undefined,
         }}
       >
         {/* Header */}
