@@ -56,21 +56,21 @@ const BULLETS: Record<PlanKey, Bullet[]> = {
   ],
 };
 
-const PLAN_META: Record<PlanKey, { title: string; color: string; price: string; suffix?: string; glow?: { border: string; shadow: string } }> = {
+const PLAN_META: Record<PlanKey, { title: string; color: string; price: string; suffix?: string; glow?: { border: string } }> = {
   free: { title: "Free", color: "#94A3B8", price: "Grátis" },
   premium: {
     title: "Premium",
     color: "#FACC15",
     price: `R$ ${PRICES.premium}`,
     suffix: "vitalício",
-    glow: { border: "#FACC15", shadow: "0 0 24px rgba(250, 204, 21, 0.45), 0 0 48px rgba(250, 204, 21, 0.18)" },
+    glow: { border: "#FACC15" },
   },
   diamante: {
     title: "Diamante",
     color: "#A855F7",
     price: `R$ ${PRICES.diamante}`,
     suffix: "vitalício",
-    glow: { border: "#A855F7", shadow: "0 0 24px rgba(168, 85, 247, 0.5), 0 0 48px rgba(168, 85, 247, 0.22)" },
+    glow: { border: "#A855F7" },
   },
 };
 
@@ -154,17 +154,17 @@ export function PlansModal({ open, onClose }: Props) {
 
   type CtaSpec =
     | { type: "current" }
-    | { type: "info" }
+    | { type: "info"; label: string }
     | { type: "button"; label: string; card: PayCardData | null };
 
   const getCta = (plan: PlanKey): CtaSpec => {
     if (plan === "free") {
       if (isFree) return { type: "current" };
-      return { type: "info" };
+      return { type: "info", label: "Plano gratuito" };
     }
     if (plan === "premium") {
       if (isPremium) return { type: "current" };
-      if (isDiamante) return { type: "info" };
+      if (isDiamante) return { type: "info", label: "Incluso no Diamante" };
       return { type: "button", label: `Assinar por R$ ${PRICES.premium}`, card: premiumCard };
     }
     // diamante
@@ -192,7 +192,6 @@ export function PlansModal({ open, onClose }: Props) {
         style={{
           background: isCurrent ? `${meta.color}14` : "rgba(255,255,255,0.03)",
           border: `1px solid ${borderColor}`,
-          boxShadow: glow ? glow.shadow : undefined,
         }}
       >
         {/* Header */}
@@ -246,9 +245,12 @@ export function PlansModal({ open, onClose }: Props) {
             </button>
           )}
           {cta.type === "info" && (
-            <div className="w-full py-2 rounded-lg text-[10px] md:text-[11px] text-center text-white/40">
-              —
-            </div>
+            <button
+              disabled
+              className="w-full py-2 rounded-lg text-[11px] md:text-xs font-bold opacity-60 cursor-not-allowed bg-white/5 text-white/50 border border-white/10"
+            >
+              {cta.label}
+            </button>
           )}
           {cta.type === "button" && (
             <button
