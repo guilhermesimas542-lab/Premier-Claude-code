@@ -1,4 +1,4 @@
-import { Send, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { mockGetUser } from "@/mocks/user";
@@ -22,20 +22,25 @@ const AppHeader = ({ leftContent, headerStyle, title }: AppHeaderProps) => {
   const mockUser = mockGetUser();
   const { house: userHouse } = useUserBettingHouse();
 
-  const [tier, setTier] = useState<string>("free");
+  const [tier, setTier] = useState<string>("");
+  const [tierLoaded, setTierLoaded] = useState(false);
   const [telegramGroupUrl, setTelegramGroupUrl] = useState<string | null>(null);
   const [showTelegramModal, setShowTelegramModal] = useState(false);
   const [showPlansModal, setShowPlansModal] = useState(false);
 
   useEffect(() => {
-    if (!mockUser) return;
+    if (!mockUser) {
+      setTierLoaded(true);
+      return;
+    }
     supabase
       .from("users")
       .select("main_tier")
       .eq("email", mockUser.email.toLowerCase().trim())
       .maybeSingle()
       .then(({ data }) => {
-        setTier((data?.main_tier as string) || "free");
+        setTier(((data?.main_tier as string) || "free").toLowerCase().trim());
+        setTierLoaded(true);
       });
   }, [mockUser?.email]);
 
@@ -51,6 +56,7 @@ const AppHeader = ({ leftContent, headerStyle, title }: AppHeaderProps) => {
       });
   }, [userHouse?.id]);
 
+  const isPaid = tier === "premium" || tier === "diamante";
   const isFree = tier === "free";
 
   return (
@@ -68,15 +74,14 @@ const AppHeader = ({ leftContent, headerStyle, title }: AppHeaderProps) => {
             )}
 
             <div className="flex items-center gap-2 sm:gap-3">
-              {isFree ? (
+              {tierLoaded && isFree && (
                 <button
                   onClick={() => setShowTelegramModal(true)}
                   className="inline-flex items-center gap-1.5 rounded-full transition-all hover:scale-105"
                   style={{
                     padding: "7px 14px",
-                    background: "#0088cc",
-                    border: "1px solid rgba(255,255,255,0.15)",
-                    boxShadow: "0 0 12px rgba(0,136,204,0.4)",
+                    background: "rgba(255,255,255,0.06)",
+                    border: "1px solid rgba(255,255,255,0.18)",
                     fontFamily: "'Barlow Condensed', sans-serif",
                     fontWeight: 700,
                     fontSize: "13px",
@@ -84,10 +89,11 @@ const AppHeader = ({ leftContent, headerStyle, title }: AppHeaderProps) => {
                     letterSpacing: "0.5px",
                   }}
                 >
-                  <Send size={14} />
+                  <Sparkles size={14} />
                   Resgatar Odd Grátis
                 </button>
-              ) : (
+              )}
+              {tierLoaded && isPaid && (
                 <button
                   onClick={() => setShowPlansModal(true)}
                   className="inline-flex items-center gap-1.5 rounded-full transition-all hover:scale-105"
