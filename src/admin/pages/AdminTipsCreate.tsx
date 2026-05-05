@@ -256,7 +256,7 @@ export default function AdminTipsCreate() {
 
   const set = (key: string, val: string) => setForm((f) => ({ ...f, [key]: val }));
 
-  const isSpecialCategory = form.categoria === "alavancagem";
+  const isSpecialCategory = form.categoria === "alavancagem" || form.categoria === "multiplas_bingo";
   const isBilheteEspecial = form.palpite?.trim().toLowerCase() === "bilhete especial";
 
   useEffect(() => {
@@ -266,6 +266,13 @@ export default function AdminTipsCreate() {
         palpite: "Alavancagem do Dia",
         mercado: "Combinação de Mercados",
         mercado_explicacao: "Esta é uma entrada especial que combina múltiplos mercados de baixa odd para criar uma aposta mais segura e com potencial de alavancagem de banca.",
+      }));
+    } else if (form.categoria === "multiplas_bingo") {
+      setForm(f => ({
+        ...f,
+        palpite: "Bilhete Especial",
+        mercado: "Múltipla",
+        mercado_explicacao: "Na seção de Justificativa estão todas as entradas separadas!",
       }));
     }
   }, [form.categoria]);
