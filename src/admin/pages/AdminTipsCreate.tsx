@@ -81,7 +81,15 @@ export default function AdminTipsCreate() {
     startDate?: string;
   }) => {
     setWsdkPayload(data.wsdkPayload);
-    set("odd", data.oddPrice.toString());
+
+    setForm((f) => ({
+      ...f,
+      odd: data.oddPrice ? data.oddPrice.toFixed(2) : f.odd,
+      team1_name: f.team1_name.trim() ? f.team1_name : (data.team1Name || f.team1_name),
+      team2_name: f.team2_name.trim() ? f.team2_name : (data.team2Name || f.team2_name),
+      palpite: f.palpite.trim() ? f.palpite : (data.oddName || f.palpite),
+      mercado: f.mercado.trim() ? f.mercado : (data.marketName || f.mercado),
+    }));
 
     // Auto-preencher data e hora do jogo a partir do evento Altenar
     if (data.startDate) {

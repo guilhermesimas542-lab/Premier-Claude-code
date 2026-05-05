@@ -24,6 +24,7 @@ export default function AltenarOddsReader({ onSelectionMade }: AltenarOddsReader
   const [eventData, setEventData] = useState<any>(null);
   const [selectedMarket, setSelectedMarket] = useState<any>(null);
   const [selected, setSelected] = useState(false);
+  const [selectedOddName, setSelectedOddName] = useState<string>("");
   const [marketSearch, setMarketSearch] = useState("");
 
   const fetchEvent = async () => {
@@ -143,6 +144,7 @@ export default function AltenarOddsReader({ onSelectionMade }: AltenarOddsReader
     });
 
     setSelected(true);
+    setSelectedOddName(odd.name || odd.shortName || "");
     toast.success(`Odd selecionada: ${odd.name || odd.shortName} @ ${odd.price}`);
   };
 
@@ -303,7 +305,7 @@ export default function AltenarOddsReader({ onSelectionMade }: AltenarOddsReader
       {selected && (
         <div className="flex items-center justify-between text-xs">
           <span className="text-primary">
-            ✅ Odd importada com sucesso
+            ✅ {selectedOddName ? `${selectedOddName} — ` : ""}Odd importada com sucesso
           </span>
           <button
             type="button"
