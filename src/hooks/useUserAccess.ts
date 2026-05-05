@@ -14,6 +14,7 @@ export interface UserAccess {
   hasMultiplasBingo: boolean;
   hasMercadosSecundarios: boolean;
   hasEsportesAmericanos: boolean;
+  hasOddsUltra: boolean;
   isVitalicio: boolean;
   // Legacy display helpers (kept for back-compat with components that rely on tier label)
   isUltra: boolean;
