@@ -154,7 +154,7 @@ export function PlansModal({ open, onClose }: Props) {
 
   type CtaSpec =
     | { type: "current" }
-    | { type: "info" }
+    | { type: "info"; label: string }
     | { type: "button"; label: string; card: PayCardData | null };
 
   const getCta = (plan: PlanKey): CtaSpec => {
