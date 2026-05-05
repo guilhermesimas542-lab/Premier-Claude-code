@@ -30,6 +30,7 @@ const CATEGORIA_MAP: Record<string, { tier: string; addon: string | null; featur
   multiplas_bingo:      { tier: "ultra", addon: null,          feature: "multiplas_bingo" },
   mercados_secundarios: { tier: "ultra", addon: null,          feature: "mercados_secundarios" },
   esportes_americanos:  { tier: "ultra", addon: null,          feature: "esportes_americanos" },
+  odds_ultra:           { tier: "ultra", addon: null,          feature: "odds_ultra" },
 };
 
 function getTodayBrasilia(): string {
@@ -268,6 +269,7 @@ export default function AdminTipsCreate() {
               <SelectItem value="multiplas_bingo">Múltiplas / Bingo</SelectItem>
               <SelectItem value="mercados_secundarios">Mercados Secundários</SelectItem>
               <SelectItem value="esportes_americanos">Esportes Americanos</SelectItem>
+              <SelectItem value="odds_ultra">Odds Ultra</SelectItem>
             </SelectContent>
           </Select>
         </div>
