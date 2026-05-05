@@ -63,14 +63,14 @@ const PLAN_META: Record<PlanKey, { title: string; color: string; price: string; 
     color: "#FACC15",
     price: `R$ ${PRICES.premium}`,
     suffix: "vitalício",
-    glow: { border: "#FACC15", shadow: "0 0 24px rgba(250, 204, 21, 0.45), 0 0 48px rgba(250, 204, 21, 0.18)" },
+    glow: { border: "#FACC15" },
   },
   diamante: {
     title: "Diamante",
     color: "#A855F7",
     price: `R$ ${PRICES.diamante}`,
     suffix: "vitalício",
-    glow: { border: "#A855F7", shadow: "0 0 24px rgba(168, 85, 247, 0.5), 0 0 48px rgba(168, 85, 247, 0.22)" },
+    glow: { border: "#A855F7" },
   },
 };
 
