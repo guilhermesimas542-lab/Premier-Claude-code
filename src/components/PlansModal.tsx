@@ -106,6 +106,8 @@ export function PlansModal({ open, onClose }: Props) {
   const [diamanteCard, setDiamanteCard] = useState<PayCardData | null>(null);
   const [upgradeCard, setUpgradeCard] = useState<PayCardData | null>(null);
   const [funnel, setFunnel] = useState<PayCardData | null>(null);
+  const [showTelegramModal, setShowTelegramModal] = useState(false);
+  const [telegramGroupUrl, setTelegramGroupUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (!open) return;
