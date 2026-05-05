@@ -5,6 +5,7 @@ import { X, ArrowLeft, Loader2 } from "lucide-react";
 import { PaywallEducationStep } from "@/components/PaywallEducationStep";
 import { supabase } from "@/integrations/supabase/client";
 import { PayCardFunnelModal } from "@/components/PayCardFunnelModal";
+import { TelegramRedeemModal } from "@/components/TelegramRedeemModal";
 import type { PayCardData } from "@/hooks/usePayCards";
 import { useUserBettingHouse } from "@/hooks/useUserBettingHouse";
 import { mockGetUser } from "@/mocks/user";
