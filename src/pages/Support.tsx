@@ -16,6 +16,7 @@ import { BottomNav } from "@/components/BottomNav";
 import ProfileModal from "@/components/ProfileModal";
 import { useUserAccess } from "@/hooks/useUserAccess";
 import { PaywallPopup } from "@/components/PaywallPopup";
+import { PlansModal } from "@/components/PlansModal";
 import AppHeader from "@/components/AppHeader";
 import FeedbackModal from "@/components/FeedbackModal";
 import logoImg from "@/assets/premier-logo-custom.png";
