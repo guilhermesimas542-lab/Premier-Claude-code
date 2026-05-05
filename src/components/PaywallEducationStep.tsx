@@ -9,9 +9,9 @@ import alavancagemImg from "@/assets/popups/alavancagem.png";
 import multiplasImg from "@/assets/popups/multiplas_bingo.png";
 import mercadosImg from "@/assets/popups/mercados_secundarios.png";
 import esportesImg from "@/assets/popups/esportes_americanos.png";
-import oddsSafesImg from "@/assets/popups/plano_premium.webp";
-import oddsProImg from "@/assets/popups/plano_premium.webp";
-import oddsUltraImg from "@/assets/popups/plano_premium.webp";
+import oddsSafesImg from "@/assets/popups/odds_safe.png";
+import oddsProImg from "@/assets/popups/odds_pro.png";
+import oddsUltraImg from "@/assets/popups/odds_ultra.png";
 
 interface Props {
   feature: FeatureKey;
