@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { X, ArrowLeft, Loader2 } from "lucide-react";
+import { X, ArrowLeft, Loader2, Check } from "lucide-react";
 import { PaywallEducationStep } from "@/components/PaywallEducationStep";
 import { supabase } from "@/integrations/supabase/client";
 import { PayCardFunnelModal } from "@/components/PayCardFunnelModal";
+import { EmbeddedCheckout } from "@/components/EmbeddedCheckout";
 import { TelegramRedeemModal } from "@/components/TelegramRedeemModal";
 import type { PayCardData } from "@/hooks/usePayCards";
 import { useUserBettingHouse } from "@/hooks/useUserBettingHouse";
