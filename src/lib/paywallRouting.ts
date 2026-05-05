@@ -25,13 +25,13 @@ export const FEATURE_LABELS: Record<Exclude<FeatureKey, "free">, string> = {
   odds_ultra: "Odds Ultra",
 };
 
-// Premium-included (cumulativo): odds_safes, odds_pro, mercados_secundarios
-// Diamante-only: alavancagem, multiplas_bingo, esportes_americanos, odds_ultra
+// Premium-included (cumulativo): odds_safes, odds_pro, odds_ultra
+// Diamante-only: alavancagem, multiplas_bingo, esportes_americanos, mercados_secundarios
 const DIAMANTE_ONLY: FeatureKey[] = [
   "alavancagem",
   "multiplas_bingo",
   "esportes_americanos",
-  "odds_ultra",
+  "mercados_secundarios",
 ];
 
 export const DIAMANTE_ONLY_FEATURES = DIAMANTE_ONLY;

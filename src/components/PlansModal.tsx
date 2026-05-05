@@ -38,11 +38,11 @@ const BULLETS: Record<PlanKey, Bullet[]> = {
     { label: "Entrega pelo app", available: true },
     { label: "Odds Safes", available: true },
     { label: "Odds Pró", available: true },
-    { label: "Mercados Secundários", available: true },
+    { label: "Odds Ultra", available: true },
+    { label: "Mercados Secundários", available: false },
     { label: "Alavancagem", available: false },
     { label: "Múltiplas / Bingo", available: false },
     { label: "Ligas Americanas", available: false },
-    { label: "Odds Ultra", available: false },
   ],
   diamante: [
     { label: "+50 odds por dia", available: true },
