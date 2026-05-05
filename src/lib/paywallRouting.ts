@@ -6,11 +6,12 @@ export type FeatureKey =
   | "alavancagem"
   | "multiplas_bingo"
   | "mercados_secundarios"
-  | "esportes_americanos";
+  | "esportes_americanos"
+  | "odds_ultra";
 
 export type PaywallVariant =
   | "telegram"          // free tab → telegram
-  | "premium"           // R$47 — free user, odds_safes/odds_pro
+  | "premium"           // R$47 — free user, odds_safes/odds_pro/mercados_secundarios
   | "diamante"          // R$147 — free user, diamante-only feature
   | "diamante_upgrade"; // R$127 — premium user upgrading
 
@@ -21,16 +22,24 @@ export const FEATURE_LABELS: Record<Exclude<FeatureKey, "free">, string> = {
   multiplas_bingo: "Múltiplas / Bingo",
   mercados_secundarios: "Mercados Secundários",
   esportes_americanos: "Esportes Americanos",
+  odds_ultra: "Odds Ultra",
 };
 
+// Premium-included (cumulativo): odds_safes, odds_pro, mercados_secundarios
+// Diamante-only: alavancagem, multiplas_bingo, esportes_americanos, odds_ultra
 const DIAMANTE_ONLY: FeatureKey[] = [
   "alavancagem",
   "multiplas_bingo",
-  "mercados_secundarios",
   "esportes_americanos",
+  "odds_ultra",
 ];
 
 export const DIAMANTE_ONLY_FEATURES = DIAMANTE_ONLY;
+
+/** Helper: features Diamante-only excluindo a passada (pro subtítulo "+ outras N funcionalidades") */
+export function getOtherDiamanteFeatures(except: FeatureKey): Exclude<FeatureKey, "free">[] {
+  return DIAMANTE_ONLY.filter((f) => f !== except && f !== "free") as Exclude<FeatureKey, "free">[];
+}
 
 /** Resolve which paywall variant to show, based on user tier + clicked feature */
 export function resolvePaywallVariant(
@@ -60,7 +69,7 @@ export function variantToPlanKey(v: PaywallVariant): string | null {
 /** associated_plan slug for the backredirect (per-feature avulso, full price) */
 export function featureToBackredirectPlanKey(f: FeatureKey): string | null {
   if (f === "free") return null;
-  return f; // odds_safes, odds_pro, alavancagem, multiplas_bingo, mercados_secundarios, esportes_americanos
+  return f;
 }
 
 /** associated_plan slug for the DISCOUNTED avulso pay_card (one-time R$ 10 off) */
@@ -77,6 +86,7 @@ export const FEATURE_HEADLINES: Record<Exclude<FeatureKey, "free">, string> = {
   multiplas_bingo: "Entenda como funciona as Múltiplas",
   mercados_secundarios: "Entenda como funciona os Mercados Secundários",
   esportes_americanos: "Entenda como funciona o mercado de Esportes Americanos",
+  odds_ultra: "Entenda como funciona as Odds Ultra",
 };
 
 /** Short explanation copy used in step 1 of diamante_upgrade popup (placeholder, will be replaced later) */
@@ -87,6 +97,7 @@ export const FEATURE_EXPLANATIONS: Record<Exclude<FeatureKey, "free">, string> =
   multiplas_bingo: "Placeholder: Múltiplas/Bingo é uma estratégia que combina várias odds em um único bilhete. Use pra maximizar retorno em jogos correlacionados.",
   mercados_secundarios: "Placeholder: Mercados Secundários cobrem apostas além do resultado principal (cantos, cartões, escanteios). Use pra encontrar valor escondido.",
   esportes_americanos: "Placeholder: Esportes Americanos cobrem NBA, NFL, MLB e NHL. Use pra diversificar sua banca em mercados de alta liquidez.",
+  odds_ultra: "Placeholder: Odds Ultra são entradas premium com odds elevadas selecionadas pelo time. Use pra maximizar retorno em jogadas de alto valor.",
 };
 
 export const PRICES = {
