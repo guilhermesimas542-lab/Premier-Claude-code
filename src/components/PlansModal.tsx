@@ -7,6 +7,7 @@ import { useUserBettingHouse } from "@/hooks/useUserBettingHouse";
 import { PayCardFunnelModal } from "@/components/PayCardFunnelModal";
 import type { PayCardData } from "@/hooks/usePayCards";
 import { PRICES } from "@/lib/paywallRouting";
+import { TelegramRedeemModal } from "@/components/TelegramRedeemModal";
 
 interface Props {
   open: boolean;
