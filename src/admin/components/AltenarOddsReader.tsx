@@ -144,6 +144,7 @@ export default function AltenarOddsReader({ onSelectionMade }: AltenarOddsReader
     });
 
     setSelected(true);
+    setSelectedOddName(odd.name || odd.shortName || "");
     toast.success(`Odd selecionada: ${odd.name || odd.shortName} @ ${odd.price}`);
   };
 
