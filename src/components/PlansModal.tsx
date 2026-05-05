@@ -15,36 +15,63 @@ interface Props {
 
 type PlanKey = "free" | "premium" | "diamante";
 
-// Lista mestre de 9 atributos. Os dois primeiros são "valor" (sempre exibidos como texto).
-// Os 7 seguintes são features booleanas, marcadas conforme cada plano.
-type Attr =
-  | { kind: "value"; label: string; values: Record<PlanKey, string> }
-  | { kind: "feature"; label: string; available: Record<PlanKey, boolean> };
+// Lista unificada de 9 bullets por plano.
+// Os 2 primeiros (Odds/dia + Entrega) são sempre disponíveis (variam apenas o texto).
+// Os 7 seguintes são features booleanas — riscadas quando indisponíveis.
+type Bullet = { label: string; available: boolean };
 
-const ATTRIBUTES: Attr[] = [
-  {
-    kind: "value",
-    label: "Odds por dia",
-    values: { free: "2 odds", premium: "+20 odds", diamante: "+50 odds" },
-  },
-  {
-    kind: "value",
-    label: "Entrega",
-    values: { free: "Telegram", premium: "App", diamante: "App" },
-  },
-  { kind: "feature", label: "Odds Safes", available: { free: false, premium: true, diamante: true } },
-  { kind: "feature", label: "Odds Pró", available: { free: false, premium: true, diamante: true } },
-  { kind: "feature", label: "Mercados Secundários", available: { free: false, premium: true, diamante: true } },
-  { kind: "feature", label: "Alavancagem", available: { free: false, premium: false, diamante: true } },
-  { kind: "feature", label: "Múltiplas / Bingo", available: { free: false, premium: false, diamante: true } },
-  { kind: "feature", label: "Ligas Americanas", available: { free: false, premium: false, diamante: true } },
-  { kind: "feature", label: "Odds Ultra", available: { free: false, premium: false, diamante: true } },
-];
+const BULLETS: Record<PlanKey, Bullet[]> = {
+  free: [
+    { label: "2 odds por dia", available: true },
+    { label: "Entrega via Telegram", available: true },
+    { label: "Odds Safes", available: false },
+    { label: "Odds Pró", available: false },
+    { label: "Mercados Secundários", available: false },
+    { label: "Alavancagem", available: false },
+    { label: "Múltiplas / Bingo", available: false },
+    { label: "Ligas Americanas", available: false },
+    { label: "Odds Ultra", available: false },
+  ],
+  premium: [
+    { label: "+20 odds por dia", available: true },
+    { label: "Entrega pelo app", available: true },
+    { label: "Odds Safes", available: true },
+    { label: "Odds Pró", available: true },
+    { label: "Mercados Secundários", available: true },
+    { label: "Alavancagem", available: false },
+    { label: "Múltiplas / Bingo", available: false },
+    { label: "Ligas Americanas", available: false },
+    { label: "Odds Ultra", available: false },
+  ],
+  diamante: [
+    { label: "+50 odds por dia", available: true },
+    { label: "Entrega pelo app", available: true },
+    { label: "Odds Safes", available: true },
+    { label: "Odds Pró", available: true },
+    { label: "Mercados Secundários", available: true },
+    { label: "Alavancagem", available: true },
+    { label: "Múltiplas / Bingo", available: true },
+    { label: "Ligas Americanas", available: true },
+    { label: "Odds Ultra", available: true },
+  ],
+};
 
-const PLAN_META: Record<PlanKey, { title: string; color: string; price: string; suffix?: string }> = {
+const PLAN_META: Record<PlanKey, { title: string; color: string; price: string; suffix?: string; glow?: { border: string; shadow: string } }> = {
   free: { title: "Free", color: "#94A3B8", price: "Grátis" },
-  premium: { title: "Premium", color: "#60A5FA", price: `R$ ${PRICES.premium}`, suffix: "vitalício" },
-  diamante: { title: "Diamante", color: "#A78BFA", price: `R$ ${PRICES.diamante}`, suffix: "vitalício" },
+  premium: {
+    title: "Premium",
+    color: "#FACC15",
+    price: `R$ ${PRICES.premium}`,
+    suffix: "vitalício",
+    glow: { border: "#FACC15", shadow: "0 0 24px rgba(250, 204, 21, 0.45), 0 0 48px rgba(250, 204, 21, 0.18)" },
+  },
+  diamante: {
+    title: "Diamante",
+    color: "#A855F7",
+    price: `R$ ${PRICES.diamante}`,
+    suffix: "vitalício",
+    glow: { border: "#A855F7", shadow: "0 0 24px rgba(168, 85, 247, 0.5), 0 0 48px rgba(168, 85, 247, 0.22)" },
+  },
 };
 
 async function fetchPayCardByPlan(plan: string, houseId?: string | null): Promise<PayCardData | null> {
@@ -151,13 +178,21 @@ export function PlansModal({ open, onClose }: Props) {
     const cta = getCta(plan);
     const isCurrent = cta.type === "current";
 
+    const glow = meta.glow;
+    const borderColor = isCurrent
+      ? meta.color
+      : glow
+        ? glow.border
+        : "rgba(255,255,255,0.08)";
+
     return (
       <div
         key={plan}
         className="flex flex-col rounded-xl p-3 md:p-4 min-w-0"
         style={{
           background: isCurrent ? `${meta.color}14` : "rgba(255,255,255,0.03)",
-          border: `1px solid ${isCurrent ? meta.color : "rgba(255,255,255,0.08)"}`,
+          border: `1px solid ${borderColor}`,
+          boxShadow: glow ? glow.shadow : undefined,
         }}
       >
         {/* Header */}
@@ -174,40 +209,29 @@ export function PlansModal({ open, onClose }: Props) {
           )}
         </div>
 
-        {/* Atributos */}
+        {/* Bullets unificados */}
         <ul className="flex-1 space-y-2 mb-3">
-          {ATTRIBUTES.map((attr, idx) => {
-            if (attr.kind === "value") {
-              return (
-                <li key={idx} className="text-[11px] md:text-xs">
-                  <div className="text-white/50 text-[9px] md:text-[10px] uppercase tracking-wide">{attr.label}</div>
-                  <div className="text-white font-semibold">{attr.values[plan]}</div>
-                </li>
-              );
-            }
-            const has = attr.available[plan];
-            return (
-              <li
-                key={idx}
-                className="flex items-start gap-1.5 text-[11px] md:text-xs"
+          {BULLETS[plan].map((b, idx) => (
+            <li
+              key={idx}
+              className="flex items-start gap-1.5 text-[11px] md:text-xs"
+            >
+              {b.available ? (
+                <Check className="w-3.5 h-3.5 mt-0.5 shrink-0 text-green-400" strokeWidth={3} />
+              ) : (
+                <X className="w-3.5 h-3.5 mt-0.5 shrink-0 text-white/25" />
+              )}
+              <span
+                className={
+                  b.available
+                    ? "text-white font-semibold"
+                    : "text-white/30 line-through"
+                }
               >
-                {has ? (
-                  <Check className="w-3.5 h-3.5 mt-0.5 shrink-0" style={{ color: meta.color }} />
-                ) : (
-                  <X className="w-3.5 h-3.5 mt-0.5 shrink-0 text-white/25" />
-                )}
-                <span
-                  className={
-                    has
-                      ? "text-white/90 font-medium"
-                      : "text-white/30 line-through"
-                  }
-                >
-                  {attr.label}
-                </span>
-              </li>
-            );
-          })}
+                {b.label}
+              </span>
+            </li>
+          ))}
         </ul>
 
         {/* CTA */}
