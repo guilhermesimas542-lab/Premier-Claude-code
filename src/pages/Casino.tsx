@@ -20,6 +20,10 @@ import { usePayCardTrigger } from "@/hooks/usePayCardTrigger";
 import { mockGetUser } from "@/mocks/user";
 import { CHECKOUT_LINKS } from "@/lib/checkoutLinks";
 import { useLinks } from "@/contexts/LinksContext";
+import { SupportRoomModal } from "@/components/SupportRoomModal";
+
+const CASINO_GAME_SLUGS_HIDDEN = new Set(["aviator", "mines"]);
+const CASINO_GAME_SLUGS_SUPPORT = new Set(["roleta", "football_studio", "football-studio"]);
 
 const Casino = () => {
   const navigate = useNavigate();
@@ -34,6 +38,7 @@ const Casino = () => {
 
   const [showLifetimeInfoModal, setShowLifetimeInfoModal] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
+  const [showSupportModal, setShowSupportModal] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -83,6 +88,10 @@ const Casino = () => {
       return;
     }
     if (card.slug && card.category === "casino") {
+      if (card.slug && CASINO_GAME_SLUGS_SUPPORT.has(card.slug)) {
+        setShowSupportModal(true);
+        return;
+      }
       const slug = card.slug === "football_studio" ? "football-studio" : card.slug;
       navigate(`/cassino/${slug}`);
       return;
@@ -135,7 +144,7 @@ const Casino = () => {
             gap: '10px',
             padding: '0 12px',
           }}>
-            {casinoCards.filter(c => c.slug !== "cassino").map(renderCard)}
+            {casinoCards.filter(c => c.slug !== "cassino" && !(c.slug && CASINO_GAME_SLUGS_HIDDEN.has(c.slug))).map(renderCard)}
           </div>
         </section>
       </main>
@@ -207,6 +216,11 @@ const Casino = () => {
           onClose={() => setCardPayCard(null)}
         />
       )}
+      <SupportRoomModal
+        open={showSupportModal}
+        onClose={() => setShowSupportModal(false)}
+        telegramSupportUrl={null}
+      />
     </div>
   );
 };

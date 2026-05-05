@@ -111,3 +111,4 @@ export const PRICES = {
 } as const;
 
 export const TELEGRAM_URL_PLACEHOLDER = "https://t.me/+placeholder_premier_free";
+export const TELEGRAM_SUPPORT_URL_PLACEHOLDER = "https://t.me/+placeholder_premier_support";
