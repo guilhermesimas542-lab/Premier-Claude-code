@@ -219,7 +219,7 @@ const Casino = () => {
       <SupportRoomModal
         open={showSupportModal}
         onClose={() => setShowSupportModal(false)}
-        telegramSupportUrl={links.support_telegram_url || null}
+        telegramSupportUrl={null}
       />
     </div>
   );
