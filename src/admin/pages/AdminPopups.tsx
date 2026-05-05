@@ -20,7 +20,7 @@ const POPUP_TYPES = [
   { value: "upgrade_pro",        label: "⭐ Upgrade Pro",           desc: "Para Free e Básico" },
   { value: "upgrade_ultra",      label: "👑 Upgrade Ultra",         desc: "Para todos abaixo de Ultra" },
   { value: "addon_alavancagem",  label: "⚓ Add-on Alavancagem",    desc: "Sem add-on Alavancagem" },
-  { value: "addon_odds",         label: "🎯 Add-on Odds Altas",     desc: "Sem add-on Odds Altas" },
+  { value: "addon_odds",         label: "🎯 Add-on Múltiplas / Bingo",     desc: "Sem add-on Múltiplas / Bingo" },
   { value: "addon_telegram",     label: "📱 Add-on Live Telegram",  desc: "Sem Live Telegram" },
   { value: "promotional",        label: "📣 Promocional",           desc: "Pop-up avulso com alvo configurável" },
 ] as const;

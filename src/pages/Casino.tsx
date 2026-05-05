@@ -96,7 +96,7 @@ const Casino = () => {
       navigate(`/cassino/${slug}`);
       return;
     }
-    if (card.slug === "odds_altas") { navigate("/odds-altas"); return; }
+    if (card.slug === "multiplas_bingo") { navigate("/odds-altas"); return; }
     if (card.slug === "alavancagem") { navigate("/alavancagem"); return; }
   };
 
