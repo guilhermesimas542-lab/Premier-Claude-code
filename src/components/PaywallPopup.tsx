@@ -216,14 +216,6 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
     return (
       <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
         <DialogContent className="bg-[#112236] border-[#00FF7F]/30 text-white max-w-sm p-6">
-          <button
-            onClick={onClose}
-            className="absolute top-3 right-3 p-1 rounded hover:bg-white/10"
-            aria-label="Fechar"
-          >
-            <X className="w-5 h-5" />
-          </button>
-
           {showDiscount ? (
             <div className="text-center space-y-4">
               <h2 className="text-3xl font-extrabold text-[#00FF7F]" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
@@ -295,14 +287,6 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
     return (
       <Dialog open={open} onOpenChange={(o) => !o && handleCloseAttempt()}>
         <DialogContent className="bg-[#112236] border-[#00FF7F]/30 text-white w-[calc(100%-2rem)] max-w-sm p-5 sm:p-6 rounded-2xl">
-          <button
-            onClick={handleCloseAttempt}
-            className="absolute top-3 right-3 p-1 rounded hover:bg-white/10"
-            aria-label="Fechar"
-          >
-            <X className="w-5 h-5" />
-          </button>
-
           {phase === "main_step1" && (
             <PaywallEducationStep feature={feature} onContinue={() => setPhase("main_step2")} />
           )}
@@ -365,14 +349,6 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
   return (
     <Dialog open={open} onOpenChange={(o) => !o && handleCloseAttempt()}>
       <DialogContent className="bg-[#112236] border-[#00FF7F]/30 text-white max-w-sm p-6">
-        <button
-          onClick={handleCloseAttempt}
-          className="absolute top-3 right-3 p-1 rounded hover:bg-white/10"
-          aria-label="Fechar"
-        >
-          <X className="w-5 h-5" />
-        </button>
-
         {phase === "main_step1" && (
           <PaywallEducationStep feature={feature} onContinue={() => setPhase("main_step2")} />
         )}
