@@ -245,9 +245,12 @@ export function PlansModal({ open, onClose }: Props) {
             </button>
           )}
           {cta.type === "info" && (
-            <div className="w-full py-2 rounded-lg text-[10px] md:text-[11px] text-center text-white/40">
-              —
-            </div>
+            <button
+              disabled
+              className="w-full py-2 rounded-lg text-[11px] md:text-xs font-bold opacity-60 cursor-not-allowed bg-white/5 text-white/50 border border-white/10"
+            >
+              {cta.label}
+            </button>
           )}
           {cta.type === "button" && (
             <button
