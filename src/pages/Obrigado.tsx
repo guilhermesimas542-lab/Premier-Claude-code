@@ -43,10 +43,10 @@ export default function Obrigado() {
         </div>
 
         <h1 className="font-['Barlow_Condensed'] font-extrabold text-3xl sm:text-4xl uppercase leading-tight">
-          Compra confirmada!
+          Tá dentro.
         </h1>
         <p className="text-muted-foreground mt-2 text-sm sm:text-base max-w-sm">
-          Seja muito bem-vindo ao time Premier FC. Seu acesso já está sendo preparado. ⚡
+          Pagamento aprovado. Seu acesso ao Premier FC já tá saindo.
         </p>
 
         <section className="w-full mt-7 rounded-2xl border border-border bg-card/70 backdrop-blur p-5 sm:p-6 text-left">
@@ -54,11 +54,10 @@ export default function Obrigado() {
             <MessageCircle className="w-5 h-5 text-primary mt-0.5 shrink-0" />
             <div>
               <h2 className="font-semibold text-base sm:text-lg">
-                Seu acesso chega no WhatsApp
+                Seu login chega no WhatsApp
               </h2>
               <p className="text-sm text-muted-foreground mt-1">
-                Em instantes você receberá uma mensagem oficial da nossa equipe com o
-                login, senha e o passo a passo para entrar no app.
+                A gente manda direto pro número que você usou na compra: usuário, senha e o caminho pra entrar no app. Costuma chegar em poucos minutos — não precisa fazer nada.
               </p>
             </div>
           </div>
@@ -69,11 +68,10 @@ export default function Obrigado() {
             <Clock className="w-5 h-5 text-primary mt-0.5 shrink-0" />
             <div>
               <h3 className="font-semibold text-sm sm:text-base">
-                Quer liberar agora mesmo?
+                Não quer esperar?
               </h3>
               <p className="text-sm text-muted-foreground mt-1">
-                Toque no botão abaixo e envie a mensagem pré-pronta. Nosso time
-                libera seu acesso na hora, em horário comercial.
+                Manda um "oi" no WhatsApp e nosso time libera seu acesso no ato (em horário comercial). Mensagem pré-pronta — é só tocar no botão.
               </p>
             </div>
           </div>
@@ -84,7 +82,7 @@ export default function Obrigado() {
           className="w-full mt-6 h-14 text-base font-bold uppercase tracking-wide bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_25px_rgba(0,255,127,0.35)]"
         >
           <MessageCircle className="w-5 h-5 mr-1" />
-          Enviar mensagem no WhatsApp
+          Quero meu acesso agora
         </Button>
 
         <div className="flex items-center gap-2 text-xs text-muted-foreground mt-4">
