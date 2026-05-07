@@ -46,8 +46,11 @@ export default function Backredirect() {
           className="rounded-2xl px-5 py-5 text-center text-white shadow-sm"
           style={{ backgroundColor: OLIVE }}
         >
-          <div className="font-extrabold text-xl sm:text-2xl leading-tight">
-            🔥 GARANTA O PREMIER FC AGORA COM R$10 OFF
+          <div className="font-extrabold text-2xl sm:text-3xl leading-tight">
+            🔥 DESCONTO DE R$10!
+          </div>
+          <div className="font-extrabold text-lg sm:text-xl leading-tight mt-1 text-white/95">
+            GARANTA O PREMIER FC AGORA.
           </div>
           <div className="mt-2 text-sm sm:text-base text-white/85">
             Sua última oportunidade de entrar no Premier FC pagando menos.
