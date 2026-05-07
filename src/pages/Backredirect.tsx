@@ -49,7 +49,7 @@ export default function Backredirect() {
           <div className="font-extrabold text-2xl sm:text-3xl leading-tight">
             🔥 DESCONTO DE R$10!
           </div>
-          <div className="mt-2 text-sm sm:text-base text-white/85">
+          <div className="mt-2 text-base sm:text-lg text-white/85">
             Economize R$10 e garanta seu acesso ao PremierFC agora.
           </div>
         </div>
