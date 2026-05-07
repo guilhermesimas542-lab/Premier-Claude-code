@@ -82,7 +82,7 @@ export default function Backredirect() {
           className="block w-full text-center rounded-xl py-4 font-extrabold uppercase tracking-wide text-white text-base sm:text-lg shadow-sm hover:opacity-95 transition"
           style={{ backgroundColor: OLIVE }}
         >
-          Quero meu desconto de R$10
+          Garantir desconto de R$10
         </a>
 
         {/* 5) PAYMENT METHODS */}
