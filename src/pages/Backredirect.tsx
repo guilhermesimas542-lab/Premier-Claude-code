@@ -49,7 +49,7 @@ export default function Backredirect() {
           <div className="font-extrabold text-2xl sm:text-3xl leading-tight">
             🔥 DESCONTO DE R$10!
           </div>
-          <div className="mt-2 text-sm sm:text-base text-white/85">
+          <div className="mt-2 text-base sm:text-lg text-white/85">
             Economize R$10 e garanta seu acesso ao PremierFC agora.
           </div>
         </div>
@@ -82,7 +82,7 @@ export default function Backredirect() {
           className="block w-full text-center rounded-xl py-4 font-extrabold uppercase tracking-wide text-white text-base sm:text-lg shadow-sm hover:opacity-95 transition"
           style={{ backgroundColor: OLIVE }}
         >
-          Quero meu desconto de R$10
+          Garantir desconto de R$10
         </a>
 
         {/* 5) PAYMENT METHODS */}
@@ -90,7 +90,7 @@ export default function Backredirect() {
           <img
             src={formasPagamento}
             alt="Formas de pagamento à vista: Mastercard, Elo, Visa, American Express, Boleto Bancário e Pix"
-            className="w-full max-w-[320px] h-auto"
+            className="w-full max-w-[280px] h-auto"
           />
         </div>
 
