@@ -55,10 +55,7 @@ export default function Backredirect() {
         </div>
 
         {/* 3) OFFER CARD */}
-        <div
-          className="rounded-2xl border border-neutral-200 bg-white p-6"
-          style={{ boxShadow: "0 10px 25px -8px rgba(0,0,0,0.15), 0 4px 10px -4px rgba(0,0,0,0.08)" }}
-        >
+        <div className="rounded-2xl border border-neutral-200 bg-white shadow-sm p-5">
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1">
               <h1 className="font-extrabold text-2xl text-neutral-900 leading-tight">
@@ -68,24 +65,12 @@ export default function Backredirect() {
                 Acesso vitalício • Pagamento único
               </p>
             </div>
-            <div
-              className="rounded-xl px-4 py-3 text-right"
-              style={{
-                backgroundColor: "#F1F5E8",
-                border: `1px solid ${OLIVE}33`,
-              }}
-            >
+            <div className="bg-neutral-100 rounded-xl px-3 py-2 text-right">
               <div className="text-xs text-neutral-500 line-through leading-tight">
                 De R$ 37,90 por
               </div>
-              <div className="font-extrabold text-4xl sm:text-5xl text-black leading-none mt-1">
+              <div className="font-extrabold text-2xl text-neutral-900 leading-tight">
                 R$ 27,90
-              </div>
-              <div
-                className="text-[10px] font-bold uppercase tracking-wide mt-2"
-                style={{ color: OLIVE }}
-              >
-                Você economiza R$10
               </div>
             </div>
           </div>
