@@ -43,7 +43,7 @@ export default function Obrigado() {
         </div>
 
         <h1 className="font-['Barlow_Condensed'] font-extrabold text-3xl sm:text-4xl uppercase leading-tight">
-          Compra confirmada! Tá dentro.
+          Compra confirmada!
         </h1>
         <p className="text-muted-foreground mt-2 text-sm sm:text-base max-w-sm">
           Pagamento aprovado. Seu acesso ao Premier FC já tá saindo.
