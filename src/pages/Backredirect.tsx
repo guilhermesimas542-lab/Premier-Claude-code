@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import formasPagamento from "@/assets/formas-pagamento.webp";
+import formasPagamento from "@/assets/formas-pagamento.png";
 import seloGarantia from "@/assets/selo-garantia-30.png";
 
 const CHECKOUT_URL = "[URL_CHECKOUT_DESCONTO]";
