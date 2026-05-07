@@ -71,7 +71,7 @@ export default function Obrigado() {
                 Não quer esperar?
               </h3>
               <p className="text-sm text-muted-foreground mt-1">
-                Manda um "oi" no WhatsApp e nosso time libera seu acesso no ato (em horário comercial). Mensagem pré-pronta — é só tocar no botão.
+                Manda um "oi" no WhatsApp e nosso time libera seu acesso no ato (em horário comercial).
               </p>
             </div>
           </div>
