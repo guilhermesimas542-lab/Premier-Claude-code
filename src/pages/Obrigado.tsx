@@ -43,7 +43,7 @@ export default function Obrigado() {
         </div>
 
         <h1 className="font-['Barlow_Condensed'] font-extrabold text-3xl sm:text-4xl uppercase leading-tight">
-          Tá dentro.
+          Compra confirmada! Tá dentro.
         </h1>
         <p className="text-muted-foreground mt-2 text-sm sm:text-base max-w-sm">
           Pagamento aprovado. Seu acesso ao Premier FC já tá saindo.
@@ -79,7 +79,7 @@ export default function Obrigado() {
 
         <Button
           onClick={handleWhatsApp}
-          className="w-full mt-6 h-14 text-base font-bold uppercase tracking-wide bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_25px_rgba(0,255,127,0.35)]"
+          className="w-full mt-6 h-14 text-base font-bold uppercase tracking-wide bg-primary text-black hover:bg-primary/90 hover:text-black shadow-[0_0_25px_rgba(0,255,127,0.35)]"
         >
           <MessageCircle className="w-5 h-5 mr-1" />
           Quero meu acesso agora
