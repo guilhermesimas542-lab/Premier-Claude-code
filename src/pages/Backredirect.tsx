@@ -53,7 +53,7 @@ export default function Backredirect() {
               padding: "6px 14px",
             }}
           >
-            🎯 OFERTA DE SAÍDA EXCLUSIVA
+            🎯 DESCONTO EXCLUSIVO NESSA PÁGINA
           </span>
         </div>
 
