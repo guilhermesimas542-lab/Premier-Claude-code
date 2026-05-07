@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import formasPagamento from "@/assets/formas-pagamento.png";
 import seloGarantia from "@/assets/selo-garantia-30.png";
 
-const CHECKOUT_URL = "[URL_CHECKOUT_DESCONTO]";
+const CHECKOUT_URL = "https://checkout.payt.com.br/302d147f60a7fd78aee674bdea8f4240";
 
 const OLIVE = "#4D7A1F";
 const RED_BG = "#FDECEC";
