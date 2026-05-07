@@ -41,6 +41,22 @@ export default function Backredirect() {
       )}
 
       <div className="mx-auto w-full max-w-[420px] px-5 py-6 flex flex-col gap-6">
+        {/* 2a) CONTEXT CHIP */}
+        <div className="flex justify-center -mb-3">
+          <span
+            className="inline-block font-bold text-[12px] sm:text-[13px] rounded-full"
+            style={{
+              backgroundColor: "#FEF3C7",
+              border: "1px solid rgba(245, 158, 11, 0.4)",
+              color: "#92400E",
+              letterSpacing: "0.5px",
+              padding: "6px 14px",
+            }}
+          >
+            🎯 OFERTA DE SAÍDA EXCLUSIVA
+          </span>
+        </div>
+
         {/* 2) HEADLINE BANNER */}
         <div
           className="rounded-2xl px-5 py-5 text-center text-white shadow-sm"
@@ -55,7 +71,26 @@ export default function Backredirect() {
         </div>
 
         {/* 3) OFFER CARD */}
-        <div className="rounded-2xl border border-neutral-200 bg-white shadow-sm p-5">
+        <div className="relative overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm p-5">
+          {/* Diagonal ribbon */}
+          <div
+            className="absolute pointer-events-none"
+            style={{
+              top: "18px",
+              right: "-34px",
+              width: "140px",
+              transform: "rotate(45deg)",
+              backgroundColor: OLIVE,
+              color: "#fff",
+              textAlign: "center",
+              padding: "4px 0",
+              fontWeight: 700,
+              fontSize: "13px",
+              boxShadow: "0 2px 4px rgba(0,0,0,0.15)",
+            }}
+          >
+            -R$10
+          </div>
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1">
               <h1 className="font-extrabold text-2xl text-neutral-900 leading-tight">
