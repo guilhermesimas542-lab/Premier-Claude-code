@@ -90,7 +90,7 @@ export default function Backredirect() {
           <img
             src={formasPagamento}
             alt="Formas de pagamento à vista: Mastercard, Elo, Visa, American Express, Boleto Bancário e Pix"
-            className="w-full max-w-[320px] h-auto"
+            className="w-full max-w-[280px] h-auto"
           />
         </div>
 
