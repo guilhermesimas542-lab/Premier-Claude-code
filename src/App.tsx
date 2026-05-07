@@ -18,6 +18,7 @@ import CasinoGame from "./pages/CasinoGame";
 
 import UltimosGreens from "./pages/UltimosGreens";
 import Support from "./pages/Support";
+import Obrigado from "./pages/Obrigado";
 
 import NotFound from "./pages/NotFound";
 import { AdminGuard } from "./admin/components/AdminGuard";
@@ -95,6 +96,7 @@ const App = () => {
             <Route path="/ultimos-greens" element={<UltimosGreens />} />
             <Route path="/cassino" element={<Casino />} />
             <Route path="/support" element={<Support />} />
+            <Route path="/obrigado" element={<Obrigado />} />
             
             
             <Route path="/cassino/:gameId" element={<CasinoGame />} />
