@@ -57,7 +57,7 @@ export default function Obrigado() {
                 Seu login chega no WhatsApp
               </h2>
               <p className="text-sm text-muted-foreground mt-1">
-                A gente manda direto pro número que você usou na compra: usuário, senha e o caminho pra entrar no app. Costuma chegar em poucos minutos — não precisa fazer nada.
+                A gente manda direto pro número que você usou na compra. Costuma chegar em poucos minutos — não precisa fazer nada.
               </p>
             </div>
           </div>
