@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import formasPagamento from "@/assets/formas-pagamento.webp";
+import seloGarantia from "@/assets/selo-garantia-30.png";
 
 const CHECKOUT_URL = "[URL_CHECKOUT_DESCONTO]";
 
@@ -84,20 +86,12 @@ export default function Backredirect() {
         </a>
 
         {/* 5) PAYMENT METHODS */}
-        <div className="text-center">
-          <div className="text-[11px] tracking-[0.2em] text-neutral-500 font-semibold mb-3">
-            FORMAS DE PAGAMENTO
-          </div>
-          <div className="flex items-center justify-center gap-2 flex-wrap">
-            {["VISA", "MASTER", "AMEX", "DINERS", "BOLETO", "PIX"].map((m) => (
-              <div
-                key={m}
-                className="border border-neutral-200 rounded-md px-2 py-1 text-[10px] font-bold text-neutral-600 bg-white"
-              >
-                {m}
-              </div>
-            ))}
-          </div>
+        <div className="flex justify-center">
+          <img
+            src={formasPagamento}
+            alt="Formas de pagamento à vista: Mastercard, Elo, Visa, American Express, Boleto Bancário e Pix"
+            className="w-full max-w-[320px] h-auto"
+          />
         </div>
 
         {/* 6) DASHED DIVIDER */}
@@ -121,9 +115,12 @@ export default function Backredirect() {
           <div className="font-bold text-base text-neutral-900">
             🛡️ Garantia Total de 30 Dias
           </div>
-          <div className="w-[200px] h-[200px] rounded-full border-2 border-dashed border-neutral-300 flex items-center justify-center text-neutral-400 text-xs text-center px-4">
-            Selo 30 dias<br/>(placeholder)
-          </div>
+          <img
+            src={seloGarantia}
+            alt="Selo de Garantia 30 Dias"
+            className="w-[200px] h-[200px] object-contain"
+          />
+
         </div>
 
         {/* 6b) DASHED DIVIDER */}
