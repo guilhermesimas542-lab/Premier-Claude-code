@@ -102,10 +102,10 @@ export default function Backredirect() {
             </div>
             <div className="bg-neutral-100 rounded-xl px-3 py-2 text-right">
               <div className="text-xs text-neutral-500 line-through leading-tight">
-                De R$ 37,90 por
+                De R$ 37 por
               </div>
               <div className="font-extrabold text-2xl text-neutral-900 leading-tight">
-                R$ 27,90
+                R$ 27
               </div>
             </div>
           </div>
