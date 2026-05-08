@@ -1,10 +1,43 @@
 ---
 tipo: decisoes
 projeto: ultrateste111
-atualizado: 2026-05-06
+atualizado: 2026-05-08
 ---
 
 # Decisões — ultrateste111
+
+## Página `/bd` — abordagem React + Tailwind, moeda `$`, link vitalicio, countdown 5min
+- **Data:** 2026-05-08
+- **Contexto:** Replicar a landing `https://premierfcapp.com/bd` (HTML estático baixado via [[SingleFile]], 720KB) dentro do projeto, com slug `/bd` e tradução para [[es-CL]]. A página usa Tailwind e tem 0 JS — mesma stack do projeto.
+- **Decisão 1 — Como integrar ao projeto:** componente React em `src/pages/Bd.tsx` + rota em `src/App.tsx`. Outras opções consideradas: iframe pra `public/bd.html` (escapa de Router/analytics), `dangerouslySetInnerHTML` (anti-padrão, tradução vira string), asset estático em `public/bd/index.html` (SPA fallback intercepta). Escolha alinha 100% com o padrão das outras páginas do projeto.
+- **Decisão 2 — Moeda dos preços:** `$ 37,90 → $ 27,90` (mantém os números, troca `R$` por `$`). Justificativa: o resto do site já usa `$` sem `R` em todos os componentes de checkout/paywall (`PaywallPopup.tsx`, `PlansModal.tsx`, `PaywallEducationStep.tsx`, `Login.tsx` que formata via `toLocaleString('es-CL')`). `R$` quebraria o padrão e confundiria o público chileno.
+- **Decisão 3 — URL do botão CTA:** `https://checkout.premierfc.app/vitalicio` (do catálogo `src/lib/checkoutLinks.ts:CHECKOUT_LINKS.vitalicio`), em vez do link original `checkout.payt.com.br/302d147f...`. Justificativa: o link original é de checkout brasileiro (`.com.br`), não faz sentido pra operação Chile. O `vitalicio` casa exatamente com o copy "Acceso vitalicio • Pago único" da própria página.
+- **Decisão 4 — Countdown:** timer dinâmico de 5min via `useState`+`useEffect`, sem persistência, para em `00:00`. Comportamento típico de landing de oferta. O HTML estático veio congelado em `03:27`, mas a página original usa JS para o timer.
+- **Decisão 5 — Imagens:** decodificar os 2 PNGs base64 inline para `public/bd/payment-methods.png` e `public/bd/guarantee-30d.png`. Mais leve, cacheável, fora do bundle JS. Trade-off: as 2 imagens estão em **português** ("PAGAMENTOS À VISTA", "GARANTIA 30 DIAS") e a de bandeiras inclui Boleto/Pix (meios brasileiros). Registrado como [[débito técnico]] em `docs/debitos-tecnicos.md` — substituir por imagens localizadas (es-CL com WebPay/Servipag).
+- **Decisão 6 — CSS dos blocos `<style>` do SingleFile:** descartar todos os 3 blocos. Os 2 maiores (~430KB) são reset/utilities do Tailwind, já presentes no projeto. O 3º (2,2KB) é CSS do Sonner (toast), também já presente via shadcn-ui. Reaproveitar zero CSS do dump.
+- **Tags:** [[landing]] [[es-CL]] [[Tailwind]] [[checkout]] [[Premier-FC]]
+
+## Estratégia de tradução pt-BR → es-CL: tradução direta no JSX (sem i18next)
+- **Data:** 2026-05-06
+- **Contexto:** Site não tinha nenhuma infra de internacionalização — todas as ~250+ strings estavam hardcoded em português direto no JSX dos componentes. Para a operação Chile, precisava decidir COMO traduzir antes de COMEÇAR a traduzir.
+- **Opções consideradas:**
+  - **Opção A — Instalar [[i18next]] + [[react-i18next]]:** Externalizar todas as strings em arquivos `locales/es-CL.json`, refatorar todo componente para usar hook `t('chave')`. Vantagem: permite multi-idioma futuro com flip de switch. Desvantagem: refactor invasivo (toca 130+ arquivos só pra adicionar `useTranslation()`), nova dependência, novo provider no `App.tsx`, **muda a estrutura existente** — viola restrição explícita do usuário ("não pode alterar a estrutura que existe atualmente").
+  - **Opção B — Tradução direta no JSX:** Substituir cada string em português pela tradução em es-CL no próprio arquivo onde está. Vantagem: diff mínimo (só conteúdo de strings muda), sem nova dependência, sem refactor estrutural, fácil de revisar, alinhado à restrição do usuário. Desvantagem: se um dia precisar suportar múltiplos idiomas no MESMO app, terá que refazer (instalar i18n).
+  - **Opção C — Híbrida (centralizar strings em arquivo `pt.ts` substituível):** Criar um arquivo único de strings que poderia ser substituído. Custo similar à opção A em refactor, sem o benefício de uma lib testada.
+- **Decisão:** Opção B — tradução direta. Como esta é uma operação **dedicada ao Chile** (não app multilíngue) e a restrição "não alterar estrutura" é dura, a tradução direta é a única que atende todas as restrições com o menor risco.
+- **Impacto:** Toca conteúdo de strings em ~130 arquivos `.tsx` mas não muda nenhum import, hook, provider, rota ou contrato de componente. Build, testes e arquitetura permanecem idênticos.
+- **Trade-off aceito:** Para suportar PT+ES juntos no futuro, será necessário refazer o trabalho com i18next. Para a operação Chile, isso é aceitável.
+- **Tags:** [[i18n]] [[es-CL]] [[localização]] [[arquitetura]]
+
+## Banco de dados da operação Chile: novo projeto Supabase via MCP, migrations replicadas
+- **Data:** 2026-05-06
+- **Contexto:** Restrição inegociável: NÃO mexer no Supabase atual (produção). A operação Chile precisa de banco isolado.
+- **Opções consideradas:**
+  - **Opção A — Banco multi-tenant (mesmo Supabase, coluna `country`):** Inviável, viola a restrição.
+  - **Opção B — Novo projeto Supabase + replicar schema via migrations:** O projeto já tem 49 migrations versionadas em `supabase/migrations/`. Criar novo projeto Supabase, conectar via [[Supabase MCP]] (`project_ref=snykhoctikatcpvlcoow`), aplicar todas migrations. Schema fica idêntico, dados começam zerados.
+- **Decisão:** Opção B. Já implementada na config: MCP server adicionado a `.mcp.json` com escopo de projeto.
+- **Impacto:** Usuário precisa autenticar o MCP via `claude /mcp` em terminal interativo (Claude não tem acesso a navegador para OAuth). Após autenticado, Claude pode aplicar migrations no novo projeto via tools MCP.
+- **Tags:** [[Supabase]] [[MCP]] [[multi-tenant]] [[Chile]]
 
 ## Escolha do gerenciador de pacotes: npm ao invés de bun
 - **Data:** 2026-05-06

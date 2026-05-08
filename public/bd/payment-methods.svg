@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 180" width="600" height="180" role="img" aria-label="Métodos de pago aceptados: Mastercard, Visa y American Express">
+  <!-- Outer rounded border -->
+  <rect x="6" y="6" width="588" height="168" rx="14" ry="14" fill="#ffffff" stroke="#0c1633" stroke-width="2"/>
+
+  <!-- Legend: MÉTODOS DE PAGO with decorative side lines -->
+  <line x1="120" y1="32" x2="200" y2="32" stroke="#0c1633" stroke-width="1.5"/>
+  <line x1="400" y1="32" x2="480" y2="32" stroke="#0c1633" stroke-width="1.5"/>
+  <text x="300" y="38" font-family="'Helvetica','Arial',sans-serif" font-weight="700" font-size="20" fill="#0c1633" text-anchor="middle" letter-spacing="2.4">MÉTODOS DE PAGO</text>
+
+  <!-- =========================================== -->
+  <!-- Mastercard logo (centered around x=130) -->
+  <!-- =========================================== -->
+  <g transform="translate(70, 70)">
+    <!-- Two overlapping circles -->
+    <circle cx="50" cy="40" r="34" fill="#EB001B"/>
+    <circle cx="90" cy="40" r="34" fill="#F79E1B"/>
+    <!-- Overlap (orange) -->
+    <path d="M 70 17 A 34 34 0 0 1 70 63 A 34 34 0 0 1 70 17 Z" fill="#FF5F00"/>
+    <!-- "mastercard" wordmark below -->
+    <text x="70" y="98" font-family="'Helvetica','Arial',sans-serif" font-weight="700" font-size="14" fill="#0c1633" text-anchor="middle" letter-spacing="-0.4">mastercard</text>
+  </g>
+
+  <!-- =========================================== -->
+  <!-- Visa logo (centered around x=300) -->
+  <!-- =========================================== -->
+  <g transform="translate(230, 70)">
+    <text x="70" y="55" font-family="'Helvetica','Arial Black',sans-serif" font-style="italic" font-weight="900" font-size="56" fill="#1A1F71" text-anchor="middle" letter-spacing="-1">VISA</text>
+    <!-- Subtle gold underline (signature Visa accent) -->
+    <rect x="35" y="62" width="70" height="3" fill="#F7B600"/>
+  </g>
+
+  <!-- =========================================== -->
+  <!-- American Express logo (centered around x=470) -->
+  <!-- =========================================== -->
+  <g transform="translate(400, 70)">
+    <!-- Blue rectangle -->
+    <rect x="0" y="0" width="140" height="80" rx="4" ry="4" fill="#006FCF"/>
+    <!-- Diagonal subtle accent -->
+    <path d="M 0 80 L 60 0 L 80 0 L 20 80 Z" fill="#0077DD" opacity="0.4"/>
+    <!-- Text AMERICAN -->
+    <text x="70" y="32" font-family="'Helvetica','Arial Black',sans-serif" font-weight="900" font-size="13" fill="#ffffff" text-anchor="middle" letter-spacing="1.5">AMERICAN</text>
+    <!-- Text EXPRESS -->
+    <text x="70" y="55" font-family="'Helvetica','Arial Black',sans-serif" font-weight="900" font-size="13" fill="#ffffff" text-anchor="middle" letter-spacing="1.5">EXPRESS</text>
+    <!-- Decorative bottom strip -->
+    <rect x="0" y="68" width="140" height="2" fill="#ffffff" opacity="0.6"/>
+  </g>
+</svg>

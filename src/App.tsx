@@ -18,6 +18,8 @@ import CasinoGame from "./pages/CasinoGame";
 
 import UltimosGreens from "./pages/UltimosGreens";
 import Support from "./pages/Support";
+import Bd from "./pages/Bd";
+import Obg from "./pages/Obg";
 
 import NotFound from "./pages/NotFound";
 import { AdminGuard } from "./admin/components/AdminGuard";
@@ -95,6 +97,8 @@ const App = () => {
             <Route path="/ultimos-greens" element={<UltimosGreens />} />
             <Route path="/cassino" element={<Casino />} />
             <Route path="/support" element={<Support />} />
+            <Route path="/bd" element={<Bd />} />
+            <Route path="/obg" element={<Obg />} />
             
             
             <Route path="/cassino/:gameId" element={<CasinoGame />} />
