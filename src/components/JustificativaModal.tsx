@@ -11,8 +11,8 @@ interface JustificativaModalProps {
 export const JustificativaModal = ({
   isOpen,
   onClose,
-  titulo = "Justificativa",
-  texto = "Em breve: dados e percentuais do confronto.",
+  titulo = "Justificación",
+  texto = "Próximamente: datos y porcentajes del enfrentamiento.",
 }: JustificativaModalProps) => {
   const buttonRef = useRef<HTMLButtonElement>(null);
 
@@ -93,7 +93,7 @@ export const JustificativaModal = ({
           <button
             onClick={onClose}
             className="absolute top-4 right-4 p-1.5 rounded-lg hover:bg-purple-500/20 transition-colors"
-            aria-label="Fechar"
+            aria-label="Cerrar"
           >
             <X className="w-5 h-5 text-purple-300" />
           </button>
@@ -111,7 +111,7 @@ export const JustificativaModal = ({
             onClick={onClose}
             className="w-full py-3 rounded-xl bg-purple-500/20 border border-purple-500/40 text-purple-200 font-medium hover:bg-purple-500/30 transition-colors"
           >
-            Entendi
+            Entendido
           </button>
         </div>
       </div>

@@ -41,37 +41,37 @@ const PLAN_OPTIONS = [
   { value: "basic", label: "Básico" },
   { value: "pro", label: "Pro" },
   { value: "ultra", label: "Ultra" },
-  { value: "alavancagem", label: "Alavancagem" },
-  { value: "multiplas_bingo", label: "Múltiplas / Bingo" },
-  { value: "vitalicio", label: "Vitalício" },
+  { value: "alavancagem", label: "Apalancamiento" },
+  { value: "multiplas_bingo", label: "Múltiples / Bingo" },
+  { value: "vitalicio", label: "Vitalicio" },
   { value: "live_telegram", label: "Live Telegram" },
 ];
 
 const PLAN_LABELS: Record<string, string> = Object.fromEntries(PLAN_OPTIONS.map(p => [p.value, p.label]));
 
 const AUDIENCE_OPTIONS = [
-  { group: "Gerais", options: [
-    { value: "all", label: "Todos os Usuários" },
-    { value: "all_paid", label: "Todos os Usuários Pagantes" },
-    { value: "all_free", label: "Todos os Usuários Gratuitos" },
+  { group: "Generales", options: [
+    { value: "all", label: "Todos los Usuarios" },
+    { value: "all_paid", label: "Todos los Usuarios Pagados" },
+    { value: "all_free", label: "Todos los Usuarios Gratis" },
   ]},
-  { group: "Planos Base", options: [
-    { value: "has_basic", label: "Possui Plano Básico" },
-    { value: "no_basic", label: "Não Possui Plano Básico" },
-    { value: "has_pro", label: "Possui Plano Pro" },
-    { value: "no_pro", label: "Não Possui Plano Pro" },
-    { value: "has_ultra", label: "Possui Plano Ultra" },
-    { value: "no_ultra", label: "Não Possui Plano Ultra" },
+  { group: "Planes Base", options: [
+    { value: "has_basic", label: "Tiene Plan Básico" },
+    { value: "no_basic", label: "No Tiene Plan Básico" },
+    { value: "has_pro", label: "Tiene Plan Pro" },
+    { value: "no_pro", label: "No Tiene Plan Pro" },
+    { value: "has_ultra", label: "Tiene Plan Ultra" },
+    { value: "no_ultra", label: "No Tiene Plan Ultra" },
   ]},
   { group: "Add-ons", options: [
-    { value: "has_vitalicio", label: "Possui Plano Vitalício" },
-    { value: "no_vitalicio", label: "Não Possui Plano Vitalício" },
-    { value: "has_alavancagem", label: "Possui Add-on Alavancagem" },
-    { value: "no_alavancagem", label: "Não Possui Add-on Alavancagem" },
-    { value: "has_multiplas_bingo", label: "Possui Add-on Múltiplas / Bingo" },
-    { value: "no_multiplas_bingo", label: "Não Possui Add-on Múltiplas / Bingo" },
-    { value: "has_live_telegram", label: "Possui Add-on Live Telegram" },
-    { value: "no_live_telegram", label: "Não Possui Add-on Live Telegram" },
+    { value: "has_vitalicio", label: "Tiene Plan Vitalicio" },
+    { value: "no_vitalicio", label: "No Tiene Plan Vitalicio" },
+    { value: "has_alavancagem", label: "Tiene Add-on Apalancamiento" },
+    { value: "no_alavancagem", label: "No Tiene Add-on Apalancamiento" },
+    { value: "has_multiplas_bingo", label: "Tiene Add-on Múltiples / Bingo" },
+    { value: "no_multiplas_bingo", label: "No Tiene Add-on Múltiples / Bingo" },
+    { value: "has_live_telegram", label: "Tiene Add-on Live Telegram" },
+    { value: "no_live_telegram", label: "No Tiene Add-on Live Telegram" },
   ]},
 ];
 
@@ -227,7 +227,7 @@ export default function AdminPayCards() {
   };
 
   const handleSave = async () => {
-    if (!form.name) { toast.error("Nome é obrigatório"); return; }
+    if (!form.name) { toast.error("El nombre es obligatorio"); return; }
     setSaving(true);
 
     const payload: any = {
@@ -267,7 +267,7 @@ export default function AdminPayCards() {
       if (error) { toast.error(error.message); setSaving(false); return; }
     }
 
-    toast.success(editId ? "Pay Card atualizado" : "Pay Card criado");
+    toast.success(editId ? "Tarjeta de Pago actualizada" : "Tarjeta de Pago creada");
     setShowForm(false);
     load();
     setSaving(false);
@@ -323,52 +323,52 @@ export default function AdminPayCards() {
       <div className="flex items-center justify-between">
         <div>
           <div className="flex items-center gap-3">
-            <h2 className="text-xl font-bold">Pay Cards</h2>
+            <h2 className="text-xl font-bold">Tarjetas de Pago</h2>
             <button
               onClick={() => load()}
               className="p-2 rounded-lg bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-white transition-colors"
-              title="Atualizar"
+              title="Actualizar"
             >
               <RefreshCw className="w-4 h-4" />
             </button>
           </div>
           <p className="text-sm text-muted-foreground mt-0.5">
-            {selectedHouse ? `Casa: ${selectedHouse.name}` : "Sem casa selecionada (global)"}
+            {selectedHouse ? `Casa: ${selectedHouse.name}` : "Sin casa seleccionada (global)"}
           </p>
         </div>
         <Button size="sm" onClick={openCreate}>
-          <Plus className="w-4 h-4" /> Novo Pay Card
+          <Plus className="w-4 h-4" /> Nueva Tarjeta de Pago
         </Button>
       </div>
 
       {loading ? (
         <div className="text-gray-400 py-10 text-center flex items-center justify-center gap-2">
-          <Loader2 className="w-4 h-4 animate-spin" /> Carregando…
+          <Loader2 className="w-4 h-4 animate-spin" /> Cargando…
         </div>
       ) : (
         <Table>
           <TableHeader>
            <TableRow>
-              <TableHead className="w-[100px]">Preview</TableHead>
+              <TableHead className="w-[100px]">Vista previa</TableHead>
               <TableHead className="cursor-pointer select-none" onClick={() => handleSort("name")}>
-                <span className="flex items-center">Nome <SortIcon col="name" /></span>
+                <span className="flex items-center">Nombre <SortIcon col="name" /></span>
               </TableHead>
               <TableHead className="cursor-pointer select-none" onClick={() => handleSort("associated_plan")}>
-                <span className="flex items-center">Plano <SortIcon col="associated_plan" /></span>
+                <span className="flex items-center">Plan <SortIcon col="associated_plan" /></span>
               </TableHead>
               <TableHead className="cursor-pointer select-none" onClick={() => handleSort("location")}>
-                <span className="flex items-center">Localização <SortIcon col="location" /></span>
+                <span className="flex items-center">Ubicación <SortIcon col="location" /></span>
               </TableHead>
               <TableHead className="cursor-pointer select-none" onClick={() => handleSort("target_audience")}>
-                <span className="flex items-center">Público-alvo <SortIcon col="target_audience" /></span>
+                <span className="flex items-center">Público objetivo <SortIcon col="target_audience" /></span>
               </TableHead>
               <TableHead>Popup Intro</TableHead>
               <TableHead>Quiz</TableHead>
-              <TableHead className="text-center">Impressões</TableHead>
-              <TableHead className="text-center">Cliques</TableHead>
+              <TableHead className="text-center">Impresiones</TableHead>
+              <TableHead className="text-center">Clics</TableHead>
               <TableHead className="text-center">CTR</TableHead>
-              <TableHead className="w-[80px]">Status</TableHead>
-              <TableHead className="w-[60px]">Ações</TableHead>
+              <TableHead className="w-[80px]">Estado</TableHead>
+              <TableHead className="w-[60px]">Acciones</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -393,7 +393,7 @@ export default function AdminPayCards() {
                   <TableCell>
                     {(() => {
                       const tags = parseAudienceArray(c.target_audience);
-                      if (tags.length === 0) return <span className="text-xs text-gray-600">Nenhum</span>;
+                      if (tags.length === 0) return <span className="text-xs text-gray-600">Ninguno</span>;
                       if (tags.includes("all")) return <span className="text-xs text-green-400">Todos</span>;
                       return (
                         <div className="flex flex-wrap gap-1 max-w-[200px]">
@@ -409,23 +409,23 @@ export default function AdminPayCards() {
                   </TableCell>
                   <TableCell>
                     <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${c.has_intro_popup ? "bg-green-500/20 text-green-400 border border-green-400/30" : "bg-gray-500/20 text-gray-400 border border-gray-400/30"}`}>
-                      {c.has_intro_popup ? "SIM" : "NÃO"}
+                      {c.has_intro_popup ? "SÍ" : "NO"}
                     </span>
                   </TableCell>
                   <TableCell>
-                    <span className="text-xs text-gray-400">{qCount} pergunta{qCount !== 1 ? "s" : ""}</span>
+                    <span className="text-xs text-gray-400">{qCount} pregunta{qCount !== 1 ? "s" : ""}</span>
                   </TableCell>
                   <TableCell className="text-center text-white text-sm">{m.views}</TableCell>
                   <TableCell className="text-center text-white text-sm">{m.clicks}</TableCell>
                   <TableCell className="text-center text-white text-sm">{ctr}</TableCell>
                   <TableCell>
                     <span className={`text-[10px] px-2 py-1 rounded-full font-medium ${c.is_active ? "bg-green-500/20 text-green-400 border border-green-400/30" : "bg-red-500/20 text-red-400 border border-red-400/30"}`}>
-                      {c.is_active ? "ATIVO" : "INATIVO"}
+                      {c.is_active ? "ACTIVO" : "INACTIVO"}
                     </span>
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-1">
-                      <button onClick={() => setAnalyticsTarget({ id: c.id, name: c.name })} className="text-blue-400 hover:text-blue-300 p-1.5" title="Ver Analytics">
+                      <button onClick={() => setAnalyticsTarget({ id: c.id, name: c.name })} className="text-blue-400 hover:text-blue-300 p-1.5" title="Ver Analítica">
                         <BarChart2 className="w-4 h-4" />
                       </button>
                       <button onClick={() => openEdit(c)} className="text-blue-400 hover:text-blue-300 p-1.5">
@@ -439,7 +439,7 @@ export default function AdminPayCards() {
             {payCards.length === 0 && (
               <TableRow>
                 <TableCell colSpan={12} className="text-center py-8 text-gray-600">
-                  Nenhum Pay Card cadastrado
+                  Ninguna Tarjeta de Pago registrada
                 </TableCell>
               </TableRow>
             )}
@@ -451,36 +451,36 @@ export default function AdminPayCards() {
       <Dialog open={showForm} onOpenChange={(o) => !o && setShowForm(false)}>
         <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-5xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{editId ? "Editar Pay Card" : "Novo Pay Card"}</DialogTitle>
+            <DialogTitle>{editId ? "Editar Tarjeta de Pago" : "Nueva Tarjeta de Pago"}</DialogTitle>
           </DialogHeader>
 
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-6">
             {/* Left Column: Form */}
             <div className="space-y-4">
               <div>
-                <label className="text-xs text-gray-500">Nome do funil *</label>
-                <Input value={form.name} onChange={(e) => set("name", e.target.value)} placeholder="Ex: Funil de Aquisição - Plano Pro" className="bg-gray-900 border-gray-800" />
+                <label className="text-xs text-gray-500">Nombre del embudo *</label>
+                <Input value={form.name} onChange={(e) => set("name", e.target.value)} placeholder="Ej: Embudo de Adquisición - Plan Pro" className="bg-gray-900 border-gray-800" />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs text-gray-500">Localização</label>
+                  <label className="text-xs text-gray-500">Ubicación</label>
                   <select value={form.location} onChange={(e) => set("location", e.target.value)} className="w-full rounded-md bg-gray-900 border border-gray-800 text-sm px-3 py-2">
-                    <option value="">Selecione...</option>
+                    <option value="">Selecciona...</option>
                     <option value="header">Header</option>
                     <option value="sports_tips">Sports Tips</option>
-                    <option value="support">Suporte</option>
-                    <option value="home">Home</option>
-                    <option value="casino">Cassino</option>
+                    <option value="support">Soporte</option>
+                    <option value="home">Inicio</option>
+                    <option value="casino">Casino</option>
                   </select>
                 </div>
                 <div>
-                  <label className="text-xs text-gray-500">Público-alvo (segmentação)</label>
+                  <label className="text-xs text-gray-500">Público objetivo (segmentación)</label>
                   <Popover>
                     <PopoverTrigger asChild>
                       <button className="w-full flex items-center justify-between rounded-md border border-gray-800 bg-gray-900 px-3 py-2 text-sm min-h-[40px] text-left">
                         {form.target_audience.length === 0 ? (
-                          <span className="text-gray-500">Selecione os critérios…</span>
+                          <span className="text-gray-500">Selecciona los criterios…</span>
                         ) : (
                           <div className="flex flex-wrap gap-1 flex-1">
                             {form.target_audience.map(v => (
@@ -535,17 +535,17 @@ export default function AdminPayCards() {
                       </div>
                       {form.target_audience.length > 0 && (
                         <div className="border-t border-gray-700 p-2">
-                          <button onClick={() => set("target_audience", [])} className="text-xs text-gray-500 hover:text-gray-300">Limpar tudo</button>
+                          <button onClick={() => set("target_audience", [])} className="text-xs text-gray-500 hover:text-gray-300">Limpiar todo</button>
                         </div>
                       )}
                     </PopoverContent>
                   </Popover>
-                  <p className="text-[10px] text-gray-600 mt-1">Condição AND: o usuário precisa atender a todos os critérios.</p>
+                  <p className="text-[10px] text-gray-600 mt-1">Condición AND: el usuario debe cumplir con todos los criterios.</p>
                 </div>
               </div>
 
               <div>
-                <label className="text-xs text-gray-500">Plano associado *</label>
+                <label className="text-xs text-gray-500">Plan asociado *</label>
                 <Select value={form.associated_plan} onValueChange={(v) => set("associated_plan", v)}>
                   <SelectTrigger className="bg-gray-900 border-gray-800"><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -563,14 +563,14 @@ export default function AdminPayCards() {
               )}
 
               <div className="flex items-center justify-between">
-                <label className="text-sm">Ativo</label>
+                <label className="text-sm">Activo</label>
                 <Switch checked={form.is_active} onCheckedChange={(v) => set("is_active", v)} />
               </div>
 
               {/* Intro Popup Section */}
               <div className="p-3 rounded-lg bg-gray-800 space-y-3">
                 <div className="flex items-center justify-between">
-                  <label className="text-sm font-medium">🖼️ Popup Introdutório</label>
+                  <label className="text-sm font-medium">🖼️ Popup Introductorio</label>
                   <Switch checked={form.has_intro_popup} onCheckedChange={(v) => set("has_intro_popup", v)} />
                 </div>
 
@@ -578,22 +578,22 @@ export default function AdminPayCards() {
                   <div className="space-y-3 pt-2 border-t border-white/5">
                     <div>
                       <label className="text-xs text-gray-500">Título</label>
-                      <Input value={form.popup_title} onChange={(e) => set("popup_title", e.target.value)} placeholder="Ex: Desbloqueie o poder total!" className="bg-gray-900 border-gray-800" />
+                      <Input value={form.popup_title} onChange={(e) => set("popup_title", e.target.value)} placeholder="Ej: ¡Desbloquea el poder total!" className="bg-gray-900 border-gray-800" />
                     </div>
                     <div>
                       <label className="text-xs text-gray-500">Texto</label>
-                      <Textarea value={form.popup_text} onChange={(e) => set("popup_text", e.target.value)} placeholder="Descrição do popup..." className="bg-gray-900 border-gray-800 text-sm" rows={3} />
+                      <Textarea value={form.popup_text} onChange={(e) => set("popup_text", e.target.value)} placeholder="Descripción del popup..." className="bg-gray-900 border-gray-800 text-sm" rows={3} />
                     </div>
                     <div>
-                      <label className="text-xs text-gray-500">Imagem</label>
+                      <label className="text-xs text-gray-500">Imagen</label>
                       <LogoInput
                         currentPreview={form.popup_image_url || null}
                         onUploadComplete={(url) => set("popup_image_url", url)}
                       />
                     </div>
                     <div>
-                      <label className="text-xs text-gray-500">Texto do botão CTA</label>
-                      <Input value={form.popup_cta_text} onChange={(e) => set("popup_cta_text", e.target.value)} placeholder="Ex: Continuar" className="bg-gray-900 border-gray-800" />
+                      <label className="text-xs text-gray-500">Texto del botón CTA</label>
+                      <Input value={form.popup_cta_text} onChange={(e) => set("popup_cta_text", e.target.value)} placeholder="Ej: Continuar" className="bg-gray-900 border-gray-800" />
                     </div>
                   </div>
                 )}
@@ -604,7 +604,7 @@ export default function AdminPayCards() {
 
               {/* Color Picker */}
               <div className="p-3 rounded-lg bg-gray-800 space-y-3">
-                <label className="text-sm font-medium">🎨 Cor Principal dos Botões</label>
+                <label className="text-sm font-medium">🎨 Color Principal de los Botones</label>
                 <div className="flex items-center gap-3">
                   <input
                     type="color"
@@ -619,11 +619,11 @@ export default function AdminPayCards() {
                     className="bg-gray-900 border-gray-800 flex-1"
                   />
                   {form.button_color && (
-                    <button onClick={() => set("button_color", "")} className="text-xs text-gray-500 hover:text-gray-300">Resetar</button>
+                    <button onClick={() => set("button_color", "")} className="text-xs text-gray-500 hover:text-gray-300">Reiniciar</button>
                   )}
                 </div>
                 </div>
-                <label className="text-sm font-medium mt-3 block">✏️ Cor do Texto dos Botões</label>
+                <label className="text-sm font-medium mt-3 block">✏️ Color del Texto de los Botones</label>
                 <div className="flex items-center gap-3 mt-1">
                   <input
                     type="color"
@@ -641,7 +641,7 @@ export default function AdminPayCards() {
                     <button onClick={() => {
                       const { button_text_color, ...rest } = form.checkout_final_config;
                       set("checkout_final_config", rest);
-                    }} className="text-xs text-gray-500 hover:text-gray-300">Resetar</button>
+                    }} className="text-xs text-gray-500 hover:text-gray-300">Reiniciar</button>
                   )}
                 </div>
 
@@ -649,28 +649,28 @@ export default function AdminPayCards() {
               <div className="p-3 rounded-lg bg-gray-800 space-y-3">
                 <label className="text-sm font-medium">💳 Checkout</label>
                 <div>
-                  <label className="text-xs text-gray-500">Título da oferta</label>
-                  <Input value={form.checkout_title} onChange={(e) => set("checkout_title", e.target.value)} placeholder="Ex: Assine o Plano Pro" className="bg-gray-900 border-gray-800" />
+                  <label className="text-xs text-gray-500">Título de la oferta</label>
+                  <Input value={form.checkout_title} onChange={(e) => set("checkout_title", e.target.value)} placeholder="Ej: Suscríbete al Plan Pro" className="bg-gray-900 border-gray-800" />
                 </div>
                 <div>
-                  <label className="text-xs text-gray-500">URL de checkout (Botão 1)</label>
+                  <label className="text-xs text-gray-500">URL de checkout (Botón 1)</label>
                   <Input value={form.checkout_url} onChange={(e) => set("checkout_url", e.target.value)} placeholder="https://..." className="bg-gray-900 border-gray-800" />
                 </div>
                 <div>
-                  <label className="text-xs text-gray-500">Label do Botão 1 (opcional)</label>
-                  <Input value={form.checkout_label_1} onChange={(e) => set("checkout_label_1", e.target.value)} placeholder="Ex: Comprar somente Pro" className="bg-gray-900 border-gray-800" />
+                  <label className="text-xs text-gray-500">Etiqueta del Botón 1 (opcional)</label>
+                  <Input value={form.checkout_label_1} onChange={(e) => set("checkout_label_1", e.target.value)} placeholder="Ej: Comprar solo Pro" className="bg-gray-900 border-gray-800" />
                 </div>
                 <div>
-                  <label className="text-xs text-gray-500">URL de checkout (Botão 2 - opcional)</label>
-                  <Input value={form.checkout_url_2} onChange={(e) => set("checkout_url_2", e.target.value)} placeholder="https://... (pacote completo)" className="bg-gray-900 border-gray-800" />
+                  <label className="text-xs text-gray-500">URL de checkout (Botón 2 - opcional)</label>
+                  <Input value={form.checkout_url_2} onChange={(e) => set("checkout_url_2", e.target.value)} placeholder="https://... (pack completo)" className="bg-gray-900 border-gray-800" />
                 </div>
                 <div>
-                  <label className="text-xs text-gray-500">Label do Botão 2 (opcional)</label>
-                  <Input value={form.checkout_label_2} onChange={(e) => set("checkout_label_2", e.target.value)} placeholder="Ex: Comprar Pacote Completo" className="bg-gray-900 border-gray-800" />
+                  <label className="text-xs text-gray-500">Etiqueta del Botón 2 (opcional)</label>
+                  <Input value={form.checkout_label_2} onChange={(e) => set("checkout_label_2", e.target.value)} placeholder="Ej: Comprar Pack Completo" className="bg-gray-900 border-gray-800" />
                 </div>
                 <div>
-                  <label className="text-xs text-gray-500">Benefícios (um por linha)</label>
-                  <Textarea value={form.checkout_benefits} onChange={(e) => set("checkout_benefits", e.target.value)} placeholder={"Acesso a todas as tips Pro\nSuporte prioritário\nGrupo exclusivo"} className="bg-gray-900 border-gray-800 text-sm" rows={4} />
+                  <label className="text-xs text-gray-500">Beneficios (uno por línea)</label>
+                  <Textarea value={form.checkout_benefits} onChange={(e) => set("checkout_benefits", e.target.value)} placeholder={"Acceso a todos los tips Pro\nSoporte prioritario\nGrupo exclusivo"} className="bg-gray-900 border-gray-800 text-sm" rows={4} />
                 </div>
 
                 {/* Template selector for checkout */}
@@ -684,7 +684,7 @@ export default function AdminPayCards() {
               </div>
 
               <Button onClick={handleSave} disabled={saving} className="w-full">
-                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : editId ? "Salvar alterações" : "Criar Pay Card"}
+                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : editId ? "Guardar cambios" : "Crear Tarjeta de Pago"}
               </Button>
             </div>
 

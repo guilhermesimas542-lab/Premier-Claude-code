@@ -67,7 +67,7 @@ const SportLayout = () => {
       { type: "wsdk-toggle-selections", data: { selections: pendingTip.selections } },
       ESPORTIVA_ORIGIN
     );
-    toast.success("Tip adicionada ao bilhete!");
+    toast.success("¡Tip añadido al ticket!");
     clearPendingTip();
   };
 
@@ -106,7 +106,7 @@ const SportLayout = () => {
             rel="noopener noreferrer"
             className="flex items-center justify-center w-full h-20 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 border border-primary/30 text-primary font-semibold hover:from-primary/30 hover:to-primary/20 transition-colors"
           >
-            Abrir site de apostas ↗
+            Abrir sitio de apuestas ↗
           </a>
         ) : (
           <div className="w-full mb-2 h-[600px] md:h-auto md:mb-0 md:flex-1 md:min-h-0 bg-gradient-to-br from-muted/40 to-muted/20 rounded-xl overflow-hidden border border-border/30 backdrop-blur-sm">
@@ -122,7 +122,7 @@ const SportLayout = () => {
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center">
-                <p className="text-muted-foreground">Carregando...</p>
+                <p className="text-muted-foreground">Cargando...</p>
               </div>
             )}
           </div>

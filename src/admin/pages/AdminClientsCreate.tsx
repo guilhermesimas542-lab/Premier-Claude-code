@@ -11,10 +11,10 @@ import { toast } from "sonner";
 interface BettingHouseOption { id: string; name: string; }
 
 const ADDON_TOGGLES = [
-  { key: "alavancagem", label: "Alavancagem" },
-  { key: "multiplas_bingo", label: "Múltiplas / Bingo" },
+  { key: "alavancagem", label: "Apalancamiento" },
+  { key: "multiplas_bingo", label: "Múltiples / Bingo" },
   { key: "live_telegram", label: "Live Telegram" },
-  { key: "acesso_vitalicio", label: "Acesso Vitalício" },
+  { key: "acesso_vitalicio", label: "Acceso Vitalicio" },
 ] as const;
 
 export default function AdminClientsCreate() {
@@ -33,8 +33,8 @@ export default function AdminClientsCreate() {
   }, []);
 
   const handleCreate = async () => {
-    if (!email) { toast.error("Email obrigatório"); return; }
-    if (!origin) { toast.error("Origem do usuário obrigatória"); return; }
+    if (!email) { toast.error("Correo obligatorio"); return; }
+    if (!origin) { toast.error("Origen del usuario obligatorio"); return; }
     setSaving(true);
     const finalHouseId = houseId || (houses.length > 0 ? houses[0].id : null);
 
@@ -69,7 +69,7 @@ export default function AdminClientsCreate() {
       }
     }
 
-    toast.success("Cliente criado com sucesso!");
+    toast.success("¡Cliente creado con éxito!");
     setEmail("");
     setTier("free");
     setOrigin("gift");
@@ -80,19 +80,19 @@ export default function AdminClientsCreate() {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-xl font-bold">Cadastrar Novo Cliente</h2>
+      <h2 className="text-xl font-bold">Registrar Nuevo Cliente</h2>
 
       <Card className="bg-card border-border max-w-lg">
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
-            <UserPlus className="w-4 h-4" /> Dados do Cliente
+            <UserPlus className="w-4 h-4" /> Datos del Cliente
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <label className="text-xs text-muted-foreground font-medium">Email *</label>
+            <label className="text-xs text-muted-foreground font-medium">Correo electrónico *</label>
             <Input
-              placeholder="email@exemplo.com"
+              placeholder="correo@ejemplo.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="bg-gray-800 border-gray-700"
@@ -100,12 +100,12 @@ export default function AdminClientsCreate() {
           </div>
 
           <div>
-            <label className="text-xs text-muted-foreground font-medium">Plano</label>
+            <label className="text-xs text-muted-foreground font-medium">Plan</label>
             <Select value={tier} onValueChange={setTier}>
               <SelectTrigger className="bg-gray-800 border-gray-700"><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="free">Free</SelectItem>
-                <SelectItem value="basic">Basic</SelectItem>
+                <SelectItem value="free">Gratis</SelectItem>
+                <SelectItem value="basic">Básico</SelectItem>
                 <SelectItem value="pro">Pro</SelectItem>
                 <SelectItem value="ultra">Ultra</SelectItem>
               </SelectContent>
@@ -113,24 +113,24 @@ export default function AdminClientsCreate() {
           </div>
 
           <div>
-            <label className="text-xs text-muted-foreground font-medium">Origem do Usuário *</label>
+            <label className="text-xs text-muted-foreground font-medium">Origen del Usuario *</label>
             <Select value={origin} onValueChange={setOrigin}>
               <SelectTrigger className="bg-gray-800 border-gray-700"><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="gift">Brinde / Parceria</SelectItem>
-                <SelectItem value="test">Usuário de Teste</SelectItem>
+                <SelectItem value="gift">Regalo / Alianza</SelectItem>
+                <SelectItem value="test">Usuario de Prueba</SelectItem>
               </SelectContent>
             </Select>
             <p className="text-[10px] text-muted-foreground mt-1">
-              Usuários de teste são excluídos dos KPIs financeiros e do módulo de Upsell.
+              Los usuarios de prueba se excluyen de los KPIs financieros y del módulo de Upsell.
             </p>
           </div>
 
           {houses.length > 0 && (
             <div>
-              <label className="text-xs text-muted-foreground font-medium">Casa de Apostas</label>
+              <label className="text-xs text-muted-foreground font-medium">Casa de Apuestas</label>
               <Select value={houseId} onValueChange={setHouseId}>
-                <SelectTrigger className="bg-gray-800 border-gray-700"><SelectValue placeholder="Selecionar casa" /></SelectTrigger>
+                <SelectTrigger className="bg-gray-800 border-gray-700"><SelectValue placeholder="Seleccionar casa" /></SelectTrigger>
                 <SelectContent>
                   {houses.map((h) => <SelectItem key={h.id} value={h.id}>{h.name}</SelectItem>)}
                 </SelectContent>
@@ -152,7 +152,7 @@ export default function AdminClientsCreate() {
           </div>
 
           <Button onClick={handleCreate} disabled={saving} className="w-full">
-            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Criar Cliente"}
+            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Crear Cliente"}
           </Button>
         </CardContent>
       </Card>

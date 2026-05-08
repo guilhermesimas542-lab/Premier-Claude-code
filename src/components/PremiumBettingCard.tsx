@@ -61,19 +61,19 @@ const TIER_GRADIENTS: Record<string, string> = {
 // Helper function to generate bet explanation
 const getBetExplanation = (betChoice: string): string => {
   const betLower = betChoice.toLowerCase();
-  const maisDeMatch = betLower.match(/mais de\s*(\d+[.,]?\d*)/);
-  if (maisDeMatch) {
-    const value = parseFloat(maisDeMatch[1].replace(",", "."));
-    return `Precisa sair ${Math.ceil(value)} ou mais para bater.`;
+  const masDeMatch = betLower.match(/(?:m[aá]s de|mais de)\s*(\d+[.,]?\d*)/);
+  if (masDeMatch) {
+    const value = parseFloat(masDeMatch[1].replace(",", "."));
+    return `Necesita salir ${Math.ceil(value)} o más para ganar.`;
   }
   const menosDeMatch = betLower.match(/menos de\s*(\d+[.,]?\d*)/);
   if (menosDeMatch) {
     const value = parseFloat(menosDeMatch[1].replace(",", "."));
-    return `Precisa ter no máximo ${Math.floor(value)} para bater.`;
+    return `Necesita tener máximo ${Math.floor(value)} para ganar.`;
   }
-  if (betLower === "sim") return "A condição do mercado precisa acontecer.";
-  if (betLower === "não") return "A condição do mercado NÃO pode acontecer.";
-  return "O jogo precisa seguir exatamente essa condição.";
+  if (betLower === "sí" || betLower === "si" || betLower === "sim") return "La condición del mercado tiene que ocurrir.";
+  if (betLower === "no" || betLower === "não") return "La condición del mercado NO puede ocurrir.";
+  return "El partido tiene que seguir exactamente esa condición.";
 };
 
 const formatCountdown = (totalSeconds: number): string => {
@@ -132,7 +132,7 @@ export const PremiumBettingCard = ({
       const now = new Date().getTime();
       const target = new Date(startsAt).getTime();
       const remaining = Math.floor((target - now) / 1000);
-      setCountdown(remaining > 0 ? formatCountdown(remaining) : "AO VIVO");
+      setCountdown(remaining > 0 ? formatCountdown(remaining) : "EN VIVO");
     };
     updateCountdown();
     const interval = setInterval(updateCountdown, 1000);
@@ -177,7 +177,7 @@ export const PremiumBettingCard = ({
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-3" style={{ zIndex: 20, borderRadius: 16 }}>
           {lockedLabel && (
             <span style={{ color: "rgba(255,255,255,0.8)", fontSize: 13, fontWeight: 600, background: "rgba(0,0,0,0.8)", padding: "4px 10px", borderRadius: 6 }}>
-              Exclusivo do {lockedLabel}
+              Exclusivo del {lockedLabel}
             </span>
           )}
           <div style={{ width: 48, height: 48, borderRadius: "50%", background: "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 8px rgba(255,255,255,0.15)" }}>
@@ -188,7 +188,7 @@ export const PremiumBettingCard = ({
             className="animate-pulse-glow-green"
             style={{ padding: "10px 24px", borderRadius: 999, background: "#00FF7F", color: "#000", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 14, border: "none", cursor: "pointer", letterSpacing: "0.5px" }}
           >
-            Adquira já
+            Adquiere ya
           </button>
         </div>
       )}
@@ -234,10 +234,10 @@ export const PremiumBettingCard = ({
           <div style={{ display: "flex", alignItems: "center", gap: 4, width: 70, flexShrink: 0 }}>
             {isLocked ? (
               <span style={{ fontSize: 12, color: "transparent" }}>—</span>
-            ) : countdown === "AO VIVO" ? (
+            ) : countdown === "EN VIVO" ? (
               <>
                 <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#EF4444", display: "inline-block", animation: "pulse 1.5s infinite" }} />
-                <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 12, color: "#EF4444" }}>AO VIVO</span>
+                <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 12, color: "#EF4444" }}>EN VIVO</span>
               </>
             ) : countdown ? (
               <>
@@ -325,7 +325,7 @@ export const PremiumBettingCard = ({
               {betChoice}
             </span>
             <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "flex-end" }}>
-              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 9, color: "#94A3B8" }}>Odd</span>
+              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 9, color: "#94A3B8" }}>Cuota</span>
               <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: 20, color: isExpired ? "#6B7280" : tierColor, lineHeight: 1 }}>
                 {odds.toFixed(2)}
               </span>
@@ -356,7 +356,7 @@ export const PremiumBettingCard = ({
                 textTransform: "uppercase" as const,
               }}
             >
-              {isExpired ? "EXPIRADA" : "ADICIONAR"}
+              {isExpired ? "EXPIRADA" : "AÑADIR"}
             </button>
 
             <div className="relative" ref={betHelpRef}>
@@ -376,7 +376,7 @@ export const PremiumBettingCard = ({
             </div>
 
             <button
-              onClick={() => onOpenJustificativa?.(justificativa || "Em breve: dados e percentuais do confronto.")}
+              onClick={() => onOpenJustificativa?.(justificativa || "Próximamente: datos y porcentajes del enfrentamiento.")}
               style={{ width: 34, height: 34, borderRadius: 8, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
             >
               <BarChart3 className={`w-5 h-5 ${isExpired ? "text-gray-500" : "text-white/80"}`} />

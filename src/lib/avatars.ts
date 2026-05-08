@@ -35,13 +35,13 @@ export function getLockedAvatars(level: number): Avatar[] {
 
 export const LEVEL_TITLES: Record<number, string> = {
   1: 'Novato',
-  2: 'Iniciante',
+  2: 'Principiante',
   3: 'Aprendiz',
-  4: 'Jogador',
+  4: 'Jugador',
   5: 'Veterano',
-  6: 'Expert',
-  7: 'Mestre',
-  8: 'Grão-Mestre',
-  9: 'Lenda',
+  6: 'Experto',
+  7: 'Maestro',
+  8: 'Gran Maestro',
+  9: 'Leyenda',
   10: 'GOAT',
 };

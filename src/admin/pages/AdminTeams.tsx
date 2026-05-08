@@ -79,8 +79,8 @@ export default function AdminTeams() {
   };
 
   const handleSave = async () => {
-    if (!formName.trim()) { toast.error("Nome é obrigatório"); return; }
-    if (!editingTeam && !formLogoUrl) { toast.error("Envie um logo"); return; }
+    if (!formName.trim()) { toast.error("El nombre es obligatorio"); return; }
+    if (!editingTeam && !formLogoUrl) { toast.error("Sube un logo"); return; }
     setSaving(true);
 
     const logoUrl = formLogoUrl || editingTeam?.logo_url || "";
@@ -91,13 +91,13 @@ export default function AdminTeams() {
         .update({ name: formName.trim(), logo_url: logoUrl })
         .eq("id", editingTeam.id);
       if (error) toast.error(error.message);
-      else toast.success("Time atualizado!");
+      else toast.success("¡Equipo actualizado!");
     } else {
       const { error } = await (supabase as any)
         .from("teams")
         .insert({ name: formName.trim(), logo_url: logoUrl });
       if (error) toast.error(error.message);
-      else toast.success("Time adicionado!");
+      else toast.success("¡Equipo añadido!");
     }
 
     setSaving(false);
@@ -107,10 +107,10 @@ export default function AdminTeams() {
   };
 
   const handleDelete = async (team: Team) => {
-    if (!confirm(`Excluir "${team.name}"?`)) return;
+    if (!confirm(`¿Eliminar "${team.name}"?`)) return;
     const { error } = await (supabase as any).from("teams").delete().eq("id", team.id);
     if (error) toast.error(error.message);
-    else { toast.success("Time excluído"); fetchTeams(); fetchTeamUsage(); }
+    else { toast.success("Equipo eliminado"); fetchTeams(); fetchTeamUsage(); }
   };
 
   const toggleSort = (key: typeof sortKey) => {
@@ -143,27 +143,27 @@ export default function AdminTeams() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <h2 className="text-xl font-bold">Gerenciar Times</h2>
+          <h2 className="text-xl font-bold">Gestionar Equipos</h2>
           <span className="px-2 py-0.5 rounded text-xs font-bold bg-white/10 text-white">
             {teams.length}
           </span>
           <button
             onClick={() => { fetchTeams(); fetchTeamUsage(); }}
             className="p-2 rounded-lg bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-white transition-colors"
-            title="Atualizar lista"
+            title="Actualizar lista"
           >
             <RefreshCw className="w-4 h-4" />
           </button>
         </div>
         <Button onClick={openCreate} size="sm">
-          <Plus className="w-4 h-4 mr-1" /> Novo Time
+          <Plus className="w-4 h-4 mr-1" /> Nuevo Equipo
         </Button>
       </div>
 
       <div className="relative max-w-xs">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <Input
-          placeholder="Buscar time..."
+          placeholder="Buscar equipo..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="pl-9 bg-muted/30 border-border"
@@ -183,7 +183,7 @@ export default function AdminTeams() {
                   className="cursor-pointer hover:text-white transition-colors select-none"
                 >
                   <span className="flex items-center gap-1">
-                    Nome
+                    Nombre
                     {sortKey === "name" && (
                       <span className="text-xs">{sortDir === "asc" ? "↑" : "↓"}</span>
                     )}
@@ -200,14 +200,14 @@ export default function AdminTeams() {
                     )}
                   </span>
                 </TableHead>
-                <TableHead className="w-32 text-right">Ações</TableHead>
+                <TableHead className="w-32 text-right">Acciones</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {sortedTeams.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={4} className="text-center text-muted-foreground py-8">
-                    Nenhum time cadastrado
+                    Ningún equipo registrado
                   </TableCell>
                 </TableRow>
               ) : (
@@ -244,21 +244,21 @@ export default function AdminTeams() {
         </div>
       )}
 
-      <p className="text-xs text-muted-foreground">{teams.length} times cadastrados</p>
+      <p className="text-xs text-muted-foreground">{teams.length} equipos registrados</p>
 
       {/* Create/Edit Modal */}
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
         <DialogContent className="bg-background border-border max-w-md">
           <DialogHeader>
-            <DialogTitle>{editingTeam ? "Editar Time" : "Novo Time"}</DialogTitle>
+            <DialogTitle>{editingTeam ? "Editar Equipo" : "Nuevo Equipo"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <label className="text-xs text-muted-foreground">Nome do Time *</label>
+              <label className="text-xs text-muted-foreground">Nombre del Equipo *</label>
               <Input
                 value={formName}
                 onChange={(e) => setFormName(e.target.value)}
-                placeholder="Ex: Flamengo"
+                placeholder="Ej: Colo-Colo"
                 className="bg-muted/30 border-border"
               />
             </div>
@@ -276,7 +276,7 @@ export default function AdminTeams() {
             <Button variant="ghost" onClick={() => setModalOpen(false)}>Cancelar</Button>
             <Button onClick={handleSave} disabled={saving}>
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-              {editingTeam ? "Salvar" : "Adicionar"}
+              {editingTeam ? "Guardar" : "Añadir"}
             </Button>
           </DialogFooter>
         </DialogContent>

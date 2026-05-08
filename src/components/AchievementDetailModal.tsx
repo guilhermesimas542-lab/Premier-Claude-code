@@ -10,34 +10,34 @@ interface Props {
 }
 
 function getUnlockHint(ach: Achievement): string {
-  if (ach.category === 'daily') return 'Complete esta ação hoje';
-  if (ach.category === 'special') return 'Achievement especial — fique atento às promoções!';
+  if (ach.category === 'daily') return 'Completa esta acción hoy';
+  if (ach.category === 'special') return 'Achievement especial — ¡atento a las promociones!';
   if (ach.category === 'streak') {
     const days = ach.condition_value?.days ?? 0;
-    return `Mantenha um streak de ${days} dias consecutivos`;
+    return `Mantén un streak de ${days} días consecutivos`;
   }
   // permanent
   switch (ach.condition_type) {
-    case 'first_login': return 'Já desbloqueado no primeiro login';
-    case 'profile_complete': return 'Defina seu nickname e escolha um avatar';
+    case 'first_login': return 'Ya desbloqueado en el primer inicio de sesión';
+    case 'profile_complete': return 'Define tu nickname y elige un avatar';
     case 'has_plan': {
       const plans = ach.condition_value?.plans ?? [];
       const names: Record<string, string> = { basico: 'Básico', basic: 'Básico', pro: 'Pro', ultra: 'Ultra' };
-      return `Assine o plano ${plans.map((p: string) => names[p] || p).join(' ou ')}`;
+      return `Suscríbete al plan ${plans.map((p: string) => names[p] || p).join(' o ')}`;
     }
     case 'has_entitlement': {
       const key = ach.condition_value?.key ?? '';
-      const names: Record<string, string> = { alavancagem: 'Alavancagem', multiplas_bingo: 'Múltiplas / Bingo', live_telegram: 'Live Telegram', acesso_vitalicio: 'Acesso Vitalício' };
-      return `Adquira o add-on ${names[key] || key}`;
+      const names: Record<string, string> = { alavancagem: 'Alavancagem', multiplas_bingo: 'Múltiples / Bingo', live_telegram: 'Live Telegram', acesso_vitalicio: 'Acceso Vitalicio' };
+      return `Adquiere el add-on ${names[key] || key}`;
     }
     case 'navigation': {
       const screen = ach.condition_value?.screen ?? '';
       const names: Record<string, string> = {
-        casino: 'o Cassino', aviator: 'o Aviator', roleta: 'a Roleta',
-        mines: 'o Mines', football_studio: 'o Football Studio',
-        support: 'o Suporte', last_tickets: 'os Últimos Bilhetes',
+        casino: 'el Casino', aviator: 'el Aviator', roleta: 'la Ruleta',
+        mines: 'el Mines', football_studio: 'el Football Studio',
+        support: 'el Soporte', last_tickets: 'los Últimos Tickets',
       };
-      return `Acesse ${names[screen] || screen} no app`;
+      return `Accede a ${names[screen] || screen} en la app`;
     }
     default: return ach.description;
   }
@@ -48,7 +48,7 @@ export default function AchievementDetailModal({ achievement, userAchievement, i
 
   const unlocked = !!userAchievement;
   const unlockedDate = userAchievement?.unlocked_at
-    ? new Date(userAchievement.unlocked_at).toLocaleDateString('pt-BR')
+    ? new Date(userAchievement.unlocked_at).toLocaleDateString('es-CL')
     : null;
 
   return (
@@ -85,14 +85,14 @@ export default function AchievementDetailModal({ achievement, userAchievement, i
             <div className="space-y-2">
               <div className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl" style={{ background: 'rgba(0,255,0,0.08)', border: '1px solid rgba(0,255,0,0.2)' }}>
                 <Check className="w-4 h-4" style={{ color: '#00FF00' }} />
-                <span className="text-sm" style={{ color: '#00FF00' }}>Desbloqueado em {unlockedDate}</span>
+                <span className="text-sm" style={{ color: '#00FF00' }}>Desbloqueado el {unlockedDate}</span>
               </div>
-              <p className="text-sm font-bold" style={{ color: '#FFD700' }}>+{achievement.xp_reward} XP recebidos</p>
+              <p className="text-sm font-bold" style={{ color: '#FFD700' }}>+{achievement.xp_reward} XP recibidos</p>
             </div>
           ) : (
             <div className="space-y-3">
               <div className="rounded-xl p-3" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                <p className="text-[10px] uppercase tracking-wider mb-1 text-gray-500">Como desbloquear</p>
+                <p className="text-[10px] uppercase tracking-wider mb-1 text-gray-500">Cómo desbloquear</p>
                 <p className="text-sm text-gray-300">{getUnlockHint(achievement)}</p>
               </div>
               <p className="text-sm" style={{ color: '#FFD700' }}>Recompensa: +{achievement.xp_reward} XP</p>

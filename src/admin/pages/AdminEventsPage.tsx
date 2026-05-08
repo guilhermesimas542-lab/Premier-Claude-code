@@ -15,11 +15,11 @@ const getDateStr = (daysAgo: number) => {
 };
 
 const quickFilters = [
-  { label: "Hoje", from: getDateStr(0), to: getDateStr(0), key: 0 },
-  { label: "Ontem", from: getDateStr(1), to: getDateStr(1), key: 1 },
-  { label: "Anteontem", from: getDateStr(2), to: getDateStr(2), key: 2 },
-  { label: "7 dias", from: getDateStr(6), to: getDateStr(0), key: 7 },
-  { label: "30 dias", from: getDateStr(29), to: getDateStr(0), key: 30 },
+  { label: "Hoy", from: getDateStr(0), to: getDateStr(0), key: 0 },
+  { label: "Ayer", from: getDateStr(1), to: getDateStr(1), key: 1 },
+  { label: "Anteayer", from: getDateStr(2), to: getDateStr(2), key: 2 },
+  { label: "7 días", from: getDateStr(6), to: getDateStr(0), key: 7 },
+  { label: "30 días", from: getDateStr(29), to: getDateStr(0), key: 30 },
 ];
 
 export default function AdminEventsPage() {
@@ -104,11 +104,11 @@ export default function AdminEventsPage() {
 
   const handleExportCSV = () => {
     const dataToExport = sorted.length > 0 ? sorted : events;
-    const headers = ["Evento", "Email", "Data"];
+    const headers = ["Evento", "Correo", "Fecha"];
     const rows = dataToExport.map((ev: any) => [
       ev.event_name ?? "",
       ev.users?.email ?? "—",
-      ev.created_at ? new Date(ev.created_at).toLocaleString("pt-BR") : "",
+      ev.created_at ? new Date(ev.created_at).toLocaleString("es-CL") : "",
     ]);
     const csvContent = [headers, ...rows]
       .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(","))
@@ -122,7 +122,7 @@ export default function AdminEventsPage() {
     URL.revokeObjectURL(url);
   };
 
-  if (loading) return <div className="text-muted-foreground">Carregando…</div>;
+  if (loading) return <div className="text-muted-foreground">Cargando…</div>;
 
   return (
     <div className="space-y-4">
@@ -131,7 +131,7 @@ export default function AdminEventsPage() {
         <button
           onClick={() => load()}
           className="p-2 rounded-lg bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-white transition-colors"
-          title="Atualizar"
+          title="Actualizar"
         >
           <RefreshCw className="w-4 h-4" />
         </button>
@@ -161,21 +161,21 @@ export default function AdminEventsPage() {
             onClick={() => { setFilterFrom(""); setFilterTo(""); setFilterEvent(""); setActiveShortcut(null); }}
             className="px-3 py-1 rounded-full text-xs font-bold bg-muted/30 text-muted-foreground hover:bg-muted/50 transition-colors"
           >
-            Limpar
+            Limpiar
           </button>
         </div>
 
         <div className="flex items-center gap-3 flex-wrap">
           <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground">De</span>
+            <span className="text-xs text-muted-foreground">Desde</span>
             <Input type="date" value={filterFrom} onChange={(e) => { setFilterFrom(e.target.value); setActiveShortcut(null); }} className="bg-gray-800 border-gray-700 text-xs h-8 w-40" />
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground">Até</span>
+            <span className="text-xs text-muted-foreground">Hasta</span>
             <Input type="date" value={filterTo} onChange={(e) => { setFilterTo(e.target.value); setActiveShortcut(null); }} className="bg-gray-800 border-gray-700 text-xs h-8 w-40" />
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground">Ação</span>
+            <span className="text-xs text-muted-foreground">Acción</span>
             <select
               value={filterEvent}
               onChange={(e) => setFilterEvent(e.target.value)}
@@ -205,7 +205,7 @@ export default function AdminEventsPage() {
         </div>
 
         <span className="text-xs text-muted-foreground">
-          Exibindo {events.length} eventos
+          Mostrando {events.length} eventos
         </span>
       </div>
 
@@ -224,13 +224,13 @@ export default function AdminEventsPage() {
                 className="px-4 py-2 cursor-pointer select-none hover:text-foreground transition-colors"
                 onClick={() => handleSort("email")}
               >
-                Email <SortIcon col="email" />
+                Correo <SortIcon col="email" />
               </th>
               <th
                 className="px-4 py-2 cursor-pointer select-none hover:text-foreground transition-colors"
                 onClick={() => handleSort("created_at")}
               >
-                Data <SortIcon col="created_at" />
+                Fecha <SortIcon col="created_at" />
               </th>
             </tr>
           </thead>
@@ -250,11 +250,11 @@ export default function AdminEventsPage() {
                     <span className="text-muted-foreground/50">—</span>
                   )}
                 </td>
-                <td className="px-4 py-2 text-xs">{new Date(ev.created_at).toLocaleString("pt-BR")}</td>
+                <td className="px-4 py-2 text-xs">{new Date(ev.created_at).toLocaleString("es-CL")}</td>
               </tr>
             ))}
             {sorted.length === 0 && (
-              <tr><td colSpan={3} className="px-4 py-4 text-center text-muted-foreground">Nenhum evento</td></tr>
+              <tr><td colSpan={3} className="px-4 py-4 text-center text-muted-foreground">Ningún evento</td></tr>
             )}
           </tbody>
         </table>

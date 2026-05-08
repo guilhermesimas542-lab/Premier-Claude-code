@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MessageSquare, Trash2, Image, ChevronUp, ChevronDown, ChevronsUpDown, X, Copy, RefreshCw } from "lucide-react";
 import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { es } from "date-fns/locale";
 import { toast } from "sonner";
 
 interface Feedback {
@@ -24,15 +24,15 @@ type SortDir = "asc" | "desc";
 
 const CATEGORY_COLORS: Record<string, { bg: string; text: string; label: string }> = {
   bug: { bg: "rgba(239,68,68,0.15)", text: "#EF4444", label: "Bug" },
-  sugestao: { bg: "rgba(59,130,246,0.15)", text: "#3B82F6", label: "Sugestão" },
-  duvida: { bg: "rgba(234,179,8,0.15)", text: "#EAB308", label: "Dúvida" },
-  outro: { bg: "rgba(148,163,184,0.15)", text: "#94A3B8", label: "Outro" },
+  sugestao: { bg: "rgba(59,130,246,0.15)", text: "#3B82F6", label: "Sugerencia" },
+  duvida: { bg: "rgba(234,179,8,0.15)", text: "#EAB308", label: "Duda" },
+  outro: { bg: "rgba(148,163,184,0.15)", text: "#94A3B8", label: "Otro" },
 };
 
 const STATUS_COLORS: Record<string, { bg: string; text: string; label: string }> = {
-  novo: { bg: "rgba(0,255,127,0.15)", text: "#00FF7F", label: "Novo" },
-  lido: { bg: "rgba(59,130,246,0.15)", text: "#3B82F6", label: "Lido" },
-  resolvido: { bg: "rgba(148,163,184,0.15)", text: "#94A3B8", label: "Resolvido" },
+  novo: { bg: "rgba(0,255,127,0.15)", text: "#00FF7F", label: "Nuevo" },
+  lido: { bg: "rgba(59,130,246,0.15)", text: "#3B82F6", label: "Leído" },
+  resolvido: { bg: "rgba(148,163,184,0.15)", text: "#94A3B8", label: "Resuelto" },
 };
 
 const getDateStr = (daysAgo: number) => {
@@ -43,11 +43,11 @@ const getDateStr = (daysAgo: number) => {
 
 const datePresets = [
   { label: "Todos", key: "all" },
-  { label: "Hoje", key: "today", from: getDateStr(0), to: getDateStr(0) },
-  { label: "Ontem", key: "yesterday", from: getDateStr(1), to: getDateStr(1) },
-  { label: "Anteontem", key: "anteontem", from: getDateStr(2), to: getDateStr(2) },
-  { label: "7 dias", key: "7d", from: getDateStr(6), to: getDateStr(0) },
-  { label: "30 dias", key: "30d", from: getDateStr(29), to: getDateStr(0) },
+  { label: "Hoy", key: "today", from: getDateStr(0), to: getDateStr(0) },
+  { label: "Ayer", key: "yesterday", from: getDateStr(1), to: getDateStr(1) },
+  { label: "Anteayer", key: "anteontem", from: getDateStr(2), to: getDateStr(2) },
+  { label: "7 días", key: "7d", from: getDateStr(6), to: getDateStr(0) },
+  { label: "30 días", key: "30d", from: getDateStr(29), to: getDateStr(0) },
 ];
 
 export default function AdminFeedback() {
@@ -79,7 +79,7 @@ export default function AdminFeedback() {
     query = query.order(sortField, { ascending: sortDir === "asc" });
 
     const { data, error } = await query;
-    if (error) { console.error(error); toast.error("Erro ao carregar feedbacks"); }
+    if (error) { console.error(error); toast.error("Error al cargar feedbacks"); }
     setFeedbacks((data as Feedback[]) || []);
     setLoading(false);
   }, [filterCategory, filterStatus, customFrom, customTo, sortField, sortDir]);
@@ -91,18 +91,18 @@ export default function AdminFeedback() {
 
   const handleStatusChange = async (id: string, newStatus: string) => {
     const { error } = await (supabase.from("user_feedback" as any).update({ status: newStatus } as any).eq("id", id) as any);
-    if (error) { toast.error("Erro ao atualizar status"); return; }
+    if (error) { toast.error("Error al actualizar el estado"); return; }
     setFeedbacks((prev) => prev.map((f) => (f.id === id ? { ...f, status: newStatus } : f)));
     if (detailFeedback?.id === id) setDetailFeedback((prev) => prev ? { ...prev, status: newStatus } : null);
   };
 
   const handleDelete = async (id: string) => {
     const { error } = await (supabase.from("user_feedback" as any).delete().eq("id", id) as any);
-    if (error) { toast.error("Erro ao excluir"); return; }
+    if (error) { toast.error("Error al eliminar"); return; }
     setFeedbacks((prev) => prev.filter((f) => f.id !== id));
     setDeleteConfirm(null);
     if (detailFeedback?.id === id) { setDetailFeedback(null); setDetailDeleteConfirm(false); }
-    toast.success("Feedback excluído");
+    toast.success("Feedback eliminado");
   };
 
   const toggleSort = (field: SortField) => {
@@ -145,12 +145,12 @@ export default function AdminFeedback() {
 
   const copyEmail = (email: string) => {
     navigator.clipboard.writeText(email);
-    toast.success("Email copiado!");
+    toast.success("¡Correo copiado!");
   };
 
   const copyPhone = (phone: string) => {
     navigator.clipboard.writeText(phone);
-    toast.success("Telefone copiado!");
+    toast.success("¡Teléfono copiado!");
   };
 
   useEffect(() => {
@@ -170,16 +170,16 @@ export default function AdminFeedback() {
       <div>
         <div className="flex items-center gap-3 mb-1">
           <MessageSquare className="w-6 h-6 text-blue-400" />
-          <h1 className="text-2xl font-bold text-white">Feedback dos Clientes</h1>
+          <h1 className="text-2xl font-bold text-white">Feedback de los Clientes</h1>
           <button
             onClick={() => fetchFeedbacks()}
             className="p-2 rounded-lg bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-white transition-colors"
-            title="Atualizar"
+            title="Actualizar"
           >
             <RefreshCw className="w-4 h-4" />
           </button>
         </div>
-        <p className="text-sm text-gray-400">Feedbacks enviados pelos usuários do app</p>
+        <p className="text-sm text-gray-400">Feedbacks enviados por los usuarios de la app</p>
       </div>
 
       {/* Counters */}
@@ -189,7 +189,7 @@ export default function AdminFeedback() {
           <CardContent><p className="text-2xl font-bold text-white">{totalCount}</p></CardContent>
         </Card>
         <Card className="bg-gray-800/50 border-white/10">
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-gray-400">Novos (não lidos)</CardTitle></CardHeader>
+          <CardHeader className="pb-2"><CardTitle className="text-sm text-gray-400">Nuevos (no leídos)</CardTitle></CardHeader>
           <CardContent><p className="text-2xl font-bold" style={{ color: "#00FF7F" }}>{newCount}</p></CardContent>
         </Card>
       </div>
@@ -197,29 +197,29 @@ export default function AdminFeedback() {
       {/* Filters */}
       <div className="space-y-3">
         <div>
-          <span className="text-xs text-gray-500 mr-2">Categoria:</span>
+          <span className="text-xs text-gray-500 mr-2">Categoría:</span>
           <FilterPills
             value={filterCategory}
             onChange={setFilterCategory}
             options={[
               { key: "all", label: "Todos" },
               { key: "bug", label: "Bug" },
-              { key: "sugestao", label: "Sugestão" },
-              { key: "duvida", label: "Dúvida" },
-              { key: "outro", label: "Outro" },
+              { key: "sugestao", label: "Sugerencia" },
+              { key: "duvida", label: "Duda" },
+              { key: "outro", label: "Otro" },
             ]}
           />
         </div>
         <div>
-          <span className="text-xs text-gray-500 mr-2">Status:</span>
+          <span className="text-xs text-gray-500 mr-2">Estado:</span>
           <FilterPills
             value={filterStatus}
             onChange={setFilterStatus}
             options={[
               { key: "all", label: "Todos" },
-              { key: "novo", label: "Novo" },
-              { key: "lido", label: "Lido" },
-              { key: "resolvido", label: "Resolvido" },
+              { key: "novo", label: "Nuevo" },
+              { key: "lido", label: "Leído" },
+              { key: "resolvido", label: "Resuelto" },
             ]}
           />
         </div>
@@ -251,7 +251,7 @@ export default function AdminFeedback() {
           </div>
           <div className="flex items-center gap-2 mt-1">
             <Input type="date" value={customFrom} onChange={(e) => { setCustomFrom(e.target.value); setDatePreset("custom"); }} className="bg-gray-800 border-gray-700 text-xs h-8 w-40" />
-            <span className="text-xs text-muted-foreground">até</span>
+            <span className="text-xs text-muted-foreground">hasta</span>
             <Input type="date" value={customTo} onChange={(e) => { setCustomTo(e.target.value); setDatePreset("custom"); }} className="bg-gray-800 border-gray-700 text-xs h-8 w-40" />
           </div>
         </div>
@@ -263,27 +263,27 @@ export default function AdminFeedback() {
           <thead className="bg-gray-800/60 text-gray-400 text-xs uppercase">
             <tr>
               <th className="px-4 py-3 cursor-pointer hover:text-white" onClick={() => toggleSort("email")}>
-                Email <SortIcon field="email" />
+                Correo <SortIcon field="email" />
               </th>
               <th className="px-4 py-3 cursor-pointer hover:text-white" onClick={() => toggleSort("category")}>
-                Categoria <SortIcon field="category" />
+                Categoría <SortIcon field="category" />
               </th>
-              <th className="px-4 py-3">Mensagem</th>
-              <th className="px-4 py-3">Screenshot</th>
+              <th className="px-4 py-3">Mensaje</th>
+              <th className="px-4 py-3">Captura</th>
               <th className="px-4 py-3 cursor-pointer hover:text-white" onClick={() => toggleSort("created_at")}>
-                Data <SortIcon field="created_at" />
+                Fecha <SortIcon field="created_at" />
               </th>
               <th className="px-4 py-3 cursor-pointer hover:text-white" onClick={() => toggleSort("status")}>
-                Status <SortIcon field="status" />
+                Estado <SortIcon field="status" />
               </th>
-              <th className="px-4 py-3">Ações</th>
+              <th className="px-4 py-3">Acciones</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5">
             {loading ? (
-              <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-500">Carregando...</td></tr>
+              <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-500">Cargando...</td></tr>
             ) : feedbacks.length === 0 ? (
-              <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-500">Nenhum feedback encontrado</td></tr>
+              <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-500">Ningún feedback encontrado</td></tr>
             ) : (
               feedbacks.map((fb) => {
                 const cat = CATEGORY_COLORS[fb.category] || CATEGORY_COLORS.outro;
@@ -307,7 +307,7 @@ export default function AdminFeedback() {
                       )}
                     </td>
                     <td className="px-4 py-3 text-gray-400 text-xs whitespace-nowrap">
-                      {format(new Date(fb.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                      {format(new Date(fb.created_at), "dd/MM/yyyy HH:mm", { locale: es })}
                     </td>
                     <td className="px-4 py-3">
                       <select
@@ -316,19 +316,19 @@ export default function AdminFeedback() {
                         className="rounded-lg px-2 py-1 text-[10px] font-bold border-0 outline-none cursor-pointer"
                         style={{ background: st.bg, color: st.text }}
                       >
-                        <option value="novo">Novo</option>
-                        <option value="lido">Lido</option>
-                        <option value="resolvido">Resolvido</option>
+                        <option value="novo">Nuevo</option>
+                        <option value="lido">Leído</option>
+                        <option value="resolvido">Resuelto</option>
                       </select>
                     </td>
                     <td className="px-4 py-3">
                       {deleteConfirm === fb.id ? (
                         <div className="flex gap-1">
                           <Button size="sm" variant="destructive" className="h-6 text-[10px] px-2" onClick={() => handleDelete(fb.id)}>
-                            Sim
+                            Sí
                           </Button>
                           <Button size="sm" variant="ghost" className="h-6 text-[10px] px-2 text-gray-400" onClick={() => setDeleteConfirm(null)}>
-                            Não
+                            No
                           </Button>
                         </div>
                       ) : (
@@ -382,15 +382,15 @@ export default function AdminFeedback() {
                   className="rounded-lg px-3 py-1 text-xs font-bold border-0 outline-none cursor-pointer"
                   style={{ background: st.bg, color: st.text }}
                 >
-                  <option value="novo">Novo</option>
-                  <option value="lido">Lido</option>
-                  <option value="resolvido">Resolvido</option>
+                  <option value="novo">Nuevo</option>
+                  <option value="lido">Leído</option>
+                  <option value="resolvido">Resuelto</option>
                 </select>
               </div>
 
               {/* Email */}
               <div>
-                <p className="text-[10px] text-gray-500 mb-1">Email</p>
+                <p className="text-[10px] text-gray-500 mb-1">Correo</p>
                 <button
                   onClick={() => copyEmail(fb.email)}
                   className="flex items-center gap-2 text-sm text-white hover:text-blue-400 transition-colors"
@@ -402,7 +402,7 @@ export default function AdminFeedback() {
 
               {/* Telefone */}
               <div>
-                <p className="text-[10px] text-gray-500 mb-1">Telefone</p>
+                <p className="text-[10px] text-gray-500 mb-1">Teléfono</p>
                 {detailPhone ? (
                   <button
                     onClick={() => copyPhone(detailPhone)}
@@ -418,15 +418,15 @@ export default function AdminFeedback() {
 
               {/* Date */}
               <div>
-                <p className="text-[10px] text-gray-500 mb-1">Data</p>
+                <p className="text-[10px] text-gray-500 mb-1">Fecha</p>
                 <p className="text-sm text-gray-300">
-                  {format(new Date(fb.created_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                  {format(new Date(fb.created_at), "dd/MM/yyyy 'a las' HH:mm", { locale: es })}
                 </p>
               </div>
 
               {/* Message */}
               <div>
-                <p className="text-[10px] text-gray-500 mb-1">Mensagem</p>
+                <p className="text-[10px] text-gray-500 mb-1">Mensaje</p>
                 <div
                   className="rounded-xl p-4 text-sm text-gray-200 whitespace-pre-wrap max-h-[200px] overflow-y-auto"
                   style={{ background: "#0D1929", border: "1px solid rgba(255,255,255,0.08)" }}
@@ -438,7 +438,7 @@ export default function AdminFeedback() {
               {/* Screenshot */}
               {fb.screenshot_url && (
                 <div>
-                  <p className="text-[10px] text-gray-500 mb-1">Screenshot</p>
+                  <p className="text-[10px] text-gray-500 mb-1">Captura de pantalla</p>
                   <a href={fb.screenshot_url} target="_blank" rel="noopener noreferrer">
                     <img
                       src={fb.screenshot_url}
@@ -458,7 +458,7 @@ export default function AdminFeedback() {
                     className="bg-blue-600 hover:bg-blue-700 text-white text-xs"
                     onClick={() => handleStatusChange(fb.id, "lido")}
                   >
-                    Marcar como Lido
+                    Marcar como Leído
                   </Button>
                 )}
                 {(fb.status === "novo" || fb.status === "lido") && (
@@ -468,17 +468,17 @@ export default function AdminFeedback() {
                     style={{ background: "#00CC66", color: "#000" }}
                     onClick={() => handleStatusChange(fb.id, "resolvido")}
                   >
-                    Marcar como Resolvido
+                    Marcar como Resuelto
                   </Button>
                 )}
                 {detailDeleteConfirm ? (
                   <div className="flex gap-1 ml-auto">
-                    <span className="text-xs text-red-400 self-center mr-1">Confirmar?</span>
+                    <span className="text-xs text-red-400 self-center mr-1">¿Confirmar?</span>
                     <Button size="sm" variant="destructive" className="text-xs" onClick={() => handleDelete(fb.id)}>
-                      Sim, excluir
+                      Sí, eliminar
                     </Button>
                     <Button size="sm" variant="ghost" className="text-xs text-gray-400" onClick={() => setDetailDeleteConfirm(false)}>
-                      Não
+                      No
                     </Button>
                   </div>
                 ) : (
@@ -488,7 +488,7 @@ export default function AdminFeedback() {
                     className="text-xs ml-auto"
                     onClick={() => setDetailDeleteConfirm(true)}
                   >
-                    Excluir
+                    Eliminar
                   </Button>
                 )}
                 <Button
@@ -497,7 +497,7 @@ export default function AdminFeedback() {
                   className="text-xs text-gray-400 border-gray-600"
                   onClick={() => setDetailFeedback(null)}
                 >
-                  Fechar
+                  Cerrar
                 </Button>
               </div>
             </div>

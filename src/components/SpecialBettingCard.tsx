@@ -77,9 +77,9 @@ export const SpecialBettingCard = ({
 
   const getFixedJustificativaTexto = () => {
     if (type === "ALAVANCAGEM") {
-      return "Alavancagem é uma sequência progressiva de entradas, feita em etapas.\n\nVocê segue a ordem do dia e avança etapa por etapa, sem pular.\n\nO foco é progressão controlada: consistência, disciplina e crescimento gradual da banca.";
+      return "Apalancamiento es una secuencia progresiva de tips, hecha en etapas.\n\nSigues el orden del día y avanzas etapa por etapa, sin saltarte ninguna.\n\nEl foco es la progresión controlada: consistencia, disciplina y crecimiento gradual de la banca.";
     }
-    return "Múltiplas / Bingo são combinações de seleções em um único bilhete, com payout potencializado.\n\nA ideia é aproveitar combinações estratégicas onde existe lógica e critério por trás da entrada.\n\nVocê recebe o bilhete pronto e entra somente quando a oportunidade estiver disponível.";
+    return "Múltiples / Bingo son combinaciones de selecciones en un único ticket, con payout potenciado.\n\nLa idea es aprovechar combinaciones estratégicas donde hay lógica y criterio detrás del tip.\n\nRecibes el ticket listo y entras solo cuando la oportunidad esté disponible.";
   };
 
   const handleOpenJustificativaClick = () => {
@@ -136,7 +136,7 @@ export const SpecialBettingCard = ({
             className="animate-pulse-glow-green"
             style={{ padding: "10px 24px", borderRadius: 999, background: "#00FF7F", color: "#000", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 14, border: "none", cursor: "pointer", letterSpacing: "0.5px" }}
           >
-            Adquira já
+            Adquiérelo ya
           </button>
         </div>
       )}
@@ -267,7 +267,7 @@ export const SpecialBettingCard = ({
                 textTransform: "uppercase" as const,
               }}
             >
-              {isExpired ? "EXPIRADA" : "ADICIONAR"}
+              {isExpired ? "EXPIRADA" : "AÑADIR"}
             </button>
 
             <button

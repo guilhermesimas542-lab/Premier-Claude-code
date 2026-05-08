@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AlertTriangle, Bug, Download, ChevronDown, ChevronUp, Users, Hash, RefreshCw } from "lucide-react";
 import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { es } from "date-fns/locale";
 
 interface AppError {
   id: string;
@@ -33,12 +33,12 @@ interface GroupedError {
 }
 
 const periods = [
-  { label: "Hoje", days: 0 },
-  { label: "Ontem", days: 1 },
-  { label: "Anteontem", days: 2 },
-  { label: "7 dias", days: 7 },
-  { label: "30 dias", days: 30 },
-  { label: "90 dias", days: 90 },
+  { label: "Hoy", days: 0 },
+  { label: "Ayer", days: 1 },
+  { label: "Anteayer", days: 2 },
+  { label: "7 días", days: 7 },
+  { label: "30 días", days: 30 },
+  { label: "90 días", days: 90 },
 ];
 
 export default function AdminErrors() {
@@ -127,7 +127,7 @@ export default function AdminErrors() {
   const uniqueFingerprints = grouped.length;
 
   const exportCSV = () => {
-    const header = "Fingerprint,Mensagem,Ocorrências,Usuários,Telas,Último Erro\n";
+    const header = "Fingerprint,Mensaje,Ocurrencias,Usuarios,Pantallas,Último Error\n";
     const rows = grouped
       .map(
         (g) =>
@@ -138,7 +138,7 @@ export default function AdminErrors() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `erros-${format(new Date(), "yyyy-MM-dd")}.csv`;
+    a.download = `errores-${format(new Date(), "yyyy-MM-dd")}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -150,18 +150,18 @@ export default function AdminErrors() {
         <div>
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-              <Bug className="w-6 h-6 text-red-400" /> Erros do App
+              <Bug className="w-6 h-6 text-red-400" /> Errores de la App
             </h1>
             <button
               onClick={() => load()}
               className="p-2 rounded-lg bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-white transition-colors"
-              title="Atualizar"
+              title="Actualizar"
             >
               <RefreshCw className="w-4 h-4" />
             </button>
           </div>
           <p className="text-sm text-gray-400 mt-1">
-            Erros JavaScript capturados automaticamente no frontend
+            Errores JavaScript capturados automáticamente en el frontend
             {selectedHouse && <span className="text-blue-400 ml-1">— {selectedHouse.name}</span>}
           </p>
         </div>
@@ -189,7 +189,7 @@ export default function AdminErrors() {
         </div>
         <div className="flex items-center gap-2">
           <Input type="date" value={customFrom} onChange={(e) => { setCustomFrom(e.target.value); setPeriodDays(-1); }} className="bg-gray-800 border-gray-700 text-xs h-8 w-40" />
-          <span className="text-xs text-muted-foreground">até</span>
+          <span className="text-xs text-muted-foreground">hasta</span>
           <Input type="date" value={customTo} onChange={(e) => { setCustomTo(e.target.value); setPeriodDays(-1); }} className="bg-gray-800 border-gray-700 text-xs h-8 w-40" />
         </div>
       </div>
@@ -198,7 +198,7 @@ export default function AdminErrors() {
       <div className="grid grid-cols-2 gap-4">
         <Card className="bg-gray-900 border-white/10">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-gray-400 font-normal">Total de Erros</CardTitle>
+            <CardTitle className="text-sm text-gray-400 font-normal">Total de Errores</CardTitle>
           </CardHeader>
           <CardContent>
             <span className="text-3xl font-bold text-red-400">{totalErrors}</span>
@@ -206,7 +206,7 @@ export default function AdminErrors() {
         </Card>
         <Card className="bg-gray-900 border-white/10">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-gray-400 font-normal">Erros Únicos</CardTitle>
+            <CardTitle className="text-sm text-gray-400 font-normal">Errores Únicos</CardTitle>
           </CardHeader>
           <CardContent>
             <span className="text-3xl font-bold text-amber-400">{uniqueFingerprints}</span>
@@ -216,11 +216,11 @@ export default function AdminErrors() {
 
       {/* Error list */}
       {loading ? (
-        <p className="text-gray-500 text-sm">Carregando...</p>
+        <p className="text-gray-500 text-sm">Cargando...</p>
       ) : grouped.length === 0 ? (
         <div className="text-center py-16 text-gray-500">
           <AlertTriangle className="w-10 h-10 mx-auto mb-3 opacity-40" />
-          <p>Nenhum erro encontrado no período.</p>
+          <p>Ningún error encontrado en el período.</p>
         </div>
       ) : (
         <div className="space-y-2">
@@ -244,14 +244,14 @@ export default function AdminErrors() {
                       </span>
                       <span className="flex items-center gap-1">
                         <Users className="w-3 h-3" />
-                        {g.uniqueUsers} usuário{g.uniqueUsers !== 1 ? "s" : ""}
+                        {g.uniqueUsers} usuario{g.uniqueUsers !== 1 ? "s" : ""}
                       </span>
                       {g.screens[0] && <span>📍 {g.screens[0]}</span>}
                       {g.component && (
                         <span className="text-gray-600">via {g.component}</span>
                       )}
                       <span>
-                        {format(new Date(g.lastOccurrence), "dd/MM HH:mm", { locale: ptBR })}
+                        {format(new Date(g.lastOccurrence), "dd/MM HH:mm", { locale: es })}
                       </span>
                     </div>
                   </div>

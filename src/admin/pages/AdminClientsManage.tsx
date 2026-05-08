@@ -47,16 +47,16 @@ const UPSELL_KEYS = ["alavancagem", "multiplas_bingo", "acesso_vitalicio", "live
 const PAGE_SIZE = 200;
 
 const UPSELL_LABELS: Record<string, string> = {
-  alavancagem: "Alavancagem",
-  multiplas_bingo: "Múltiplas / Bingo",
-  acesso_vitalicio: "Vitalício",
+  alavancagem: "Apalancamiento",
+  multiplas_bingo: "Múltiples / Bingo",
+  acesso_vitalicio: "Vitalicio",
   live_telegram: "Live",
 };
 
 const UPSELL_BADGES = [
-  { key: "alavancagem", letter: "A", activeColor: "bg-blue-500 text-white", title: "Alavancagem" },
-  { key: "multiplas_bingo", letter: "M", activeColor: "bg-yellow-500 text-white", title: "Múltiplas / Bingo" },
-  { key: "acesso_vitalicio", letter: "V", activeColor: "bg-purple-500 text-white", title: "Vitalício" },
+  { key: "alavancagem", letter: "A", activeColor: "bg-blue-500 text-white", title: "Apalancamiento" },
+  { key: "multiplas_bingo", letter: "M", activeColor: "bg-yellow-500 text-white", title: "Múltiples / Bingo" },
+  { key: "acesso_vitalicio", letter: "V", activeColor: "bg-purple-500 text-white", title: "Vitalicio" },
   { key: "live_telegram", letter: "L", activeColor: "bg-green-500 text-white", title: "Live" },
 ];
 
@@ -121,24 +121,24 @@ function sortUsers(users: UserWithUpsells[], key: SortKey, dir: SortDir): UserWi
 }
 
 const ADDON_TOGGLES = [
-  { key: "alavancagem", label: "Alavancagem" },
-  { key: "multiplas_bingo", label: "Múltiplas / Bingo" },
+  { key: "alavancagem", label: "Apalancamiento" },
+  { key: "multiplas_bingo", label: "Múltiples / Bingo" },
   { key: "live_telegram", label: "Live Telegram" },
-  { key: "acesso_vitalicio", label: "Vitalício" },
+  { key: "acesso_vitalicio", label: "Vitalicio" },
 ] as const;
 
 const TIER_PILLS = [
-  { value: "free", label: "Free" },
+  { value: "free", label: "Gratis" },
   { value: "basic", label: "Básico" },
   { value: "pro", label: "Pro" },
   { value: "ultra", label: "Ultra" },
 ] as const;
 
 const ADDON_PILLS = [
-  { value: "alavancagem", label: "Alavancagem" },
-  { value: "multiplas_bingo", label: "Múltiplas / Bingo" },
+  { value: "alavancagem", label: "Apalancamiento" },
+  { value: "multiplas_bingo", label: "Múltiples / Bingo" },
   { value: "live_telegram", label: "Live Telegram" },
-  { value: "acesso_vitalicio", label: "Acesso Vitalício" },
+  { value: "acesso_vitalicio", label: "Acceso Vitalicio" },
 ] as const;
 
 export default function AdminClientsManage() {
@@ -440,18 +440,18 @@ export default function AdminClientsManage() {
       const { error } = await supabase.from("users").delete().in("id", ids);
       if (error) throw error;
 
-      toast.success(`${ids.length} cliente${ids.length !== 1 ? "s" : ""} excluído${ids.length !== 1 ? "s" : ""} com sucesso`);
+      toast.success(`${ids.length} cliente${ids.length !== 1 ? "s" : ""} eliminado${ids.length !== 1 ? "s" : ""} con éxito`);
       setSelectedIds(new Set());
       setShowBulkDelete(false);
       load();
     } catch (err: any) {
-      toast.error("Erro ao excluir: " + (err?.message ?? "erro desconhecido"));
+      toast.error("Error al eliminar: " + (err?.message ?? "error desconocido"));
     }
     setBulkDeleting(false);
   };
 
   const handleCreate = async () => {
-    if (!newEmail) { toast.error("Email obrigatório"); return; }
+    if (!newEmail) { toast.error("Correo obligatorio"); return; }
     setSaving(true);
     let houseId = newHouseId;
     if (!houseId && houses.length > 0) houseId = houses[0].id;
@@ -459,7 +459,7 @@ export default function AdminClientsManage() {
       .from("users")
       .insert({ email: newEmail.toLowerCase().trim(), main_tier: newTier as any, betting_house_id: houseId || null, origin: newOrigin } as any);
     if (error) toast.error(error.message);
-    else { toast.success("Cliente criado"); setShowCreate(false); setNewEmail(""); setNewHouseId(""); setNewOrigin("gift"); load(); }
+    else { toast.success("Cliente creado"); setShowCreate(false); setNewEmail(""); setNewHouseId(""); setNewOrigin("gift"); load(); }
     setSaving(false);
   };
 
@@ -502,7 +502,7 @@ export default function AdminClientsManage() {
       }
     }
 
-    toast.success("Atualizado");
+    toast.success("Actualizado");
     setEditUser(null);
     load();
     setSaving(false);
@@ -513,59 +513,59 @@ export default function AdminClientsManage() {
     setDeleting(true);
     const { error } = await supabase.from("users").delete().eq("id", deleteUser.id);
     if (error) toast.error(error.message);
-    else { toast.success("Cliente excluído"); setDeleteUser(null); load(); }
+    else { toast.success("Cliente eliminado"); setDeleteUser(null); load(); }
     setDeleting(false);
   };
 
   const fmt = (d: string | null) =>
-    d ? new Date(d).toLocaleString("pt-BR", {
+    d ? new Date(d).toLocaleString("es-CL", {
       year: "numeric", month: "2-digit", day: "2-digit",
       hour: "2-digit", minute: "2-digit", second: "2-digit",
     }) : "—";
 
   const handleCopyFilteredEmails = async () => {
-    toast.info("Buscando todos os emails filtrados...");
+    toast.info("Buscando todos los correos filtrados...");
     try {
       const allUsers = await fetchAllFiltered("email");
       const emails = allUsers.map((u: any) => u.email).filter(Boolean);
       if (emails.length === 0) {
-        toast.error("Nenhum email nos resultados filtrados.");
+        toast.error("Ningún correo en los resultados filtrados.");
         return;
       }
       await navigator.clipboard.writeText(emails.join(", "));
-      toast.success(`${emails.length} emails copiados (todos os filtrados)!`);
+      toast.success(`¡${emails.length} correos copiados (todos los filtrados)!`);
     } catch {
-      toast.error("Erro ao copiar emails.");
+      toast.error("Error al copiar correos.");
     }
   };
 
   const handleCopyFilteredPhones = async () => {
-    toast.info("Buscando todos os telefones filtrados...");
+    toast.info("Buscando todos los teléfonos filtrados...");
     try {
       const allUsers = await fetchAllFiltered("phone");
       const phones = allUsers.map((u: any) => u.phone).filter(Boolean);
       if (phones.length === 0) {
-        toast.error("Nenhum telefone nos resultados filtrados.");
+        toast.error("Ningún teléfono en los resultados filtrados.");
         return;
       }
       await navigator.clipboard.writeText(phones.join(", "));
-      toast.success(`${phones.length} telefones copiados (todos os filtrados)!`);
+      toast.success(`¡${phones.length} teléfonos copiados (todos los filtrados)!`);
     } catch {
-      toast.error("Erro ao copiar telefones.");
+      toast.error("Error al copiar teléfonos.");
     }
   };
 
   const handleExportCSV = () => {
-    const headers = ["Email", "Telefone", "Plano", "Casa", "Liberação", "1º Acesso", "Último Acesso", "Acessou"];
+    const headers = ["Correo", "Teléfono", "Plan", "Casa", "Liberación", "1er Acceso", "Último Acceso", "Accedió"];
     const rows = users.map((u: any) => [
       u.email ?? "",
       u.phone ?? "",
       u.main_tier ?? "",
       "Esportiva Bet",
-      u.created_at ? new Date(u.created_at).toLocaleString("pt-BR") : "",
-      u.first_access_at ? new Date(u.first_access_at).toLocaleString("pt-BR") : "Não acessou",
-      u.last_seen_at ? new Date(u.last_seen_at).toLocaleString("pt-BR") : "—",
-      u.first_access_at ? "Sim" : "Não",
+      u.created_at ? new Date(u.created_at).toLocaleString("es-CL") : "",
+      u.first_access_at ? new Date(u.first_access_at).toLocaleString("es-CL") : "No accedió",
+      u.last_seen_at ? new Date(u.last_seen_at).toLocaleString("es-CL") : "—",
+      u.first_access_at ? "Sí" : "No",
     ]);
     const csvContent = [headers, ...rows]
       .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(","))
@@ -580,23 +580,23 @@ export default function AdminClientsManage() {
   };
 
   const handleExportAll = async () => {
-    toast.info("Exportando todos os clientes filtrados...");
+    toast.info("Exportando todos los clientes filtrados...");
     try {
       const allUsers = await fetchAllFiltered("*");
       if (!allUsers || allUsers.length === 0) {
-        toast.error("Nenhum cliente encontrado.");
+        toast.error("Ningún cliente encontrado.");
         return;
       }
-      const headers = ["Email", "Telefone", "Plano", "Casa", "Liberação", "1º Acesso", "Último Acesso", "Acessou"];
+      const headers = ["Correo", "Teléfono", "Plan", "Casa", "Liberación", "1er Acceso", "Último Acceso", "Accedió"];
       const rows = allUsers.map((u: any) => [
         u.email ?? "",
         u.phone ?? "",
         u.main_tier ?? "",
         "Esportiva Bet",
-        u.created_at ? new Date(u.created_at).toLocaleString("pt-BR") : "",
-        u.first_access_at ? new Date(u.first_access_at).toLocaleString("pt-BR") : "Não acessou",
-        u.last_seen_at ? new Date(u.last_seen_at).toLocaleString("pt-BR") : "—",
-        u.first_access_at ? "Sim" : "Não",
+        u.created_at ? new Date(u.created_at).toLocaleString("es-CL") : "",
+        u.first_access_at ? new Date(u.first_access_at).toLocaleString("es-CL") : "No accedió",
+        u.last_seen_at ? new Date(u.last_seen_at).toLocaleString("es-CL") : "—",
+        u.first_access_at ? "Sí" : "No",
       ]);
       const csvContent = [headers, ...rows]
         .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(","))
@@ -608,9 +608,9 @@ export default function AdminClientsManage() {
       a.download = `clientes_premier_todos_${new Date().toISOString().split("T")[0]}.csv`;
       a.click();
       URL.revokeObjectURL(url);
-      toast.success(`${allUsers.length} clientes exportados!`);
+      toast.success(`¡${allUsers.length} clientes exportados!`);
     } catch {
-      toast.error("Erro ao exportar.");
+      toast.error("Error al exportar.");
     }
   };
 
@@ -624,13 +624,13 @@ export default function AdminClientsManage() {
           <button
             onClick={() => load()}
             className="p-2 rounded-lg bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-white transition-colors"
-            title="Atualizar lista"
+            title="Actualizar lista"
           >
             <RefreshCw className="w-4 h-4" />
           </button>
         </div>
         <Button size="sm" onClick={() => setShowCreate(true)}>
-          <Plus className="w-4 h-4" /> Novo
+          <Plus className="w-4 h-4" /> Nuevo
         </Button>
       </div>
 
@@ -638,14 +638,14 @@ export default function AdminClientsManage() {
       {someSelected && (
         <div className="bg-red-950/40 border border-red-500/30 rounded-xl px-4 py-3 flex items-center justify-between">
           <span className="text-sm text-red-300 font-medium">
-            ✓ {selectedIds.size} cliente{selectedIds.size !== 1 ? "s" : ""} selecionado{selectedIds.size !== 1 ? "s" : ""}
+            ✓ {selectedIds.size} cliente{selectedIds.size !== 1 ? "s" : ""} seleccionado{selectedIds.size !== 1 ? "s" : ""}
           </span>
           <div className="flex items-center gap-2">
             <Button size="sm" variant="destructive" onClick={() => setShowBulkDelete(true)}>
-              <Trash2 className="w-3.5 h-3.5 mr-1" /> Excluir selecionados
+              <Trash2 className="w-3.5 h-3.5 mr-1" /> Eliminar seleccionados
             </Button>
             <Button size="sm" variant="outline" className="border-gray-700 text-gray-400" onClick={() => setSelectedIds(new Set())}>
-              <X className="w-3.5 h-3.5 mr-1" /> Cancelar seleção
+              <X className="w-3.5 h-3.5 mr-1" /> Cancelar selección
             </Button>
           </div>
         </div>
@@ -655,14 +655,14 @@ export default function AdminClientsManage() {
       <div className="bg-gray-900 border border-white/10 rounded-xl p-4 space-y-3">
         <div className="flex gap-2 flex-wrap">
           <Input
-            placeholder="Buscar email ou telefone"
+            placeholder="Buscar correo o teléfono"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-64 bg-gray-800 border-gray-700"
           />
           <Button size="sm" onClick={() => load()}>Buscar</Button>
           <Button size="sm" variant="outline" onClick={handleClearFilters} className="border-gray-700 text-gray-400">
-            Limpar filtros
+            Limpiar filtros
           </Button>
           <button
             onClick={handleExportCSV}
@@ -681,14 +681,14 @@ export default function AdminClientsManage() {
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-green-600/20 text-green-400 hover:bg-green-600/30 text-sm font-medium transition-colors"
           >
             <Copy className="w-4 h-4" />
-            Copiar emails filtrados
+            Copiar correos filtrados
           </button>
           <button
             onClick={handleCopyFilteredPhones}
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 text-sm font-medium transition-colors"
           >
             <Copy className="w-4 h-4" />
-            Copiar telefones filtrados
+            Copiar teléfonos filtrados
           </button>
         </div>
 
@@ -734,27 +734,27 @@ export default function AdminClientsManage() {
                 : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
             }`}
           >
-            Não acessou
+            No accedió
           </button>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground whitespace-nowrap">Liberação</span>
+            <span className="text-xs text-muted-foreground whitespace-nowrap">Liberación</span>
             <Input type="date" value={liberacaoFrom} onChange={(e) => setLiberacaoFrom(e.target.value)} className="bg-gray-800 border-gray-700 text-xs h-8" />
-            <span className="text-xs text-muted-foreground">até</span>
+            <span className="text-xs text-muted-foreground">hasta</span>
             <Input type="date" value={liberacaoTo} onChange={(e) => setLiberacaoTo(e.target.value)} className="bg-gray-800 border-gray-700 text-xs h-8" />
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground whitespace-nowrap">1º Acesso</span>
+            <span className="text-xs text-muted-foreground whitespace-nowrap">1er Acceso</span>
             <Input type="date" value={firstAccessFrom} onChange={(e) => setFirstAccessFrom(e.target.value)} className="bg-gray-800 border-gray-700 text-xs h-8" />
-            <span className="text-xs text-muted-foreground">até</span>
+            <span className="text-xs text-muted-foreground">hasta</span>
             <Input type="date" value={firstAccessTo} onChange={(e) => setFirstAccessTo(e.target.value)} className="bg-gray-800 border-gray-700 text-xs h-8" />
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground whitespace-nowrap">Último Acesso</span>
+            <span className="text-xs text-muted-foreground whitespace-nowrap">Último Acceso</span>
             <Input type="date" value={lastSeenFrom} onChange={(e) => setLastSeenFrom(e.target.value)} className="bg-gray-800 border-gray-700 text-xs h-8" />
-            <span className="text-xs text-muted-foreground">até</span>
+            <span className="text-xs text-muted-foreground">hasta</span>
             <Input type="date" value={lastSeenTo} onChange={(e) => setLastSeenTo(e.target.value)} className="bg-gray-800 border-gray-700 text-xs h-8" />
           </div>
         </div>
@@ -763,7 +763,7 @@ export default function AdminClientsManage() {
       {/* Counter */}
       {!loading && (
         <p className="text-xs text-gray-500">
-          Exibindo <span className="text-gray-300 font-medium">{users.length}</span> de{" "}
+          Mostrando <span className="text-gray-300 font-medium">{users.length}</span> de{" "}
           <span className="text-gray-300 font-medium">{totalCount}</span> clientes
         </p>
       )}
@@ -771,7 +771,7 @@ export default function AdminClientsManage() {
       {/* Table */}
       {loading ? (
         <div className="text-gray-400 py-8 text-center flex items-center justify-center gap-2">
-          <Loader2 className="w-4 h-4 animate-spin" /> Carregando…
+          <Loader2 className="w-4 h-4 animate-spin" /> Cargando…
         </div>
       ) : (
         <div className="bg-gray-900 rounded-xl border border-white/10 overflow-x-auto">
@@ -786,28 +786,28 @@ export default function AdminClientsManage() {
                   />
                 </th>
                 <th className={thClass} onClick={() => handleSort("email")}>
-                  <span className="flex items-center">Email <SortIcon col="email" sortKey={sortKey} sortDir={sortDir} /></span>
+                  <span className="flex items-center">Correo <SortIcon col="email" sortKey={sortKey} sortDir={sortDir} /></span>
                 </th>
                 <th className="px-3 py-2 text-xs">Casa</th>
                 <th className={thClass} onClick={() => handleSort("phone")}>
-                  <span className="flex items-center">Telefone <SortIcon col="phone" sortKey={sortKey} sortDir={sortDir} /></span>
+                  <span className="flex items-center">Teléfono <SortIcon col="phone" sortKey={sortKey} sortDir={sortDir} /></span>
                 </th>
                 <th className={thClass} onClick={() => handleSort("main_tier")}>
-                  <span className="flex items-center">Plano <SortIcon col="main_tier" sortKey={sortKey} sortDir={sortDir} /></span>
+                  <span className="flex items-center">Plan <SortIcon col="main_tier" sortKey={sortKey} sortDir={sortDir} /></span>
                 </th>
                 <th className={thClass} onClick={() => handleSort("upsells")}>
                   <span className="flex items-center">Upsell <SortIcon col="upsells" sortKey={sortKey} sortDir={sortDir} /></span>
                 </th>
                 <th className={`${thClass} text-center`} onClick={() => handleSort("created_at")}>
-                  <span className="flex items-center justify-center">Liberação <SortIcon col="created_at" sortKey={sortKey} sortDir={sortDir} /></span>
+                  <span className="flex items-center justify-center">Liberación <SortIcon col="created_at" sortKey={sortKey} sortDir={sortDir} /></span>
                 </th>
                 <th className={thClass} onClick={() => handleSort("first_access_at")}>
-                  <span className="flex items-center">1º Acesso <SortIcon col="first_access_at" sortKey={sortKey} sortDir={sortDir} /></span>
+                  <span className="flex items-center">1er Acceso <SortIcon col="first_access_at" sortKey={sortKey} sortDir={sortDir} /></span>
                 </th>
                 <th className={thClass} onClick={() => handleSort("last_seen_at")}>
-                  <span className="flex items-center">Último Acesso <SortIcon col="last_seen_at" sortKey={sortKey} sortDir={sortDir} /></span>
+                  <span className="flex items-center">Último Acceso <SortIcon col="last_seen_at" sortKey={sortKey} sortDir={sortDir} /></span>
                 </th>
-                <th className="px-3 py-2">Ações</th>
+                <th className="px-3 py-2">Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -832,10 +832,10 @@ export default function AdminClientsManage() {
                         onClick={(e) => {
                           e.stopPropagation();
                           navigator.clipboard.writeText(u.email);
-                          toast.success("Email copiado!");
+                          toast.success("¡Correo copiado!");
                         }}
                         className="text-gray-500 hover:text-white transition-colors flex-shrink-0"
-                        title="Copiar email"
+                        title="Copiar correo"
                       >
                         <Copy className="w-3.5 h-3.5" />
                       </button>
@@ -862,7 +862,7 @@ export default function AdminClientsManage() {
                           onClick={(e) => {
                             e.stopPropagation();
                             navigator.clipboard.writeText(u.phone!);
-                            toast.success("Número copiado!");
+                            toast.success("¡Número copiado!");
                           }}
                           title="Copiar número"
                           className="text-gray-500 hover:text-white transition-colors"
@@ -904,7 +904,7 @@ export default function AdminClientsManage() {
                       </span>
                     ) : (
                       <span className="px-2 py-0.5 rounded text-xs font-bold bg-red-600/30 text-red-400">
-                        Não acessou
+                        No accedió
                       </span>
                     )}
                   </td>
@@ -924,7 +924,7 @@ export default function AdminClientsManage() {
               {sortedUsers.length === 0 && (
                 <tr>
                   <td colSpan={10} className="px-3 py-8 text-center text-gray-600">
-                    Nenhum cliente encontrado
+                    Ningún cliente encontrado
                   </td>
                 </tr>
               )}
@@ -938,7 +938,7 @@ export default function AdminClientsManage() {
         <div className="flex items-center justify-between py-4 px-2">
           <span className="text-sm text-muted-foreground">
             Página {currentPage + 1} de {Math.max(1, Math.ceil(totalCount / PAGE_SIZE))}
-            {" · "}Exibindo {currentPage * PAGE_SIZE + 1}–{Math.min((currentPage + 1) * PAGE_SIZE, totalCount)} de {totalCount}
+            {" · "}Mostrando {currentPage * PAGE_SIZE + 1}–{Math.min((currentPage + 1) * PAGE_SIZE, totalCount)} de {totalCount}
           </span>
           <div className="flex gap-2">
             <Button
@@ -955,7 +955,7 @@ export default function AdminClientsManage() {
               onClick={() => setCurrentPage((p) => p + 1)}
               disabled={(currentPage + 1) * PAGE_SIZE >= totalCount}
             >
-              Próximo
+              Siguiente
             </Button>
           </div>
         </div>
@@ -964,30 +964,30 @@ export default function AdminClientsManage() {
       {/* Create Dialog */}
       <Dialog open={showCreate} onOpenChange={setShowCreate}>
         <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-sm">
-          <DialogHeader><DialogTitle>Novo Cliente</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>Nuevo Cliente</DialogTitle></DialogHeader>
           <div className="space-y-3">
-            <Input placeholder="Email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} className="bg-gray-800 border-gray-700" />
+            <Input placeholder="Correo electrónico" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} className="bg-gray-800 border-gray-700" />
             <Select value={newTier} onValueChange={setNewTier}>
               <SelectTrigger className="bg-gray-800 border-gray-700"><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="free">Free</SelectItem>
-                <SelectItem value="basic">Basic</SelectItem>
+                <SelectItem value="free">Gratis</SelectItem>
+                <SelectItem value="basic">Básico</SelectItem>
                 <SelectItem value="pro">Pro</SelectItem>
                 <SelectItem value="ultra">Ultra</SelectItem>
               </SelectContent>
             </Select>
             <div>
-              <label className="text-xs text-gray-500">Origem do Usuário</label>
+              <label className="text-xs text-gray-500">Origen del Usuario</label>
               <Select value={newOrigin} onValueChange={setNewOrigin}>
                 <SelectTrigger className="bg-gray-800 border-gray-700"><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="gift">Brinde / Parceria</SelectItem>
-                  <SelectItem value="test">Usuário de Teste</SelectItem>
+                  <SelectItem value="gift">Regalo / Alianza</SelectItem>
+                  <SelectItem value="test">Usuario de Prueba</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <Button onClick={handleCreate} disabled={saving} className="w-full">
-              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Criar"}
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Crear"}
             </Button>
           </div>
         </DialogContent>
@@ -1000,12 +1000,12 @@ export default function AdminClientsManage() {
           {editUser && (
             <div className="space-y-4">
               <div>
-                <label className="text-xs text-gray-500">Plano</label>
+                <label className="text-xs text-gray-500">Plan</label>
                 <Select value={editUser.main_tier} onValueChange={(v) => setEditUser({ ...editUser, main_tier: v })}>
                   <SelectTrigger className="bg-gray-800 border-gray-700"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="free">Free</SelectItem>
-                    <SelectItem value="basic">Basic</SelectItem>
+                    <SelectItem value="free">Gratis</SelectItem>
+                    <SelectItem value="basic">Básico</SelectItem>
                     <SelectItem value="pro">Pro</SelectItem>
                     <SelectItem value="ultra">Ultra</SelectItem>
                   </SelectContent>
@@ -1014,9 +1014,9 @@ export default function AdminClientsManage() {
 
               {houses.length > 0 && (
                 <div>
-                  <label className="text-xs text-gray-500">Casa de Apostas</label>
+                  <label className="text-xs text-gray-500">Casa de Apuestas</label>
                   <Select value={editHouseId} onValueChange={setEditHouseId}>
-                    <SelectTrigger className="bg-gray-800 border-gray-700"><SelectValue placeholder="Selecionar casa" /></SelectTrigger>
+                    <SelectTrigger className="bg-gray-800 border-gray-700"><SelectValue placeholder="Seleccionar casa" /></SelectTrigger>
                     <SelectContent>
                       {houses.map((h) => <SelectItem key={h.id} value={h.id}>{h.name}</SelectItem>)}
                     </SelectContent>
@@ -1029,7 +1029,7 @@ export default function AdminClientsManage() {
                 <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Add-ons</p>
                 {loadingAddons ? (
                   <div className="flex items-center gap-2 text-gray-500 text-xs">
-                    <Loader2 className="w-3 h-3 animate-spin" /> Carregando add-ons…
+                    <Loader2 className="w-3 h-3 animate-spin" /> Cargando add-ons…
                   </div>
                 ) : (
                   ADDON_TOGGLES.map(({ key, label }) => (
@@ -1045,7 +1045,7 @@ export default function AdminClientsManage() {
               </div>
 
               <Button onClick={handleUpdate} disabled={saving} className="w-full">
-                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Salvar"}
+                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Guardar"}
               </Button>
             </div>
           )}
@@ -1056,16 +1056,16 @@ export default function AdminClientsManage() {
       <AlertDialog open={!!deleteUser} onOpenChange={(o) => !o && setDeleteUser(null)}>
         <AlertDialogContent className="bg-gray-900 border-gray-800 text-white">
           <AlertDialogHeader>
-            <AlertDialogTitle>Excluir cliente?</AlertDialogTitle>
+            <AlertDialogTitle>¿Eliminar cliente?</AlertDialogTitle>
             <AlertDialogDescription className="text-gray-400">
-              Tem certeza que deseja excluir <span className="text-white font-medium">{deleteUser?.email}</span>?
-              Esta ação não pode ser desfeita.
+              ¿Estás seguro de que deseas eliminar <span className="text-white font-medium">{deleteUser?.email}</span>?
+              Esta acción no se puede deshacer.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel className="bg-gray-800 border-gray-700 text-white hover:bg-gray-700">Cancelar</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} disabled={deleting} className="bg-red-600 hover:bg-red-700 text-white">
-              {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Excluir"}
+              {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Eliminar"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -1075,16 +1075,16 @@ export default function AdminClientsManage() {
       <AlertDialog open={showBulkDelete} onOpenChange={setShowBulkDelete}>
         <AlertDialogContent className="bg-gray-900 border-gray-800 text-white">
           <AlertDialogHeader>
-            <AlertDialogTitle>⚠️ Excluir clientes selecionados?</AlertDialogTitle>
+            <AlertDialogTitle>⚠️ ¿Eliminar clientes seleccionados?</AlertDialogTitle>
             <AlertDialogDescription className="text-gray-400">
-              Você está prestes a excluir <span className="text-white font-medium">{selectedIds.size}</span> cliente{selectedIds.size !== 1 ? "s" : ""} permanentemente.
-              <br />Esta ação não pode ser desfeita.
+              Estás a punto de eliminar <span className="text-white font-medium">{selectedIds.size}</span> cliente{selectedIds.size !== 1 ? "s" : ""} permanentemente.
+              <br />Esta acción no se puede deshacer.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel className="bg-gray-800 border-gray-700 text-white hover:bg-gray-700">Cancelar</AlertDialogCancel>
             <AlertDialogAction onClick={handleBulkDelete} disabled={bulkDeleting} className="bg-red-600 hover:bg-red-700 text-white">
-              {bulkDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : `Excluir ${selectedIds.size} cliente${selectedIds.size !== 1 ? "s" : ""}`}
+              {bulkDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : `Eliminar ${selectedIds.size} cliente${selectedIds.size !== 1 ? "s" : ""}`}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -1103,7 +1103,7 @@ export default function AdminClientsManage() {
             onClick={(e) => e.stopPropagation()}
           >
             <h3 className="text-foreground font-bold text-lg">
-              Detalhes da Liberação
+              Detalles de la Liberación
             </h3>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
@@ -1111,11 +1111,11 @@ export default function AdminClientsManage() {
                 <span className="text-foreground">{liberacaoPopup.email}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Plano:</span>
+                <span className="text-muted-foreground">Plan:</span>
                 <span className="text-foreground capitalize">{liberacaoPopup.tier}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Liberado em:</span>
+                <span className="text-muted-foreground">Liberado el:</span>
                 <span className="text-foreground">{fmt(liberacaoPopup.createdAt)}</span>
               </div>
             </div>
@@ -1123,7 +1123,7 @@ export default function AdminClientsManage() {
               onClick={() => setLiberacaoPopup(null)}
               className="w-full mt-4 py-2 rounded-lg bg-muted/30 text-muted-foreground hover:bg-muted/50 text-sm font-medium transition-colors"
             >
-              Fechar
+              Cerrar
             </button>
           </div>
         </div>

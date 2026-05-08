@@ -33,19 +33,19 @@ interface Props {
 }
 
 const PREMIUM_BENEFITS = [
-  "Acesso a Odds Safes",
-  "Acesso a Odds Pró",
-  "Odds diárias liberadas",
-  "Suporte via grupo",
+  "Acceso a Cuotas Safes",
+  "Acceso a Cuotas Pro",
+  "Cuotas diarias desbloqueadas",
+  "Soporte vía grupo",
 ];
 
 const DIAMANTE_BENEFITS = [
-  "Tudo do Premium",
-  "Múltiplas / Bingo",
-  "Mercados Secundários",
-  "Esportes Americanos",
-  "Alavancagem",
-  "Suporte prioritário",
+  "Todo lo de Premium",
+  "Múltiples / Bingo",
+  "Mercados Secundarios",
+  "Deportes Americanos",
+  "Apalancamiento",
+  "Soporte prioritario",
 ];
 
 type Phase = "main_step1" | "main_step2" | "backredirect";
@@ -222,12 +222,12 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
           {showDiscount ? (
             <div className="text-center space-y-4">
               <h2 className="text-3xl font-extrabold text-[#00FF7F]" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
-                Desconto de R$ 10
+                Descuento de $10
               </h2>
               <p className="text-base text-white">
-                Desbloqueie só <strong>{featureLabel}</strong> por R$ {PRICES.backredirect_discount}
+                Desbloquea solo <strong>{featureLabel}</strong> por ${PRICES.backredirect_discount}
               </p>
-              <p className="text-xs text-white/50">Oferta única, válida só agora</p>
+              <p className="text-xs text-white/50">Oferta única, válida solo ahora</p>
               <Button
                 className="w-full bg-[#00FF7F] hover:bg-[#00FF7F]/90 text-black font-bold text-base py-6"
                 disabled={!canBuyDiscount || loadingPayCard}
@@ -236,22 +236,22 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
                 {loadingPayCard
                   ? <Loader2 className="w-5 h-5 animate-spin" />
                   : canBuyDiscount
-                    ? `Comprar ${featureLabel} por R$ ${PRICES.backredirect_discount}`
-                    : "Em breve"}
+                    ? `Comprar ${featureLabel} por $${PRICES.backredirect_discount}`
+                    : "Próximamente"}
               </Button>
               <button onClick={onClose} className="text-sm text-white/50 hover:text-white/80 underline">
-                Não, obrigado
+                No, gracias
               </button>
             </div>
           ) : (
             <div className="text-center space-y-4">
               <h2 className="text-2xl font-bold" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
-                Espera!
+                ¡Espera!
               </h2>
-              <p className="text-sm text-white/70">Você ainda pode liberar só essa categoria</p>
+              <p className="text-sm text-white/70">Aún puedes desbloquear solo esa categoría</p>
               <div className="py-4 px-3 rounded-lg bg-[#00FF7F]/10 border border-[#00FF7F]/40">
                 <p className="text-xl font-bold text-[#00FF7F]" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
-                  {featureLabel} por apenas R$ {PRICES.backredirect}
+                  {featureLabel} por solo ${PRICES.backredirect}
                 </p>
               </div>
               <Button
@@ -261,10 +261,10 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
               >
                 {loadingPayCard
                   ? <Loader2 className="w-5 h-5 animate-spin" />
-                  : canBuyFull ? `Comprar ${featureLabel}` : "Em breve"}
+                  : canBuyFull ? `Comprar ${featureLabel}` : "Próximamente"}
               </Button>
               <button onClick={onClose} className="text-sm text-white/50 hover:text-white/80 underline">
-                Não, obrigado
+                No, gracias
               </button>
             </div>
           )}
@@ -306,10 +306,10 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
                 >
                   <div className="font-bold text-white text-sm leading-snug break-words">
                     {canBuyAvulso
-                      ? <>Desbloquear <span className="text-[#00FF7F]">{featureLabel}</span> por R$ {PRICES.backredirect}</>
-                      : <>Desbloquear {featureLabel} — <span className="text-white/60">Em breve</span></>}
+                      ? <>Desbloquear <span className="text-[#00FF7F]">{featureLabel}</span> por ${PRICES.backredirect}</>
+                      : <>Desbloquear {featureLabel} — <span className="text-white/60">Próximamente</span></>}
                   </div>
-                  <div className="text-xs text-white/60 mt-0.5 leading-tight">Pagamento único, acesso vitalício</div>
+                  <div className="text-xs text-white/60 mt-0.5 leading-tight">Pago único, acceso vitalicio</div>
                 </button>
 
                 {/* Card 2: Upgrade Diamante */}
@@ -321,10 +321,10 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
                 >
                   <div className="font-bold text-white text-sm leading-snug break-words">
                     {canBuyUpgrade
-                      ? <><span className="text-[#00FF7F]">Plano Diamante</span> (todos os mercados liberados — R$ {PRICES.diamante_upgrade})</>
-                      : <>Upgrade Diamante — <span className="text-white/60">Em breve</span></>}
+                      ? <><span className="text-[#00FF7F]">Plan Diamante</span> (todos los mercados desbloqueados — ${PRICES.diamante_upgrade})</>
+                      : <>Mejora Diamante — <span className="text-white/60">Próximamente</span></>}
                   </div>
-                  <div className="text-xs text-white/60 mt-0.5 leading-tight break-words">Desbloqueia {otherFeatures}</div>
+                  <div className="text-xs text-white/60 mt-0.5 leading-tight break-words">Desbloquea {otherFeatures}</div>
                 </button>
               </div>
 
@@ -332,7 +332,7 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
                 onClick={() => setPhase("main_step1")}
                 className="flex items-center justify-center gap-1 w-full text-xs text-white/50 hover:text-white pt-1"
               >
-                <ArrowLeft className="w-3 h-3" /> Voltar
+                <ArrowLeft className="w-3 h-3" /> Volver
               </button>
             </div>
           )}
@@ -358,14 +358,14 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
   // ===== MAIN PAYWALL (premium / diamante) =====
   const isDiamante = variant === "diamante";
   const PREMIUM_BULLETS = [
-    "Odds Safes — entradas de baixo risco",
-    "Odds Pró — entradas com retorno maior",
-    "Odds Ultra — combinadas calculadas",
-    "Suporte via grupo",
+    "Cuotas Safes — tips de bajo riesgo",
+    "Cuotas Pro — tips con mayor retorno",
+    "Cuotas Ultra — combinadas calculadas",
+    "Soporte vía grupo",
   ];
   const benefits = isDiamante ? DIAMANTE_BENEFITS : PREMIUM_BULLETS;
   const price = variant === "premium" ? PRICES.premium : PRICES.diamante;
-  const ctaLabel = `ASSINAR ${variant === "premium" ? "PREMIUM" : "DIAMANTE"} POR R$ ${price}`;
+  const ctaLabel = `SUSCRIBIRSE A ${variant === "premium" ? "PREMIUM" : "DIAMANTE"} POR $${price}`;
   const canBuy = !!mainPayCard;
 
   const handlePremiumCheckout = () => {
@@ -386,7 +386,7 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
               className="text-xl sm:text-2xl font-extrabold text-center text-[#00FF7F] leading-tight text-balance px-2"
               style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
             >
-              {variant === "premium" ? "Plano Premium — Mais de 20 odds todos os dias" : ctaLabel}
+              {variant === "premium" ? "Plan Premium — Más de 20 cuotas todos los días" : ctaLabel}
             </h2>
 
             {variant === "premium" && (
@@ -410,13 +410,13 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
             >
               {loadingPayCard
                 ? <Loader2 className="w-5 h-5 animate-spin" />
-                : canBuy ? (variant === "premium" ? ctaLabel : "Assinar agora") : "Em breve"}
+                : canBuy ? (variant === "premium" ? ctaLabel : "Suscribirse ahora") : "Próximamente"}
             </Button>
             <button
               onClick={() => setPhase("main_step1")}
               className="flex items-center justify-center gap-1 w-full text-sm text-white/60 hover:text-white"
             >
-              <ArrowLeft className="w-4 h-4" /> Voltar
+              <ArrowLeft className="w-4 h-4" /> Volver
             </button>
           </div>
         )}

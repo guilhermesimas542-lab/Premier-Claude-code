@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { getTodayInBrazil } from "@/lib/timezone";
+import { getTodayInChile } from "@/lib/timezone";
 
 interface BadgeCounts {
   clients: number;
@@ -45,7 +45,7 @@ export function useAdminBadges(adminEmail: string | null) {
         .gt("created_at", clientsSince);
 
       // 2. Tips today (informational)
-      const today = getTodayInBrazil();
+      const today = getTodayInChile();
       const { count: tipsCount } = await supabase
         .from("content_entries")
         .select("id", { count: "exact", head: true })

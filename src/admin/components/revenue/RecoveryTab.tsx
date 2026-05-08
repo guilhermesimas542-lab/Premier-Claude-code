@@ -6,12 +6,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Copy } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import { FinancialEvent, RECOVERY_EVENTS, getEventDisplay, formatBRL } from "./constants";
+import { FinancialEvent, RECOVERY_EVENTS, getEventDisplay, formatCLP } from "./constants";
 
 const PERIOD_OPTIONS = [
-  { label: 'Últimos 7 dias', days: 7 },
-  { label: 'Últimos 30 dias', days: 30 },
-  { label: 'Últimos 90 dias', days: 90 },
+  { label: 'Últimos 7 días', days: 7 },
+  { label: 'Últimos 30 días', days: 30 },
+  { label: 'Últimos 90 días', days: 90 },
   { label: 'Todos', days: 0 },
 ];
 
@@ -45,7 +45,7 @@ export default function RecoveryTab() {
 
   const copyEmail = (email: string) => {
     navigator.clipboard.writeText(email);
-    toast({ title: "Email copiado!", description: "Entre em contato com o cliente." });
+    toast({ title: "¡Email copiado!", description: "Ponte en contacto con el cliente." });
   };
 
   const toggleEvent = (ev: string) => {
@@ -83,32 +83,32 @@ export default function RecoveryTab() {
       </div>
 
       {loading ? (
-        <p className="text-muted-foreground text-center py-8">Carregando...</p>
+        <p className="text-muted-foreground text-center py-8">Cargando...</p>
       ) : events.length === 0 ? (
-        <p className="text-muted-foreground text-center py-8">Nenhuma oportunidade de recuperação encontrada.</p>
+        <p className="text-muted-foreground text-center py-8">No se encontró ninguna oportunidad de recuperación.</p>
       ) : (
         <div className="border rounded-lg overflow-hidden">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Data/Hora</TableHead>
+                <TableHead>Fecha/Hora</TableHead>
                 <TableHead>Email</TableHead>
-                <TableHead>Produto</TableHead>
+                <TableHead>Producto</TableHead>
                 <TableHead>Valor</TableHead>
                 <TableHead>Evento</TableHead>
-                <TableHead>Ação</TableHead>
+                <TableHead>Acción</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {events.map(ev => (
                 <TableRow key={ev.id}>
                   <TableCell className="text-xs whitespace-nowrap">
-                    {new Date(ev.created_at).toLocaleString('pt-BR')}
+                    {new Date(ev.created_at).toLocaleString('es-CL')}
                   </TableCell>
                   <TableCell className="text-sm">{ev.email || '—'}</TableCell>
                   <TableCell className="text-sm">{ev.product_name || '—'}</TableCell>
                   <TableCell className="text-sm">
-                    {ev.value_cents ? formatBRL(ev.value_cents / 100) : '—'}
+                    {ev.value_cents ? formatCLP(ev.value_cents / 100) : '—'}
                   </TableCell>
                   <TableCell>
                     <Badge variant="outline" className="bg-orange-500/10 text-orange-400 border-orange-500/30 text-xs">

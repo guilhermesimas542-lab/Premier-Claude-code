@@ -6,7 +6,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Copy, Download, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
-import { getTodayInBrazil } from "@/lib/timezone";
+import { getTodayInChile } from "@/lib/timezone";
 
 interface UserRow {
   id: string;
@@ -31,10 +31,10 @@ const getDateStr = (daysAgo: number) => {
 };
 
 const quickFilters = [
-  { label: "Hoje", from: getDateStr(0), to: getDateStr(0) },
-  { label: "Ontem", from: getDateStr(1), to: getDateStr(1) },
-  { label: "Anteontem", from: getDateStr(2), to: getDateStr(2) },
-  { label: "Últimos 7 dias", from: getDateStr(6), to: getDateStr(0) },
+  { label: "Hoy", from: getDateStr(0), to: getDateStr(0) },
+  { label: "Ayer", from: getDateStr(1), to: getDateStr(1) },
+  { label: "Anteayer", from: getDateStr(2), to: getDateStr(2) },
+  { label: "Últimos 7 días", from: getDateStr(6), to: getDateStr(0) },
 ];
 
 type SortKey = "email" | "phone" | "main_tier" | "created_at";
@@ -105,7 +105,7 @@ export default function AdminNaoAcessou() {
   };
 
   // Date helpers
-  const today = getTodayInBrazil();
+  const today = getTodayInChile();
   const yesterday = useMemo(() => {
     const d = new Date(today);
     d.setDate(d.getDate() - 1);
@@ -162,7 +162,7 @@ export default function AdminNaoAcessou() {
 
     return Array.from(allDates)
       .map((date) => ({
-        date: new Date(date).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }),
+        date: new Date(date).toLocaleDateString("es-CL", { day: "2-digit", month: "2-digit" }),
         rawDate: date,
         naoAcessou: naoAcessouMap[date] || 0,
         ativados: ativadosMap[date] || 0,
@@ -174,27 +174,27 @@ export default function AdminNaoAcessou() {
   // CSV export
   const exportCSV = useCallback(() => {
     const BOM = "\uFEFF";
-    const headers = ["Email", "Telefone", "Plano", "Liberado em"];
+    const headers = ["Correo", "Teléfono", "Plan", "Liberado el"];
     const rows = sortedUsers.map((u) => [
       u.email,
       u.phone ?? "",
       u.main_tier,
-      new Date(u.created_at).toLocaleString("pt-BR"),
+      new Date(u.created_at).toLocaleString("es-CL"),
     ]);
     const csv = BOM + [headers, ...rows].map((r) => r.map((c) => `"${c}"`).join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `nao-acessou-${today}.csv`;
+    a.download = `cliente-inactivo-${today}.csv`;
     a.click();
     URL.revokeObjectURL(url);
-    toast.success(`CSV exportado com ${sortedUsers.length} registros`);
+    toast.success(`CSV exportado con ${sortedUsers.length} registros`);
   }, [sortedUsers, today]);
 
   const copyText = (text: string) => {
     navigator.clipboard.writeText(text);
-    toast.success("Copiado!");
+    toast.success("¡Copiado!");
   };
 
   const SortHeader = ({ label, field }: { label: string; field: SortKey }) => (
@@ -217,26 +217,26 @@ export default function AdminNaoAcessou() {
       <div>
         <div className="flex items-center gap-3">
           <h1 className="text-2xl font-bold text-white" style={{ fontFamily: "Barlow Condensed, sans-serif" }}>
-            Não Acessou
+            Cliente Inactivo
           </h1>
           <button
             onClick={() => load()}
             className="p-2 rounded-lg bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-white transition-colors"
-            title="Atualizar dados"
+            title="Actualizar datos"
           >
             <RefreshCw className="w-4 h-4" />
           </button>
         </div>
-        <p className="text-sm text-muted-foreground">Clientes liberados que ainda não abriram o app</p>
+        <p className="text-sm text-muted-foreground">Clientes liberados que aún no abrieron la app</p>
       </div>
 
       {/* KPIs Linha 1 — Situação atual */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
-          { label: "Total não acessou", value: kpis.total, color: "text-red-400" },
-          { label: "Novos hoje", value: kpis.liberadosHoje, color: "text-yellow-400" },
-          { label: "Novos ontem", value: kpis.liberadosOntem, color: "text-yellow-400" },
-          { label: "Taxa não ativação", value: `${kpis.taxa}%`, color: "text-red-400" },
+          { label: "Total inactivos", value: kpis.total, color: "text-red-400" },
+          { label: "Nuevos hoy", value: kpis.liberadosHoje, color: "text-yellow-400" },
+          { label: "Nuevos ayer", value: kpis.liberadosOntem, color: "text-yellow-400" },
+          { label: "Tasa de no activación", value: `${kpis.taxa}%`, color: "text-red-400" },
         ].map((k) => (
           <div key={k.label} className="rounded-xl border border-border bg-muted/10 p-4">
             <p className="text-[11px] text-muted-foreground uppercase tracking-wider font-bold mb-1">{k.label}</p>
@@ -250,10 +250,10 @@ export default function AdminNaoAcessou() {
       {/* KPIs Linha 2 — Progresso */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
-          { label: "Ativados hoje", value: progressKpis.ativadosHoje },
-          { label: "Ativados ontem", value: progressKpis.ativadosOntem },
-          { label: "Ativados 7 dias", value: progressKpis.ativados7d },
-          { label: "Total já ativados", value: progressKpis.totalAtivados },
+          { label: "Activados hoy", value: progressKpis.ativadosHoje },
+          { label: "Activados ayer", value: progressKpis.ativadosOntem },
+          { label: "Activados 7 días", value: progressKpis.ativados7d },
+          { label: "Total ya activados", value: progressKpis.totalAtivados },
         ].map((k) => (
           <div key={k.label} className="rounded-xl border border-border bg-muted/10 p-4">
             <p className="text-[11px] text-muted-foreground uppercase tracking-wider font-bold mb-1">{k.label}</p>
@@ -266,7 +266,7 @@ export default function AdminNaoAcessou() {
 
       {/* Chart */}
       <div className="rounded-lg border border-border bg-muted/10 p-4">
-        <h2 className="text-sm font-semibold text-white mb-4">Não acessou vs Ativados por dia</h2>
+        <h2 className="text-sm font-semibold text-white mb-4">Inactivos vs Activados por día</h2>
         <ResponsiveContainer width="100%" height={250}>
           <BarChart
             data={chartData}
@@ -286,8 +286,8 @@ export default function AdminNaoAcessou() {
               labelStyle={{ color: "#fff" }}
             />
             <Legend />
-            <Bar dataKey="naoAcessou" name="Não acessou" fill="#ef4444" radius={[4, 4, 0, 0]} cursor="pointer" />
-            <Bar dataKey="ativados" name="Ativados" fill="#22c55e" radius={[4, 4, 0, 0]} cursor="pointer" />
+            <Bar dataKey="naoAcessou" name="Inactivos" fill="#ef4444" radius={[4, 4, 0, 0]} cursor="pointer" />
+            <Bar dataKey="ativados" name="Activados" fill="#22c55e" radius={[4, 4, 0, 0]} cursor="pointer" />
           </BarChart>
         </ResponsiveContainer>
       </div>
@@ -311,20 +311,20 @@ export default function AdminNaoAcessou() {
           onClick={() => { setFilterFrom(""); setFilterTo(""); }}
           className="px-3 py-1 rounded-full text-xs font-bold bg-muted/30 text-muted-foreground hover:bg-muted/50 transition-colors"
         >
-          Limpar
+          Limpiar
         </button>
       </div>
 
       {/* Date Filters + Export */}
       <div className="flex flex-wrap items-center gap-3">
-        <span className="text-xs text-muted-foreground whitespace-nowrap">Liberação</span>
+        <span className="text-xs text-muted-foreground whitespace-nowrap">Liberación</span>
         <Input
           type="date"
           value={filterFrom}
           onChange={(e) => setFilterFrom(e.target.value)}
           className="bg-gray-800 border-gray-700 text-xs h-8 w-36"
         />
-        <span className="text-xs text-muted-foreground">até</span>
+        <span className="text-xs text-muted-foreground">hasta</span>
         <Input
           type="date"
           value={filterTo}
@@ -335,14 +335,14 @@ export default function AdminNaoAcessou() {
           <button
             onClick={() => {
               const emails = sortedUsers.map((u) => u.email).filter(Boolean).join(", ");
-              if (!emails) { toast.error("Nenhum email para copiar."); return; }
+              if (!emails) { toast.error("Ningún correo para copiar."); return; }
               navigator.clipboard.writeText(emails).then(() => {
-                toast.success(`${sortedUsers.length} emails copiados!`);
-              }).catch(() => { toast.error("Erro ao copiar. Tente novamente."); });
+                toast.success(`¡${sortedUsers.length} correos copiados!`);
+              }).catch(() => { toast.error("Error al copiar. Inténtalo de nuevo."); });
             }}
             className="flex items-center gap-1 text-xs bg-green-600/20 text-green-400 hover:bg-green-600/30 px-3 py-1.5 rounded-md font-medium transition-colors"
           >
-            <Copy className="w-3.5 h-3.5" /> Copiar emails ({sortedUsers.length})
+            <Copy className="w-3.5 h-3.5" /> Copiar correos ({sortedUsers.length})
           </button>
           <button
             onClick={exportCSV}
@@ -354,7 +354,7 @@ export default function AdminNaoAcessou() {
       </div>
 
       <p className="text-xs text-muted-foreground">
-        Exibindo {filtered.length} de {users.length} clientes não ativados
+        Mostrando {filtered.length} de {users.length} clientes no activados
       </p>
 
       {/* Table */}
@@ -362,18 +362,18 @@ export default function AdminNaoAcessou() {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border bg-muted/20">
-              <SortHeader label="Email" field="email" />
-              <SortHeader label="Telefone" field="phone" />
-              <SortHeader label="Plano" field="main_tier" />
-              <SortHeader label="Liberado em" field="created_at" />
-              <th className="text-center px-4 py-2 text-xs text-muted-foreground font-medium">Ações</th>
+              <SortHeader label="Correo" field="email" />
+              <SortHeader label="Teléfono" field="phone" />
+              <SortHeader label="Plan" field="main_tier" />
+              <SortHeader label="Liberado el" field="created_at" />
+              <th className="text-center px-4 py-2 text-xs text-muted-foreground font-medium">Acciones</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={5} className="text-center py-8 text-muted-foreground">Carregando…</td></tr>
+              <tr><td colSpan={5} className="text-center py-8 text-muted-foreground">Cargando…</td></tr>
             ) : sortedUsers.length === 0 ? (
-              <tr><td colSpan={5} className="text-center py-8 text-muted-foreground">Nenhum cliente encontrado</td></tr>
+              <tr><td colSpan={5} className="text-center py-8 text-muted-foreground">Ningún cliente encontrado</td></tr>
             ) : (
               sortedUsers.map((u) => (
                 <tr key={u.id} className="border-b border-border hover:bg-muted/10">
@@ -407,7 +407,7 @@ export default function AdminNaoAcessou() {
                     </span>
                   </td>
                   <td className="px-4 py-2 text-muted-foreground text-xs">
-                    {new Date(u.created_at).toLocaleString("pt-BR")}
+                    {new Date(u.created_at).toLocaleString("es-CL")}
                   </td>
                   <td className="px-4 py-2 text-center">
                     <button onClick={() => copyText(u.email)} className="text-muted-foreground hover:text-white">

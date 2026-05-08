@@ -26,4 +26,4 @@ export const getMockUserData = (): MockUserData => {
 };
 
 // Link de suporte configurável — agora gerenciado via LinksContext (betting_houses.support_whatsapp_url)
-export const SUPPORT_WHATSAPP_URL_FALLBACK = "https://wa.me/5511999999999?text=Olá, preciso de ajuda!";
+export const SUPPORT_WHATSAPP_URL_FALLBACK = "https://wa.me/56999999999?text=Hola, necesito ayuda!";

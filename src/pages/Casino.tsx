@@ -136,7 +136,7 @@ const Casino = () => {
             letterSpacing: '0.5px',
             padding: '16px 12px 8px',
           }}>
-            🎲 JOGOS DISPONÍVEIS
+            🎲 JUEGOS DISPONIBLES
           </h2>
           <div style={{
             display: 'grid',
@@ -154,17 +154,17 @@ const Casino = () => {
         <div className="container max-w-7xl mx-auto px-4">
           <div className="pt-6 text-center space-y-2" style={{ borderTop: "1px solid rgba(0,255,0,0.1)" }}>
             <p className="text-sm font-medium" style={{ color: "#FFFFFF" }}>Premier Ultra ©</p>
-            <p className="text-xs" style={{ color: "#AAAAAA" }}>Análises processadas continuamente</p>
+            <p className="text-xs" style={{ color: "#AAAAAA" }}>Análisis procesados continuamente</p>
             <p className="text-[11px] pt-2" style={{ color: "#888888" }}>
-              Dados protegidos • 18+ • Jogue com responsabilidade
+              Datos protegidos • +18 • Juega con responsabilidad
             </p>
             <div className="flex items-center justify-center gap-2 text-[11px]" style={{ color: "#AAAAAA" }}>
               <button onClick={() => setShowTermsModal(true)} className="transition-colors hover:underline" style={{ color: "#CCCCCC" }}>
-                Termos & Privacidade
+                Términos y Privacidad
               </button>
               <span style={{ color: "#555555" }}>|</span>
               <a href={links.support_whatsapp_url || "https://wa.link/1p68qg"} target="_blank" rel="noopener noreferrer" className="transition-colors hover:underline" style={{ color: "#CCCCCC" }}>
-                Suporte
+                Soporte
               </a>
             </div>
           </div>
@@ -178,22 +178,22 @@ const Casino = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={() => setShowTermsModal(false)}>
           <div className="w-full max-w-md rounded-2xl shadow-2xl overflow-hidden max-h-[80vh] overflow-y-auto" style={{ background: "rgba(0,8,0,0.97)", border: "1px solid rgba(0,255,0,0.25)" }} onClick={(e) => e.stopPropagation()}>
             <div className="relative px-6 py-5 sticky top-0 z-10" style={{ background: "rgba(0,8,0,0.97)", borderBottom: "1px solid rgba(0,255,0,0.15)" }}>
-              <h2 className="text-lg font-bold" style={{ color: "#FFFFFF" }}>Termos de Uso & Privacidade</h2>
+              <h2 className="text-lg font-bold" style={{ color: "#FFFFFF" }}>Términos de Uso y Privacidad</h2>
               <button onClick={() => setShowTermsModal(false)} className="absolute top-4 right-4 p-1.5 rounded-lg transition-colors hover:bg-[rgba(0,255,0,0.08)]">
                 <X className="w-5 h-5" style={{ color: "#00FF00" }} />
               </button>
             </div>
             <div className="px-6 py-5 space-y-4 text-sm leading-relaxed" style={{ color: "#CCCCCC" }}>
-              <p>O Premier Ultra é uma plataforma de análise e previsão de resultados esportivos. Ao utilizar nossos serviços, você concorda com os seguintes termos:</p>
-              <p><strong style={{ color: "#FFFFFF" }}>1. Natureza do serviço:</strong> Fornecemos análises estatísticas e palpites baseados em dados. Não garantimos resultados.</p>
-              <p><strong style={{ color: "#FFFFFF" }}>2. Responsabilidade:</strong> O usuário é responsável por suas decisões de apostas. Jogue com responsabilidade.</p>
-              <p><strong style={{ color: "#FFFFFF" }}>3. Idade mínima:</strong> É necessário ter 18 anos ou mais para utilizar nossos serviços.</p>
-              <p><strong style={{ color: "#FFFFFF" }}>4. Privacidade:</strong> Seus dados são protegidos e utilizados apenas para melhorar sua experiência na plataforma.</p>
-              <p><strong style={{ color: "#FFFFFF" }}>5. Reembolso:</strong> Política de reembolso conforme termos do provedor de pagamento.</p>
+              <p>Premier Ultra es una plataforma de análisis y predicción de resultados deportivos. Al utilizar nuestros servicios, aceptas los siguientes términos:</p>
+              <p><strong style={{ color: "#FFFFFF" }}>1. Naturaleza del servicio:</strong> Entregamos análisis estadísticos y pronósticos basados en datos. No garantizamos resultados.</p>
+              <p><strong style={{ color: "#FFFFFF" }}>2. Responsabilidad:</strong> El usuario es responsable de sus decisiones de apuestas. Juega con responsabilidad.</p>
+              <p><strong style={{ color: "#FFFFFF" }}>3. Edad mínima:</strong> Debes tener 18 años o más para utilizar nuestros servicios.</p>
+              <p><strong style={{ color: "#FFFFFF" }}>4. Privacidad:</strong> Tus datos están protegidos y se utilizan únicamente para mejorar tu experiencia en la plataforma.</p>
+              <p><strong style={{ color: "#FFFFFF" }}>5. Reembolso:</strong> Política de reembolso según los términos del proveedor de pago.</p>
             </div>
             <div className="px-6 pb-6">
               <button onClick={() => setShowTermsModal(false)} className="w-full py-3 rounded-xl font-medium transition-colors" style={{ background: "rgba(0,255,0,0.08)", border: "1px solid rgba(0,255,0,0.3)", color: "#FFFFFF" }}>
-                Entendi
+                Entendido
               </button>
             </div>
           </div>

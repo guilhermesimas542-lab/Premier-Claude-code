@@ -15,22 +15,22 @@ import { useBettingHouseAdmin } from "../context/BettingHouseContext";
 // ─── Types & Constants ───────────────────────────────────────────────────────
 
 const POPUP_TYPES = [
-  { value: "welcome",            label: "🎉 Boas-Vindas",          desc: "Exibido na primeira visita" },
-  { value: "upgrade_basic",      label: "🔓 Upgrade Básico",        desc: "Para usuários Free" },
-  { value: "upgrade_pro",        label: "⭐ Upgrade Pro",           desc: "Para Free e Básico" },
-  { value: "upgrade_ultra",      label: "👑 Upgrade Ultra",         desc: "Para todos abaixo de Ultra" },
-  { value: "addon_alavancagem",  label: "⚓ Add-on Alavancagem",    desc: "Sem add-on Alavancagem" },
-  { value: "addon_odds",         label: "🎯 Add-on Múltiplas / Bingo",     desc: "Sem add-on Múltiplas / Bingo" },
-  { value: "addon_telegram",     label: "📱 Add-on Live Telegram",  desc: "Sem Live Telegram" },
-  { value: "promotional",        label: "📣 Promocional",           desc: "Pop-up avulso com alvo configurável" },
+  { value: "welcome",            label: "🎉 Bienvenida",            desc: "Mostrado en la primera visita" },
+  { value: "upgrade_basic",      label: "🔓 Mejorar a Básico",      desc: "Para usuarios Gratis" },
+  { value: "upgrade_pro",        label: "⭐ Mejorar a Pro",         desc: "Para Gratis y Básico" },
+  { value: "upgrade_ultra",      label: "👑 Mejorar a Ultra",       desc: "Para todos por debajo de Ultra" },
+  { value: "addon_alavancagem",  label: "⚓ Add-on Apalancamiento", desc: "Sin add-on Apalancamiento" },
+  { value: "addon_odds",         label: "🎯 Add-on Múltiples / Bingo",     desc: "Sin add-on Múltiples / Bingo" },
+  { value: "addon_telegram",     label: "📱 Add-on Live Telegram",  desc: "Sin Live Telegram" },
+  { value: "promotional",        label: "📣 Promocional",           desc: "Pop-up suelto con público objetivo configurable" },
 ] as const;
 
 const AUDIENCE_OPTIONS = [
   { value: "all",   label: "Todos" },
-  { value: "free",  label: "Só Free" },
-  { value: "basic", label: "Só Básico" },
-  { value: "pro",   label: "Só Pro" },
-  { value: "ultra", label: "Só Ultra" },
+  { value: "free",  label: "Solo Gratis" },
+  { value: "basic", label: "Solo Básico" },
+  { value: "pro",   label: "Solo Pro" },
+  { value: "ultra", label: "Solo Ultra" },
 ];
 
 const typeLabel  = (t: string) => POPUP_TYPES.find((p) => p.value === t)?.label ?? t;
@@ -139,7 +139,7 @@ function PopupPreview({ form }: { form: FormState }) {
         {questions.length > 0 ? (
           <>
             <p className="text-[10px] uppercase tracking-widest font-bold" style={{ color: "#00FF00" }}>
-              Pergunta 1 de {questions.length}
+              Pregunta 1 de {questions.length}
             </p>
             <p className="text-sm font-bold text-white">{questions[0].text}</p>
             <div className="space-y-1.5">
@@ -167,7 +167,7 @@ function PopupPreview({ form }: { form: FormState }) {
                 className="w-full py-2 text-center text-xs font-bold text-black rounded-lg"
                 style={{ background: "linear-gradient(135deg, #00FF00, #00CC00)" }}
               >
-                QUERO ACESSAR →
+                QUIERO ACCEDER →
               </div>
             )}
           </>
@@ -212,7 +212,7 @@ function PopupSummaryCard({
               : "bg-red-500/20 text-red-400 border border-red-500/30"
           }`}
         >
-          {popup.is_active ? "Ativo" : "Inativo"}
+          {popup.is_active ? "Activo" : "Inactivo"}
         </span>
       </div>
 
@@ -223,7 +223,7 @@ function PopupSummaryCard({
         <div className="flex flex-wrap gap-1.5">
           {qCount > 0 && (
             <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/20">
-              {qCount} perg.
+              {qCount} preg.
             </span>
           )}
           {popup.checkout_link && (
@@ -245,12 +245,12 @@ function PopupSummaryCard({
             className="flex-1 h-7 text-xs"
             onClick={onEdit}
           >
-            <Pencil className="w-3 h-3" /> Editar Funil
+            <Pencil className="w-3 h-3" /> Editar Embudo
           </Button>
           <button
             onClick={onToggle}
             className="h-7 px-2 rounded-md border border-white/10 text-gray-400 hover:text-white hover:border-white/30 transition-colors"
-            title={popup.is_active ? "Desativar" : "Ativar"}
+            title={popup.is_active ? "Desactivar" : "Activar"}
           >
             <Switch checked={popup.is_active} onCheckedChange={onToggle} className="pointer-events-none scale-75" />
           </button>
@@ -324,16 +324,16 @@ export default function AdminPopups() {
     const ext = file.name.split(".").pop();
     const path = `funnel-popups/${crypto.randomUUID()}.${ext}`;
     const { error } = await supabase.storage.from("popups").upload(path, file, { upsert: true });
-    if (error) { toast.error("Erro no upload: " + error.message); setUploading(false); return; }
+    if (error) { toast.error("Error al subir: " + error.message); setUploading(false); return; }
     const { data } = supabase.storage.from("popups").getPublicUrl(path);
     setForm((f) => ({ ...f, image_url: data.publicUrl + "?t=" + Date.now() }));
     setUploading(false);
-    toast.success("Imagem enviada!");
+    toast.success("¡Imagen enviada!");
   };
 
   const handleSave = async () => {
     if (!form.checkout_link && !form.question_1_text) {
-      toast.error("Adicione pelo menos um link de checkout ou uma pergunta do funil");
+      toast.error("Añade al menos un enlace de checkout o una pregunta del embudo");
       return;
     }
     setSaving(true);
@@ -369,7 +369,7 @@ export default function AdminPopups() {
     }
 
     if (error) toast.error(error.message);
-    else toast.success(editId ? "Pop-up atualizado!" : "Pop-up criado!");
+    else toast.success(editId ? "¡Pop-up actualizado!" : "¡Pop-up creado!");
     setSaving(false);
     setOpen(false);
     load();
@@ -378,7 +378,7 @@ export default function AdminPopups() {
   const handleDelete = async (row: PopupRow) => {
     const { error } = await (supabase.from("popups" as any) as any).delete().eq("id", row.id);
     if (error) toast.error(error.message);
-    else { toast.success("Excluído"); load(); }
+    else { toast.success("Eliminado"); load(); }
     setDeleteTarget(null);
   };
 
@@ -391,7 +391,7 @@ export default function AdminPopups() {
 
   if (houseLoading) return (
     <div className="flex items-center gap-2 text-gray-400 py-20">
-      <Loader2 className="w-4 h-4 animate-spin" /> Carregando…
+      <Loader2 className="w-4 h-4 animate-spin" /> Cargando…
     </div>
   );
 
@@ -400,29 +400,29 @@ export default function AdminPopups() {
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
-          <h2 className="text-xl font-bold">Pop-ups e Funis de Venda</h2>
+          <h2 className="text-xl font-bold">Pop-ups y Embudos de Venta</h2>
           <p className="text-sm text-gray-400 mt-0.5">
             {selectedHouse
               ? `Casa: ${selectedHouse.name}`
-              : "Nenhuma casa selecionada (global)"}
+              : "Ninguna casa seleccionada (global)"}
           </p>
         </div>
         <Button size="sm" onClick={openNew}>
-          <Plus className="w-4 h-4" /> Novo Pop-up
+          <Plus className="w-4 h-4" /> Nuevo Pop-up
         </Button>
       </div>
 
       {/* Grid */}
       {loading ? (
         <div className="flex items-center gap-2 text-gray-400 py-10">
-          <Loader2 className="w-4 h-4 animate-spin" /> Carregando…
+          <Loader2 className="w-4 h-4 animate-spin" /> Cargando…
         </div>
       ) : items.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 gap-3 text-gray-600 border border-dashed border-white/10 rounded-xl">
           <Layers className="w-10 h-10" />
-          <p className="text-sm">Nenhum pop-up criado ainda</p>
+          <p className="text-sm">Ningún pop-up creado todavía</p>
           <Button size="sm" variant="outline" onClick={openNew}>
-            <Plus className="w-4 h-4" /> Criar primeiro pop-up
+            <Plus className="w-4 h-4" /> Crear primer pop-up
           </Button>
         </div>
       ) : (
@@ -443,14 +443,14 @@ export default function AdminPopups() {
       <AlertDialog open={!!deleteTarget} onOpenChange={(o) => { if (!o) setDeleteTarget(null); }}>
         <AlertDialogContent className="bg-gray-900 border-gray-800 text-white">
           <AlertDialogHeader>
-            <AlertDialogTitle>Excluir pop-up?</AlertDialogTitle>
+            <AlertDialogTitle>¿Eliminar pop-up?</AlertDialogTitle>
             <AlertDialogDescription className="text-gray-400">
-              O pop-up <strong>{typeLabel(deleteTarget?.type ?? "")}</strong> será removido permanentemente.
+              El pop-up <strong>{typeLabel(deleteTarget?.type ?? "")}</strong> será eliminado permanentemente.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel className="bg-gray-800 text-gray-300 border-gray-700">Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={() => deleteTarget && handleDelete(deleteTarget)}>Excluir</AlertDialogAction>
+            <AlertDialogAction onClick={() => deleteTarget && handleDelete(deleteTarget)}>Eliminar</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -459,7 +459,7 @@ export default function AdminPopups() {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{editId ? "Editar" : "Novo"} Pop-up de Funil</DialogTitle>
+            <DialogTitle>{editId ? "Editar" : "Nuevo"} Pop-up de Embudo</DialogTitle>
           </DialogHeader>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -485,14 +485,14 @@ export default function AdminPopups() {
 
               {/* Name */}
               <div>
-                <Label className="text-gray-400 text-xs">Nome Interno</Label>
-                <Input value={form.name} onChange={(e) => f("name", e.target.value)} placeholder="Ex: Promo Black Friday" className="bg-gray-800 border-gray-700" />
+                <Label className="text-gray-400 text-xs">Nombre Interno</Label>
+                <Input value={form.name} onChange={(e) => f("name", e.target.value)} placeholder="Ej: Promo Black Friday" className="bg-gray-800 border-gray-700" />
               </div>
 
               {/* Audience */}
               {form.type === "promotional" && (
                 <div>
-                  <Label className="text-gray-400 text-xs">Público-Alvo</Label>
+                  <Label className="text-gray-400 text-xs">Público Objetivo</Label>
                   <Select value={form.target_audience} onValueChange={(v) => f("target_audience", v)}>
                     <SelectTrigger className="bg-gray-800 border-gray-700"><SelectValue /></SelectTrigger>
                     <SelectContent>
@@ -507,25 +507,25 @@ export default function AdminPopups() {
               {/* Active toggle */}
               <div className="flex items-center gap-3">
                 <Switch checked={form.is_active} onCheckedChange={(v) => f("is_active", v)} />
-                <Label className="text-gray-300 text-sm">Ativo</Label>
+                <Label className="text-gray-300 text-sm">Activo</Label>
               </div>
 
               {/* Trigger */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <Label className="text-gray-400 text-xs">Gatilho</Label>
+                  <Label className="text-gray-400 text-xs">Disparador</Label>
                   <Select value={form.trigger_type} onValueChange={(v) => f("trigger_type", v)}>
                     <SelectTrigger className="bg-gray-800 border-gray-700"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="manual">Manual</SelectItem>
-                      <SelectItem value="on_load">Ao carregar</SelectItem>
+                      <SelectItem value="on_load">Al cargar</SelectItem>
                       <SelectItem value="timed">Temporizado</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 {form.trigger_type === "timed" && (
                   <div>
-                    <Label className="text-gray-400 text-xs">Delay (segundos)</Label>
+                    <Label className="text-gray-400 text-xs">Retraso (segundos)</Label>
                     <Input type="number" value={form.trigger_delay_seconds} onChange={(e) => f("trigger_delay_seconds", parseInt(e.target.value) || 0)} className="bg-gray-800 border-gray-700" />
                   </div>
                 )}
@@ -533,18 +533,18 @@ export default function AdminPopups() {
 
               {/* Marketing fields */}
               <div className="space-y-2 border border-dashed border-gray-700 rounded-lg p-3">
-                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Conteúdo do Pop-up</p>
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Contenido del Pop-up</p>
                 <div>
                   <Label className="text-gray-400 text-xs">Subtítulo</Label>
-                  <Input value={form.subtitle} onChange={(e) => f("subtitle", e.target.value)} placeholder="Texto de apoio" className="bg-gray-800 border-gray-700" />
+                  <Input value={form.subtitle} onChange={(e) => f("subtitle", e.target.value)} placeholder="Texto de apoyo" className="bg-gray-800 border-gray-700" />
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <Label className="text-gray-400 text-xs">Texto do Botão</Label>
-                    <Input value={form.button_text} onChange={(e) => f("button_text", e.target.value)} placeholder="Ex: Quero agora!" className="bg-gray-800 border-gray-700" />
+                    <Label className="text-gray-400 text-xs">Texto del Botón</Label>
+                    <Input value={form.button_text} onChange={(e) => f("button_text", e.target.value)} placeholder="Ej: ¡Lo quiero ahora!" className="bg-gray-800 border-gray-700" />
                   </div>
                   <div>
-                    <Label className="text-gray-400 text-xs">URL do Botão</Label>
+                    <Label className="text-gray-400 text-xs">URL del Botón</Label>
                     <Input value={form.button_url} onChange={(e) => f("button_url", e.target.value)} placeholder="https://..." className="bg-gray-800 border-gray-700" />
                   </div>
                 </div>
@@ -552,10 +552,10 @@ export default function AdminPopups() {
 
               {/* Image */}
               <div>
-                <Label className="text-gray-400 text-xs">Imagem de Destaque</Label>
+                <Label className="text-gray-400 text-xs">Imagen Destacada</Label>
                 <div className="flex gap-2 mt-1">
                   <Input
-                    placeholder="URL da imagem"
+                    placeholder="URL de la imagen"
                     value={form.image_url}
                     onChange={(e) => f("image_url", e.target.value)}
                     className="bg-gray-800 border-gray-700 flex-1"
@@ -576,17 +576,17 @@ export default function AdminPopups() {
 
               {/* Questions */}
               <div className="space-y-3 border border-dashed border-gray-700 rounded-lg p-3">
-                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Funil de Perguntas</p>
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Embudo de Preguntas</p>
                 {[1, 2, 3].map((n) => (
                   <div key={n} className="space-y-1.5">
                     <Input
-                      placeholder={`Pergunta ${n}`}
+                      placeholder={`Pregunta ${n}`}
                       value={(form as any)[`question_${n}_text`]}
                       onChange={(e) => f(`question_${n}_text` as keyof FormState, e.target.value)}
                       className="bg-gray-800 border-gray-700 text-sm"
                     />
                     <Input
-                      placeholder="Opções (separadas por vírgula)"
+                      placeholder="Opciones (separadas por coma)"
                       value={(form as any)[`question_${n}_options`]}
                       onChange={(e) => f(`question_${n}_options` as keyof FormState, e.target.value)}
                       className="bg-gray-800 border-gray-700 text-sm text-gray-400"
@@ -597,21 +597,21 @@ export default function AdminPopups() {
 
               {/* Final screen */}
               <div className="space-y-3 border border-dashed border-gray-700 rounded-lg p-3">
-                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Tela Final</p>
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Pantalla Final</p>
                 <Input
-                  placeholder="Título final (ex: O Plano PRO é pra você!)"
+                  placeholder="Título final (ej: ¡El Plan PRO es para ti!)"
                   value={form.final_title}
                   onChange={(e) => f("final_title", e.target.value)}
                   className="bg-gray-800 border-gray-700 text-sm"
                 />
                 <Textarea
-                  placeholder="Benefícios (separados por vírgula)"
+                  placeholder="Beneficios (separados por coma)"
                   value={form.final_benefits}
                   onChange={(e) => f("final_benefits", e.target.value)}
                   className="bg-gray-800 border-gray-700 text-sm min-h-[64px]"
                 />
                 <Input
-                  placeholder="Link de checkout (https://...)"
+                  placeholder="Enlace de checkout (https://...)"
                   value={form.checkout_link}
                   onChange={(e) => f("checkout_link", e.target.value)}
                   className="bg-gray-800 border-gray-700 text-sm"
@@ -621,7 +621,7 @@ export default function AdminPopups() {
 
             {/* Right: preview */}
             <div className="space-y-3">
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Pré-visualização</p>
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Vista previa</p>
               <PopupPreview form={form} />
             </div>
           </div>
@@ -632,7 +632,7 @@ export default function AdminPopups() {
             </Button>
             <Button onClick={handleSave} disabled={saving}>
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
-              {editId ? "Salvar Alterações" : "Criar Pop-up"}
+              {editId ? "Guardar Cambios" : "Crear Pop-up"}
             </Button>
           </div>
         </DialogContent>

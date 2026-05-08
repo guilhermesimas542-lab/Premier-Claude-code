@@ -18,8 +18,8 @@ interface QuickCard {
 const cards: QuickCard[] = [
   {
     id: "multiplas-bingo",
-    title: "Múltiplas / Bingo",
-    subtitle: "Combinações e bilhetes",
+    title: "Múltiples / Bingo",
+    subtitle: "Combinaciones y tickets",
     route: "/odds-altas",
     icon: <Target className="w-5 h-5" />,
     addonKey: "hasMultiplasBingo",
@@ -28,7 +28,7 @@ const cards: QuickCard[] = [
   {
     id: "alavancagem",
     title: "Alavancagem",
-    subtitle: "Sequências e progresso",
+    subtitle: "Secuencias y progreso",
     route: "/alavancagem",
     icon: <TrendingUp className="w-5 h-5" />,
     addonKey: "hasAlavancagem",
@@ -36,8 +36,8 @@ const cards: QuickCard[] = [
   },
   {
     id: "bilhetes",
-    title: "Últimos Bilhetes",
-    subtitle: "Histórico de greens",
+    title: "Últimos Tickets",
+    subtitle: "Historial de greens",
     route: "/ultimos-greens",
     icon: <FileText className="w-5 h-5" />,
   },
@@ -65,7 +65,7 @@ export const QuickAccessCards = () => {
   return (
     <section className="space-y-2.5">
       <h2 className="text-base sm:text-lg font-bold" style={{ color: "#FFFFFF" }}>
-        Acesso Rápido
+        Acceso Rápido
       </h2>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5">
@@ -133,7 +133,7 @@ export const QuickAccessCards = () => {
                     {card.title}
                   </h3>
                   <p className="text-[11px]" style={{ color: locked ? "rgba(255,160,80,0.7)" : "#AAAAAA" }}>
-                    {locked ? "Add-on necessário • Toque para adquirir" : card.subtitle}
+                    {locked ? "Add-on necesario • Toca para adquirir" : card.subtitle}
                   </p>
                 </div>
 

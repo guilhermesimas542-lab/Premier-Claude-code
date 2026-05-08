@@ -1,28 +1,28 @@
 import { formatInTimeZone, toZonedTime } from 'date-fns-tz';
 
-export const BRAZIL_TZ = 'America/Sao_Paulo';
+export const CHILE_TZ = 'America/Santiago';
 
-/** Returns today's date string (YYYY-MM-DD) in São Paulo timezone */
-export function getTodayInBrazil(): string {
-  return formatInTimeZone(new Date(), BRAZIL_TZ, 'yyyy-MM-dd');
+/** Retorna a data de hoje no formato YYYY-MM-DD no timezone de Santiago */
+export function getTodayInChile(): string {
+  return formatInTimeZone(new Date(), CHILE_TZ, 'yyyy-MM-dd');
 }
 
-/** Returns current Date object adjusted to São Paulo timezone */
-export function nowInBrazil(): Date {
-  return toZonedTime(new Date(), BRAZIL_TZ);
+/** Retorna o objeto Date atual ajustado para o timezone de Santiago */
+export function nowInChile(): Date {
+  return toZonedTime(new Date(), CHILE_TZ);
 }
 
-/** Format a UTC date string to Brazilian date display */
-export function formatDateBR(dateStr: string): string {
-  return formatInTimeZone(new Date(dateStr), BRAZIL_TZ, 'dd/MM/yyyy');
+/** Formata uma string UTC para data no padrão chileno (DD/MM/YYYY) */
+export function formatDateCL(dateStr: string): string {
+  return formatInTimeZone(new Date(dateStr), CHILE_TZ, 'dd/MM/yyyy');
 }
 
-/** Format a UTC date string to Brazilian time display */
-export function formatTimeBR(dateStr: string): string {
-  return formatInTimeZone(new Date(dateStr), BRAZIL_TZ, 'HH:mm');
+/** Formata uma string UTC para hora no padrão chileno (HH:mm) */
+export function formatTimeCL(dateStr: string): string {
+  return formatInTimeZone(new Date(dateStr), CHILE_TZ, 'HH:mm');
 }
 
-/** Format a UTC date string to Brazilian date + time display */
-export function formatDateTimeBR(dateStr: string, format = 'dd/MM HH:mm'): string {
-  return formatInTimeZone(new Date(dateStr), BRAZIL_TZ, format);
+/** Formata uma string UTC para data + hora no padrão chileno */
+export function formatDateTimeCL(dateStr: string, format = 'dd/MM HH:mm'): string {
+  return formatInTimeZone(new Date(dateStr), CHILE_TZ, format);
 }

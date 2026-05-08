@@ -26,31 +26,31 @@ export const ALL_EVENTS = [
 
 export const EVENT_DISPLAY: Record<string, string> = {
   'Purchase_Order_Confirmed': 'Compra Completa',
-  'Subscription_Renewed': 'Renovação Efetuada',
-  'Subscription_Reactivated': 'Assinatura Reativada',
+  'Subscription_Renewed': 'Renovación Efectuada',
+  'Subscription_Reactivated': 'Suscripción Reactivada',
   'Purchase_Refunded': 'Reembolso',
-  'Subscription_Cancelled': 'Assinatura Cancelada',
+  'Subscription_Cancelled': 'Suscripción Cancelada',
   'Chargeback': 'Chargeback',
   'purchase': 'Compra',
-  'approved': 'Aprovado',
+  'approved': 'Aprobado',
   'refund': 'Reembolso',
-  'cancel': 'Cancelamento',
+  'cancel': 'Cancelación',
   'Compra_Completa': 'Compra Completa',
-  'Pagamento_de_Renovacao_Efetuado': 'Renovação Efetuada',
-  'Pagamento_Estornado': 'Pagamento Estornado',
+  'Pagamento_de_Renovacao_Efetuado': 'Renovación Efectuada',
+  'Pagamento_Estornado': 'Pago Revertido',
   'Pagamento_Reembolsado': 'Reembolso',
   'Reembolso_Solicitado': 'Reembolso Solicitado',
-  'Assinatura_Cancelada': 'Assinatura Cancelada',
-  'Assinatura_Expirada': 'Assinatura Expirada',
-  'Assinatura_Pendente_de_Renovacao': 'Pendente de Renovação',
-  'Carrinho_Abandonado': 'Carrinho Abandonado',
+  'Assinatura_Cancelada': 'Suscripción Cancelada',
+  'Assinatura_Expirada': 'Suscripción Expirada',
+  'Assinatura_Pendente_de_Renovacao': 'Pendiente de Renovación',
+  'Carrinho_Abandonado': 'Carrito Abandonado',
   'Pedido_de_Compra_Cancelado': 'Pedido Cancelado',
   'Pedido_de_Compra_Expirado': 'Pedido Expirado',
-  'Fatura_Criada': 'Fatura Criada',
-  'Liberacao_e_remocao_de_acesso': 'Liberação de Acesso',
-  'Inicio_liberacao_de_acesso': 'Início Acesso',
-  'Fim_liberacao_de_acesso': 'Fim Acesso',
-  'Notificar_Membro_Ativo': 'Notificação Membro',
+  'Fatura_Criada': 'Factura Creada',
+  'Liberacao_e_remocao_de_acesso': 'Liberación de Acceso',
+  'Inicio_liberacao_de_acesso': 'Inicio Acceso',
+  'Fim_liberacao_de_acesso': 'Fin Acceso',
+  'Notificar_Membro_Ativo': 'Notificación Miembro',
   'Periodo_de_Reembolso_Terminado': 'Período Reembolso Terminado',
 };
 
@@ -59,14 +59,14 @@ export function getEventDisplay(eventName: string): string {
 }
 
 export function getEventCategory(eventName: string): { label: string; color: string } {
-  if (REVENUE_EVENTS.includes(eventName)) return { label: 'Receita', color: 'green' };
-  if (LOSS_EVENTS.includes(eventName)) return { label: 'Perda', color: 'red' };
-  if (RECOVERY_EVENTS.includes(eventName)) return { label: 'Recuperação', color: 'orange' };
+  if (REVENUE_EVENTS.includes(eventName)) return { label: 'Ingresos', color: 'green' };
+  if (LOSS_EVENTS.includes(eventName)) return { label: 'Pérdida', color: 'red' };
+  if (RECOVERY_EVENTS.includes(eventName)) return { label: 'Recuperación', color: 'orange' };
   return { label: 'Info', color: 'gray' };
 }
 
-export function formatBRL(value: number): string {
-  return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+export function formatCLP(value: number): string {
+  return value.toLocaleString('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 });
 }
 
 export interface FinancialEvent {
@@ -86,39 +86,39 @@ export interface FinancialEvent {
 }
 
 export const UPSELL_FILTERS = [
-  // Geral
-  { label: '── Todas as Oportunidades', tier: 'all', missingKey: '_any' },
+  // General
+  { label: '── Todas las Oportunidades', tier: 'all', missingKey: '_any' },
   // Global
-  { label: 'Qualquer plano sem Vitalício', tier: 'any_paid', missingKey: 'acesso_vitalicio', checkVitalicio: true },
-  { label: 'Qualquer plano sem Live Telegram', tier: 'any_paid', missingKey: 'live_telegram' },
+  { label: 'Cualquier plan sin Vitalicio', tier: 'any_paid', missingKey: 'acesso_vitalicio', checkVitalicio: true },
+  { label: 'Cualquier plan sin Live Telegram', tier: 'any_paid', missingKey: 'live_telegram' },
   // Free
-  { label: 'Free sem Alavancagem', tier: 'free', missingKey: 'alavancagem' },
-  { label: 'Free sem Múltiplas / Bingo', tier: 'free', missingKey: 'multiplas_bingo' },
-  { label: 'Free sem Live Telegram', tier: 'free', missingKey: 'live_telegram' },
+  { label: 'Free sin Apalancamiento', tier: 'free', missingKey: 'alavancagem' },
+  { label: 'Free sin Múltiples / Bingo', tier: 'free', missingKey: 'multiplas_bingo' },
+  { label: 'Free sin Live Telegram', tier: 'free', missingKey: 'live_telegram' },
   // Básico
-  { label: 'Básico sem Alavancagem', tier: 'basic', missingKey: 'alavancagem' },
-  { label: 'Básico sem Múltiplas / Bingo', tier: 'basic', missingKey: 'multiplas_bingo' },
-  { label: 'Básico sem Live Telegram', tier: 'basic', missingKey: 'live_telegram' },
+  { label: 'Básico sin Apalancamiento', tier: 'basic', missingKey: 'alavancagem' },
+  { label: 'Básico sin Múltiples / Bingo', tier: 'basic', missingKey: 'multiplas_bingo' },
+  { label: 'Básico sin Live Telegram', tier: 'basic', missingKey: 'live_telegram' },
   // Pro
-  { label: 'Pro sem Alavancagem', tier: 'pro', missingKey: 'alavancagem' },
-  { label: 'Pro sem Múltiplas / Bingo', tier: 'pro', missingKey: 'multiplas_bingo' },
-  { label: 'Pro sem Live Telegram', tier: 'pro', missingKey: 'live_telegram' },
+  { label: 'Pro sin Apalancamiento', tier: 'pro', missingKey: 'alavancagem' },
+  { label: 'Pro sin Múltiples / Bingo', tier: 'pro', missingKey: 'multiplas_bingo' },
+  { label: 'Pro sin Live Telegram', tier: 'pro', missingKey: 'live_telegram' },
   // Ultra
-  { label: 'Ultra sem Alavancagem', tier: 'ultra', missingKey: 'alavancagem' },
-  { label: 'Ultra sem Múltiplas / Bingo', tier: 'ultra', missingKey: 'multiplas_bingo' },
-  { label: 'Ultra sem Live Telegram', tier: 'ultra', missingKey: 'live_telegram' },
+  { label: 'Ultra sin Apalancamiento', tier: 'ultra', missingKey: 'alavancagem' },
+  { label: 'Ultra sin Múltiples / Bingo', tier: 'ultra', missingKey: 'multiplas_bingo' },
+  { label: 'Ultra sin Live Telegram', tier: 'ultra', missingKey: 'live_telegram' },
 ];
 
 export const TIER_DISPLAY: Record<string, string> = {
-  free: 'Grátis',
+  free: 'Gratis',
   basic: 'Básico',
   pro: 'Pro',
   ultra: 'Ultra',
 };
 
 export const ADDON_DISPLAY: Record<string, string> = {
-  alavancagem: 'Alavancagem',
-  multiplas_bingo: 'Múltiplas / Bingo',
+  alavancagem: 'Apalancamiento',
+  multiplas_bingo: 'Múltiples / Bingo',
   live_telegram: 'Live Telegram',
-  acesso_vitalicio: 'Acesso Vitalício',
+  acesso_vitalicio: 'Acceso Vitalicio',
 };

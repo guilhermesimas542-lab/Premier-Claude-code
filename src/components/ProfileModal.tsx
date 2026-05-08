@@ -13,7 +13,7 @@ import { useNavigate } from "react-router-dom";
 import AchievementsSection from "@/components/AchievementsSection";
 
 const TIER_LABELS: Record<string, string> = {
-  free: "Gratuito",
+  free: "Gratis",
   basic: "Basic",
   pro: "Pro",
   premium: "Premium",
@@ -70,12 +70,12 @@ const ProfileModal = ({ isOpen, onClose }: ProfileModalProps) => {
   const handleSaveNickname = async () => {
     if (!userId || !nicknameInput.trim()) {
       if (!userId) {
-        toast.error("Erro: Usuário não encontrado. Tente fazer login novamente.");
+        toast.error("Error: Usuario no encontrado. Inténtalo iniciar sesión de nuevo.");
       }
       return;
     }
     if (!/^[a-zA-Z0-9_]{3,20}$/.test(nicknameInput)) {
-      toast.error("Nickname deve ter 3-20 caracteres (letras, números, _)");
+      toast.error("El Nickname debe tener 3-20 caracteres (letras, números, _)");
       return;
     }
     setSavingNickname(true);
@@ -85,12 +85,12 @@ const ProfileModal = ({ isOpen, onClose }: ProfileModalProps) => {
       .eq('id', userId);
     setSavingNickname(false);
     if (error) {
-      toast.error(error.message.includes('unique') ? "Nickname já em uso!" : "Erro ao salvar nickname");
+      toast.error(error.message.includes('unique') ? "¡Nickname ya en uso!" : "Error al guardar el nickname");
     } else {
       setNickname(nicknameInput);
       setShowNicknameModal(false);
       if (!nickname) sendXpEvent('COMPLETE_PROFILE');
-      toast.success("Nickname salvo!");
+      toast.success("¡Nickname guardado!");
     }
   };
 
@@ -103,7 +103,7 @@ const ProfileModal = ({ isOpen, onClose }: ProfileModalProps) => {
     if (!error) {
       setCurrentAvatarId(avatarId);
       setShowAvatarModal(false);
-      toast.success("Avatar atualizado!");
+      toast.success("¡Avatar actualizado!");
       sendXpEvent('COMPLETE_PROFILE');
     }
   };
@@ -144,7 +144,7 @@ const ProfileModal = ({ isOpen, onClose }: ProfileModalProps) => {
               >
                 {currentAvatar.emoji}
               </button>
-              <p className="text-xs opacity-60 mb-2 text-white">Toque para trocar avatar</p>
+              <p className="text-xs opacity-60 mb-2 text-white">Toca para cambiar avatar</p>
 
               <button onClick={() => { setNicknameInput(nickname); setShowNicknameModal(true); }}>
                 <h2 className="text-lg font-bold" style={{ color: '#00FF00' }}>
@@ -157,12 +157,12 @@ const ProfileModal = ({ isOpen, onClose }: ProfileModalProps) => {
                 {planLabel && (
                   <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full" style={{ background: 'rgba(0,255,127,0.16)', border: '1px solid rgba(0,255,127,0.35)' }}>
                     <Trophy className="w-4 h-4" style={{ color: '#00FF7F' }} />
-                    <span className="text-sm font-bold" style={{ color: '#00FF7F' }}>Plano {planLabel}</span>
+                    <span className="text-sm font-bold" style={{ color: '#00FF7F' }}>Plan {planLabel}</span>
                   </div>
                 )}
                 <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full" style={{ background: 'rgba(0,255,0,0.15)', border: '1px solid rgba(0,255,0,0.3)' }}>
                   <Star className="w-4 h-4" style={{ color: '#FFD700' }} />
-                  <span className="text-sm font-bold" style={{ color: '#FFD700' }}>Nível {level} — {levelTitle}</span>
+                  <span className="text-sm font-bold" style={{ color: '#FFD700' }}>Nivel {level} — {levelTitle}</span>
                 </div>
               </div>
 
@@ -187,9 +187,9 @@ const ProfileModal = ({ isOpen, onClose }: ProfileModalProps) => {
             {/* Stats Grid */}
             <div className="grid grid-cols-2 gap-3">
               {[
-                { icon: Flame, label: 'Streak', value: `${gamification?.current_streak || 0} dias`, color: '#FF6B35' },
-                { icon: Trophy, label: 'Maior Streak', value: `${gamification?.longest_streak || 0} dias`, color: '#FFD700' },
-                { icon: Calendar, label: 'Total Logins', value: `${gamification?.total_logins || 0}`, color: '#00BFFF' },
+                { icon: Flame, label: 'Streak', value: `${gamification?.current_streak || 0} días`, color: '#FF6B35' },
+                { icon: Trophy, label: 'Mejor Streak', value: `${gamification?.longest_streak || 0} días`, color: '#FFD700' },
+                { icon: Calendar, label: 'Total de inicios', value: `${gamification?.total_logins || 0}`, color: '#00BFFF' },
                 
               ].map(({ icon: Icon, label, value, color }) => (
                 <div
@@ -227,10 +227,10 @@ const ProfileModal = ({ isOpen, onClose }: ProfileModalProps) => {
       <Dialog open={showAvatarModal} onOpenChange={setShowAvatarModal}>
         <DialogContent className="bg-[#0a0a0a] border-[#1a3a1a] text-white max-w-sm">
           <DialogHeader>
-            <DialogTitle style={{ color: '#00FF00' }}>Escolha seu Avatar</DialogTitle>
+            <DialogTitle style={{ color: '#00FF00' }}>Elige tu Avatar</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <p className="text-xs opacity-60">Desbloqueie novos avatares subindo de nível!</p>
+            <p className="text-xs opacity-60">¡Desbloquea nuevos avatares subiendo de nivel!</p>
             <div className="grid grid-cols-4 gap-3">
               {AVATARS.map((avatar) => {
                 const isUnlockedAvatar = avatar.requiredLevel <= level;
@@ -265,11 +265,11 @@ const ProfileModal = ({ isOpen, onClose }: ProfileModalProps) => {
             <DialogTitle style={{ color: '#00FF00' }}>Definir Nickname</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <p className="text-xs opacity-60">3-20 caracteres: letras, números e underscore</p>
+            <p className="text-xs opacity-60">3-20 caracteres: letras, números y guión bajo</p>
             <Input
               value={nicknameInput}
               onChange={(e) => setNicknameInput(e.target.value)}
-              placeholder="seu_nickname"
+              placeholder="tu_nickname"
               maxLength={20}
               className="bg-black/50 border-[#1a3a1a] text-white"
             />
@@ -279,7 +279,7 @@ const ProfileModal = ({ isOpen, onClose }: ProfileModalProps) => {
               className="w-full"
               style={{ background: '#00CC00' }}
             >
-              {savingNickname ? 'Salvando...' : 'Salvar'}
+              {savingNickname ? 'Guardando...' : 'Guardar'}
             </Button>
           </div>
         </DialogContent>

@@ -8,7 +8,7 @@ import {
   PieChart, Pie, Cell, Legend, BarChart, Bar,
 } from "recharts";
 import { format, subDays, startOfDay, endOfDay, eachDayOfInterval, parseISO } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { es } from "date-fns/locale";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
@@ -33,23 +33,23 @@ const PLAN_COLORS = ["#3b82f6", "#22c55e", "#eab308", "#a855f7"];
 const ADDON_COLOR = "#6366f1";
 
 const PERIOD_SHORTCUTS = [
-  { label: "Hoje", days: 0 },
-  { label: "Ontem", days: 1 },
-  { label: "Anteontem", days: 2 },
-  { label: "7 dias", days: 7 },
-  { label: "30 dias", days: 30 },
-  { label: "90 dias", days: 90 },
+  { label: "Hoy", days: 0 },
+  { label: "Ayer", days: 1 },
+  { label: "Anteayer", days: 2 },
+  { label: "7 días", days: 7 },
+  { label: "30 días", days: 30 },
+  { label: "90 días", days: 90 },
 ];
 
 const KPI_TOOLTIPS: Record<string, string> = {
-  "Usuários únicos": "Quantidade de usuários distintos que geraram pelo menos um evento no período selecionado.",
-  "Sessões": "Número total de sessões únicas registradas no período. Uma sessão é contada cada vez que o usuário abre o app.",
-  "Tempo médio": "Tempo médio por sessão, calculado a partir dos eventos de screen_time dividido pelo número de sessões.",
-  "Novos cadastros": "Usuários criados (liberados) dentro do período selecionado.",
-  "Taxa de conversão": "Percentual de usuários únicos que clicaram em \"comprar\" nos popups de funil.",
-  "Ativos hoje": "Usuários distintos que geraram eventos hoje, independente do período filtrado.",
-  "Notificações enviadas": "Total de notificações disparadas no período.",
-  "Tips cadastradas": "Total de tips criadas no período selecionado.",
+  "Usuarios únicos": "Cantidad de usuarios distintos que generaron al menos un evento en el período seleccionado.",
+  "Sesiones": "Número total de sesiones únicas registradas en el período. Una sesión se cuenta cada vez que el usuario abre la app.",
+  "Tiempo promedio": "Tiempo promedio por sesión, calculado a partir de los eventos de screen_time dividido por el número de sesiones.",
+  "Nuevos registros": "Usuarios creados (liberados) dentro del período seleccionado.",
+  "Tasa de conversión": "Porcentaje de usuarios únicos que hicieron clic en \"comprar\" en los popups de embudo.",
+  "Activos hoy": "Usuarios distintos que generaron eventos hoy, independiente del período filtrado.",
+  "Notificaciones enviadas": "Total de notificaciones enviadas en el período.",
+  "Tips registradas": "Total de tips creadas en el período seleccionado.",
 };
 
 // ─── Component ───────────────────────────────────────────────────────────────
@@ -180,7 +180,7 @@ export default function AdminAnalytics() {
       if (day && dayMap[day] !== undefined) dayMap[day]++;
     });
     setSessionsByDay(days.map((d) => ({
-      day: format(d, "dd/MM", { locale: ptBR }),
+      day: format(d, "dd/MM", { locale: es }),
       sessions: dayMap[format(d, "yyyy-MM-dd")],
     })));
 
@@ -188,7 +188,7 @@ export default function AdminAnalytics() {
     const planCount: Record<string, number> = { free: 0, basic: 0, pro: 0, ultra: 0 };
     (allUsers ?? []).forEach((u: any) => { planCount[u.main_tier] = (planCount[u.main_tier] ?? 0) + 1; });
     setPlanDist([
-      { name: "Free", value: planCount.free },
+      { name: "Gratis", value: planCount.free },
       { name: "Básico", value: planCount.basic },
       { name: "Pro", value: planCount.pro },
       { name: "Ultra", value: planCount.ultra },
@@ -198,9 +198,9 @@ export default function AdminAnalytics() {
     const addonCount: Record<string, number> = { alavancagem: 0, multiplas_bingo: 0, acesso_vitalicio: 0, live_telegram: 0 };
     (entitlements ?? []).forEach((e: any) => { if (addonCount[e.product_key] !== undefined) addonCount[e.product_key]++; });
     setAddonDist([
-      { name: "Alavancagem", count: addonCount.alavancagem },
-      { name: "Múltiplas / Bingo", count: addonCount.multiplas_bingo },
-      { name: "Vitalício", count: addonCount.acesso_vitalicio },
+      { name: "Apalancamiento", count: addonCount.alavancagem },
+      { name: "Múltiples / Bingo", count: addonCount.multiplas_bingo },
+      { name: "Vitalicio", count: addonCount.acesso_vitalicio },
       { name: "Live", count: addonCount.live_telegram },
     ]);
 
@@ -272,27 +272,27 @@ export default function AdminAnalytics() {
 
   // KPI cards config
   const kpiCards = [
-    { label: "Usuários únicos", value: kpis.uniqueUsers, icon: <Users className="w-4 h-4" />, color: "text-blue-400" },
-    { label: "Sessões", value: kpis.totalSessions, icon: <Activity className="w-4 h-4" />, color: "text-purple-400" },
-    { label: "Tempo médio", value: kpis.avgDuration > 0 ? `${Math.floor(kpis.avgDuration / 60)}m ${kpis.avgDuration % 60}s` : "—", icon: <Clock className="w-4 h-4" />, color: "text-yellow-400" },
-    { label: "Novos cadastros", value: kpis.newUsers, icon: <UserPlus className="w-4 h-4" />, color: "text-green-400" },
-    { label: "Taxa de conversão", value: `${kpis.conversionRate}%`, icon: <TrendingUp className="w-4 h-4" />, color: "text-orange-400" },
-    { label: "Ativos hoje", value: kpis.activeToday, icon: <Target className="w-4 h-4" />, color: "text-pink-400" },
-    { label: "Notificações enviadas", value: kpis.notificationsSent, icon: <Bell className="w-4 h-4" />, color: "text-indigo-400" },
+    { label: "Usuarios únicos", value: kpis.uniqueUsers, icon: <Users className="w-4 h-4" />, color: "text-blue-400" },
+    { label: "Sesiones", value: kpis.totalSessions, icon: <Activity className="w-4 h-4" />, color: "text-purple-400" },
+    { label: "Tiempo promedio", value: kpis.avgDuration > 0 ? `${Math.floor(kpis.avgDuration / 60)}m ${kpis.avgDuration % 60}s` : "—", icon: <Clock className="w-4 h-4" />, color: "text-yellow-400" },
+    { label: "Nuevos registros", value: kpis.newUsers, icon: <UserPlus className="w-4 h-4" />, color: "text-green-400" },
+    { label: "Tasa de conversión", value: `${kpis.conversionRate}%`, icon: <TrendingUp className="w-4 h-4" />, color: "text-orange-400" },
+    { label: "Activos hoy", value: kpis.activeToday, icon: <Target className="w-4 h-4" />, color: "text-pink-400" },
+    { label: "Notificaciones enviadas", value: kpis.notificationsSent, icon: <Bell className="w-4 h-4" />, color: "text-indigo-400" },
   ];
 
   const handleExportGeneralCSV = () => {
     const headers = ["Métrica", "Valor"];
     const rows = [
-      ["Período", `${from.toLocaleDateString("pt-BR")} até ${to.toLocaleDateString("pt-BR")}`],
-      ["Usuários únicos", String(kpis.uniqueUsers)],
-      ["Sessões", String(kpis.totalSessions)],
-      ["Tempo médio (seg)", String(kpis.avgDuration)],
-      ["Novos cadastros", String(kpis.newUsers)],
-      ["Taxa de conversão", `${kpis.conversionRate}%`],
-      ["Ativos hoje", String(kpis.activeToday)],
-      ["Notificações enviadas", String(kpis.notificationsSent)],
-      ["Tips cadastradas", String(tipsCount)],
+      ["Período", `${from.toLocaleDateString("es-CL")} hasta ${to.toLocaleDateString("es-CL")}`],
+      ["Usuarios únicos", String(kpis.uniqueUsers)],
+      ["Sesiones", String(kpis.totalSessions)],
+      ["Tiempo promedio (seg)", String(kpis.avgDuration)],
+      ["Nuevos registros", String(kpis.newUsers)],
+      ["Tasa de conversión", `${kpis.conversionRate}%`],
+      ["Activos hoy", String(kpis.activeToday)],
+      ["Notificaciones enviadas", String(kpis.notificationsSent)],
+      ["Tips registradas", String(tipsCount)],
     ];
     const csvContent = [headers, ...rows]
       .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(","))
@@ -301,18 +301,18 @@ export default function AdminAnalytics() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `analytics_geral_${new Date().toISOString().split("T")[0]}.csv`;
+    a.download = `analytics_general_${new Date().toISOString().split("T")[0]}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   };
 
   const handleExportUserUsageCSV = () => {
-    const headers = ["Email", "Eventos", "Tempo total (seg)", "Último acesso"];
+    const headers = ["Correo", "Eventos", "Tiempo total (seg)", "Último acceso"];
     const rows = sortedUserTable.map((u: any) => [
       u.email ?? "",
       String(u.sessions ?? 0),
       String(u.totalTime ?? 0),
-      u.last_seen_at ? new Date(u.last_seen_at).toLocaleDateString("pt-BR") : "—",
+      u.last_seen_at ? new Date(u.last_seen_at).toLocaleDateString("es-CL") : "—",
     ]);
     const csvContent = [headers, ...rows]
       .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(","))
@@ -329,11 +329,11 @@ export default function AdminAnalytics() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
-        <h2 className="text-xl font-bold">Analytics — {selectedHouse?.name ?? "Visão Geral"}</h2>
+        <h2 className="text-xl font-bold">Analítica — {selectedHouse?.name ?? "Vista General"}</h2>
         <button
           onClick={() => load()}
           className="p-2 rounded-lg bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-white transition-colors"
-          title="Atualizar dados"
+          title="Actualizar datos"
         >
           <RefreshCw className="w-4 h-4" />
         </button>
@@ -375,7 +375,7 @@ export default function AdminAnalytics() {
               </PopoverContent>
             </Popover>
 
-            <span className="text-gray-500 text-xs">até</span>
+            <span className="text-gray-500 text-xs">hasta</span>
 
             <Popover>
               <PopoverTrigger asChild>
@@ -427,9 +427,9 @@ export default function AdminAnalytics() {
               <div className="flex items-center gap-1.5 text-xs font-medium text-teal-400">
                 <FileText className="w-4 h-4" />
                 <div className="flex items-center gap-1.5">
-                  <span>Tips cadastradas</span>
-                  {KPI_TOOLTIPS["Tips cadastradas"] && (
-                    <span title={KPI_TOOLTIPS["Tips cadastradas"]} className="cursor-help text-muted-foreground hover:text-white transition-colors">
+                  <span>Tips registradas</span>
+                  {KPI_TOOLTIPS["Tips registradas"] && (
+                    <span title={KPI_TOOLTIPS["Tips registradas"]} className="cursor-help text-muted-foreground hover:text-white transition-colors">
                       <Info className="w-3.5 h-3.5" />
                     </span>
                   )}
@@ -441,7 +441,7 @@ export default function AdminAnalytics() {
 
           {/* ── Sessions by Day ──────────────────────────────────────────── */}
           <div className="bg-gray-900 rounded-xl border border-white/10 p-4">
-            <h3 className="text-sm font-semibold text-gray-400 mb-4">Eventos por dia</h3>
+            <h3 className="text-sm font-semibold text-gray-400 mb-4">Eventos por día</h3>
             <ResponsiveContainer width="100%" height={200}>
               <LineChart data={sessionsByDay} margin={{ top: 4, right: 8, bottom: 4, left: -20 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
@@ -460,7 +460,7 @@ export default function AdminAnalytics() {
           {/* ── Distributions ────────────────────────────────────────────── */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="bg-gray-900 rounded-xl border border-white/10 p-4">
-              <h3 className="text-sm font-semibold text-gray-400 mb-4">Distribuição por plano</h3>
+              <h3 className="text-sm font-semibold text-gray-400 mb-4">Distribución por plan</h3>
               <ResponsiveContainer width="100%" height={200}>
                 <PieChart>
                   <Pie data={planDist} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={50} outerRadius={80} paddingAngle={3}>
@@ -476,7 +476,7 @@ export default function AdminAnalytics() {
             </div>
 
             <div className="bg-gray-900 rounded-xl border border-white/10 p-4">
-              <h3 className="text-sm font-semibold text-gray-400 mb-4">Distribuição por upsell</h3>
+              <h3 className="text-sm font-semibold text-gray-400 mb-4">Distribución por upsell</h3>
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={addonDist} margin={{ top: 4, right: 8, bottom: 4, left: -20 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
@@ -494,7 +494,7 @@ export default function AdminAnalytics() {
 
           {/* ── Funnel ───────────────────────────────────────────────────── */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-400 mb-3">Funil de conversão</h3>
+            <h3 className="text-sm font-semibold text-gray-400 mb-3">Embudo de conversión</h3>
             <div className="space-y-2">
               {funnel.map((step) => (
                 <div key={step.name} className="flex items-center gap-3">
@@ -515,7 +515,7 @@ export default function AdminAnalytics() {
           {/* ── User Table ───────────────────────────────────────────────── */}
           <div>
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-semibold text-gray-400">Uso por usuário</h3>
+              <h3 className="text-sm font-semibold text-gray-400">Uso por usuario</h3>
               <button
                 onClick={handleExportUserUsageCSV}
                 className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-green-600/20 text-green-400 hover:bg-green-600/30 text-xs font-medium transition-colors"
@@ -528,16 +528,16 @@ export default function AdminAnalytics() {
                 <thead>
                   <tr className="border-b border-white/10 text-left text-gray-500 text-xs">
                     <th className="px-3 py-2 cursor-pointer hover:text-white transition-colors select-none" onClick={() => toggleUserSort("email")}>
-                      <span className="flex items-center gap-1">Email {userSortKey === "email" && <span>{userSortDir === "asc" ? "↑" : "↓"}</span>}</span>
+                      <span className="flex items-center gap-1">Correo {userSortKey === "email" && <span>{userSortDir === "asc" ? "↑" : "↓"}</span>}</span>
                     </th>
                     <th className="px-3 py-2 cursor-pointer hover:text-white transition-colors select-none" onClick={() => toggleUserSort("sessions")}>
                       <span className="flex items-center gap-1">Eventos {userSortKey === "sessions" && <span>{userSortDir === "asc" ? "↑" : "↓"}</span>}</span>
                     </th>
                     <th className="px-3 py-2 cursor-pointer hover:text-white transition-colors select-none" onClick={() => toggleUserSort("totalTime")}>
-                      <span className="flex items-center gap-1">Tempo total (seg) {userSortKey === "totalTime" && <span>{userSortDir === "asc" ? "↑" : "↓"}</span>}</span>
+                      <span className="flex items-center gap-1">Tiempo total (seg) {userSortKey === "totalTime" && <span>{userSortDir === "asc" ? "↑" : "↓"}</span>}</span>
                     </th>
                     <th className="px-3 py-2 cursor-pointer hover:text-white transition-colors select-none" onClick={() => toggleUserSort("last_seen_at")}>
-                      <span className="flex items-center gap-1">Último acesso {userSortKey === "last_seen_at" && <span>{userSortDir === "asc" ? "↑" : "↓"}</span>}</span>
+                      <span className="flex items-center gap-1">Último acceso {userSortKey === "last_seen_at" && <span>{userSortDir === "asc" ? "↑" : "↓"}</span>}</span>
                     </th>
                   </tr>
                 </thead>
@@ -547,11 +547,11 @@ export default function AdminAnalytics() {
                       <td className="px-3 py-2">{u.email}</td>
                       <td className="px-3 py-2">{u.sessions}</td>
                       <td className="px-3 py-2">{u.totalTime}</td>
-                      <td className="px-3 py-2">{u.last_seen_at ? new Date(u.last_seen_at).toLocaleDateString("pt-BR") : "—"}</td>
+                      <td className="px-3 py-2">{u.last_seen_at ? new Date(u.last_seen_at).toLocaleDateString("es-CL") : "—"}</td>
                     </tr>
                   ))}
                   {sortedUserTable.length === 0 && (
-                    <tr><td colSpan={4} className="px-3 py-6 text-center text-gray-600">Sem dados no período</td></tr>
+                    <tr><td colSpan={4} className="px-3 py-6 text-center text-gray-600">Sin datos en el período</td></tr>
                   )}
                 </tbody>
               </table>

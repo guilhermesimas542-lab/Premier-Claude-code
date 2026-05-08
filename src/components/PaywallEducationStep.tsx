@@ -59,7 +59,7 @@ export function PaywallEducationStep({ feature, onContinue, imageOverride }: Pro
           style={{ aspectRatio: "1 / 1", maxWidth: "280px" }}
         >
           <ImageIcon className="w-10 h-10 mb-1" />
-          <span className="text-xs">Imagem em breve</span>
+          <span className="text-xs">Imagen próximamente</span>
         </div>
       )}
       <p className="text-sm text-white/70 leading-relaxed">{explanation}</p>
@@ -68,7 +68,7 @@ export function PaywallEducationStep({ feature, onContinue, imageOverride }: Pro
         className="w-full bg-[#00FF7F] hover:bg-[#00FF7F]/90 text-black font-bold"
         onClick={onContinue}
       >
-        Entendi, tenho interesse <ChevronRight className="w-4 h-4" />
+        Entendido, me interesa <ChevronRight className="w-4 h-4" />
       </Button>
     </div>
   );
@@ -76,9 +76,9 @@ export function PaywallEducationStep({ feature, onContinue, imageOverride }: Pro
 
 function AlavancagemSchema() {
   const steps = [
-    { label: "ETAPA 1", bet: "Aposta R$ 100", odd: "Odd 1.5x", win: "Ganha R$ 150" },
-    { label: "ETAPA 2", bet: "Aposta R$ 150", odd: "Odd 1.5x", win: "Ganha R$ 225" },
-    { label: "ETAPA 3", bet: "Aposta R$ 225", odd: "Odd 1.5x", win: "Ganha R$ 337" },
+    { label: "ETAPA 1", bet: "Apuesta $ 100", odd: "Cuota 1.5x", win: "Gana $ 150" },
+    { label: "ETAPA 2", bet: "Apuesta $ 150", odd: "Cuota 1.5x", win: "Gana $ 225" },
+    { label: "ETAPA 3", bet: "Apuesta $ 225", odd: "Cuota 1.5x", win: "Gana $ 337" },
   ];
   return (
     <div className="space-y-2">
@@ -106,7 +106,7 @@ function AlavancagemSchema() {
         ))}
       </div>
       <p className="text-[11px] text-white/60 leading-snug text-center px-2">
-        Cada acerto reinveste o ganho na próxima entrada, multiplicando o retorno final.
+        Cada acierto reinvierte la ganancia en el próximo tip, multiplicando el retorno final.
       </p>
     </div>
   );

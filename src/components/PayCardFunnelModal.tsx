@@ -24,8 +24,8 @@ export function PayCardFunnelModal({ payCard, open, onClose }: Props) {
   const checkout = payCard.checkout_config;
   const checkoutUrl = checkout?.checkout_url;
   const checkoutUrl2 = checkout?.checkout_url_2;
-  const label1 = checkout?.checkout_label_1 || "Assinar Agora";
-  const label2 = checkout?.checkout_label_2 || "Comprar Pacote Completo";
+  const label1 = checkout?.checkout_label_1 || "Suscribirme Ahora";
+  const label2 = checkout?.checkout_label_2 || "Comprar Paquete Completo";
   const hasDualCheckout = !!checkoutUrl && !!checkoutUrl2;
   const houseId = payCard.betting_house_id ?? undefined;
   const buttonColor = payCard.button_color || null;
@@ -152,7 +152,7 @@ export function PayCardFunnelModal({ payCard, open, onClose }: Props) {
           if (checkoutTemplate !== "default") {
             const benefits = checkout?.benefits || [];
             return renderFinalTemplate(checkoutTemplate, {
-              title: checkout?.title || "Perfeito para você!",
+              title: checkout?.title || "¡Perfecto para ti!",
               benefits,
               checkoutLink: checkoutUrl || null,
               checkoutLink2: checkoutUrl2 || null,

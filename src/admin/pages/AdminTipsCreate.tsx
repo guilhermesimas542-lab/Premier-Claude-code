@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { fromZonedTime } from "date-fns-tz";
-import { BRAZIL_TZ } from "@/lib/timezone";
+import { CHILE_TZ } from "@/lib/timezone";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -35,7 +35,7 @@ const CATEGORIA_MAP: Record<string, { tier: string; addon: string | null; featur
 
 function getTodayBrasilia(): string {
   const now = new Date();
-  const brasiliaStr = now.toLocaleDateString("en-CA", { timeZone: "America/Sao_Paulo" });
+  const brasiliaStr = now.toLocaleDateString("en-CA", { timeZone: "America/Santiago" });
   return brasiliaStr;
 }
 
@@ -79,7 +79,7 @@ export default function AdminTipsCreate() {
     try {
       const raw = betBuilderJson.trim();
       if (!raw) {
-        setBetBuilderError("Cole o JSON antes de importar.");
+        setBetBuilderError("Pega el JSON antes de importar.");
         return;
       }
       // Remover aspas simples ou duplas que envolvem o JSON inteiro (vindas do console)
@@ -97,18 +97,18 @@ export default function AdminTipsCreate() {
           .replace(/[\u2018\u2019]/g, "'");         // aspas simples tipográficas
         parsed = JSON.parse(sanitized);
       } catch (e) {
-        const msg = e instanceof Error ? e.message : "Erro desconhecido";
+        const msg = e instanceof Error ? e.message : "Error desconocido";
         setBetBuilderError("JSON inválido: " + msg);
         return;
       }
       const selections = parsed?.state?.selections;
       if (!selections || !Array.isArray(selections) || selections.length === 0) {
-        setBetBuilderError("Estrutura inválida. O JSON deve ter state.selections com pelo menos 1 item.");
+        setBetBuilderError("Estructura inválida. El JSON debe tener state.selections con al menos 1 ítem.");
         return;
       }
       const first = selections[0];
       if (!first.event?.id || !first.odd?.price) {
-        setBetBuilderError("Seleção inválida: falta event.id ou odd.price.");
+        setBetBuilderError("Selección inválida: falta event.id u odd.price.");
         return;
       }
       setWsdkPayload(selections);
@@ -147,16 +147,16 @@ export default function AdminTipsCreate() {
         const bbNames = first.bbSelections.map((bb: any) =>
           `${bb.market?.shortName || bb.market?.name || "?"}: ${bb.odd?.name || "?"}`
         ).join(" · ");
-        setBetBuilderSummary(`Criar Aposta — ${eventName} — ${bbCount} pernas — Odd ${combinedOdd.toFixed(2)} — ${bbNames}`);
+        setBetBuilderSummary(`Crear Apuesta — ${eventName} — ${bbCount} patas — Cuota ${combinedOdd.toFixed(2)} — ${bbNames}`);
       } else {
-        setBetBuilderSummary(`${selections.length} seleções importadas — Odd combinada ${combinedOdd.toFixed(2)}`);
+        setBetBuilderSummary(`${selections.length} selecciones importadas — Cuota combinada ${combinedOdd.toFixed(2)}`);
       }
 
       setBetBuilderImported(true);
       setBetBuilderError("");
-      toast.success(`Criar Aposta importado com sucesso! ${isBetBuilder ? bbCount + " pernas" : selections.length + " seleções"}`);
+      toast.success(`¡Crear Apuesta importado con éxito! ${isBetBuilder ? bbCount + " patas" : selections.length + " selecciones"}`);
     } catch (err) {
-      setBetBuilderError("Erro inesperado ao processar o JSON.");
+      setBetBuilderError("Error inesperado al procesar el JSON.");
       console.error("BetBuilder import error:", err);
     }
   };
@@ -229,9 +229,9 @@ export default function AdminTipsCreate() {
     if (data.startDate) {
       try {
         const eventDate = new Date(data.startDate);
-        const brasiliaDate = eventDate.toLocaleDateString("en-CA", { timeZone: "America/Sao_Paulo" });
+        const brasiliaDate = eventDate.toLocaleDateString("en-CA", { timeZone: "America/Santiago" });
         const parts = new Intl.DateTimeFormat("en-GB", {
-          timeZone: "America/Sao_Paulo",
+          timeZone: "America/Santiago",
           hour: "2-digit",
           minute: "2-digit",
           hour12: false,
@@ -257,22 +257,22 @@ export default function AdminTipsCreate() {
   const set = (key: string, val: string) => setForm((f) => ({ ...f, [key]: val }));
 
   const isSpecialCategory = form.categoria === "alavancagem" || form.categoria === "multiplas_bingo";
-  const isBilheteEspecial = form.palpite?.trim().toLowerCase() === "bilhete especial";
+  const isBilheteEspecial = form.palpite?.trim().toLowerCase() === "ticket especial";
 
   useEffect(() => {
     if (form.categoria === "alavancagem") {
       setForm(f => ({
         ...f,
-        palpite: "Alavancagem do Dia",
-        mercado: "Combinação de Mercados",
-        mercado_explicacao: "Esta é uma entrada especial que combina múltiplos mercados de baixa odd para criar uma aposta mais segura e com potencial de alavancagem de banca.",
+        palpite: "Apalancamiento del Día",
+        mercado: "Combinación de Mercados",
+        mercado_explicacao: "Esta es una tip especial que combina múltiples mercados de baja cuota para crear una apuesta más segura y con potencial de apalancamiento de banca.",
       }));
     } else if (form.categoria === "multiplas_bingo") {
       setForm(f => ({
         ...f,
-        palpite: "Bilhete Especial",
-        mercado: "Múltipla",
-        mercado_explicacao: "Na seção de Justificativa estão todas as entradas separadas!",
+        palpite: "Ticket Especial",
+        mercado: "Múltiple",
+        mercado_explicacao: "¡En la sección de Justificación están todas las tips separadas!",
       }));
     }
   }, [form.categoria]);
@@ -284,19 +284,19 @@ export default function AdminTipsCreate() {
     e.preventDefault();
     const teamsRequired = !isSpecialCategory && (!form.team1_name || !form.team2_name);
     if (form.gameDate < getTodayBrasilia()) {
-      toast.error("Não é possível cadastrar tips para datas passadas.");
+      toast.error("No es posible registrar tips para fechas pasadas.");
       return;
     }
     if (!form.gameDate || teamsRequired || !form.odd || !form.palpite) {
-      toast.error("Preencha os campos obrigatórios");
+      toast.error("Completa los campos obligatorios");
       return;
     }
     if (!form.justification.trim()) {
-      toast.error("A justificativa é obrigatória");
+      toast.error("La justificación es obligatoria");
       return;
     }
     if (!wsdkPayload && !form.link_house_1.trim() && !form.link_house_2.trim() && !form.link_house_3.trim()) {
-      toast.error("Preencha pelo menos um link ou importe uma odd do Altenar.");
+      toast.error("Completa al menos un enlace o importa una cuota desde Altenar.");
       return;
     }
     setSaving(true);
@@ -306,11 +306,11 @@ export default function AdminTipsCreate() {
 
     // Convert game time from São Paulo timezone to UTC
     const gameLocalStr = `${dateOnly}T${form.gameHour}:${form.gameMinute}:00`;
-    const startsAtUTC = fromZonedTime(gameLocalStr, BRAZIL_TZ);
+    const startsAtUTC = fromZonedTime(gameLocalStr, CHILE_TZ);
 
     // expires_at = end of day in São Paulo timezone
     const endOfDayLocal = `${dateOnly}T23:59:00`;
-    const expiresAtUTC = fromZonedTime(endOfDayLocal, BRAZIL_TZ);
+    const expiresAtUTC = fromZonedTime(endOfDayLocal, CHILE_TZ);
 
     const payload: any = {
       title: `${form.team1_name} x ${form.team2_name}`,
@@ -359,7 +359,7 @@ export default function AdminTipsCreate() {
     const { error } = await supabase.from("content_entries").insert(payload);
     if (error) toast.error(error.message);
     else {
-      toast.success("Tip criada com sucesso");
+      toast.success("Tip creada con éxito");
       setForm({ ...EMPTY_FORM });
       setWsdkPayload(null);
       setBetBuilderJson("");
@@ -373,13 +373,13 @@ export default function AdminTipsCreate() {
 
   return (
     <div className="max-w-2xl space-y-4">
-      <h2 className="text-xl font-bold">Cadastrar Tip</h2>
+      <h2 className="text-xl font-bold">Registrar Tip</h2>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Data e Hora */}
         <div className="grid grid-cols-[1fr_auto_auto] gap-3 items-end">
           <div>
-            <label className="text-xs text-muted-foreground">Data do Jogo *</label>
+            <label className="text-xs text-muted-foreground">Fecha del Partido *</label>
             <Input
               type="date"
               value={form.gameDate}
@@ -414,18 +414,18 @@ export default function AdminTipsCreate() {
 
         {/* Categoria */}
         <div>
-          <label className="text-xs text-muted-foreground">Categoria *</label>
+          <label className="text-xs text-muted-foreground">Categoría *</label>
           <Select value={form.categoria} onValueChange={(v) => set("categoria", v)}>
             <SelectTrigger className="bg-muted/30 border-border"><SelectValue /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="free">Free</SelectItem>
-              <SelectItem value="basico">Odds Safes (Básico)</SelectItem>
-              <SelectItem value="pro">Odds Pró</SelectItem>
-              <SelectItem value="alavancagem">Alavancagem</SelectItem>
-              <SelectItem value="multiplas_bingo">Múltiplas / Bingo</SelectItem>
-              <SelectItem value="mercados_secundarios">Mercados Secundários</SelectItem>
-              <SelectItem value="esportes_americanos">Esportes Americanos</SelectItem>
-              <SelectItem value="odds_ultra">Odds Ultra</SelectItem>
+              <SelectItem value="free">Gratis</SelectItem>
+              <SelectItem value="basico">Cuotas Safes (Básico)</SelectItem>
+              <SelectItem value="pro">Cuotas Pro</SelectItem>
+              <SelectItem value="alavancagem">Apalancamiento</SelectItem>
+              <SelectItem value="multiplas_bingo">Múltiples / Bingo</SelectItem>
+              <SelectItem value="mercados_secundarios">Mercados Secundarios</SelectItem>
+              <SelectItem value="esportes_americanos">Deportes Americanos</SelectItem>
+              <SelectItem value="odds_ultra">Cuotas Ultra</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -433,9 +433,9 @@ export default function AdminTipsCreate() {
         {/* Time 1 */}
         {!isSpecialCategory && (
           <div className="border border-border rounded-lg p-3 space-y-3">
-            <span className="text-xs text-muted-foreground font-semibold uppercase">Time 1</span>
+            <span className="text-xs text-muted-foreground font-semibold uppercase">Equipo 1</span>
             <TeamAutocomplete
-              label="Time 1"
+              label="Equipo 1"
               value={form.team1_name}
               logoUrl={form.team1_logo_url}
               onChange={(name, logoUrl) => setForm(f => ({ ...f, team1_name: name, team1_logo_url: logoUrl }))}
@@ -446,9 +446,9 @@ export default function AdminTipsCreate() {
         {/* Time 2 */}
         {!isSpecialCategory && (
           <div className="border border-border rounded-lg p-3 space-y-3">
-            <span className="text-xs text-muted-foreground font-semibold uppercase">Time 2</span>
+            <span className="text-xs text-muted-foreground font-semibold uppercase">Equipo 2</span>
             <TeamAutocomplete
-              label="Time 2"
+              label="Equipo 2"
               value={form.team2_name}
               logoUrl={form.team2_logo_url}
               onChange={(name, logoUrl) => setForm(f => ({ ...f, team2_name: name, team2_logo_url: logoUrl }))}
@@ -458,7 +458,7 @@ export default function AdminTipsCreate() {
 
         {/* Odd */}
         <div>
-          <label className="text-xs text-muted-foreground">Odd *</label>
+          <label className="text-xs text-muted-foreground">Cuota *</label>
           <Input type="number" step="0.01" value={form.odd} onChange={(e) => set("odd", e.target.value)} className="bg-muted/30 border-border" />
         </div>
 
@@ -477,27 +477,27 @@ export default function AdminTipsCreate() {
         )}
 
         <div>
-          <label className="text-xs text-muted-foreground">Palpite {isSpecialCategory && "(auto)"}</label>
+          <label className="text-xs text-muted-foreground">Pronóstico {isSpecialCategory && "(auto)"}</label>
           <Input value={form.palpite} onChange={(e) => set("palpite", e.target.value)} disabled={isSpecialCategory} className="bg-muted/30 border-border disabled:opacity-60" />
         </div>
 
         <div>
           <label className="text-xs text-muted-foreground">Mercado {isSpecialCategory && "(auto)"}</label>
-          <Input value={form.mercado} onChange={(e) => set("mercado", e.target.value)} disabled={isSpecialCategory} placeholder="Ex: Over/Under, Resultado Final" className="bg-muted/30 border-border disabled:opacity-60" />
+          <Input value={form.mercado} onChange={(e) => set("mercado", e.target.value)} disabled={isSpecialCategory} placeholder="Ej: Over/Under, Resultado Final" className="bg-muted/30 border-border disabled:opacity-60" />
         </div>
 
         <div>
-          <label className="text-xs text-muted-foreground">O que é esse mercado? {isSpecialCategory && "(auto)"}</label>
-          <Textarea value={form.mercado_explicacao} onChange={(e) => set("mercado_explicacao", e.target.value)} disabled={isSpecialCategory} className="bg-muted/30 border-border disabled:opacity-60" rows={2} placeholder="Explicação que aparece no tooltip (?)" />
+          <label className="text-xs text-muted-foreground">¿Qué es este mercado? {isSpecialCategory && "(auto)"}</label>
+          <Textarea value={form.mercado_explicacao} onChange={(e) => set("mercado_explicacao", e.target.value)} disabled={isSpecialCategory} className="bg-muted/30 border-border disabled:opacity-60" rows={2} placeholder="Explicación que aparece en el tooltip (?)" />
         </div>
 
         <div>
-          <label className="text-xs text-muted-foreground">Justificativa *</label>
+          <label className="text-xs text-muted-foreground">Justificación *</label>
 
           {isBilheteEspecial && (
             <div className="mb-2">
               <label className="text-xs text-muted-foreground mb-1 block">
-                Adicionar palpite ao bilhete (autocomplete)
+                Añadir pronóstico al ticket (autocompletar)
               </label>
               <PredictionAutocomplete
                 key={bilheteAutocompleteKey}
@@ -519,7 +519,7 @@ export default function AdminTipsCreate() {
                 }}
               />
               <p className="text-xs text-muted-foreground mt-1">
-                Selecione um palpite para adicionar ao bilhete. Separador: ponto e vírgula.
+                Selecciona un pronóstico para añadirlo al ticket. Separador: punto y coma.
               </p>
             </div>
           )}
@@ -530,8 +530,8 @@ export default function AdminTipsCreate() {
             className="bg-muted/30 border-border"
             rows={isBilheteEspecial ? 6 : 3}
             placeholder={isBilheteEspecial
-              ? "Ex: ✅ Mais de 0.5 gol no 1º Tempo; ✅ Ambas Marcam - Sim;"
-              : "Texto do modal de justificativa (📊)"}
+              ? "Ej: ✅ Más de 0.5 gol en el 1er Tiempo; ✅ Ambos Marcan - Sí;"
+              : "Texto del modal de justificación (📊)"}
           />
         </div>
 
@@ -546,11 +546,11 @@ export default function AdminTipsCreate() {
         {/* Importar Criar Aposta (BetBuilder) */}
         <div className="border border-yellow-500/30 rounded-lg p-4 bg-yellow-500/5">
           <div className="flex items-center gap-2 mb-2">
-            <span className="text-yellow-400 font-semibold text-sm">🎯 IMPORTAR CRIAR APOSTA (BetBuilder)</span>
+            <span className="text-yellow-400 font-semibold text-sm">🎯 IMPORTAR CREAR APUESTA (BetBuilder)</span>
             {betBuilderImported && <span className="text-green-400 text-sm">✓ Importado</span>}
           </div>
           <p className="text-xs text-muted-foreground mb-2">
-            Cole o JSON do campo WSDK_esportiva_betSelections do localStorage da Esportiva.
+            Pega el JSON del campo WSDK_esportiva_betSelections del localStorage de Esportiva.
           </p>
           {!betBuilderImported ? (
             <>
@@ -574,7 +574,7 @@ export default function AdminTipsCreate() {
                   className="bg-yellow-600 hover:bg-yellow-700"
                   onClick={handleBetBuilderImport}
                 >
-                  Importar Criar Aposta
+                  Importar Crear Apuesta
                 </Button>
                 <Button
                   type="button"
@@ -582,7 +582,7 @@ export default function AdminTipsCreate() {
                   variant="outline"
                   onClick={() => {
                     navigator.clipboard.writeText("localStorage.getItem('WSDK_esportiva_betSelections')");
-                    toast.success("Comando copiado! Cole no console da Esportiva.");
+                    toast.success("¡Comando copiado! Pégalo en la consola de Esportiva.");
                   }}
                 >
                   Copiar Comando
@@ -602,7 +602,7 @@ export default function AdminTipsCreate() {
                 }}
                 className="text-yellow-400 hover:text-yellow-300 underline text-xs"
               >
-                Refazer importação
+                Rehacer importación
               </button>
             </div>
           )}
@@ -611,7 +611,7 @@ export default function AdminTipsCreate() {
         {/* Links por Casa de Apostas */}
         {houses.length > 0 && (
           <div className="border border-border rounded-lg p-3 space-y-2">
-            <span className="text-xs text-muted-foreground font-semibold uppercase">Links por Casa de Apostas *</span>
+            <span className="text-xs text-muted-foreground font-semibold uppercase">Enlaces por Casa de Apuestas *</span>
             {houses.slice(0, 3).map((h, idx) => {
               const key = `link_house_${idx + 1}` as "link_house_1" | "link_house_2" | "link_house_3";
               return (
@@ -626,13 +626,13 @@ export default function AdminTipsCreate() {
                 </div>
               );
             })}
-            <p className="text-[10px] text-muted-foreground/60">A tip aparece apenas para clientes da casa com link preenchido.</p>
+            <p className="text-[10px] text-muted-foreground/60">La tip aparece solo para clientes de la casa con el enlace completado.</p>
           </div>
         )}
 
         <Button type="submit" disabled={saving} className="w-full">
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
-          Salvar Tip
+          Guardar Tip
         </Button>
       </form>
     </div>

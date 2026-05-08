@@ -17,7 +17,7 @@ import {
   Percent, Download, RefreshCw,
 } from "lucide-react";
 import { toast } from "sonner";
-import { formatBRL } from "@/admin/components/revenue/constants";
+import { formatCLP } from "@/admin/components/revenue/constants";
 import { cn } from "@/lib/utils";
 
 const STAKE = 100;
@@ -52,23 +52,23 @@ interface DailyStat {
 type SortKey = keyof DailyStat;
 
 const CATEGORY_OPTIONS: { value: CategoryFilter; label: string }[] = [
-  { value: "all", label: "Todas as categorias" },
-  { value: "free", label: "Free" },
+  { value: "all", label: "Todas las categorías" },
+  { value: "free", label: "Gratis" },
   { value: "basic", label: "Básico" },
   { value: "pro", label: "Pro" },
   { value: "ultra", label: "Ultra" },
-  { value: "alavancagem", label: "Alavancagem" },
-  { value: "multiplas_bingo", label: "Múltiplas / Bingo" },
+  { value: "alavancagem", label: "Apalancamiento" },
+  { value: "multiplas_bingo", label: "Múltiples / Bingo" },
 ];
 
 const SHORTCUTS = [
-  { key: "today", label: "Hoje" },
-  { key: "yesterday", label: "Ontem" },
+  { key: "today", label: "Hoy" },
+  { key: "yesterday", label: "Ayer" },
   { key: "week", label: "Esta Semana" },
-  { key: "month", label: "Este Mês" },
-  { key: "30d", label: "Últimos 30 dias" },
-  { key: "90d", label: "Últimos 90 dias" },
-  { key: "all", label: "All Time" },
+  { key: "month", label: "Este Mes" },
+  { key: "30d", label: "Últimos 30 días" },
+  { key: "90d", label: "Últimos 90 días" },
+  { key: "all", label: "Todo el Tiempo" },
 ];
 
 function pctColorClass(pct: number) {
@@ -172,7 +172,7 @@ export default function AdminTipsAnalytics() {
 
     const { data, error } = await q;
     if (error) {
-      toast.error("Erro ao carregar entradas: " + error.message);
+      toast.error("Error al cargar las tips: " + error.message);
       setEntries([]);
     } else {
       setEntries((data ?? []) as Entry[]);
@@ -291,7 +291,7 @@ export default function AdminTipsAnalytics() {
   /* ── CSV export ── */
   const exportCsv = useCallback(() => {
     const BOM = "\uFEFF";
-    const headers = ["Data", "Entradas", "Greens", "Reds", "% Acerto", "Voids", "Stake Total", "Lucro", "ROI"];
+    const headers = ["Fecha", "Tips", "Greens", "Reds", "% Acierto", "Voids", "Stake Total", "Ganancia", "ROI"];
     const rows = sortedTable.map((d) => [
       d.date,
       d.entries,
@@ -311,7 +311,7 @@ export default function AdminTipsAnalytics() {
     a.download = `tips-analytics-${format(dateFrom, "yyyy-MM-dd")}_${format(dateTo, "yyyy-MM-dd")}.csv`;
     a.click();
     URL.revokeObjectURL(url);
-    toast.success(`CSV exportado com ${sortedTable.length} dias`);
+    toast.success(`CSV exportado con ${sortedTable.length} días`);
   }, [sortedTable, dateFrom, dateTo]);
 
   const chartData = useMemo(
@@ -326,8 +326,8 @@ export default function AdminTipsAnalytics() {
     <div className="space-y-6">
       {/* ── Header ── */}
       <div>
-        <h1 className="text-2xl font-bold text-white">Analytics de Entradas</h1>
-        <p className="text-sm text-gray-400 mt-1">Taxa de acerto e consistência diária — stake fixo de R$ 100 por entrada</p>
+        <h1 className="text-2xl font-bold text-white">Analítica de Tips</h1>
+        <p className="text-sm text-gray-400 mt-1">Tasa de acierto y consistencia diaria — stake fijo de $100 por tip</p>
       </div>
 
       {/* ── Filtros ── */}
@@ -364,20 +364,20 @@ export default function AdminTipsAnalytics() {
               </SelectContent>
             </Select>
             <Button variant="outline" size="sm" onClick={load} className="h-8 gap-1.5">
-              <RefreshCw className="w-3.5 h-3.5" /> Atualizar
+              <RefreshCw className="w-3.5 h-3.5" /> Actualizar
             </Button>
           </div>
         </div>
       </div>
 
       {loading ? (
-        <div className="text-gray-400">Carregando…</div>
+        <div className="text-gray-400">Cargando…</div>
       ) : (
         <>
           {/* ── KPI Linha 1 ── */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             <KpiCard
-              label="Win Rate no Período"
+              label="Win Rate del Período"
               value={<span className={pctColorClass(stats.winRate)}>{stats.winRate.toFixed(2)}%</span>}
               sub={
                 <span>
@@ -392,9 +392,9 @@ export default function AdminTipsAnalytics() {
               iconColor="text-green-400"
             />
             <KpiCard
-              label="Dias com + Greens"
+              label="Días con + Greens"
               value={stats.daysWithMoreGreens}
-              sub={`de ${stats.totalDays} dias no período`}
+              sub={`de ${stats.totalDays} días en el período`}
               icon={Trophy}
               iconColor="text-amber-400"
             />
@@ -407,14 +407,14 @@ export default function AdminTipsAnalytics() {
                   <span className="text-red-400">{stats.reds.length}</span>
                 </span>
               }
-              sub="acertos vs erros"
+              sub="aciertos vs errores"
               icon={BarChart3}
               iconColor="text-cyan-400"
             />
             <KpiCard
-              label="Maior Sequência"
-              value={`${stats.maxStreak} dias`}
-              sub={`acima de ${WIN_THRESHOLD}% de acerto`}
+              label="Mayor Racha"
+              value={`${stats.maxStreak} días`}
+              sub={`por encima de ${WIN_THRESHOLD}% de acierto`}
               icon={Flame}
               iconColor="text-orange-400"
             />
@@ -423,20 +423,20 @@ export default function AdminTipsAnalytics() {
           {/* ── KPI Linha 2 ── */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <KpiCard
-              label="Total de Entradas"
+              label="Total de Tips"
               value={stats.totalEntries}
-              sub={`em ${stats.totalDays} dia${stats.totalDays === 1 ? "" : "s"}`}
+              sub={`en ${stats.totalDays} día${stats.totalDays === 1 ? "" : "s"}`}
               icon={Activity}
               iconColor="text-blue-400"
             />
             <KpiCard
-              label="Média de Entradas/Dia"
+              label="Promedio de Tips/Día"
               value={stats.avgEntriesPerDay.toFixed(1)}
               icon={BarChart3}
               iconColor="text-blue-400"
             />
             <KpiCard
-              label="Média de Greens/Dia"
+              label="Promedio de Greens/Día"
               value={stats.avgGreensPerDay.toFixed(1)}
               icon={TrendingUp}
               iconColor="text-green-400"
@@ -446,14 +446,14 @@ export default function AdminTipsAnalytics() {
           {/* ── KPI Linha 3 ── */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <KpiCard
-              label="Lucro no Período"
-              value={<span className={moneyColorClass(stats.lucroTotal)}>{formatBRL(stats.lucroTotal)}</span>}
-              sub={`stake total: ${formatBRL(stats.totalDecided * STAKE)}`}
+              label="Ganancia del Período"
+              value={<span className={moneyColorClass(stats.lucroTotal)}>{formatCLP(stats.lucroTotal)}</span>}
+              sub={`stake total: ${formatCLP(stats.totalDecided * STAKE)}`}
               icon={DollarSign}
               iconColor="text-green-400"
             />
             <KpiCard
-              label="ROI no Período"
+              label="ROI del Período"
               value={<span className={moneyColorClass(stats.roi)}>{stats.roi.toFixed(2)}%</span>}
               sub="sobre stake total"
               icon={Percent}
@@ -465,7 +465,7 @@ export default function AdminTipsAnalytics() {
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
             {/* Greens x Reds por Dia */}
             <div className="bg-gray-900 border border-white/10 rounded-lg p-4">
-              <h3 className="text-sm font-semibold text-white mb-3">Greens x Reds por Dia</h3>
+              <h3 className="text-sm font-semibold text-white mb-3">Greens vs Reds por Día</h3>
               <div className="overflow-x-auto">
                 <div style={{ minWidth: Math.max(chartData.length * 40, 400) }}>
                   <ResponsiveContainer width="100%" height={300}>
@@ -488,7 +488,7 @@ export default function AdminTipsAnalytics() {
 
             {/* Taxa de acerto diária */}
             <div className="bg-gray-900 border border-white/10 rounded-lg p-4">
-              <h3 className="text-sm font-semibold text-white mb-3">Taxa de Acerto Diária</h3>
+              <h3 className="text-sm font-semibold text-white mb-3">Tasa de Acierto Diaria</h3>
               <div className="overflow-x-auto">
                 <div style={{ minWidth: Math.max(chartData.length * 40, 400) }}>
                   <ResponsiveContainer width="100%" height={300}>
@@ -499,7 +499,7 @@ export default function AdminTipsAnalytics() {
                       <Tooltip
                         contentStyle={{ background: "#0b1220", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, fontSize: 12 }}
                         labelStyle={{ color: "#fff" }}
-                        formatter={(v: number) => [`${v.toFixed(1)}%`, "Acerto"]}
+                        formatter={(v: number) => [`${v.toFixed(1)}%`, "Acierto"]}
                       />
                       <ReferenceLine y={WIN_THRESHOLD} stroke="#f59e0b" strokeDasharray="4 4" label={{ value: `${WIN_THRESHOLD}%`, fill: "#f59e0b", fontSize: 11, position: "right" }} />
                       <Line type="monotone" dataKey="pct" stroke="#22c55e" strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 5 }} />
@@ -514,7 +514,7 @@ export default function AdminTipsAnalytics() {
           <div className="bg-gray-900 border border-white/10 rounded-lg">
             <div className="flex items-center justify-between p-4 border-b border-white/10">
               <h3 className="text-sm font-semibold text-white">
-                Histórico Diário ({stats.totalDays} dia{stats.totalDays === 1 ? "" : "s"})
+                Historial Diario ({stats.totalDays} día{stats.totalDays === 1 ? "" : "s"})
               </h3>
               <Button variant="outline" size="sm" onClick={exportCsv} disabled={sortedTable.length === 0} className="h-8 gap-1.5">
                 <Download className="w-3.5 h-3.5" /> Exportar CSV
@@ -524,14 +524,14 @@ export default function AdminTipsAnalytics() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-white/10 bg-white/5">
-                    <SortHeader label="Data" field="date" />
-                    <SortHeader label="Entradas" field="entries" align="right" />
+                    <SortHeader label="Fecha" field="date" />
+                    <SortHeader label="Tips" field="entries" align="right" />
                     <SortHeader label="Greens" field="greens" align="right" />
                     <SortHeader label="Reds" field="reds" align="right" />
-                    <SortHeader label="% Acerto" field="pct" align="right" />
+                    <SortHeader label="% Acierto" field="pct" align="right" />
                     <SortHeader label="Voids" field="voids" align="right" />
                     <SortHeader label="Stake Total" field="stake" align="right" />
-                    <SortHeader label="Lucro" field="lucro" align="right" />
+                    <SortHeader label="Ganancia" field="lucro" align="right" />
                     <SortHeader label="ROI" field="roi" align="right" />
                   </tr>
                 </thead>
@@ -539,7 +539,7 @@ export default function AdminTipsAnalytics() {
                   {sortedTable.length === 0 ? (
                     <tr>
                       <td colSpan={9} className="text-center py-8 text-gray-500">
-                        Nenhuma entrada encontrada no período selecionado.
+                        Ninguna tip encontrada en el período seleccionado.
                       </td>
                     </tr>
                   ) : (
@@ -559,9 +559,9 @@ export default function AdminTipsAnalytics() {
                           {d.pct.toFixed(1)}%
                         </td>
                         <td className="px-3 py-2 text-right text-gray-400">{d.voids}</td>
-                        <td className="px-3 py-2 text-right text-gray-300">{formatBRL(d.stake)}</td>
+                        <td className="px-3 py-2 text-right text-gray-300">{formatCLP(d.stake)}</td>
                         <td className={cn("px-3 py-2 text-right font-medium", moneyColorClass(d.lucro))}>
-                          {formatBRL(d.lucro)}
+                          {formatCLP(d.lucro)}
                         </td>
                         <td className={cn("px-3 py-2 text-right font-medium", moneyColorClass(d.roi))}>
                           {d.roi.toFixed(2)}%
@@ -581,13 +581,13 @@ export default function AdminTipsAnalytics() {
         <DialogContent className="max-w-3xl bg-gray-900 border-white/10 text-white">
           <DialogHeader>
             <DialogTitle>
-              Entradas de {selectedDay && format(new Date(selectedDay + "T12:00:00"), "dd/MM/yyyy")}
+              Tips de {selectedDay && format(new Date(selectedDay + "T12:00:00"), "dd/MM/yyyy")}
             </DialogTitle>
           </DialogHeader>
           {(() => {
             const dayEntriesRaw = entries.filter((e) => e.date === selectedDay);
             if (dayEntriesRaw.length === 0) {
-              return <div className="text-sm text-gray-400 py-4">Nenhuma entrada neste dia.</div>;
+              return <div className="text-sm text-gray-400 py-4">Ninguna tip en este día.</div>;
             }
             const enriched = dayEntriesRaw.map((e) => {
               const lucro =
@@ -632,10 +632,10 @@ export default function AdminTipsAnalytics() {
                     <tr className="border-b border-white/10 bg-white/5">
                       <ModalHeader label="Título" field="title" />
                       <ModalHeader label="Mercado" field="market" />
-                      <ModalHeader label="Categoria" field="category" />
-                      <ModalHeader label="Odd" field="odd" align="right" />
+                      <ModalHeader label="Categoría" field="category" />
+                      <ModalHeader label="Cuota" field="odd" align="right" />
                       <ModalHeader label="Resultado" field="result" align="center" />
-                      <ModalHeader label="Lucro" field="lucro" align="right" />
+                      <ModalHeader label="Ganancia" field="lucro" align="right" />
                     </tr>
                   </thead>
                   <tbody>
@@ -656,7 +656,7 @@ export default function AdminTipsAnalytics() {
                           </span>
                         </td>
                         <td className={cn("px-3 py-2 text-right font-medium", moneyColorClass(e.lucro))}>
-                          {e.result === "pending" ? "—" : formatBRL(e.lucro)}
+                          {e.result === "pending" ? "—" : formatCLP(e.lucro)}
                         </td>
                       </tr>
                     ))}

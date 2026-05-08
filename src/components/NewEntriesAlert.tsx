@@ -45,7 +45,7 @@ export const NewEntriesAlert = ({ betSiteUrl }: NewEntriesAlertProps) => {
               🎁 WELCOME10
             </h3>
             <p className="text-sm text-[#00FF7F] font-semibold">
-              Cupom disponível que dobra seu depósito (200%), pegue antes que a casa tire do ar
+              Cupón disponible que duplica tu depósito (200%), tómalo antes de que la casa lo retire
             </p>
           </div>
         </div>
@@ -55,7 +55,7 @@ export const NewEntriesAlert = ({ betSiteUrl }: NewEntriesAlertProps) => {
           onClick={() => navigate("/")}
           className="bg-gradient-to-r from-[#005CFF] via-[#0066FF] to-[#005CFF] hover:from-[#0066FF] hover:via-[#0080FF] hover:to-[#0066FF] text-white font-black px-8 py-6 text-base shadow-xl shadow-[#005CFF]/50 hover:shadow-[#0066FF]/70 transition-all duration-300 border-0"
         >
-          Dobrar minha banca
+          Duplicar mi banca
           <ChevronRight className="w-5 h-5 ml-2" />
         </Button>
       </div>

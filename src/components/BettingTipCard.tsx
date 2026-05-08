@@ -107,7 +107,7 @@ export const BettingTipCard = ({
           <div className="flex items-center justify-between bg-muted/30 rounded-lg p-4 backdrop-blur-sm border border-border/30">
             <div className="flex flex-col">
               <span className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-1">
-                Aposta
+                Apuesta
               </span>
               <span className="text-foreground font-bold text-base">
                 {betChoice}
@@ -115,7 +115,7 @@ export const BettingTipCard = ({
             </div>
             <div className="flex flex-col items-end">
               <span className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-1">
-                Odd
+                Cuota
               </span>
               <div className="flex items-baseline gap-1">
                 <span className="text-primary font-black text-2xl tabular-nums">
@@ -131,7 +131,7 @@ export const BettingTipCard = ({
           onClick={onAddTip}
           className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-6 text-base shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
         >
-          Adicionar tip
+          Añadir tip
         </Button>
       </div>
     </Card>

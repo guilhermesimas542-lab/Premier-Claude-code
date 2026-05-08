@@ -7,26 +7,26 @@ export interface AudienceSegment {
 }
 
 export const AUDIENCE_SEGMENTS: AudienceSegment[] = [
-  // Gerais
-  { value: "all", label: "Todos os Usuários", group: "Gerais" },
-  { value: "all_paid", label: "Todos os Usuários Pagantes", group: "Gerais" },
-  { value: "all_free", label: "Todos os Usuários Gratuitos", group: "Gerais" },
-  // Planos Base
-  { value: "has_basic", label: "Possui Plano Básico", group: "Planos Base" },
-  { value: "no_basic", label: "Não Possui Plano Básico", group: "Planos Base" },
-  { value: "has_pro", label: "Possui Plano Pro", group: "Planos Base" },
-  { value: "no_pro", label: "Não Possui Plano Pro", group: "Planos Base" },
-  { value: "has_ultra", label: "Possui Plano Ultra", group: "Planos Base" },
-  { value: "no_ultra", label: "Não Possui Plano Ultra", group: "Planos Base" },
+  // Generales
+  { value: "all", label: "Todos los Usuarios", group: "Generales" },
+  { value: "all_paid", label: "Todos los Usuarios Pagantes", group: "Generales" },
+  { value: "all_free", label: "Todos los Usuarios Gratuitos", group: "Generales" },
+  // Planes Base
+  { value: "has_basic", label: "Tiene Plan Básico", group: "Planes Base" },
+  { value: "no_basic", label: "No Tiene Plan Básico", group: "Planes Base" },
+  { value: "has_pro", label: "Tiene Plan Pro", group: "Planes Base" },
+  { value: "no_pro", label: "No Tiene Plan Pro", group: "Planes Base" },
+  { value: "has_ultra", label: "Tiene Plan Ultra", group: "Planes Base" },
+  { value: "no_ultra", label: "No Tiene Plan Ultra", group: "Planes Base" },
   // Add-ons
-  { value: "has_vitalicio", label: "Possui Plano Vitalício", group: "Add-ons" },
-  { value: "no_vitalicio", label: "Não Possui Plano Vitalício", group: "Add-ons" },
-  { value: "has_alavancagem", label: "Possui Add-on Alavancagem", group: "Add-ons" },
-  { value: "no_alavancagem", label: "Não Possui Add-on Alavancagem", group: "Add-ons" },
-  { value: "has_multiplas_bingo", label: "Possui Add-on Múltiplas / Bingo", group: "Add-ons" },
-  { value: "no_multiplas_bingo", label: "Não Possui Add-on Múltiplas / Bingo", group: "Add-ons" },
-  { value: "has_live_telegram", label: "Possui Add-on Live Telegram", group: "Add-ons" },
-  { value: "no_live_telegram", label: "Não Possui Add-on Live Telegram", group: "Add-ons" },
+  { value: "has_vitalicio", label: "Tiene Plan Vitalicio", group: "Add-ons" },
+  { value: "no_vitalicio", label: "No Tiene Plan Vitalicio", group: "Add-ons" },
+  { value: "has_alavancagem", label: "Tiene Add-on Apalancamiento", group: "Add-ons" },
+  { value: "no_alavancagem", label: "No Tiene Add-on Apalancamiento", group: "Add-ons" },
+  { value: "has_multiplas_bingo", label: "Tiene Add-on Múltiples / Bingo", group: "Add-ons" },
+  { value: "no_multiplas_bingo", label: "No Tiene Add-on Múltiples / Bingo", group: "Add-ons" },
+  { value: "has_live_telegram", label: "Tiene Add-on Live Telegram", group: "Add-ons" },
+  { value: "no_live_telegram", label: "No Tiene Add-on Live Telegram", group: "Add-ons" },
 ];
 
 /** Parse a JSON array string or legacy single string into an array of criteria */

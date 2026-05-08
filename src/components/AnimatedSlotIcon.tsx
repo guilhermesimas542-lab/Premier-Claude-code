@@ -14,7 +14,7 @@ const AnimatedSlotIcon = () => {
     >
       <img
         src={roboCassino}
-        alt="Painel de Apostas IA"
+        alt="Panel de Apuestas IA"
         style={{
           width: "100%",
           height: "100%",

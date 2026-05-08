@@ -95,7 +95,7 @@ export default function AdminTipsImport() {
 
   const processFile = useCallback((file: File) => {
     if (!file.name.endsWith(".csv")) {
-      toast.error("Apenas arquivos CSV são aceitos");
+      toast.error("Solo se aceptan archivos CSV");
       return;
     }
     setFileName(file.name);
@@ -103,7 +103,7 @@ export default function AdminTipsImport() {
     reader.onload = (ev) => {
       const text = ev.target?.result as string;
       const raw = parseCSV(text);
-      if (raw.length === 0) { toast.error("Nenhuma linha encontrada"); return; }
+      if (raw.length === 0) { toast.error("Ninguna línea encontrada"); return; }
 
       const parsed: ParsedRow[] = raw.map((r) => {
         const rawDate = r.data_hora || r.date || r.data || "";
@@ -159,8 +159,8 @@ export default function AdminTipsImport() {
   const validRows = rows.filter(r => r.date && r.team1_name && r.team2_name && r.odd && !isNaN(parseFloat(r.odd)));
 
   const handleImport = async () => {
-    if (!allMatched) { toast.error("Resolva todos os times pendentes antes de importar"); return; }
-    if (validRows.length === 0) { toast.error("Nenhuma linha válida"); return; }
+    if (!allMatched) { toast.error("Resuelve todos los equipos pendientes antes de importar"); return; }
+    if (validRows.length === 0) { toast.error("Ninguna línea válida"); return; }
     setImporting(true);
 
     const payload = validRows.map((r) => {
@@ -191,7 +191,7 @@ export default function AdminTipsImport() {
     if (error) {
       toast.error(error.message);
     } else {
-      toast.success(`${validRows.length} tips importadas com sucesso!`);
+      toast.success(`¡${validRows.length} tips importadas con éxito!`);
       setRows([]);
       setStep("upload");
       setFileName(null);
@@ -203,16 +203,16 @@ export default function AdminTipsImport() {
     return (
       <div className="max-w-4xl space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold">Revisar Importação</h2>
+          <h2 className="text-xl font-bold">Revisar Importación</h2>
           <Button variant="outline" size="sm" onClick={() => { setStep("upload"); setRows([]); setFileName(null); }}>
-            ← Voltar
+            ← Volver
           </Button>
         </div>
 
         <div className="flex items-center gap-4 text-sm">
           <span className="text-muted-foreground">{rows.length} tips</span>
           <span className="text-emerald-400">✅ {matchedCount} confirmadas</span>
-          {pendingCount > 0 && <span className="text-amber-400">⚠️ {pendingCount} pendentes</span>}
+          {pendingCount > 0 && <span className="text-amber-400">⚠️ {pendingCount} pendientes</span>}
         </div>
 
         <div className="space-y-3">
@@ -221,10 +221,10 @@ export default function AdminTipsImport() {
             return (
               <div key={idx} className={`border rounded-lg p-3 space-y-2 ${hasError ? "border-destructive/50 bg-destructive/5" : "border-border bg-muted/20"}`}>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground font-mono">Linha {idx + 1}</span>
+                  <span className="text-xs text-muted-foreground font-mono">Línea {idx + 1}</span>
                   <div className="flex items-center gap-2 text-xs">
                     {row.date && <span className="text-muted-foreground">{row.date}</span>}
-                    {row.odd && <span className="text-muted-foreground">Odd: {row.odd}</span>}
+                    {row.odd && <span className="text-muted-foreground">Cuota: {row.odd}</span>}
                     <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${row.categoria === "free" ? "bg-muted text-muted-foreground" : "bg-primary/20 text-primary"}`}>
                       {row.categoria}
                     </span>
@@ -238,7 +238,7 @@ export default function AdminTipsImport() {
                         ? <CheckCircle className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                         : <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
                       }
-                      <span className="text-[10px] text-muted-foreground uppercase font-semibold">Time 1</span>
+                      <span className="text-[10px] text-muted-foreground uppercase font-semibold">Equipo 1</span>
                     </div>
                     <TeamAutocomplete
                       label=""
@@ -253,7 +253,7 @@ export default function AdminTipsImport() {
                         ? <CheckCircle className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                         : <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
                       }
-                      <span className="text-[10px] text-muted-foreground uppercase font-semibold">Time 2</span>
+                      <span className="text-[10px] text-muted-foreground uppercase font-semibold">Equipo 2</span>
                     </div>
                     <TeamAutocomplete
                       label=""
@@ -264,7 +264,7 @@ export default function AdminTipsImport() {
                   </div>
                 </div>
 
-                {row.palpite && <p className="text-xs text-muted-foreground">Palpite: {row.palpite}</p>}
+                {row.palpite && <p className="text-xs text-muted-foreground">Pronóstico: {row.palpite}</p>}
               </div>
             );
           })}
@@ -279,7 +279,7 @@ export default function AdminTipsImport() {
           {importing ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <CheckCircle className="w-4 h-4 mr-2" />}
           {allMatched
             ? `Importar ${validRows.length} Tips`
-            : `Resolva ${pendingCount} pendência(s) para importar`
+            : `Resuelve ${pendingCount} pendiente(s) para importar`
           }
         </Button>
       </div>
@@ -304,24 +304,24 @@ export default function AdminTipsImport() {
       >
         <Upload className={`w-8 h-8 mx-auto mb-2 transition-colors ${isDragging ? "text-secondary" : "text-muted-foreground"}`} />
         <p className={`text-sm font-medium mb-1 transition-colors ${isDragging ? "text-secondary" : "text-foreground"}`}>
-          {isDragging ? "Solte o arquivo aqui!" : "Arraste um CSV aqui ou clique para selecionar"}
+          {isDragging ? "¡Suelta el archivo aquí!" : "Arrastra un CSV aquí o haz clic para seleccionar"}
         </p>
         <p className={`text-xs transition-colors ${isDragging ? "text-secondary/70" : "text-muted-foreground"}`}>
-          {fileName ? `📄 ${fileName}` : "Apenas arquivos .csv são aceitos"}
+          {fileName ? `📄 ${fileName}` : "Solo se aceptan archivos .csv"}
         </p>
         <input ref={inputRef} type="file" accept=".csv" onChange={handleFile} className="hidden" />
       </div>
 
       <div className="text-xs text-muted-foreground">
-        <span className="font-semibold">Cabeçalhos esperados:</span> {CSV_HEADERS.join(", ")}
+        <span className="font-semibold">Encabezados esperados:</span> {CSV_HEADERS.join(", ")}
       </div>
 
       <div className="bg-muted/20 border border-border rounded-lg p-3 text-xs text-muted-foreground space-y-1">
-        <p className="font-semibold text-foreground">Exemplo de CSV:</p>
+        <p className="font-semibold text-foreground">Ejemplo de CSV:</p>
         <pre className="overflow-x-auto text-[10px] leading-relaxed">
 {`data_hora,time1,time2,categoria,odd,palpite,mercado,explicacao
-26/02/2026 20:00,Flamengo,Palmeiras,free,1.45,Mais de 1.5 gols,Over/Under,Explicação aqui
-27/02/2026 18:00,Corinthians,São Paulo,pro,2.10,Ambos Marcam,BTTS,Clássico paulista`}
+26/02/2026 20:00,Colo-Colo,Universidad de Chile,free,1.45,Más de 1.5 goles,Over/Under,Explicación aquí
+27/02/2026 18:00,U Católica,Palestino,pro,2.10,Ambos Marcan,BTTS,Clásico chileno`}
         </pre>
       </div>
     </div>

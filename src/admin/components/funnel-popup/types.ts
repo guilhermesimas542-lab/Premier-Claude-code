@@ -40,16 +40,16 @@ export interface PopupRow {
 }
 
 export const POPUP_TYPES = [
-  { value: "welcome_free", label: "🎉 Boas-Vindas (Free)", desc: "Primeira visita de usuário Free" },
-  { value: "welcome_paid", label: "🎉 Boas-Vindas (Pago)", desc: "Primeira visita de usuário pagante" },
-  { value: "casino_welcome", label: "🎰 Boas-Vindas (Cassino)", desc: "Primeira visita à aba de Cassino" },
-  { value: "upgrade_basic", label: "🔓 Upgrade Básico", desc: "Para usuários Free" },
-  { value: "upgrade_pro", label: "⭐ Upgrade Pro", desc: "Para Free e Básico" },
-  { value: "upgrade_ultra", label: "👑 Upgrade Ultra", desc: "Para todos abaixo de Ultra" },
-  { value: "addon_alavancagem", label: "⚓ Add-on Alavancagem", desc: "Sem add-on Alavancagem" },
-  { value: "addon_odds", label: "🎯 Add-on Múltiplas / Bingo", desc: "Sem add-on Múltiplas / Bingo" },
-  { value: "addon_telegram", label: "📱 Add-on Live Telegram", desc: "Sem Live Telegram" },
-  { value: "promotional", label: "📣 Promocional", desc: "Pop-up avulso com alvo configurável" },
+  { value: "welcome_free", label: "🎉 Bienvenida (Gratis)", desc: "Primera visita de usuario Gratis" },
+  { value: "welcome_paid", label: "🎉 Bienvenida (Pagado)", desc: "Primera visita de usuario pagante" },
+  { value: "casino_welcome", label: "🎰 Bienvenida (Casino)", desc: "Primera visita a la pestaña de Casino" },
+  { value: "upgrade_basic", label: "🔓 Mejorar a Básico", desc: "Para usuarios Gratis" },
+  { value: "upgrade_pro", label: "⭐ Mejorar a Pro", desc: "Para Gratis y Básico" },
+  { value: "upgrade_ultra", label: "👑 Mejorar a Ultra", desc: "Para todos debajo de Ultra" },
+  { value: "addon_alavancagem", label: "⚓ Add-on Apalancamiento", desc: "Sin add-on Apalancamiento" },
+  { value: "addon_odds", label: "🎯 Add-on Múltiples / Bingo", desc: "Sin add-on Múltiples / Bingo" },
+  { value: "addon_telegram", label: "📱 Add-on Live Telegram", desc: "Sin Live Telegram" },
+  { value: "promotional", label: "📣 Promocional", desc: "Pop-up suelto con objetivo configurable" },
 ] as const;
 
 /** Priority order for auto-display popups (lower index = higher priority) */

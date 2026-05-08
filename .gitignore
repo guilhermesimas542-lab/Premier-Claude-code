@@ -33,3 +33,6 @@ dist-ssr
 # Ficam grandes (>500KB) e são fonte temporária — não devem ser versionados
 /*.html
 !index.html
+
+# Supabase CLI runtime cache (project-ref, versões etc) — não versionar
+supabase/.temp/

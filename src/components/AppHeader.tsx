@@ -90,7 +90,7 @@ const AppHeader = ({ leftContent, headerStyle, title }: AppHeaderProps) => {
                   }}
                 >
                   <Sparkles size={14} />
-                  Resgatar Odd Grátis
+                  Reclamar Cuota Gratis
                 </button>
               )}
               {tierLoaded && isPaid && (

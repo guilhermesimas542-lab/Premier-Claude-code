@@ -41,18 +41,18 @@ type FilterKey = "all_time" | "today" | "yesterday" | "last_7" | "last_30" | "cu
 
 const FILTERS: { key: FilterKey; label: string }[] = [
   { key: "all_time", label: "All Time" },
-  { key: "today", label: "Hoje" },
-  { key: "yesterday", label: "Ontem" },
-  { key: "last_7", label: "7 Dias" },
-  { key: "last_30", label: "30 Dias" },
+  { key: "today", label: "Hoy" },
+  { key: "yesterday", label: "Ayer" },
+  { key: "last_7", label: "7 Días" },
+  { key: "last_30", label: "30 Días" },
   { key: "custom", label: "Personalizado" },
 ];
 
 const formatDateHeader = (dateStr: string): string => {
   const today = new Date().toISOString().split("T")[0];
   const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
-  if (dateStr === today) return "HOJE";
-  if (dateStr === yesterday) return "ONTEM";
+  if (dateStr === today) return "HOY";
+  if (dateStr === yesterday) return "AYER";
   const [year, month, day] = dateStr.split("-");
   return `${day}/${month}/${year}`;
 };
@@ -110,7 +110,7 @@ const GreenDetailModal = ({ entry, onClose }: { entry: GreenEntry | null; onClos
             <div className="flex flex-col items-center gap-1.5">
               <div className="w-14 h-14 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}>
                 {entry.team1_logo_url ? (
-                  <img src={entry.team1_logo_url} alt={entry.team1_name || "Time 1"} style={{ width: 40, height: 40, objectFit: "contain", borderRadius: 4 }} />
+                  <img src={entry.team1_logo_url} alt={entry.team1_name || "Equipo 1"} style={{ width: 40, height: 40, objectFit: "contain", borderRadius: 4 }} />
                 ) : (
                   <ShirtIcon variant={(entry.team1_shirt_variant as "solid" | "stripes") || "solid"} primaryColor={entry.team1_primary_color || "#3B82F6"} secondaryColor={entry.team1_secondary_color || "#FFFFFF"} size={36} />
                 )}
@@ -125,7 +125,7 @@ const GreenDetailModal = ({ entry, onClose }: { entry: GreenEntry | null; onClos
             <div className="flex flex-col items-center gap-1.5">
               <div className="w-14 h-14 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}>
                 {entry.team2_logo_url ? (
-                  <img src={entry.team2_logo_url} alt={entry.team2_name || "Time 2"} style={{ width: 40, height: 40, objectFit: "contain", borderRadius: 4 }} />
+                  <img src={entry.team2_logo_url} alt={entry.team2_name || "Equipo 2"} style={{ width: 40, height: 40, objectFit: "contain", borderRadius: 4 }} />
                 ) : (
                   <ShirtIcon variant={(entry.team2_shirt_variant as "solid" | "stripes") || "solid"} primaryColor={entry.team2_primary_color || "#EF4444"} secondaryColor={entry.team2_secondary_color || "#FFFFFF"} size={36} />
                 )}
@@ -143,19 +143,19 @@ const GreenDetailModal = ({ entry, onClose }: { entry: GreenEntry | null; onClos
         <div className="grid grid-cols-2 gap-2">
           {entry.condition_to_win && (
             <div className="rounded-lg p-2.5" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
-              <p style={{ color: "#94A3B8", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase" }}>Palpite</p>
+              <p style={{ color: "#94A3B8", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase" }}>Pronóstico</p>
               <p style={{ color: "#FFFFFF", fontFamily: "'DM Sans', sans-serif", fontWeight: 600, fontSize: 15 }}>{entry.condition_to_win}</p>
             </div>
           )}
           {entry.odd != null && (
             <div className="rounded-lg p-2.5" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
-              <p className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: "#666" }}>Odd</p>
+              <p className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: "#666" }}>Cuota</p>
               <p className="text-base font-black" style={{ color: style.color }}>{entry.odd.toFixed(2)}</p>
             </div>
           )}
           {entry.classification && (
             <div className="rounded-lg p-2.5" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
-              <p className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: "#666" }}>Confiança</p>
+              <p className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: "#666" }}>Confianza</p>
               <p className="text-xs font-semibold" style={{ color: "#FFFFFF" }}>{entry.classification}</p>
             </div>
           )}
@@ -164,7 +164,7 @@ const GreenDetailModal = ({ entry, onClose }: { entry: GreenEntry | null; onClos
         {/* Condition */}
         {entry.condition_to_win && (
           <div className="rounded-lg p-3" style={{ background: `${style.color}08`, border: `1px solid ${style.color}22` }}>
-            <p className="mb-1" style={{ color: "#94A3B8", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase" }}>Condição para Green</p>
+            <p className="mb-1" style={{ color: "#94A3B8", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase" }}>Condición para Green</p>
             <p className="text-xs" style={{ color: "#CCCCCC" }}>{entry.condition_to_win}</p>
           </div>
         )}
@@ -172,7 +172,7 @@ const GreenDetailModal = ({ entry, onClose }: { entry: GreenEntry | null; onClos
         {/* Justification */}
         {entry.justification && (
           <div className="rounded-lg p-3" style={{ background: "rgba(0,255,0,0.03)", border: "1px solid rgba(0,255,0,0.1)" }}>
-            <p className="mb-1" style={{ color: "#94A3B8", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase" }}>Justificativa</p>
+            <p className="mb-1" style={{ color: "#94A3B8", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase" }}>Justificación</p>
             <p className="text-xs leading-relaxed" style={{ color: "#AAAAAA" }}>{entry.justification}</p>
           </div>
         )}
@@ -335,11 +335,11 @@ const UltimosGreens = () => {
                   </PopoverTrigger>
                   <PopoverContent className="w-64 bg-gray-900 border-gray-700 space-y-3 p-3">
                     <div className="space-y-1">
-                      <label className="text-xs text-gray-400">De</label>
+                      <label className="text-xs text-gray-400">Desde</label>
                       <Input type="date" value={customFrom} onChange={(e) => setCustomFrom(e.target.value)} className="bg-gray-800 border-gray-700 text-white text-xs h-8" />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-xs text-gray-400">Até</label>
+                      <label className="text-xs text-gray-400">Hasta</label>
                       <Input type="date" value={customTo} onChange={(e) => setCustomTo(e.target.value)} className="bg-gray-800 border-gray-700 text-white text-xs h-8" />
                     </div>
                     <Button size="sm" className="w-full text-xs" onClick={() => setFilter("custom")}>Aplicar</Button>
@@ -378,7 +378,7 @@ const UltimosGreens = () => {
           </div>
         ) : greens.length === 0 ? (
           <div className="text-center py-16">
-            <p style={{ color: "#007700" }}>Nenhum green encontrado para o período selecionado.</p>
+            <p style={{ color: "#007700" }}>No se encontraron greens para el período seleccionado.</p>
           </div>
         ) : (
           <div className="space-y-6">
@@ -411,12 +411,12 @@ const UltimosGreens = () => {
                         {entry.team1_name && entry.team2_name ? (
                           <div className="flex items-center -space-x-1 shrink-0">
                             {entry.team1_logo_url ? (
-                              <img src={entry.team1_logo_url} alt={entry.team1_name || "Time 1"} style={{ width: 28, height: 28, objectFit: "contain", borderRadius: 4 }} />
+                              <img src={entry.team1_logo_url} alt={entry.team1_name || "Equipo 1"} style={{ width: 28, height: 28, objectFit: "contain", borderRadius: 4 }} />
                             ) : (
                               <ShirtIcon variant={(entry.team1_shirt_variant as "solid" | "stripes") || "solid"} primaryColor={entry.team1_primary_color || "#3B82F6"} secondaryColor={entry.team1_secondary_color || "#FFFFFF"} size={24} />
                             )}
                             {entry.team2_logo_url ? (
-                              <img src={entry.team2_logo_url} alt={entry.team2_name || "Time 2"} style={{ width: 28, height: 28, objectFit: "contain", borderRadius: 4 }} />
+                              <img src={entry.team2_logo_url} alt={entry.team2_name || "Equipo 2"} style={{ width: 28, height: 28, objectFit: "contain", borderRadius: 4 }} />
                             ) : (
                               <ShirtIcon variant={(entry.team2_shirt_variant as "solid" | "stripes") || "solid"} primaryColor={entry.team2_primary_color || "#EF4444"} secondaryColor={entry.team2_secondary_color || "#FFFFFF"} size={24} />
                             )}
@@ -478,11 +478,11 @@ const UltimosGreens = () => {
               {loadingMore && (
                 <div className="flex items-center gap-2 text-sm" style={{ color: "#AAAAAA" }}>
                   <div className="w-4 h-4 border-2 rounded-full animate-spin" style={{ borderColor: "rgba(0,255,0,0.2)", borderTopColor: "#00FF00" }} />
-                  Carregando mais...
+                  Cargando más...
                 </div>
               )}
               {!hasMore && greens.length > 0 && (
-                <p className="text-sm" style={{ color: "#888888" }}>Fim do histórico</p>
+                <p className="text-sm" style={{ color: "#888888" }}>Fin del historial</p>
               )}
             </div>
           </div>

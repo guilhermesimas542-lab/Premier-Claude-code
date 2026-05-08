@@ -22,7 +22,7 @@ import FeedbackModal from "@/components/FeedbackModal";
 import logoImg from "@/assets/premier-logo-custom.png";
 
 const TIER_LABELS: Record<string, string> = {
-  free: 'Gratuito',
+  free: 'Gratis',
   basic: 'Basic',
   pro: 'Pro',
   premium: 'Premium',
@@ -45,7 +45,7 @@ const PlanUpgradeCard = () => {
   if (mainTier === 'diamante' || mainTier === 'ultra') return null;
 
   const isPremium = mainTier === 'premium';
-  const planLabel = isPremium ? 'Premium' : 'Gratuito';
+  const planLabel = isPremium ? 'Premium' : 'Gratis';
 
   const handleClick = () => {
     if (isPremium) setPlansOpen(true);
@@ -63,11 +63,11 @@ const PlanUpgradeCard = () => {
     >
       <div className="flex items-center gap-3 mb-3">
         <Crown className="w-5 h-5" style={{ color: '#00FF7F' }} />
-        <h3 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 18, color: "#FFFFFF" }}>Seu Plano</h3>
+        <h3 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 18, color: "#FFFFFF" }}>Tu Plan</h3>
       </div>
       <div className="flex items-center justify-between">
         <p className="text-sm" style={{ color: '#CCCCCC' }}>
-          Plano atual:{' '}
+          Plan actual:{' '}
           <span style={{ color: '#00FF7F', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700 }}>
             {planLabel}
           </span>
@@ -82,7 +82,7 @@ const PlanUpgradeCard = () => {
           }}
         >
           <Rocket className="w-4 h-4" />
-          Upgrade
+          Mejorar plan
         </button>
       </div>
       {!isPremium && (
@@ -149,6 +149,7 @@ const Support = () => {
   const { xpInLevel, xpNeeded, progress } = getXpProgress(totalXp, level);
   const currentAvatar = getAvatarById(currentAvatarId);
   const levelTitle = LEVEL_TITLES[level] || 'Novato';
+  // NOTA: LEVEL_TITLES vem de src/lib/avatars — todos os títulos de nível devem estar em es-CL nesse arquivo
   const planLabel = currentTier ? TIER_LABELS[currentTier] || currentTier : null;
   const { links } = useLinks();
 
@@ -203,12 +204,12 @@ const Support = () => {
                 {planLabel && (
                   <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full" style={{ background: 'rgba(0,255,127,0.16)', border: '1px solid rgba(0,255,127,0.35)' }}>
                     <Crown className="w-3 h-3" style={{ color: '#00FF7F' }} />
-                    <span className="text-xs font-bold" style={{ color: '#00FF7F' }}>Plano {planLabel}</span>
+                    <span className="text-xs font-bold" style={{ color: '#00FF7F' }}>Plan {planLabel}</span>
                   </div>
                 )}
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full" style={{ background: 'rgba(0,255,127,0.12)', border: '1px solid rgba(0,255,127,0.25)' }}>
                   <Star className="w-3 h-3" style={{ color: '#94A3B8' }} />
-                  <span className="text-xs font-bold" style={{ color: '#94A3B8' }}>Nível {level} — {levelTitle}</span>
+                  <span className="text-xs font-bold" style={{ color: '#94A3B8' }}>Nivel {level} — {levelTitle}</span>
                 </div>
               </div>
 
@@ -232,7 +233,7 @@ const Support = () => {
             </div>
           </div>
           <p className="text-center text-[10px] mt-3" style={{ color: 'rgba(255,255,255,0.4)' }}>
-            Toque para ver detalhes completos
+            Toca para ver detalles completos
           </p>
         </section>
 
@@ -250,7 +251,7 @@ const Support = () => {
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <Trophy className="w-5 h-5" style={{ color: '#FFFFFF' }} />
-              <h3 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 18, color: "#FFFFFF" }}>Conquistas</h3>
+              <h3 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 18, color: "#FFFFFF" }}>Logros</h3>
             </div>
             <span className="text-xs" style={{ color: '#FFFFFF' }}>{unlockedPermanentCount}/{permanentAchievements.length} →</span>
           </div>
@@ -282,7 +283,7 @@ const Support = () => {
             )}
           </div>
           <p className="text-center text-[10px] mt-3" style={{ color: 'rgba(255,255,255,0.4)' }}>
-            Toque para ver todas as conquistas
+            Toca para ver todos los logros
           </p>
         </section>
 
@@ -301,7 +302,7 @@ const Support = () => {
             </h2>
           </div>
           <p className="text-sm" style={{ color: "#CCCCCC" }}>
-            Encontrou um problema ou tem uma sugestão? Nos conte.
+            ¿Encontraste un problema o tienes una sugerencia? Cuéntanos.
           </p>
           <button
             onClick={() => setFeedbackOpen(true)}
@@ -332,11 +333,11 @@ const Support = () => {
           <div className="flex items-center gap-3">
             <Headphones className="w-5 h-5" style={{ color: '#FFFFFF' }} />
             <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 18, color: "#FFFFFF" }}>
-              Suporte
+              Soporte
             </h2>
           </div>
           <p className="text-sm" style={{ color: "#CCCCCC" }}>
-            Precisa de ajuda? Nossa equipe está pronta para atendê-lo.
+            ¿Necesitas ayuda? Nuestro equipo está listo para atenderte.
           </p>
           <button
             onClick={handleOpenSupport}
@@ -358,21 +359,21 @@ const Support = () => {
             }}
           >
             <MessageCircle className="w-4 h-4" />
-            Falar com Suporte
+            Hablar con Soporte
           </button>
         </section>
 
         {/* Logout */}
         <section className="rounded-2xl p-4 sm:p-5 space-y-3" style={{ background: "#112236", border: "1.5px solid rgba(255,255,255,0.30)", borderRadius: 16 }}>
           <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: "#94A3B8", lineHeight: 1.5 }}>
-            Deseja sair da sua conta? Você precisará fazer login novamente.
+            ¿Quieres cerrar sesión? Tendrás que iniciar sesión de nuevo.
           </p>
           <button
             onClick={() => { mockLogout(); navigate("/login", { replace: true }); }}
             className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-medium transition-colors border border-red-500/50 text-red-400 hover:bg-red-500/10"
           >
             <LogOut className="w-4 h-4" />
-            Sair da Conta
+            Cerrar sesión
           </button>
         </section>
       </main>

@@ -16,13 +16,13 @@ export type PaywallVariant =
   | "diamante_upgrade"; // R$127 — premium user upgrading
 
 export const FEATURE_LABELS: Record<Exclude<FeatureKey, "free">, string> = {
-  odds_safes: "Odds Safes",
-  odds_pro: "Odds Pró",
-  alavancagem: "Alavancagem",
-  multiplas_bingo: "Múltiplas / Bingo",
-  mercados_secundarios: "Mercados Secundários",
-  esportes_americanos: "Esportes Americanos",
-  odds_ultra: "Odds Ultra",
+  odds_safes: "Cuotas Safes",
+  odds_pro: "Cuotas Pro",
+  alavancagem: "Apalancamiento",
+  multiplas_bingo: "Múltiples / Bingo",
+  mercados_secundarios: "Mercados Secundarios",
+  esportes_americanos: "Deportes Americanos",
+  odds_ultra: "Cuotas Ultra",
 };
 
 // Premium-included (cumulativo): odds_safes, odds_pro, odds_ultra
@@ -49,11 +49,11 @@ export function resolvePaywallVariant(
   if (feature === "free") return "telegram";
   const isDiamanteOnly = DIAMANTE_ONLY.includes(feature);
 
-  if (userTier === "premium") {
-    return isDiamanteOnly ? "diamante_upgrade" : "premium"; // premium fallback shouldn't happen (no lock)
+  if (userTier === "premium" || userTier === "basic" || userTier === "pro") {
+    return isDiamanteOnly ? "diamante_upgrade" : "premium";
   }
-  // free / legacy basic/pro/ultra → sempre Premium R$47 (qualquer cadeado)
-  return "premium";
+  // free / unknown tier
+  return isDiamanteOnly ? "diamante" : "premium";
 }
 
 /** associated_plan slug for pay_cards lookup per variant */
@@ -80,24 +80,24 @@ export function featureToDiscountPlanKey(f: FeatureKey): string | null {
 
 /** Headline copy for step 1 of diamante_upgrade popup */
 export const FEATURE_HEADLINES: Record<Exclude<FeatureKey, "free">, string> = {
-  odds_safes: "Entenda como funciona as Odds Safes",
-  odds_pro: "Entenda como funciona as Odds Pró",
-  alavancagem: "Entenda como funciona a Alavancagem",
-  multiplas_bingo: "Entenda como funciona as Múltiplas",
-  mercados_secundarios: "Entenda como funciona os Mercados Secundários",
-  esportes_americanos: "Entenda como funciona as Ligas Americanas",
-  odds_ultra: "Entenda como funciona as Odds Ultra",
+  odds_safes: "Entiende cómo funcionan las Cuotas Safes",
+  odds_pro: "Entiende cómo funcionan las Cuotas Pro",
+  alavancagem: "Entiende cómo funciona el Apalancamiento",
+  multiplas_bingo: "Entiende cómo funcionan las Múltiples",
+  mercados_secundarios: "Entiende cómo funcionan los Mercados Secundarios",
+  esportes_americanos: "Entiende cómo funcionan las Ligas Americanas",
+  odds_ultra: "Entiende cómo funcionan las Cuotas Ultra",
 };
 
 /** Short explanation copy used in step 1 of the paywall popup */
 export const FEATURE_EXPLANATIONS: Record<Exclude<FeatureKey, "free">, string> = {
-  odds_safes: "Odds com alta probabilidade de acerto, geralmente entre 1.5x e 2x. Ideal para construir banca de forma consistente, com risco baixo.",
-  odds_pro: "Odds mais agressivas com risco moderado, geralmente entre 3x e 6x. Equilibra retorno maior com chance de acerto razoável.",
-  odds_ultra: "Odds combinadas e agressivas com retorno de 6x a 12x. Não é bingo — são entradas calculadas com potencial alto.",
-  mercados_secundarios: "Apostas além do resultado principal: escanteios, cartões, handicap, ambas marcam. Encontre valor escondido em mercados menos óbvios.",
-  multiplas_bingo: "Odds combinadas de múltiplos eventos com retorno entre 10x e 200x. Aposta de baixa entrada e potencial alto de multiplicação.",
-  alavancagem: "Sequência de 3 odds de baixo risco no mesmo dia. A cada acerto, o ganho é reinvestido no próximo, multiplicando o retorno final.",
-  esportes_americanos: "Apostas em ligas dos EUA: NBA, NFL, MLB, NHL. Mercados específicos do calendário americano com análise dedicada para cada esporte.",
+  odds_safes: "Cuotas con alta probabilidad de acierto, generalmente entre 1.5x y 2x. Ideal para construir banca de forma consistente, con riesgo bajo.",
+  odds_pro: "Cuotas más agresivas con riesgo moderado, generalmente entre 3x y 6x. Equilibra mayor retorno con probabilidad razonable de acierto.",
+  odds_ultra: "Cuotas combinadas y agresivas con retorno de 6x a 12x. No es bingo — son tips calculados con alto potencial.",
+  mercados_secundarios: "Apuestas más allá del resultado principal: córners, tarjetas, handicap, ambos marcan. Encuentra valor escondido en mercados menos obvios.",
+  multiplas_bingo: "Cuotas combinadas de múltiples eventos con retorno entre 10x y 200x. Apuesta de baja entrada y alto potencial de multiplicación.",
+  alavancagem: "Secuencia de 3 cuotas de bajo riesgo en el mismo día. A cada acierto, la ganancia se reinvierte en el siguiente, multiplicando el retorno final.",
+  esportes_americanos: "Apuestas en ligas de EE.UU.: NBA, NFL, MLB, NHL. Mercados específicos del calendario americano con análisis dedicado para cada deporte.",
 };
 
 export const PRICES = {

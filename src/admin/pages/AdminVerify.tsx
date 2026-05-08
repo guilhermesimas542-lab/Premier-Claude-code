@@ -23,7 +23,7 @@ export default function AdminVerify() {
     e.preventDefault();
     setError("");
     if (!password || password.length < 6) {
-      setError("A senha deve ter pelo menos 6 caracteres.");
+      setError("La contraseña debe tener al menos 6 caracteres.");
       return;
     }
     setLoading(true);
@@ -35,15 +35,15 @@ export default function AdminVerify() {
       if (signInErr) {
         setError(
           signInErr.message === "Invalid login credentials"
-            ? "Senha incorreta. Tente novamente."
+            ? "Contraseña incorrecta. Inténtalo de nuevo."
             : signInErr.message
         );
         return;
       }
-      toast.success("Bem-vindo, administrador!");
+      toast.success("¡Bienvenido, administrador!");
       navigate("/admin", { replace: true });
     } catch (err: any) {
-      setError(err.message || "Erro ao autenticar.");
+      setError(err.message || "Error al autenticar.");
     } finally {
       setLoading(false);
     }
@@ -56,10 +56,10 @@ export default function AdminVerify() {
           <img src={logo} alt="Premier Ultra" className="h-12 w-auto mx-auto object-contain" />
           <div className="flex items-center justify-center gap-2 text-purple-400">
             <ShieldCheck className="w-5 h-5" />
-            <h1 className="text-xl font-bold text-white">Acesso Administrativo</h1>
+            <h1 className="text-xl font-bold text-white">Acceso Administrativo</h1>
           </div>
           <p className="text-white/50 text-sm">
-            Insira sua chave de acesso para <span className="text-white/80 font-medium">{email}</span>
+            Ingresa tu clave de acceso para <span className="text-white/80 font-medium">{email}</span>
           </p>
         </div>
 
@@ -71,7 +71,7 @@ export default function AdminVerify() {
 
         <div className="space-y-2">
           <label htmlFor="admin-password" className="text-sm text-white/80 font-medium">
-            Chave de acesso
+            Clave de acceso
           </label>
           <input
             id="admin-password"
@@ -93,7 +93,7 @@ export default function AdminVerify() {
           disabled={!password.trim() || loading}
           className="w-full h-14 rounded-xl text-white text-base font-bold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:brightness-110 active:scale-[0.98] flex items-center justify-center bg-[#7C3AED] hover:bg-[#6D28D9]"
         >
-          {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Entrar"}
+          {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Ingresar"}
         </button>
 
         <button
@@ -101,7 +101,7 @@ export default function AdminVerify() {
           onClick={() => navigate("/login")}
           className="w-full py-2 text-sm text-white/40 hover:text-white/60 transition-colors"
         >
-          ← Voltar ao login
+← Volver al inicio de sesión
         </button>
       </form>
     </div>

@@ -39,18 +39,18 @@ function formatGreenDate(dateStr: string): string {
     date.getFullYear() === yesterday.getFullYear();
   const hours = date.getHours().toString().padStart(2, '0');
   const minutes = date.getMinutes().toString().padStart(2, '0');
-  return isYesterday ? `ontem · ${hours}:${minutes}` : `${date.getDate()}/${date.getMonth() + 1} · ${hours}:${minutes}`;
+  return isYesterday ? `ayer · ${hours}:${minutes}` : `${date.getDate()}/${date.getMonth() + 1} · ${hours}:${minutes}`;
 }
 
 const useLastGreens = () => {
   const [greens, setGreens] = useState<LastGreen[]>([]);
-  const [greenLabel, setGreenLabel] = useState("ONTEM");
+  const [greenLabel, setGreenLabel] = useState("AYER");
 
   useEffect(() => {
     const fetchGreens = async () => {
       try {
         // Calcular hoje e ontem em Brasília
-        const nowBR = new Date().toLocaleDateString("en-CA", { timeZone: "America/Sao_Paulo" });
+        const nowBR = new Date().toLocaleDateString("en-CA", { timeZone: "America/Santiago" });
         const yesterdayDate = new Date(nowBR + "T12:00:00");
         yesterdayDate.setDate(yesterdayDate.getDate() - 1);
         const yesterdayBR = yesterdayDate.toISOString().split("T")[0];
@@ -74,7 +74,7 @@ const useLastGreens = () => {
               created_at: d.created_at,
             }))
           );
-          setGreenLabel("HOJE");
+          setGreenLabel("HOY");
           return;
         }
 
@@ -97,7 +97,7 @@ const useLastGreens = () => {
               created_at: d.created_at,
             }))
           );
-          setGreenLabel("ONTEM");
+          setGreenLabel("AYER");
         }
       } catch {
         // silently fail
@@ -136,7 +136,7 @@ const Login = () => {
     e.preventDefault();
     setEmailError("");
     if (!email || !validateEmail(email)) {
-      setEmailError("Por favor, insira um e-mail válido.");
+      setEmailError("Por favor, ingresa un correo válido.");
       return;
     }
     setIsLoading(true);
@@ -173,7 +173,7 @@ const Login = () => {
         mockLogin(email, dbUser.id, dbUser.main_tier);
         window.dispatchEvent(new CustomEvent('premier:login'));
         trackEvent("user_login");
-        toast.success("Login realizado com sucesso!");
+        toast.success("¡Inicio de sesión exitoso!");
         navigate("/", { replace: true });
 
         try {
@@ -358,7 +358,7 @@ const Login = () => {
                               flexShrink: 0,
                             }}
                           >
-                            {`R$ 100 → R$ ${(100 * Number(green.odd)).toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
+                            {`$100 → $${(100 * Number(green.odd)).toLocaleString('es-CL', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
                           </span>
                         </div>
                         {/* FAIXA INFERIOR: ENTRADA BATEU */}
@@ -382,7 +382,7 @@ const Login = () => {
                               textTransform: 'uppercase',
                             }}
                           >
-                            ✓ ENTRADA DE {greenLabel} BATEU
+                            ✓ TIP DE {greenLabel} GANÓ
                           </span>
                         </div>
                       </div>
@@ -426,7 +426,7 @@ const Login = () => {
                 textTransform: 'uppercase',
               }}
             >
-              E-MAIL
+              CORREO
             </label>
             <input
               id="email"
@@ -469,7 +469,7 @@ const Login = () => {
             {isLoading ? (
               <Loader2 className="w-5 h-5 animate-spin" />
             ) : (
-              "Acessar o Premier"
+              "Entrar a Premier"
             )}
           </button>
         </form>
@@ -480,7 +480,7 @@ const Login = () => {
           className="w-full h-12 rounded-[10px] font-display font-bold text-sm uppercase flex items-center justify-center gap-2 transition-colors duration-200 active:scale-[0.98] text-white border-2 border-white/15 bg-transparent hover:border-white/30"
         >
           <ShoppingCart className="w-4 h-4" />
-          Adquirir acesso
+          Adquirir acceso
         </button>
 
         {/* Social Proof Pills */}
@@ -497,19 +497,19 @@ const Login = () => {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
               <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-primary" />
             </span>
-            <span className="text-white/70 whitespace-nowrap font-sans" style={{ fontSize: '12px', fontWeight: 500 }}>+10 entradas por dia</span>
+            <span className="text-white/70 whitespace-nowrap font-sans" style={{ fontSize: '12px', fontWeight: 500 }}>+10 tips por día</span>
           </div>
         </div>
 
         {/* Footer */}
         <div className="text-center space-y-3">
           <p className="text-sm text-[#4A5568]">
-            Ao continuar, você concorda com nossos{" "}
+            Al continuar, aceptas nuestros{" "}
             <button
               onClick={() => setShowTermsModal(true)}
               className="text-primary hover:underline underline-offset-2 transition-colors"
             >
-              Termos e Privacidade
+              Términos y Privacidad
             </button>
           </p>
           <div className="flex items-center justify-center gap-3 text-xs">
@@ -517,7 +517,7 @@ const Login = () => {
               onClick={() => setShowTermsModal(true)}
               className="text-[#4A5568] hover:text-primary transition-colors"
             >
-              Termos e Privacidade
+              Términos y Privacidad
             </button>
             <span className="text-[#4A5568]/40">|</span>
             <a
@@ -526,10 +526,10 @@ const Login = () => {
               rel="noopener noreferrer"
               className="text-[#4A5568] hover:text-primary transition-colors"
             >
-              Suporte
+              Soporte
             </a>
           </div>
-          <p className="text-xs text-[#4A5568]">18+ • Jogue com responsabilidade.</p>
+          <p className="text-xs text-[#4A5568]">+18 • Juega con responsabilidad.</p>
         </div>
       </main>
 
@@ -538,84 +538,84 @@ const Login = () => {
         <DialogContent className="max-w-sm bg-card border border-white/[0.07]" style={{ backdropFilter: "blur(20px)" }}>
           <DialogHeader>
             <DialogTitle className="text-lg font-display font-bold text-foreground">
-              Termos e Privacidade
+              Términos y Privacidad
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2 max-h-[70vh] overflow-y-auto pr-2">
             <div className="text-sm space-y-4 leading-relaxed text-muted-foreground">
-              <p className="font-bold text-foreground">TERMOS E CONDIÇÕES DE USO — PREMIER ULTRA</p>
-              <p>Estes Termos e Condições ("Termos") regulam o acesso e o uso do aplicativo e/ou plataforma Premier Ultra ("Premier", "Aplicativo", "Plataforma").</p>
-              <p>Ao acessar, cadastrar-se ou utilizar o Premier, você declara que leu, compreendeu e concorda integralmente com estes Termos e com a nossa Política de Privacidade.</p>
+              <p className="font-bold text-foreground">TÉRMINOS Y CONDICIONES DE USO — PREMIER ULTRA</p>
+              <p>Estos Términos y Condiciones ("Términos") regulan el acceso y uso de la aplicación y/o plataforma Premier Ultra ("Premier", "Aplicación", "Plataforma").</p>
+              <p>Al acceder, registrarte o utilizar Premier, declaras que has leído, comprendido y aceptado íntegramente estos Términos y nuestra Política de Privacidad.</p>
 
-              <p className="font-bold text-foreground">1. Elegibilidade e Jogo Responsável</p>
-              <p>1.1. O Premier é destinado exclusivamente a maiores de 18 (dezoito) anos. Ao utilizar a Plataforma, você declara ser maior de idade e possuir capacidade civil para contratar.</p>
-              <p>1.2. O Premier apoia e incentiva o jogo responsável. Apostas envolvem risco e podem causar perdas financeiras. Nunca aposte valores que comprometam seu orçamento e procure ajuda se perceber sinais de compulsão.</p>
-              <p>1.3. O usuário é o único responsável por decidir se irá apostar, quanto irá apostar e por qualquer consequência decorrente de apostas realizadas.</p>
+              <p className="font-bold text-foreground">1. Elegibilidad y Juego Responsable</p>
+              <p>1.1. Premier está destinado exclusivamente a mayores de 18 (dieciocho) años. Al utilizar la Plataforma, declaras ser mayor de edad y tener capacidad legal para contratar.</p>
+              <p>1.2. Premier apoya e incentiva el juego responsable. Las apuestas implican riesgo y pueden causar pérdidas financieras. Nunca apuestes valores que comprometan tu presupuesto y busca ayuda si percibes señales de compulsión.</p>
+              <p>1.3. El usuario es el único responsable por decidir si va a apostar, cuánto va a apostar y por cualquier consecuencia derivada de las apuestas realizadas.</p>
 
-              <p className="font-bold text-foreground">2. O que o Premier é (e o que NÃO é)</p>
-              <p>2.1. O Premier é uma plataforma que fornece conteúdo informativo e/ou sugestões estatísticas ("entradas", "análises", "conteúdo") com base em dados, modelos e critérios próprios.</p>
-              <p>2.2. O Premier não é: uma casa de apostas; uma instituição financeira; um gestor de investimentos; um intermediador de apostas; um serviço de consultoria financeira individualizada.</p>
-              <p>2.3. O Premier não realiza apostas em nome do usuário, não opera contas em casas de apostas e não garante resultados, lucros, retornos, greens, ou qualquer desempenho.</p>
+              <p className="font-bold text-foreground">2. Qué es Premier (y qué NO es)</p>
+              <p>2.1. Premier es una plataforma que entrega contenido informativo y/o sugerencias estadísticas ("tips", "análisis", "contenido") basadas en datos, modelos y criterios propios.</p>
+              <p>2.2. Premier no es: una casa de apuestas; una institución financiera; un gestor de inversiones; un intermediario de apuestas; un servicio de asesoría financiera individualizada.</p>
+              <p>2.3. Premier no realiza apuestas en nombre del usuario, no opera cuentas en casas de apuestas y no garantiza resultados, ganancias, retornos, greens ni ningún desempeño.</p>
 
-              <p className="font-bold text-foreground">3. Ausência de Vínculo com Casas de Apostas</p>
-              <p>3.1. O Premier não possui controle sobre sites, aplicativos, políticas, regras, limites, odds, mercados, suspensões, mudanças de linhas, liquidações, cancelamentos ou qualquer outra decisão tomada por casas de apostas ("Operadores").</p>
-              <p>3.2. O Premier não tem responsabilidade por: saldo, bloqueios, restrições, encerramento de conta; divergências de odds ou mudanças de mercado; falhas de pagamento, saques, depósitos; problemas de autenticação, KYC, verificação de identidade; decisões de liquidação, void, cashout, atraso, cancelamento.</p>
-              <p>3.3. Quando houver indicação de Operadores/parceiros, isso não constitui garantia, nem implica responsabilidade solidária do Premier por atos de terceiros.</p>
+              <p className="font-bold text-foreground">3. Ausencia de Vínculo con Casas de Apuestas</p>
+              <p>3.1. Premier no tiene control sobre sitios, aplicaciones, políticas, reglas, límites, cuotas, mercados, suspensiones, cambios de líneas, liquidaciones, cancelaciones ni cualquier otra decisión tomada por las casas de apuestas ("Operadores").</p>
+              <p>3.2. Premier no tiene responsabilidad por: saldo, bloqueos, restricciones, cierre de cuenta; divergencias de cuotas o cambios de mercado; fallas de pago, retiros, depósitos; problemas de autenticación, KYC, verificación de identidad; decisiones de liquidación, void, cashout, retraso, cancelación.</p>
+              <p>3.3. Cuando exista mención a Operadores/socios, esto no constituye garantía ni implica responsabilidad solidaria de Premier por actos de terceros.</p>
 
-              <p className="font-bold text-foreground">4. Cadastro, Acesso e Segurança</p>
-              <p>4.1. O acesso ao Premier pode exigir cadastro por e-mail e/ou outros meios. Você se compromete a fornecer informações verdadeiras e atualizadas.</p>
-              <p>4.2. Você é responsável por manter a segurança do seu acesso e por todas as atividades realizadas em sua conta.</p>
-              <p>4.3. Podemos suspender, bloquear ou cancelar acessos em caso de suspeita de fraude, uso indevido, violação destes Termos ou por exigência legal.</p>
+              <p className="font-bold text-foreground">4. Registro, Acceso y Seguridad</p>
+              <p>4.1. El acceso a Premier puede exigir registro por correo electrónico y/u otros medios. Te comprometes a entregar información verdadera y actualizada.</p>
+              <p>4.2. Eres responsable de mantener la seguridad de tu acceso y de todas las actividades realizadas en tu cuenta.</p>
+              <p>4.3. Podemos suspender, bloquear o cancelar accesos en caso de sospecha de fraude, uso indebido, violación de estos Términos o por exigencia legal.</p>
 
-              <p className="font-bold text-foreground">5. Conteúdo, Atualizações e Disponibilidade</p>
-              <p>5.1. O conteúdo pode ser alterado, corrigido, atualizado, removido ou reorganizado a qualquer momento, sem aviso prévio.</p>
-              <p>5.2. Não garantimos que o serviço estará disponível ininterruptamente. Podem ocorrer instabilidades por manutenção, falhas técnicas, atualizações, ou fatores externos.</p>
-              <p>5.3. O Premier pode incluir recursos de IA e automações. Esses recursos geram probabilidades e estimativas, não certezas.</p>
+              <p className="font-bold text-foreground">5. Contenido, Actualizaciones y Disponibilidad</p>
+              <p>5.1. El contenido puede ser modificado, corregido, actualizado, eliminado o reorganizado en cualquier momento, sin aviso previo.</p>
+              <p>5.2. No garantizamos que el servicio esté disponible ininterrumpidamente. Pueden ocurrir inestabilidades por mantenimiento, fallas técnicas, actualizaciones o factores externos.</p>
+              <p>5.3. Premier puede incluir recursos de IA y automatizaciones. Estos recursos generan probabilidades y estimaciones, no certezas.</p>
 
-              <p className="font-bold text-foreground">6. Pagamentos, Assinaturas, Reembolsos e Cancelamento</p>
-              <p>6.1. O acesso a determinados recursos pode exigir pagamento (assinatura, plano, licença ou acesso vitalício, conforme oferta).</p>
-              <p>6.2. Condições comerciais (preço, duração, renovação, benefícios) são as informadas no checkout e podem variar.</p>
-              <p>6.3. Caso haja garantia legal aplicável (ex.: 7 dias para compras online, conforme o caso), ela será respeitada conforme as regras do meio de pagamento e da legislação.</p>
-              <p>6.4. Cancelamentos e reembolsos podem estar sujeitos a: validações antifraude; uso indevido; solicitações duplicadas; chargeback; regras do processador de pagamento.</p>
+              <p className="font-bold text-foreground">6. Pagos, Suscripciones, Reembolsos y Cancelación</p>
+              <p>6.1. El acceso a ciertos recursos puede requerir pago (suscripción, plan, licencia o acceso vitalicio, según la oferta).</p>
+              <p>6.2. Las condiciones comerciales (precio, duración, renovación, beneficios) son las informadas en el checkout y pueden variar.</p>
+              <p>6.3. Si existe garantía legal aplicable (por ejemplo, derecho a retracto en compras online según corresponda), será respetada conforme a las reglas del medio de pago y de la legislación vigente.</p>
+              <p>6.4. Las cancelaciones y reembolsos pueden estar sujetos a: validaciones antifraude; uso indebido; solicitudes duplicadas; chargeback; reglas del procesador de pagos.</p>
 
-              <p className="font-bold text-foreground">7. Limitação de Responsabilidade (Cláusula "Blindagem")</p>
-              <p>7.1. Você reconhece e concorda que: apostas podem gerar perdas; odds variam; resultados são imprevisíveis; o conteúdo é informativo e não promessa de ganho.</p>
-              <p>7.2. Na máxima extensão permitida pela lei, o Premier e seus sócios, administradores, colaboradores e parceiros não serão responsáveis por quaisquer danos diretos, indiretos, incidentais, especiais, punitivos ou consequenciais, incluindo: perdas financeiras; lucros cessantes; queda de saldo; perda de oportunidades; interrupção de serviço; decisões do usuário em casas de apostas.</p>
-              <p>7.3. Se, ainda assim, houver responsabilização judicial, a indenização máxima fica limitada ao valor pago pelo usuário ao Premier nos últimos 3 (três) meses anteriores ao evento, quando aplicável, salvo vedação legal.</p>
+              <p className="font-bold text-foreground">7. Limitación de Responsabilidad (Cláusula de "Blindaje")</p>
+              <p>7.1. Reconoces y aceptas que: las apuestas pueden generar pérdidas; las cuotas varían; los resultados son impredecibles; el contenido es informativo y no es una promesa de ganancia.</p>
+              <p>7.2. En la máxima extensión permitida por la ley, Premier y sus socios, administradores, colaboradores y aliados no serán responsables por daños directos, indirectos, incidentales, especiales, punitivos o consecuenciales, incluyendo: pérdidas financieras; lucro cesante; caída de saldo; pérdida de oportunidades; interrupción del servicio; decisiones del usuario en casas de apuestas.</p>
+              <p>7.3. Si aún así existiera responsabilización judicial, la indemnización máxima queda limitada al monto pagado por el usuario a Premier en los últimos 3 (tres) meses anteriores al evento, cuando corresponda, salvo prohibición legal.</p>
 
-              <p className="font-bold text-foreground">8. Obrigações do Usuário</p>
-              <p>8.1. Você se compromete a: usar o Premier de forma lícita; não explorar falhas, burlar sistemas ou acessar dados indevidos; não compartilhar acesso de forma irregular; não revender, redistribuir ou espelhar o conteúdo; respeitar direitos autorais e propriedade intelectual.</p>
-              <p>8.2. Proibido: engenharia reversa, scraping, bots, automações abusivas; copiar layout, textos, modelos, entradas, banco de dados; usar a marca Premier sem autorização.</p>
+              <p className="font-bold text-foreground">8. Obligaciones del Usuario</p>
+              <p>8.1. Te comprometes a: usar Premier de forma lícita; no explotar fallas, vulnerar sistemas ni acceder a datos indebidos; no compartir tu acceso de forma irregular; no revender, redistribuir ni replicar el contenido; respetar los derechos de autor y la propiedad intelectual.</p>
+              <p>8.2. Está prohibido: ingeniería inversa, scraping, bots, automatizaciones abusivas; copiar layout, textos, modelos, tips, base de datos; usar la marca Premier sin autorización.</p>
 
-              <p className="font-bold text-foreground">9. Propriedade Intelectual</p>
-              <p>9.1. O Premier, marcas, layouts, textos, banco de dados, modelos, algoritmos, métodos e materiais são de titularidade da Empresa ou licenciados.</p>
-              <p>9.2. O uso do App não concede ao usuário qualquer licença além do direito de uso pessoal, revogável, não exclusivo e intransferível.</p>
+              <p className="font-bold text-foreground">9. Propiedad Intelectual</p>
+              <p>9.1. Premier, sus marcas, layouts, textos, base de datos, modelos, algoritmos, métodos y materiales son de titularidad de la Empresa o licenciados a esta.</p>
+              <p>9.2. El uso de la App no concede al usuario ninguna licencia más allá del derecho de uso personal, revocable, no exclusivo e intransferible.</p>
 
-              <p className="font-bold text-foreground">10. LGPD e Privacidade</p>
-              <p>10.1. Tratamos dados pessoais conforme a legislação aplicável, incluindo a LGPD (Lei nº 13.709/2018).</p>
-              <p>10.2. Dados podem ser tratados para: autenticação e segurança; prevenção à fraude; suporte; melhoria do produto; obrigações legais/regulatórias.</p>
-              <p>10.3. Para detalhes, consulte a Política de Privacidade.</p>
+              <p className="font-bold text-foreground">10. Privacidad y Protección de Datos</p>
+              <p>10.1. Tratamos los datos personales conforme a la legislación aplicable, incluyendo la Ley N° 19.628 sobre Protección de la Vida Privada.</p>
+              <p>10.2. Los datos pueden ser tratados para: autenticación y seguridad; prevención de fraude; soporte; mejora del producto; obligaciones legales/regulatorias.</p>
+              <p>10.3. Para más detalles, consulta la Política de Privacidad.</p>
 
-              <p className="font-bold text-foreground">11. Medidas Antifraude e Compliance</p>
-              <p>11.1. Podemos adotar mecanismos de verificação, limitação de acesso, análise de risco e bloqueio preventivo em caso de suspeita de fraude, múltiplas contas, abuso de promoções, chargeback ou violação destes Termos.</p>
-              <p>11.2. Podemos cooperar com autoridades, mediante ordem legal, quando necessário.</p>
+              <p className="font-bold text-foreground">11. Medidas Antifraude y Compliance</p>
+              <p>11.1. Podemos adoptar mecanismos de verificación, limitación de acceso, análisis de riesgo y bloqueo preventivo en caso de sospecha de fraude, cuentas múltiples, abuso de promociones, chargeback o violación de estos Términos.</p>
+              <p>11.2. Podemos cooperar con autoridades, mediante orden legal, cuando sea necesario.</p>
 
-              <p className="font-bold text-foreground">12. Suspensão e Rescisão</p>
-              <p>12.1. Podemos suspender ou encerrar o acesso do usuário a qualquer momento em caso de: violação destes Termos; suspeita de fraude; uso indevido; exigência legal.</p>
-              <p>12.2. O usuário pode deixar de usar o serviço a qualquer momento, observadas as regras de cancelamento e reembolso do plano contratado.</p>
+              <p className="font-bold text-foreground">12. Suspensión y Término</p>
+              <p>12.1. Podemos suspender o terminar el acceso del usuario en cualquier momento en caso de: violación de estos Términos; sospecha de fraude; uso indebido; exigencia legal.</p>
+              <p>12.2. El usuario puede dejar de usar el servicio en cualquier momento, observando las reglas de cancelación y reembolso del plan contratado.</p>
 
-              <p className="font-bold text-foreground">13. Alterações dos Termos</p>
-              <p>13.1. Podemos modificar estes Termos a qualquer momento. A versão vigente será sempre a disponibilizada na Plataforma.</p>
-              <p>13.2. O uso contínuo após atualização significa aceite das alterações.</p>
+              <p className="font-bold text-foreground">13. Modificaciones de los Términos</p>
+              <p>13.1. Podemos modificar estos Términos en cualquier momento. La versión vigente será siempre la publicada en la Plataforma.</p>
+              <p>13.2. El uso continuado después de una actualización significa la aceptación de los cambios.</p>
 
-              <p className="font-bold text-foreground">14. Contato e Suporte</p>
-              <p>Dúvidas, solicitações e suporte: equipepremierfc@gmail.com</p>
+              <p className="font-bold text-foreground">14. Contacto y Soporte</p>
+              <p>Dudas, solicitudes y soporte: equipepremierfc@gmail.com</p>
             </div>
             <button
               onClick={() => setShowTermsModal(false)}
               className="w-full py-2.5 rounded-[10px] text-sm text-muted-foreground border border-white/[0.07] hover:text-foreground transition-colors"
             >
-              Fechar
+              Cerrar
             </button>
           </div>
         </DialogContent>

@@ -76,18 +76,18 @@ export default function AdminFunnelPopups() {
     const ext = file.name.split(".").pop();
     const path = `funnel-popups/${crypto.randomUUID()}.${ext}`;
     const { error } = await supabase.storage.from("popups").upload(path, file, { upsert: true });
-    if (error) { toast.error("Erro no upload: " + error.message); setUploading(false); return; }
+    if (error) { toast.error("Error al subir: " + error.message); setUploading(false); return; }
     const { data } = supabase.storage.from("popups").getPublicUrl(path);
     setForm((f) => ({ ...f, image_url: data.publicUrl + "?t=" + Date.now() }));
     setUploading(false);
-    toast.success("Imagem enviada!");
+    toast.success("¡Imagen enviada!");
   };
 
   const handleSave = async () => {
     const hasButton = form.checkout_link.trim() && form.final_title.trim();
     const hasFunnel = form.questions.some((q) => q.text.trim());
     if (!hasButton && !hasFunnel && form.type !== "casino_welcome" && form.type !== "welcome_paid") {
-      toast.error("Erro: O pop-up precisa ter um 'Botão com URL' ou, no mínimo, a 'Pergunta 1' do funil preenchida.");
+      toast.error("Error: el pop-up necesita tener un 'Botón con URL' o, al menos, la 'Pregunta 1' del embudo completada.");
       return;
     }
     setSaving(true);
@@ -99,7 +99,7 @@ export default function AdminFunnelPopups() {
       ({ error } = await (supabase.from("popups" as any) as any).insert(payload));
     }
     if (error) toast.error(error.message);
-    else toast.success(editId ? "Pop-up atualizado!" : "Pop-up criado!");
+    else toast.success(editId ? "¡Pop-up actualizado!" : "¡Pop-up creado!");
     setSaving(false);
     setOpen(false);
     load();
@@ -108,7 +108,7 @@ export default function AdminFunnelPopups() {
   const handleDelete = async (row: PopupRow) => {
     const { error } = await (supabase.from("popups" as any) as any).delete().eq("id", row.id);
     if (error) toast.error(error.message);
-    else { toast.success("Excluído"); load(); }
+    else { toast.success("Eliminado"); load(); }
     setDeleteTarget(null);
   };
 
@@ -119,7 +119,7 @@ export default function AdminFunnelPopups() {
 
   const f = (k: keyof PopupFormState, v: any) => setForm((prev) => ({ ...prev, [k]: v }));
 
-  if (houseLoading) return <div className="flex items-center gap-2 text-gray-400 py-20"><Loader2 className="w-4 h-4 animate-spin" /> Carregando…</div>;
+  if (houseLoading) return <div className="flex items-center gap-2 text-gray-400 py-20"><Loader2 className="w-4 h-4 animate-spin" /> Cargando…</div>;
 
   return (
     <div className="space-y-4">
@@ -127,40 +127,40 @@ export default function AdminFunnelPopups() {
       <div className="flex items-center justify-between">
         <div>
           <div className="flex items-center gap-3">
-            <h2 className="text-xl font-bold">Pop-ups de Funil</h2>
+            <h2 className="text-xl font-bold">Pop-ups de Embudo</h2>
             <button
               onClick={() => load()}
               className="p-2 rounded-lg bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-white transition-colors"
-              title="Atualizar"
+              title="Actualizar"
             >
               <RefreshCw className="w-4 h-4" />
             </button>
           </div>
           <p className="text-sm text-gray-400 mt-0.5">
-            {selectedHouse ? `Casa: ${selectedHouse.name}` : "Sem casa selecionada (global)"}
+            {selectedHouse ? `Casa: ${selectedHouse.name}` : "Sin casa seleccionada (global)"}
           </p>
         </div>
-        <Button size="sm" onClick={openNew}><Plus className="w-4 h-4" /> Novo</Button>
+        <Button size="sm" onClick={openNew}><Plus className="w-4 h-4" /> Nuevo</Button>
       </div>
 
       {/* Table */}
       {loading ? (
-        <div className="flex items-center gap-2 text-gray-400 py-10"><Loader2 className="w-4 h-4 animate-spin" /> Carregando…</div>
+        <div className="flex items-center gap-2 text-gray-400 py-10"><Loader2 className="w-4 h-4 animate-spin" /> Cargando…</div>
       ) : (
         <div className="bg-gray-900 rounded-xl border border-white/10 overflow-hidden">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-white/10 text-left text-gray-500">
-                <th className="px-4 py-3 w-[80px]">Preview</th>
+                <th className="px-4 py-3 w-[80px]">Vista previa</th>
                 <th className="px-4 py-3">Tipo</th>
                 <th className="px-4 py-3">Público</th>
-                <th className="px-4 py-3">Perguntas</th>
+                <th className="px-4 py-3">Preguntas</th>
                 <th className="px-4 py-3">Checkout</th>
-                <th className="px-4 py-3 text-center">Impressões</th>
-                <th className="px-4 py-3 text-center">Cliques</th>
+                <th className="px-4 py-3 text-center">Impresiones</th>
+                <th className="px-4 py-3 text-center">Clics</th>
                 <th className="px-4 py-3 text-center">CTR</th>
-                <th className="px-4 py-3 text-center">Ativo</th>
-                <th className="px-4 py-3">Ações</th>
+                <th className="px-4 py-3 text-center">Activo</th>
+                <th className="px-4 py-3">Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -185,7 +185,7 @@ export default function AdminFunnelPopups() {
                     </td>
                     <td className="px-4 py-3">
                       <span className={`text-xs px-2 py-0.5 rounded-full ${qCount > 0 ? "bg-blue-500/20 text-blue-300" : "bg-gray-700 text-gray-500"}`}>
-                        {qCount > 0 ? `${qCount} pergunta${qCount > 1 ? "s" : ""}` : "Sem funil"}
+                        {qCount > 0 ? `${qCount} pregunta${qCount > 1 ? "s" : ""}` : "Sin embudo"}
                       </span>
                     </td>
                     <td className="px-4 py-3 max-w-[140px] truncate text-xs text-gray-500">
@@ -199,7 +199,7 @@ export default function AdminFunnelPopups() {
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex gap-2">
-                        <button onClick={() => setAnalyticsTarget({ id: row.id, name: typeLabel(row.type) })} className="text-blue-400 hover:text-blue-300" title="Ver Analytics"><BarChart2 className="w-4 h-4" /></button>
+                        <button onClick={() => setAnalyticsTarget({ id: row.id, name: typeLabel(row.type) })} className="text-blue-400 hover:text-blue-300" title="Ver Analítica"><BarChart2 className="w-4 h-4" /></button>
                         <button onClick={() => openEdit(row)} className="text-blue-400 hover:text-blue-300"><Pencil className="w-4 h-4" /></button>
                         <button onClick={() => setDeleteTarget(row)} className="text-red-400 hover:text-red-300"><Trash2 className="w-4 h-4" /></button>
                       </div>
@@ -208,7 +208,7 @@ export default function AdminFunnelPopups() {
                 );
               })}
               {items.length === 0 && (
-                <tr><td colSpan={10} className="px-4 py-8 text-center text-gray-600">Nenhum pop-up criado ainda</td></tr>
+                <tr><td colSpan={10} className="px-4 py-8 text-center text-gray-600">Ningún pop-up creado todavía</td></tr>
               )}
             </tbody>
           </table>
@@ -219,14 +219,14 @@ export default function AdminFunnelPopups() {
       <AlertDialog open={!!deleteTarget} onOpenChange={(o) => { if (!o) setDeleteTarget(null); }}>
         <AlertDialogContent className="bg-gray-900 border-gray-800 text-white">
           <AlertDialogHeader>
-            <AlertDialogTitle>Excluir pop-up?</AlertDialogTitle>
+            <AlertDialogTitle>¿Eliminar pop-up?</AlertDialogTitle>
             <AlertDialogDescription className="text-gray-400">
-              O pop-up <strong>{typeLabel(deleteTarget?.type ?? "")}</strong> será removido permanentemente.
+              El pop-up <strong>{typeLabel(deleteTarget?.type ?? "")}</strong> será eliminado permanentemente.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel className="bg-gray-800 text-gray-300 border-gray-700">Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={() => deleteTarget && handleDelete(deleteTarget)}>Excluir</AlertDialogAction>
+            <AlertDialogAction onClick={() => deleteTarget && handleDelete(deleteTarget)}>Eliminar</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -235,7 +235,7 @@ export default function AdminFunnelPopups() {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{editId ? "Editar" : "Novo"} Pop-up de Funil</DialogTitle>
+            <DialogTitle>{editId ? "Editar" : "Nuevo"} Pop-up de Embudo</DialogTitle>
           </DialogHeader>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -262,7 +262,7 @@ export default function AdminFunnelPopups() {
               {/* Audience (only for promotional) */}
               {form.type === "promotional" && (
                 <div>
-                  <Label className="text-gray-400 text-xs">Público-Alvo</Label>
+                  <Label className="text-gray-400 text-xs">Público Objetivo</Label>
                   <Select value={form.target_audience} onValueChange={(v) => f("target_audience", v)}>
                     <SelectTrigger className="bg-gray-800 border-gray-700"><SelectValue /></SelectTrigger>
                     <SelectContent>
@@ -277,15 +277,15 @@ export default function AdminFunnelPopups() {
               {/* Active */}
               <div className="flex items-center gap-3">
                 <Switch checked={form.is_active} onCheckedChange={(v) => f("is_active", v)} />
-                <Label className="text-gray-300 text-sm">Ativo</Label>
+                <Label className="text-gray-300 text-sm">Activo</Label>
               </div>
 
               {/* Image */}
               <div>
-                <Label className="text-gray-400 text-xs">Imagem de Destaque <span className="text-muted-foreground">(480 x 720 px)</span></Label>
+                <Label className="text-gray-400 text-xs">Imagen Destacada <span className="text-muted-foreground">(480 x 720 px)</span></Label>
                 <div className="flex gap-2 mt-1">
                   <Input
-                    placeholder="URL da imagem"
+                    placeholder="URL de la imagen"
                     value={form.image_url}
                     onChange={(e) => f("image_url", e.target.value)}
                     className="bg-gray-800 border-gray-700 flex-1"
@@ -310,7 +310,7 @@ export default function AdminFunnelPopups() {
 
               {/* Button color picker */}
               <div>
-                <Label className="text-gray-400 text-xs">Cor Principal dos Botões</Label>
+                <Label className="text-gray-400 text-xs">Color Principal de los Botones</Label>
                 <div className="flex gap-2 mt-1 items-center">
                   <input
                     type="color"
@@ -330,28 +330,28 @@ export default function AdminFunnelPopups() {
                     </button>
                   )}
                 </div>
-                <p className="text-[10px] text-gray-600 mt-0.5">Aplicada aos botões de quiz e CTA final. Vazio = cor padrão.</p>
+                <p className="text-[10px] text-gray-600 mt-0.5">Aplicado a los botones de quiz y CTA final. Vacío = color predeterminado.</p>
               </div>
 
               {/* Final screen */}
               <div className="space-y-3 p-3 rounded-xl" style={{ background: "rgba(0,200,255,0.03)", border: "1px dashed rgba(0,200,255,0.15)" }}>
-                <p className="text-xs font-semibold text-white">Tela Final</p>
+                <p className="text-xs font-semibold text-white">Pantalla Final</p>
 
                 {/* Título — acima do template editor */}
                 <div>
                   <Label className="text-gray-500 text-[11px]">Título</Label>
-                  <Input placeholder="O Plano PRO é perfeito para você!" value={form.final_title} onChange={(e) => f("final_title", e.target.value)} className="bg-gray-800 border-gray-700 text-sm" />
+                  <Input placeholder="¡El Plan PRO es perfecto para ti!" value={form.final_title} onChange={(e) => f("final_title", e.target.value)} className="bg-gray-800 border-gray-700 text-sm" />
                 </div>
 
                 {/* Template selector + dynamic fields */}
                 <FinalTemplateEditor form={form} onChange={setForm} />
 
                 <div>
-                  <Label className="text-gray-500 text-[11px]">Benefícios</Label>
+                  <Label className="text-gray-500 text-[11px]">Beneficios</Label>
                   {form.final_benefits.map((b, i) => (
                     <div key={i} className="flex items-center gap-2 mt-1">
                       <Input
-                        placeholder={`Benefício ${i + 1}`}
+                        placeholder={`Beneficio ${i + 1}`}
                         value={b}
                         onChange={(e) => {
                           const arr = [...form.final_benefits];
@@ -370,13 +370,13 @@ export default function AdminFunnelPopups() {
                     onClick={() => f("final_benefits", [...form.final_benefits, ""])}
                     className="text-[11px] text-blue-400 hover:text-blue-300 flex items-center gap-1 mt-1.5"
                   >
-                    <Plus className="w-3 h-3" /> Adicionar Benefício
+                    <Plus className="w-3 h-3" /> Añadir Beneficio
                   </button>
                 </div>
                 {/* Link de Checkout — escondido quando plan_comparison (usa os links dentro do FinalTemplateEditor) */}
                 {form.final_template !== "plan_comparison" && (
                   <div>
-                    <Label className="text-gray-500 text-[11px]">Link de Checkout</Label>
+                    <Label className="text-gray-500 text-[11px]">Enlace de Checkout</Label>
                     <Input placeholder="https://pay.hotmart.com/..." value={form.checkout_link} onChange={(e) => f("checkout_link", e.target.value)} className="bg-gray-800 border-gray-700 text-sm" />
                   </div>
                 )}
@@ -385,10 +385,10 @@ export default function AdminFunnelPopups() {
               {/* Actions */}
               <div className="flex gap-2">
                 <Button onClick={handleSave} disabled={saving} className="flex-1">
-                  {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Salvar Pop-up"}
+                  {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Guardar Pop-up"}
                 </Button>
                 <Button type="button" variant="outline" onClick={() => setTestOpen(true)} className="border-green-600/40 text-green-400 hover:bg-green-900/20">
-                  <Eye className="w-4 h-4 mr-1" /> Testar
+                  <Eye className="w-4 h-4 mr-1" /> Probar
                 </Button>
               </div>
             </div>
@@ -396,21 +396,21 @@ export default function AdminFunnelPopups() {
             {/* Right: preview */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <Label className="text-gray-400 text-xs">Preview</Label>
+                <Label className="text-gray-400 text-xs">Vista previa</Label>
                 <div className="flex gap-1 bg-gray-800 rounded-lg p-0.5">
                   <button
                     type="button"
                     onClick={() => setPreviewMode("mobile")}
                     className={`px-2.5 py-1 text-[11px] rounded-md transition-colors ${previewMode === "mobile" ? "bg-green-600 text-white" : "text-gray-400 hover:text-white"}`}
                   >
-                    📱 Mobile
+                    📱 Móvil
                   </button>
                   <button
                     type="button"
                     onClick={() => setPreviewMode("desktop")}
                     className={`px-2.5 py-1 text-[11px] rounded-md transition-colors ${previewMode === "desktop" ? "bg-green-600 text-white" : "text-gray-400 hover:text-white"}`}
                   >
-                    🖥️ Desktop
+                    🖥️ Escritorio
                   </button>
                 </div>
               </div>

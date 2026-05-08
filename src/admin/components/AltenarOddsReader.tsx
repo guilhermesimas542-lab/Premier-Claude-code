@@ -39,7 +39,7 @@ export default function AltenarOddsReader({ onSelectionMade, multiMode, onMultiS
 
   const fetchEvent = async () => {
     if (!eventId.trim()) {
-      toast.error("Digite o Event ID");
+      toast.error("Ingresa el Event ID");
       return;
     }
     setLoading(true);
@@ -52,14 +52,14 @@ export default function AltenarOddsReader({ onSelectionMade, multiMode, onMultiS
       });
       if (error) throw error;
       if (!data || !data.competitors || data.competitors.length === 0) {
-        toast.error("Evento não encontrado ou sem dados.");
+        toast.error("Evento no encontrado o sin datos.");
         setLoading(false);
         return;
       }
       setEventData(data);
     } catch (err) {
       console.error(err);
-      toast.error("Erro ao buscar evento.");
+      toast.error("Error al buscar el evento.");
     }
     setLoading(false);
   };
@@ -165,14 +165,14 @@ export default function AltenarOddsReader({ onSelectionMade, multiMode, onMultiS
       setEventData(null);
       setSelectedMarket(null);
       setEventId("");
-      toast.success(`✅ ${oddName} adicionada ao bilhete (${newCount} seleções)`);
+      toast.success(`✅ ${oddName} añadida al ticket (${newCount} selecciones)`);
       return;
     }
 
     onSelectionMade(sel);
     setSelected(true);
     setSelectedOddName(oddName);
-    toast.success(`Odd selecionada: ${oddName} @ ${odd.price}`);
+    toast.success(`Cuota seleccionada: ${oddName} @ ${odd.price}`);
   };
 
   const removeSelection = (idx: number) => {
@@ -267,7 +267,7 @@ export default function AltenarOddsReader({ onSelectionMade, multiMode, onMultiS
     <div className="border border-primary/30 rounded-lg p-3 space-y-3 bg-primary/5">
       <div className="flex items-center justify-between">
         <span className="text-xs text-primary font-semibold uppercase">
-          🤖 Importar Odd do Altenar {accumulatedSelections.length > 0 && "(Múltipla)"}
+          🤖 Importar Cuota desde Altenar {accumulatedSelections.length > 0 && "(Múltiple)"}
         </span>
         {(selected || confirmed) && <Check className="w-4 h-4 text-primary" />}
       </div>
@@ -276,7 +276,7 @@ export default function AltenarOddsReader({ onSelectionMade, multiMode, onMultiS
       {multiMode && accumulatedSelections.length > 0 && !confirmed && (
         <div className="border border-green-500/30 rounded-lg p-3 bg-green-500/5">
           <div className="text-sm font-medium text-green-400 mb-2">
-            Seleções ({accumulatedSelections.length}) — Odd combinada: {combinedOdd.toFixed(2)}
+            Selecciones ({accumulatedSelections.length}) — Cuota combinada: {combinedOdd.toFixed(2)}
           </div>
           {accumulatedSelections.map((sel, i) => (
             <div key={i} className="flex items-center justify-between py-1 text-xs text-muted-foreground">
@@ -294,7 +294,7 @@ export default function AltenarOddsReader({ onSelectionMade, multiMode, onMultiS
           ))}
           {hasSGM && (
             <div className="text-xs text-yellow-400 mt-1">
-              ⚠️ Seleções do mesmo jogo (Criar Aposta): a compatibilidade será validada pela casa no momento da aposta.
+              ⚠️ Selecciones del mismo partido (Crear Apuesta): la compatibilidad será validada por la casa al momento de apostar.
             </div>
           )}
         </div>
@@ -304,7 +304,7 @@ export default function AltenarOddsReader({ onSelectionMade, multiMode, onMultiS
       {multiMode && confirmed && (
         <div className="space-y-2">
           <div className="text-xs text-primary">
-            ✅ {accumulatedSelections.length} seleções importadas com sucesso — Odd combinada: {combinedOdd.toFixed(2)}
+            ✅ {accumulatedSelections.length} selecciones importadas con éxito — Cuota combinada: {combinedOdd.toFixed(2)}
           </div>
           <div className="space-y-0.5">
             {accumulatedSelections.map((sel, i) => (
@@ -318,7 +318,7 @@ export default function AltenarOddsReader({ onSelectionMade, multiMode, onMultiS
             onClick={resetAll}
             className="text-xs text-muted-foreground hover:text-white transition-colors"
           >
-            Refazer
+            Rehacer
           </button>
         </div>
       )}
@@ -328,7 +328,7 @@ export default function AltenarOddsReader({ onSelectionMade, multiMode, onMultiS
         <div className="flex gap-2">
           <Input
             type="text"
-            placeholder="Cole o Event ID (ex: 12345678)"
+            placeholder="Pega el Event ID (ej: 12345678)"
             value={eventId}
             onChange={(e) => setEventId(e.target.value)}
             className="bg-muted/30 border-border flex-1"
@@ -422,10 +422,10 @@ export default function AltenarOddsReader({ onSelectionMade, multiMode, onMultiS
       {multiMode && !confirmed && accumulatedSelections.length > 0 && !selectedMarket && (
         <div className="flex flex-wrap gap-2 pt-1">
           <Button type="button" size="sm" variant="outline" onClick={addAnotherGame}>
-            + Adicionar de outro jogo
+            + Añadir de otro partido
           </Button>
           <Button type="button" size="sm" onClick={handleConfirmMulti}>
-            Confirmar ({accumulatedSelections.length} {accumulatedSelections.length === 1 ? "seleção" : "seleções"})
+            Confirmar ({accumulatedSelections.length} {accumulatedSelections.length === 1 ? "selección" : "selecciones"})
           </Button>
         </div>
       )}
@@ -434,7 +434,7 @@ export default function AltenarOddsReader({ onSelectionMade, multiMode, onMultiS
       {!multiMode && selected && (
         <div className="flex items-center justify-between text-xs">
           <span className="text-primary">
-            ✅ {selectedOddName ? `${selectedOddName} — ` : ""}Odd importada com sucesso
+            ✅ {selectedOddName ? `${selectedOddName} — ` : ""}Cuota importada con éxito
           </span>
           <button
             type="button"
@@ -446,7 +446,7 @@ export default function AltenarOddsReader({ onSelectionMade, multiMode, onMultiS
             }}
             className="text-xs text-muted-foreground hover:text-white transition-colors"
           >
-            Refazer
+            Rehacer
           </button>
         </div>
       )}

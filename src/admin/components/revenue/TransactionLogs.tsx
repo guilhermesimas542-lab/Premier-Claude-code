@@ -7,21 +7,21 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Download, ChevronLeft, ChevronRight, Check, RefreshCw } from "lucide-react";
-import { FinancialEvent, getEventDisplay, getEventCategory, formatBRL } from "./constants";
+import { FinancialEvent, getEventDisplay, getEventCategory, formatCLP } from "./constants";
 
 const PAGE_SIZE = 50;
 const CATEGORY_OPTIONS = [
   { value: 'all', label: 'Todas' },
-  { value: 'Receita', label: 'Receita' },
-  { value: 'Perda', label: 'Perda' },
-  { value: 'Recuperação', label: 'Recuperação' },
+  { value: 'Ingresos', label: 'Ingresos' },
+  { value: 'Pérdida', label: 'Pérdida' },
+  { value: 'Recuperación', label: 'Recuperación' },
   { value: 'Info', label: 'Info' },
 ];
 
 const CATEGORY_COLORS: Record<string, string> = {
-  'Receita': 'bg-green-500/10 text-green-400 border-green-500/30',
-  'Perda': 'bg-red-500/10 text-red-400 border-red-500/30',
-  'Recuperação': 'bg-orange-500/10 text-orange-400 border-orange-500/30',
+  'Ingresos': 'bg-green-500/10 text-green-400 border-green-500/30',
+  'Pérdida': 'bg-red-500/10 text-red-400 border-red-500/30',
+  'Recuperación': 'bg-orange-500/10 text-orange-400 border-orange-500/30',
   'Info': 'bg-gray-500/10 text-gray-400 border-gray-500/30',
 };
 
@@ -86,18 +86,18 @@ export default function TransactionLogs() {
     const { data } = await query;
     const rows = (data as FinancialEvent[]) || [];
 
-    const headers = ['ID', 'Data', 'Evento', 'Categoria', 'Email', 'Produto', 'Valor', 'Recorrente'];
+    const headers = ['ID', 'Fecha', 'Evento', 'Categoría', 'Email', 'Producto', 'Valor', 'Recurrente'];
     const csv = [
       headers.join(','),
       ...rows.map(e => [
         e.id,
-        new Date(e.created_at).toLocaleString('pt-BR'),
+        new Date(e.created_at).toLocaleString('es-CL'),
         `"${getEventDisplay(e.event_name)}"`,
         `"${getEventCategory(e.event_name).label}"`,
         e.email || '',
         `"${e.product_name || ''}"`,
         e.value_cents ? (e.value_cents / 100).toFixed(2) : '',
-        e.is_recurring ? 'Sim' : 'Não',
+        e.is_recurring ? 'Sí' : 'No',
       ].join(','))
     ].join('\n');
 
@@ -105,7 +105,7 @@ export default function TransactionLogs() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `transacoes_${new Date().toISOString().split('T')[0]}.csv`;
+    a.download = `transacciones_${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -117,15 +117,15 @@ export default function TransactionLogs() {
       {/* Filters */}
       <div className="flex flex-wrap gap-3 items-end">
         <div>
-          <label className="text-xs text-muted-foreground">De</label>
+          <label className="text-xs text-muted-foreground">Desde</label>
           <Input type="date" className="w-40" value={dateFrom} onChange={e => { setDateFrom(e.target.value); setPage(0); }} />
         </div>
         <div>
-          <label className="text-xs text-muted-foreground">Até</label>
+          <label className="text-xs text-muted-foreground">Hasta</label>
           <Input type="date" className="w-40" value={dateTo} onChange={e => { setDateTo(e.target.value); setPage(0); }} />
         </div>
         <div>
-          <label className="text-xs text-muted-foreground">Categoria</label>
+          <label className="text-xs text-muted-foreground">Categoría</label>
           <Select value={categoryFilter} onValueChange={v => { setCategoryFilter(v); setPage(0); }}>
             <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
             <SelectContent>
@@ -136,7 +136,7 @@ export default function TransactionLogs() {
         <div className="flex-1 min-w-[200px]">
           <label className="text-xs text-muted-foreground">Buscar email</label>
           <Input
-            placeholder="nome@email.com"
+            placeholder="nombre@email.com"
             value={emailSearch}
             onChange={e => { setEmailSearch(e.target.value); setPage(0); }}
           />
@@ -147,20 +147,20 @@ export default function TransactionLogs() {
 
       {/* Table */}
       {loading ? (
-        <p className="text-muted-foreground text-center py-8">Carregando...</p>
+        <p className="text-muted-foreground text-center py-8">Cargando...</p>
       ) : events.length === 0 ? (
-        <p className="text-muted-foreground text-center py-8">Nenhum evento encontrado.</p>
+        <p className="text-muted-foreground text-center py-8">No se encontró ningún evento.</p>
       ) : (
         <div className="border rounded-lg overflow-hidden">
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>ID</TableHead>
-                <TableHead>Data/Hora</TableHead>
+                <TableHead>Fecha/Hora</TableHead>
                 <TableHead>Evento</TableHead>
-                <TableHead>Categoria</TableHead>
+                <TableHead>Categoría</TableHead>
                 <TableHead>Email</TableHead>
-                <TableHead>Produto</TableHead>
+                <TableHead>Producto</TableHead>
                 <TableHead>Valor</TableHead>
                 <TableHead>Rec.</TableHead>
               </TableRow>
@@ -176,7 +176,7 @@ export default function TransactionLogs() {
                   >
                     <TableCell className="text-xs text-muted-foreground">{ev.id}</TableCell>
                     <TableCell className="text-xs whitespace-nowrap">
-                      {new Date(ev.created_at).toLocaleString('pt-BR')}
+                      {new Date(ev.created_at).toLocaleString('es-CL')}
                     </TableCell>
                     <TableCell className="text-sm">{getEventDisplay(ev.event_name)}</TableCell>
                     <TableCell>
@@ -187,7 +187,7 @@ export default function TransactionLogs() {
                     <TableCell className="text-sm">{ev.email || '—'}</TableCell>
                     <TableCell className="text-sm max-w-[150px] truncate">{ev.product_name || '—'}</TableCell>
                     <TableCell className="text-sm">
-                      {ev.value_cents ? formatBRL(ev.value_cents / 100) : '—'}
+                      {ev.value_cents ? formatCLP(ev.value_cents / 100) : '—'}
                     </TableCell>
                     <TableCell>
                       {ev.is_recurring && <Check className="w-4 h-4 text-green-400" />}
@@ -219,12 +219,12 @@ export default function TransactionLogs() {
       <Dialog open={!!selectedEmail} onOpenChange={() => setSelectedEmail(null)}>
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-auto">
           <DialogHeader>
-            <DialogTitle>Histórico — {selectedEmail}</DialogTitle>
+            <DialogTitle>Historial — {selectedEmail}</DialogTitle>
           </DialogHeader>
           {historyLoading ? (
-            <p className="text-muted-foreground py-4">Carregando...</p>
+            <p className="text-muted-foreground py-4">Cargando...</p>
           ) : emailHistory.length === 0 ? (
-            <p className="text-muted-foreground py-4">Nenhum evento encontrado.</p>
+            <p className="text-muted-foreground py-4">No se encontró ningún evento.</p>
           ) : (
             <div className="space-y-2">
               {emailHistory.map(ev => {
@@ -232,14 +232,14 @@ export default function TransactionLogs() {
                 return (
                   <div key={ev.id} className="flex items-center gap-3 border-b pb-2 last:border-0">
                     <span className="text-xs text-muted-foreground whitespace-nowrap">
-                      {new Date(ev.created_at).toLocaleString('pt-BR')}
+                      {new Date(ev.created_at).toLocaleString('es-CL')}
                     </span>
                     <Badge variant="outline" className={`text-xs ${CATEGORY_COLORS[cat.label] || ''}`}>
                       {cat.label}
                     </Badge>
                     <span className="text-sm font-medium">{getEventDisplay(ev.event_name)}</span>
                     <span className="text-sm text-muted-foreground ml-auto">
-                      {ev.value_cents ? formatBRL(ev.value_cents / 100) : ''}
+                      {ev.value_cents ? formatCLP(ev.value_cents / 100) : ''}
                     </span>
                   </div>
                 );

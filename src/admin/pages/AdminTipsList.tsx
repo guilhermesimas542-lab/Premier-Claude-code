@@ -1,8 +1,8 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { getTodayInBrazil } from "@/lib/timezone";
+import { getTodayInChile } from "@/lib/timezone";
 import { fromZonedTime } from "date-fns-tz";
-import { BRAZIL_TZ } from "@/lib/timezone";
+import { CHILE_TZ } from "@/lib/timezone";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -52,19 +52,19 @@ interface CategoryCount {
 }
 
 const CATEGORY_STYLES: Record<string, { label: string; bg: string; text: string }> = {
-  free: { label: "Free", bg: "bg-gray-600/30", text: "text-gray-300" },
-  basic: { label: "Basic", bg: "bg-blue-600/30", text: "text-blue-400" },
+  free: { label: "Gratis", bg: "bg-gray-600/30", text: "text-gray-300" },
+  basic: { label: "Básico", bg: "bg-blue-600/30", text: "text-blue-400" },
   pro: { label: "Pro", bg: "bg-green-600/30", text: "text-green-400" },
   ultra: { label: "Ultra", bg: "bg-purple-600/30", text: "text-purple-400" },
-  alavancagem: { label: "Alavancagem", bg: "bg-yellow-600/30", text: "text-yellow-400" },
-  multiplas_bingo: { label: "Múltiplas / Bingo", bg: "bg-orange-600/30", text: "text-orange-400" },
+  alavancagem: { label: "Apalancamiento", bg: "bg-yellow-600/30", text: "text-yellow-400" },
+  multiplas_bingo: { label: "Múltiples / Bingo", bg: "bg-orange-600/30", text: "text-orange-400" },
 };
 
 export default function AdminTipsList() {
   const { selectedHouseId, houses } = useBettingHouseAdmin();
   const [items, setItems] = useState<AdminContentEntry[]>([]);
   const [loading, setLoading] = useState(true);
-  const today = getTodayInBrazil();
+  const today = getTodayInChile();
   const [filters, setFilters] = useState({ tier: "", addon: "", team: "", active: "", dateFrom: today, dateTo: today, result: "" });
   const [activePeriod, setActivePeriod] = useState<string>("hoje");
   const [editItem, setEditItem] = useState<AdminContentEntry | null>(null);
@@ -85,7 +85,7 @@ export default function AdminTipsList() {
     // Parse hour/minute from starts_at in local display
     let hour = "20", minute = "00";
     if (startsAt) {
-      const timeStr = startsAt.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: "America/Sao_Paulo" });
+      const timeStr = startsAt.toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit", timeZone: "America/Santiago" });
       const [h, m] = timeStr.split(":");
       hour = h;
       // Round minute to nearest 5
@@ -143,9 +143,9 @@ export default function AdminTipsList() {
   useEffect(() => { load(); }, [selectedHouseId, filters.dateFrom, filters.dateTo]);
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Excluir tip?")) return;
+    if (!confirm("¿Eliminar tip?")) return;
     const { error } = await supabase.from("content_entries").delete().eq("id", id);
-    if (error) toast.error(error.message); else { toast.success("Excluída"); load(); }
+    if (error) toast.error(error.message); else { toast.success("Eliminada"); load(); }
   };
 
   const toggleActive = async (id: string, active: boolean) => {
@@ -164,9 +164,9 @@ export default function AdminTipsList() {
     const cat = CATEGORIA_MAP[editForm.categoria] || CATEGORIA_MAP.free;
     const dateOnly = editForm.gameDate;
     const gameLocalStr = `${dateOnly}T${editForm.gameHour}:${editForm.gameMinute}:00`;
-    const startsAtUTC = fromZonedTime(gameLocalStr, BRAZIL_TZ);
+    const startsAtUTC = fromZonedTime(gameLocalStr, CHILE_TZ);
     const endOfDayLocal = `${dateOnly}T23:59:00`;
-    const expiresAtUTC = fromZonedTime(endOfDayLocal, BRAZIL_TZ);
+    const expiresAtUTC = fromZonedTime(endOfDayLocal, CHILE_TZ);
 
     const payload: any = {
       title: `${editForm.team1_name} x ${editForm.team2_name}`,
@@ -192,7 +192,7 @@ export default function AdminTipsList() {
     };
     const { error } = await supabase.from("content_entries").update(payload).eq("id", editItem.id);
     if (error) toast.error(error.message);
-    else { toast.success("Atualizada"); setEditItem(null); setEditForm(null); load(); }
+    else { toast.success("Actualizada"); setEditItem(null); setEditForm(null); load(); }
   };
 
   const handleFreeze = async (tip: AdminContentEntry) => {
@@ -204,8 +204,8 @@ export default function AdminTipsList() {
       result: "pending",
     };
     const { error } = await supabase.from("content_entries").insert(newFreeTip);
-    if (error) toast.error("Erro ao freezar: " + error.message);
-    else { toast.success("❄️ Tip duplicada como Free"); load(); }
+    if (error) toast.error("Error al congelar: " + error.message);
+    else { toast.success("❄️ Tip duplicada como Gratis"); load(); }
   };
 
   const handleBulkDelete = async () => {
@@ -215,7 +215,7 @@ export default function AdminTipsList() {
     setBulkDeleting(false);
     setShowDeleteConfirm(false);
     if (error) toast.error(error.message);
-    else { toast.success(`${ids.length} tip(s) excluída(s)`); load(); }
+    else { toast.success(`${ids.length} tip(s) eliminada(s)`); load(); }
   };
 
   const toggleSelect = (id: string) => {
@@ -237,7 +237,7 @@ export default function AdminTipsList() {
   };
 
   const handleDateShortcut = (period: string) => {
-    const todayDate = getTodayInBrazil();
+    const todayDate = getTodayInChile();
     const d = new Date(todayDate + "T12:00:00");
     let from = new Date(d);
     let to = new Date(d);
@@ -319,12 +319,12 @@ export default function AdminTipsList() {
 
   const filterLabel = useMemo(() => {
     switch (activePeriod) {
-      case "hoje": return "Entradas hoje:";
-      case "ontem": return "Entradas ontem:";
-      case "amanha": return "Entradas amanhã:";
-      case "prox_7": return "Entradas próximos 7 dias:";
-      case "ult_7": return "Entradas últimos 7 dias:";
-      default: return "Entradas no período:";
+      case "hoje": return "Tips hoy:";
+      case "ontem": return "Tips ayer:";
+      case "amanha": return "Tips mañana:";
+      case "prox_7": return "Tips próximos 7 días:";
+      case "ult_7": return "Tips últimos 7 días:";
+      default: return "Tips en el período:";
     }
   }, [activePeriod]);
 
@@ -345,7 +345,7 @@ export default function AdminTipsList() {
         <button
           onClick={() => load()}
           className="p-2 rounded-lg bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-white transition-colors"
-          title="Atualizar lista"
+          title="Actualizar lista"
         >
           <RefreshCw className="w-4 h-4" />
         </button>
@@ -380,36 +380,36 @@ export default function AdminTipsList() {
 
       {/* Filters */}
       <div className="flex flex-wrap gap-2">
-        <Input placeholder="Time" value={filters.team} onChange={(e) => setF("team", e.target.value)} className="w-36 bg-gray-900 border-gray-800 text-sm" />
+        <Input placeholder="Equipo" value={filters.team} onChange={(e) => setF("team", e.target.value)} className="w-36 bg-gray-900 border-gray-800 text-sm" />
         <Input type="date" value={filters.dateFrom} onChange={(e) => setF("dateFrom", e.target.value)} className="w-36 bg-gray-900 border-gray-800 text-sm" />
         <Input type="date" value={filters.dateTo} onChange={(e) => setF("dateTo", e.target.value)} className="w-36 bg-gray-900 border-gray-800 text-sm" />
         <Select value={filters.tier || "all"} onValueChange={(v) => setF("tier", v === "all" ? "" : v)}>
-          <SelectTrigger className="w-28 bg-gray-900 border-gray-800 text-sm"><SelectValue placeholder="Plano" /></SelectTrigger>
-          <SelectContent><SelectItem value="all">Todos</SelectItem><SelectItem value="free">Free</SelectItem><SelectItem value="basic">Basic</SelectItem><SelectItem value="pro">Pro</SelectItem><SelectItem value="ultra">Ultra</SelectItem></SelectContent>
+          <SelectTrigger className="w-28 bg-gray-900 border-gray-800 text-sm"><SelectValue placeholder="Plan" /></SelectTrigger>
+          <SelectContent><SelectItem value="all">Todos</SelectItem><SelectItem value="free">Gratis</SelectItem><SelectItem value="basic">Básico</SelectItem><SelectItem value="pro">Pro</SelectItem><SelectItem value="ultra">Ultra</SelectItem></SelectContent>
         </Select>
         <Select value={filters.addon || "all"} onValueChange={(v) => setF("addon", v === "all" ? "" : v)}>
           <SelectTrigger className="w-32 bg-gray-900 border-gray-800 text-sm"><SelectValue placeholder="Add-on" /></SelectTrigger>
-          <SelectContent><SelectItem value="all">Todos</SelectItem><SelectItem value="alavancagem">Alavancagem</SelectItem><SelectItem value="multiplas_bingo">Múltiplas / Bingo</SelectItem></SelectContent>
+          <SelectContent><SelectItem value="all">Todos</SelectItem><SelectItem value="alavancagem">Apalancamiento</SelectItem><SelectItem value="multiplas_bingo">Múltiples / Bingo</SelectItem></SelectContent>
         </Select>
         <Select value={filters.active || "all"} onValueChange={(v) => setF("active", v === "all" ? "" : v)}>
-          <SelectTrigger className="w-28 bg-gray-900 border-gray-800 text-sm"><SelectValue placeholder="Status" /></SelectTrigger>
-          <SelectContent><SelectItem value="all">Todos</SelectItem><SelectItem value="true">Ativas</SelectItem><SelectItem value="false">Inativas</SelectItem></SelectContent>
+          <SelectTrigger className="w-28 bg-gray-900 border-gray-800 text-sm"><SelectValue placeholder="Estado" /></SelectTrigger>
+          <SelectContent><SelectItem value="all">Todos</SelectItem><SelectItem value="true">Activas</SelectItem><SelectItem value="false">Inactivas</SelectItem></SelectContent>
         </Select>
         <Select value={filters.result || "all"} onValueChange={(v) => setF("result", v === "all" ? "" : v)}>
           <SelectTrigger className="w-28 bg-gray-900 border-gray-800 text-sm"><SelectValue placeholder="Resultado" /></SelectTrigger>
-          <SelectContent><SelectItem value="all">Todos</SelectItem><SelectItem value="pending">Pendente</SelectItem><SelectItem value="green">Green</SelectItem><SelectItem value="red">Red</SelectItem></SelectContent>
+          <SelectContent><SelectItem value="all">Todos</SelectItem><SelectItem value="pending">Pendiente</SelectItem><SelectItem value="green">Green</SelectItem><SelectItem value="red">Red</SelectItem></SelectContent>
         </Select>
         <Button size="sm" onClick={load}>Filtrar</Button>
         <button
           onClick={() => {
             const formatResult = (r: string | null | undefined) => {
-              if (!r || r === "pending") return "Pendente";
+              if (!r || r === "pending") return "Pendiente";
               if (r === "green") return "Green";
               if (r === "red") return "Red";
               if (r === "void") return "Void";
               return r;
             };
-            const headers = ["Título", "Palpite", "Data", "Hora", "Odd", "Plano", "Resultado"];
+            const headers = ["Título", "Pronóstico", "Fecha", "Hora", "Cuota", "Plan", "Resultado"];
             const rows = sortedItems.map((item: any) => [
               item.title ?? `${item.team1_name ?? ""} x ${item.team2_name ?? ""}`,
               item.condition_to_win ?? item.market ?? "",
@@ -437,11 +437,11 @@ export default function AdminTipsList() {
       {/* Date shortcut buttons */}
       <div className="flex flex-wrap gap-1.5">
         {[
-          { key: "hoje", label: "Hoje" },
-          { key: "ontem", label: "Ontem" },
-          { key: "amanha", label: "Amanhã" },
-          { key: "prox_7", label: "Próximos 7 dias" },
-          { key: "ult_7", label: "Últimos 7 dias" },
+          { key: "hoje", label: "Hoy" },
+          { key: "ontem", label: "Ayer" },
+          { key: "amanha", label: "Mañana" },
+          { key: "prox_7", label: "Próximos 7 días" },
+          { key: "ult_7", label: "Últimos 7 días" },
         ].map((btn) => (
           <Button
             key={btn.key}
@@ -458,31 +458,31 @@ export default function AdminTipsList() {
       {/* Bulk action bar */}
       {selectedIds.size > 0 && (
         <div className="flex items-center gap-3 rounded-lg bg-gray-800 border border-white/10 px-4 py-2 text-sm">
-          <span className="text-gray-300 font-medium">{selectedIds.size} tip(s) selecionada(s)</span>
-          <Button size="sm" variant="destructive" onClick={() => setShowDeleteConfirm(true)}>Excluir selecionados</Button>
+          <span className="text-gray-300 font-medium">{selectedIds.size} tip(s) seleccionada(s)</span>
+          <Button size="sm" variant="destructive" onClick={() => setShowDeleteConfirm(true)}>Eliminar seleccionados</Button>
           <Button size="sm" variant="ghost" onClick={() => setSelectedIds(new Set())} className="text-gray-400">Desmarcar todos</Button>
         </div>
       )}
 
       {loading ? (
-        <div className="text-gray-400">Carregando…</div>
+        <div className="text-gray-400">Cargando…</div>
       ) : (
         <>
           {/* Legenda das colunas */}
           <TooltipProvider>
             <div className="flex flex-wrap items-center gap-4 text-[11px] text-gray-400 mb-2">
               <Tooltip><TooltipTrigger asChild>
-                <span className="flex items-center gap-1 cursor-help"><span className="w-2 h-2 rounded-full bg-purple-500 inline-block" /> Plano</span>
-              </TooltipTrigger><TooltipContent>Plano necessário: Free, Basic, Pro, Ultra</TooltipContent></Tooltip>
+                <span className="flex items-center gap-1 cursor-help"><span className="w-2 h-2 rounded-full bg-purple-500 inline-block" /> Plan</span>
+              </TooltipTrigger><TooltipContent>Plan requerido: Gratis, Básico, Pro, Ultra</TooltipContent></Tooltip>
               <Tooltip><TooltipTrigger asChild>
                 <span className="flex items-center gap-1 cursor-help"><span className="w-2 h-2 rounded-full bg-blue-400 inline-block" /> Add-on</span>
-              </TooltipTrigger><TooltipContent>Add-on: Alavancagem ou Múltiplas / Bingo</TooltipContent></Tooltip>
+              </TooltipTrigger><TooltipContent>Add-on: Apalancamiento o Múltiples / Bingo</TooltipContent></Tooltip>
               <Tooltip><TooltipTrigger asChild>
-                <span className="flex items-center gap-1 cursor-help"><span className="w-2 h-2 rounded-full bg-green-400 inline-block" /> Ativo</span>
-              </TooltipTrigger><TooltipContent>Se a tip está visível para os usuários</TooltipContent></Tooltip>
+                <span className="flex items-center gap-1 cursor-help"><span className="w-2 h-2 rounded-full bg-green-400 inline-block" /> Activo</span>
+              </TooltipTrigger><TooltipContent>Si la tip es visible para los usuarios</TooltipContent></Tooltip>
               <Tooltip><TooltipTrigger asChild>
                 <span className="flex items-center gap-1 cursor-help"><span className="w-2 h-2 rounded-full bg-yellow-400 inline-block" /> Resultado</span>
-              </TooltipTrigger><TooltipContent>Pendente, Green ou Red</TooltipContent></Tooltip>
+              </TooltipTrigger><TooltipContent>Pendiente, Green o Red</TooltipContent></Tooltip>
             </div>
           </TooltipProvider>
           <div className="bg-gray-900 rounded-xl border border-white/10 overflow-x-auto">
@@ -499,25 +499,25 @@ export default function AdminTipsList() {
                   <span className="flex items-center gap-1">Título <SortIcon col="title" /></span>
                 </th>
                 <th className={thClass("palpite")} onClick={() => handleSort("palpite")}>
-                  <span className="flex items-center gap-1">Palpite <SortIcon col="palpite" /></span>
+                  <span className="flex items-center gap-1">Pronóstico <SortIcon col="palpite" /></span>
                 </th>
                 <th className={thClass("date")} onClick={() => handleSort("date")}>
-                  <span className="flex items-center gap-1">Data <SortIcon col="date" /></span>
+                  <span className="flex items-center gap-1">Fecha <SortIcon col="date" /></span>
                 </th>
                 <th className={thClass("starts_at")} onClick={() => handleSort("starts_at")}>
                   <span className="flex items-center gap-1">Hora <SortIcon col="starts_at" /></span>
                 </th>
                 <th className={thClass("odd")} onClick={() => handleSort("odd")}>
-                  <span className="flex items-center gap-1">Odd <SortIcon col="odd" /></span>
+                  <span className="flex items-center gap-1">Cuota <SortIcon col="odd" /></span>
                 </th>
                 <th className={thClass("tier_required")} onClick={() => handleSort("tier_required")}>
-                  <span className="flex items-center gap-1">Plano <SortIcon col="tier_required" /></span>
+                  <span className="flex items-center gap-1">Plan <SortIcon col="tier_required" /></span>
                 </th>
-                <th className="px-3 py-2">Ativo</th>
+                <th className="px-3 py-2">Activo</th>
                 <th className={thClass("result")} onClick={() => handleSort("result")}>
                   <span className="flex items-center gap-1">Resultado <SortIcon col="result" /></span>
                 </th>
-                <th className="px-3 py-2">Ações</th>
+                <th className="px-3 py-2">Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -532,13 +532,13 @@ export default function AdminTipsList() {
                   <td className="px-3 py-2 max-w-[150px] truncate">{t.title}</td>
                   <td className="px-3 py-2">{t.condition_to_win ?? "—"}</td>
                   <td className="px-3 py-2">{t.date}</td>
-                  <td className="px-3 py-2">{t.starts_at ? new Date(t.starts_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : "—"}</td>
+                  <td className="px-3 py-2">{t.starts_at ? new Date(t.starts_at).toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit" }) : "—"}</td>
                   <td className="px-3 py-2">{t.odd != null ? t.odd.toFixed(2) : "—"}</td>
                   <td className="px-3 py-2">
                     {(t as any).addon_required === "alavancagem" ? (
-                      <span className="text-blue-400 font-medium">Alavancagem</span>
+                      <span className="text-blue-400 font-medium">Apalancamiento</span>
                     ) : (t as any).addon_required === "multiplas_bingo" ? (
-                      <span className="text-yellow-400 font-medium">Múltiplas / Bingo</span>
+                      <span className="text-yellow-400 font-medium">Múltiples / Bingo</span>
                     ) : (
                       <span className="capitalize">{t.tier_required}</span>
                     )}
@@ -559,13 +559,13 @@ export default function AdminTipsList() {
                     )}
                   </td>
                   <td className="px-3 py-2 flex gap-1">
-                    <button onClick={() => handleFreeze(t)} className="text-cyan-400 hover:text-cyan-300 transition-colors" title="Freezar (duplicar como Free)"><Snowflake className="w-3.5 h-3.5" /></button>
+                    <button onClick={() => handleFreeze(t)} className="text-cyan-400 hover:text-cyan-300 transition-colors" title="Congelar (duplicar como Gratis)"><Snowflake className="w-3.5 h-3.5" /></button>
                     <button onClick={() => openEditModal(t)} className="text-blue-400"><Pencil className="w-3.5 h-3.5" /></button>
                     <button onClick={() => handleDelete(t.id)} className="text-red-400"><Trash2 className="w-3.5 h-3.5" /></button>
                   </td>
                 </tr>
               ))}
-              {items.length === 0 && <tr><td colSpan={11} className="px-3 py-6 text-center text-gray-600">Nenhuma tip encontrada</td></tr>}
+              {items.length === 0 && <tr><td colSpan={11} className="px-3 py-6 text-center text-gray-600">Ninguna tip encontrada</td></tr>}
             </tbody>
           </table>
         </div>
@@ -581,7 +581,7 @@ export default function AdminTipsList() {
               {/* Data e Hora */}
               <div className="grid grid-cols-[1fr_auto_auto] gap-3 items-end">
                 <div>
-                  <label className="text-xs text-muted-foreground">Data do Jogo *</label>
+                  <label className="text-xs text-muted-foreground">Fecha del Partido *</label>
                   <Input type="date" value={editForm.gameDate} onChange={(e) => setEF("gameDate", e.target.value)} className="bg-gray-800 border-gray-700" />
                 </div>
                 <div>
@@ -602,34 +602,34 @@ export default function AdminTipsList() {
 
               {/* Times */}
               <div className="border border-gray-700 rounded-lg p-3 space-y-3">
-                <span className="text-xs text-muted-foreground font-semibold uppercase">Time 1</span>
-                <TeamAutocomplete label="Time 1" value={editForm.team1_name} logoUrl={editForm.team1_logo_url}
+                <span className="text-xs text-muted-foreground font-semibold uppercase">Equipo 1</span>
+                <TeamAutocomplete label="Equipo 1" value={editForm.team1_name} logoUrl={editForm.team1_logo_url}
                   onChange={(name, logoUrl) => setEditForm((f: any) => ({ ...f, team1_name: name, team1_logo_url: logoUrl }))} />
               </div>
               <div className="border border-gray-700 rounded-lg p-3 space-y-3">
-                <span className="text-xs text-muted-foreground font-semibold uppercase">Time 2</span>
-                <TeamAutocomplete label="Time 2" value={editForm.team2_name} logoUrl={editForm.team2_logo_url}
+                <span className="text-xs text-muted-foreground font-semibold uppercase">Equipo 2</span>
+                <TeamAutocomplete label="Equipo 2" value={editForm.team2_name} logoUrl={editForm.team2_logo_url}
                   onChange={(name, logoUrl) => setEditForm((f: any) => ({ ...f, team2_name: name, team2_logo_url: logoUrl }))} />
               </div>
 
               {/* Categoria e Odd */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs text-muted-foreground">Categoria *</label>
+                  <label className="text-xs text-muted-foreground">Categoría *</label>
                   <Select value={editForm.categoria} onValueChange={(v) => setEF("categoria", v)}>
                     <SelectTrigger className="bg-gray-800 border-gray-700"><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="free">Free</SelectItem>
+                      <SelectItem value="free">Gratis</SelectItem>
                       <SelectItem value="basico">Básico</SelectItem>
                       <SelectItem value="pro">Pro</SelectItem>
                       <SelectItem value="ultra">Ultra</SelectItem>
-                      <SelectItem value="alavancagem">Alavancagem</SelectItem>
-                      <SelectItem value="multiplas_bingo">Múltiplas / Bingo</SelectItem>
+                      <SelectItem value="alavancagem">Apalancamiento</SelectItem>
+                      <SelectItem value="multiplas_bingo">Múltiples / Bingo</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div>
-                  <label className="text-xs text-muted-foreground">Odd *</label>
+                  <label className="text-xs text-muted-foreground">Cuota *</label>
                   <Input type="number" step="0.01" value={editForm.odd} onChange={(e) => setEF("odd", e.target.value)} className="bg-gray-800 border-gray-700" />
                 </div>
               </div>
@@ -641,26 +641,26 @@ export default function AdminTipsList() {
                 }} />
               )}
               <div>
-                <label className="text-xs text-muted-foreground">Palpite</label>
+                <label className="text-xs text-muted-foreground">Pronóstico</label>
                 <Input value={editForm.palpite} onChange={(e) => setEF("palpite", e.target.value)} className="bg-gray-800 border-gray-700" />
               </div>
               <div>
                 <label className="text-xs text-muted-foreground">Mercado</label>
-                <Input value={editForm.mercado} onChange={(e) => setEF("mercado", e.target.value)} className="bg-gray-800 border-gray-700" placeholder="Ex: Over/Under" />
+                <Input value={editForm.mercado} onChange={(e) => setEF("mercado", e.target.value)} className="bg-gray-800 border-gray-700" placeholder="Ej: Over/Under" />
               </div>
               <div>
-                <label className="text-xs text-muted-foreground">O que é esse mercado?</label>
+                <label className="text-xs text-muted-foreground">¿Qué es este mercado?</label>
                 <Textarea value={editForm.mercado_explicacao} onChange={(e) => setEF("mercado_explicacao", e.target.value)} className="bg-gray-800 border-gray-700" rows={2} />
               </div>
               <div>
-                <label className="text-xs text-muted-foreground">Justificativa *</label>
-                <Textarea value={editForm.justification} onChange={(e) => setEF("justification", e.target.value)} className="bg-gray-800 border-gray-700" rows={3} placeholder="Texto do modal de justificativa" />
+                <label className="text-xs text-muted-foreground">Justificación *</label>
+                <Textarea value={editForm.justification} onChange={(e) => setEF("justification", e.target.value)} className="bg-gray-800 border-gray-700" rows={3} placeholder="Texto del modal de justificación" />
               </div>
 
               {/* Links por Casa */}
               {houses.length > 0 && (
                 <div className="border border-gray-700 rounded-lg p-3 space-y-2">
-                  <span className="text-xs text-muted-foreground font-semibold uppercase">Links por Casa de Apostas *</span>
+                  <span className="text-xs text-muted-foreground font-semibold uppercase">Enlaces por Casa de Apuestas *</span>
                   {houses.slice(0, 3).map((h, idx) => {
                     const key = `link_house_${idx + 1}` as "link_house_1" | "link_house_2" | "link_house_3";
                     return (
@@ -673,7 +673,7 @@ export default function AdminTipsList() {
                 </div>
               )}
 
-              <Button onClick={saveEdit} className="w-full">Salvar Alterações</Button>
+              <Button onClick={saveEdit} className="w-full">Guardar Cambios</Button>
             </div>
           )}
         </DialogContent>
@@ -683,15 +683,15 @@ export default function AdminTipsList() {
       <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
         <AlertDialogContent className="bg-gray-900 border-gray-800 text-white">
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirmar exclusão em lote</AlertDialogTitle>
+            <AlertDialogTitle>Confirmar eliminación en lote</AlertDialogTitle>
             <AlertDialogDescription className="text-gray-400">
-              Tem certeza que deseja excluir {selectedIds.size} tip(s)? Esta ação não pode ser desfeita.
+              ¿Estás seguro de que deseas eliminar {selectedIds.size} tip(s)? Esta acción no se puede deshacer.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel className="bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700">Cancelar</AlertDialogCancel>
             <AlertDialogAction onClick={handleBulkDelete} disabled={bulkDeleting} className="bg-red-600 hover:bg-red-700 text-white">
-              {bulkDeleting ? "Excluindo…" : "Confirmar exclusão"}
+              {bulkDeleting ? "Eliminando…" : "Confirmar eliminación"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

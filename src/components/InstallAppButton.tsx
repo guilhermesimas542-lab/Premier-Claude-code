@@ -52,7 +52,7 @@ export const InstallAppButton = ({ variant = 'header' }: InstallAppButtonProps) 
         {showAsInstalled ? (
           <>
             <Check className="w-4 h-4" />
-            <span>App instalado</span>
+            <span>App instalada</span>
           </>
         ) : (
           <>
@@ -74,7 +74,7 @@ export const InstallAppButton = ({ variant = 'header' }: InstallAppButtonProps) 
           
           <div className="space-y-4 py-2">
             <p className="text-sm text-muted-foreground">
-              Para instalar o app no seu iPhone ou iPad:
+              Para instalar la app en tu iPhone o iPad:
             </p>
             
             <ol className="space-y-3 text-sm">
@@ -83,7 +83,7 @@ export const InstallAppButton = ({ variant = 'header' }: InstallAppButtonProps) 
                   1
                 </span>
                 <span className="text-foreground">
-                  Toque no botão <strong className="text-[#00FF7F]">Compartilhar</strong> (ícone de quadrado com seta para cima) na barra do Safari
+                  Toca el botón <strong className="text-[#00FF7F]">Compartir</strong> (ícono de cuadrado con flecha hacia arriba) en la barra de Safari
                 </span>
               </li>
               <li className="flex items-start gap-3">
@@ -91,7 +91,7 @@ export const InstallAppButton = ({ variant = 'header' }: InstallAppButtonProps) 
                   2
                 </span>
                 <span className="text-foreground">
-                  Role para baixo e toque em <strong className="text-[#00FF7F]">"Adicionar à Tela de Início"</strong>
+                  Desplázate hacia abajo y toca en <strong className="text-[#00FF7F]">"Añadir a la Pantalla de Inicio"</strong>
                 </span>
               </li>
               <li className="flex items-start gap-3">
@@ -99,13 +99,13 @@ export const InstallAppButton = ({ variant = 'header' }: InstallAppButtonProps) 
                   3
                 </span>
                 <span className="text-foreground">
-                  Confirme tocando em <strong className="text-[#00FF7F]">"Adicionar"</strong>
+                  Confirma tocando en <strong className="text-[#00FF7F]">"Añadir"</strong>
                 </span>
               </li>
             </ol>
 
             <p className="text-xs text-muted-foreground pt-2 border-t border-border/30">
-              Instale o atalho do Premier Ultra na tela inicial e volte pro app em 1 toque.
+              Instala el acceso directo de Premier Ultra en tu pantalla de inicio y vuelve a la app con 1 toque.
             </p>
           </div>
         </DialogContent>

@@ -23,8 +23,8 @@ function ScaledMiniature({ children, width = 340, height = 220 }: { children: Re
   );
 }
 
-const MOCK_TEAM1 = { name: "Time A", shirt: { variant: "solid" as const, primaryColor: "#22c55e" } };
-const MOCK_TEAM2 = { name: "Time B", shirt: { variant: "solid" as const, primaryColor: "#ef4444" } };
+const MOCK_TEAM1 = { name: "Equipo A", shirt: { variant: "solid" as const, primaryColor: "#22c55e" } };
+const MOCK_TEAM2 = { name: "Equipo B", shirt: { variant: "solid" as const, primaryColor: "#ef4444" } };
 
 export function PayCardMiniaturePreview({ payCard, onClick }: Props) {
   const plan = payCard.associated_plan?.toUpperCase() || "";
@@ -48,16 +48,16 @@ export function PayCardMiniaturePreview({ payCard, onClick }: Props) {
         <div className="flex flex-col items-center justify-center rounded-lg border border-emerald-500/60 bg-zinc-900 overflow-hidden gap-1 py-2" style={{ width: 90, height: 58 }}>
           <div className="flex items-center gap-1">
             <ShoppingCart className="w-3 h-3 text-emerald-400" />
-            <span className="text-[7px] text-emerald-400 font-bold">Adquirir acesso</span>
+            <span className="text-[7px] text-emerald-400 font-bold">Adquirir acceso</span>
           </div>
-          <span className="text-[5px] text-emerald-600/80">Acesso rápido</span>
+          <span className="text-[5px] text-emerald-600/80">Acceso rápido</span>
         </div>
       );
 
     case "VITALICIO":
       return wrap(
         <div className="flex items-center justify-center rounded-full border border-red-500/60 bg-red-900/40 overflow-hidden gap-1" style={{ width: 90, height: 32 }}>
-          <span className="text-[7px] text-red-400 font-bold">Sem vitalício</span>
+          <span className="text-[7px] text-red-400 font-bold">Sin vitalicio</span>
           <ShoppingCart className="w-3 h-3 text-red-400" />
         </div>
       );
@@ -87,7 +87,7 @@ export function PayCardMiniaturePreview({ payCard, onClick }: Props) {
             team1={MOCK_TEAM1}
             team2={MOCK_TEAM2}
             market="Resultado Final"
-            betChoice="Time A"
+            betChoice="Equipo A"
             odds={1.85}
             isLocked
             lockedLabel={isUpgrade ? `↑ ${tierMap[plan]}` : undefined}
@@ -100,7 +100,7 @@ export function PayCardMiniaturePreview({ payCard, onClick }: Props) {
     case "ALAVANCAGEM":
       return wrap(
         <ScaledMiniature width={340} height={220}>
-          <SpecialBettingCard tipId={0} type="ALAVANCAGEM" market="Mercado" betChoice="Seleção" odds={2.10} isLocked />
+          <SpecialBettingCard tipId={0} type="ALAVANCAGEM" market="Mercado" betChoice="Selección" odds={2.10} isLocked />
         </ScaledMiniature>
       );
 
@@ -108,7 +108,7 @@ export function PayCardMiniaturePreview({ payCard, onClick }: Props) {
     case "ODDS_ALTAS":
       return wrap(
         <ScaledMiniature width={340} height={220}>
-          <SpecialBettingCard tipId={0} type="ODDS_ALTAS" market="Mercado" betChoice="Seleção" odds={3.50} isLocked />
+          <SpecialBettingCard tipId={0} type="ODDS_ALTAS" market="Mercado" betChoice="Selección" odds={3.50} isLocked />
         </ScaledMiniature>
       );
 

@@ -28,13 +28,13 @@ interface PremiumSportCardProps {
 }
 
 const premiumTexts = {
-  titles: ["Entradas de Hoje", "Análise Liberada", "Painel Atualizado"],
+  titles: ["Tips de Hoy", "Análisis Liberado", "Panel Actualizado"],
   subtitles: [
-    "IA localizou novas oportunidades",
-    "Sinais validados e atualizados",
-    "Precisão aumentada nas últimas análises"
+    "La IA detectó nuevas oportunidades",
+    "Señales validadas y actualizadas",
+    "Precisión aumentada en los últimos análisis"
   ],
-  ctas: ["ACESSAR AGORA", "VER ENTRADAS", "ABRIR PAINEL"]
+  ctas: ["ACCEDER AHORA", "VER TIPS", "ABRIR PANEL"]
 };
 
 export const PremiumSportCard = ({
@@ -60,9 +60,9 @@ export const PremiumSportCard = ({
     if (isLocked) {
       return (
         <div className="flex flex-col justify-center space-y-1">
-          <h4 className="text-xs font-bold text-[#FF4E4E] tracking-wide">Conteúdo Exclusivo</h4>
+          <h4 className="text-xs font-bold text-[#FF4E4E] tracking-wide">Contenido Exclusivo</h4>
           <p className="text-[10px] text-[#A1A1A1] leading-relaxed">
-            Libere acesso para visualizar entradas avançadas
+            Desbloquea el acceso para ver tips avanzados
           </p>
         </div>
       );
@@ -71,8 +71,8 @@ export const PremiumSportCard = ({
     if (isDevelopment) {
       return (
         <div className="flex flex-col justify-center space-y-1">
-          <h4 className="text-xs font-bold text-[#888888] tracking-wide">Em Breve</h4>
-          <p className="text-[10px] text-[#666666]">Disponível em breve</p>
+          <h4 className="text-xs font-bold text-[#888888] tracking-wide">Próximamente</h4>
+          <p className="text-[10px] text-[#666666]">Disponible próximamente</p>
         </div>
       );
     }
@@ -80,7 +80,7 @@ export const PremiumSportCard = ({
     if (isPreSale) {
       return (
         <div className="flex flex-col justify-center space-y-1">
-          <h4 className="text-xs font-bold text-[#00FF7F] tracking-wide">Lançamento Exclusivo</h4>
+          <h4 className="text-xs font-bold text-[#00FF7F] tracking-wide">Lanzamiento Exclusivo</h4>
           {countdown && (
             <div className="flex gap-0.5">
               {[
@@ -144,7 +144,7 @@ export const PremiumSportCard = ({
               }}
             />
             <span className="text-[10px] font-medium" style={{ color: "#00CC00" }}>
-              Atualizado agora
+              Actualizado ahora
             </span>
           </div>
         ) : (
@@ -166,7 +166,7 @@ export const PremiumSportCard = ({
           }}
           onClick={onClick}
         >
-          LIBERAR
+          DESBLOQUEAR
         </button>
       );
     }
@@ -177,7 +177,7 @@ export const PremiumSportCard = ({
           disabled
           className="px-3 py-2 text-[10px] font-bold tracking-wider rounded-full bg-[#1A1A1A] text-[#666] border border-[#333] cursor-not-allowed whitespace-nowrap"
         >
-          EM BREVE
+          PRÓXIMAMENTE
         </button>
       );
     }
@@ -193,7 +193,7 @@ export const PremiumSportCard = ({
           }}
           onClick={onClick}
         >
-          GARANTIR
+          ASEGURAR
         </button>
       );
     }
@@ -301,7 +301,7 @@ export const PremiumSportCard = ({
               }}
             >
               <Sparkles className="w-2 h-2" style={{ color: colors.primary }} />
-              <span className="text-[8px] font-bold tracking-wider" style={{ color: colors.primary }}>IA ATIVADA</span>
+              <span className="text-[8px] font-bold tracking-wider" style={{ color: colors.primary }}>IA ACTIVADA</span>
             </div>
           )}
         </div>

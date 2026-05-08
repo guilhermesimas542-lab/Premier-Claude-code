@@ -8,7 +8,7 @@ import { useBettingHouseAdmin } from "../context/BettingHouseContext";
 
 function getUrlStatus(url: string) {
   if (!url || url.trim() === "") {
-    return { icon: <XCircle className="w-4 h-4 text-red-400" />, color: "text-red-400", message: "Link não configurado" };
+    return { icon: <XCircle className="w-4 h-4 text-red-400" />, color: "text-red-400", message: "Enlace no configurado" };
   }
   try {
     const parsed = new URL(url);
@@ -16,18 +16,18 @@ function getUrlStatus(url: string) {
       return { icon: <CheckCircle2 className="w-4 h-4 text-green-400" />, color: "text-green-400", message: "URL válida" };
     }
   } catch {}
-  return { icon: <AlertTriangle className="w-4 h-4 text-yellow-400" />, color: "text-yellow-400", message: "URL inválida (deve começar com https://)" };
+  return { icon: <AlertTriangle className="w-4 h-4 text-yellow-400" />, color: "text-yellow-400", message: "URL inválida (debe comenzar con https://)" };
 }
 
 const FIELDS = [
-  { key: "iframe_url", label: "🏠 Iframe de Esportes", placeholder: "https://esportivabet.com", section: "sports" },
-  { key: "telegram_group_url", label: "📲 Link do Grupo Telegram", placeholder: "https://t.me/seugrupovip", section: "sports" },
-  { key: "aviator_url", label: "✈️ Aviator", placeholder: "https://esportivabet.com/cassino/aviator", section: "casino" },
-  { key: "roleta_url", label: "🎰 Roleta", placeholder: "https://esportivabet.com/cassino/roleta", section: "casino" },
-  { key: "mines_url", label: "💎 Mines", placeholder: "https://esportivabet.com/cassino/mines", section: "casino" },
-  { key: "football_studio_url", label: "⚽ Football Studio", placeholder: "https://esportivabet.com/cassino/football", section: "casino" },
-  { key: "support_whatsapp_url", label: "📞 URL Suporte WhatsApp", placeholder: "https://wa.me/5511999999999", section: "buttons" },
-  { key: "acquire_access_url", label: "🛒 URL Adquirir Acesso", placeholder: "https://checkout.premierfc.app/...", section: "buttons" },
+  { key: "iframe_url", label: "🏠 Iframe de Deportes", placeholder: "https://esportivabet.com", section: "sports" },
+  { key: "telegram_group_url", label: "📲 Enlace del Grupo Telegram", placeholder: "https://t.me/tugrupovip", section: "sports" },
+  { key: "aviator_url", label: "✈️ Aviator", placeholder: "https://esportivabet.com/casino/aviator", section: "casino" },
+  { key: "roleta_url", label: "🎰 Ruleta", placeholder: "https://esportivabet.com/casino/ruleta", section: "casino" },
+  { key: "mines_url", label: "💎 Mines", placeholder: "https://esportivabet.com/casino/mines", section: "casino" },
+  { key: "football_studio_url", label: "⚽ Football Studio", placeholder: "https://esportivabet.com/casino/football", section: "casino" },
+  { key: "support_whatsapp_url", label: "📞 URL Soporte WhatsApp", placeholder: "https://wa.me/56912345678", section: "buttons" },
+  { key: "acquire_access_url", label: "🛒 URL Adquirir Acceso", placeholder: "https://checkout.premierfc.app/...", section: "buttons" },
 ] as const;
 
 type FormKey = "iframe_url" | "telegram_group_url" | "aviator_url" | "roleta_url" | "mines_url" | "football_studio_url" | "support_whatsapp_url" | "acquire_access_url";
@@ -126,7 +126,7 @@ export default function AdminDefaultLinks() {
     } else {
       setSaveSuccess(true);
       setLastUpdated(new Date().toISOString());
-      toast.success("Links salvos com sucesso!");
+      toast.success("¡Enlaces guardados con éxito!");
       setTimeout(() => setSaveSuccess(false), 3000);
     }
   };
@@ -134,7 +134,7 @@ export default function AdminDefaultLinks() {
   if (houseLoading) {
     return (
       <div className="flex items-center justify-center py-20 gap-2 text-muted-foreground">
-        <Loader2 className="w-4 h-4 animate-spin" /> Carregando…
+        <Loader2 className="w-4 h-4 animate-spin" /> Cargando…
       </div>
     );
   }
@@ -142,7 +142,7 @@ export default function AdminDefaultLinks() {
   if (!selectedHouse) {
     return (
       <div className="text-center py-20 text-muted-foreground">
-        Nenhuma casa selecionada. Selecione uma casa no topo da página.
+        Ninguna casa seleccionada. Selecciona una casa en la parte superior de la página.
       </div>
     );
   }
@@ -176,17 +176,17 @@ export default function AdminDefaultLinks() {
     <div className="space-y-6 max-w-2xl">
       <div>
         <div className="flex items-center gap-3">
-          <h2 className="text-xl font-bold">Links Padrão</h2>
+          <h2 className="text-xl font-bold">Enlaces Predeterminados</h2>
           <button
             onClick={async () => { if (selectedHouse) { setLoading(true); const { data } = await supabase.from("betting_houses").select("iframe_url, telegram_group_url, aviator_url, roleta_url, mines_url, football_studio_url, support_whatsapp_url, acquire_access_url").eq("id", selectedHouse.id).maybeSingle(); if (data) { setForm({ iframe_url: data.iframe_url ?? "", telegram_group_url: (data as any).telegram_group_url ?? "", aviator_url: (data as any).aviator_url ?? "", roleta_url: (data as any).roleta_url ?? "", mines_url: (data as any).mines_url ?? "", football_studio_url: (data as any).football_studio_url ?? "", support_whatsapp_url: (data as any).support_whatsapp_url ?? "", acquire_access_url: (data as any).acquire_access_url ?? "" }); } setLoading(false); } }}
             className="p-2 rounded-lg bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-white transition-colors"
-            title="Atualizar"
+            title="Actualizar"
           >
             <RefreshCw className="w-4 h-4" />
           </button>
         </div>
         <p className="text-sm text-muted-foreground mt-1">
-          Configure os links padrão para{" "}
+          Configura los enlaces predeterminados para{" "}
           <span className="text-foreground font-medium">{selectedHouse.name}</span>
         </p>
       </div>
@@ -194,14 +194,14 @@ export default function AdminDefaultLinks() {
       {loading ? (
         <div className="flex items-center justify-center py-16 gap-2 text-muted-foreground">
           <Loader2 className="w-5 h-5 animate-spin" />
-          <span>Carregando links…</span>
+          <span>Cargando enlaces…</span>
         </div>
       ) : (
         <>
           {/* Sports section */}
           <div className="bg-gray-900 border border-white/10 rounded-xl p-6 space-y-4">
             <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              🏠 Esportes
+              🏠 Deportes
             </p>
             {sportsFields.map(renderField)}
           </div>
@@ -209,7 +209,7 @@ export default function AdminDefaultLinks() {
           {/* Casino section */}
           <div className="bg-gray-900 border border-white/10 rounded-xl p-6 space-y-4">
             <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              🎰 Links de Cassino
+              🎰 Enlaces de Casino
             </p>
             {casinoFields.map(renderField)}
           </div>
@@ -217,7 +217,7 @@ export default function AdminDefaultLinks() {
           {/* Buttons section */}
           <div className="bg-gray-900 border border-white/10 rounded-xl p-6 space-y-4">
             <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              🔗 Links de Botões
+              🔗 Enlaces de Botones
             </p>
             {buttonFields.map(renderField)}
           </div>
@@ -232,16 +232,16 @@ export default function AdminDefaultLinks() {
                 : ""
             }`}
           >
-            {saving && <><Loader2 className="w-4 h-4 animate-spin" /> Salvando…</>}
-            {!saving && saveSuccess && <><Check className="w-4 h-4" /> Links Salvos!</>}
-            {!saving && !saveSuccess && <><Save className="w-4 h-4" /> Salvar Links</>}
+            {saving && <><Loader2 className="w-4 h-4 animate-spin" /> Guardando…</>}
+            {!saving && saveSuccess && <><Check className="w-4 h-4" /> ¡Enlaces Guardados!</>}
+            {!saving && !saveSuccess && <><Save className="w-4 h-4" /> Guardar Enlaces</>}
           </Button>
 
           {/* Last updated */}
           {lastUpdated && (
             <p className="text-xs text-muted-foreground text-center">
-              Última atualização:{" "}
-              {new Date(lastUpdated).toLocaleString("pt-BR", {
+              Última actualización:{" "}
+              {new Date(lastUpdated).toLocaleString("es-CL", {
                 day: "2-digit",
                 month: "2-digit",
                 year: "numeric",

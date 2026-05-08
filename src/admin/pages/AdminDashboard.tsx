@@ -10,22 +10,22 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { cn } from "@/lib/utils";
 
-const PLAN_COLORS: Record<string, string> = { Free: "#3b82f6", "Básico": "#10b981", Pro: "#f59e0b", Ultra: "#8b5cf6" };
-const ADDON_COLORS: Record<string, string> = { Alavancagem: "#10b981", "Múltiplas / Bingo": "#ef4444", "Live Telegram": "#3b82f6", "Acesso Vitalício": "#f59e0b" };
+const PLAN_COLORS: Record<string, string> = { Gratis: "#3b82f6", "Básico": "#10b981", Pro: "#f59e0b", Ultra: "#8b5cf6" };
+const ADDON_COLORS: Record<string, string> = { Apalancamiento: "#10b981", "Múltiples / Bingo": "#ef4444", "Live Telegram": "#3b82f6", "Acceso Vitalicio": "#f59e0b" };
 
 /* ── Tooltip texts ── */
 const KPI_TOOLTIPS: Record<string, string> = {
-  "Usuários Totais": "Total de usuários cadastrados no Premier, incluindo usuários free e pagos. Este número não é afetado pelo filtro de período.",
-  "Usuários Ativos": "Usuários únicos que abriram o aplicativo no período selecionado. Contabiliza qualquer sessão registrada dentro do intervalo de datas.",
-  "Usuários Online": "Usuários que estão usando o aplicativo neste exato momento. Considera sessões iniciadas nos últimos 5 minutos. Atualiza automaticamente a cada 30 segundos.",
-  "Churn (Risco)": "Usuários com plano pago (Básico, Pro ou Ultra) que não abriram o aplicativo nos últimos 15 dias. Estes clientes estão em risco de cancelamento. Este número não é afetado pelo filtro de período.",
+  "Usuarios Totales": "Total de usuarios registrados en Premier, incluyendo usuarios gratis y pagados. Este número no se ve afectado por el filtro de período.",
+  "Usuarios Activos": "Usuarios únicos que abrieron la aplicación en el período seleccionado. Contabiliza cualquier sesión registrada dentro del intervalo de fechas.",
+  "Usuarios En Línea": "Usuarios que están usando la aplicación en este momento exacto. Considera sesiones iniciadas en los últimos 5 minutos. Se actualiza automáticamente cada 30 segundos.",
+  "Churn (Riesgo)": "Usuarios con plan pagado (Básico, Pro o Ultra) que no abrieron la aplicación en los últimos 15 días. Estos clientes están en riesgo de cancelación. Este número no se ve afectado por el filtro de período.",
 };
 
 const PCT_TOOLTIPS: Record<string, string> = {
-  "% Ativos / Total": "Porcentagem de usuários que abriram o app no período selecionado em relação ao total de usuários cadastrados. Quanto maior, melhor o engajamento geral da base.",
-  "% Novos no Período": "Porcentagem de novos cadastros no período selecionado em relação ao total de usuários. Indica o ritmo de crescimento da base.",
-  "% Online / Ativos": "Porcentagem de usuários online agora em relação aos usuários ativos no período. Mostra o nível de uso em tempo real.",
-  "% Churn / Pagos": "Porcentagem de usuários pagos em risco de cancelamento (sem abrir o app há 15+ dias) em relação ao total de usuários pagos. Quanto menor, melhor a retenção.",
+  "% Activos / Total": "Porcentaje de usuarios que abrieron la app en el período seleccionado en relación al total de usuarios registrados. Cuanto mayor, mejor el engagement general de la base.",
+  "% Nuevos en el Período": "Porcentaje de nuevos registros en el período seleccionado en relación al total de usuarios. Indica el ritmo de crecimiento de la base.",
+  "% En Línea / Activos": "Porcentaje de usuarios en línea ahora en relación a los usuarios activos en el período. Muestra el nivel de uso en tiempo real.",
+  "% Churn / Pagados": "Porcentaje de usuarios pagados en riesgo de cancelación (sin abrir la app hace 15+ días) en relación al total de usuarios pagados. Cuanto menor, mejor la retención.",
 };
 
 const PIE_COLORS = ["#3b82f6", "#8b5cf6", "#f59e0b", "#10b981", "#ef4444"];
@@ -33,17 +33,17 @@ const PIE_COLORS = ["#3b82f6", "#8b5cf6", "#f59e0b", "#10b981", "#ef4444"];
 type PlanFilter = "geral" | "free" | "basic" | "pro" | "ultra" | "alavancagem" | "multiplas_bingo" | "live_telegram" | "acesso_vitalicio";
 
 const PLAN_FILTERS_MAIN: { key: PlanFilter; label: string }[] = [
-  { key: "geral", label: "Geral" },
-  { key: "free", label: "Free" },
+  { key: "geral", label: "General" },
+  { key: "free", label: "Gratis" },
   { key: "basic", label: "Básico" },
   { key: "pro", label: "Pro" },
   { key: "ultra", label: "Ultra" },
 ];
 const PLAN_FILTERS_ADDONS: { key: PlanFilter; label: string }[] = [
-  { key: "alavancagem", label: "Alavancagem" },
-  { key: "multiplas_bingo", label: "Múltiplas / Bingo" },
+  { key: "alavancagem", label: "Apalancamiento" },
+  { key: "multiplas_bingo", label: "Múltiples / Bingo" },
   { key: "live_telegram", label: "Live Telegram" },
-  { key: "acesso_vitalicio", label: "Acesso Vitalício" },
+  { key: "acesso_vitalicio", label: "Acceso Vitalicio" },
 ];
 
 function getColorClass(pct: number, thresholds: [number, number], inverted = false) {
@@ -249,7 +249,7 @@ export default function AdminDashboard() {
     load();
   }, [dateFrom, dateTo, selectedHouseId]);
 
-  if (loading) return <div className="text-gray-400">Carregando…</div>;
+  if (loading) return <div className="text-gray-400">Cargando…</div>;
 
   /* ── Compute filtered user IDs based on plan filter ── */
   let filteredUserIds: Set<string> | null = null; // null = no filter (geral)
@@ -313,7 +313,7 @@ export default function AdminDashboard() {
   const tierCounts: Record<string, number> = {};
   relevantUsers.forEach((u) => { tierCounts[u.main_tier] = (tierCounts[u.main_tier] ?? 0) + 1; });
   const tierOrder = ["free", "basic", "pro", "ultra"];
-  const tierLabels: Record<string, string> = { free: "Free", basic: "Básico", pro: "Pro", ultra: "Ultra" };
+  const tierLabels: Record<string, string> = { free: "Gratis", basic: "Básico", pro: "Pro", ultra: "Ultra" };
   const planDist = tierOrder
     .filter((t) => (tierCounts[t] ?? 0) > 0)
     .map((t) => ({ name: tierLabels[t], value: tierCounts[t] }));
@@ -323,35 +323,35 @@ export default function AdminDashboard() {
     : allEntitlements;
   const addonCounts: Record<string, number> = {};
   relevantEntitlements.forEach((e) => { addonCounts[e.product_key] = (addonCounts[e.product_key] ?? 0) + 1; });
-  const addonLabels: Record<string, string> = { alavancagem: "Alavancagem", multiplas_bingo: "Múltiplas / Bingo", live_telegram: "Live Telegram", acesso_vitalicio: "Acesso Vitalício" };
+  const addonLabels: Record<string, string> = { alavancagem: "Apalancamiento", multiplas_bingo: "Múltiples / Bingo", live_telegram: "Live Telegram", acesso_vitalicio: "Acceso Vitalicio" };
   const addonDist = Object.entries(addonCounts).map(([name, value]) => ({
     name: addonLabels[name] ?? name,
     value,
   }));
 
   const kpis = [
-    { label: "Usuários Totais", value: totalUsers, icon: Users, color: "text-blue-400" },
-    { label: "Usuários Ativos", value: activeUsers, icon: UserPlus, color: "text-green-400" },
-    { label: "Usuários Online", value: onlineUsers, icon: Wifi, color: "text-cyan-400" },
-    { label: "Churn (Risco)", value: churnRisk, icon: AlertTriangle, color: "text-amber-400" },
+    { label: "Usuarios Totales", value: totalUsers, icon: Users, color: "text-blue-400" },
+    { label: "Usuarios Activos", value: activeUsers, icon: UserPlus, color: "text-green-400" },
+    { label: "Usuarios En Línea", value: onlineUsers, icon: Wifi, color: "text-cyan-400" },
+    { label: "Churn (Riesgo)", value: churnRisk, icon: AlertTriangle, color: "text-amber-400" },
   ];
 
   const pctCards = [
-    { label: "% Ativos / Total", value: pctActiveTotal, colorClass: getColorClass(pctActiveTotal, [25, 50]) },
-    { label: "% Novos no Período", value: pctNewPeriod, colorClass: getColorClass(pctNewPeriod, [5, 10]) },
-    { label: "% Online / Ativos", value: pctOnlineActive, colorClass: getColorClass(pctOnlineActive, [5, 20]) },
-    { label: "% Churn / Pagos", value: pctChurnPaid, colorClass: getColorClass(pctChurnPaid, [25, 50], true) },
+    { label: "% Activos / Total", value: pctActiveTotal, colorClass: getColorClass(pctActiveTotal, [25, 50]) },
+    { label: "% Nuevos en el Período", value: pctNewPeriod, colorClass: getColorClass(pctNewPeriod, [5, 10]) },
+    { label: "% En Línea / Activos", value: pctOnlineActive, colorClass: getColorClass(pctOnlineActive, [5, 20]) },
+    { label: "% Churn / Pagados", value: pctChurnPaid, colorClass: getColorClass(pctChurnPaid, [25, 50], true) },
   ];
 
   const shortcuts = [
-    { key: "today", label: "Hoje" },
-    { key: "yesterday", label: "Ontem" },
+    { key: "today", label: "Hoy" },
+    { key: "yesterday", label: "Ayer" },
     { key: "week", label: "Esta Semana" },
-    { key: "month", label: "Este Mês" },
-    { key: "7d", label: "Últimos 7 dias" },
-    { key: "15d", label: "Últimos 15 dias" },
-    { key: "30d", label: "Últimos 30 dias" },
-    { key: "all", label: "All Time" },
+    { key: "month", label: "Este Mes" },
+    { key: "7d", label: "Últimos 7 días" },
+    { key: "15d", label: "Últimos 15 días" },
+    { key: "30d", label: "Últimos 30 días" },
+    { key: "all", label: "Todo el Tiempo" },
   ];
 
   const exportUsersCSV = (users: typeof allUsers, filename: string) => {
@@ -363,24 +363,24 @@ export default function AdminDashboard() {
     const csvPctChurn = paidIds.length > 0 ? ((churnIds.length / paidIds.length) * 100).toFixed(1) : '0.0';
 
     const summary: any[][] = [
-      ['Exportado em', new Date().toLocaleString('pt-BR')],
-      ['Período', `${dateFrom.toISOString().split('T')[0]} até ${dateTo.toISOString().split('T')[0]}`],
-      ['Filtro de Plano', planFilter],
+      ['Exportado el', new Date().toLocaleString('es-CL')],
+      ['Período', `${dateFrom.toISOString().split('T')[0]} hasta ${dateTo.toISOString().split('T')[0]}`],
+      ['Filtro de Plan', planFilter],
       [],
       ['MÉTRICAS'],
-      ['Usuários Totais', csvTotalUsers],
-      ['Usuários Ativos', csvActiveCount],
-      ['Usuários Online', onlineCount],
-      ['Churn (Risco)', churnIds.length],
+      ['Usuarios Totales', csvTotalUsers],
+      ['Usuarios Activos', csvActiveCount],
+      ['Usuarios En Línea', onlineCount],
+      ['Churn (Riesgo)', churnIds.length],
       [],
-      ['PERCENTUAIS'],
-      ['% Ativos / Total', `${csvPctAtivos}%`],
-      ['% Novos no Período', `${csvPctNovos}%`],
-      ['% Online / Ativos', `${csvPctOnline}%`],
-      ['% Churn / Pagos', `${csvPctChurn}%`],
+      ['PORCENTAJES'],
+      ['% Activos / Total', `${csvPctAtivos}%`],
+      ['% Nuevos en el Período', `${csvPctNovos}%`],
+      ['% En Línea / Activos', `${csvPctOnline}%`],
+      ['% Churn / Pagados', `${csvPctChurn}%`],
       [],
       ['CLIENTES'],
-      ['ID', 'Email', 'Nome', 'Plano', 'Cadastro', 'Último Acesso'],
+      ['ID', 'Correo', 'Nombre', 'Plan', 'Registro', 'Último Acceso'],
     ];
 
     const rows = users.map((u: any) => [
@@ -419,13 +419,13 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold">Dashboard — Futebol</h2>
+        <h2 className="text-xl font-bold">Panel — Fútbol</h2>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" className="border-gray-700 text-gray-400 hover:text-white gap-2"
             disabled={loading}
             onClick={() => { setDateFrom(new Date(dateFrom)); }}>
             <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
-            Atualizar
+            Actualizar
           </Button>
           <div className="relative">
             <Button variant="outline" size="sm" className="border-gray-700 text-gray-400 hover:text-white gap-2"
@@ -448,7 +448,7 @@ export default function AdminDashboard() {
                   onClick={() => { handleExportAll(); setShowExportMenu(false); }}
                   className="block w-full text-left px-4 py-2 text-sm text-foreground hover:bg-muted/50 rounded-b-lg"
                 >
-                  Exportar tudo (all time)
+                  Exportar todo (todo el tiempo)
                 </button>
               </div>
             )}
@@ -470,7 +470,7 @@ export default function AdminDashboard() {
               <Calendar mode="single" selected={dateFrom} onSelect={(d) => { if (d) { setDateFrom(d); setActiveShortcut(""); setOpenFrom(false); } }} className={cn("p-3 pointer-events-auto")} />
             </PopoverContent>
           </Popover>
-          <span className="text-gray-500 text-sm">até</span>
+          <span className="text-gray-500 text-sm">hasta</span>
           <Popover open={openTo} onOpenChange={setOpenTo}>
             <PopoverTrigger asChild>
               <Button variant="outline" className="border-gray-700 text-gray-300 gap-2">
@@ -538,7 +538,7 @@ export default function AdminDashboard() {
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="bg-gray-900 rounded-xl border border-white/10 p-4">
-          <h3 className="text-sm font-semibold text-gray-400 mb-4">Usuários Ativos Diários (DAU)</h3>
+          <h3 className="text-sm font-semibold text-gray-400 mb-4">Usuarios Activos Diarios (DAU)</h3>
           {dauData.length > 0 ? (
             <ResponsiveContainer width="100%" height={250}>
               <LineChart data={dauData}>
@@ -550,12 +550,12 @@ export default function AdminDashboard() {
               </LineChart>
             </ResponsiveContainer>
           ) : (
-            <div className="flex items-center justify-center h-[250px] text-gray-600">Sem dados no período</div>
+            <div className="flex items-center justify-center h-[250px] text-gray-600">Sin datos en el período</div>
           )}
         </div>
 
         <div className="bg-gray-900 rounded-xl border border-white/10 p-4">
-          <h3 className="text-sm font-semibold text-gray-400 mb-4">Usuários dos Planos Principais</h3>
+          <h3 className="text-sm font-semibold text-gray-400 mb-4">Usuarios de los Planes Principales</h3>
           {planDist.length > 0 ? (
             <>
               <ResponsiveContainer width="100%" height={220}>
@@ -574,7 +574,7 @@ export default function AdminDashboard() {
                     return (
                       <div key={item.name} className="flex items-center gap-2 text-sm text-gray-400">
                         <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: PLAN_COLORS[item.name] ?? "#6b7280" }} />
-                        <span>{item.name} — {item.value} usuário{item.value !== 1 ? "s" : ""} — {pct}%</span>
+                        <span>{item.name} — {item.value} usuario{item.value !== 1 ? "s" : ""} — {pct}%</span>
                       </div>
                     );
                   });
@@ -582,12 +582,12 @@ export default function AdminDashboard() {
               </div>
             </>
           ) : (
-            <div className="flex items-center justify-center h-[250px] text-gray-600">Sem dados de planos</div>
+            <div className="flex items-center justify-center h-[250px] text-gray-600">Sin datos de planes</div>
           )}
         </div>
 
         <div className="bg-gray-900 rounded-xl border border-white/10 p-4">
-          <h3 className="text-sm font-semibold text-gray-400 mb-4">Usuários dos Planos Adicionais</h3>
+          <h3 className="text-sm font-semibold text-gray-400 mb-4">Usuarios de los Planes Adicionales</h3>
           {addonDist.length > 0 ? (
             <>
               <ResponsiveContainer width="100%" height={220}>
@@ -606,7 +606,7 @@ export default function AdminDashboard() {
                     return (
                       <div key={item.name} className="flex items-center gap-2 text-sm text-gray-400">
                         <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: ADDON_COLORS[item.name] ?? "#8b5cf6" }} />
-                        <span>{item.name} — {item.value} usuário{item.value !== 1 ? "s" : ""} — {pct}%</span>
+                        <span>{item.name} — {item.value} usuario{item.value !== 1 ? "s" : ""} — {pct}%</span>
                       </div>
                     );
                   });
@@ -614,7 +614,7 @@ export default function AdminDashboard() {
               </div>
             </>
           ) : (
-            <div className="flex items-center justify-center h-[250px] text-gray-600">Sem planos adicionais ativos</div>
+            <div className="flex items-center justify-center h-[250px] text-gray-600">Sin planes adicionales activos</div>
           )}
         </div>
       </div>

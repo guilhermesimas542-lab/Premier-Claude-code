@@ -73,7 +73,7 @@ export function TeamAutocomplete({ label, value, logoUrl, onChange }: TeamAutoco
   };
 
   const handleAddTeam = async () => {
-    if (!newName.trim() || !newLogoUrl) { toast.error("Preencha nome e logo"); return; }
+    if (!newName.trim() || !newLogoUrl) { toast.error("Completa nombre y logo"); return; }
     setSaving(true);
 
     const { data: inserted, error: insErr } = await (supabase as any)
@@ -88,7 +88,7 @@ export function TeamAutocomplete({ label, value, logoUrl, onChange }: TeamAutoco
     setAllTeams((prev) => [...prev, team].sort((a, b) => a.name.localeCompare(b.name)));
     onChange(team.name, team.logo_url);
     setQuery(team.name);
-    toast.success("Time adicionado!");
+    toast.success("¡Equipo añadido!");
     setAddModalOpen(false);
     setNewName("");
     setNewLogoUrl(null);
@@ -108,7 +108,7 @@ export function TeamAutocomplete({ label, value, logoUrl, onChange }: TeamAutoco
           value={query}
           onChange={(e) => handleInputChange(e.target.value)}
           onFocus={() => { if (query.trim().length > 0) setShowSuggestions(true); }}
-          placeholder="Digite o nome do time..."
+          placeholder="Escribe el nombre del equipo..."
           className="bg-gray-900 border-gray-800"
         />
       </div>
@@ -130,12 +130,12 @@ export function TeamAutocomplete({ label, value, logoUrl, onChange }: TeamAutoco
 
       {noResults && (
         <div className="absolute z-50 mt-1 w-full bg-gray-900 border border-gray-700 rounded-lg shadow-xl p-3">
-          <p className="text-xs text-gray-500 mb-2">Nenhum time encontrado</p>
+          <p className="text-xs text-gray-500 mb-2">No se encontró ningún equipo</p>
           <button
             onClick={() => { setNewName(query); setAddModalOpen(true); setShowSuggestions(false); }}
             className="flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300 font-medium"
           >
-            <Plus className="w-4 h-4" /> Adicionar "{query}"
+            <Plus className="w-4 h-4" /> Añadir "{query}"
           </button>
         </div>
       )}
@@ -144,11 +144,11 @@ export function TeamAutocomplete({ label, value, logoUrl, onChange }: TeamAutoco
       <Dialog open={addModalOpen} onOpenChange={setAddModalOpen}>
         <DialogContent className="bg-gray-900 border-gray-800 max-w-md">
           <DialogHeader>
-            <DialogTitle>Adicionar Novo Time</DialogTitle>
+            <DialogTitle>Añadir Nuevo Equipo</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <label className="text-xs text-muted-foreground">Nome</label>
+              <label className="text-xs text-muted-foreground">Nombre</label>
               <Input value={newName} onChange={(e) => setNewName(e.target.value)} className="bg-muted/30 border-border" />
             </div>
             <div>
@@ -162,7 +162,7 @@ export function TeamAutocomplete({ label, value, logoUrl, onChange }: TeamAutoco
             <Button variant="ghost" onClick={() => setAddModalOpen(false)}>Cancelar</Button>
             <Button onClick={handleAddTeam} disabled={saving}>
               {saving && <Loader2 className="w-4 h-4 animate-spin mr-1" />}
-              Adicionar
+              Añadir
             </Button>
           </DialogFooter>
         </DialogContent>

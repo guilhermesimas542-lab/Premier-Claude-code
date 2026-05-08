@@ -74,7 +74,7 @@ export function SalesFunnel({ open, onClose, steps, checkoutUrl, cardTitle }: Sa
                 <div className="h-12 bg-muted rounded animate-pulse" />
                 <div className="h-10 bg-muted rounded animate-pulse w-2/3 mx-auto" />
               </div>
-              <p className="text-xs text-muted-foreground mt-4">Carregando checkout...</p>
+              <p className="text-xs text-muted-foreground mt-4">Cargando checkout...</p>
             </div>
           )}
           <iframe
@@ -94,7 +94,7 @@ export function SalesFunnel({ open, onClose, steps, checkoutUrl, cardTitle }: Sa
             rel="noopener noreferrer"
             className="text-xs text-muted-foreground hover:text-primary transition-colors"
           >
-            Problemas? Abrir em nova aba ↗
+            ¿Problemas? Abrir en nueva pestaña ↗
           </a>
         </div>
       </div>
@@ -129,7 +129,7 @@ export function SalesFunnel({ open, onClose, steps, checkoutUrl, cardTitle }: Sa
           {step && (
             <div className="p-5 space-y-4">
               <p className="text-xs text-muted-foreground">
-                Pergunta {currentStep + 1} de {steps.length}
+                Pregunta {currentStep + 1} de {steps.length}
               </p>
               <h3 className="text-lg font-bold text-foreground leading-tight">
                 {step.question}

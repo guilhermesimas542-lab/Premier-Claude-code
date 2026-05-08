@@ -50,10 +50,10 @@ export const TelegramAlert = ({ telegramUrl }: TelegramAlertProps) => {
           {/* Text */}
           <div className="flex-1">
             <h3 className="text-xl md:text-2xl font-black text-white tracking-tight mb-1">
-              Nossos analistas estão enviando entradas AO VIVO dos jogos!
+              ¡Nuestros analistas están enviando tips EN VIVO de los partidos!
             </h3>
             <p className="text-sm text-[#00D4FF] font-semibold">
-              Entre no grupo vip e aproveite!
+              ¡Entra al grupo VIP y aprovecha!
             </p>
           </div>
         </div>
@@ -63,7 +63,7 @@ export const TelegramAlert = ({ telegramUrl }: TelegramAlertProps) => {
           onClick={() => telegramUrl && window.open(telegramUrl, "_blank")}
           className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary hover:bg-primary/90 h-10 bg-gradient-to-r from-[#00D4FF] via-[#00E0FF] to-[#00D4FF] hover:from-[#00E0FF] hover:via-[#00F0FF] hover:to-[#00E0FF] text-black font-black px-8 py-6 text-base shadow-xl shadow-[#00D4FF]/50 hover:shadow-[#00E0FF]/70 transition-all duration-300 border-0"
         >
-          Clique Aqui
+          Haz Clic Aquí
           <ChevronRight className="w-5 h-5 ml-2" />
         </Button>
       </div>

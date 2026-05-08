@@ -99,13 +99,13 @@ export default function FunnelAnalyticsModal({ open, onClose, entityType, entity
   const funnelStages = useMemo(() => {
     const stages: { label: string; count: number; isEntry?: boolean }[] = [];
     // Entry stage
-    stages.push({ label: "Visualização do Pop-up", count: metrics.views, isEntry: true });
+    stages.push({ label: "Visualización del Pop-up", count: metrics.views, isEntry: true });
     // Add each step
     stepData.forEach(s => {
-      stages.push({ label: `Pergunta ${s.stepIndex + 1}`, count: s.total });
+      stages.push({ label: `Pregunta ${s.stepIndex + 1}`, count: s.total });
     });
     // Add final view and checkout
-    stages.push({ label: "Tela Final", count: metrics.finalViews });
+    stages.push({ label: "Pantalla Final", count: metrics.finalViews });
     stages.push({ label: "Checkout", count: metrics.checkouts });
     return stages;
   }, [stepData, metrics]);
@@ -143,10 +143,10 @@ export default function FunnelAnalyticsModal({ open, onClose, entityType, entity
   };
 
   const periods: { key: Period; label: string }[] = [
-    { key: "today", label: "Hoje" },
-    { key: "7d", label: "7 dias" },
-    { key: "30d", label: "30 dias" },
-    { key: "all", label: "Tudo" },
+    { key: "today", label: "Hoy" },
+    { key: "7d", label: "7 días" },
+    { key: "30d", label: "30 días" },
+    { key: "all", label: "Todo" },
     { key: "custom", label: "Personalizado" },
   ];
 
@@ -173,7 +173,7 @@ export default function FunnelAnalyticsModal({ open, onClose, entityType, entity
           {period === "custom" && (
             <div className="flex gap-3 items-center">
               <div className="flex items-center gap-1.5">
-                <span className="text-xs text-gray-500">De:</span>
+                <span className="text-xs text-gray-500">Desde:</span>
                 <input
                   type="date"
                   value={customFrom}
@@ -182,7 +182,7 @@ export default function FunnelAnalyticsModal({ open, onClose, entityType, entity
                 />
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="text-xs text-gray-500">Até:</span>
+                <span className="text-xs text-gray-500">Hasta:</span>
                 <input
                   type="date"
                   value={customTo}
@@ -196,26 +196,26 @@ export default function FunnelAnalyticsModal({ open, onClose, entityType, entity
 
         {loading ? (
           <div className="flex items-center justify-center gap-2 py-10 text-gray-400">
-            <Loader2 className="w-4 h-4 animate-spin" /> Carregando…
+            <Loader2 className="w-4 h-4 animate-spin" /> Cargando…
           </div>
         ) : (
           <div className="space-y-6">
             {/* KPI cards */}
             <div className="grid grid-cols-3 gap-3">
-              <KpiCard label="Visualizações" value={metrics.views} />
-              <KpiCard label="Tela Final" value={metrics.finalViews} sub={`${metrics.pctFinal}%`} />
+              <KpiCard label="Visualizaciones" value={metrics.views} />
+              <KpiCard label="Pantalla Final" value={metrics.finalViews} sub={`${metrics.pctFinal}%`} />
               <KpiCard label="Checkout" value={metrics.checkouts} sub={`${metrics.pctCheckout}%`} />
             </div>
             <div className="grid grid-cols-3 gap-3">
-              <KpiCard label="Saídas na Entrada" value={metrics.entryExits} sub={`${metrics.pctEntryExits}%`} />
-              <KpiCard label="Saídas (total)" value={metrics.exits} />
-              <KpiCard label="Conversão" value={`${metrics.pctCheckout}%`} highlight />
+              <KpiCard label="Salidas en la Entrada" value={metrics.entryExits} sub={`${metrics.pctEntryExits}%`} />
+              <KpiCard label="Salidas (total)" value={metrics.exits} />
+              <KpiCard label="Conversión" value={`${metrics.pctCheckout}%`} highlight />
             </div>
 
             {/* Funnel with exit indicators */}
             {stageExits.length > 0 && stageExits.some(s => s.count > 0) && (
               <div className="space-y-3">
-                <h3 className="text-sm font-semibold text-gray-300">Funil de Conversão</h3>
+                <h3 className="text-sm font-semibold text-gray-300">Embudo de Conversión</h3>
                 {stageExits.map((s, i) => {
                   const pct = metrics.views > 0 ? ((s.count / metrics.views) * 100).toFixed(1) : "0";
                   const isLast = i === stageExits.length - 1;
@@ -227,15 +227,15 @@ export default function FunnelAnalyticsModal({ open, onClose, entityType, entity
                           <span className="text-xs font-medium text-gray-300">{s.label}</span>
                           {s.isMaxExit && (
                             <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-500/20 text-red-400 border border-red-400/30 flex items-center gap-1">
-                              <AlertTriangle className="w-3 h-3" /> Maior abandono
+                              <AlertTriangle className="w-3 h-3" /> Mayor abandono
                             </span>
                           )}
                         </div>
                         <div className="flex items-center gap-3">
-                          <span className="text-xs text-gray-500">{s.count} {isLast ? "clicaram" : "chegaram"}</span>
+                          <span className="text-xs text-gray-500">{s.count} {isLast ? "hicieron clic" : "llegaron"}</span>
                           {!isLast && s.exitCount > 0 && (
                             <span className="text-xs text-red-400">
-                              ↗ {s.exitCount} saíram ({s.exitPct}%)
+                              ↗ {s.exitCount} salieron ({s.exitPct}%)
                             </span>
                           )}
                         </div>
@@ -252,12 +252,12 @@ export default function FunnelAnalyticsModal({ open, onClose, entityType, entity
             {/* Step-by-step detail with options */}
             {stepData.length > 0 && (
               <div className="space-y-4">
-                <h3 className="text-sm font-semibold text-gray-300">Detalhes por Pergunta</h3>
+                <h3 className="text-sm font-semibold text-gray-300">Detalles por Pregunta</h3>
                 {stepData.map(s => {
                   const sortedOptions = Object.entries(s.options).sort((a, b) => b[1] - a[1]);
                   return (
                     <div key={s.stepIndex} className="bg-gray-800 rounded-lg p-3 space-y-2">
-                      <span className="text-xs font-medium text-gray-300">Pergunta {s.stepIndex + 1}</span>
+                      <span className="text-xs font-medium text-gray-300">Pregunta {s.stepIndex + 1}</span>
                       <div className="space-y-1 pt-1">
                         {sortedOptions.map(([opt, count]) => {
                           const optPct = s.total > 0 ? ((count / s.total) * 100).toFixed(0) : "0";
@@ -276,7 +276,7 @@ export default function FunnelAnalyticsModal({ open, onClose, entityType, entity
             )}
 
             {stepData.length === 0 && metrics.views === 0 && (
-              <p className="text-center text-gray-600 py-6 text-sm">Nenhum dado de analytics ainda</p>
+              <p className="text-center text-gray-600 py-6 text-sm">Aún no hay datos de analytics</p>
             )}
           </div>
         )}

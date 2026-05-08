@@ -97,11 +97,11 @@ const BasicPlanModal = ({ open, onClose }: BasicPlanModalProps) => {
   }, [onClose]);
 
   const benefits = [
-    'Sinais ocultos revelados',
-    'Entradas exclusivas todos os dias',
-    'Prioridade nas análises',
-    'Suporte Premier Ultra',
-    'Resultados em até 24h',
+    'Señales ocultas reveladas',
+    'Tips exclusivos todos los días',
+    'Prioridad en los análisis',
+    'Soporte Premier Ultra',
+    'Resultados en hasta 24h',
   ];
 
   // Don't render if exceeded max views
@@ -113,7 +113,7 @@ const BasicPlanModal = ({ open, onClose }: BasicPlanModalProps) => {
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-md p-0 bg-transparent border-none shadow-none overflow-hidden" aria-describedby={undefined}>
         <VisuallyHidden>
-          <DialogTitle>Oferta Plano Basic</DialogTitle>
+          <DialogTitle>Oferta Plan Basic</DialogTitle>
         </VisuallyHidden>
         
         <div className="relative bg-gradient-to-br from-[#0B0B0B] via-[#0D1117] to-[#0B0B0B] rounded-[22px] p-6 md:p-8 border border-white/10 shadow-2xl">
@@ -122,18 +122,18 @@ const BasicPlanModal = ({ open, onClose }: BasicPlanModalProps) => {
           <div className="bg-white rounded-[18px] p-6 md:p-7 shadow-xl">
             {/* Title */}
             <h2 className="text-[#111111] text-xl md:text-2xl font-bold leading-tight mb-3 text-center">
-              DESBLOQUEIE AGORA SINAIS COM MAIS DE 97% DE ACERTIVIDADE
+              DESBLOQUEA AHORA SEÑALES CON MÁS DE 97% DE ACIERTO
             </h2>
 
             {/* Subtitle */}
             <p className="text-[#333333] text-sm md:text-base text-center mb-6 leading-relaxed">
-              Comece a receber as entradas que o plano gratuito não libera.
+              Comienza a recibir los tips que el plan gratis no libera.
             </p>
 
             {/* Plan badge */}
             <div className="bg-gradient-to-r from-[#00FF7F]/10 to-[#00FF7F]/5 border border-[#00FF7F]/30 rounded-xl p-4 mb-6">
               <h3 className="text-[#111111] font-bold text-lg mb-3 text-center">
-                PLANO BASIC — Acesso Imediato
+                PLAN BASIC — Acceso Inmediato
               </h3>
               
               {/* Benefits */}
@@ -159,14 +159,14 @@ const BasicPlanModal = ({ open, onClose }: BasicPlanModalProps) => {
               {/* Countdown */}
               <div className="flex items-center justify-center gap-2 mb-2">
                 <Clock className="w-4 h-4 text-[#FF3B30]" />
-                <span className="text-[#333333] text-sm">Expira em:</span>
+                <span className="text-[#333333] text-sm">Expira en:</span>
                 <span className="text-[#FF3B30] font-mono font-bold text-xl animate-pulse">
                   {formatTime()}
                 </span>
               </div>
               
               <p className="text-[#666666] text-xs text-center">
-                Após o tempo expirar, o valor pode voltar ao normal conforme a demanda do dia.
+                Después de que el tiempo expire, el valor puede volver al normal según la demanda del día.
               </p>
             </div>
 
@@ -175,18 +175,18 @@ const BasicPlanModal = ({ open, onClose }: BasicPlanModalProps) => {
               onClick={handleActivate}
               className="w-full h-14 bg-[#007AFF] hover:bg-[#0066DD] text-white font-bold text-base rounded-xl shadow-lg shadow-[#007AFF]/30 transition-all duration-300 hover:shadow-xl hover:shadow-[#007AFF]/40 hover:scale-[1.02]"
             >
-              ATIVAR PLANO BASIC AGORA →
+              ACTIVAR PLAN BASIC AHORA →
             </Button>
 
             {/* Social proof */}
             <p className="text-[#666666] text-xs text-center mt-4">
-              +18.000 usuários ativaram hoje.
+              +18.000 usuarios activaron hoy.
             </p>
           </div>
 
           {/* Micro-frame */}
           <p className="text-white/70 text-xs text-center mt-4 px-2 leading-relaxed">
-            Você está literalmente a um clique de sair do "modo gratuito" e ver o que realmente faz o Premier Ultra entregar consistência.
+            Estás literalmente a un clic de salir del "modo gratis" y ver lo que realmente hace que Premier Ultra entregue consistencia.
           </p>
         </div>
       </DialogContent>

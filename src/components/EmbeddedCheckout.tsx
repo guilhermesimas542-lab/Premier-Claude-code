@@ -50,14 +50,14 @@ export function EmbeddedCheckout({ open, onClose, url }: EmbeddedCheckoutProps) 
               <Skeleton className="w-3/4 h-6" />
               <Skeleton className="w-full h-40" />
               <Skeleton className="w-1/2 h-10" />
-              <p className="text-xs text-muted-foreground mt-2">Carregando checkout...</p>
+              <p className="text-xs text-muted-foreground mt-2">Cargando checkout...</p>
             </div>
           )}
 
           {timedOut && !loaded && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 p-6 text-center">
               <p className="text-sm text-muted-foreground">
-                O checkout está demorando para carregar.
+                El checkout está tardando en cargar.
               </p>
               <a
                 href={url}
@@ -67,7 +67,7 @@ export function EmbeddedCheckout({ open, onClose, url }: EmbeddedCheckoutProps) 
                 className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
               >
                 <ExternalLink className="w-4 h-4" />
-                Abrir em nova aba
+                Abrir en nueva pestaña
               </a>
             </div>
           )}

@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { DollarSign, ShoppingCart, TrendingUp, Users, AlertTriangle, Target } from "lucide-react";
-import { RECOVERY_EVENTS, formatBRL } from "@/admin/components/revenue/constants";
+import { RECOVERY_EVENTS, formatCLP } from "@/admin/components/revenue/constants";
 import RecoveryTab from "@/admin/components/revenue/RecoveryTab";
 import UpsellTab from "@/admin/components/revenue/UpsellTab";
 import TransactionLogs from "@/admin/components/revenue/TransactionLogs";
@@ -68,44 +68,44 @@ export default function AdminRevenue() {
 
   const kpiCards = [
     {
-      title: 'Faturamento Bruto (30d)',
-      value: formatBRL(kpis.revenue30d),
-      sub: 'Últimos 30 dias',
+      title: 'Facturación Bruta (30d)',
+      value: formatCLP(kpis.revenue30d),
+      sub: 'Últimos 30 días',
       icon: DollarSign,
       color: 'text-green-400',
     },
     {
-      title: 'Vendas Realizadas (30d)',
+      title: 'Ventas Realizadas (30d)',
       value: String(kpis.sales30d),
-      sub: 'Transações pagas',
+      sub: 'Transacciones pagadas',
       icon: ShoppingCart,
       color: 'text-blue-400',
     },
     {
-      title: 'Ticket Médio (30d)',
-      value: formatBRL(kpis.ticketMedio),
-      sub: 'Valor médio por venda',
+      title: 'Ticket Promedio (30d)',
+      value: formatCLP(kpis.ticketMedio),
+      sub: 'Valor promedio por venta',
       icon: TrendingUp,
       color: 'text-purple-400',
     },
     {
-      title: 'LTV Financeiro',
-      value: formatBRL(kpis.ltv),
-      sub: 'Valor médio por cliente (histórico)',
+      title: 'LTV Financiero',
+      value: formatCLP(kpis.ltv),
+      sub: 'Valor promedio por cliente (histórico)',
       icon: Target,
       color: 'text-amber-400',
     },
     {
-      title: 'Usuários Ativos (7d)',
+      title: 'Usuarios Activos (7d)',
       value: String(kpis.activeUsers),
-      sub: 'Acessaram nos últimos 7 dias',
+      sub: 'Accedieron en los últimos 7 días',
       icon: Users,
       color: 'text-cyan-400',
     },
     {
-      title: 'Oportunidades de Recuperação',
+      title: 'Oportunidades de Recuperación',
       value: String(kpis.recoveryOps),
-      sub: 'Receita a recuperar (30d)',
+      sub: 'Ingresos a recuperar (30d)',
       icon: AlertTriangle,
       color: 'text-orange-400',
     },
@@ -113,7 +113,7 @@ export default function AdminRevenue() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Central de Inteligência Financeira</h1>
+      <h1 className="text-2xl font-bold">Central de Inteligencia Financiera</h1>
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -138,9 +138,9 @@ export default function AdminRevenue() {
       {/* Tabs */}
       <Tabs defaultValue="recovery" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="recovery">Recuperação de Vendas</TabsTrigger>
+          <TabsTrigger value="recovery">Recuperación de Ventas</TabsTrigger>
           <TabsTrigger value="upsell">Oportunidades de Upsell</TabsTrigger>
-          <TabsTrigger value="logs">Logs de Transações</TabsTrigger>
+          <TabsTrigger value="logs">Logs de Transacciones</TabsTrigger>
         </TabsList>
 
         <TabsContent value="recovery">

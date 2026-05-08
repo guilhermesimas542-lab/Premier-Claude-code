@@ -65,7 +65,7 @@ const CTAButton = ({ text, url, onClick, color, textColor }: { text: string; url
         boxShadow: `0 0 20px ${color ? color + "4d" : "hsl(var(--primary) / 0.3)"}`,
       }}
     >
-      {text || "QUERO ACESSAR AGORA →"}
+      {text || "QUIERO ACCEDER AHORA →"}
     </button>
   ) : null;
 
@@ -92,7 +92,7 @@ export function TemplateUrgency({ title, benefits, checkoutLink, checkoutLink2, 
           {(config as any).anchor_note}
         </p>
       )}
-      <CTAButton text={config.button_text || "QUERO ACESSAR AGORA →"} url={checkoutLink} onClick={onCheckout} color={buttonColor} textColor={config.button_text_color} />
+      <CTAButton text={config.button_text || "QUIERO ACCEDER AHORA →"} url={checkoutLink} onClick={onCheckout} color={buttonColor} textColor={config.button_text_color} />
       {checkoutLink2 && (
         <button
           onClick={() => onCheckout(checkoutLink2)}
@@ -104,7 +104,7 @@ export function TemplateUrgency({ title, benefits, checkoutLink, checkoutLink2, 
             color: "#ffffff",
           }}
         >
-          {config.button_text_2 || "Ver outra opção"}
+          {config.button_text_2 || "Ver otra opción"}
         </button>
       )}
     </div>
@@ -130,12 +130,12 @@ export function TemplatePriceAnchor({ title, benefits, checkoutLink, onCheckout,
       {discount > 0 && (
         <div className="flex justify-center">
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-primary/15 text-primary">
-            <TrendingDown className="w-3.5 h-3.5" /> Você economiza {discount}%!
+            <TrendingDown className="w-3.5 h-3.5" /> ¡Ahorras {discount}%!
           </span>
         </div>
       )}
       <BenefitsList benefits={benefits} />
-      <CTAButton text={config.button_text || "GARANTIR DESCONTO →"} url={checkoutLink} onClick={onCheckout} color={buttonColor} />
+      <CTAButton text={config.button_text || "OBTENER DESCUENTO →"} url={checkoutLink} onClick={onCheckout} color={buttonColor} />
     </div>
   );
 }
@@ -152,7 +152,7 @@ export function TemplateSocialProof({ title, benefits, checkoutLink, onCheckout,
       {count > 0 && (
         <div className="flex items-center justify-center gap-2 text-sm font-semibold text-primary">
           <Users className="w-4 h-4" />
-          Junte-se a mais de {count.toLocaleString("pt-BR")} apostadores de sucesso!
+          ¡Únete a más de {count.toLocaleString("es-CL")} apostadores exitosos!
         </div>
       )}
       {config.testimonial_1 && (
@@ -162,7 +162,7 @@ export function TemplateSocialProof({ title, benefits, checkoutLink, onCheckout,
         </div>
       )}
       <BenefitsList benefits={benefits} />
-      <CTAButton text={config.button_text || "QUERO ACESSAR AGORA →"} url={checkoutLink} onClick={onCheckout} color={buttonColor} />
+      <CTAButton text={config.button_text || "QUIERO ACCEDER AHORA →"} url={checkoutLink} onClick={onCheckout} color={buttonColor} />
     </div>
   );
 }
@@ -208,7 +208,7 @@ export function TemplateScarcityCountdown({ title, benefits, checkoutLink, onChe
       <div className="flex items-center justify-center gap-3 py-2">
         <Clock className="w-5 h-5 text-red-400 animate-pulse" />
         {cd.expired ? (
-          <span className="text-sm font-bold text-red-400">Oferta expirada!</span>
+          <span className="text-sm font-bold text-red-400">¡Oferta expirada!</span>
         ) : (
           <div className="flex gap-3">
             {unit(cd.m, "min")}
@@ -217,9 +217,9 @@ export function TemplateScarcityCountdown({ title, benefits, checkoutLink, onChe
           </div>
         )}
       </div>
-      <p className="text-xs text-center text-muted-foreground">Esta oferta exclusiva termina em breve...</p>
+      <p className="text-xs text-center text-muted-foreground">Esta oferta exclusiva termina pronto...</p>
       <BenefitsList benefits={benefits} />
-      <CTAButton text={config.button_text || "GARANTIR AGORA →"} url={checkoutLink} onClick={onCheckout} color={buttonColor} />
+      <CTAButton text={config.button_text || "OBTENER AHORA →"} url={checkoutLink} onClick={onCheckout} color={buttonColor} />
     </div>
   );
 }
@@ -236,19 +236,19 @@ export function TemplateBonusOffer({ title, benefits, checkoutLink, onCheckout, 
       {config.bonus_title && (
         <div className="rounded-xl border border-primary/30 bg-primary/5 p-4 space-y-2">
           <div className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-wider text-primary">
-            <Gift className="w-4 h-4" /> + BÔNUS EXCLUSIVO HOJE
+            <Gift className="w-4 h-4" /> + BONO EXCLUSIVO HOY
           </div>
           <p className="text-sm font-bold text-foreground">{config.bonus_title}</p>
           {config.bonus_description && <p className="text-xs text-foreground/70">{config.bonus_description}</p>}
           {config.bonus_value && (
             <div className="flex items-center gap-2">
               <span className="text-xs text-muted-foreground line-through">{config.bonus_value}</span>
-              <span className="text-xs font-bold text-primary">Grátis hoje</span>
+              <span className="text-xs font-bold text-primary">Gratis hoy</span>
             </div>
           )}
         </div>
       )}
-      <CTAButton text={config.button_text || "QUERO TUDO AGORA →"} url={checkoutLink} onClick={onCheckout} color={buttonColor} />
+      <CTAButton text={config.button_text || "LO QUIERO TODO AHORA →"} url={checkoutLink} onClick={onCheckout} color={buttonColor} />
     </div>
   );
 }
@@ -264,9 +264,9 @@ export function TemplatePlanComparison({ title, benefits, checkoutLink, checkout
       </div>
       <div className="rounded-lg border border-border overflow-hidden text-xs">
         <div className="grid grid-cols-[1fr,80px,80px] bg-muted/40 text-muted-foreground font-semibold">
-          <div className="px-3 py-2">Recurso</div>
-          <div className="px-2 py-2 text-center">{config.header_current ?? "Atual"}</div>
-          <div className="px-2 py-2 text-center text-primary">{config.header_new ?? "Novo"}</div>
+          <div className="px-3 py-2">Característica</div>
+          <div className="px-2 py-2 text-center">{config.header_current ?? "Actual"}</div>
+          <div className="px-2 py-2 text-center text-primary">{config.header_new ?? "Nuevo"}</div>
         </div>
         {items.map((item, i) => (
           <div key={i} className="grid grid-cols-[1fr,80px,80px] border-t border-border">
@@ -295,7 +295,7 @@ export function TemplatePlanComparison({ title, benefits, checkoutLink, checkout
           {(config as any).anchor_note}
         </p>
       )}
-      <CTAButton text={config.button_text || "FAZER UPGRADE →"} url={checkoutLink} onClick={onCheckout} color={buttonColor} textColor={config.button_text_color} />
+      <CTAButton text={config.button_text || "MEJORAR PLAN →"} url={checkoutLink} onClick={onCheckout} color={buttonColor} textColor={config.button_text_color} />
       {checkoutLink2 && (
         <button
           onClick={() => onCheckout(checkoutLink2)}
@@ -307,7 +307,7 @@ export function TemplatePlanComparison({ title, benefits, checkoutLink, checkout
             color: "#ffffff",
           }}
         >
-          {config.button_text_2 || "Basic — R$27"}
+          {config.button_text_2 || "Basic — $27"}
         </button>
       )}
     </div>

@@ -6,7 +6,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Copy, Download, RefreshCw, Phone } from "lucide-react";
 import { toast } from "sonner";
-import { getTodayInBrazil } from "@/lib/timezone";
+import { getTodayInChile } from "@/lib/timezone";
 
 interface UserRow {
   id: string;
@@ -43,9 +43,9 @@ const getDateStr = (daysAgo: number) => {
 };
 
 const getEngajamentoBadge = (daysInactive: number) => {
-  if (daysInactive <= 2) return { label: "Quente", class: "bg-green-600/30 text-green-400" };
-  if (daysInactive <= 7) return { label: "Morno", class: "bg-yellow-600/30 text-yellow-400" };
-  if (daysInactive <= 30) return { label: "Frio", class: "bg-orange-600/30 text-orange-400" };
+  if (daysInactive <= 2) return { label: "Caliente", class: "bg-green-600/30 text-green-400" };
+  if (daysInactive <= 7) return { label: "Tibio", class: "bg-yellow-600/30 text-yellow-400" };
+  if (daysInactive <= 30) return { label: "Frío", class: "bg-orange-600/30 text-orange-400" };
   return { label: "Perdido", class: "bg-red-600/30 text-red-400" };
 };
 
@@ -105,7 +105,7 @@ export default function AdminClientesFree() {
 
   useEffect(() => { load(); }, [load]);
 
-  const today = getTodayInBrazil();
+  const today = getTodayInChile();
   const yesterday = useMemo(() => {
     const d = new Date(today);
     d.setDate(d.getDate() - 1);
@@ -146,7 +146,7 @@ export default function AdminClientesFree() {
     const allDates = new Set([...Object.keys(novosMap), ...Object.keys(ativosMap)]);
     return Array.from(allDates)
       .map((date) => ({
-        date: new Date(date).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }),
+        date: new Date(date).toLocaleDateString("es-CL", { day: "2-digit", month: "2-digit" }),
         rawDate: date,
         novos: novosMap[date] || 0,
         ativos: ativosMap[date] || 0,
@@ -194,20 +194,20 @@ export default function AdminClientesFree() {
 
   const copyText = (text: string) => {
     navigator.clipboard.writeText(text);
-    toast.success("Copiado!");
+    toast.success("¡Copiado!");
   };
 
   const exportCSV = useCallback(() => {
     const BOM = "\uFEFF";
-    const headers = ["Email", "Telefone", "Criado em", "Último acesso", "Dias inativo", "Logins", "Engajamento"];
+    const headers = ["Correo", "Teléfono", "Creado el", "Último acceso", "Días inactivo", "Logins", "Engagement"];
     const rows = sortedUsers.map((u) => {
       const days = Math.floor(daysDiff(u.last_seen_at));
       const badge = getEngajamentoBadge(days);
       return [
         u.email,
         u.phone ?? "",
-        new Date(u.created_at).toLocaleString("pt-BR"),
-        u.last_seen_at ? new Date(u.last_seen_at).toLocaleString("pt-BR") : "—",
+        new Date(u.created_at).toLocaleString("es-CL"),
+        u.last_seen_at ? new Date(u.last_seen_at).toLocaleString("es-CL") : "—",
         days === Infinity ? "Nunca" : String(days),
         String(u.total_logins),
         badge.label,
@@ -218,16 +218,16 @@ export default function AdminClientesFree() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `clientes-free-${today}.csv`;
+    a.download = `clientes-gratis-${today}.csv`;
     a.click();
     URL.revokeObjectURL(url);
-    toast.success(`CSV exportado com ${sortedUsers.length} registros`);
+    toast.success(`CSV exportado con ${sortedUsers.length} registros`);
   }, [sortedUsers, today]);
 
   const engajamentoPills = [
-    { key: "quente", label: "Quentes", color: "bg-green-600/30 text-green-400 ring-green-400" },
-    { key: "morno", label: "Mornos", color: "bg-yellow-600/30 text-yellow-400 ring-yellow-400" },
-    { key: "frio", label: "Frios", color: "bg-orange-600/30 text-orange-400 ring-orange-400" },
+    { key: "quente", label: "Calientes", color: "bg-green-600/30 text-green-400 ring-green-400" },
+    { key: "morno", label: "Tibios", color: "bg-yellow-600/30 text-yellow-400 ring-yellow-400" },
+    { key: "frio", label: "Fríos", color: "bg-orange-600/30 text-orange-400 ring-orange-400" },
     { key: "perdido", label: "Perdidos", color: "bg-red-600/30 text-red-400 ring-red-400" },
   ];
 
@@ -251,26 +251,26 @@ export default function AdminClientesFree() {
       <div>
         <div className="flex items-center gap-3">
           <h1 className="text-2xl font-bold text-white" style={{ fontFamily: "Barlow Condensed, sans-serif" }}>
-            Clientes Free
+            Clientes Gratis
           </h1>
           <button
             onClick={() => load()}
             className="p-2 rounded-lg bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-white transition-colors"
-            title="Atualizar"
+            title="Actualizar"
           >
             <RefreshCw className="w-4 h-4" />
           </button>
         </div>
-        <p className="text-sm text-muted-foreground">Frees ativos com potencial de conversão</p>
+        <p className="text-sm text-muted-foreground">Gratis activos con potencial de conversión</p>
       </div>
 
       {/* KPIs Linha 1 — Base */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
-          { label: "Total Free", value: kpis1.total, color: "text-blue-400" },
-          { label: "Novos hoje", value: kpis1.hoje, color: "text-yellow-400" },
-          { label: "Novos ontem", value: kpis1.ontem, color: "text-yellow-400" },
-          { label: "Novos 7 dias", value: kpis1.sevenD, color: "text-yellow-400" },
+          { label: "Total Gratis", value: kpis1.total, color: "text-blue-400" },
+          { label: "Nuevos hoy", value: kpis1.hoje, color: "text-yellow-400" },
+          { label: "Nuevos ayer", value: kpis1.ontem, color: "text-yellow-400" },
+          { label: "Nuevos 7 días", value: kpis1.sevenD, color: "text-yellow-400" },
         ].map((k) => (
           <div key={k.label} className="rounded-xl border border-border bg-muted/10 p-4">
             <p className="text-[11px] text-muted-foreground uppercase tracking-wider font-bold mb-1">{k.label}</p>
@@ -284,10 +284,10 @@ export default function AdminClientesFree() {
       {/* KPIs Linha 2 — Engajamento */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
-          { label: "Ativos hoje", value: kpis2.ativosHoje, color: "text-green-400" },
-          { label: "Quentes (≤2d)", value: kpis2.quentes, color: "text-green-400" },
-          { label: "Frios (30d+)", value: kpis2.frios, color: "text-red-400" },
-          { label: "Conversões 7d", value: kpis2.conversoes7d, color: "text-purple-400" },
+          { label: "Activos hoy", value: kpis2.ativosHoje, color: "text-green-400" },
+          { label: "Calientes (≤2d)", value: kpis2.quentes, color: "text-green-400" },
+          { label: "Fríos (30d+)", value: kpis2.frios, color: "text-red-400" },
+          { label: "Conversiones 7d", value: kpis2.conversoes7d, color: "text-purple-400" },
         ].map((k) => (
           <div key={k.label} className="rounded-xl border border-border bg-muted/10 p-4">
             <p className="text-[11px] text-muted-foreground uppercase tracking-wider font-bold mb-1">{k.label}</p>
@@ -300,7 +300,7 @@ export default function AdminClientesFree() {
 
       {/* Chart */}
       <div className="rounded-lg border border-border bg-muted/10 p-4">
-        <h2 className="text-sm font-semibold text-white mb-4">Novos Free vs Ativos por dia</h2>
+        <h2 className="text-sm font-semibold text-white mb-4">Nuevos Gratis vs Activos por día</h2>
         <ResponsiveContainer width="100%" height={250}>
           <BarChart
             data={chartData}
@@ -320,8 +320,8 @@ export default function AdminClientesFree() {
               labelStyle={{ color: "#fff" }}
             />
             <Legend />
-            <Bar dataKey="novos" name="Novos Free" fill="#3b82f6" radius={[4, 4, 0, 0]} cursor="pointer" />
-            <Bar dataKey="ativos" name="Ativos" fill="#22c55e" radius={[4, 4, 0, 0]} cursor="pointer" />
+            <Bar dataKey="novos" name="Nuevos Gratis" fill="#3b82f6" radius={[4, 4, 0, 0]} cursor="pointer" />
+            <Bar dataKey="ativos" name="Activos" fill="#22c55e" radius={[4, 4, 0, 0]} cursor="pointer" />
           </BarChart>
         </ResponsiveContainer>
       </div>
@@ -351,43 +351,43 @@ export default function AdminClientesFree() {
           }}
           className="px-3 py-1 rounded-full text-xs font-bold bg-muted/30 text-muted-foreground hover:bg-muted/50 transition-colors"
         >
-          Limpar
+          Limpiar
         </button>
       </div>
 
       {/* Date Filters + Actions */}
       <div className="flex flex-wrap items-center gap-3">
-        <span className="text-xs text-muted-foreground whitespace-nowrap">Criado em</span>
+        <span className="text-xs text-muted-foreground whitespace-nowrap">Creado el</span>
         <Input type="date" value={criadoFrom} onChange={(e) => setCriadoFrom(e.target.value)} className="bg-gray-800 border-gray-700 text-xs h-8 w-36" />
-        <span className="text-xs text-muted-foreground">até</span>
+        <span className="text-xs text-muted-foreground">hasta</span>
         <Input type="date" value={criadoTo} onChange={(e) => setCriadoTo(e.target.value)} className="bg-gray-800 border-gray-700 text-xs h-8 w-36" />
 
-        <span className="text-xs text-muted-foreground whitespace-nowrap ml-2">Último acesso</span>
+        <span className="text-xs text-muted-foreground whitespace-nowrap ml-2">Último acceso</span>
         <Input type="date" value={acessoFrom} onChange={(e) => setAcessoFrom(e.target.value)} className="bg-gray-800 border-gray-700 text-xs h-8 w-36" />
-        <span className="text-xs text-muted-foreground">até</span>
+        <span className="text-xs text-muted-foreground">hasta</span>
         <Input type="date" value={acessoTo} onChange={(e) => setAcessoTo(e.target.value)} className="bg-gray-800 border-gray-700 text-xs h-8 w-36" />
 
         <div className="ml-auto flex items-center gap-2">
           <button
             onClick={() => {
               const emails = sortedUsers.map((u) => u.email).filter(Boolean).join(", ");
-              if (!emails) { toast.error("Nenhum email para copiar."); return; }
-              navigator.clipboard.writeText(emails).then(() => toast.success(`${sortedUsers.length} emails copiados!`));
+              if (!emails) { toast.error("Ningún correo para copiar."); return; }
+              navigator.clipboard.writeText(emails).then(() => toast.success(`¡${sortedUsers.length} correos copiados!`));
             }}
             className="flex items-center gap-1 text-xs bg-green-600/20 text-green-400 hover:bg-green-600/30 px-3 py-1.5 rounded-md font-medium transition-colors"
           >
-            <Copy className="w-3.5 h-3.5" /> Copiar emails ({sortedUsers.length})
+            <Copy className="w-3.5 h-3.5" /> Copiar correos ({sortedUsers.length})
           </button>
           <button
             onClick={() => {
               const phones = sortedUsers.map((u) => u.phone).filter(Boolean).join(", ");
-              if (!phones) { toast.error("Nenhum telefone para copiar."); return; }
+              if (!phones) { toast.error("Ningún teléfono para copiar."); return; }
               const count = sortedUsers.filter((u) => u.phone).length;
-              navigator.clipboard.writeText(phones).then(() => toast.success(`${count} telefones copiados!`));
+              navigator.clipboard.writeText(phones).then(() => toast.success(`¡${count} teléfonos copiados!`));
             }}
             className="flex items-center gap-1 text-xs bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 px-3 py-1.5 rounded-md font-medium transition-colors"
           >
-            <Phone className="w-3.5 h-3.5" /> Copiar telefones
+            <Phone className="w-3.5 h-3.5" /> Copiar teléfonos
           </button>
           <button
             onClick={exportCSV}
@@ -399,7 +399,7 @@ export default function AdminClientesFree() {
       </div>
 
       <p className="text-xs text-muted-foreground">
-        Exibindo {filtered.length} de {users.length} clientes free
+        Mostrando {filtered.length} de {users.length} clientes gratis
       </p>
 
       {/* Table */}
@@ -407,20 +407,20 @@ export default function AdminClientesFree() {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border bg-muted/20">
-              <SortHeader label="Email" field="email" />
-              <SortHeader label="Telefone" field="phone" />
-              <SortHeader label="Criado em" field="created_at" />
-              <SortHeader label="Último acesso" field="last_seen_at" />
-              <SortHeader label="Dias inativo" field="days_inactive" />
+              <SortHeader label="Correo" field="email" />
+              <SortHeader label="Teléfono" field="phone" />
+              <SortHeader label="Creado el" field="created_at" />
+              <SortHeader label="Último acceso" field="last_seen_at" />
+              <SortHeader label="Días inactivo" field="days_inactive" />
               <SortHeader label="Logins" field="total_logins" />
-              <SortHeader label="Engajamento" field="engajamento" />
+              <SortHeader label="Engagement" field="engajamento" />
             </tr>
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={7} className="text-center py-8 text-muted-foreground">Carregando…</td></tr>
+              <tr><td colSpan={7} className="text-center py-8 text-muted-foreground">Cargando…</td></tr>
             ) : sortedUsers.length === 0 ? (
-              <tr><td colSpan={7} className="text-center py-8 text-muted-foreground">Nenhum cliente encontrado</td></tr>
+              <tr><td colSpan={7} className="text-center py-8 text-muted-foreground">Ningún cliente encontrado</td></tr>
             ) : (
               sortedUsers.map((u) => {
                 const days = Math.floor(daysDiff(u.last_seen_at));
@@ -448,10 +448,10 @@ export default function AdminClientesFree() {
                       )}
                     </td>
                     <td className="px-4 py-2 text-muted-foreground text-xs">
-                      {new Date(u.created_at).toLocaleString("pt-BR")}
+                      {new Date(u.created_at).toLocaleString("es-CL")}
                     </td>
                     <td className="px-4 py-2 text-muted-foreground text-xs">
-                      {u.last_seen_at ? new Date(u.last_seen_at).toLocaleString("pt-BR") : "—"}
+                      {u.last_seen_at ? new Date(u.last_seen_at).toLocaleString("es-CL") : "—"}
                     </td>
                     <td className="px-4 py-2 text-muted-foreground text-xs text-center">
                       {days === Infinity ? "—" : `${days}d`}

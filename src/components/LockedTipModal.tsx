@@ -31,11 +31,11 @@ export function LockedTipModal({ isOpen, onClose, tierLabel, tierRequired, addon
           <div className="w-16 h-16 rounded-full bg-yellow-500/20 flex items-center justify-center mb-2">
             <Lock className="w-8 h-8 text-yellow-400" />
           </div>
-          <DialogTitle className="text-lg font-bold">Entrada Bloqueada</DialogTitle>
+          <DialogTitle className="text-lg font-bold">Tip Bloqueado</DialogTitle>
           <DialogDescription className="text-white/70 text-sm">
-            {addonRequired 
-              ? <>Esta entrada é exclusiva do add-on <span className="text-yellow-400 font-bold">{tierLabel}</span>. Adquira já!</>
-              : <>Esta entrada é exclusiva do plano <span className="text-yellow-400 font-bold">{tierLabel}</span>. Adquira já!</>
+            {addonRequired
+              ? <>Este tip es exclusivo del add-on <span className="text-yellow-400 font-bold">{tierLabel}</span>. ¡Adquiérelo ya!</>
+              : <>Este tip es exclusivo del plan <span className="text-yellow-400 font-bold">{tierLabel}</span>. ¡Adquiérelo ya!</>
             }
           </DialogDescription>
         </DialogHeader>
@@ -43,7 +43,7 @@ export function LockedTipModal({ isOpen, onClose, tierLabel, tierRequired, addon
           onClick={handleUpgrade}
           className="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-bold mt-2"
         >
-          🔓 Desbloquear Plano {tierLabel}
+          🔓 Desbloquear Plan {tierLabel}
         </Button>
       </DialogContent>
     </Dialog>

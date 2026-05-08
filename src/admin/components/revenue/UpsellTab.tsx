@@ -79,7 +79,7 @@ export default function UpsellTab() {
 
   const copyEmail = (email: string) => {
     navigator.clipboard.writeText(email);
-    toast({ title: "Email copiado!", description: "Entre em contato para oferecer o upgrade." });
+    toast({ title: "¡Email copiado!", description: "Ponte en contacto para ofrecer la mejora de plan." });
   };
 
   const currentFilter = UPSELL_FILTERS[Number(filterIdx)];
@@ -88,7 +88,7 @@ export default function UpsellTab() {
     <div className="space-y-4">
       <Select value={filterIdx} onValueChange={setFilterIdx}>
         <SelectTrigger className="w-80">
-          <SelectValue placeholder="Selecione um filtro de upsell" />
+          <SelectValue placeholder="Selecciona un filtro de upsell" />
         </SelectTrigger>
         <SelectContent>
           {UPSELL_FILTERS.map((f, i) => (
@@ -98,9 +98,9 @@ export default function UpsellTab() {
       </Select>
 
       {loading ? (
-        <p className="text-muted-foreground text-center py-8">Carregando...</p>
+        <p className="text-muted-foreground text-center py-8">Cargando...</p>
       ) : filtered.length === 0 ? (
-        <p className="text-muted-foreground text-center py-8">Nenhum cliente encontrado para este filtro.</p>
+        <p className="text-muted-foreground text-center py-8">No se encontró ningún cliente para este filtro.</p>
       ) : (
         <div className="border rounded-lg overflow-hidden">
           <p className="text-sm text-muted-foreground px-4 py-2 bg-muted/30">
@@ -110,11 +110,11 @@ export default function UpsellTab() {
             <TableHeader>
               <TableRow>
                 <TableHead>Email</TableHead>
-                <TableHead>Plano Atual</TableHead>
-                <TableHead>Add-ons Ativos</TableHead>
+                <TableHead>Plan Actual</TableHead>
+                <TableHead>Add-ons Activos</TableHead>
                 <TableHead>Upsell Sugerido</TableHead>
-                <TableHead>Último Acesso</TableHead>
-                <TableHead>Ação</TableHead>
+                <TableHead>Último Acceso</TableHead>
+                <TableHead>Acción</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -131,14 +131,14 @@ export default function UpsellTab() {
                       {addonList.length > 0 ? addonList.join(', ') : '—'}
                     </TableCell>
                     <TableCell className="text-sm font-medium text-orange-400">
-                      {currentFilter ? (currentFilter.checkVitalicio ? 'Acesso Vitalício' : ADDON_DISPLAY[currentFilter.missingKey] || currentFilter.missingKey) : '—'}
+                      {currentFilter ? (currentFilter.checkVitalicio ? 'Acceso Vitalicio' : ADDON_DISPLAY[currentFilter.missingKey] || currentFilter.missingKey) : '—'}
                     </TableCell>
                     <TableCell className="text-xs">
-                      {u.last_seen_at ? new Date(u.last_seen_at).toLocaleString('pt-BR') : '—'}
+                      {u.last_seen_at ? new Date(u.last_seen_at).toLocaleString('es-CL') : '—'}
                     </TableCell>
                     <TableCell>
                       <Button size="sm" variant="outline" onClick={() => copyEmail(u.email)}>
-                        <Copy className="w-3 h-3 mr-1" /> Oferecer
+                        <Copy className="w-3 h-3 mr-1" /> Ofrecer
                       </Button>
                     </TableCell>
                   </TableRow>

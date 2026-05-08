@@ -81,7 +81,7 @@ export default function FeedbackModal({ isOpen, onClose, userId, userEmail }: Fe
       onClose();
     } catch (err: any) {
       console.error(err);
-      toast.error("Erro ao enviar feedback. Tente novamente.");
+      toast.error("Error al enviar feedback. Inténtalo de nuevo.");
     } finally {
       setSubmitting(false);
     }
@@ -131,11 +131,11 @@ export default function FeedbackModal({ isOpen, onClose, userId, userEmail }: Fe
 
         {/* Message */}
         <div>
-          <p className="text-xs mb-2" style={{ color: "#94A3B8" }}>Mensagem</p>
+          <p className="text-xs mb-2" style={{ color: "#94A3B8" }}>Mensaje</p>
           <textarea
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            placeholder="Descreva com detalhes..."
+            placeholder="Describe con detalle..."
             rows={4}
             className="w-full rounded-xl p-3 text-sm resize-none outline-none"
             style={{

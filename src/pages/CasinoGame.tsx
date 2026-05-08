@@ -22,15 +22,15 @@ interface GameConfig {
 const GAME_CONFIGS: Record<string, GameConfig> = {
   aviator: {
     name: "Aviator",
-    subtitle: "Decole antes do crash! Multiplique seus ganhos",
+    subtitle: "¡Despega antes del crash! Multiplica tus ganancias",
     icon: Plane,
     buttonColor: "#DC2626",
     buttonGlow: "rgba(220, 38, 38, 0.5)",
     urlField: "aviator_url",
   },
   roleta: {
-    name: "Roleta",
-    subtitle: "Vermelho ou preto? Aposte e gire a sorte",
+    name: "Ruleta",
+    subtitle: "¿Rojo o negro? Apuesta y gira la suerte",
     icon: CircleDot,
     buttonColor: "#DC2626",
     buttonGlow: "rgba(220, 38, 38, 0.5)",
@@ -38,7 +38,7 @@ const GAME_CONFIGS: Record<string, GameConfig> = {
   },
   mines: {
     name: "Mines",
-    subtitle: "Desvie das bombas e acumule prêmios",
+    subtitle: "Esquiva las bombas y acumula premios",
     icon: Gem,
     buttonColor: "#8B5CF6",
     buttonGlow: "rgba(139, 92, 246, 0.5)",
@@ -46,7 +46,7 @@ const GAME_CONFIGS: Record<string, GameConfig> = {
   },
   "football-studio": {
     name: "Football Studio",
-    subtitle: "Casa ou Visitante? Aposte no resultado",
+    subtitle: "¿Local o Visitante? Apuesta al resultado",
     icon: Dices,
     buttonColor: "#3B82F6",
     buttonGlow: "rgba(59, 130, 246, 0.5)",
@@ -55,16 +55,16 @@ const GAME_CONFIGS: Record<string, GameConfig> = {
 };
 
 const LOADING_STEPS = [
-  "Analisando o algoritmo",
-  "Identificando o padrão",
-  "Sinal encontrado",
+  "Analizando el algoritmo",
+  "Identificando el patrón",
+  "Señal encontrada",
 ];
 
 const RouletteStrategies = [
-  { type: 'colunas', strategyLabel: 'Colunas (1ª/2ª/3ª)', signal: () => { const cols = ['1ª', '2ª', '3ª']; const c1 = cols[Math.floor(Math.random() * 3)]; let c2 = cols[Math.floor(Math.random() * 3)]; while (c2 === c1) c2 = cols[Math.floor(Math.random() * 3)]; return `${c1} + ${c2} coluna`; }, tip: 'Colunas são as 3 colunas verticais. Selecione 2 colunas indicadas. Proteção até 02.' },
-  { type: 'quadrantes', strategyLabel: 'Quadrantes (1º/2º/3º)', signal: () => { const quads = ['1º', '2º', '3º']; const q1 = quads[Math.floor(Math.random() * 3)]; let q2 = quads[Math.floor(Math.random() * 3)]; while (q2 === q1) q2 = quads[Math.floor(Math.random() * 3)]; return `${q1} + ${q2} quadrante`; }, tip: 'Quadrantes: 1º (1-12), 2º (13-24), 3º (25-36). Escolha 2 quadrantes. Proteção até 02.' },
-  { type: 'par_impar', strategyLabel: 'Par/Ímpar', signal: () => Math.random() > 0.5 ? 'Par (Even)' : 'Ímpar (Odd)', tip: 'Aposte em Par ou Ímpar por 3 rodadas. Proteção até 02.' },
-  { type: 'cor', strategyLabel: 'Vermelho/Preto', signal: () => Math.random() > 0.5 ? 'Vermelho' : 'Preto', tip: 'Aposte na cor indicada por 3 rodadas. Proteção até 02.' },
+  { type: 'colunas', strategyLabel: 'Columnas (1ª/2ª/3ª)', signal: () => { const cols = ['1ª', '2ª', '3ª']; const c1 = cols[Math.floor(Math.random() * 3)]; let c2 = cols[Math.floor(Math.random() * 3)]; while (c2 === c1) c2 = cols[Math.floor(Math.random() * 3)]; return `${c1} + ${c2} columna`; }, tip: 'Las columnas son las 3 columnas verticales. Selecciona 2 columnas indicadas. Protección hasta 02.' },
+  { type: 'quadrantes', strategyLabel: 'Cuadrantes (1º/2º/3º)', signal: () => { const quads = ['1º', '2º', '3º']; const q1 = quads[Math.floor(Math.random() * 3)]; let q2 = quads[Math.floor(Math.random() * 3)]; while (q2 === q1) q2 = quads[Math.floor(Math.random() * 3)]; return `${q1} + ${q2} cuadrante`; }, tip: 'Cuadrantes: 1º (1-12), 2º (13-24), 3º (25-36). Elige 2 cuadrantes. Protección hasta 02.' },
+  { type: 'par_impar', strategyLabel: 'Par/Impar', signal: () => Math.random() > 0.5 ? 'Par (Even)' : 'Impar (Odd)', tip: 'Apuesta a Par o Impar por 3 rondas. Protección hasta 02.' },
+  { type: 'cor', strategyLabel: 'Rojo/Negro', signal: () => Math.random() > 0.5 ? 'Rojo' : 'Negro', tip: 'Apuesta al color indicado por 3 rondas. Protección hasta 02.' },
 ];
 
 // ===== MINES =====
@@ -101,7 +101,7 @@ const MinesGame = ({ phase, stepIndex, result, onIdentifySignal, isButtonDisable
           <span className="text-base font-bold text-white">Mines – IA</span>
           <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-green-500/20 border border-green-500/40">
             <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
-            <span className="text-xs font-medium text-green-500">Online</span>
+            <span className="text-xs font-medium text-green-500">En línea</span>
           </div>
         </div>
         <div className="grid grid-cols-2 gap-2 mb-4">
@@ -110,7 +110,7 @@ const MinesGame = ({ phase, stepIndex, result, onIdentifySignal, isButtonDisable
             <p className="text-[22px] sm:text-[26px] font-bold text-red-400">{phase === 'result' ? result?.mines : 'X'}</p>
           </div>
           <div className="rounded-xl p-3" style={{ background: 'rgba(34, 197, 94, 0.1)', border: '1px solid rgba(34, 197, 94, 0.3)' }}>
-            <p className="text-[11px] text-gray-400 mb-0.5">Proteções</p>
+            <p className="text-[11px] text-gray-400 mb-0.5">Protecciones</p>
             <p className="text-[22px] sm:text-[26px] font-bold text-green-400">{phase === 'result' ? '02' : 'X'}</p>
           </div>
         </div>
@@ -120,7 +120,7 @@ const MinesGame = ({ phase, stepIndex, result, onIdentifySignal, isButtonDisable
         {phase === 'loading' && (
           <div className="text-center space-y-1 py-2">
             <p className="text-sm font-semibold text-white animate-pulse">{LOADING_STEPS[stepIndex]}</p>
-            {stepIndex === 2 && <p className="text-xs text-gray-400">Prepare-se</p>}
+            {stepIndex === 2 && <p className="text-xs text-gray-400">Prepárate</p>}
           </div>
         )}
         <button
@@ -132,7 +132,7 @@ const MinesGame = ({ phase, stepIndex, result, onIdentifySignal, isButtonDisable
             boxShadow: isButtonDisabled ? 'none' : `0 0 15px ${buttonGlow}`,
           }}
         >
-          {phase === 'loading' ? <span className="flex items-center justify-center gap-2"><span className="animate-spin">⏳</span>Processando...</span> : buttonText}
+          {phase === 'loading' ? <span className="flex items-center justify-center gap-2"><span className="animate-spin">⏳</span>Procesando...</span> : buttonText}
         </button>
       </div>
     </div>
@@ -148,18 +148,18 @@ const AviatorGame = ({ phase, stepIndex, result }: { phase: Phase; stepIndex: nu
         <p className="text-xl font-bold text-white">{phase === 'result' ? result?.entryTime : '∞'}</p>
       </div>
       <div className="bg-[#1a1a1a] rounded-xl p-4 border border-green-500/30 text-center">
-        <p className="text-xs text-gray-400 mb-1">Saída</p>
+        <p className="text-xs text-gray-400 mb-1">Salida</p>
         <p className="text-xl font-bold text-green-500">{phase === 'result' ? `${result?.exitMultiplier}x` : '—'}</p>
       </div>
       <div className="bg-[#1a1a1a] rounded-xl p-4 border border-yellow-500/30 text-center">
-        <p className="text-xs text-gray-400 mb-1">Proteções</p>
-        <p className="text-xl font-bold text-yellow-500">{phase === 'result' ? 'Até 02' : '—'}</p>
+        <p className="text-xs text-gray-400 mb-1">Protecciones</p>
+        <p className="text-xl font-bold text-yellow-500">{phase === 'result' ? 'Hasta 02' : '—'}</p>
       </div>
     </div>
     {phase === 'loading' && (
       <div className="text-center space-y-2 animate-pulse py-8">
         <p className="text-lg font-semibold text-white">{LOADING_STEPS[stepIndex]}</p>
-        {stepIndex === 2 && <p className="text-sm text-gray-400">Prepare-se</p>}
+        {stepIndex === 2 && <p className="text-sm text-gray-400">Prepárate</p>}
       </div>
     )}
   </div>
@@ -167,45 +167,45 @@ const AviatorGame = ({ phase, stepIndex, result }: { phase: Phase; stepIndex: nu
 
 // ===== ROLETA =====
 const RouletteGame = ({ phase, stepIndex, result }: { phase: Phase; stepIndex: number; result: any }) => {
-  const currentTime = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  const currentTime = new Date().toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-3">
         <div className="rounded-2xl p-4 text-center" style={{ background: 'linear-gradient(145deg, #0b0f14 0%, #131920 100%)', border: '1px solid rgba(139, 92, 246, 0.3)', boxShadow: '0 0 15px rgba(139, 92, 246, 0.15)' }}>
-          <p className="text-xs text-gray-400 mb-1">Horário</p>
+          <p className="text-xs text-gray-400 mb-1">Horario</p>
           <p className="text-2xl font-bold text-white">{phase === 'result' ? result?.time : currentTime}</p>
         </div>
         <div className="rounded-2xl p-4 text-center" style={{ background: 'linear-gradient(145deg, #0b0f14 0%, #131920 100%)', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
-          <p className="text-xs text-gray-400 mb-1">Estratégia</p>
-          <p className="text-sm font-semibold text-white leading-tight">{phase === 'result' ? result?.strategyLabel : 'Aguardando...'}</p>
+          <p className="text-xs text-gray-400 mb-1">Estrategia</p>
+          <p className="text-sm font-semibold text-white leading-tight">{phase === 'result' ? result?.strategyLabel : 'Esperando...'}</p>
         </div>
         <div className="rounded-2xl p-4 text-center" style={{ background: 'linear-gradient(145deg, rgba(127, 29, 29, 0.3) 0%, rgba(153, 27, 27, 0.2) 100%)', border: '1px solid rgba(239, 68, 68, 0.5)', boxShadow: '0 0 20px rgba(239, 68, 68, 0.25)' }}>
-          <p className="text-xs text-gray-400 mb-1">Sinal</p>
+          <p className="text-xs text-gray-400 mb-1">Señal</p>
           <p className="text-base font-bold text-red-400">{phase === 'result' ? result?.signal : '—'}</p>
         </div>
         <div className="rounded-2xl p-4 text-center" style={{ background: 'linear-gradient(145deg, #0b0f14 0%, #131920 100%)', border: '1px solid rgba(34, 197, 94, 0.4)', boxShadow: '0 0 12px rgba(34, 197, 94, 0.15)' }}>
-          <p className="text-xs text-gray-400 mb-1">Proteções</p>
-          <p className="text-xl font-bold text-green-400">{phase === 'result' ? 'Até 02' : '—'}</p>
+          <p className="text-xs text-gray-400 mb-1">Protecciones</p>
+          <p className="text-xl font-bold text-green-400">{phase === 'result' ? 'Hasta 02' : '—'}</p>
         </div>
       </div>
       {phase === 'result' && result?.tip && (
         <div className="rounded-2xl p-4 flex gap-3" style={{ background: 'linear-gradient(145deg, #0b0f14 0%, #131920 100%)', border: '1px solid rgba(239, 68, 68, 0.3)' }}>
           <Lightbulb className="w-5 h-5 text-yellow-400 shrink-0 mt-0.5" />
-          <p className="text-sm text-gray-300 leading-relaxed"><span className="font-bold text-white">Dica:</span> {result.tip}</p>
+          <p className="text-sm text-gray-300 leading-relaxed"><span className="font-bold text-white">Tip:</span> {result.tip}</p>
         </div>
       )}
       {phase === 'loading' && (
         <div className="rounded-2xl p-6 text-center" style={{ background: 'linear-gradient(145deg, #0b0f14 0%, #131920 100%)', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
           <div className="animate-pulse space-y-2">
             <p className="text-lg font-semibold text-white">{LOADING_STEPS[stepIndex]}</p>
-            {stepIndex === 2 && <p className="text-sm text-gray-400">Prepare-se</p>}
+            {stepIndex === 2 && <p className="text-sm text-gray-400">Prepárate</p>}
           </div>
         </div>
       )}
       {phase === 'idle' && (
         <div className="rounded-2xl p-4 flex gap-3" style={{ background: 'linear-gradient(145deg, #0b0f14 0%, #131920 100%)', border: '1px solid rgba(139, 92, 246, 0.3)' }}>
           <Lightbulb className="w-5 h-5 text-yellow-400 shrink-0 mt-0.5" />
-          <p className="text-sm text-gray-300 leading-relaxed"><span className="font-bold text-white">Dica:</span> Clique em "Identificar sinal" para a IA analisar o padrão.</p>
+          <p className="text-sm text-gray-300 leading-relaxed"><span className="font-bold text-white">Tip:</span> Haz clic en "Identificar señal" para que la IA analice el patrón.</p>
         </div>
       )}
     </div>
@@ -214,18 +214,18 @@ const RouletteGame = ({ phase, stepIndex, result }: { phase: Phase; stepIndex: n
 
 // ===== FOOTBALL STUDIO =====
 const FootballStudioGame = ({ phase, stepIndex, result }: { phase: Phase; stepIndex: number; result: any }) => {
-  const currentTime = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-  const isCasa = result?.signal === 'CASA';
+  const currentTime = new Date().toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
+  const isCasa = result?.signal === 'LOCAL';
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-3">
         <div className="rounded-2xl p-4 text-center" style={{ background: 'linear-gradient(145deg, #0b0f14 0%, #131920 100%)', border: '1px solid rgba(139, 92, 246, 0.3)', boxShadow: '0 0 15px rgba(139, 92, 246, 0.15)' }}>
-          <p className="text-xs text-gray-400 mb-1">Horário</p>
+          <p className="text-xs text-gray-400 mb-1">Horario</p>
           <p className="text-2xl font-bold text-white">{phase === 'result' ? result?.time : currentTime}</p>
         </div>
         <div className="rounded-2xl p-4 text-center" style={{ background: 'linear-gradient(145deg, #0b0f14 0%, #131920 100%)', border: '1px solid rgba(34, 197, 94, 0.4)', boxShadow: '0 0 12px rgba(34, 197, 94, 0.15)' }}>
-          <p className="text-xs text-gray-400 mb-1">Proteções</p>
-          <p className="text-xl font-bold text-green-400">{phase === 'result' ? 'Até 02' : '—'}</p>
+          <p className="text-xs text-gray-400 mb-1">Protecciones</p>
+          <p className="text-xl font-bold text-green-400">{phase === 'result' ? 'Hasta 02' : '—'}</p>
         </div>
       </div>
       <div
@@ -236,7 +236,7 @@ const FootballStudioGame = ({ phase, stepIndex, result }: { phase: Phase; stepIn
           boxShadow: phase === 'result' ? isCasa ? '0 0 30px rgba(239, 68, 68, 0.35)' : '0 0 30px rgba(59, 130, 246, 0.35)' : 'none',
         }}
       >
-        <p className="text-xs text-gray-400 mb-2">SINAL</p>
+        <p className="text-xs text-gray-400 mb-2">SEÑAL</p>
         {phase === 'result' ? (
           <div className="inline-block px-8 py-3 rounded-xl text-2xl font-bold text-white" style={{ background: isCasa ? 'linear-gradient(135deg, #DC2626 0%, #B91C1C 100%)' : 'linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)', boxShadow: isCasa ? '0 4px 15px rgba(220, 38, 38, 0.4)' : '0 4px 15px rgba(59, 130, 246, 0.4)' }}>
             {result?.signal}
@@ -248,21 +248,21 @@ const FootballStudioGame = ({ phase, stepIndex, result }: { phase: Phase; stepIn
       {phase === 'result' && (
         <div className="rounded-2xl p-4 flex gap-3" style={{ background: 'linear-gradient(145deg, #0b0f14 0%, #131920 100%)', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
           <Lightbulb className="w-5 h-5 text-yellow-400 shrink-0 mt-0.5" />
-          <p className="text-sm text-gray-300 leading-relaxed"><span className="font-bold text-white">Dica:</span> Siga o lado indicado por até 02 proteções.</p>
+          <p className="text-sm text-gray-300 leading-relaxed"><span className="font-bold text-white">Tip:</span> Sigue el lado indicado hasta 02 protecciones.</p>
         </div>
       )}
       {phase === 'loading' && (
         <div className="rounded-2xl p-6 text-center" style={{ background: 'linear-gradient(145deg, #0b0f14 0%, #131920 100%)', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
           <div className="animate-pulse space-y-2">
             <p className="text-lg font-semibold text-white">{LOADING_STEPS[stepIndex]}</p>
-            {stepIndex === 2 && <p className="text-sm text-gray-400">Prepare-se</p>}
+            {stepIndex === 2 && <p className="text-sm text-gray-400">Prepárate</p>}
           </div>
         </div>
       )}
       {phase === 'idle' && (
         <div className="rounded-2xl p-4 flex gap-3" style={{ background: 'linear-gradient(145deg, #0b0f14 0%, #131920 100%)', border: '1px solid rgba(139, 92, 246, 0.3)' }}>
           <Lightbulb className="w-5 h-5 text-yellow-400 shrink-0 mt-0.5" />
-          <p className="text-sm text-gray-300 leading-relaxed"><span className="font-bold text-white">Dica:</span> Clique em "Identificar sinal" para a IA indicar CASA ou VISITANTE.</p>
+          <p className="text-sm text-gray-300 leading-relaxed"><span className="font-bold text-white">Tip:</span> Haz clic en "Identificar señal" para que la IA indique LOCAL o VISITANTE.</p>
         </div>
       )}
     </div>
@@ -367,17 +367,17 @@ const CasinoGame = () => {
       case 'aviator': {
         const entryTime = new Date(now.getTime() + 60000);
         const exitMultiplier = (1.50 + Math.random() * 0.15).toFixed(2);
-        return { entryTime: entryTime.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }), exitMultiplier };
+        return { entryTime: entryTime.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' }), exitMultiplier };
       }
       case 'roleta': {
         const strategy = RouletteStrategies[Math.floor(Math.random() * RouletteStrategies.length)];
         const minutesAdd = Math.random() > 0.5 ? 1 : 2;
         const time = new Date(now.getTime() + minutesAdd * 60000);
-        return { time: time.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }), signal: strategy.signal(), strategyLabel: strategy.strategyLabel, tip: strategy.tip };
+        return { time: time.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' }), signal: strategy.signal(), strategyLabel: strategy.strategyLabel, tip: strategy.tip };
       }
       case 'football-studio': {
-        const signal = Math.random() > 0.5 ? 'CASA' : 'VISITANTE';
-        return { time: now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }), signal };
+        const signal = Math.random() > 0.5 ? 'LOCAL' : 'VISITANTE';
+        return { time: now.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' }), signal };
       }
       default: return {};
     }
@@ -420,10 +420,10 @@ const CasinoGame = () => {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4" style={{ background: "#000000" }}>
         <div className="text-center space-y-6">
-          <h1 className="text-2xl font-bold" style={{ color: "#00FF00" }}>Jogo não encontrado</h1>
-          <p style={{ color: "#00AA00" }}>O jogo solicitado não existe ou foi removido.</p>
+          <h1 className="text-2xl font-bold" style={{ color: "#00FF00" }}>Juego no encontrado</h1>
+          <p style={{ color: "#00AA00" }}>El juego solicitado no existe o fue eliminado.</p>
           <Button onClick={() => navigate("/cassino")} style={{ background: "rgba(0,255,0,0.08)", border: "1px solid rgba(0,255,0,0.35)", color: "#00FF00" }}>
-            <ArrowLeft className="w-4 h-4 mr-2" />Voltar ao Cassino
+            <ArrowLeft className="w-4 h-4 mr-2" />Volver al Casino
           </Button>
         </div>
       </div>
@@ -432,7 +432,7 @@ const CasinoGame = () => {
 
   const IconComponent = gameConfig.icon;
   const gameUrl = house ? (house[gameConfig.urlField] as string | null) : null;
-  const buttonText = phase === 'result' ? (cooldown > 0 ? `Novo sinal (${cooldown}s)` : 'Novo sinal') : 'Identificar sinal';
+  const buttonText = phase === 'result' ? (cooldown > 0 ? `Nueva señal (${cooldown}s)` : 'Nueva señal') : 'Identificar señal';
   const isButtonDisabled = phase === 'loading' || cooldown > 0;
 
   return (
@@ -465,7 +465,7 @@ const CasinoGame = () => {
               boxShadow: isButtonDisabled ? 'none' : `0 0 20px ${gameConfig.buttonGlow}`,
             }}
           >
-            {phase === 'loading' ? <span className="flex items-center gap-2"><span className="animate-spin">⏳</span>Processando...</span> : buttonText}
+            {phase === 'loading' ? <span className="flex items-center gap-2"><span className="animate-spin">⏳</span>Procesando...</span> : buttonText}
           </Button>
         )}
 
@@ -474,7 +474,7 @@ const CasinoGame = () => {
           <div className="flex items-center justify-center py-12">
             <div className="text-center space-y-2">
               <div className="w-6 h-6 border-2 border-green-500 border-t-transparent rounded-full animate-spin mx-auto" />
-              <p className="text-xs text-gray-400">Carregando jogo...</p>
+              <p className="text-xs text-gray-400">Cargando juego...</p>
             </div>
           </div>
         ) : gameUrl ? (
@@ -493,7 +493,7 @@ const CasinoGame = () => {
         ) : (
           <div className="rounded-xl p-8 text-center" style={{ background: "rgba(0,10,0,0.4)", border: "1px solid rgba(0,255,0,0.1)" }}>
             <IconComponent className="w-10 h-10 mx-auto mb-3 opacity-30" style={{ color: "#00FF00" }} />
-            <p className="text-sm text-gray-500">Link não configurado pelo administrador.</p>
+            <p className="text-sm text-gray-500">Enlace no configurado por el administrador.</p>
           </div>
         )}
       </main>

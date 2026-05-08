@@ -19,44 +19,44 @@ type ActionType = "external_link" | "tips_tab" | "quiz" | "pay_card";
 
 const AUDIENCE_OPTIONS = [
   { value: "all", label: "Todos" },
-  { value: "free", label: "Só Free" },
-  { value: "basic", label: "Só Básico" },
-  { value: "pro", label: "Só Pro" },
-  { value: "ultra", label: "Só Ultra" },
-  { value: "no_alavancagem", label: "Sem Alavancagem" },
-  { value: "no_multiplas_bingo", label: "Sem Múltiplas / Bingo" },
-  { value: "no_live_telegram", label: "Sem Live Telegram" },
-  { value: "no_acesso_vitalicio", label: "Sem Acesso Vitalício" },
+  { value: "free", label: "Solo Gratis" },
+  { value: "basic", label: "Solo Básico" },
+  { value: "pro", label: "Solo Pro" },
+  { value: "ultra", label: "Solo Ultra" },
+  { value: "no_alavancagem", label: "Sin Apalancamiento" },
+  { value: "no_multiplas_bingo", label: "Sin Múltiples / Bingo" },
+  { value: "no_live_telegram", label: "Sin Live Telegram" },
+  { value: "no_acesso_vitalicio", label: "Sin Acceso Vitalicio" },
 ] as const;
 
 const VIEW_AS_OPTIONS = [
   { value: "admin", label: "Admin (Todos)", group: "admin" },
-  { value: "free", label: "Cliente Free", group: "tier" },
+  { value: "free", label: "Cliente Gratis", group: "tier" },
   { value: "basic", label: "Cliente Básico", group: "tier" },
   { value: "pro", label: "Cliente Pro", group: "tier" },
   { value: "ultra", label: "Cliente Ultra", group: "tier" },
-  { value: "no_alavancagem", label: "Sem Alavancagem", group: "addon" },
-  { value: "no_multiplas_bingo", label: "Sem Múltiplas / Bingo", group: "addon" },
-  { value: "no_live_telegram", label: "Sem Live Telegram", group: "addon" },
-  { value: "no_acesso_vitalicio", label: "Sem Acesso Vitalício", group: "addon" },
+  { value: "no_alavancagem", label: "Sin Apalancamiento", group: "addon" },
+  { value: "no_multiplas_bingo", label: "Sin Múltiples / Bingo", group: "addon" },
+  { value: "no_live_telegram", label: "Sin Live Telegram", group: "addon" },
+  { value: "no_acesso_vitalicio", label: "Sin Acceso Vitalicio", group: "addon" },
 ] as const;
 
 const LIMIT_CHECK_AUDIENCES = [
-  { key: "free", label: "Cliente Free" },
+  { key: "free", label: "Cliente Gratis" },
   { key: "basic", label: "Cliente Básico" },
   { key: "pro", label: "Cliente Pro" },
   { key: "ultra", label: "Cliente Ultra" },
-  { key: "no_alavancagem", label: "Sem Alavancagem" },
-  { key: "no_multiplas_bingo", label: "Sem Múltiplas / Bingo" },
-  { key: "no_live_telegram", label: "Sem Live Telegram" },
-  { key: "no_acesso_vitalicio", label: "Sem Acesso Vitalício" },
+  { key: "no_alavancagem", label: "Sin Apalancamiento" },
+  { key: "no_multiplas_bingo", label: "Sin Múltiples / Bingo" },
+  { key: "no_live_telegram", label: "Sin Live Telegram" },
+  { key: "no_acesso_vitalicio", label: "Sin Acceso Vitalicio" },
 ] as const;
 
 const ACTION_TYPE_OPTIONS = [
-  { value: "external_link", label: "Link Externo" },
-  { value: "tips_tab", label: "Aba de Tips" },
+  { value: "external_link", label: "Enlace Externo" },
+  { value: "tips_tab", label: "Pestaña de Tips" },
   { value: "quiz", label: "Abrir Quiz" },
-  { value: "pay_card", label: "Pay Card de Destino" },
+  { value: "pay_card", label: "Tarjeta de Pago de Destino" },
 ] as const;
 
 
@@ -95,7 +95,7 @@ const emptyForm = {
   tag: "",
   title: "",
   subtitle: "",
-  button_text: "Acesse aqui",
+  button_text: "Accede aquí",
   button_link: "",
   action_type: "external_link" as ActionType,
   action_value: "",
@@ -206,12 +206,12 @@ export default function AdminBanners() {
     const ext = file.name.split(".").pop();
     const path = `${crypto.randomUUID()}.${ext}`;
     const { error } = await supabase.storage.from("banners").upload(path, file);
-    if (error) { toast.error("Erro no upload: " + error.message); setUploading(false); return; }
+    if (error) { toast.error("Error al subir: " + error.message); setUploading(false); return; }
     const { data: urlData } = supabase.storage.from("banners").getPublicUrl(path);
     setForm((f) => ({ ...f, image_url: urlData.publicUrl }));
     setImageError("");
     setUploading(false);
-    toast.success("Imagem enviada!");
+    toast.success("¡Imagen enviada!");
   };
 
   const toLocalDatetime = (iso: string | null | undefined) => {
@@ -224,19 +224,19 @@ export default function AdminBanners() {
   const handleSave = async () => {
     // Validate image
     if (!form.image_url) {
-      setImageError("Imagem de fundo é obrigatória");
-      toast.error("Imagem de fundo é obrigatória");
+      setImageError("La imagen de fondo es obligatoria");
+      toast.error("La imagen de fondo es obligatoria");
       return;
     }
 
     // Validate action
     const actionType = form.action_type || "external_link";
     if (actionType === "external_link" && !form.action_value) {
-      toast.error("Preencha o link do botão");
+      toast.error("Completa el enlace del botón");
       return;
     }
     if (actionType === "pay_card" && !form.action_value) {
-      toast.error("Selecione um Pay Card de destino");
+      toast.error("Selecciona una Tarjeta de Pago de destino");
       return;
     }
 
@@ -256,7 +256,7 @@ export default function AdminBanners() {
       tag: "",
       title: "",
       subtitle: "",
-      button_text: form.button_text || "Acesse aqui",
+      button_text: form.button_text || "Accede aquí",
       button_link: buttonLink,
       action_type: actionType,
       action_value: (actionType === "quiz") ? null : (form.action_value || null),
@@ -269,10 +269,10 @@ export default function AdminBanners() {
     };
     if ((form as Banner).id) {
       const { error } = await supabase.from("content_banners").update(payload).eq("id", (form as Banner).id);
-      if (error) toast.error(error.message); else toast.success("Banner atualizado");
+      if (error) toast.error(error.message); else toast.success("Banner actualizado");
     } else {
       const { error } = await supabase.from("content_banners").insert(payload as any);
-      if (error) toast.error(error.message); else toast.success("Banner criado");
+      if (error) toast.error(error.message); else toast.success("Banner creado");
     }
     setSaving(false);
     setOpen(false);
@@ -305,7 +305,7 @@ export default function AdminBanners() {
     };
     const { error } = await supabase.from("content_banners").insert(payload as any);
     if (error) { toast.error(error.message); return; }
-    toast.success("Banner duplicado com sucesso");
+    toast.success("Banner duplicado con éxito");
     load();
   };
 
@@ -318,7 +318,7 @@ export default function AdminBanners() {
       } catch { /* ignore */ }
     }
     const { error } = await supabase.from("content_banners").delete().eq("id", b.id);
-    if (error) toast.error(error.message); else { toast.success("Excluído permanentemente"); load(); }
+    if (error) toast.error(error.message); else { toast.success("Eliminado permanentemente"); load(); }
   };
 
   const openNew = () => {
@@ -396,7 +396,7 @@ export default function AdminBanners() {
       supabase.from("content_banners").update({ display_order: i + 1 }).eq("id", b.id)
     );
     await Promise.all(updates);
-    toast.success("Ordem atualizada");
+    toast.success("Orden actualizado");
   };
 
   const renderScheduleInfo = (b: Banner) => {
@@ -409,13 +409,13 @@ export default function AdminBanners() {
     return (
       <div className="text-xs space-y-0.5">
         {isImmediate ? (
-          <span className="text-gray-400">Publicado em {format(start, "dd/MM/yyyy")}</span>
+          <span className="text-gray-400">Publicado el {format(start, "dd/MM/yyyy")}</span>
         ) : isFuture ? (
-          <span className="text-amber-400">Inicia em {format(start, "dd/MM/yyyy HH:mm")}</span>
+          <span className="text-amber-400">Comienza el {format(start, "dd/MM/yyyy HH:mm")}</span>
         ) : (
-          <span className="text-green-400">Ativo desde {format(start, "dd/MM/yyyy HH:mm")}</span>
+          <span className="text-green-400">Activo desde {format(start, "dd/MM/yyyy HH:mm")}</span>
         )}
-        {b.ends_at && <div className="text-gray-500">Até {format(new Date(b.ends_at), "dd/MM/yyyy HH:mm")}</div>}
+        {b.ends_at && <div className="text-gray-500">Hasta {format(new Date(b.ends_at), "dd/MM/yyyy HH:mm")}</div>}
       </div>
     );
   };
@@ -432,7 +432,7 @@ export default function AdminBanners() {
     if (at === "tips_tab") return <span className="text-blue-400 text-xs">Tips: {b.action_value}</span>;
     if (at === "pay_card") {
       const pc = payCardsList.find(p => p.id === b.action_value);
-      return <span className="text-amber-400 text-xs">Pay Card: {pc?.name || b.action_value?.slice(0,8)}</span>;
+      return <span className="text-amber-400 text-xs">Tarjeta de Pago: {pc?.name || b.action_value?.slice(0,8)}</span>;
     }
     return <span className="text-[10px] text-gray-500 truncate">{b.button_link || b.action_value}</span>;
   };
@@ -447,14 +447,14 @@ export default function AdminBanners() {
           <thead>
             <tr className="border-b border-white/10 text-left text-gray-500">
               {isActiveTab && viewAs === "admin" && <th className="px-1 py-2 w-8"></th>}
-              <th className="px-3 py-2">Preview</th>
-              <th className="px-3 py-2">Botão / Ação</th>
+              <th className="px-3 py-2">Vista previa</th>
+              <th className="px-3 py-2">Botón / Acción</th>
               <th className="px-3 py-2">Público</th>
               {isActiveTab && <th className="px-3 py-2">Programado</th>}
-              <th className="px-3 py-2 text-center">Impressões</th>
-              <th className="px-3 py-2 text-center">Cliques</th>
+              <th className="px-3 py-2 text-center">Impresiones</th>
+              <th className="px-3 py-2 text-center">Clics</th>
               <th className="px-3 py-2 text-center">CTR</th>
-              <th className="px-3 py-2">Ações</th>
+              <th className="px-3 py-2">Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -481,7 +481,7 @@ export default function AdminBanners() {
                       <img src={b.image_url} alt="" className="w-20 h-11 object-cover rounded-md border border-white/10" />
                     ) : (
                       <div className="w-20 h-11 rounded-md bg-gradient-to-br from-green-900 to-green-950 border border-white/10 flex items-center justify-center">
-                        <span className="text-[10px] text-gray-500">Sem imagem</span>
+                        <span className="text-[10px] text-gray-500">Sin imagen</span>
                       </div>
                     )}
                   </td>
@@ -503,18 +503,18 @@ export default function AdminBanners() {
                       )}
                       <button onClick={() => duplicateBanner(b)} className="text-cyan-400 hover:text-cyan-300" title="Duplicar"><Copy className="w-4 h-4" /></button>
                       {tabStatus === "active" && (
-                        <button onClick={() => setConfirmAction({ title: "Desativar banner?", description: "Ele não aparecerá mais no carrossel.", onConfirm: () => { changeStatus(b.id, "inactive"); setConfirmAction(null); } })} className="text-yellow-400 hover:text-yellow-300" title="Desativar"><Pause className="w-4 h-4" /></button>
+                        <button onClick={() => setConfirmAction({ title: "¿Desactivar banner?", description: "Ya no aparecerá en el carrusel.", onConfirm: () => { changeStatus(b.id, "inactive"); setConfirmAction(null); } })} className="text-yellow-400 hover:text-yellow-300" title="Desactivar"><Pause className="w-4 h-4" /></button>
                       )}
                       {tabStatus === "inactive" && (
-                        <button onClick={() => setConfirmAction({ title: "Ativar banner?", description: "Ele passará a aparecer no carrossel.", onConfirm: () => { changeStatus(b.id, "active"); setConfirmAction(null); } })} className="text-green-400 hover:text-green-300" title="Ativar"><Play className="w-4 h-4" /></button>
+                        <button onClick={() => setConfirmAction({ title: "¿Activar banner?", description: "Empezará a aparecer en el carrusel.", onConfirm: () => { changeStatus(b.id, "active"); setConfirmAction(null); } })} className="text-green-400 hover:text-green-300" title="Activar"><Play className="w-4 h-4" /></button>
                       )}
                       {tabStatus !== "deleted" && (
-                        <button onClick={() => setConfirmAction({ title: "Excluir banner?", description: "Ele será movido para a lixeira.", onConfirm: () => { changeStatus(b.id, "deleted"); setConfirmAction(null); } })} className="text-red-400 hover:text-red-300" title="Excluir"><Trash2 className="w-4 h-4" /></button>
+                        <button onClick={() => setConfirmAction({ title: "¿Eliminar banner?", description: "Será movido a la papelera.", onConfirm: () => { changeStatus(b.id, "deleted"); setConfirmAction(null); } })} className="text-red-400 hover:text-red-300" title="Eliminar"><Trash2 className="w-4 h-4" /></button>
                       )}
                       {tabStatus === "deleted" && (
                         <>
-                          <button onClick={() => setConfirmAction({ title: "Restaurar banner?", description: "Ele voltará para a aba Inativos.", onConfirm: () => { changeStatus(b.id, "inactive"); setConfirmAction(null); } })} className="text-blue-400 hover:text-blue-300" title="Restaurar"><RotateCcw className="w-4 h-4" /></button>
-                          <button onClick={() => setConfirmAction({ title: "Excluir permanentemente?", description: "Esta ação é irreversível.", onConfirm: () => { permanentDelete(b); setConfirmAction(null); } })} className="text-red-500 hover:text-red-400" title="Excluir permanentemente"><Trash2 className="w-4 h-4" /></button>
+                          <button onClick={() => setConfirmAction({ title: "¿Restaurar banner?", description: "Volverá a la pestaña Inactivos.", onConfirm: () => { changeStatus(b.id, "inactive"); setConfirmAction(null); } })} className="text-blue-400 hover:text-blue-300" title="Restaurar"><RotateCcw className="w-4 h-4" /></button>
+                          <button onClick={() => setConfirmAction({ title: "¿Eliminar permanentemente?", description: "Esta acción es irreversible.", onConfirm: () => { permanentDelete(b); setConfirmAction(null); } })} className="text-red-500 hover:text-red-400" title="Eliminar permanentemente"><Trash2 className="w-4 h-4" /></button>
                         </>
                       )}
                     </div>
@@ -523,7 +523,7 @@ export default function AdminBanners() {
               );
             })}
             {list.length === 0 && (
-              <tr><td colSpan={9} className="px-4 py-6 text-center text-gray-600">Nenhum banner</td></tr>
+              <tr><td colSpan={9} className="px-4 py-6 text-center text-gray-600">Ningún banner</td></tr>
             )}
           </tbody>
         </table>
@@ -531,7 +531,7 @@ export default function AdminBanners() {
     );
   };
 
-  if (loading) return <div className="text-gray-400">Carregando…</div>;
+  if (loading) return <div className="text-gray-400">Cargando…</div>;
 
   const isFormImageMissing = !form.image_url;
   const currentActionType = form.action_type || "external_link";
@@ -539,7 +539,7 @@ export default function AdminBanners() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold">Banners — {ctx === "futebol" ? "Futebol" : "Cassino"}</h2>
+        <h2 className="text-xl font-bold">Banners — {ctx === "futebol" ? "Fútbol" : "Casino"}</h2>
         <div className="flex items-center gap-3">
           <button
             onClick={() => setLimitModalOpen(true)}
@@ -548,12 +548,12 @@ export default function AdminBanners() {
                 ? "bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-500/20"
                 : "bg-green-500/10 border-green-500/30 text-green-400 hover:bg-green-500/20"
             }`}
-            title="Status de banners por tipo de cliente"
+            title="Estado de banners por tipo de cliente"
           >
             {hasOverLimit ? <AlertCircle className="w-3.5 h-3.5" /> : <CheckCircle className="w-3.5 h-3.5" />}
-            {hasOverLimit ? "Atenção" : "OK"}
+            {hasOverLimit ? "Atención" : "OK"}
           </button>
-          <Button size="sm" onClick={openNew}><Plus className="w-4 h-4" /> Novo</Button>
+          <Button size="sm" onClick={openNew}><Plus className="w-4 h-4" /> Nuevo</Button>
         </div>
       </div>
 
@@ -579,9 +579,9 @@ export default function AdminBanners() {
 
       <Tabs value={tab} onValueChange={(v) => setTab(v as BannerStatus)} className="w-full">
         <TabsList className="bg-gray-800/60 border border-white/10">
-          <TabsTrigger value="active" className="data-[state=active]:bg-green-600/20 data-[state=active]:text-green-400">Ativos ({allItems.filter(b => b.status === "active").length})</TabsTrigger>
-          <TabsTrigger value="inactive" className="data-[state=active]:bg-yellow-600/20 data-[state=active]:text-yellow-400">Inativos ({allItems.filter(b => b.status === "inactive").length})</TabsTrigger>
-          <TabsTrigger value="deleted" className="data-[state=active]:bg-red-600/20 data-[state=active]:text-red-400">Excluídos ({allItems.filter(b => b.status === "deleted").length})</TabsTrigger>
+          <TabsTrigger value="active" className="data-[state=active]:bg-green-600/20 data-[state=active]:text-green-400">Activos ({allItems.filter(b => b.status === "active").length})</TabsTrigger>
+          <TabsTrigger value="inactive" className="data-[state=active]:bg-yellow-600/20 data-[state=active]:text-yellow-400">Inactivos ({allItems.filter(b => b.status === "inactive").length})</TabsTrigger>
+          <TabsTrigger value="deleted" className="data-[state=active]:bg-red-600/20 data-[state=active]:text-red-400">Eliminados ({allItems.filter(b => b.status === "deleted").length})</TabsTrigger>
         </TabsList>
         <TabsContent value="active">{renderTable(items, "active")}</TabsContent>
         <TabsContent value="inactive">{renderTable(items, "inactive")}</TabsContent>
@@ -592,14 +592,14 @@ export default function AdminBanners() {
       <Dialog open={limitModalOpen} onOpenChange={setLimitModalOpen}>
         <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-md">
           <DialogHeader><DialogTitle>Banners por Tipo de Cliente</DialogTitle></DialogHeader>
-          <p className="text-xs text-gray-500 mb-3">Máximo recomendado: 5 banners ativos por tipo de cliente.</p>
+          <p className="text-xs text-gray-500 mb-3">Máximo recomendado: 5 banners activos por tipo de cliente.</p>
           <div className="rounded-lg border border-white/10 overflow-hidden">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-white/10 text-gray-500">
                   <th className="px-3 py-2 text-left">Tipo de Cliente</th>
                   <th className="px-3 py-2 text-center">Banners</th>
-                  <th className="px-3 py-2 text-center">Status</th>
+                  <th className="px-3 py-2 text-center">Estado</th>
                 </tr>
               </thead>
               <tbody>
@@ -609,7 +609,7 @@ export default function AdminBanners() {
                     <td className="px-3 py-2 text-center font-medium text-white">{d.count}</td>
                     <td className="px-3 py-2 text-center">
                       {d.over ? (
-                        <span className="text-red-400 text-xs">⚠️ Acima do limite</span>
+                        <span className="text-red-400 text-xs">⚠️ Por encima del límite</span>
                       ) : (
                         <span className="text-green-400 text-xs">✅ OK</span>
                       )}
@@ -639,19 +639,19 @@ export default function AdminBanners() {
       {/* Form Dialog */}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>{(form as Banner).id ? "Editar" : "Novo"} Banner</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{(form as Banner).id ? "Editar" : "Nuevo"} Banner</DialogTitle></DialogHeader>
 
           {(form as Banner).id && editAnalytics && (
             <div className="bg-gray-800/50 rounded-lg border border-white/10 p-4 space-y-3">
-              <h4 className="text-sm font-semibold text-gray-300">📊 Performance</h4>
+              <h4 className="text-sm font-semibold text-gray-300">📊 Rendimiento</h4>
               <div className="grid grid-cols-3 gap-3">
                 <div className="text-center">
                   <div className="text-2xl font-bold text-white">{editAnalytics.impressions}</div>
-                  <div className="text-xs text-gray-500">Impressões</div>
+                  <div className="text-xs text-gray-500">Impresiones</div>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-white">{editAnalytics.clicks}</div>
-                  <div className="text-xs text-gray-500">Cliques</div>
+                  <div className="text-xs text-gray-500">Clics</div>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-white">
@@ -661,7 +661,7 @@ export default function AdminBanners() {
                 </div>
               </div>
               <div>
-                <div className="text-xs text-gray-500 mb-1">Cliques — últimos 7 dias</div>
+                <div className="text-xs text-gray-500 mb-1">Clics — últimos 7 días</div>
                 <div className="flex items-end gap-1 h-12">
                   {editAnalytics.dailyClicks.map((d) => {
                     const max = Math.max(...editAnalytics.dailyClicks.map((x) => x.count), 1);
@@ -685,14 +685,14 @@ export default function AdminBanners() {
                 <Select value={form.context || ctx} onValueChange={(v) => setForm({ ...form, context: v })}>
                   <SelectTrigger className="bg-gray-800 border-gray-700"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="futebol">Futebol</SelectItem>
-                    <SelectItem value="cassino">Cassino</SelectItem>
+                    <SelectItem value="futebol">Fútbol</SelectItem>
+                    <SelectItem value="cassino">Casino</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div>
-                <Label className="text-gray-400 text-xs">Público-Alvo</Label>
+                <Label className="text-gray-400 text-xs">Público Objetivo</Label>
                 <Select value={form.target_audience || "all"} onValueChange={(v) => setForm({ ...form, target_audience: v })}>
                   <SelectTrigger className="bg-gray-800 border-gray-700"><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -704,13 +704,13 @@ export default function AdminBanners() {
               </div>
 
               <div>
-                <Label className="text-gray-400 text-xs">Imagem de Fundo <span className="text-red-400">*</span></Label>
+                <Label className="text-gray-400 text-xs">Imagen de Fondo <span className="text-red-400">*</span></Label>
                 <div className="flex items-center gap-1.5 mb-1.5 mt-0.5 px-2.5 py-1.5 rounded-lg text-[11px]" style={{ background: "rgba(234,179,8,0.08)", border: "1px solid rgba(234,179,8,0.25)", color: "#ca8a04" }}>
                   <span>📐</span>
-                  <span><strong>Mobile:</strong> 1080 × 200px &nbsp;•&nbsp; <strong>Desktop:</strong> 1920 × 400px</span>
+                  <span><strong>Móvil:</strong> 1080 × 200px &nbsp;•&nbsp; <strong>Escritorio:</strong> 1920 × 400px</span>
                 </div>
                 <div className="flex gap-2 items-center">
-                  <Input placeholder="URL da imagem" value={form.image_url ?? ""} onChange={(e) => { setForm({ ...form, image_url: e.target.value }); if (e.target.value) setImageError(""); }} className={`bg-gray-800 border-gray-700 flex-1 ${imageError ? "border-red-500" : ""}`} />
+                  <Input placeholder="URL de la imagen" value={form.image_url ?? ""} onChange={(e) => { setForm({ ...form, image_url: e.target.value }); if (e.target.value) setImageError(""); }} className={`bg-gray-800 border-gray-700 flex-1 ${imageError ? "border-red-500" : ""}`} />
                   <label className="cursor-pointer shrink-0">
                     <input type="file" accept="image/*" className="hidden" onChange={(e) => { if (e.target.files?.[0]) handleUpload(e.target.files[0]); }} />
                     <span className="inline-flex items-center gap-1 px-3 py-2 rounded-md bg-green-700 hover:bg-green-600 text-sm text-white transition-colors">
@@ -728,8 +728,8 @@ export default function AdminBanners() {
               </div>
 
               <div>
-                <Label className="text-gray-400 text-xs">Texto do Botão (máx 25)</Label>
-                <Input placeholder="Acesse aqui" maxLength={25} value={form.button_text ?? ""} onChange={(e) => setForm({ ...form, button_text: e.target.value })} className="bg-gray-800 border-gray-700" />
+                <Label className="text-gray-400 text-xs">Texto del Botón (máx 25)</Label>
+                <Input placeholder="Accede aquí" maxLength={25} value={form.button_text ?? ""} onChange={(e) => setForm({ ...form, button_text: e.target.value })} className="bg-gray-800 border-gray-700" />
               </div>
 
               {/* Action Type */}
@@ -747,50 +747,50 @@ export default function AdminBanners() {
 
               {currentActionType === "external_link" && (
                 <div>
-                  <Label className="text-gray-400 text-xs">Link do Botão <span className="text-red-400">*</span></Label>
-                  <Input placeholder="https://... ou /rota" value={form.action_value ?? ""} onChange={(e) => setForm({ ...form, action_value: e.target.value })} className="bg-gray-800 border-gray-700" />
+                  <Label className="text-gray-400 text-xs">Enlace del Botón <span className="text-red-400">*</span></Label>
+                  <Input placeholder="https://... o /ruta" value={form.action_value ?? ""} onChange={(e) => setForm({ ...form, action_value: e.target.value })} className="bg-gray-800 border-gray-700" />
                 </div>
               )}
 
               {currentActionType === "tips_tab" && (
-                <p className="text-xs text-gray-500">O banner direcionará para a aba de Tips (Futebol).</p>
+                <p className="text-xs text-gray-500">El banner dirigirá a la pestaña de Tips (Fútbol).</p>
               )}
 
               {currentActionType === "quiz" && (
-                <p className="text-xs text-gray-500">O quiz será aberto diretamente ao clicar no banner.</p>
+                <p className="text-xs text-gray-500">El quiz se abrirá directamente al hacer clic en el banner.</p>
               )}
 
               {currentActionType === "pay_card" && (
                 <div>
-                  <Label className="text-gray-400 text-xs">Pay Card de Destino <span className="text-red-400">*</span></Label>
+                  <Label className="text-gray-400 text-xs">Tarjeta de Pago de Destino <span className="text-red-400">*</span></Label>
                   <Select value={form.action_value || ""} onValueChange={(v) => setForm({ ...form, action_value: v })}>
-                    <SelectTrigger className="bg-gray-800 border-gray-700"><SelectValue placeholder="Selecione um Pay Card" /></SelectTrigger>
+                    <SelectTrigger className="bg-gray-800 border-gray-700"><SelectValue placeholder="Selecciona una Tarjeta de Pago" /></SelectTrigger>
                     <SelectContent>
                       {payCardsList.map((pc) => (
                         <SelectItem key={pc.id} value={pc.id}>{pc.name} ({pc.associated_plan})</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
-                  <p className="text-xs text-gray-500 mt-1">O funil do Pay Card será aberto ao clicar no banner.</p>
+                  <p className="text-xs text-gray-500 mt-1">El embudo de la Tarjeta de Pago se abrirá al hacer clic en el banner.</p>
                 </div>
               )}
 
               <div className="space-y-2">
                 <div className="flex items-center gap-3">
                   <Switch checked={scheduleEnabled} onCheckedChange={setScheduleEnabled} />
-                  <Label className="text-gray-300 text-sm cursor-pointer" onClick={() => setScheduleEnabled(!scheduleEnabled)}>Programar publicação</Label>
+                  <Label className="text-gray-300 text-sm cursor-pointer" onClick={() => setScheduleEnabled(!scheduleEnabled)}>Programar publicación</Label>
                 </div>
                 {!scheduleEnabled && (form as Banner).id && form.starts_at && (
-                  <p className="text-xs text-gray-500">Publicado em {format(new Date((form as Banner).created_at || form.starts_at!), "dd/MM/yyyy HH:mm")}</p>
+                  <p className="text-xs text-gray-500">Publicado el {format(new Date((form as Banner).created_at || form.starts_at!), "dd/MM/yyyy HH:mm")}</p>
                 )}
                 {scheduleEnabled && (
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <Label className="text-gray-400 text-xs">Início (Brasília)</Label>
+                      <Label className="text-gray-400 text-xs">Inicio (Santiago)</Label>
                       <Input type="datetime-local" value={form.starts_at ?? ""} onChange={(e) => setForm({ ...form, starts_at: e.target.value })} className="bg-gray-800 border-gray-700" />
                     </div>
                     <div>
-                      <Label className="text-gray-400 text-xs">Fim (opcional)</Label>
+                      <Label className="text-gray-400 text-xs">Fin (opcional)</Label>
                       <Input type="datetime-local" value={form.ends_at ?? ""} onChange={(e) => setForm({ ...form, ends_at: e.target.value })} className="bg-gray-800 border-gray-700" />
                     </div>
                   </div>
@@ -798,14 +798,14 @@ export default function AdminBanners() {
               </div>
 
               <Button onClick={handleSave} disabled={saving || isFormImageMissing} className={`w-full ${isFormImageMissing ? "opacity-50" : ""}`}>
-                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Salvar Banner"}
+                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Guardar Banner"}
               </Button>
-              {isFormImageMissing && <p className="text-red-400 text-xs text-center">Adicione uma imagem de fundo para salvar</p>}
+              {isFormImageMissing && <p className="text-red-400 text-xs text-center">Añade una imagen de fondo para guardar</p>}
             </div>
 
             {/* Right: Live preview */}
             <div>
-              <Label className="text-gray-400 text-xs mb-2 block">Preview</Label>
+              <Label className="text-gray-400 text-xs mb-2 block">Vista previa</Label>
               <div
                 className="relative overflow-hidden rounded-xl border aspect-video"
                 style={{ borderColor: "rgba(0,255,0,0.2)", boxShadow: "0 0 20px rgba(0,255,0,0.06)" }}
@@ -828,7 +828,7 @@ export default function AdminBanners() {
                   )}
                 </div>
               </div>
-              <p className="text-[11px] text-gray-500 mt-2 text-center">A imagem será exibida com apenas o botão centralizado</p>
+              <p className="text-[11px] text-gray-500 mt-2 text-center">La imagen se mostrará solo con el botón centrado</p>
             </div>
           </div>
         </DialogContent>

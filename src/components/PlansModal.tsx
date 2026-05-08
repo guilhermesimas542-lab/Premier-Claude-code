@@ -23,54 +23,54 @@ type Bullet = { label: string; available: boolean };
 
 const BULLETS: Record<PlanKey, Bullet[]> = {
   free: [
-    { label: "2 odds por dia", available: true },
-    { label: "Entrega via Telegram", available: true },
-    { label: "Odds Safes", available: false },
-    { label: "Odds Pró", available: false },
-    { label: "Mercados Secundários", available: false },
-    { label: "Alavancagem", available: false },
-    { label: "Múltiplas / Bingo", available: false },
+    { label: "2 cuotas por día", available: true },
+    { label: "Entrega vía Telegram", available: true },
+    { label: "Cuotas Safes", available: false },
+    { label: "Cuotas Pro", available: false },
+    { label: "Mercados Secundarios", available: false },
+    { label: "Apalancamiento", available: false },
+    { label: "Múltiples / Bingo", available: false },
     { label: "Ligas Americanas", available: false },
-    { label: "Odds Ultra", available: false },
+    { label: "Cuotas Ultra", available: false },
   ],
   premium: [
-    { label: "+20 odds por dia", available: true },
-    { label: "Entrega pelo app", available: true },
-    { label: "Odds Safes", available: true },
-    { label: "Odds Pró", available: true },
-    { label: "Odds Ultra", available: true },
-    { label: "Mercados Secundários", available: false },
-    { label: "Alavancagem", available: false },
-    { label: "Múltiplas / Bingo", available: false },
+    { label: "+20 cuotas por día", available: true },
+    { label: "Entrega por la app", available: true },
+    { label: "Cuotas Safes", available: true },
+    { label: "Cuotas Pro", available: true },
+    { label: "Cuotas Ultra", available: true },
+    { label: "Mercados Secundarios", available: false },
+    { label: "Apalancamiento", available: false },
+    { label: "Múltiples / Bingo", available: false },
     { label: "Ligas Americanas", available: false },
   ],
   diamante: [
-    { label: "+50 odds por dia", available: true },
-    { label: "Entrega pelo app", available: true },
-    { label: "Odds Safes", available: true },
-    { label: "Odds Pró", available: true },
-    { label: "Mercados Secundários", available: true },
-    { label: "Alavancagem", available: true },
-    { label: "Múltiplas / Bingo", available: true },
+    { label: "+50 cuotas por día", available: true },
+    { label: "Entrega por la app", available: true },
+    { label: "Cuotas Safes", available: true },
+    { label: "Cuotas Pro", available: true },
+    { label: "Mercados Secundarios", available: true },
+    { label: "Apalancamiento", available: true },
+    { label: "Múltiples / Bingo", available: true },
     { label: "Ligas Americanas", available: true },
-    { label: "Odds Ultra", available: true },
+    { label: "Cuotas Ultra", available: true },
   ],
 };
 
 const PLAN_META: Record<PlanKey, { title: string; color: string; price: string; suffix?: string; glow?: { border: string } }> = {
-  free: { title: "Free", color: "#94A3B8", price: "Grátis" },
+  free: { title: "Gratis", color: "#94A3B8", price: "Gratis" },
   premium: {
     title: "Premium",
     color: "#FACC15",
-    price: `R$ ${PRICES.premium}`,
-    suffix: "vitalício",
+    price: `$${PRICES.premium}`,
+    suffix: "vitalicio",
     glow: { border: "#FACC15" },
   },
   diamante: {
     title: "Diamante",
     color: "#A855F7",
-    price: `R$ ${PRICES.diamante_upgrade}`,
-    suffix: "vitalício",
+    price: `$${PRICES.diamante_upgrade}`,
+    suffix: "vitalicio",
     glow: { border: "#A855F7" },
   },
 };
@@ -171,17 +171,17 @@ export function PlansModal({ open, onClose }: Props) {
 
   const getCta = (plan: PlanKey): CtaSpec => {
     if (plan === "free") {
-      return { type: "telegram", label: "Grátis" };
+      return { type: "telegram", label: "Gratis" };
     }
     if (plan === "premium") {
       if (isPremium) return { type: "current" };
-      if (isDiamante) return { type: "info", label: "Incluso no Diamante" };
-      return { type: "button", label: `Assinar por R$ ${PRICES.premium}`, card: premiumCard };
+      if (isDiamante) return { type: "info", label: "Incluido en Diamante" };
+      return { type: "button", label: `Suscribirse por $${PRICES.premium}`, card: premiumCard };
     }
-    // diamante — sempre R$ 127, copy "Fazer Upgrade"
+    // diamante — sempre $127, copy "Mejorar Plan"
     if (isDiamante) return { type: "current" };
-    if (isPremium) return { type: "button", label: `Fazer Upgrade R$ ${PRICES.diamante_upgrade}`, card: upgradeCard };
-    return { type: "button", label: `Fazer Upgrade R$ ${PRICES.diamante_upgrade}`, card: diamanteCard };
+    if (isPremium) return { type: "button", label: `Mejorar Plan $${PRICES.diamante_upgrade}`, card: upgradeCard };
+    return { type: "button", label: `Mejorar Plan $${PRICES.diamante_upgrade}`, card: diamanteCard };
   };
 
   const renderCard = (plan: PlanKey) => {
@@ -252,7 +252,7 @@ export function PlansModal({ open, onClose }: Props) {
               className="w-full py-2 rounded-lg text-[11px] md:text-xs font-bold opacity-80 cursor-not-allowed"
               style={{ background: `${meta.color}26`, color: meta.color, border: `1px solid ${meta.color}` }}
             >
-              Plano atual
+              Plan actual
             </button>
           )}
           {cta.type === "info" && (
@@ -275,7 +275,7 @@ export function PlansModal({ open, onClose }: Props) {
               ) : cta.card ? (
                 cta.label
               ) : (
-                "Em breve"
+                "Próximamente"
               )}
             </button>
           )}
@@ -299,7 +299,7 @@ export function PlansModal({ open, onClose }: Props) {
         <button
           onClick={onClose}
           className="absolute top-3 right-3 p-1 rounded hover:bg-white/10 z-10"
-          aria-label="Fechar"
+          aria-label="Cerrar"
         >
           <X className="w-5 h-5" />
         </button>
@@ -308,7 +308,7 @@ export function PlansModal({ open, onClose }: Props) {
           className="text-2xl font-bold text-center mb-5"
           style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
         >
-          Compare os planos
+          Compara los planes
         </h2>
 
         <div className="flex flex-row gap-2 md:gap-3">

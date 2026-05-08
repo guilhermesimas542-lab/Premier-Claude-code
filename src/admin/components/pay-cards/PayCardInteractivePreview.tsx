@@ -68,7 +68,7 @@ export function PayCardInteractivePreview({ data }: { data: PreviewData }) {
   };
 
   const stepLabels: { key: Step; label: string }[] = [
-    { key: "trigger", label: "Gatilho" },
+    { key: "trigger", label: "Gatillo" },
     ...(hasIntro ? [{ key: "intro" as Step, label: "Intro" }] : []),
     ...(hasQuiz ? [{ key: "quiz" as Step, label: "Quiz" }] : []),
     { key: "checkout", label: "Checkout" },
@@ -77,7 +77,7 @@ export function PayCardInteractivePreview({ data }: { data: PreviewData }) {
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <span className="text-xs text-zinc-400 font-medium">Simulação da Experiência</span>
+        <span className="text-xs text-zinc-400 font-medium">Simulación de la Experiencia</span>
         <button onClick={reset} className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1">
           <RotateCcw className="w-3 h-3" /> Reiniciar
         </button>
@@ -88,14 +88,14 @@ export function PayCardInteractivePreview({ data }: { data: PreviewData }) {
         {/* TRIGGER */}
         {step === "trigger" && (
           <div className="p-6 flex flex-col items-center gap-3">
-            <p className="text-[10px] text-zinc-500 uppercase tracking-wider font-medium">Visão do usuário</p>
+            <p className="text-[10px] text-zinc-500 uppercase tracking-wider font-medium">Vista del usuario</p>
             <div onClick={advanceFromTrigger} className="cursor-pointer hover:scale-105 transition-transform">
               <PayCardMiniaturePreview
                 payCard={{ associated_plan: data.associated_plan || "basic", name: data.name }}
               />
             </div>
             <div className="flex items-center gap-1 text-[10px] text-zinc-500 animate-pulse">
-              <MousePointerClick className="w-3 h-3" /> Clique para simular
+              <MousePointerClick className="w-3 h-3" /> Haz clic para simular
             </div>
           </div>
         )}
@@ -143,7 +143,7 @@ export function PayCardInteractivePreview({ data }: { data: PreviewData }) {
         {step === "checkout" && (() => {
           if (checkoutTemplate !== "default") {
             return renderFinalTemplate(checkoutTemplate, {
-              title: data.checkout_title || "Perfeito para você!",
+              title: data.checkout_title || "¡Perfecto para ti!",
               benefits,
               checkoutLink: data.checkout_url || null,
               checkoutLink2: data.checkout_url_2 || null,
@@ -170,19 +170,19 @@ export function PayCardInteractivePreview({ data }: { data: PreviewData }) {
               {hasDualCheckout ? (
                 <div className="space-y-2">
                   <Button size="sm" className="w-full animate-[cta-pulse_2s_ease-in-out_infinite]" disabled style={buttonColor ? { backgroundColor: buttonColor } : undefined}>
-                    {data.checkout_label_1 || "Assinar Agora"} <ChevronRight className="w-3 h-3 ml-1" />
+                    {data.checkout_label_1 || "Suscribirme Ahora"} <ChevronRight className="w-3 h-3 ml-1" />
                   </Button>
                   <Button size="sm" className="w-full" variant="outline" disabled>
-                    {data.checkout_label_2 || "Pacote Completo"} <ChevronRight className="w-3 h-3 ml-1" />
+                    {data.checkout_label_2 || "Pack Completo"} <ChevronRight className="w-3 h-3 ml-1" />
                   </Button>
                 </div>
               ) : (
                 <Button size="sm" className="w-full animate-[cta-pulse_2s_ease-in-out_infinite]" disabled style={buttonColor ? { backgroundColor: buttonColor } : undefined}>
-                  {data.checkout_label_1 || "Assinar Agora"} <ChevronRight className="w-3 h-3 ml-1" />
+                  {data.checkout_label_1 || "Suscribirme Ahora"} <ChevronRight className="w-3 h-3 ml-1" />
                 </Button>
               )}
               {(!data.checkout_title && benefits.length === 0) && (
-                <p className="text-xs text-zinc-500 italic">Configure o checkout para ver o preview</p>
+                <p className="text-xs text-zinc-500 italic">Configura el checkout para ver la vista previa</p>
               )}
             </div>
           );

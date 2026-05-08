@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { isAuthenticated, clearAuth } from "@/lib/auth";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { getTodayInBrazil, formatDateTimeBR, BRAZIL_TZ } from "@/lib/timezone";
+import { getTodayInChile, formatDateTimeCL, CHILE_TZ } from "@/lib/timezone";
 import { toZonedTime } from "date-fns-tz";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -111,25 +111,25 @@ function featureToDisplayTier(f: FeatureKey): TierType {
 function featureToPlanKey(f: FeatureKey): string | null {
   switch (f) {
     case "alavancagem": return "alavancagem";
-    case "odds_safes": return "basic";
-    case "odds_pro": return "pro";
-    case "multiplas_bingo":
-    case "mercados_secundarios":
-    case "esportes_americanos":
-    case "odds_ultra": return "ultra";
+    case "multiplas_bingo": return "multiplas_bingo";
+    case "mercados_secundarios": return "mercados_secundarios";
+    case "esportes_americanos": return "esportes_americanos";
+    case "odds_safes":
+    case "odds_pro":
+    case "odds_ultra": return "premium";
     default: return null;
   }
 }
 
 function getFeatureLabel(f: FeatureKey): string {
   switch (f) {
-    case "odds_safes": return "Odds Safes";
-    case "odds_pro": return "Odds Pró";
-    case "alavancagem": return "Alavancagem";
-    case "multiplas_bingo": return "Múltiplas Bingo";
-    case "mercados_secundarios": return "Mercados Secundários";
-    case "esportes_americanos": return "Esportes Americanos";
-    case "odds_ultra": return "Odds Ultra";
+    case "odds_safes": return "Cuotas Safes";
+    case "odds_pro": return "Cuotas Pro";
+    case "alavancagem": return "Apalancamiento";
+    case "multiplas_bingo": return "Múltiples Bingo";
+    case "mercados_secundarios": return "Mercados Secundarios";
+    case "esportes_americanos": return "Deportes Americanos";
+    case "odds_ultra": return "Cuotas Ultra";
     default: return "Premium";
   }
 }
@@ -138,12 +138,12 @@ function calculateDisplayStatus(
   entry: ContentEntry,
   userFeatures: Set<string>,
 ): "unlocked" | "locked" | "expired" {
-  const now = toZonedTime(new Date(), BRAZIL_TZ);
+  const now = toZonedTime(new Date(), CHILE_TZ);
   if (entry.expires_at) {
-    if (now > toZonedTime(new Date(entry.expires_at), BRAZIL_TZ)) return "expired";
+    if (now > toZonedTime(new Date(entry.expires_at), CHILE_TZ)) return "expired";
   } else if (entry.starts_at) {
     const startsAt = new Date(entry.starts_at);
-    if (now > toZonedTime(new Date(startsAt.getTime() + 60 * 60 * 1000), BRAZIL_TZ)) return "expired";
+    if (now > toZonedTime(new Date(startsAt.getTime() + 60 * 60 * 1000), CHILE_TZ)) return "expired";
   }
   const feat = getEntryFeature(entry);
   if (feat === "free") return "unlocked";
@@ -175,14 +175,14 @@ const FEATURE_DISPLAY_ORDER: Record<FeatureKey, number> = {
 };
 
 const TAB_META: Record<FeatureKey, { label: string; labelShort: string; color: string }> = {
-  free:                 { label: "Odd Grátis",        labelShort: "Odd Grátis",        color: "#94A3B8" },
-  odds_safes:           { label: "Odds Safes",        labelShort: "Odds Safes",        color: "#60A5FA" },
-  odds_pro:             { label: "Odds Pró",          labelShort: "Odds Pró",          color: "#00E87A" },
-  alavancagem:          { label: "Alavancagem",       labelShort: "Alavancagem",       color: "#F0B429" },
-  multiplas_bingo:      { label: "Múltiplas",         labelShort: "Múltiplas",         color: "#FF6B9D" },
-  mercados_secundarios: { label: "Merc. Secundário",  labelShort: "Merc. Secundário",  color: "#A78BFA" },
+  free:                 { label: "Cuota Gratis",      labelShort: "Cuota Gratis",      color: "#94A3B8" },
+  odds_safes:           { label: "Cuotas Safes",      labelShort: "Cuotas Safes",      color: "#60A5FA" },
+  odds_pro:             { label: "Cuotas Pro",        labelShort: "Cuotas Pro",        color: "#00E87A" },
+  alavancagem:          { label: "Apalancamiento",    labelShort: "Apalancamiento",    color: "#F0B429" },
+  multiplas_bingo:      { label: "Múltiples",         labelShort: "Múltiples",         color: "#FF6B9D" },
+  mercados_secundarios: { label: "Merc. Secundario",  labelShort: "Merc. Secundario",  color: "#A78BFA" },
   esportes_americanos:  { label: "Ligas Americanas",  labelShort: "Ligas Americanas",  color: "#EF4444" },
-  odds_ultra:           { label: "Odds Ultra",        labelShort: "Odds Ultra",        color: "#22D3EE" },
+  odds_ultra:           { label: "Cuotas Ultra",      labelShort: "Cuotas Ultra",      color: "#22D3EE" },
 };
 
 const Sport = () => {
@@ -270,7 +270,7 @@ const Sport = () => {
     try {
       const mockUser = mockGetUser();
       if (!mockUser) {
-        setError("Usuário não autenticado");
+        setError("Usuario no autenticado");
         setIsLoading(false);
         return;
       }
@@ -302,8 +302,8 @@ const Sport = () => {
       const _isPaidUser = userTier !== "free";
       setIsPaidUser(_isPaidUser);
       setUserTier(userTier);
-      const today = getTodayInBrazil();
-      console.log("[Sport] getTodayInBrazil() =", today, "| UTC now =", new Date().toISOString());
+      const today = getTodayInChile();
+      console.log("[Sport] getTodayInChile() =", today, "| UTC now =", new Date().toISOString());
 
       const { data: entries, error: fetchError } = await supabase
         .from("content_entries")
@@ -316,7 +316,7 @@ const Sport = () => {
 
       if (fetchError) {
         console.error("Erro ao buscar entries:", fetchError);
-        setError("Erro ao carregar tips");
+        setError("Error al cargar tips");
         return;
       }
 
@@ -341,7 +341,7 @@ const Sport = () => {
       setTips(processed);
     } catch (err) {
       console.error("Erro inesperado:", err);
-      setError("Erro inesperado ao carregar tips");
+      setError("Error inesperado al cargar tips");
     } finally {
       setIsLoading(false);
     }
@@ -351,12 +351,12 @@ const Sport = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const activeEntries = useMemo(() => {
     const filtered = tips.filter(entry => {
-      const now = toZonedTime(new Date(), BRAZIL_TZ);
+      const now = toZonedTime(new Date(), CHILE_TZ);
       if (entry.starts_at) {
         const expiryFromStart = new Date(new Date(entry.starts_at).getTime() + 60 * 60 * 1000);
-        if (now > toZonedTime(expiryFromStart, BRAZIL_TZ)) return false;
+        if (now > toZonedTime(expiryFromStart, CHILE_TZ)) return false;
       }
-      if (entry.expires_at && now > toZonedTime(new Date(entry.expires_at), BRAZIL_TZ)) return false;
+      if (entry.expires_at && now > toZonedTime(new Date(entry.expires_at), CHILE_TZ)) return false;
       return true;
     });
     const getSortTime = (entry: DisplayTip): number => {
@@ -397,7 +397,7 @@ const Sport = () => {
   const scrollToFeature = (f: FeatureKey) => {
     const firstIndex = getFirstIndexOfFeature(f);
     if (firstIndex === -1) {
-      toast.info(`Sem entradas de ${TAB_META[f].label} hoje`);
+      toast.info(`Sin tips de ${TAB_META[f].label} hoy`);
       return;
     }
     const targetCard = activeCardRefs.current[firstIndex];
@@ -473,7 +473,7 @@ const Sport = () => {
 
   const handleLogout = () => {
     clearAuth();
-    toast.success("Logout realizado com sucesso");
+    toast.success("Sesión cerrada exitosamente");
     navigate("/login");
   };
 
@@ -520,8 +520,8 @@ const Sport = () => {
             iframeRef.current?.contentWindow?.postMessage(message, targetOrigin);
           }, delay);
         });
-        toast.success("Tip adicionada ao bilhete!", {
-          description: "Seleção enviada para o cupom de apostas",
+        toast.success("¡Tip añadido al ticket!", {
+          description: "Selección enviada al cupón de apuestas",
         });
         setTimeout(() => {
           window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
@@ -529,7 +529,7 @@ const Sport = () => {
       } else {
         // Fallback: iframe ainda não montado (caso defensivo). Enfileira e navega.
         setPendingTip({ tipId: entry.id, selections: wsdkSelections });
-        toast("Abrindo bilhete...");
+        toast("Abriendo ticket...");
         navigate("/sport/futebol");
       }
     } else {
@@ -538,16 +538,16 @@ const Sport = () => {
       if (url) {
         if (userHouse?.force_sports_link_new_tab) {
           window.open(url, '_blank', 'noopener,noreferrer');
-          toast.success("Tip adicionada!", { description: "Link aberto em nova aba" });
+          toast.success("¡Tip añadida!", { description: "Enlace abierto en nueva pestaña" });
         } else {
           setIframeUrl(url);
-          toast.success("Tip adicionada!", { description: "Cupom carregado no site de apostas abaixo" });
+          toast.success("¡Tip añadida!", { description: "Cupón cargado en el sitio de apuestas abajo" });
           setTimeout(() => {
             window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
           }, 100);
         }
       } else {
-        toast.info("Nenhum link de bilhete configurado para esta tip.");
+        toast.info("No hay enlace de ticket configurado para este tip.");
       }
     }
   };
@@ -586,7 +586,7 @@ const Sport = () => {
     const lockedLabel = isLocked ? getFeatureLabel(feat) : undefined;
 
     const team1 = {
-      name: entry.team1_name || "Time 1",
+      name: entry.team1_name || "Equipo 1",
       logo: entry.team1_logo_url || undefined,
       shirt: (!entry.team1_logo_url && entry.team1_shirt_variant) ? {
         variant: entry.team1_shirt_variant as "solid" | "stripes",
@@ -595,7 +595,7 @@ const Sport = () => {
       } : undefined,
     };
     const team2 = {
-      name: entry.team2_name || "Time 2",
+      name: entry.team2_name || "Equipo 2",
       logo: entry.team2_logo_url || undefined,
       shirt: (!entry.team2_logo_url && entry.team2_shirt_variant) ? {
         variant: entry.team2_shirt_variant as "solid" | "stripes",
@@ -607,7 +607,7 @@ const Sport = () => {
     const market = entry.category || entry.title;
     const betChoice = entry.condition_to_win || entry.title;
     const matchDate = entry.starts_at
-      ? formatDateTimeBR(entry.starts_at, 'HH:mm')
+      ? formatDateTimeCL(entry.starts_at, 'HH:mm')
       : undefined;
     const expirationDate = entry.expires_at || undefined;
     const startsAt = entry.starts_at || undefined;
@@ -686,13 +686,13 @@ const Sport = () => {
           type="button"
           onClick={() => tabsScrollRef.current?.scrollBy({ left: tabsScrollRef.current.clientWidth * 0.8, behavior: 'smooth' })}
           className="relative flex items-center justify-center pt-4 pb-3 px-1 w-full cursor-pointer"
-          aria-label="Ver mais mercados"
+          aria-label="Ver más mercados"
         >
           <h2
             className="text-white font-bold"
             style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 15 }}
           >
-            Mercados disponíveis
+            Mercados disponibles
           </h2>
           <ChevronRight className="w-5 h-5 text-white/60 absolute right-1" />
         </button>
@@ -757,14 +757,14 @@ const Sport = () => {
         {isLoading && (
           <div className="flex items-center justify-center py-20">
             <Loader2 className="w-8 h-8 text-primary animate-spin" />
-            <span className="ml-3 text-muted-foreground">Carregando tips...</span>
+            <span className="ml-3 text-muted-foreground">Cargando tips...</span>
           </div>
         )}
 
         {error && !isLoading && (
           <div className="flex flex-col items-center justify-center py-20 gap-4">
             <p className="text-destructive">{error}</p>
-            <Button onClick={fetchTips} variant="outline" size="sm">Tentar novamente</Button>
+            <Button onClick={fetchTips} variant="outline" size="sm">Inténtalo de nuevo</Button>
           </div>
         )}
 
@@ -822,12 +822,12 @@ const Sport = () => {
               style={{ background: "rgba(255,255,255,0.03)", borderColor: "rgba(255,255,255,0.15)" }}
             >
               <p className="text-base" style={{ color: "rgba(255,255,255,0.6)" }}>
-                As entradas de hoje expiraram.
+                Los tips de hoy expiraron.
               </p>
               <p className="text-lg font-bold mb-2" style={{ color: "#00FF00" }}>
-                Amanhã teremos novas entradas!
+                ¡Mañana tendremos nuevos tips!
               </p>
-              <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>Próximas entradas em</p>
+              <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>Próximos tips en</p>
               <span
                 className="text-3xl font-mono font-bold tabular-nums"
                 style={{ color: "#FFFFFF", textShadow: "0 0 14px rgba(0,255,0,0.4)" }}
@@ -857,8 +857,8 @@ const Sport = () => {
                   <Crown className="w-5 h-5" style={{ color: "#00FF00" }} />
                 </div>
                 <div>
-                  <h2 className="text-lg font-bold" style={{ color: "#FFFFFF" }}>Parabéns! 🎉</h2>
-                  <p className="text-xs mt-0.5" style={{ color: "#AAAAAA" }}>Membro Vitalício</p>
+                  <h2 className="text-lg font-bold" style={{ color: "#FFFFFF" }}>¡Felicitaciones! 🎉</h2>
+                  <p className="text-xs mt-0.5" style={{ color: "#AAAAAA" }}>Miembro Vitalicio</p>
                 </div>
               </div>
               <button onClick={() => setShowLifetimeInfoModal(false)} className="absolute top-4 right-4 p-1.5 rounded-lg transition-colors hover:bg-[rgba(0,255,0,0.08)]">
@@ -867,12 +867,12 @@ const Sport = () => {
             </div>
             <div className="px-6 py-6">
               <p className="text-sm leading-relaxed" style={{ color: "#CCCCCC" }}>
-                Você tem <span style={{ color: "#00FF00", fontWeight: 600 }}>acesso vitalício e ilimitado</span> a todas as funcionalidades e futuras atualizações do Premier Ultra. Aproveite!
+                Tienes <span style={{ color: "#00FF00", fontWeight: 600 }}>acceso vitalicio e ilimitado</span> a todas las funcionalidades y futuras actualizaciones de Premier Ultra. ¡Disfruta!
               </p>
             </div>
             <div className="px-6 pb-6">
               <button onClick={() => setShowLifetimeInfoModal(false)} className="w-full py-3 rounded-xl font-medium transition-colors" style={{ background: "rgba(0,255,0,0.08)", border: "1px solid rgba(0,255,0,0.3)", color: "#FFFFFF" }}>
-                Entendi
+                Entendido
               </button>
             </div>
           </div>

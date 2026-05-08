@@ -17,7 +17,7 @@ export function SupportRoomModal({ open, onClose, telegramSupportUrl }: Props) {
         <button
           onClick={onClose}
           className="absolute top-3 right-3 p-1 rounded hover:bg-white/10"
-          aria-label="Fechar"
+          aria-label="Cerrar"
         >
           <X className="w-5 h-5" />
         </button>
@@ -27,10 +27,10 @@ export function SupportRoomModal({ open, onClose, telegramSupportUrl }: Props) {
             className="text-2xl font-bold leading-tight"
             style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
           >
-            Liberar Acesso à Sala de Sinais
+            Desbloquear Acceso a la Sala de Señales
           </h2>
           <p className="text-sm text-white/70">
-            Fale com nosso suporte no Telegram e receba o acesso à Sala de Sinais + um guia rápido de como aproveitar.
+            Habla con nuestro soporte en Telegram y recibe el acceso a la Sala de Señales + una guía rápida de cómo aprovechar.
           </p>
 
           <button
@@ -46,7 +46,7 @@ export function SupportRoomModal({ open, onClose, telegramSupportUrl }: Props) {
             }}
           >
             <Send className="w-5 h-5" />
-            Pegar acesso com o suporte
+            Conseguir acceso con soporte
           </button>
         </div>
       </DialogContent>

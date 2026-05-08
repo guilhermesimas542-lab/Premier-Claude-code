@@ -61,7 +61,7 @@ export default function AdminPredictions() {
 
   const handleSave = async () => {
     if (!form.prediction.trim() || !form.market.trim()) {
-      toast.error("Palpite e Mercado são obrigatórios");
+      toast.error("Pronóstico y Mercado son obligatorios");
       return;
     }
     setSaving(true);
@@ -74,11 +74,11 @@ export default function AdminPredictions() {
     if (editingId) {
       const { error } = await supabase.from("market_predictions").update(payload).eq("id", editingId);
       if (error) toast.error(error.message);
-      else toast.success("Atualizado!");
+      else toast.success("¡Actualizado!");
     } else {
       const { error } = await supabase.from("market_predictions").insert(payload);
       if (error) toast.error(error.message);
-      else toast.success("Criado!");
+      else toast.success("¡Creado!");
     }
     setSaving(false);
     setDialogOpen(false);
@@ -86,30 +86,30 @@ export default function AdminPredictions() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Excluir este palpite/mercado?")) return;
+    if (!confirm("¿Eliminar este pronóstico/mercado?")) return;
     const { error } = await supabase.from("market_predictions").delete().eq("id", id);
     if (error) toast.error(error.message);
-    else { toast.success("Excluído!"); fetchItems(); }
+    else { toast.success("¡Eliminado!"); fetchItems(); }
   };
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold">Palpites / Mercado</h2>
-        <Button onClick={openNew} size="sm"><Plus className="w-4 h-4 mr-1" /> Adicionar</Button>
+        <h2 className="text-xl font-bold">Pronósticos / Mercado</h2>
+        <Button onClick={openNew} size="sm"><Plus className="w-4 h-4 mr-1" /> Añadir</Button>
       </div>
 
       {loading ? (
         <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>
       ) : items.length === 0 ? (
-        <p className="text-muted-foreground text-sm text-center py-8">Nenhum palpite cadastrado ainda.</p>
+        <p className="text-muted-foreground text-sm text-center py-8">Ningún pronóstico registrado todavía.</p>
       ) : (
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead onClick={() => toggleSort("prediction")} className="cursor-pointer select-none hover:text-white transition-colors">
                 <span className="inline-flex items-center gap-1">
-                  Palpite
+                  Pronóstico
                   <span className="text-xs opacity-50">{sortField === "prediction" ? (sortDir === "asc" ? "▲" : "▼") : "⇅"}</span>
                 </span>
               </TableHead>
@@ -121,11 +121,11 @@ export default function AdminPredictions() {
               </TableHead>
               <TableHead onClick={() => toggleSort("market_explanation")} className="cursor-pointer select-none hover:text-white transition-colors">
                 <span className="inline-flex items-center gap-1">
-                  Explicação
+                  Explicación
                   <span className="text-xs opacity-50">{sortField === "market_explanation" ? (sortDir === "asc" ? "▲" : "▼") : "⇅"}</span>
                 </span>
               </TableHead>
-              <TableHead className="w-24">Ações</TableHead>
+              <TableHead className="w-24">Acciones</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -149,7 +149,7 @@ export default function AdminPredictions() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editingId ? "Editar" : "Novo"} Palpite/Mercado</DialogTitle>
+            <DialogTitle>{editingId ? "Editar" : "Nuevo"} Pronóstico/Mercado</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
             <div>
@@ -161,15 +161,15 @@ export default function AdminPredictions() {
               <Input value={form.market} onChange={(e) => setForm(f => ({ ...f, market: e.target.value }))} placeholder="Ex: Over/Under" />
             </div>
             <div>
-              <label className="text-xs text-muted-foreground">Explicação do mercado</label>
-              <Textarea value={form.market_explanation} onChange={(e) => setForm(f => ({ ...f, market_explanation: e.target.value }))} rows={3} placeholder="Texto do tooltip (?)" />
+              <label className="text-xs text-muted-foreground">Explicación del mercado</label>
+              <Textarea value={form.market_explanation} onChange={(e) => setForm(f => ({ ...f, market_explanation: e.target.value }))} rows={3} placeholder="Texto del tooltip (?)" />
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancelar</Button>
             <Button onClick={handleSave} disabled={saving}>
               {saving && <Loader2 className="w-4 h-4 animate-spin mr-1" />}
-              Salvar
+              Guardar
             </Button>
           </DialogFooter>
         </DialogContent>

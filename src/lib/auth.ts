@@ -10,6 +10,17 @@ export function clearAuth(): void {
   mockLogout();
 }
 
+function tierToPurchasedPlan(tier: string): number {
+  switch (tier) {
+    case "diamante":
+    case "ultra": return 3;
+    case "pro": return 2;
+    case "premium":
+    case "basic": return 1;
+    default: return 0;
+  }
+}
+
 export function getStoredConfig(): AppConfig | null {
   const user = mockGetUser();
   if (!user) return null;
@@ -32,7 +43,7 @@ export function getStoredConfig(): AppConfig | null {
       userMail: user.email,
       accountType: 0,
       status: 1,
-      purchasedPlan: 3, // ULTRA
+      purchasedPlan: tierToPurchasedPlan(user.mainTier),
       id: 1,
       aff: 0,
       telegran: 0,

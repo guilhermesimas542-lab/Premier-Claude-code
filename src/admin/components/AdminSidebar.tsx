@@ -44,7 +44,7 @@ export function AdminSidebar() {
 
   const futebolSections: Section[] = [
     {
-      label: "Gestão",
+      label: "Gestión",
       items: [
         { to: "/admin", icon: LayoutDashboard, label: "Dashboard", end: true },
         { to: "/admin/banners", icon: Image, label: "Banners" },
@@ -55,53 +55,53 @@ export function AdminSidebar() {
           badge: counts.clients,
           children: [
             { to: "/admin/clients", icon: List, label: "Lista de Clientes", end: true },
-            { to: "/admin/clients/nao-acessou", icon: UserX, label: "Não Acessou" },
-            { to: "/admin/clients/free", icon: UserCheck, label: "Clientes Free" },
-            { to: "/admin/clients/create", icon: UserPlus, label: "Cadastrar Novo" },
+            { to: "/admin/clients/nao-acessou", icon: UserX, label: "Inactivos" },
+            { to: "/admin/clients/free", icon: UserCheck, label: "Clientes Gratis" },
+            { to: "/admin/clients/create", icon: UserPlus, label: "Registrar Nuevo" },
           ],
         },
-        { to: "/admin/notifications", icon: Bell, label: "Notificações" },
+        { to: "/admin/notifications", icon: Bell, label: "Notificaciones" },
       ],
     },
     {
-      label: "Entradas",
+      label: "Tips",
       items: [
-        { to: "/admin/tips/create", icon: PlusCircle, label: "Tips: Cadastrar" },
+        { to: "/admin/tips/create", icon: PlusCircle, label: "Tips: Registrar" },
         { to: "/admin/tips/list", icon: List, label: "Tips: Listar", badge: counts.tips, badgeColor: "bg-blue-500" },
         { to: "/admin/tips/analytics", icon: BarChart3, label: "Analytics" },
-        { to: "/admin/teams", icon: Shield, label: "Times (Logos)" },
-        { to: "/admin/predictions", icon: Layers, label: "Palpites/Mercado" },
+        { to: "/admin/teams", icon: Shield, label: "Equipos (Logos)" },
+        { to: "/admin/predictions", icon: Layers, label: "Pronósticos/Mercado" },
       ],
     },
     {
-      label: "Links e Pop-ups",
+      label: "Enlaces y Pop-ups",
       items: [
-        { to: "/admin/default-links", icon: Link, label: "Links Padrão" },
-        { to: "/admin/popups", icon: Layers, label: "Pop-ups e Funis" },
-        { to: "/admin/cards", icon: Layers, label: "Cards e Funis" },
+        { to: "/admin/default-links", icon: Link, label: "Enlaces por Defecto" },
+        { to: "/admin/popups", icon: Layers, label: "Pop-ups y Embudos" },
+        { to: "/admin/cards", icon: Layers, label: "Cards y Embudos" },
         { to: "/admin/pay-cards", icon: CreditCard, label: "Pay Cards" },
       ],
     },
     {
       label: "Analytics",
       items: [
-        { to: "/admin/analytics", icon: BarChart3, label: "Visão Geral" },
+        { to: "/admin/analytics", icon: BarChart3, label: "Visión General" },
         { to: "/admin/analytics/events", icon: Activity, label: "Eventos" },
         { to: "/admin/ranking", icon: Trophy, label: "Ranking" },
-        { to: "/admin/errors", icon: Bug, label: "Erros", badge: counts.errors },
+        { to: "/admin/errors", icon: Bug, label: "Errores", badge: counts.errors },
         { to: "/admin/feedback", icon: MessageSquare, label: "Feedback", badge: counts.feedback },
       ],
     },
     {
-      label: "Finanças",
+      label: "Finanzas",
       items: [
-        { to: "/admin/revenue", icon: DollarSign, label: "Receita" },
+        { to: "/admin/revenue", icon: DollarSign, label: "Ingresos" },
       ],
     },
     {
-      label: "Integrações",
+      label: "Integraciones",
       items: [
-        { to: "/admin/betting-houses", icon: Home, label: "Casas Parceiras" },
+        { to: "/admin/betting-houses", icon: Home, label: "Casas Asociadas" },
         { to: "/admin/webhook", icon: Zap, label: "Webhook" },
       ],
     },
@@ -109,7 +109,7 @@ export function AdminSidebar() {
 
   const cassinoSections: Section[] = [
     {
-      label: "Gestão",
+      label: "Gestión",
       items: [
         { to: "/admin/cassino", icon: LayoutDashboard, label: "Dashboard", end: true },
       ],
@@ -117,13 +117,13 @@ export function AdminSidebar() {
     {
       label: "Analytics",
       items: [
-        { to: "/admin/cassino/analytics", icon: BarChart3, label: "Visão Geral" },
+        { to: "/admin/cassino/analytics", icon: BarChart3, label: "Visión General" },
       ],
     },
     {
-      label: "Finanças",
+      label: "Finanzas",
       items: [
-        { to: "/admin/cassino/revenue", icon: DollarSign, label: "Receita" },
+        { to: "/admin/cassino/revenue", icon: DollarSign, label: "Ingresos" },
       ],
     },
   ];
@@ -179,7 +179,7 @@ export function AdminSidebar() {
                 mode === "futebol" ? "bg-blue-600 text-white" : "text-gray-400 hover:text-white"
               }`}
             >
-              ⚽ Futebol
+              ⚽ Fútbol
             </button>
             <button
               onClick={() => setMode("cassino")}
@@ -187,7 +187,7 @@ export function AdminSidebar() {
                 mode === "cassino" ? "bg-purple-600 text-white" : "text-gray-400 hover:text-white"
               }`}
             >
-              🎰 Cassino
+              🎰 Casino
             </button>
           </div>
         </div>

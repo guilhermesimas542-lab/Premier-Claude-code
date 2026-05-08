@@ -60,13 +60,13 @@ export default function AdminWebhook() {
     <div className="p-4 md:p-6 space-y-6">
       <div className="flex items-center gap-3">
         <Zap className="w-6 h-6 text-yellow-400" />
-        <h1 className="text-xl font-bold text-white">Webhook & Integrações</h1>
+        <h1 className="text-xl font-bold text-white">Webhook e Integraciones</h1>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
           <TabsTrigger value="logs">Logs de Webhook</TabsTrigger>
-          <TabsTrigger value="catalog">Catálogo de Produtos</TabsTrigger>
+          <TabsTrigger value="catalog">Catálogo de Productos</TabsTrigger>
           <TabsTrigger value="raw">Logs Brutos</TabsTrigger>
         </TabsList>
 
@@ -164,13 +164,13 @@ function WebhookLogsTab() {
       );
       const data = await res.json();
       if (res.ok) {
-        toast.success("Webhook re-processado com sucesso!");
+        toast.success("¡Webhook reprocesado con éxito!");
       } else {
-        toast.error(`Falha: ${data.error ?? data.message ?? "Erro desconhecido"}`);
+        toast.error(`Falla: ${data.error ?? data.message ?? "Error desconocido"}`);
       }
       fetchLogs();
     } catch (err) {
-      toast.error(`Erro ao re-processar: ${String(err)}`);
+      toast.error(`Error al reprocesar: ${String(err)}`);
     }
   };
 
@@ -202,17 +202,17 @@ function WebhookLogsTab() {
         <StatusCard
           icon={<Zap className="w-5 h-5 text-green-400" />}
           label="Endpoint"
-          value="Ativo"
+          value="Activo"
           sub="verify_jwt = false"
         />
         <StatusCard
           icon={<CheckCircle2 className="w-5 h-5 text-blue-400" />}
-          label="Webhooks Hoje"
+          label="Webhooks Hoy"
           value={String(todayLogs.length)}
         />
         <StatusCard
           icon={<AlertTriangle className="w-5 h-5 text-red-400" />}
-          label="Erros Hoje"
+          label="Errores Hoy"
           value={String(todayErrors.length)}
         />
       </div>
@@ -224,14 +224,14 @@ function WebhookLogsTab() {
           size="sm"
           onClick={() => setEventFilter("approved")}
         >
-          🛒 Compras Aprovadas
+          🛒 Compras Aprobadas
         </Button>
         <Button
           variant={eventFilter === "all" ? "default" : "outline"}
           size="sm"
           onClick={() => setEventFilter("all")}
         >
-          Todos os Eventos
+          Todos los Eventos
         </Button>
         <span className="w-px bg-white/10 mx-1" />
         {(["all", "ok", "error"] as const).map((f) => (
@@ -241,12 +241,12 @@ function WebhookLogsTab() {
             size="sm"
             onClick={() => setFilter(f)}
           >
-            {f === "all" ? "Todos" : f === "ok" ? "✅ OK" : "❌ Erro"}
+            {f === "all" ? "Todos" : f === "ok" ? "✅ OK" : "❌ Error"}
           </Button>
         ))}
         <Button variant="outline" size="sm" onClick={fetchLogs} disabled={loading}>
           <RefreshCw className={`w-4 h-4 mr-1 ${loading ? "animate-spin" : ""}`} />
-          Atualizar
+          Actualizar
         </Button>
         <Button size="sm" onClick={() => setSimModalOpen(true)}>
           <Play className="w-4 h-4 mr-1" /> Simular Compra
@@ -256,12 +256,12 @@ function WebhookLogsTab() {
       {/* Date + Email filters */}
       <div className="flex flex-wrap gap-2 items-end">
         <div>
-          <label className="text-xs text-gray-400 block mb-1">Data Início</label>
+          <label className="text-xs text-gray-400 block mb-1">Fecha Inicio</label>
           <Popover>
             <PopoverTrigger asChild>
               <Button variant="outline" size="sm" className={cn("w-[150px] justify-start text-left font-normal", !startDate && "text-muted-foreground")}>
                 <CalendarIcon className="w-3.5 h-3.5 mr-1" />
-                {startDate ? format(startDate, "dd/MM/yyyy") : "Selecionar"}
+                {startDate ? format(startDate, "dd/MM/yyyy") : "Seleccionar"}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
@@ -270,12 +270,12 @@ function WebhookLogsTab() {
           </Popover>
         </div>
         <div>
-          <label className="text-xs text-gray-400 block mb-1">Data Fim</label>
+          <label className="text-xs text-gray-400 block mb-1">Fecha Fin</label>
           <Popover>
             <PopoverTrigger asChild>
               <Button variant="outline" size="sm" className={cn("w-[150px] justify-start text-left font-normal", !endDate && "text-muted-foreground")}>
                 <CalendarIcon className="w-3.5 h-3.5 mr-1" />
-                {endDate ? format(endDate, "dd/MM/yyyy") : "Selecionar"}
+                {endDate ? format(endDate, "dd/MM/yyyy") : "Seleccionar"}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
@@ -284,9 +284,9 @@ function WebhookLogsTab() {
           </Popover>
         </div>
         <div>
-          <label className="text-xs text-gray-400 block mb-1">Buscar por email</label>
+          <label className="text-xs text-gray-400 block mb-1">Buscar por correo</label>
           <Input
-            placeholder="Buscar por email..."
+            placeholder="Buscar por correo..."
             value={emailSearch}
             onChange={(e) => handleEmailChange(e.target.value)}
             className="w-[220px] h-9 bg-gray-800 border-white/10 text-sm"
@@ -294,7 +294,7 @@ function WebhookLogsTab() {
         </div>
         {hasActiveFilters && (
           <Button variant="ghost" size="sm" onClick={clearFilters} className="text-gray-400 hover:text-white">
-            <X className="w-3.5 h-3.5 mr-1" /> Limpar
+            <X className="w-3.5 h-3.5 mr-1" /> Limpiar
           </Button>
         )}
       </div>
@@ -309,19 +309,19 @@ function WebhookLogsTab() {
                 className="cursor-pointer hover:text-white select-none"
                 onClick={() => handleSort("received_at")}
               >
-                Data/Hora <SortIcon col="received_at" />
+                Fecha/Hora <SortIcon col="received_at" />
               </TableHead>
-              <TableHead>Provider</TableHead>
+              <TableHead>Proveedor</TableHead>
               <TableHead>Evento</TableHead>
               <TableHead
                 className="cursor-pointer hover:text-white select-none"
                 onClick={() => handleSort("buyer_email")}
               >
-                E-mail <SortIcon col="buyer_email" />
+                Correo <SortIcon col="buyer_email" />
               </TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Teste?</TableHead>
-              <TableHead>Ações</TableHead>
+              <TableHead>Estado</TableHead>
+              <TableHead>¿Prueba?</TableHead>
+              <TableHead>Acciones</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -337,7 +337,7 @@ function WebhookLogsTab() {
             {logs.length === 0 && !loading && (
               <TableRow>
                 <TableCell colSpan={8} className="text-center text-gray-500 py-8">
-                  Nenhum log encontrado
+                  Ningún log encontrado
                 </TableCell>
               </TableRow>
             )}
@@ -371,7 +371,7 @@ function LogRow({ log, expanded, onToggle, onReprocess }: { log: WebhookLog; exp
           {expanded ? <ChevronDown className="w-4 h-4 text-gray-400" /> : <ChevronRight className="w-4 h-4 text-gray-400" />}
         </TableCell>
         <TableCell className="text-xs text-gray-300">
-          {new Date(log.received_at).toLocaleString("pt-BR")}
+          {new Date(log.received_at).toLocaleString("es-CL")}
         </TableCell>
         <TableCell>
           <Badge variant="outline" className="text-xs">{log.provider}</Badge>
@@ -385,7 +385,7 @@ function LogRow({ log, expanded, onToggle, onReprocess }: { log: WebhookLog; exp
             <XCircle className="w-4 h-4 text-red-400" />
           )}
         </TableCell>
-        <TableCell>{log.is_test ? <Badge variant="secondary" className="text-[10px]">Teste</Badge> : "—"}</TableCell>
+        <TableCell>{log.is_test ? <Badge variant="secondary" className="text-[10px]">Prueba</Badge> : "—"}</TableCell>
         <TableCell onClick={(e) => e.stopPropagation()}>
           {!log.processed_ok && log.raw_payload && (
             <Button
@@ -395,7 +395,7 @@ function LogRow({ log, expanded, onToggle, onReprocess }: { log: WebhookLog; exp
               onClick={() => onReprocess(log.raw_payload!)}
             >
               <RefreshCw className="w-3.5 h-3.5 mr-1" />
-              Re-processar
+              Reprocesar
             </Button>
           )}
         </TableCell>
@@ -405,7 +405,7 @@ function LogRow({ log, expanded, onToggle, onReprocess }: { log: WebhookLog; exp
           <TableCell colSpan={8} className="bg-gray-900 p-4">
             {log.error_message && (
               <p className="text-red-400 text-xs mb-2">
-                <strong>Erro:</strong> {log.error_message}
+                <strong>Error:</strong> {log.error_message}
               </p>
             )}
             <p className="text-[10px] text-gray-500 mb-1">Payload:</p>
@@ -450,7 +450,7 @@ function SimulateModal({ open, onClose, onDone }: { open: boolean; onClose: () =
       );
       const data = await res.json();
       setResult(JSON.stringify(data, null, 2));
-      toast.success("Simulação enviada!");
+      toast.success("¡Simulación enviada!");
       onDone();
     } catch (err) {
       setResult(String(err));
@@ -465,12 +465,12 @@ function SimulateModal({ open, onClose, onDone }: { open: boolean; onClose: () =
         <DialogHeader>
           <DialogTitle>Simular Compra</DialogTitle>
           <DialogDescription className="text-gray-400">
-            Envia um POST simulado ao webhook para testar o fluxo.
+            Envía un POST simulado al webhook para probar el flujo.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-3">
           <Input
-            placeholder="E-mail do comprador"
+            placeholder="Correo del comprador"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="bg-gray-800 border-white/10"
@@ -480,13 +480,13 @@ function SimulateModal({ open, onClose, onDone }: { open: boolean; onClose: () =
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="basic">Plano Basic</SelectItem>
-              <SelectItem value="pro">Plano Pro</SelectItem>
-              <SelectItem value="ultra">Plano Ultra</SelectItem>
-              <SelectItem value="alavancagem">Add-on: Alavancagem</SelectItem>
-              <SelectItem value="multiplas_bingo">Add-on: Múltiplas / Bingo</SelectItem>
+              <SelectItem value="basic">Plan Básico</SelectItem>
+              <SelectItem value="pro">Plan Pro</SelectItem>
+              <SelectItem value="ultra">Plan Ultra</SelectItem>
+              <SelectItem value="alavancagem">Add-on: Apalancamiento</SelectItem>
+              <SelectItem value="multiplas_bingo">Add-on: Múltiples / Bingo</SelectItem>
               <SelectItem value="live_telegram">Add-on: Live Telegram</SelectItem>
-              <SelectItem value="acesso_vitalicio">Add-on: Acesso Vitalício</SelectItem>
+              <SelectItem value="acesso_vitalicio">Add-on: Acceso Vitalicio</SelectItem>
             </SelectContent>
           </Select>
           {result && (
@@ -498,7 +498,7 @@ function SimulateModal({ open, onClose, onDone }: { open: boolean; onClose: () =
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>Cancelar</Button>
           <Button onClick={handleSend} disabled={sending || !email}>
-            {sending ? "Enviando..." : "Enviar Simulação"}
+            {sending ? "Enviando..." : "Enviar Simulación"}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -528,14 +528,14 @@ function ProductsCatalogTab() {
   useEffect(() => { fetchProducts(); }, [fetchProducts]);
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Excluir este produto do catálogo?")) return;
+    if (!confirm("¿Eliminar este producto del catálogo?")) return;
     const { error: deleteError } = await supabase.from("products_catalog").delete().eq("id", id);
     if (deleteError) {
       console.error("Erro ao excluir produto:", deleteError);
-      toast.error(`Erro ao excluir: ${deleteError.message}`);
+      toast.error(`Error al eliminar: ${deleteError.message}`);
       return;
     }
-    toast.success("Produto excluído");
+    toast.success("Producto eliminado");
     fetchProducts();
   };
 
@@ -543,10 +543,10 @@ function ProductsCatalogTab() {
     <div className="space-y-4 mt-4">
       <div className="flex justify-between items-center">
         <p className="text-sm text-gray-400">
-          Mapeie o ID do produto na plataforma de vendas para o plano interno do Premier.
+          Mapea el ID del producto en la plataforma de ventas al plan interno de Premier.
         </p>
         <Button size="sm" onClick={() => { setEditing(null); setModalOpen(true); }}>
-          <Plus className="w-4 h-4 mr-1" /> Novo Produto
+          <Plus className="w-4 h-4 mr-1" /> Nuevo Producto
         </Button>
       </div>
 
@@ -554,13 +554,13 @@ function ProductsCatalogTab() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Provider</TableHead>
+              <TableHead>Proveedor</TableHead>
               <TableHead>ID Externo</TableHead>
-              <TableHead>Nome</TableHead>
+              <TableHead>Nombre</TableHead>
               <TableHead>Tipo</TableHead>
               <TableHead>Valor</TableHead>
-              <TableHead>Ativo</TableHead>
-              <TableHead className="w-24">Ações</TableHead>
+              <TableHead>Activo</TableHead>
+              <TableHead className="w-24">Acciones</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -585,7 +585,7 @@ function ProductsCatalogTab() {
                       <TableCell className="text-xs text-gray-300 font-mono">{p.provider_product_id}</TableCell>
                       <TableCell className="text-sm text-white">
                         {p.bundle_name}
-                        <span className="text-[10px] text-gray-500 ml-1">({bundleItems.length} itens)</span>
+                        <span className="text-[10px] text-gray-500 ml-1">({bundleItems.length} ítems)</span>
                       </TableCell>
                       <TableCell>
                         <Badge className="text-[10px] bg-purple-500/20 text-purple-300 border-purple-500/30">Bundle</Badge>
@@ -605,14 +605,14 @@ function ProductsCatalogTab() {
                             <Pencil className="w-3.5 h-3.5" />
                           </Button>
                           <Button variant="ghost" size="icon" className="h-7 w-7 text-red-400" onClick={async () => {
-                            if (!confirm("Excluir todo o bundle?")) return;
+                            if (!confirm("¿Eliminar todo el bundle?")) return;
                             const { error: bundleDeleteError } = await supabase.from("products_catalog").delete().eq("bundle_name", p.bundle_name).eq("provider_product_id", p.provider_product_id);
                             if (bundleDeleteError) {
                               console.error("Erro ao excluir bundle:", bundleDeleteError);
-                              toast.error(`Erro ao excluir: ${bundleDeleteError.message}`);
+                              toast.error(`Error al eliminar: ${bundleDeleteError.message}`);
                               return;
                             }
-                            toast.success("Bundle excluído");
+                            toast.success("Bundle eliminado");
                             fetchProducts();
                           }}>
                             <Trash2 className="w-3.5 h-3.5" />
@@ -631,7 +631,7 @@ function ProductsCatalogTab() {
                     <TableCell className="text-xs text-gray-300 font-mono">{p.provider_product_id}</TableCell>
                     <TableCell className="text-sm text-white">{p.product_name}</TableCell>
                     <TableCell className="text-xs text-gray-400">
-                      {p.tier ? "Plano" : "Add-on"}
+                      {p.tier ? "Plan" : "Add-on"}
                     </TableCell>
                     <TableCell className="text-xs text-gray-300">
                       {p.tier ?? p.entitlement_key ?? "—"}
@@ -656,7 +656,7 @@ function ProductsCatalogTab() {
             {products.length === 0 && !loading && (
               <TableRow>
                 <TableCell colSpan={7} className="text-center text-gray-500 py-8">
-                  Nenhum produto cadastrado. Clique em "Novo Produto" para começar.
+                  Ningún producto registrado. Haz clic en "Nuevo Producto" para empezar.
                 </TableCell>
               </TableRow>
             )}
@@ -732,15 +732,15 @@ function ProductModal({
 
   const handleSave = async () => {
     if (!externalId || !name) {
-      toast.error("Preencha todos os campos obrigatórios");
+      toast.error("Completa todos los campos obligatorios");
       return;
     }
     if (type === "bundle" && bundleAddons.length === 0) {
-      toast.error("Selecione pelo menos um add-on para o bundle");
+      toast.error("Selecciona al menos un add-on para el bundle");
       return;
     }
     if (type === "bundle" && !tierValue) {
-      toast.error("Selecione o plano incluído no bundle");
+      toast.error("Selecciona el plan incluido en el bundle");
       return;
     }
     setSaving(true);
@@ -751,7 +751,7 @@ function ProductModal({
           {
             provider,
             provider_product_id: externalId,
-            product_name: `${name} (Plano)`,
+            product_name: `${name} (Plan)`,
             tier: tierValue,
             entitlement_key: null,
             product_type: "bundle",
@@ -778,7 +778,7 @@ function ProductModal({
             .eq("provider_product_id", externalId);
           if (bundleDeleteError) {
             console.error("Erro ao remover bundle anterior:", bundleDeleteError);
-            toast.error(`Erro ao salvar: ${bundleDeleteError.message}`);
+            toast.error(`Error al guardar: ${bundleDeleteError.message}`);
             setSaving(false);
             return;
           }
@@ -787,7 +787,7 @@ function ProductModal({
         const { error: bundleInsertError } = await supabase.from("products_catalog").insert(bundleRows);
         if (bundleInsertError) {
           console.error("Erro ao inserir bundle:", bundleInsertError);
-          toast.error(`Erro ao salvar: ${bundleInsertError.message}`);
+          toast.error(`Error al guardar: ${bundleInsertError.message}`);
           setSaving(false);
           return;
         }
@@ -807,7 +807,7 @@ function ProductModal({
           const { error: updateError } = await supabase.from("products_catalog").update(row).eq("id", editing.id);
           if (updateError) {
             console.error("Erro ao atualizar produto:", updateError);
-            toast.error(`Erro ao salvar: ${updateError.message}`);
+            toast.error(`Error al guardar: ${updateError.message}`);
             setSaving(false);
             return;
           }
@@ -815,44 +815,44 @@ function ProductModal({
           const { error: insertError } = await supabase.from("products_catalog").insert(row);
           if (insertError) {
             console.error("Erro ao inserir produto:", insertError);
-            toast.error(`Erro ao salvar: ${insertError.message}`);
+            toast.error(`Error al guardar: ${insertError.message}`);
             setSaving(false);
             return;
           }
         }
       }
 
-      toast.success("Produto salvo com sucesso!");
+      toast.success("¡Producto guardado con éxito!");
       setSaving(false);
       onClose();
       onDone();
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Erro desconhecido";
+      const message = err instanceof Error ? err.message : "Error desconocido";
       console.error("Exceção ao salvar produto:", err);
-      toast.error(`Erro ao salvar: ${message}`);
+      toast.error(`Error al guardar: ${message}`);
       setSaving(false);
     }
   };
 
   const addonOptions = [
-    { key: "alavancagem", label: "Alavancagem" },
-    { key: "multiplas_bingo", label: "Múltiplas / Bingo" },
+    { key: "alavancagem", label: "Apalancamiento" },
+    { key: "multiplas_bingo", label: "Múltiples / Bingo" },
     { key: "live_telegram", label: "Live Telegram" },
-    { key: "acesso_vitalicio", label: "Acesso Vitalício" },
+    { key: "acesso_vitalicio", label: "Acceso Vitalicio" },
   ];
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="bg-gray-900 border-white/10 text-white max-w-md">
         <DialogHeader>
-          <DialogTitle>{editing ? "Editar Produto" : "Novo Produto"}</DialogTitle>
+          <DialogTitle>{editing ? "Editar Producto" : "Nuevo Producto"}</DialogTitle>
           <DialogDescription className="text-gray-400">
-            Mapeie um produto externo para um plano do Premier.
+            Mapea un producto externo a un plan de Premier.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-3">
           <div>
-            <label className="text-xs text-gray-400 block mb-1">Provider</label>
+            <label className="text-xs text-gray-400 block mb-1">Proveedor</label>
             <Select value={provider} onValueChange={setProvider}>
               <SelectTrigger className="bg-gray-800 border-white/10">
                 <SelectValue />
@@ -861,7 +861,7 @@ function ProductModal({
                 <SelectItem value="lastlink">Lastlink</SelectItem>
                 <SelectItem value="payt">Payt</SelectItem>
                 <SelectItem value="hotmart">Hotmart</SelectItem>
-                <SelectItem value="outro">Outro</SelectItem>
+                <SelectItem value="outro">Otro</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -869,18 +869,18 @@ function ProductModal({
           <div>
             <label className="text-xs text-gray-400 block mb-1">
               {provider === "lastlink"
-                ? "ID do Produto (UUID da Lastlink)"
+                ? "ID del Producto (UUID de Lastlink)"
                 : provider === "payt"
-                ? "Code do produto no PayT"
-                : "ID do produto na plataforma"}
+                ? "Code del producto en PayT"
+                : "ID del producto en la plataforma"}
             </label>
             <Input
               placeholder={
                 provider === "lastlink"
-                  ? "Ex: 037d5e50-ab28-47dd-a916-b4f9916dcd8a"
+                  ? "Ej: 037d5e50-ab28-47dd-a916-b4f9916dcd8a"
                   : provider === "payt"
-                  ? "Ex: R28BKV"
-                  : "Ex: C343583F8"
+                  ? "Ej: R28BKV"
+                  : "Ej: C343583F8"
               }
               value={externalId}
               onChange={(e) => setExternalId(e.target.value)}
@@ -888,24 +888,24 @@ function ProductModal({
             />
             {provider === "lastlink" && (
               <p className="text-[11px] text-gray-500 mt-1.5 leading-relaxed">
-                <strong className="text-gray-400">Onde encontrar:</strong> Na Lastlink, vá em <strong className="text-gray-400">Produtos</strong>, clique para editar o produto e copie o código da URL:
+                <strong className="text-gray-400">Dónde encontrarlo:</strong> En Lastlink, ve a <strong className="text-gray-400">Productos</strong>, haz clic para editar el producto y copia el código de la URL:
                 <br />
                 <code className="text-yellow-400/80">.../products/<strong>[este-código]</strong>/edit</code>
               </p>
             )}
             {provider === "payt" && (
               <p className="text-[11px] text-gray-500 mt-1.5 leading-relaxed">
-                <strong className="text-gray-400">Onde encontrar:</strong> No PayT, vá em <strong className="text-gray-400">Ofertas & Produtos</strong>, clique no produto e copie o código (ex: <code className="text-yellow-400/80">R28BKV</code>).
+                <strong className="text-gray-400">Dónde encontrarlo:</strong> En PayT, ve a <strong className="text-gray-400">Ofertas y Productos</strong>, haz clic en el producto y copia el código (ej: <code className="text-yellow-400/80">R28BKV</code>).
               </p>
             )}
           </div>
 
           <div>
             <label className="text-xs text-gray-400 block mb-1">
-              {type === "bundle" ? "Nome do Bundle" : "Nome legível"}
+              {type === "bundle" ? "Nombre del Bundle" : "Nombre legible"}
             </label>
             <Input
-              placeholder={type === "bundle" ? "Ex: Pacote Ultra Completo" : "Ex: Plano Básico Mensal"}
+              placeholder={type === "bundle" ? "Ej: Pack Ultra Completo" : "Ej: Plan Básico Mensual"}
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="bg-gray-800 border-white/10"
@@ -919,9 +919,9 @@ function ProductModal({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="tier">Plano</SelectItem>
+                <SelectItem value="tier">Plan</SelectItem>
                 <SelectItem value="addon">Add-on</SelectItem>
-                <SelectItem value="bundle">Bundle (Plano + Add-ons)</SelectItem>
+                <SelectItem value="bundle">Bundle (Plan + Add-ons)</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -929,7 +929,7 @@ function ProductModal({
           {/* Tier selector — for "tier" and "bundle" */}
           {(type === "tier" || type === "bundle") && (
             <div>
-              <label className="text-xs text-gray-400 block mb-1">Plano incluído</label>
+              <label className="text-xs text-gray-400 block mb-1">Plan incluido</label>
               <Select value={tierValue} onValueChange={setTierValue}>
                 <SelectTrigger className="bg-gray-800 border-white/10">
                   <SelectValue />
@@ -963,8 +963,8 @@ function ProductModal({
           {/* Multi-addon checkboxes — for "bundle" only */}
           {type === "bundle" && (
             <div>
-              <label className="text-xs text-gray-400 block mb-1">Add-ons incluídos no Bundle</label>
-              <p className="text-[10px] text-gray-500 mb-2">Selecione todos os add-ons que este pacote deve liberar.</p>
+              <label className="text-xs text-gray-400 block mb-1">Add-ons incluidos en el Bundle</label>
+              <p className="text-[10px] text-gray-500 mb-2">Selecciona todos los add-ons que este pack debe liberar.</p>
               <div className="flex flex-col gap-2 border border-white/10 rounded-md p-3 bg-gray-800/50">
                 {addonOptions.map(({ key, label }) => (
                   <label key={key} className="flex items-center gap-2 cursor-pointer">
@@ -979,20 +979,20 @@ function ProductModal({
                 ))}
               </div>
               {bundleAddons.length === 0 && (
-                <p className="text-xs text-red-400 mt-1">Selecione pelo menos um add-on para o bundle.</p>
+                <p className="text-xs text-red-400 mt-1">Selecciona al menos un add-on para el bundle.</p>
               )}
             </div>
           )}
 
           <div className="flex items-center gap-2">
             <Switch checked={active} onCheckedChange={setActive} />
-            <span className="text-sm text-gray-300">Ativo</span>
+            <span className="text-sm text-gray-300">Activo</span>
           </div>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>Cancelar</Button>
           <Button onClick={handleSave} disabled={saving}>
-            {saving ? "Salvando..." : "Salvar"}
+            {saving ? "Guardando..." : "Guardar"}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -1057,19 +1057,19 @@ function RawLogsTab() {
       );
       const data = await res.json();
       if (res.ok) {
-        toast.success(`Log #${logId} re-processado com sucesso!`);
+        toast.success(`¡Log #${logId} reprocesado con éxito!`);
       } else {
-        toast.error(`Falha: ${data.error ?? data.message ?? "Erro desconhecido"}`);
+        toast.error(`Falla: ${data.error ?? data.message ?? "Error desconocido"}`);
       }
     } catch (err) {
-      toast.error(`Erro ao re-processar: ${String(err)}`);
+      toast.error(`Error al reprocesar: ${String(err)}`);
     } finally {
       setReprocessingId(null);
     }
   };
 
   const exportCsv = () => {
-    if (logs.length === 0) { toast.error("Nenhum log para exportar"); return; }
+    if (logs.length === 0) { toast.error("Ningún log para exportar"); return; }
     const rows = logs.map((log) => ({
       id: log.id,
       created_at: log.created_at,
@@ -1086,7 +1086,7 @@ function RawLogsTab() {
     a.download = `raw_webhook_logs_${format(new Date(), "yyyy-MM-dd_HHmmss")}.csv`;
     a.click();
     URL.revokeObjectURL(url);
-    toast.success("CSV exportado!");
+    toast.success("¡CSV exportado!");
   };
 
   return (
@@ -1094,12 +1094,12 @@ function RawLogsTab() {
       <div className="flex flex-wrap gap-2 items-end justify-between">
         <div className="flex flex-wrap gap-2 items-end">
           <div>
-            <label className="text-xs text-gray-400 block mb-1">Data Início</label>
+            <label className="text-xs text-gray-400 block mb-1">Fecha Inicio</label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button variant="outline" size="sm" className={cn("w-[150px] justify-start text-left font-normal", !startDate && "text-muted-foreground")}>
                   <CalendarIcon className="w-3.5 h-3.5 mr-1" />
-                  {startDate ? format(startDate, "dd/MM/yyyy") : "Selecionar"}
+                  {startDate ? format(startDate, "dd/MM/yyyy") : "Seleccionar"}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
@@ -1108,12 +1108,12 @@ function RawLogsTab() {
             </Popover>
           </div>
           <div>
-            <label className="text-xs text-gray-400 block mb-1">Data Fim</label>
+            <label className="text-xs text-gray-400 block mb-1">Fecha Fin</label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button variant="outline" size="sm" className={cn("w-[150px] justify-start text-left font-normal", !endDate && "text-muted-foreground")}>
                   <CalendarIcon className="w-3.5 h-3.5 mr-1" />
-                  {endDate ? format(endDate, "dd/MM/yyyy") : "Selecionar"}
+                  {endDate ? format(endDate, "dd/MM/yyyy") : "Seleccionar"}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
@@ -1123,7 +1123,7 @@ function RawLogsTab() {
           </div>
           {(startDate || endDate) && (
             <Button variant="ghost" size="sm" onClick={() => { setStartDate(undefined); setEndDate(undefined); }}>
-              Limpar
+              Limpiar
             </Button>
           )}
         </div>
@@ -1133,7 +1133,7 @@ function RawLogsTab() {
           </Button>
           <Button variant="outline" size="sm" onClick={fetchLogs} disabled={loading}>
             <RefreshCw className={`w-4 h-4 mr-1 ${loading ? "animate-spin" : ""}`} />
-            Atualizar
+            Actualizar
           </Button>
         </div>
       </div>
@@ -1146,10 +1146,10 @@ function RawLogsTab() {
             <TableRow>
               <TableHead className="w-8" />
               <TableHead>ID</TableHead>
-              <TableHead>Data/Hora</TableHead>
+              <TableHead>Fecha/Hora</TableHead>
               <TableHead>EventName</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Ações</TableHead>
+              <TableHead>Correo</TableHead>
+              <TableHead>Acciones</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -1173,7 +1173,7 @@ function RawLogsTab() {
                     </TableCell>
                     <TableCell className="text-xs text-gray-500 font-mono">{log.id}</TableCell>
                     <TableCell className="text-xs text-gray-300">
-                      {new Date(log.created_at).toLocaleString("pt-BR")}
+                      {new Date(log.created_at).toLocaleString("es-CL")}
                     </TableCell>
                     <TableCell className="text-xs text-gray-300">{eventName}</TableCell>
                     <TableCell className="text-xs text-gray-300">{email}</TableCell>
@@ -1187,7 +1187,7 @@ function RawLogsTab() {
                           onClick={() => handleReprocess(log.id, log.payload!)}
                         >
                           <RefreshCw className={`w-3.5 h-3.5 mr-1 ${reprocessingId === log.id ? "animate-spin" : ""}`} />
-                          {reprocessingId === log.id ? "Enviando..." : "Re-processar"}
+                          {reprocessingId === log.id ? "Enviando..." : "Reprocesar"}
                         </Button>
                       )}
                     </TableCell>
@@ -1221,7 +1221,7 @@ function RawLogsTab() {
             {logs.length === 0 && !loading && (
               <TableRow>
                 <TableCell colSpan={6} className="text-center text-gray-500 py-8">
-                  Nenhum log bruto encontrado.
+                  Ningún log bruto encontrado.
                 </TableCell>
               </TableRow>
             )}

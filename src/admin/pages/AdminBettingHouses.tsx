@@ -95,7 +95,7 @@ export default function AdminBettingHouses() {
 
   const handleSave = async () => {
     if (!form.name || !form.slug || !form.iframe_url) {
-      toast.error("Nome, slug e URL do iframe são obrigatórios");
+      toast.error("Nombre, slug y URL del iframe son obligatorios");
       return;
     }
     setSaving(true);
@@ -122,14 +122,14 @@ export default function AdminBettingHouses() {
       }
       const { error } = await supabase.from("betting_houses").update(payload).eq("id", editId);
       if (error) { toast.error(error.message); setSaving(false); return; }
-      toast.success("Casa atualizada");
+      toast.success("Casa actualizada");
     } else {
       if (form.is_default) {
         await supabase.from("betting_houses").update({ is_default: false }).gte("id", "00000000-0000-0000-0000-000000000000");
       }
       const { error } = await supabase.from("betting_houses").insert(payload);
       if (error) { toast.error(error.message); setSaving(false); return; }
-      toast.success("Casa criada");
+      toast.success("Casa creada");
     }
 
     setShowForm(false);
@@ -149,7 +149,7 @@ export default function AdminBettingHouses() {
   const setDefault = async (h: BettingHouse) => {
     await supabase.from("betting_houses").update({ is_default: false }).gte("id", "00000000-0000-0000-0000-000000000000");
     await supabase.from("betting_houses").update({ is_default: true }).eq("id", h.id);
-    toast.success(`${h.name} definida como casa padrão`);
+    toast.success(`${h.name} definida como casa predeterminada`);
     load();
   };
 
@@ -169,15 +169,15 @@ export default function AdminBettingHouses() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold">Casas Parceiras</h2>
+        <h2 className="text-xl font-bold">Casas Aliadas</h2>
         <Button size="sm" onClick={openCreate}>
-          <Plus className="w-4 h-4" /> Nova Casa
+          <Plus className="w-4 h-4" /> Nueva Casa
         </Button>
       </div>
 
       {loading ? (
         <div className="text-gray-400 py-10 text-center flex items-center justify-center gap-2">
-          <Loader2 className="w-4 h-4 animate-spin" /> Carregando…
+          <Loader2 className="w-4 h-4 animate-spin" /> Cargando…
         </div>
       ) : (
         <div className="grid gap-3">
@@ -198,17 +198,17 @@ export default function AdminBettingHouses() {
                   <span className="font-semibold text-white text-sm">{h.name}</span>
                   {h.is_default && (
                     <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-yellow-500/20 text-yellow-400 border border-yellow-400/30 font-medium">
-                      PADRÃO
+                      PREDETERMINADA
                     </span>
                   )}
                   <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${h.is_active ? "bg-green-500/20 text-green-400 border border-green-400/30" : "bg-red-500/20 text-red-400 border border-red-400/30"}`}>
-                    {h.is_active ? "ATIVA" : "INATIVA"}
+                    {h.is_active ? "ACTIVA" : "INACTIVA"}
                   </span>
                 </div>
                 <p className="text-xs text-gray-500 truncate mt-0.5">{h.iframe_url}</p>
                 <div className="flex gap-3 mt-1 flex-wrap">
                   {h.aviator_url && <span className="text-[10px] text-gray-400">✈ Aviator</span>}
-                  {h.roleta_url && <span className="text-[10px] text-gray-400">◉ Roleta</span>}
+                  {h.roleta_url && <span className="text-[10px] text-gray-400">◉ Ruleta</span>}
                   {h.mines_url && <span className="text-[10px] text-gray-400">💣 Mines</span>}
                   {h.football_studio_url && <span className="text-[10px] text-gray-400">⚽ Football Studio</span>}
                 </div>
@@ -218,7 +218,7 @@ export default function AdminBettingHouses() {
               <div className="flex items-center gap-2 shrink-0">
                 <button
                   onClick={() => setDefault(h)}
-                  title="Definir como padrão"
+                  title="Definir como predeterminada"
                   className={`p-1.5 rounded transition-colors ${h.is_default ? "text-yellow-400" : "text-gray-600 hover:text-yellow-400"}`}
                 >
                   {h.is_default ? <Star className="w-4 h-4 fill-yellow-400" /> : <StarOff className="w-4 h-4" />}
@@ -231,7 +231,7 @@ export default function AdminBettingHouses() {
             </div>
           ))}
           {houses.length === 0 && (
-            <p className="text-gray-600 text-center py-8">Nenhuma casa cadastrada</p>
+            <p className="text-gray-600 text-center py-8">Ninguna casa registrada</p>
           )}
         </div>
       )}
@@ -240,16 +240,16 @@ export default function AdminBettingHouses() {
       <Dialog open={showForm} onOpenChange={(o) => !o && setShowForm(false)}>
         <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{editId ? "Editar Casa" : "Nova Casa Parceira"}</DialogTitle>
+            <DialogTitle>{editId ? "Editar Casa" : "Nueva Casa Aliada"}</DialogTitle>
           </DialogHeader>
 
           <div className="space-y-3">
             {/* Basic Info */}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-xs text-gray-500">Nome *</label>
+                <label className="text-xs text-gray-500">Nombre *</label>
                 <Input
-                  placeholder="Ex: Esportiva Bet"
+                  placeholder="Ej: Esportiva Bet"
                   value={form.name}
                   onChange={(e) => {
                     set("name", e.target.value);
@@ -261,7 +261,7 @@ export default function AdminBettingHouses() {
               <div>
                 <label className="text-xs text-gray-500">Slug *</label>
                 <Input
-                  placeholder="ex: esportiva-bet"
+                  placeholder="ej: esportiva-bet"
                   value={form.slug}
                   onChange={(e) => set("slug", slugify(e.target.value))}
                   className="bg-gray-900 border-gray-800 font-mono text-sm"
@@ -272,11 +272,11 @@ export default function AdminBettingHouses() {
             <FieldRow label="Logo URL" fieldKey="logo_url" placeholder="https://..." />
 
             <div className="border-t border-white/10 pt-3">
-              <p className="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-2">URLs da Casa</p>
+              <p className="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-2">URLs de la Casa</p>
               <div className="space-y-2">
                 <FieldRow label="Iframe URL (página principal) *" fieldKey="iframe_url" placeholder="https://esportiva.bet" />
                 <FieldRow label="Aviator URL" fieldKey="aviator_url" placeholder="https://esportiva.bet/aviator" />
-                <FieldRow label="Roleta URL" fieldKey="roleta_url" placeholder="https://esportiva.bet/roleta" />
+                <FieldRow label="Ruleta URL" fieldKey="roleta_url" placeholder="https://esportiva.bet/roleta" />
                 <FieldRow label="Mines URL" fieldKey="mines_url" placeholder="https://esportiva.bet/mines" />
                 <FieldRow label="Football Studio URL" fieldKey="football_studio_url" placeholder="https://esportiva.bet/football-studio" />
               </div>
@@ -284,34 +284,34 @@ export default function AdminBettingHouses() {
 
             <div className="border-t border-white/10 pt-3 space-y-3">
               <div className="flex items-center justify-between">
-                <label className="text-sm">Casa Ativa</label>
+                <label className="text-sm">Casa Activa</label>
                 <Switch checked={form.is_active} onCheckedChange={(v) => set("is_active", v)} />
               </div>
               <div className="flex items-center justify-between">
                 <div>
-                  <label className="text-sm">Casa Padrão</label>
-                  <p className="text-xs text-gray-500">Novos usuários serão atribuídos a esta casa</p>
+                  <label className="text-sm">Casa Predeterminada</label>
+                  <p className="text-xs text-gray-500">Los nuevos usuarios serán asignados a esta casa</p>
                 </div>
                 <Switch checked={form.is_default} onCheckedChange={(v) => set("is_default", v)} />
               </div>
               <div className="flex items-center justify-between">
                 <div>
-                  <label className="text-sm">Forçar nova aba</label>
-                  <p className="text-xs text-gray-500">Casa não permite iframe (abre link em nova aba)</p>
+                  <label className="text-sm">Forzar nueva pestaña</label>
+                  <p className="text-xs text-gray-500">La casa no permite iframe (abre el enlace en nueva pestaña)</p>
                 </div>
                 <Switch checked={form.open_in_new_tab} onCheckedChange={(v) => set("open_in_new_tab", v)} />
               </div>
               <div className="flex items-center justify-between">
                 <div>
-                  <label className="text-sm">Forçar abertura do link de Esportes em nova aba</label>
-                  <p className="text-xs text-gray-500">O botão "Adicionar Tip" abre o link em nova aba (não afeta Cassino)</p>
+                  <label className="text-sm">Forzar apertura del enlace de Deportes en nueva pestaña</label>
+                  <p className="text-xs text-gray-500">El botón "Añadir Tip" abre el enlace en nueva pestaña (no afecta a Casino)</p>
                 </div>
                 <Switch checked={form.force_sports_link_new_tab} onCheckedChange={(v) => set("force_sports_link_new_tab", v)} />
               </div>
             </div>
 
             <Button onClick={handleSave} disabled={saving} className="w-full">
-              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : (editId ? "Salvar alterações" : "Criar casa")}
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : (editId ? "Guardar cambios" : "Crear casa")}
             </Button>
           </div>
         </DialogContent>

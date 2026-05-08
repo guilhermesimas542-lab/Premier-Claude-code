@@ -17,7 +17,7 @@ export function TelegramRedeemModal({ open, onClose, telegramUrl }: Props) {
         <button
           onClick={onClose}
           className="absolute top-3 right-3 p-1 rounded hover:bg-white/10"
-          aria-label="Fechar"
+          aria-label="Cerrar"
         >
           <X className="w-5 h-5" />
         </button>
@@ -27,10 +27,10 @@ export function TelegramRedeemModal({ open, onClose, telegramUrl }: Props) {
             className="text-2xl font-bold leading-tight"
             style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
           >
-            Resgate sua odd grátis hoje
+            Reclama tu cuota gratis hoy
           </h2>
           <p className="text-sm text-white/70">
-            Clique no botão abaixo e garanta o acesso às melhores odds do dia direto no nosso grupo do Telegram
+            Haz clic en el botón de abajo y asegura el acceso a las mejores cuotas del día directo en nuestro grupo de Telegram
           </p>
 
           <button
@@ -46,7 +46,7 @@ export function TelegramRedeemModal({ open, onClose, telegramUrl }: Props) {
             }}
           >
             <Send className="w-5 h-5" />
-            Resgatar Odd Grátis
+            Reclamar Cuota Gratis
           </button>
         </div>
       </DialogContent>

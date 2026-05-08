@@ -42,14 +42,14 @@ export default function InteractivePreview({ form, previewMode }: Props) {
             onClick={() => { setViewMode("funnel"); setStep(0); }}
             className={`flex-1 px-2 py-1 text-[11px] rounded-md transition-colors ${viewMode === "funnel" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
           >
-            🔄 Funil
+            🔄 Embudo
           </button>
           <button
             type="button"
             onClick={() => setViewMode("final")}
             className={`flex-1 px-2 py-1 text-[11px] rounded-md transition-colors ${viewMode === "final" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
           >
-            🏁 Tela Final
+            🏁 Pantalla Final
           </button>
         </div>
       )}
@@ -71,7 +71,7 @@ export default function InteractivePreview({ form, previewMode }: Props) {
             className="w-full cursor-pointer group"
           >
             <img src={form.image_url} alt="" className="w-full h-auto max-h-48 object-contain bg-black/30 transition-transform group-hover:scale-[1.02]" />
-            <p className="text-[10px] text-muted-foreground py-2">Clique na imagem para avançar</p>
+            <p className="text-[10px] text-muted-foreground py-2">Haz clic en la imagen para avanzar</p>
           </button>
         )}
 
@@ -125,7 +125,7 @@ export default function InteractivePreview({ form, previewMode }: Props) {
                 {validQuestions.length > 0 && viewMode === "funnel" && (
                   <div className="px-4 pb-3">
                     <button type="button" onClick={reset} className="text-[10px] text-muted-foreground hover:text-foreground flex items-center gap-1 mx-auto">
-                      <RotateCcw className="w-3 h-3" /> Reiniciar funil
+                      <RotateCcw className="w-3 h-3" /> Reiniciar embudo
                     </button>
                   </div>
                 )}
@@ -146,12 +146,12 @@ export default function InteractivePreview({ form, previewMode }: Props) {
                   className="w-full py-2 text-center text-xs font-bold text-primary-foreground rounded-lg cursor-pointer hover:opacity-90 transition-opacity animate-[cta-pulse_2s_ease-in-out_infinite]"
                   style={{ backgroundColor: (form as any).button_color || "hsl(var(--primary))" }}
                 >
-                  QUERO ACESSAR →
+                  QUIERO ACCEDER →
                 </div>
               )}
               {validQuestions.length > 0 && viewMode === "funnel" && (
                 <button type="button" onClick={reset} className="text-[10px] text-muted-foreground hover:text-foreground flex items-center gap-1 mx-auto">
-                  <RotateCcw className="w-3 h-3" /> Reiniciar funil
+                  <RotateCcw className="w-3 h-3" /> Reiniciar embudo
                 </button>
               )}
             </div>
@@ -160,7 +160,7 @@ export default function InteractivePreview({ form, previewMode }: Props) {
       </div>
 
       <p className="text-[11px] text-muted-foreground text-center">
-        {isOnImage ? "Clique na imagem para avançar" : isOnQuestion ? "Clique numa opção para avançar" : "Preview da tela final"}
+        {isOnImage ? "Haz clic en la imagen para avanzar" : isOnQuestion ? "Haz clic en una opción para avanzar" : "Vista previa de la pantalla final"}
       </p>
     </div>
   );

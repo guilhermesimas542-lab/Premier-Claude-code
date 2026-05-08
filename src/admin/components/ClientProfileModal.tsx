@@ -5,9 +5,9 @@ import { Loader2, X } from "lucide-react";
 import type { AdminUser } from "../types";
 
 const UPSELL_BADGES = [
-  { key: "alavancagem", letter: "A", activeColor: "bg-blue-500 text-white", title: "Alavancagem" },
-  { key: "multiplas_bingo", letter: "M", activeColor: "bg-yellow-500 text-white", title: "Múltiplas / Bingo" },
-  { key: "acesso_vitalicio", letter: "V", activeColor: "bg-purple-500 text-white", title: "Vitalício" },
+  { key: "alavancagem", letter: "A", activeColor: "bg-blue-500 text-white", title: "Apalancamiento" },
+  { key: "multiplas_bingo", letter: "M", activeColor: "bg-yellow-500 text-white", title: "Múltiples / Bingo" },
+  { key: "acesso_vitalicio", letter: "V", activeColor: "bg-purple-500 text-white", title: "Vitalicio" },
   { key: "live_telegram", letter: "L", activeColor: "bg-green-500 text-white", title: "Live" },
 ];
 
@@ -19,7 +19,7 @@ const TIER_COLORS: Record<string, string> = {
 };
 
 const TIER_LABELS: Record<string, string> = {
-  free: "Free",
+  free: "Gratis",
   basic: "Básico",
   pro: "Pro",
   ultra: "Ultra",
@@ -41,13 +41,13 @@ interface ClientProfileModalProps {
 }
 
 const fmt = (d: string | null | undefined) =>
-  d ? new Date(d).toLocaleString("pt-BR", {
+  d ? new Date(d).toLocaleString("es-CL", {
     year: "numeric", month: "2-digit", day: "2-digit",
     hour: "2-digit", minute: "2-digit", second: "2-digit",
   }) : "—";
 
 const fmtDatetime = (d: string | null | undefined) =>
-  d ? new Date(d).toLocaleString("pt-BR") : "—";
+  d ? new Date(d).toLocaleString("es-CL") : "—";
 
 export function ClientProfileModal({ userId, onClose }: ClientProfileModalProps) {
   const [data, setData] = useState<ClientProfileData | null>(null);
@@ -84,7 +84,7 @@ export function ClientProfileModal({ userId, onClose }: ClientProfileModalProps)
     <Dialog open={!!userId} onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-sm">
         <DialogHeader>
-          <DialogTitle className="text-base">Perfil do Cliente</DialogTitle>
+          <DialogTitle className="text-base">Perfil del Cliente</DialogTitle>
         </DialogHeader>
 
         {loading && (
@@ -98,9 +98,9 @@ export function ClientProfileModal({ userId, onClose }: ClientProfileModalProps)
             {/* Email & Tier */}
             <div className="space-y-2">
               <Row label="Email" value={data.email} />
-              <Row label="Telefone" value={data.phone ?? "—"} />
+              <Row label="Teléfono" value={data.phone ?? "—"} />
               <div className="flex items-center justify-between">
-                <span className="text-gray-500 text-xs">Plano</span>
+                <span className="text-gray-500 text-xs">Plan</span>
                 <span className={`font-semibold capitalize ${TIER_COLORS[data.main_tier] ?? "text-gray-300"}`}>
                   {TIER_LABELS[data.main_tier] ?? data.main_tier}
                 </span>
@@ -109,7 +109,7 @@ export function ClientProfileModal({ userId, onClose }: ClientProfileModalProps)
 
             {/* Upsells */}
             <div>
-              <p className="text-xs text-gray-500 mb-1.5">Produtos (Upsell)</p>
+              <p className="text-xs text-gray-500 mb-1.5">Productos (Upsell)</p>
               <div className="flex gap-1.5 flex-wrap">
                 {UPSELL_BADGES.map(({ key, letter, activeColor, title }) => {
                   const active = data.activeKeys.includes(key);
@@ -127,15 +127,15 @@ export function ClientProfileModal({ userId, onClose }: ClientProfileModalProps)
                   );
                 })}
                 {data.activeKeys.length === 0 && (
-                  <span className="text-gray-600 text-xs">Nenhum produto ativo</span>
+                  <span className="text-gray-600 text-xs">Ningún producto activo</span>
                 )}
               </div>
             </div>
 
             {/* Dates */}
             <div className="border-t border-white/10 pt-3 space-y-2">
-              <Row label="Primeiro Acesso" value={fmt(data.created_at)} />
-              <Row label="Último Acesso" value={fmt(data.last_seen_at)} />
+              <Row label="Primer Acceso" value={fmt(data.created_at)} />
+              <Row label="Último Acceso" value={fmt(data.last_seen_at)} />
             </div>
 
             {/* Last Event */}
@@ -151,14 +151,14 @@ export function ClientProfileModal({ userId, onClose }: ClientProfileModalProps)
                   </span>
                 </div>
               ) : (
-                <span className="text-gray-600 text-xs">Nenhum evento registrado</span>
+                <span className="text-gray-600 text-xs">Ningún evento registrado</span>
               )}
             </div>
           </div>
         )}
 
         {!loading && !data && userId && (
-          <p className="text-gray-500 text-sm text-center py-4">Usuário não encontrado</p>
+          <p className="text-gray-500 text-sm text-center py-4">Usuario no encontrado</p>
         )}
       </DialogContent>
     </Dialog>

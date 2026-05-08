@@ -150,7 +150,7 @@ export function FunnelPopup({ popup, onClose }: FunnelPopupProps) {
 
             if (template !== "default") {
               return renderFinalTemplate(template, {
-                title: popup.final_title || "Perfeito para você!",
+                title: popup.final_title || "¡Perfecto para ti!",
                 benefits,
                 checkoutLink: popup.checkout_link,
                 checkoutLink2: popup.checkout_link_2 || null,
@@ -169,7 +169,7 @@ export function FunnelPopup({ popup, onClose }: FunnelPopupProps) {
                     <Check className="w-6 h-6 text-primary" />
                   </div>
                   <h2 className="text-xl font-bold text-foreground leading-snug">
-                    {popup.final_title || "Perfeito para você!"}
+                    {popup.final_title || "¡Perfecto para ti!"}
                   </h2>
                 </div>
 
@@ -195,7 +195,7 @@ export function FunnelPopup({ popup, onClose }: FunnelPopupProps) {
                       boxShadow: `0 0 20px ${buttonColor ? buttonColor + "4d" : "hsl(var(--primary) / 0.3)"}`,
                     }}
                   >
-                    QUERO ACESSAR AGORA →
+                    QUIERO ACCEDER AHORA →
                   </button>
                 )}
               </div>

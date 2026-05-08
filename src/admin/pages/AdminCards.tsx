@@ -44,7 +44,7 @@ interface Card {
   created_at: string;
 }
 
-const BADGE_OPTIONS = ["IA ATIVADA", "META", "BETA", "AO VIVO", "ATUALIZADO", "NOVO"];
+const BADGE_OPTIONS = ["IA ACTIVADA", "META", "BETA", "EN VIVO", "ACTUALIZADO", "NUEVO"];
 
 const EMPTY_FORM = {
   slug: "",
@@ -59,8 +59,8 @@ const EMPTY_FORM = {
   category: "sport",
   badges: [] as string[],
   badge_color: "primary",
-  button_text_access: "Acessar",
-  button_text_acquire: "Adquirir Agora",
+  button_text_access: "Acceder",
+  button_text_acquire: "Adquirir Ahora",
   button_bg_color: "",
   button_font_color: "",
   requires_access: false,
@@ -72,9 +72,9 @@ const EMPTY_FORM = {
 };
 
 const CATEGORY_LABELS: Record<string, string> = {
-  sport: "Esporte",
-  casino: "Cassino",
-  quick_access: "Acesso Rápido",
+  sport: "Deporte",
+  casino: "Casino",
+  quick_access: "Acceso Rápido",
   blocked: "Bloqueado",
 };
 
@@ -125,8 +125,8 @@ export default function AdminCards() {
       category: c.category ?? "sport",
       badges: c.badges ?? [],
       badge_color: c.badge_color ?? "primary",
-      button_text_access: c.button_text_access ?? "Acessar",
-      button_text_acquire: c.button_text_acquire ?? "Adquirir Agora",
+      button_text_access: c.button_text_access ?? "Acceder",
+      button_text_acquire: c.button_text_acquire ?? "Adquirir Ahora",
       button_bg_color: c.button_bg_color ?? "",
       button_font_color: c.button_font_color ?? "",
       requires_access: c.requires_access ?? false,
@@ -171,11 +171,11 @@ export default function AdminCards() {
 
   const handleSave = async () => {
     if (!form.name || !form.title) {
-      toast.error("Nome e título são obrigatórios");
+      toast.error("Nombre y título son obligatorios");
       return;
     }
     if (!form.image_mobile) {
-      toast.error("A imagem mobile é obrigatória");
+      toast.error("La imagen móvil es obligatoria");
       return;
     }
     setSaving(true);
@@ -195,8 +195,8 @@ export default function AdminCards() {
       category: form.category,
       badges: form.badges.length > 0 ? form.badges : null,
       badge_color: form.badge_color || "primary",
-      button_text_access: form.button_text_access || "Acessar",
-      button_text_acquire: form.button_text_acquire || "Adquirir Agora",
+      button_text_access: form.button_text_access || "Acceder",
+      button_text_acquire: form.button_text_acquire || "Adquirir Ahora",
       button_bg_color: form.button_bg_color || null,
       button_font_color: form.button_font_color || null,
       requires_access: form.requires_access,
@@ -217,7 +217,7 @@ export default function AdminCards() {
       if (error) { toast.error(error.message); setSaving(false); return; }
     }
 
-    toast.success(editId ? "Card atualizado" : "Card criado");
+    toast.success(editId ? "Card actualizado" : "Card creado");
     setShowForm(false);
     load();
     setSaving(false);
@@ -244,7 +244,7 @@ export default function AdminCards() {
     id: "preview",
     slug: form.slug,
     name: form.name || "Card",
-    title: form.title || "Título do Card",
+    title: form.title || "Título del Card",
     subtitle: form.subtitle || null,
     description: form.description || null,
     image_urls: previewImageForMode,
@@ -252,8 +252,8 @@ export default function AdminCards() {
     category: form.category,
     badges: form.badges.length > 0 ? form.badges : null,
     badge_color: form.badge_color || null,
-    button_text_access: form.button_text_access || "Acessar",
-    button_text_acquire: form.button_text_acquire || "Adquirir Agora",
+    button_text_access: form.button_text_access || "Acceder",
+    button_text_acquire: form.button_text_acquire || "Adquirir Ahora",
     button_bg_color: form.button_bg_color || null,
     button_font_color: form.button_font_color || null,
     requires_access: form.requires_access,
@@ -315,32 +315,32 @@ export default function AdminCards() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <h2 className="text-xl font-bold">Cards e Funis</h2>
+          <h2 className="text-xl font-bold">Cards y Embudos</h2>
           <button
             onClick={() => load()}
             className="p-2 rounded-lg bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-white transition-colors"
-            title="Atualizar"
+            title="Actualizar"
           >
             <RefreshCw className="w-4 h-4" />
           </button>
         </div>
         <Button size="sm" onClick={openCreate}>
-          <Plus className="w-4 h-4" /> Novo Card
+          <Plus className="w-4 h-4" /> Nuevo Card
         </Button>
       </div>
 
       {loading ? (
         <div className="text-gray-400 py-10 text-center flex items-center justify-center gap-2">
-          <Loader2 className="w-4 h-4 animate-spin" /> Carregando…
+          <Loader2 className="w-4 h-4 animate-spin" /> Cargando…
         </div>
       ) : (
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[180px]">Preview</TableHead>
+              <TableHead className="w-[180px]">Vista previa</TableHead>
               <TableHead>Info</TableHead>
-              <TableHead className="w-[100px]">Status</TableHead>
-              <TableHead className="w-[60px]">Ações</TableHead>
+              <TableHead className="w-[100px]">Estado</TableHead>
+              <TableHead className="w-[60px]">Acciones</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -390,15 +390,15 @@ export default function AdminCards() {
                           c.card_type === "type1_lateral" ? "bg-cyan-500/20 text-cyan-400 border border-cyan-400/30" :
                           "bg-indigo-500/20 text-indigo-400 border border-indigo-400/30"
                         }`}>
-                          {c.card_type === "type1_lateral" ? "LATERAL" : "TOP"}
+                          {c.card_type === "type1_lateral" ? "LATERAL" : "ARRIBA"}
                         </span>
                       </div>
-                      <span className="text-[11px] text-gray-500 font-mono">{c.slug} · Ordem: {c.display_order}</span>
+                      <span className="text-[11px] text-gray-500 font-mono">{c.slug} · Orden: {c.display_order}</span>
                     </div>
                   </TableCell>
                   <TableCell>
                     <span className={`text-[10px] px-2 py-1 rounded-full font-medium ${c.is_active ? "bg-green-500/20 text-green-400 border border-green-400/30" : "bg-red-500/20 text-red-400 border border-red-400/30"}`}>
-                      {c.is_active ? "ATIVO" : "INATIVO"}
+                      {c.is_active ? "ACTIVO" : "INACTIVO"}
                     </span>
                   </TableCell>
                   <TableCell>
@@ -412,7 +412,7 @@ export default function AdminCards() {
             {cards.length === 0 && (
               <TableRow>
                 <TableCell colSpan={4} className="text-center py-8 text-gray-600">
-                  Nenhum card cadastrado
+                  Ningún card registrado
                 </TableCell>
               </TableRow>
             )}
@@ -424,7 +424,7 @@ export default function AdminCards() {
       <Dialog open={showForm} onOpenChange={(o) => !o && setShowForm(false)}>
         <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{editId ? "Editar Card" : "Novo Card"}</DialogTitle>
+            <DialogTitle>{editId ? "Editar Card" : "Nuevo Card"}</DialogTitle>
           </DialogHeader>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -433,25 +433,25 @@ export default function AdminCards() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-gray-500">Slug (identificador)</label>
-                  <Input value={form.slug} onChange={(e) => set("slug", e.target.value)} placeholder="ex: futebol" className="bg-gray-900 border-gray-800 font-mono text-xs" />
+                  <Input value={form.slug} onChange={(e) => set("slug", e.target.value)} placeholder="ej: futbol" className="bg-gray-900 border-gray-800 font-mono text-xs" />
                 </div>
                 <div>
-                  <label className="text-xs text-gray-500">Ordem exibição</label>
+                  <label className="text-xs text-gray-500">Orden de exhibición</label>
                   <Input type="number" value={form.display_order} onChange={(e) => set("display_order", parseInt(e.target.value) || 0)} className="bg-gray-900 border-gray-800" />
                 </div>
               </div>
 
               <div>
-                <label className="text-xs text-gray-500">Nome interno *</label>
-                <Input value={form.name} onChange={(e) => set("name", e.target.value)} placeholder="Ex: Futebol" className="bg-gray-900 border-gray-800" />
+                <label className="text-xs text-gray-500">Nombre interno *</label>
+                <Input value={form.name} onChange={(e) => set("name", e.target.value)} placeholder="Ej: Fútbol" className="bg-gray-900 border-gray-800" />
               </div>
               <div>
                 <label className="text-xs text-gray-500">Título *</label>
-                <Input value={form.title} onChange={(e) => set("title", e.target.value)} placeholder="Ex: Futebol" className="bg-gray-900 border-gray-800" />
+                <Input value={form.title} onChange={(e) => set("title", e.target.value)} placeholder="Ej: Fútbol" className="bg-gray-900 border-gray-800" />
               </div>
               <div>
                 <label className="text-xs text-gray-500">Subtítulo</label>
-                <Input value={form.subtitle} onChange={(e) => set("subtitle", e.target.value)} placeholder="Ex: Champions League, Brasileirão" className="bg-gray-900 border-gray-800" />
+                <Input value={form.subtitle} onChange={(e) => set("subtitle", e.target.value)} placeholder="Ej: Champions League, Liga MX" className="bg-gray-900 border-gray-800" />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
@@ -460,19 +460,19 @@ export default function AdminCards() {
                   <Select value={form.card_type} onValueChange={(v) => set("card_type", v)}>
                     <SelectTrigger className="bg-gray-900 border-gray-800"><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="type1_lateral">Imagem Lateral</SelectItem>
-                      <SelectItem value="type2_top">Imagem em Cima</SelectItem>
+                      <SelectItem value="type1_lateral">Imagen Lateral</SelectItem>
+                      <SelectItem value="type2_top">Imagen Arriba</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div>
-                  <label className="text-xs text-gray-500">Categoria</label>
+                  <label className="text-xs text-gray-500">Categoría</label>
                   <Select value={form.category} onValueChange={(v) => set("category", v)}>
                     <SelectTrigger className="bg-gray-900 border-gray-800"><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="sport">Esporte</SelectItem>
-                      <SelectItem value="casino">Cassino</SelectItem>
-                      <SelectItem value="quick_access">Acesso Rápido</SelectItem>
+                      <SelectItem value="sport">Deporte</SelectItem>
+                      <SelectItem value="casino">Casino</SelectItem>
+                      <SelectItem value="quick_access">Acceso Rápido</SelectItem>
                       <SelectItem value="blocked">Bloqueado</SelectItem>
                     </SelectContent>
                   </Select>
@@ -481,11 +481,11 @@ export default function AdminCards() {
 
               {/* Image Uploads — conditional on card type */}
               <div className="p-3 rounded-lg bg-gray-800 space-y-3">
-                <label className="text-sm font-medium">📱 Imagens</label>
+                <label className="text-sm font-medium">📱 Imágenes</label>
                 {isLateral ? (
                   <div>
                     <label className="text-xs text-gray-500 mb-1 block">
-                      Imagem <span className="text-red-400">*</span> <span className="text-muted-foreground">(200 x 240 px)</span>
+                      Imagen <span className="text-red-400">*</span> <span className="text-muted-foreground">(200 x 240 px)</span>
                     </label>
                     <LogoInput
                       currentPreview={form.image_mobile || null}
@@ -496,7 +496,7 @@ export default function AdminCards() {
                   <>
                     <div>
                       <label className="text-xs text-gray-500 mb-1 block">
-                        Imagem Mobile <span className="text-red-400">*</span> <span className="text-muted-foreground">(800 x 360 px)</span>
+                        Imagen Móvil <span className="text-red-400">*</span> <span className="text-muted-foreground">(800 x 360 px)</span>
                       </label>
                       <LogoInput
                         currentPreview={form.image_mobile || null}
@@ -505,7 +505,7 @@ export default function AdminCards() {
                     </div>
                     <div>
                       <label className="text-xs text-gray-500 mb-1 block">
-                        Imagem Tablet <span className="text-muted-foreground">(1024 x 400 px) — opcional</span>
+                        Imagen Tablet <span className="text-muted-foreground">(1024 x 400 px) — opcional</span>
                       </label>
                       <LogoInput
                         currentPreview={form.image_tablet || null}
@@ -514,7 +514,7 @@ export default function AdminCards() {
                     </div>
                     <div>
                       <label className="text-xs text-gray-500 mb-1 block">
-                        Imagem Desktop <span className="text-muted-foreground">(1200 x 400 px) — opcional</span>
+                        Imagen Escritorio <span className="text-muted-foreground">(1200 x 400 px) — opcional</span>
                       </label>
                       <LogoInput
                         currentPreview={form.image_desktop || null}
@@ -540,16 +540,16 @@ export default function AdminCards() {
                   ))}
                 </div>
                 <div>
-                  <label className="text-xs text-gray-500">Cor dos badges</label>
+                  <label className="text-xs text-gray-500">Color de los badges</label>
                   <Select value={form.badge_color} onValueChange={(v) => set("badge_color", v)}>
                     <SelectTrigger className="bg-gray-900 border-gray-800"><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="primary">Primary (laranja)</SelectItem>
-                      <SelectItem value="gold">Gold (dourado)</SelectItem>
+                      <SelectItem value="primary">Primary (naranja)</SelectItem>
+                      <SelectItem value="gold">Gold (dorado)</SelectItem>
                       <SelectItem value="green">Green (verde)</SelectItem>
-                      <SelectItem value="black_green">Preto (fonte verde)</SelectItem>
-                      <SelectItem value="tron">Tron (azul/preto)</SelectItem>
-                      <SelectItem value="white">Branco (fonte preta)</SelectItem>
+                      <SelectItem value="black_green">Negro (fuente verde)</SelectItem>
+                      <SelectItem value="tron">Tron (azul/negro)</SelectItem>
+                      <SelectItem value="white">Blanco (fuente negra)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -557,21 +557,21 @@ export default function AdminCards() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs text-gray-500">Texto botão acesso</label>
+                  <label className="text-xs text-gray-500">Texto botón acceso</label>
                   <Input value={form.button_text_access} onChange={(e) => set("button_text_access", e.target.value)} className="bg-gray-900 border-gray-800" />
                 </div>
                 <div>
-                  <label className="text-xs text-gray-500">Texto botão aquisição</label>
+                  <label className="text-xs text-gray-500">Texto botón adquisición</label>
                   <Input value={form.button_text_acquire} onChange={(e) => set("button_text_acquire", e.target.value)} className="bg-gray-900 border-gray-800" />
                 </div>
               </div>
 
               {/* Button Style Section */}
               <div className="p-3 rounded-lg bg-gray-800 space-y-3">
-                <label className="text-sm font-medium">🎨 Estilo do Botão</label>
+                <label className="text-sm font-medium">🎨 Estilo del Botón</label>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-xs text-gray-500 mb-1 block">Cor de Fundo</label>
+                    <label className="text-xs text-gray-500 mb-1 block">Color de Fondo</label>
                     <div className="flex items-center gap-2">
                       <input
                         type="color"
@@ -582,13 +582,13 @@ export default function AdminCards() {
                       <Input
                         value={form.button_bg_color}
                         onChange={(e) => set("button_bg_color", e.target.value)}
-                        placeholder="Padrão do tema"
+                        placeholder="Predeterminado del tema"
                         className="bg-gray-900 border-gray-800 text-xs flex-1"
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="text-xs text-gray-500 mb-1 block">Cor da Fonte</label>
+                    <label className="text-xs text-gray-500 mb-1 block">Color de la Fuente</label>
                     <div className="flex items-center gap-2">
                       <input
                         type="color"
@@ -599,7 +599,7 @@ export default function AdminCards() {
                       <Input
                         value={form.button_font_color}
                         onChange={(e) => set("button_font_color", e.target.value)}
-                        placeholder="Padrão do tema"
+                        placeholder="Predeterminado del tema"
                         className="bg-gray-900 border-gray-800 text-xs flex-1"
                       />
                     </div>
@@ -609,24 +609,24 @@ export default function AdminCards() {
 
               {form.requires_access && (
                 <div>
-                  <label className="text-xs text-gray-500">Pay Card de Destino</label>
+                  <label className="text-xs text-gray-500">Tarjeta de Pago de Destino</label>
                   <Select value={form.pay_card_id} onValueChange={(v) => set("pay_card_id", v === "__none__" ? "" : v)}>
-                    <SelectTrigger className="bg-gray-900 border-gray-800"><SelectValue placeholder="Selecione um Pay Card..." /></SelectTrigger>
+                    <SelectTrigger className="bg-gray-900 border-gray-800"><SelectValue placeholder="Selecciona una Tarjeta de Pago..." /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="__none__">Nenhum</SelectItem>
+                      <SelectItem value="__none__">Ninguna</SelectItem>
                       {payCards.map((pc) => (
                         <SelectItem key={pc.id} value={pc.id}>{pc.name}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
-                  <p className="text-[10px] text-gray-500 mt-1">O botão "Adquirir" abrirá o funil deste Pay Card</p>
+                  <p className="text-[10px] text-gray-500 mt-1">El botón "Adquirir" abrirá el embudo de esta Tarjeta de Pago</p>
                 </div>
               )}
 
               <div className="flex items-center justify-between p-3 rounded-lg bg-gray-800">
                 <div>
-                  <label className="text-sm font-medium">Requer acesso especial</label>
-                  <p className="text-[10px] text-gray-500">Exibe botão "Adquirir" para quem não tem acesso</p>
+                  <label className="text-sm font-medium">Requiere acceso especial</label>
+                  <p className="text-[10px] text-gray-500">Muestra el botón "Adquirir" para quien no tiene acceso</p>
                 </div>
                 <Switch checked={form.requires_access} onCheckedChange={(v) => set("requires_access", v)} />
               </div>
@@ -640,7 +640,7 @@ export default function AdminCards() {
                         <span className="truncate text-gray-300">
                           {(() => {
                             const parsed = parseAudience(form.access_field);
-                            return parsed.length > 0 ? parsed.map(getSegmentLabel).join(", ") : "Selecione os critérios...";
+                            return parsed.length > 0 ? parsed.map(getSegmentLabel).join(", ") : "Selecciona los criterios...";
                           })()}
                         </span>
                         <ChevronDown className="w-4 h-4 shrink-0 opacity-50" />
@@ -679,7 +679,7 @@ export default function AdminCards() {
                                   className="text-xs text-red-400 hover:text-red-300 font-medium w-full text-center"
                                   onClick={() => set("access_field", "[]")}
                                 >
-                                  Limpar tudo
+                                  Limpiar todo
                                 </button>
                               </div>
                             )}
@@ -688,12 +688,12 @@ export default function AdminCards() {
                       })()}
                     </PopoverContent>
                   </Popover>
-                  <p className="text-[10px] text-gray-500 mt-1">O card será bloqueado para usuários que atendem TODOS os critérios selecionados</p>
+                  <p className="text-[10px] text-gray-500 mt-1">El card será bloqueado para usuarios que cumplan TODOS los criterios seleccionados</p>
                 </div>
               )}
 
               <div className="flex items-center justify-between">
-                <label className="text-sm">Ativo</label>
+                <label className="text-sm">Activo</label>
                 <Switch checked={form.is_active} onCheckedChange={(v) => set("is_active", v)} />
               </div>
 
@@ -701,14 +701,14 @@ export default function AdminCards() {
               <FunnelBuilder form={funnelForm} onChange={handleFunnelChange} />
 
               <Button onClick={handleSave} disabled={saving} className="w-full">
-                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : editId ? "Salvar alterações" : "Criar card"}
+                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : editId ? "Guardar cambios" : "Crear card"}
               </Button>
             </div>
 
             {/* Preview Column */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <label className="text-sm font-medium">Preview Interativo</label>
+                <label className="text-sm font-medium">Vista previa interactiva</label>
                 <div className="flex items-center gap-1 bg-gray-800 rounded-lg p-0.5">
                   <button
                     onClick={() => setPreviewMode("mobile")}
@@ -732,7 +732,7 @@ export default function AdminCards() {
               </div>
 
               {form.requires_access && (
-                <label className="text-xs text-green-400">✅ Preview (com acesso)</label>
+                <label className="text-xs text-green-400">✅ Vista previa (con acceso)</label>
               )}
               <div
                 className="rounded-xl border border-gray-800 p-4 flex justify-center"
@@ -750,7 +750,7 @@ export default function AdminCards() {
               {/* Show locked version if requires_access */}
               {form.requires_access && (
                 <>
-                  <label className="text-xs text-gray-500">Preview (sem acesso / bloqueado)</label>
+                  <label className="text-xs text-gray-500">Vista previa (sin acceso / bloqueado)</label>
                   <div
                     className="rounded-xl border border-gray-800 p-4 flex justify-center"
                     style={{ background: "hsl(0 0% 4%)" }}
