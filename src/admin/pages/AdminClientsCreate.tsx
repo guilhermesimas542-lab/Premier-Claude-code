@@ -110,6 +110,8 @@ export default function AdminClientsCreate() {
                 <SelectItem value="basic">Basic</SelectItem>
                 <SelectItem value="pro">Pro</SelectItem>
                 <SelectItem value="ultra">Ultra</SelectItem>
+                <SelectItem value="premium">Premium</SelectItem>
+                <SelectItem value="diamante">Diamante</SelectItem>
               </SelectContent>
             </Select>
           </div>
