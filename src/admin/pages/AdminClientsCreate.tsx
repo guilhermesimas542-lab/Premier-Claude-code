@@ -15,6 +15,8 @@ const ADDON_TOGGLES = [
   { key: "multiplas_bingo", label: "Múltiplas / Bingo" },
   { key: "live_telegram", label: "Live Telegram" },
   { key: "acesso_vitalicio", label: "Acesso Vitalício" },
+  { key: "mercados_secundarios", label: "Merc. Secundário" },
+  { key: "esportes_americanos", label: "Ligas Americanas" },
 ] as const;
 
 export default function AdminClientsCreate() {
@@ -108,6 +110,8 @@ export default function AdminClientsCreate() {
                 <SelectItem value="basic">Basic</SelectItem>
                 <SelectItem value="pro">Pro</SelectItem>
                 <SelectItem value="ultra">Ultra</SelectItem>
+                <SelectItem value="premium">Premium</SelectItem>
+                <SelectItem value="diamante">Diamante</SelectItem>
               </SelectContent>
             </Select>
           </div>
