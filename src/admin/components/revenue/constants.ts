@@ -91,6 +91,8 @@ export const UPSELL_FILTERS = [
   // Global
   { label: 'Qualquer plano sem Vitalício', tier: 'any_paid', missingKey: 'acesso_vitalicio', checkVitalicio: true },
   { label: 'Qualquer plano sem Live Telegram', tier: 'any_paid', missingKey: 'live_telegram' },
+  { label: 'Qualquer plano sem Merc. Secundário', tier: 'any_paid', missingKey: 'mercados_secundarios' },
+  { label: 'Qualquer plano sem Ligas Americanas', tier: 'any_paid', missingKey: 'esportes_americanos' },
   // Free
   { label: 'Free sem Alavancagem', tier: 'free', missingKey: 'alavancagem' },
   { label: 'Free sem Múltiplas / Bingo', tier: 'free', missingKey: 'multiplas_bingo' },
