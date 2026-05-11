@@ -131,6 +131,8 @@ const ADDON_TOGGLES = [
   { key: "multiplas_bingo", label: "Múltiplas / Bingo" },
   { key: "live_telegram", label: "Live Telegram" },
   { key: "acesso_vitalicio", label: "Vitalício" },
+  { key: "mercados_secundarios", label: "Merc. Secundário" },
+  { key: "esportes_americanos", label: "Ligas Americanas" },
 ] as const;
 
 const TIER_PILLS = [
@@ -138,6 +140,8 @@ const TIER_PILLS = [
   { value: "basic", label: "Básico" },
   { value: "pro", label: "Pro" },
   { value: "ultra", label: "Ultra" },
+  { value: "premium", label: "Premium" },
+  { value: "diamante", label: "Diamante" },
 ] as const;
 
 const ADDON_PILLS = [
@@ -145,6 +149,8 @@ const ADDON_PILLS = [
   { value: "multiplas_bingo", label: "Múltiplas / Bingo" },
   { value: "live_telegram", label: "Live Telegram" },
   { value: "acesso_vitalicio", label: "Acesso Vitalício" },
+  { value: "mercados_secundarios", label: "Merc. Secundário" },
+  { value: "esportes_americanos", label: "Ligas Americanas" },
 ] as const;
 
 export default function AdminClientsManage() {
