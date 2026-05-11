@@ -9,6 +9,8 @@ const UPSELL_BADGES = [
   { key: "multiplas_bingo", letter: "M", activeColor: "bg-yellow-500 text-white", title: "Múltiplas / Bingo" },
   { key: "acesso_vitalicio", letter: "V", activeColor: "bg-purple-500 text-white", title: "Vitalício" },
   { key: "live_telegram", letter: "L", activeColor: "bg-green-500 text-white", title: "Live" },
+  { key: "mercados_secundarios", letter: "S", activeColor: "bg-orange-500 text-white", title: "Merc. Secundário" },
+  { key: "esportes_americanos", letter: "E", activeColor: "bg-red-500 text-white", title: "Ligas Americanas" },
 ];
 
 const TIER_COLORS: Record<string, string> = {
@@ -16,6 +18,8 @@ const TIER_COLORS: Record<string, string> = {
   basic: "text-[#60A5FA]",
   pro: "text-[#00FF7F]",
   ultra: "text-[#7C3AED]",
+  premium: "text-[#F59E0B]",
+  diamante: "text-[#22D3EE]",
 };
 
 const TIER_LABELS: Record<string, string> = {
@@ -23,6 +27,8 @@ const TIER_LABELS: Record<string, string> = {
   basic: "Básico",
   pro: "Pro",
   ultra: "Ultra",
+  premium: "Premium",
+  diamante: "Diamante",
 };
 
 interface LastEvent {
