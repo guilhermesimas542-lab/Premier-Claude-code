@@ -16,10 +16,7 @@ export default function Obrigado() {
     document.title = "Compra confirmada | Premier FC";
   }, []);
 
-  const baseWa = links.support_whatsapp_url || SUPPORT_WHATSAPP_URL_FALLBACK;
-  const waUrl = baseWa.includes("?text=")
-    ? baseWa
-    : `${baseWa}${baseWa.includes("?") ? "&" : "?"}text=${WA_MESSAGE}`;
+  const waUrl = "https://wa.me/5521979686456?text=Quero%20resgatar%20meu%20acesso";
 
   const handleWhatsApp = () => {
     window.open(waUrl, "_blank", "noopener,noreferrer");
