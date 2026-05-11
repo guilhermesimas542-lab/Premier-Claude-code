@@ -310,6 +310,24 @@ export default function AdminClientsManage() {
       }
     });
 
+    // Add-ons concedidos automaticamente por tier (sem entitlement)
+    const TIER_GRANTED_ADDONS: Record<string, string[]> = {
+      premium: ["multiplas_bingo"],
+      diamante: ["alavancagem", "multiplas_bingo", "mercados_secundarios", "esportes_americanos"],
+      ultra: ["alavancagem", "multiplas_bingo", "mercados_secundarios", "esportes_americanos"],
+    };
+    rawUsers.forEach((user: any) => {
+      const grantedByTier = TIER_GRANTED_ADDONS[user.main_tier] ?? [];
+      grantedByTier.forEach((key) => {
+        const label = UPSELL_LABELS[key];
+        if (!label) return;
+        if (!upsellMap[user.id]) upsellMap[user.id] = [];
+        if (!upsellMap[user.id].includes(label)) upsellMap[user.id].push(label);
+        if (!entKeyMap[user.id]) entKeyMap[user.id] = [];
+        if (!entKeyMap[user.id].includes(key)) entKeyMap[user.id].push(key);
+      });
+    });
+
     let filtered = rawUsers;
     // Filter by addons: user must have ALL selected addons
     if (addons.length > 0) {

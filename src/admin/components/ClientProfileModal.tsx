@@ -77,6 +77,18 @@ export function ClientProfileModal({ userId, onClose }: ClientProfileModalProps)
       const activeKeys = (entRes.data ?? []).map((e) => e.product_key as string);
       const lastEvent = evRes.data?.[0] ?? null;
 
+      // Add-ons concedidos automaticamente por tier (sem entitlement)
+      const TIER_GRANTED_ADDONS: Record<string, string[]> = {
+        premium: ["multiplas_bingo"],
+        diamante: ["alavancagem", "multiplas_bingo", "mercados_secundarios", "esportes_americanos"],
+        ultra: ["alavancagem", "multiplas_bingo", "mercados_secundarios", "esportes_americanos"],
+      };
+      const userTier = (userRes.data as any).main_tier as string;
+      const grantedByTier = TIER_GRANTED_ADDONS[userTier] ?? [];
+      grantedByTier.forEach((key) => {
+        if (!activeKeys.includes(key)) activeKeys.push(key);
+      });
+
       setData({ ...(userRes.data as unknown as AdminUser), activeKeys, lastEvent });
       setLoading(false);
     };
