@@ -114,6 +114,8 @@ export const TIER_DISPLAY: Record<string, string> = {
   basic: 'Básico',
   pro: 'Pro',
   ultra: 'Ultra',
+  premium: 'Premium',
+  diamante: 'Diamante',
 };
 
 export const ADDON_DISPLAY: Record<string, string> = {
@@ -121,4 +123,6 @@ export const ADDON_DISPLAY: Record<string, string> = {
   multiplas_bingo: 'Múltiplas / Bingo',
   live_telegram: 'Live Telegram',
   acesso_vitalicio: 'Acesso Vitalício',
+  mercados_secundarios: 'Merc. Secundário',
+  esportes_americanos: 'Ligas Americanas',
 };
