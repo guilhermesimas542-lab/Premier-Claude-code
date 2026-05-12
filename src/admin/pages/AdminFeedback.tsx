@@ -17,6 +17,8 @@ interface Feedback {
   screenshot_url: string | null;
   status: string;
   created_at: string;
+  source?: "app" | "ia-tipster";
+  tip_cache_id?: string | null;
 }
 
 type SortField = "email" | "category" | "created_at" | "status";
