@@ -153,7 +153,8 @@ function getKickoffRange(
   if (period === "next7d") {
     const t = new Date(now);
     t.setDate(t.getDate() + 7);
-    return { start: startOfDay(now), end: endOfDay(t) };
+    // start = AGORA (não startOfDay), pra não pegar jogos que já rolaram hoje
+    return { start: now, end: endOfDay(t) };
   }
   if (period === "yesterday") {
     const y = new Date(now);
