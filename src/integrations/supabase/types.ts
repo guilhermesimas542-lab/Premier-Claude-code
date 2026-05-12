@@ -1891,7 +1891,9 @@ export type Database = {
           id: string
           message: string
           screenshot_url: string | null
+          source: string
           status: string
+          tip_cache_id: string | null
           user_id: string
         }
         Insert: {
@@ -1901,7 +1903,9 @@ export type Database = {
           id?: string
           message: string
           screenshot_url?: string | null
+          source?: string
           status?: string
+          tip_cache_id?: string | null
           user_id: string
         }
         Update: {
@@ -1911,10 +1915,19 @@ export type Database = {
           id?: string
           message?: string
           screenshot_url?: string | null
+          source?: string
           status?: string
+          tip_cache_id?: string | null
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "user_feedback_tip_cache_id_fkey"
+            columns: ["tip_cache_id"]
+            isOneToOne: false
+            referencedRelation: "ai_tip_cache"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "user_feedback_user_id_fkey"
             columns: ["user_id"]
