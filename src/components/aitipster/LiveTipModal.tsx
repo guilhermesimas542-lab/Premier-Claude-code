@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import ReactMarkdown from "react-markdown";
 import { LiveMatch } from "@/hooks/useLiveMatches";
 import { useGenerateLiveTip } from "@/hooks/useGenerateLiveTip";
 import { useCreditBalance } from "@/hooks/useCreditBalance";
+import { TipAnalysis } from "./TipAnalysis";
+import { BugReportDrawer } from "./BugReportDrawer";
 import {
   Dialog,
   DialogContent,
@@ -19,6 +20,7 @@ import {
   ThumbsUp,
   ThumbsDown,
   RefreshCw,
+  Bug,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -34,6 +36,7 @@ export function LiveTipModal({ open, onOpenChange, match }: Props) {
   const { refetch: refetchBalance } = useCreditBalance();
   const [showSource, setShowSource] = useState(false);
   const [feedback, setFeedback] = useState<"up" | "down" | null>(null);
+  const [bugOpen, setBugOpen] = useState(false);
 
   async function handleGenerate() {
     await generate(match.fixture_id);
@@ -118,9 +121,7 @@ export function LiveTipModal({ open, onOpenChange, match }: Props) {
                 Análise gerada por outro usuário · cache compartilhado · 0 créditos
               </div>
             )}
-            <div className="prose prose-sm prose-invert max-w-none text-sm leading-relaxed">
-              <ReactMarkdown>{tip.content.markdown}</ReactMarkdown>
-            </div>
+            <TipAnalysis markdown={tip.content?.markdown ?? ""} />
 
             <div className="flex items-center gap-2">
               <Button
@@ -139,6 +140,14 @@ export function LiveTipModal({ open, onOpenChange, match }: Props) {
               >
                 <ThumbsDown className="w-4 h-4" />
               </Button>
+              <Button
+                onClick={() => setBugOpen(true)}
+                variant="outline"
+                size="sm"
+                title="Reportar bug"
+              >
+                <Bug className="w-4 h-4" />
+              </Button>
             </div>
 
             <Button onClick={handleOpenEsportiva} className="w-full" variant="default">
@@ -149,6 +158,11 @@ export function LiveTipModal({ open, onOpenChange, match }: Props) {
           </div>
         )}
       </DialogContent>
+      <BugReportDrawer
+        open={bugOpen}
+        onOpenChange={setBugOpen}
+        tipCacheId={tip?.tip_cache_id ?? ""}
+      />
     </Dialog>
   );
 }
