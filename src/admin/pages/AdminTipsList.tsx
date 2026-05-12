@@ -535,13 +535,22 @@ export default function AdminTipsList() {
                   <td className="px-3 py-2">{t.starts_at ? new Date(t.starts_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : "—"}</td>
                   <td className="px-3 py-2">{t.odd != null ? t.odd.toFixed(2) : "—"}</td>
                   <td className="px-3 py-2">
-                    {(t as any).addon_required === "alavancagem" ? (
-                      <span className="text-blue-400 font-medium">Alavancagem</span>
-                    ) : (t as any).addon_required === "multiplas_bingo" ? (
-                      <span className="text-yellow-400 font-medium">Múltiplas / Bingo</span>
-                    ) : (
-                      <span className="capitalize">{t.tier_required}</span>
-                    )}
+                    <span className="capitalize">
+                      {(() => {
+                        const feature = (t as any).feature_required as string | null;
+                        const addon = (t as any).addon_required as string | null;
+                        if (feature === "odds_safes") return "Odds Safes";
+                        if (feature === "odds_pro") return "Odds Pró";
+                        if (feature === "odds_ultra") return "Odds Ultra";
+                        if (feature === "alavancagem") return "Alavancagem";
+                        if (feature === "multiplas_bingo") return "Múltiplas / Bingo";
+                        if (feature === "mercados_secundarios") return "Merc. Secundários";
+                        if (feature === "esportes_americanos") return "Esp. Americanos";
+                        if (addon === "alavancagem") return "Alavancagem";
+                        if (addon === "multiplas_bingo") return "Múltiplas / Bingo";
+                        return t.tier_required;
+                      })()}
+                    </span>
                   </td>
                   <td className="px-3 py-2"><Switch checked={t.active} onCheckedChange={(v) => toggleActive(t.id, v)} /></td>
                   <td className="px-3 py-2">
