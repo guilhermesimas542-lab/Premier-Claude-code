@@ -42,7 +42,7 @@ const TOP_LEAGUES = [
   16,
 ];
 const WINDOW_DAYS_FUTURE = 15;
-const WINDOW_DAYS_PAST = 30;
+const WINDOW_DAYS_PAST = 7;
 
 interface TokenPayload {
   user_id?: string;
