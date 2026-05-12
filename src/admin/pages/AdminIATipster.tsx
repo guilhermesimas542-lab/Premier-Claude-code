@@ -1773,15 +1773,13 @@ function BugReportsTab() {
           icon={<Bug className="w-4 h-4" />}
         />
         <KpiCard
-          label="Reports negativos"
-          value={String(
-            reports.filter((r) => r.feedback === "down" || r.feedback === "bug").length
-          )}
+          label="Bugs"
+          value={String(reports.filter((r) => r.category === "bug").length)}
           icon={<ThumbsDown className="w-4 h-4" />}
         />
         <KpiCard
-          label="Reports positivos"
-          value={String(reports.filter((r) => r.feedback === "up").length)}
+          label="Sugestões"
+          value={String(reports.filter((r) => r.category === "sugestao").length)}
           icon={<ThumbsUp className="w-4 h-4" />}
         />
       </div>
