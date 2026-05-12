@@ -44,54 +44,236 @@ const TOP_LEAGUES = [
 const CLAUDE_MODEL = "claude-sonnet-4-5";
 const CACHE_TTL_HOURS = 24;
 
-const SYSTEM_PROMPT_CHAT = `# IDENTIDADE
-Voce e o IA Tipster do Premier, ferramenta de analise estatistica de futebol em beta.
-Voce gera analise pre-jogo com base em estatisticas historicas e recentes dos times.
+const SYSTEM_PROMPT_CHAT = `Você é o Savel, tipster especialista em futebol e fundador da Premier Ultra. Você analisa jogos com base em dados estatísticos, percentuais e contexto, não em paixão ou achismo.
 
-# IDIOMA
-Portugues brasileiro, tom direto e tecnico. Sem floreio, sem hype.
+# SUA FILOSOFIA
 
-# FORMATO DE SAIDA OBRIGATORIO (markdown)
-Tag 1: Linha com ENTRADA + mercado especifico
-Tag 2: Linha com ODD + valor numerico se disponivel, senao "consultar Esportiva Bet"
-Tag 3: Linha com ANALISE seguida de 3 bullets
-- bullet 1: dado verificavel com fonte e periodo (ex: "Real Madrid em 4 dos ultimos 5 jogos teve mais de 8 escanteios em casa - API-Football, periodo 12/04 a 06/05")
-- bullet 2: idem
-- bullet 3: idem
-Tag 4: Linha com CONFIANCA: Alta, Media ou Baixa
-Tag 5: Linha em italico: "Analise valida ate o inicio do jogo"
+- Você valoriza splits casa/fora — onde o time joga importa mais do que números globais.
+- Você trabalha com percentuais reais dos últimos 10 jogos, não com sensações.
+- Você considera odds reais ao avaliar valor: odd inflada em mercado provável = entrada de valor.
+- Você analisa streaks (sequências), forma recente e momento dos times.
+- Você assume conhecimento básico do leitor — não explica conceitos básicos de futebol nem de apostas.
+- Você não inventa números: só usa dados que estão no contexto.
 
-Use exatamente os emojis: alvo / grafico / livro / raio / link
+# MERCADOS QUE VOCÊ DOMINA
 
-# REGRAS
-1. Toda estatistica DEVE incluir fonte e periodo.
-   Exemplo correto: "Barcelona marcou em 9 dos ultimos 10 jogos em casa na La Liga"
-   Exemplo proibido: "Barcelona costuma marcar bastante em casa"
+1X2 (vencedor), Total de Gols (Over/Under), Handicap Asiático, Chance Dupla, Ambas Marcam (BTTS), Empate Anula Aposta (raro, só quando o cenário pede muito), Gol no 1º Tempo, Escanteios (totais e 1ºT), Cartões (totais e 1ºT), Team Over (Total de Gols de UM time específico, ex: "Atlético-MG +1.5 gols").
 
-2. Se dados nao permitem analise rigorosa, responda:
-   "Dados insuficientes para analise rigorosa deste confronto."
-   NAO invente numeros. NAO use conhecimento de treinamento generico.
+# DADOS QUE VOCÊ VAI RECEBER
 
-3. Nunca sugerir odd acima de 3.00 sem justificativa explicita de risco.
+- Fixture (data, liga, times)
+- Tabela do campeonato com splits casa/fora dos dois times
+- Forma e percentuais dos últimos 10 do time da casa
+- Forma e percentuais dos últimos 10 do time visitante
+- H2H entre eles
+- Streaks atuais (sequência de resultados, clean sheets)
+- Odds reais dos principais mercados quando disponíveis
 
-4. Nunca recomendar multipla com mais de 3 selecoes.
+# FORMATO DE SAÍDA (markdown PT-BR)
 
-5. Citar APENAS a Esportiva Bet como casa de aposta.
+[Uma linha narrativa curta no início, capturando a essência do jogo. Sem markdown.]
 
-6. Considere proximidade do jogo:
-   - mais de 7 dias: cautela, lineup pode mudar
-   - 3-7 dias: tendencias mais confiaveis
-   - menos de 3 dias: maior peso a forma recente
+**Entrada principal**
+[Mercado + linha exata + odd aproximada se disponível]
 
-# FILOSOFIA
-- Tip com fundamento vence palpite com vibe.
-- Time grande nao e favorito automatico: o dado e favorito.
-- Preferir mercados de baixa variancia em alta confianca.
-- Em duvida entre dois mercados, escolher o mais conservador.
+[1 parágrafo de 3-5 frases justificando, usando dados de forma narrativa. NÃO liste números em formato vertical. Insira porcentagens e tendências naturalmente no texto, como um bookie experiente conversando com outro.]
 
-# DADOS DO JOGO
-Use APENAS os dados estruturados injetados na mensagem do usuario.
+**Alternativas**
+- [Alternativa A em mercado DIFERENTE da principal: linha + 1 frase de lógica]
+- [Alternativa B em mercado DIFERENTE da principal e da A: linha + 1 frase de lógica]
+
+[1 parágrafo final com ressalva técnica, variável de risco, contexto H2H notável, ou momento dos times. Não é obrigatório repetir números — pode ser leitura tática.]
+
+*Análise válida até o início do jogo*
+
+# REGRAS RÍGIDAS
+
+- NÃO emitir seção "CONFIANÇA: Alta/Média/Baixa". Modular o tom internamente (entrada mais firme = mais assertivo; menos firme = mais cauteloso) mas SEM rótulo explícito.
+- NÃO usar palavras vazias: "definitivamente", "absolutamente", "100% certo", "garantido".
+- NÃO repetir o nome dos times mais de 3 vezes na análise inteira (use pronome, posição, ou apelido genérico tipo "o mandante", "o visitante").
+- NÃO incluir link da Esportiva Bet (botão separado já existe).
+- NÃO emitir disclaimers extensos sobre risco — apenas o "*Análise válida até o início do jogo*" no fim.
+- NÃO listar números brutos em formato vertical ou tabela.
+- NÃO inventar dados. Se um campo veio null no contexto, ignore — não mencione "infelizmente não temos a tabela disponível".
+- USAR sempre PT-BR brasileiro.
+- USAR termos técnicos de aposta (não "vai ganhar", "vencedor"; não "mais que 2 gols", "Over 2.5"; etc).
+- ALTERNATIVAS devem ser em mercados DIFERENTES da principal (não 3 entradas sobre vencedor).
+- Entradas com odd estimada abaixo de 1.30 evitar como principal — pouca margem.
 `;
+
+async function fetchStandings(
+  supabase: any,
+  leagueId: number,
+  apiKey: string
+): Promise<any | null> {
+  const cacheKey = `standings:league_${leagueId}`;
+  const { data: cached } = await supabase
+    .from("ai_tip_cache")
+    .select("content")
+    .eq("match_key", cacheKey)
+    .eq("match_type", "live")
+    .gt("expires_at", new Date().toISOString())
+    .order("generated_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (cached) return (cached.content as any)?.standings ?? null;
+
+  const year = new Date().getFullYear();
+  for (const season of [year, year - 1]) {
+    try {
+      const url = `https://v3.football.api-sports.io/standings?league=${leagueId}&season=${season}`;
+      const resp = await fetch(url, { headers: { "x-apisports-key": apiKey } });
+      if (!resp.ok) continue;
+      const data = await resp.json();
+      const league = data?.response?.[0]?.league;
+      const table = league?.standings?.[0];
+      if (Array.isArray(table) && table.length > 0) {
+        const simplified = table.map((t: any) => ({
+          rank: t.rank,
+          team: t.team?.name,
+          team_id: t.team?.id,
+          played: t.all?.played,
+          win: t.all?.win,
+          draw: t.all?.draw,
+          lose: t.all?.lose,
+          gf: t.all?.goals?.for,
+          ga: t.all?.goals?.against,
+          gd: t.goalsDiff,
+          pts: t.points,
+          form: t.form,
+          home_played: t.home?.played,
+          home_win: t.home?.win,
+          home_draw: t.home?.draw,
+          home_lose: t.home?.lose,
+          away_played: t.away?.played,
+          away_win: t.away?.win,
+          away_draw: t.away?.draw,
+          away_lose: t.away?.lose,
+        }));
+        const expiresAt = new Date(Date.now() + 6 * 3600 * 1000).toISOString();
+        await supabase.from("ai_tip_cache").insert({
+          match_key: cacheKey,
+          match_type: "live",
+          content: { standings: simplified, season },
+          source_data: { league_id: leagueId },
+          expires_at: expiresAt,
+          tokens_input: 0,
+          tokens_output: 0,
+        });
+        return simplified;
+      }
+    } catch (err) {
+      console.error("[standings] error", leagueId, season, err);
+    }
+  }
+  return null;
+}
+
+async function fetchOdds(
+  supabase: any,
+  fixtureId: number,
+  apiKey: string
+): Promise<any | null> {
+  const cacheKey = `odds:fixture_${fixtureId}`;
+  const { data: cached } = await supabase
+    .from("ai_tip_cache")
+    .select("content")
+    .eq("match_key", cacheKey)
+    .eq("match_type", "live")
+    .gt("expires_at", new Date().toISOString())
+    .order("generated_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (cached) return (cached.content as any)?.odds ?? null;
+
+  try {
+    const url = `https://v3.football.api-sports.io/odds?fixture=${fixtureId}`;
+    const resp = await fetch(url, { headers: { "x-apisports-key": apiKey } });
+    if (!resp.ok) return null;
+    const data = await resp.json();
+    const bookmakers = data?.response?.[0]?.bookmakers ?? [];
+    if (bookmakers.length === 0) return null;
+
+    const bookmaker = bookmakers[0];
+    const interestingMarkets = [
+      "Match Winner",
+      "Goals Over/Under",
+      "Both Teams Score",
+      "Asian Handicap",
+      "Double Chance",
+      "First Half Winner",
+      "Corners Over Under",
+      "Cards Over/Under",
+      "Home Team Total Goals",
+      "Away Team Total Goals",
+    ];
+    const filtered: any = {};
+    for (const bet of bookmaker?.bets ?? []) {
+      if (interestingMarkets.includes(bet.name)) {
+        filtered[bet.name] = bet.values?.slice(0, 6) ?? [];
+      }
+    }
+    const expiresAt = new Date(Date.now() + 30 * 60 * 1000).toISOString();
+    await supabase.from("ai_tip_cache").insert({
+      match_key: cacheKey,
+      match_type: "live",
+      content: { odds: filtered, bookmaker: bookmaker?.name },
+      source_data: { fixture_id: fixtureId },
+      expires_at: expiresAt,
+      tokens_input: 0,
+      tokens_output: 0,
+    });
+    return filtered;
+  } catch (err) {
+    console.error("[odds] error", fixtureId, err);
+    return null;
+  }
+}
+
+function calcPercentages(fixtures: any[]): any {
+  const total = fixtures.length;
+  if (total === 0) return null;
+  let over15 = 0, over25 = 0, over35 = 0;
+  let btts = 0, cleanSheets = 0;
+  for (const f of fixtures) {
+    const homeGoals = f?.goals?.home ?? 0;
+    const awayGoals = f?.goals?.away ?? 0;
+    const totalGoals = homeGoals + awayGoals;
+    if (totalGoals >= 2) over15++;
+    if (totalGoals >= 3) over25++;
+    if (totalGoals >= 4) over35++;
+    if (homeGoals > 0 && awayGoals > 0) btts++;
+    if (homeGoals === 0 || awayGoals === 0) cleanSheets++;
+  }
+  return {
+    over_15_pct: Math.round((over15 / total) * 100),
+    over_25_pct: Math.round((over25 / total) * 100),
+    over_35_pct: Math.round((over35 / total) * 100),
+    btts_pct: Math.round((btts / total) * 100),
+    clean_sheets_pct: Math.round((cleanSheets / total) * 100),
+    sample: total,
+  };
+}
+
+function calcStreak(fixtures: any[], teamId: number): any {
+  if (fixtures.length === 0) return { result: null, length: 0 };
+  const resultFor = (f: any): string => {
+    const isHome = f?.teams?.home?.id === teamId;
+    const hg = f?.goals?.home ?? 0;
+    const ag = f?.goals?.away ?? 0;
+    if (hg === ag) return "D";
+    if (isHome && hg > ag) return "W";
+    if (!isHome && ag > hg) return "W";
+    return "L";
+  };
+  const first = resultFor(fixtures[0]);
+  let length = 1;
+  for (let i = 1; i < fixtures.length; i++) {
+    if (resultFor(fixtures[i]) === first) length++;
+    else break;
+  }
+  return { result: first, length };
+}
 
 interface TokenPayload {
   user_id?: string;
