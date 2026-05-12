@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import ReactMarkdown from "react-markdown";
 import { ChatMessage as Msg } from "@/hooks/useChatTipster";
 import { DisambiguationCard } from "./DisambiguationCard";
+import { TipAnalysis } from "./TipAnalysis";
+import { BugReportDrawer } from "./BugReportDrawer";
 import { Button } from "@/components/ui/button";
-import { ThumbsUp, ThumbsDown, ExternalLink, AlertCircle, Loader2 } from "lucide-react";
+import { ThumbsUp, ThumbsDown, Bug, ExternalLink, AlertCircle, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface Props {
@@ -15,6 +16,7 @@ interface Props {
 export function ChatMessage({ message, onConfirmFixture }: Props) {
   const navigate = useNavigate();
   const [feedback, setFeedback] = useState<"up" | "down" | null>(null);
+  const [bugOpen, setBugOpen] = useState(false);
 
   if (message.role === "user") {
     return (
@@ -92,16 +94,14 @@ export function ChatMessage({ message, onConfirmFixture }: Props) {
     return (
       <div className="w-full space-y-2">
         {message.cached && (
-          <p className="text-[10px] italic text-muted-foreground">
+          <p className="text-[10px] italic text-muted-foreground px-2">
             Análise gerada por outro usuário · cache compartilhado · 0 créditos
           </p>
         )}
-        <div className="rounded-2xl rounded-bl-md bg-muted px-4 py-3">
-          <div className="prose prose-sm dark:prose-invert max-w-none">
-            <ReactMarkdown>{message.markdown}</ReactMarkdown>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
+
+        <TipAnalysis markdown={message.markdown} />
+
+        <div className="flex items-center gap-2 flex-wrap px-1 pt-1">
           <Button
             onClick={() => sendFeedback("up")}
             variant={feedback === "up" ? "default" : "outline"}
@@ -119,6 +119,14 @@ export function ChatMessage({ message, onConfirmFixture }: Props) {
             <ThumbsDown className="w-3 h-3" />
           </Button>
           <Button
+            onClick={() => setBugOpen(true)}
+            variant="outline"
+            size="sm"
+            title="Reportar bug"
+          >
+            <Bug className="w-3 h-3" />
+          </Button>
+          <Button
             onClick={() => navigate("/sport/1")}
             variant="default"
             size="sm"
@@ -128,6 +136,12 @@ export function ChatMessage({ message, onConfirmFixture }: Props) {
             Esportiva
           </Button>
         </div>
+
+        <BugReportDrawer
+          open={bugOpen}
+          onOpenChange={setBugOpen}
+          tipCacheId={message.tipCacheId}
+        />
       </div>
     );
   }
