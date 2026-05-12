@@ -68,6 +68,28 @@ function normalize(s: string): string {
     .trim();
 }
 
+function levenshtein(a: string, b: string): number {
+  if (a.length === 0) return b.length;
+  if (b.length === 0) return a.length;
+  const matrix: number[][] = [];
+  for (let i = 0; i <= b.length; i++) matrix[i] = [i];
+  for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
+  for (let i = 1; i <= b.length; i++) {
+    for (let j = 1; j <= a.length; j++) {
+      if (b.charAt(i - 1) === a.charAt(j - 1)) {
+        matrix[i][j] = matrix[i - 1][j - 1];
+      } else {
+        matrix[i][j] = Math.min(
+          matrix[i - 1][j - 1] + 1,
+          matrix[i][j - 1] + 1,
+          matrix[i - 1][j] + 1
+        );
+      }
+    }
+  }
+  return matrix[b.length][a.length];
+}
+
 function tokenSimilarity(a: string, b: string): number {
   const na = normalize(a);
   const nb = normalize(b);
@@ -97,7 +119,23 @@ function tokenSimilarity(a: string, b: string): number {
   const tb = nb.split(" ").filter(x => x.length >= 3);
   if (ta.length === 0 || tb.length === 0) return 0;
   const matches = ta.filter(x => tb.some(y => y.startsWith(x) || x.startsWith(y))).length;
-  return matches / Math.max(ta.length, tb.length);
+  const tokenScore = matches / Math.max(ta.length, tb.length);
+
+  // FALLBACK: tolerância a digitação via Levenshtein.
+  // Aplica só quando os métodos anteriores falharam (tokenScore = 0)
+  // e ambas as strings são suficientemente longas para evitar falsos positivos.
+  if (tokenScore === 0 && na.length >= 5 && nb.length >= 5) {
+    const dist = levenshtein(na, nb);
+    const maxLen = Math.max(na.length, nb.length);
+    const similarity = 1 - dist / maxLen;
+    // Threshold conservador (>= 0.8 = no máximo ~2 edições em palavras de 10 chars).
+    // Multiplica por 0.85 para garantir que match exato sempre fique acima.
+    if (similarity >= 0.8) {
+      return similarity * 0.85;
+    }
+  }
+
+  return tokenScore;
 }
 
 Deno.serve(async (req: Request) => {
@@ -157,8 +195,6 @@ Deno.serve(async (req: Request) => {
     dateOffsets.push(d);
   }
 
-  console.log(`[DBG] query="${query}", windowDaysPast=${WINDOW_DAYS_PAST}, windowDaysFuture=${WINDOW_DAYS_FUTURE}`);
-
   await Promise.all(
     dateOffsets.map(async (dayOffset) => {
       const target = new Date(today.getTime() + dayOffset * 86400000);
@@ -167,12 +203,9 @@ Deno.serve(async (req: Request) => {
         const url = `https://v3.football.api-sports.io/fixtures?date=${dateStr}`;
         const resp = await fetch(url, { headers: { "x-apisports-key": apiKey } });
         if (!resp.ok) {
-          console.log(`[DBG] date=${dateStr}: API returned 0 fixtures, status=${resp.status}`);
           return;
         }
         const data = await resp.json();
-        const totalInResponse = Array.isArray(data?.response) ? data.response.length : 0;
-        console.log(`[DBG] date=${dateStr}: API returned ${totalInResponse} fixtures, status=${resp.status}`);
         if (Array.isArray(data.response)) {
           for (const f of data.response) {
             if (f?.league?.id && TOP_LEAGUES_SET.has(f.league.id)) {
@@ -185,18 +218,6 @@ Deno.serve(async (req: Request) => {
       }
     })
   );
-
-  console.log(`[DBG] total fixtures filtered by TOP_LEAGUES: ${fixturesByLeague.length}`);
-  if (fixturesByLeague.length > 0) {
-    const sample = fixturesByLeague.slice(0, 3).map(f => ({
-      league: f.league?.name,
-      league_id: f.league?.id,
-      home: f.teams?.home?.name,
-      away: f.teams?.away?.name,
-      date: f.fixture?.date,
-    }));
-    console.log(`[DBG] sample fixtures:`, JSON.stringify(sample));
-  }
 
   if (fixturesByLeague.length === 0) {
     return jsonResp({
@@ -242,14 +263,10 @@ Deno.serve(async (req: Request) => {
       league: s.fixture.league.name,
       date: s.fixture.fixture.date,
     }));
-  console.log(`[DBG] top 10 scored fixtures:`, JSON.stringify(topCandidates));
-
   const candidates = scored
     .filter(s => s.totalScore > 0.3 && s.homeScore > 0 && s.awayScore > 0)
     .sort((a, b) => b.totalScore - a.totalScore)
     .slice(0, 5);
-
-  console.log(`[DBG] candidates after filter (>0.3 AND both>0): ${candidates.length}`);
 
   if (candidates.length === 0) {
     return jsonResp({
