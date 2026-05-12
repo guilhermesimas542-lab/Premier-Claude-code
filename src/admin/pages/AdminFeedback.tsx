@@ -57,6 +57,7 @@ export default function AdminFeedback() {
   const [loading, setLoading] = useState(true);
   const [filterCategory, setFilterCategory] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
+  const [sourceFilter, setSourceFilter] = useState<"todos" | "app" | "ia-tipster">("todos");
   const [datePreset, setDatePreset] = useState<string>("all");
   const [customFrom, setCustomFrom] = useState("");
   const [customTo, setCustomTo] = useState("");
