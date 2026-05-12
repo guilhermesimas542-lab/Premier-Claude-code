@@ -95,6 +95,50 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_bug_reports: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          reviewed_at: string | null
+          reviewer_notes: string | null
+          status: string
+          tip_cache_id: string | null
+          user_email: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          reviewed_at?: string | null
+          reviewer_notes?: string | null
+          status?: string
+          tip_cache_id?: string | null
+          user_email?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          reviewed_at?: string | null
+          reviewer_notes?: string | null
+          status?: string
+          tip_cache_id?: string | null
+          user_email?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_bug_reports_tip_cache_id_fkey"
+            columns: ["tip_cache_id"]
+            isOneToOne: false
+            referencedRelation: "ai_tip_cache"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_credit_daily: {
         Row: {
           cache_hits_today: number
