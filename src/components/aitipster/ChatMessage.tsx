@@ -122,9 +122,9 @@ export function ChatMessage({ message, onConfirmFixture }: Props) {
             onClick={() => setBugOpen(true)}
             variant="outline"
             size="sm"
-            title="Reportar bug"
           >
-            <Bug className="w-3 h-3" />
+            <Bug className="w-3 h-3 mr-1" />
+            Reportar erro
           </Button>
           <Button
             onClick={() => navigate("/sport/1")}

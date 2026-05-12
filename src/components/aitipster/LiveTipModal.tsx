@@ -144,9 +144,9 @@ export function LiveTipModal({ open, onOpenChange, match }: Props) {
                 onClick={() => setBugOpen(true)}
                 variant="outline"
                 size="sm"
-                title="Reportar bug"
               >
-                <Bug className="w-4 h-4" />
+                <Bug className="w-4 h-4 mr-1" />
+                Reportar erro
               </Button>
             </div>
 
