@@ -89,8 +89,13 @@ export default function AdminFeedback() {
 
   useEffect(() => { fetchFeedbacks(); }, [fetchFeedbacks]);
 
-  const totalCount = feedbacks.length;
-  const newCount = feedbacks.filter((f) => f.status === "novo").length;
+  const filteredFeedbacks = useMemo(
+    () => feedbacks.filter((f) => sourceFilter === "todos" || (f.source ?? "app") === sourceFilter),
+    [feedbacks, sourceFilter],
+  );
+
+  const totalCount = filteredFeedbacks.length;
+  const newCount = filteredFeedbacks.filter((f) => f.status === "novo").length;
 
   const handleStatusChange = async (id: string, newStatus: string) => {
     const { error } = await (supabase.from("user_feedback" as any).update({ status: newStatus } as any).eq("id", id) as any);
