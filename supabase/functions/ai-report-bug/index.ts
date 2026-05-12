@@ -10,6 +10,7 @@ const corsHeaders = {
 const AI_BETA_ALLOWLIST: string[] = [
   "teste@exemplo.com",
   "hugofm350@gmail.com",
+  "gabriel.fedds@icloud.com",
 ].map((e) => e.toLowerCase().trim());
 
 interface TokenPayload {
