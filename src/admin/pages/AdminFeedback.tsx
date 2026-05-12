@@ -231,6 +231,18 @@ export default function AdminFeedback() {
             ]}
           />
         </div>
+        <div>
+          <span className="text-xs text-gray-500 mr-2">Origem:</span>
+          <FilterPills
+            value={sourceFilter}
+            onChange={(v) => setSourceFilter(v as any)}
+            options={[
+              { key: "todos", label: "Todos" },
+              { key: "app", label: "App" },
+              { key: "ia-tipster", label: "IA Tipster" },
+            ]}
+          />
+        </div>
         <div className="space-y-1">
           <span className="text-xs text-gray-500 mr-2">Período:</span>
           <div className="flex items-center gap-2 flex-wrap">
