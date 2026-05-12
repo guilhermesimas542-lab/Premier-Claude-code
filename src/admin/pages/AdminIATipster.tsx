@@ -24,10 +24,14 @@ import {
   Trophy,
   User,
   Calendar,
+  Activity,
+  ThumbsUp,
+  ThumbsDown,
+  Bug,
 } from "lucide-react";
 
 // ═══════════════════════════════════════════════════════════════════
-// CONSTANTS — Claude Sonnet 4.5 pricing (USD per 1M tokens)
+// CONSTANTS
 // ═══════════════════════════════════════════════════════════════════
 
 const INPUT_PRICE_PER_M = 3.0;
@@ -38,11 +42,7 @@ const OUTPUT_PRICE_PER_M = 15.0;
 // ═══════════════════════════════════════════════════════════════════
 
 type MatchTypeFilter = "all" | "chat" | "live";
-
-// Para a tab "Tips Geradas" e Cache & Reuso e Telemetria (data de geração)
 type GenPeriod = "today" | "yesterday" | "7d" | "30d" | "custom";
-
-// Para a tab "Partidas Analisadas" (data do jogo — kickoff)
 type KickoffPeriod =
   | "today"
   | "tomorrow"
@@ -66,6 +66,23 @@ interface Tip {
   generated_by_user_id: string | null;
   content: any;
   source_data: any;
+}
+
+interface ApiFootballStatus {
+  current: number;
+  limit_day: number;
+  plan?: string | null;
+  end_subscription?: string | null;
+}
+
+interface BugReport {
+  id: string;
+  created_at: string;
+  user_id: string | null;
+  comment: string | null;
+  feedback: string | null;
+  source: string | null;
+  tip_cache_id: string | null;
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -95,10 +112,8 @@ function getGenRange(
   customEnd?: string
 ): { start: string | undefined; end: string | undefined } {
   const now = new Date();
-
-  if (period === "today") {
+  if (period === "today")
     return { start: startOfDay(now).toISOString(), end: endOfDay(now).toISOString() };
-  }
   if (period === "yesterday") {
     const y = new Date(now);
     y.setDate(y.getDate() - 1);
@@ -129,10 +144,7 @@ function getKickoffRange(
   customEnd?: string
 ): { start: Date | null; end: Date | null } {
   const now = new Date();
-
-  if (period === "today") {
-    return { start: startOfDay(now), end: endOfDay(now) };
-  }
+  if (period === "today") return { start: startOfDay(now), end: endOfDay(now) };
   if (period === "tomorrow") {
     const t = new Date(now);
     t.setDate(t.getDate() + 1);
@@ -196,10 +208,8 @@ async function fetchTipsByGenRange(
     .or("match_key.like.chat_prematch:%,match_key.like.live_tip:%")
     .order("generated_at", { ascending: false })
     .limit(500);
-
   if (start) query = query.gte("generated_at", start);
   if (end) query = query.lte("generated_at", end);
-
   const { data, error } = await query;
   if (error) {
     console.error("fetchTipsByGenRange error", error);
@@ -217,7 +227,6 @@ async function fetchAllRecentTips(): Promise<Tip[]> {
     .or("match_key.like.chat_prematch:%,match_key.like.live_tip:%")
     .order("generated_at", { ascending: false })
     .limit(500);
-
   if (error) {
     console.error("fetchAllRecentTips error", error);
     return [];
@@ -285,14 +294,13 @@ function KpiCard({
 
 function MatchTypeBadge({ matchKey }: { matchKey: string }) {
   const cls = classifyMatchKey(matchKey);
-  if (cls === "live") {
+  if (cls === "live")
     return (
       <span className="inline-flex items-center gap-1 text-xs">
         <Radio className="w-3 h-3 text-red-500" />
         Live
       </span>
     );
-  }
   return (
     <span className="inline-flex items-center gap-1 text-xs">
       <MessageSquare className="w-3 h-3 text-primary" />
@@ -498,7 +506,7 @@ function TipDetailModal({
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// TAB 1: TIPS GERADAS (filtro por data de geração — DEFAULT)
+// TAB 1: TIPS GERADAS
 // ═══════════════════════════════════════════════════════════════════
 
 function TipsGeradasTab() {
@@ -539,6 +547,11 @@ function TipsGeradasTab() {
       return true;
     });
   }, [tips, typeFilter, search]);
+
+  const totalCostUSD = filtered.reduce(
+    (acc, t) => acc + calcCost(t.tokens_input ?? 0, t.tokens_output ?? 0),
+    0
+  );
 
   return (
     <div className="space-y-4">
@@ -598,12 +611,7 @@ function TipsGeradasTab() {
         />
         <KpiCard
           label="USD gasto"
-          value={formatCostUSD(
-            filtered.reduce(
-              (acc, t) => acc + calcCost(t.tokens_input ?? 0, t.tokens_output ?? 0),
-              0
-            )
-          )}
+          value={formatCostUSD(totalCostUSD)}
           hint="Claude Sonnet 4.5"
           icon={<DollarSign className="w-4 h-4" />}
         />
@@ -650,9 +658,7 @@ function TipsGeradasTab() {
                     <td className="px-3 py-2 font-medium">
                       {home} × {away}
                     </td>
-                    <td className="px-3 py-2 text-xs text-muted-foreground">
-                      {league}
-                    </td>
+                    <td className="px-3 py-2 text-xs text-muted-foreground">{league}</td>
                     <td className="px-3 py-2 text-xs">
                       {formatBrazilDateTime(t.generated_at)}
                     </td>
@@ -661,9 +667,7 @@ function TipsGeradasTab() {
                     </td>
                     <td className="px-3 py-2 text-right text-xs">
                       {(t.hit_count ?? 0) > 0 ? (
-                        <span className="font-semibold text-primary">
-                          {t.hit_count}
-                        </span>
+                        <span className="font-semibold text-primary">{t.hit_count}</span>
                       ) : (
                         <span className="text-muted-foreground">0</span>
                       )}
@@ -687,7 +691,7 @@ function TipsGeradasTab() {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// TAB 2: PARTIDAS ANALISADAS (filtro por kickoff)
+// TAB 2: PARTIDAS ANALISADAS
 // ═══════════════════════════════════════════════════════════════════
 
 function PartidasAnalisadasTab() {
@@ -713,17 +717,14 @@ function PartidasAnalisadasTab() {
 
   const filtered = useMemo(() => {
     const range = getKickoffRange(period, customStart, customEnd);
-
     return tips.filter((t) => {
       const cls = classifyMatchKey(t.match_key);
       if (typeFilter !== "all" && cls !== typeFilter) return false;
-
       if (range.start && range.end) {
         const ko = getKickoff(t);
         if (!ko) return false;
         if (ko < range.start || ko > range.end) return false;
       }
-
       if (search.trim()) {
         const q = search.toLowerCase();
         const home = t.source_data?.fixture?.home?.name?.toLowerCase() ?? "";
@@ -732,7 +733,6 @@ function PartidasAnalisadasTab() {
         if (!home.includes(q) && !away.includes(q) && !league.includes(q))
           return false;
       }
-
       return true;
     });
   }, [tips, period, customStart, customEnd, typeFilter, search]);
@@ -753,6 +753,10 @@ function PartidasAnalisadasTab() {
     0
   );
   const totalReusos = sorted.reduce((acc, t) => acc + (t.hit_count ?? 0), 0);
+  const totalCostUSD = sorted.reduce(
+    (acc, t) => acc + calcCost(t.tokens_input ?? 0, t.tokens_output ?? 0),
+    0
+  );
 
   return (
     <div className="space-y-4">
@@ -809,12 +813,7 @@ function PartidasAnalisadasTab() {
         />
         <KpiCard
           label="USD gasto"
-          value={formatCostUSD(
-            sorted.reduce(
-              (acc, t) => acc + calcCost(t.tokens_input ?? 0, t.tokens_output ?? 0),
-              0
-            )
-          )}
+          value={formatCostUSD(totalCostUSD)}
           hint="Claude Sonnet 4.5"
           icon={<DollarSign className="w-4 h-4" />}
         />
@@ -832,11 +831,6 @@ function PartidasAnalisadasTab() {
       ) : sorted.length === 0 ? (
         <div className="text-center py-8 text-sm text-muted-foreground border rounded-lg">
           Nenhuma partida analisada encontrada com esses filtros.
-          {period !== "all" && (
-            <div className="text-[10px] mt-1">
-              Dica: jogos sem campo <code>kickoff_at</code> não aparecem em filtros de data.
-            </div>
-          )}
         </div>
       ) : (
         <div className="border rounded-lg overflow-x-auto">
@@ -868,9 +862,7 @@ function PartidasAnalisadasTab() {
                     <td className="px-3 py-2 font-medium">
                       {home} × {away}
                     </td>
-                    <td className="px-3 py-2 text-xs text-muted-foreground">
-                      {league}
-                    </td>
+                    <td className="px-3 py-2 text-xs text-muted-foreground">{league}</td>
                     <td className="px-3 py-2 text-xs">
                       {ko ? formatBrazilDateTime(ko.toISOString()) : "—"}
                     </td>
@@ -882,9 +874,7 @@ function PartidasAnalisadasTab() {
                     </td>
                     <td className="px-3 py-2 text-right text-xs">
                       {(t.hit_count ?? 0) > 0 ? (
-                        <span className="font-semibold text-primary">
-                          {t.hit_count}
-                        </span>
+                        <span className="font-semibold text-primary">{t.hit_count}</span>
                       ) : (
                         <span className="text-muted-foreground">0</span>
                       )}
@@ -934,7 +924,6 @@ function CacheReusoTab() {
   const totalTips = tips.length;
   const totalHits = tips.reduce((acc, t) => acc + (t.hit_count ?? 0), 0);
   const tipsWithHits = tips.filter((t) => (t.hit_count ?? 0) > 0).length;
-
   const avgTokensPerTip =
     totalTips > 0
       ? tips.reduce(
@@ -943,10 +932,8 @@ function CacheReusoTab() {
         ) / totalTips
       : 0;
   const tokensSaved = totalHits * avgTokensPerTip;
-
   const cacheHitRate =
     totalHits + totalTips > 0 ? (totalHits / (totalHits + totalTips)) * 100 : 0;
-
   const avgCostPerTip =
     totalTips > 0
       ? tips.reduce(
@@ -1019,7 +1006,8 @@ function CacheReusoTab() {
           <span className="text-sm font-semibold">{cacheHitRate.toFixed(1)}%</span>
         </div>
         <div className="text-[10px] text-muted-foreground mt-2">
-          {totalHits} hits de cache em {totalTips + totalHits} pedidos totais (gerações + reusos)
+          {totalHits} hits de cache em {totalTips + totalHits} pedidos totais
+          (gerações + reusos)
         </div>
       </div>
 
@@ -1058,9 +1046,7 @@ function CacheReusoTab() {
                       <td className="px-3 py-2 font-medium">
                         {home} × {away}
                       </td>
-                      <td className="px-3 py-2 text-xs text-muted-foreground">
-                        {league}
-                      </td>
+                      <td className="px-3 py-2 text-xs text-muted-foreground">{league}</td>
                       <td className="px-3 py-2 text-xs">
                         {t.last_used_at ? formatBrazilDateTime(t.last_used_at) : "—"}
                       </td>
@@ -1075,6 +1061,99 @@ function CacheReusoTab() {
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// API-FOOTBALL STATUS PANEL (usado dentro da Telemetria)
+// ═══════════════════════════════════════════════════════════════════
+
+function ApiFootballStatusPanel() {
+  const [status, setStatus] = useState<ApiFootballStatus | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchStatus = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const { data, error: fnError } = await supabase.functions.invoke(
+        "admin-api-football-status"
+      );
+      if (fnError) throw fnError;
+      setStatus(data as ApiFootballStatus);
+    } catch (e: any) {
+      setError(e?.message ?? "Erro ao buscar status");
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchStatus();
+  }, []);
+
+  const pct =
+    status && status.limit_day > 0
+      ? (status.current / status.limit_day) * 100
+      : 0;
+  const barColor =
+    pct > 90
+      ? "bg-red-500"
+      : pct > 70
+      ? "bg-orange-500"
+      : pct > 40
+      ? "bg-yellow-500"
+      : "bg-primary";
+
+  return (
+    <div className="rounded-lg border p-4">
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <Activity className="w-4 h-4 text-muted-foreground" />
+          <h3 className="text-sm font-semibold">API-Football — uso diário</h3>
+        </div>
+        <Button onClick={fetchStatus} variant="ghost" size="sm" disabled={loading}>
+          <RefreshCw className={`w-3 h-3 ${loading ? "animate-spin" : ""}`} />
+        </Button>
+      </div>
+
+      {loading && !status ? (
+        <div className="text-xs text-muted-foreground">Carregando...</div>
+      ) : error ? (
+        <div className="text-xs text-red-500">{error}</div>
+      ) : status ? (
+        <div className="space-y-2">
+          <div className="flex items-center gap-3">
+            <div className="flex-1 h-3 bg-muted rounded-full overflow-hidden">
+              <div
+                className={`h-full transition-all ${barColor}`}
+                style={{ width: `${Math.min(100, pct)}%` }}
+              />
+            </div>
+            <span className="text-sm font-semibold">{pct.toFixed(1)}%</span>
+          </div>
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-muted-foreground">
+              <span className="font-semibold text-foreground">
+                {status.current.toLocaleString("pt-BR")}
+              </span>{" "}
+              / {status.limit_day.toLocaleString("pt-BR")} requests
+            </span>
+            <span className="text-muted-foreground">
+              Restam {(status.limit_day - status.current).toLocaleString("pt-BR")}
+            </span>
+          </div>
+          {(status.plan || status.end_subscription) && (
+            <div className="text-[10px] text-muted-foreground pt-1 border-t">
+              {status.plan && <>Plano: <span className="font-mono">{status.plan}</span>{" "}</>}
+              {status.end_subscription && (
+                <>· Renova em: {status.end_subscription}</>
+              )}
+            </div>
+          )}
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -1115,7 +1194,6 @@ function TelemetriaTab() {
     } else {
       setEmailsByUserId({});
     }
-
     setLoading(false);
   };
 
@@ -1145,9 +1223,7 @@ function TelemetriaTab() {
         cost: cur.cost + calcCost(tokens_in, tokens_out),
       });
     });
-    return Array.from(map.entries())
-      .sort((a, b) => b[1].count - a[1].count)
-      .slice(0, 10);
+    return Array.from(map.entries()).sort((a, b) => b[1].count - a[1].count).slice(0, 10);
   }, [tips]);
 
   const topUsers = useMemo(() => {
@@ -1163,9 +1239,7 @@ function TelemetriaTab() {
         cost: cur.cost + calcCost(tokens_in, tokens_out),
       });
     });
-    return Array.from(map.entries())
-      .sort((a, b) => b[1].count - a[1].count)
-      .slice(0, 10);
+    return Array.from(map.entries()).sort((a, b) => b[1].count - a[1].count).slice(0, 10);
   }, [tips]);
 
   const daily = useMemo(() => {
@@ -1222,6 +1296,8 @@ function TelemetriaTab() {
         />
         <KpiCard label="Custo médio por tip" value={formatCostUSD(avgCostPerTip)} />
       </div>
+
+      <ApiFootballStatusPanel />
 
       {loading ? (
         <div className="flex justify-center py-8">
@@ -1325,6 +1401,287 @@ function TelemetriaTab() {
 }
 
 // ═══════════════════════════════════════════════════════════════════
+// TAB 5: BUG REPORTS (replicada do /admin/feedback)
+// ═══════════════════════════════════════════════════════════════════
+
+function BugReportsTab() {
+  const [reports, setReports] = useState<BugReport[]>([]);
+  const [emails, setEmails] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(true);
+  const [detailReport, setDetailReport] = useState<BugReport | null>(null);
+  const [relatedTip, setRelatedTip] = useState<Tip | null>(null);
+  const [loadingTip, setLoadingTip] = useState(false);
+
+  const fetchReports = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("user_feedback")
+      .select(
+        "id, created_at, user_id, comment, feedback, source, tip_cache_id"
+      )
+      .eq("source", "ia-tipster")
+      .order("created_at", { ascending: false })
+      .limit(100);
+
+    if (error) {
+      console.error("fetchReports error", error);
+      setLoading(false);
+      return;
+    }
+    const list = (data ?? []) as BugReport[];
+    setReports(list);
+
+    const userIds = Array.from(
+      new Set(list.map((r) => r.user_id).filter((id): id is string => !!id))
+    );
+    if (userIds.length > 0) {
+      const { data: users } = await supabase
+        .from("users")
+        .select("id, email")
+        .in("id", userIds);
+      const map: Record<string, string> = {};
+      (users ?? []).forEach((u: any) => {
+        map[u.id] = u.email ?? "";
+      });
+      setEmails(map);
+    } else {
+      setEmails({});
+    }
+
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchReports();
+  }, []);
+
+  const openDetail = async (report: BugReport) => {
+    setDetailReport(report);
+    setRelatedTip(null);
+    if (!report.tip_cache_id) return;
+    setLoadingTip(true);
+    const { data } = await supabase
+      .from("ai_tip_cache")
+      .select(
+        "id, match_key, match_type, generated_at, expires_at, tokens_input, tokens_output, tokens_cached, hit_count, last_used_at, generated_by_user_id, content, source_data"
+      )
+      .eq("id", report.tip_cache_id)
+      .maybeSingle();
+    if (data) setRelatedTip(data as Tip);
+    setLoadingTip(false);
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold">Bug Reports</h2>
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={fetchReports}
+            variant="outline"
+            size="sm"
+            disabled={loading}
+          >
+            <RefreshCw className={`w-3 h-3 mr-1 ${loading ? "animate-spin" : ""}`} />
+            Atualizar
+          </Button>
+          <Link to="/admin/feedback">
+            <Button variant="ghost" size="sm">
+              <ExternalLink className="w-3 h-3 mr-1" />
+              Feedback completo
+            </Button>
+          </Link>
+        </div>
+      </div>
+
+      <div className="text-xs text-muted-foreground">
+        Mostrando até 100 reports recentes do IA Tipster. Para ver feedback
+        de outras origens (app etc), abra a tela de Feedback dos clientes.
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+        <KpiCard
+          label="Total reports"
+          value={String(reports.length)}
+          icon={<Bug className="w-4 h-4" />}
+        />
+        <KpiCard
+          label="Reports negativos"
+          value={String(
+            reports.filter((r) => r.feedback === "down" || r.feedback === "bug").length
+          )}
+          icon={<ThumbsDown className="w-4 h-4" />}
+        />
+        <KpiCard
+          label="Reports positivos"
+          value={String(reports.filter((r) => r.feedback === "up").length)}
+          icon={<ThumbsUp className="w-4 h-4" />}
+        />
+      </div>
+
+      {loading ? (
+        <div className="flex justify-center py-8">
+          <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+        </div>
+      ) : reports.length === 0 ? (
+        <div className="text-center py-8 text-sm text-muted-foreground border rounded-lg">
+          Nenhum bug report do IA Tipster.
+        </div>
+      ) : (
+        <div className="border rounded-lg overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-muted/50 text-xs uppercase">
+              <tr>
+                <th className="text-left px-3 py-2">Quando</th>
+                <th className="text-left px-3 py-2">Usuário</th>
+                <th className="text-left px-3 py-2">Tipo</th>
+                <th className="text-left px-3 py-2">Comentário</th>
+                <th className="text-left px-3 py-2">Tip relacionada</th>
+                <th className="text-right px-3 py-2"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {reports.map((r) => {
+                const email = r.user_id
+                  ? emails[r.user_id] ?? r.user_id.slice(0, 8)
+                  : "—";
+                const isPositive = r.feedback === "up";
+                const comment = r.comment ?? "";
+                const truncated =
+                  comment.length > 80 ? comment.slice(0, 80) + "..." : comment;
+                return (
+                  <tr key={r.id} className="border-t hover:bg-muted/30 transition">
+                    <td className="px-3 py-2 text-xs whitespace-nowrap">
+                      {formatBrazilDateTime(r.created_at)}
+                    </td>
+                    <td className="px-3 py-2 text-xs">{email}</td>
+                    <td className="px-3 py-2">
+                      {isPositive ? (
+                        <span className="inline-flex items-center gap-1 text-xs text-green-500">
+                          <ThumbsUp className="w-3 h-3" />
+                          Positivo
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 text-xs text-red-500">
+                          <Bug className="w-3 h-3" />
+                          {r.feedback ?? "bug"}
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-3 py-2 text-xs text-muted-foreground max-w-md">
+                      {truncated || <span className="italic">(sem comentário)</span>}
+                    </td>
+                    <td className="px-3 py-2 text-xs">
+                      {r.tip_cache_id ? (
+                        <code className="text-[10px]">
+                          {r.tip_cache_id.slice(0, 8)}...
+                        </code>
+                      ) : (
+                        <span className="text-muted-foreground">—</span>
+                      )}
+                    </td>
+                    <td className="px-3 py-2 text-right">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => openDetail(r)}
+                      >
+                        <FileText className="w-3 h-3" />
+                      </Button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Detail Modal */}
+      <Dialog
+        open={!!detailReport}
+        onOpenChange={(o) => !o && setDetailReport(null)}
+      >
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-auto">
+          <DialogHeader>
+            <DialogTitle>Bug report</DialogTitle>
+          </DialogHeader>
+          {detailReport && (
+            <div className="space-y-3 text-sm">
+              <div className="grid grid-cols-2 gap-3 text-xs">
+                <div>
+                  <span className="text-muted-foreground">Quando:</span>{" "}
+                  {formatBrazilDateTime(detailReport.created_at)}
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Usuário:</span>{" "}
+                  {detailReport.user_id
+                    ? emails[detailReport.user_id] ?? detailReport.user_id
+                    : "—"}
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Tipo:</span>{" "}
+                  {detailReport.feedback ?? "bug"}
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Origem:</span>{" "}
+                  {detailReport.source}
+                </div>
+              </div>
+
+              <div className="border-t pt-3">
+                <div className="text-xs text-muted-foreground mb-1">
+                  Comentário do usuário:
+                </div>
+                <div className="text-sm bg-muted p-3 rounded whitespace-pre-wrap">
+                  {detailReport.comment || (
+                    <span className="italic text-muted-foreground">
+                      (sem comentário)
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {detailReport.tip_cache_id && (
+                <div className="border-t pt-3">
+                  <div className="text-xs text-muted-foreground mb-2">
+                    Tip relacionada:
+                  </div>
+                  {loadingTip ? (
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                      Carregando análise...
+                    </div>
+                  ) : relatedTip ? (
+                    <div className="space-y-2">
+                      <div className="text-sm font-semibold">
+                        {relatedTip.source_data?.fixture?.home?.name ?? "—"} ×{" "}
+                        {relatedTip.source_data?.fixture?.away?.name ?? "—"}
+                      </div>
+                      <div className="text-[10px] text-muted-foreground">
+                        {relatedTip.source_data?.fixture?.league?.name ?? "—"} ·
+                        Gerada em {formatBrazilDateTime(relatedTip.generated_at)}
+                      </div>
+                      <pre className="text-xs bg-muted p-3 rounded overflow-auto whitespace-pre-wrap max-h-64">
+                        {relatedTip.content?.markdown ?? "(sem markdown)"}
+                      </pre>
+                    </div>
+                  ) : (
+                    <div className="text-xs text-muted-foreground italic">
+                      Tip não encontrada (pode ter expirado).
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════
 // MAIN PAGE
 // ═══════════════════════════════════════════════════════════════════
 
@@ -1356,32 +1713,17 @@ export default function AdminIATipster() {
         <TabsContent value="tips" className="mt-4">
           <TipsGeradasTab />
         </TabsContent>
-
         <TabsContent value="partidas" className="mt-4">
           <PartidasAnalisadasTab />
         </TabsContent>
-
         <TabsContent value="cache" className="mt-4">
           <CacheReusoTab />
         </TabsContent>
-
         <TabsContent value="telemetria" className="mt-4">
           <TelemetriaTab />
         </TabsContent>
-
         <TabsContent value="bugs" className="mt-4">
-          <div className="space-y-4">
-            <div className="text-sm text-muted-foreground">
-              Bug reports do IA Tipster vivem na tela de Feedback dos clientes,
-              filtrados por origem.
-            </div>
-            <Link to="/admin/feedback">
-              <Button variant="default">
-                <ExternalLink className="w-3 h-3 mr-2" />
-                Abrir Feedback dos Clientes
-              </Button>
-            </Link>
-          </div>
+          <BugReportsTab />
         </TabsContent>
       </Tabs>
     </div>
