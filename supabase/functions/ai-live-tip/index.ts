@@ -253,37 +253,55 @@ ${JSON.stringify(sourceData, null, 2)}
 
 Gere sua análise no formato obrigatório.`;
 
-  let claudeResp: Response;
-  try {
-    claudeResp = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": claudeKey,
-        "anthropic-version": "2023-06-01",
-      },
-      body: JSON.stringify({
-        model: CLAUDE_MODEL,
-        max_tokens: 1024,
-        system: [
-          {
-            type: "text",
-            text: SYSTEM_PROMPT_LIVE,
-            cache_control: { type: "ephemeral" },
-          },
-        ],
-        messages: [{ role: "user", content: userMessage }],
-      }),
-    });
-  } catch (err) {
-    console.error("[ai-live-tip] claude fetch error", err);
-    return jsonResp({ error: "claude_unreachable" }, 502);
+  const claudePayload = JSON.stringify({
+    model: CLAUDE_MODEL,
+    max_tokens: 1024,
+    system: [
+      { type: "text", text: SYSTEM_PROMPT_LIVE, cache_control: { type: "ephemeral" } },
+    ],
+    messages: [{ role: "user", content: userMessage }],
+  });
+
+  let claudeResp: Response | null = null;
+  let lastErrText = "";
+  const RETRY_STATUSES = new Set([429, 500, 502, 503, 504, 529]);
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      claudeResp = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": claudeKey,
+          "anthropic-version": "2023-06-01",
+        },
+        body: claudePayload,
+      });
+    } catch (err) {
+      console.error(`[ai-live-tip] claude fetch error (attempt ${attempt + 1})`, err);
+      claudeResp = null;
+      lastErrText = String(err);
+    }
+    if (claudeResp && claudeResp.ok) break;
+    if (claudeResp) {
+      lastErrText = await claudeResp.text();
+      console.error(`[ai-live-tip] claude error ${claudeResp.status} (attempt ${attempt + 1})`, lastErrText);
+      if (!RETRY_STATUSES.has(claudeResp.status)) break;
+    }
+    if (attempt < 2) await new Promise((r) => setTimeout(r, 600 * (attempt + 1)));
   }
 
-  if (!claudeResp.ok) {
-    const errText = await claudeResp.text();
-    console.error("[ai-live-tip] claude error", claudeResp.status, errText);
-    return jsonResp({ error: "claude_failed", status: claudeResp.status }, 502);
+  if (!claudeResp || !claudeResp.ok) {
+    const status = claudeResp?.status ?? 0;
+    const overloaded = status === 503 || status === 529 || status === 429 || status === 0;
+    return jsonResp({
+      error: overloaded ? "ai_overloaded" : "claude_failed",
+      message: overloaded
+        ? "A IA está sobrecarregada no momento. Tente novamente em alguns segundos."
+        : "Falha ao gerar análise. Tente novamente.",
+      status,
+      fallback: true,
+      retryable: overloaded,
+    }, 200);
   }
 
   const claudeData = await claudeResp.json();
