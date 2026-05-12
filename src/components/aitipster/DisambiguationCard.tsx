@@ -1,0 +1,63 @@
+import { useState } from "react";
+import { DisambiguationMatch } from "@/hooks/useChatTipster";
+import { Button } from "@/components/ui/button";
+import { Calendar, Trophy } from "lucide-react";
+
+interface Props {
+  matches: DisambiguationMatch[];
+  confidence: "high" | "medium";
+  onConfirm: (fixtureId: number, label: string) => void;
+}
+
+export function DisambiguationCard({ matches, confidence, onConfirm }: Props) {
+  const [chosen, setChosen] = useState<number | null>(null);
+
+  const handleClick = (m: DisambiguationMatch) => {
+    if (chosen !== null) return;
+    setChosen(m.fixture_id);
+    onConfirm(m.fixture_id, `${m.home} x ${m.away}`);
+  };
+
+  return (
+    <div className="space-y-2">
+      <p className="text-xs text-muted-foreground">
+        {confidence === "high"
+          ? "Achei esse jogo. Confirma?"
+          : "Qual desses jogos você quis dizer?"}
+      </p>
+      {matches.map((m) => {
+        const isChosen = chosen === m.fixture_id;
+        const isDisabled = chosen !== null && !isChosen;
+        return (
+          <div
+            key={m.fixture_id}
+            className={`rounded-lg border p-3 ${isChosen ? "border-primary bg-primary/5" : "bg-card"} ${isDisabled ? "opacity-40" : ""}`}
+          >
+            <div className="font-medium text-sm mb-1">
+              {m.home} <span className="text-muted-foreground">x</span> {m.away}
+            </div>
+            <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground mb-2">
+              <span className="flex items-center gap-1">
+                <Trophy className="w-3 h-3" />
+                {m.league}
+              </span>
+              <span className="flex items-center gap-1">
+                <Calendar className="w-3 h-3" />
+                {m.kickoff_label}
+              </span>
+            </div>
+            <Button
+              onClick={() => handleClick(m)}
+              disabled={chosen !== null}
+              size="sm"
+              variant={isChosen ? "default" : "outline"}
+              className="w-full"
+            >
+              {isChosen ? "Selecionado" : "Sim, é esse jogo"}
+            </Button>
+          </div>
+        );
+      })}
+    </div>
+  );
+}

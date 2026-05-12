@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { Sparkles, MessageSquare, Radio, Lock } from "lucide-react";
 import { LiveMatchesSection } from "@/components/aitipster/LiveMatchesSection";
+import { ChatSection } from "@/components/aitipster/ChatSection";
 import { useCreditBalance } from "@/hooks/useCreditBalance";
 import { isAIBetaUser } from "@/lib/aiBetaAllowlist";
 
@@ -102,15 +103,7 @@ export default function IATipster() {
       {activeTab === "live" ? (
         <LiveMatchesSection />
       ) : (
-        <div className="flex flex-col items-center justify-center py-16 px-4 gap-3">
-          <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-            <MessageSquare className="w-8 h-8 text-primary" />
-          </div>
-          <p className="font-medium">Chat com IA Tipster</p>
-          <p className="text-sm text-muted-foreground text-center max-w-sm">
-            Em desenvolvimento — disponível na próxima atualização.
-          </p>
-        </div>
+        <ChatSection />
       )}
     </div>
   );
