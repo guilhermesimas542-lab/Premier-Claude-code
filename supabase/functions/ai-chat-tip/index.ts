@@ -7,6 +7,10 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
+const AI_BETA_ALLOWLIST: string[] = [
+  "teste@exemplo.com",
+].map(e => e.toLowerCase().trim());
+
 const TOP_LEAGUES = [71,72,73,13,11,39,40,140,135,78,61,88,94,2,3,848,253,262,128,307,1,4];
 const CLAUDE_MODEL = "claude-sonnet-4-5";
 const CACHE_TTL_HOURS = 24;
@@ -62,6 +66,7 @@ Use APENAS os dados estruturados injetados na mensagem do usuario.
 
 interface TokenPayload {
   user_id?: string;
+  email?: string;
   exp: number;
 }
 
@@ -85,6 +90,11 @@ Deno.serve(async (req: Request) => {
     return jsonResp({ error: "invalid_token" }, 401);
   }
   if (!token?.user_id || token.exp < Date.now()) return jsonResp({ error: "unauthorized" }, 401);
+
+  const tokenEmail = token.email?.toLowerCase()?.trim();
+  if (!tokenEmail || !AI_BETA_ALLOWLIST.includes(tokenEmail)) {
+    return jsonResp({ error: "beta_access_denied", message: "Beta privado" }, 403);
+  }
 
   let body: { fixture_id?: number };
   try {
