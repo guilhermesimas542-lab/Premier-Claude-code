@@ -360,7 +360,6 @@ Deno.serve(async (req: Request) => {
   }
 
   const apiKey = Deno.env.get("API_FOOTBALL_KEY");
-  const footystatsKey = Deno.env.get("FOOTYSTATS_API_KEY");
   if (!apiKey) return jsonResp({ error: "api_football_key_missing" }, 500);
 
   const headers = { "x-apisports-key": apiKey };
@@ -384,6 +383,7 @@ Deno.serve(async (req: Request) => {
 
   const homeId = fix.teams.home.id;
   const awayId = fix.teams.away.id;
+  const leagueId = fix.league.id;
 
   const [homeFormResp, awayFormResp, h2hResp] = await Promise.all([
     fetch(`https://v3.football.api-sports.io/fixtures?team=${homeId}&last=10`, { headers }),
@@ -395,20 +395,16 @@ Deno.serve(async (req: Request) => {
   const awayForm = awayFormResp.ok ? (await awayFormResp.json()).response || [] : [];
   const h2h = h2hResp.ok ? (await h2hResp.json()).response || [] : [];
 
-  let footystatsData: any = null;
-  if (footystatsKey) {
-    try {
-      const fsResp = await fetch(
-        `https://api.football-data-api.com/match?key=${footystatsKey}&match_id=${fixtureId}`,
-        { signal: AbortSignal.timeout(8000) }
-      );
-      if (fsResp.ok) {
-        footystatsData = await fsResp.json();
-      }
-    } catch (err) {
-      console.error("[ai-chat-tip] footystats error (non-fatal)", err);
-    }
-  }
+  const [standings, odds] = await Promise.all([
+    fetchStandings(supabase, leagueId, apiKey),
+    fetchOdds(supabase, fixtureId, apiKey),
+  ]);
+  const homePercentages = calcPercentages(homeForm);
+  const awayPercentages = calcPercentages(awayForm);
+  const homeStreak = calcStreak(homeForm, homeId);
+  const awayStreak = calcStreak(awayForm, awayId);
+  const homeTableRow = standings?.find((s: any) => s.team_id === homeId) ?? null;
+  const awayTableRow = standings?.find((s: any) => s.team_id === awayId) ?? null;
 
   const trimForm = (arr: any[]) => arr.slice(0, 10).map((m: any) => ({
     date: m.fixture.date,
@@ -430,17 +426,23 @@ Deno.serve(async (req: Request) => {
     home_last_10: trimForm(homeForm),
     away_last_10: trimForm(awayForm),
     h2h_last_5: trimForm(h2h),
-    footystats: footystatsData?.data || null,
+    standings_home: homeTableRow,
+    standings_away: awayTableRow,
+    percentages_home: homePercentages,
+    percentages_away: awayPercentages,
+    streak_home: homeStreak,
+    streak_away: awayStreak,
+    odds,
   };
 
   const claudeKey = Deno.env.get("ANTHROPIC_API_KEY");
   if (!claudeKey) return jsonResp({ error: "anthropic_key_missing" }, 500);
 
-  const userMessage = `DADOS DO JOGO pre-partida:
+  const userMessage = `Contexto do jogo (use APENAS estes dados; ignore campos null):
 
 ${JSON.stringify(sourceData, null, 2)}
 
-Gere sua analise no formato obrigatorio. Lembre-se: cite fonte e periodo de cada estatistica.`;
+Gere a análise no formato definido no system prompt.`;
 
   let claudeResp: Response;
   try {
