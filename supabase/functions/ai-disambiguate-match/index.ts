@@ -68,6 +68,28 @@ function normalize(s: string): string {
     .trim();
 }
 
+function levenshtein(a: string, b: string): number {
+  if (a.length === 0) return b.length;
+  if (b.length === 0) return a.length;
+  const matrix: number[][] = [];
+  for (let i = 0; i <= b.length; i++) matrix[i] = [i];
+  for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
+  for (let i = 1; i <= b.length; i++) {
+    for (let j = 1; j <= a.length; j++) {
+      if (b.charAt(i - 1) === a.charAt(j - 1)) {
+        matrix[i][j] = matrix[i - 1][j - 1];
+      } else {
+        matrix[i][j] = Math.min(
+          matrix[i - 1][j - 1] + 1,
+          matrix[i][j - 1] + 1,
+          matrix[i - 1][j] + 1
+        );
+      }
+    }
+  }
+  return matrix[b.length][a.length];
+}
+
 function tokenSimilarity(a: string, b: string): number {
   const na = normalize(a);
   const nb = normalize(b);
@@ -97,7 +119,23 @@ function tokenSimilarity(a: string, b: string): number {
   const tb = nb.split(" ").filter(x => x.length >= 3);
   if (ta.length === 0 || tb.length === 0) return 0;
   const matches = ta.filter(x => tb.some(y => y.startsWith(x) || x.startsWith(y))).length;
-  return matches / Math.max(ta.length, tb.length);
+  const tokenScore = matches / Math.max(ta.length, tb.length);
+
+  // FALLBACK: tolerância a digitação via Levenshtein.
+  // Aplica só quando os métodos anteriores falharam (tokenScore = 0)
+  // e ambas as strings são suficientemente longas para evitar falsos positivos.
+  if (tokenScore === 0 && na.length >= 5 && nb.length >= 5) {
+    const dist = levenshtein(na, nb);
+    const maxLen = Math.max(na.length, nb.length);
+    const similarity = 1 - dist / maxLen;
+    // Threshold conservador (>= 0.8 = no máximo ~2 edições em palavras de 10 chars).
+    // Multiplica por 0.85 para garantir que match exato sempre fique acima.
+    if (similarity >= 0.8) {
+      return similarity * 0.85;
+    }
+  }
+
+  return tokenScore;
 }
 
 Deno.serve(async (req: Request) => {
