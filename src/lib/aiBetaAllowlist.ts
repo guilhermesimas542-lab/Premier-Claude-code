@@ -3,6 +3,7 @@
 // que importam essa lista.
 export const AI_BETA_ALLOWLIST: string[] = [
   "teste@exemplo.com",
+  "hugofm350@gmail.com",
 ].map(e => e.toLowerCase().trim());
 
 export function isAIBetaUser(email?: string | null): boolean {
