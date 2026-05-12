@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import ReactMarkdown from "react-markdown";
 import { LiveMatch } from "@/hooks/useLiveMatches";
 import { useGenerateLiveTip } from "@/hooks/useGenerateLiveTip";
 import { useCreditBalance } from "@/hooks/useCreditBalance";
+import { TipAnalysis } from "./TipAnalysis";
+import { BugReportDrawer } from "./BugReportDrawer";
 import {
   Dialog,
   DialogContent,
