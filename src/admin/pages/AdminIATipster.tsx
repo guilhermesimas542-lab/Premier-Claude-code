@@ -96,8 +96,8 @@ interface BugReport {
   id: string;
   created_at: string;
   user_id: string | null;
-  comment: string | null;
-  feedback: string | null;
+  message: string | null;
+  category: string | null;
   source: string | null;
   tip_cache_id: string | null;
 }
