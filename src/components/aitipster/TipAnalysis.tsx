@@ -9,7 +9,6 @@ interface SectionCardProps {
   iconColorClass: string;
   borderColorClass?: string;
   bgColorClass?: string;
-  defaultExpanded?: boolean;
   collapsedMaxHeight?: string;
   markdown: string;
   gradientFromClass?: string;
@@ -21,22 +20,28 @@ function SectionCard({
   iconColorClass,
   borderColorClass = "border-border",
   bgColorClass = "bg-card",
-  defaultExpanded = false,
-  collapsedMaxHeight = "4.5rem",
+  collapsedMaxHeight = "5rem",
   markdown,
   gradientFromClass = "from-card",
 }: SectionCardProps) {
-  const [expanded, setExpanded] = useState(defaultExpanded);
+  const [expanded, setExpanded] = useState(false);
   const toggle = () => setExpanded((v) => !v);
 
   return (
-    <div className={`rounded-lg border ${borderColorClass} ${bgColorClass} overflow-hidden`}>
-      <button
-        type="button"
-        onClick={toggle}
-        aria-expanded={expanded}
-        className="w-full flex items-center justify-between px-4 pt-3 pb-2 hover:bg-muted/20 transition-colors text-left"
-      >
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={toggle}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          toggle();
+        }
+      }}
+      aria-expanded={expanded}
+      className={`rounded-lg border ${borderColorClass} ${bgColorClass} overflow-hidden cursor-pointer hover:brightness-110 transition-all`}
+    >
+      <div className="w-full flex items-center justify-between px-4 pt-3 pb-2">
         <div className="flex items-center gap-2">
           <span className={iconColorClass}>{icon}</span>
           <span className={`text-xs font-bold uppercase tracking-wider ${iconColorClass}`}>
@@ -44,11 +49,11 @@ function SectionCard({
           </span>
         </div>
         {expanded ? (
-          <ChevronUp className="w-4 h-4 text-muted-foreground" />
+          <ChevronUp className="w-5 h-5 text-muted-foreground" />
         ) : (
-          <ChevronDown className="w-4 h-4 text-muted-foreground" />
+          <ChevronDown className={`w-5 h-5 ${iconColorClass} animate-pulse`} />
         )}
-      </button>
+      </div>
       <div
         className="px-4 pb-3 relative"
         style={{
@@ -57,12 +62,31 @@ function SectionCard({
         }}
       >
         <div className="prose prose-sm dark:prose-invert max-w-none">
-          <ReactMarkdown>{markdown}</ReactMarkdown>
+          <ReactMarkdown
+            components={{
+              a: ({ children, href }) => (
+                <a
+                  href={href}
+                  onClick={(e) => e.stopPropagation()}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {children}
+                </a>
+              ),
+            }}
+          >
+            {markdown}
+          </ReactMarkdown>
         </div>
         {!expanded && (
           <div
-            className={`absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t ${gradientFromClass} to-transparent pointer-events-none`}
-          />
+            className={`absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t ${gradientFromClass} via-${gradientFromClass.replace("from-", "")}/80 to-transparent pointer-events-none flex items-end justify-center pb-1`}
+          >
+            <span className="text-[10px] text-muted-foreground italic">
+              Toque para ver mais
+            </span>
+          </div>
         )}
       </div>
     </div>
@@ -86,7 +110,6 @@ export function TipAnalysis({ markdown }: TipAnalysisProps) {
           borderColorClass="border-primary/30"
           bgColorClass="bg-primary/5"
           gradientFromClass="from-primary/5"
-          defaultExpanded={true}
           markdown={sections.entrada}
         />
       )}
@@ -99,7 +122,6 @@ export function TipAnalysis({ markdown }: TipAnalysisProps) {
           borderColorClass="border-amber-500/30"
           bgColorClass="bg-amber-500/5"
           gradientFromClass="from-amber-500/5"
-          defaultExpanded={true}
           markdown={sections.alternativas}
         />
       )}
