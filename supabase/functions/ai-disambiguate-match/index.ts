@@ -230,10 +230,26 @@ Deno.serve(async (req: Request) => {
     return { fixture: f, homeScore, awayScore, totalScore };
   });
 
+  const topCandidates = [...scored]
+    .sort((a, b) => b.totalScore - a.totalScore)
+    .slice(0, 10)
+    .map(s => ({
+      home: s.fixture.teams.home.name,
+      away: s.fixture.teams.away.name,
+      homeScore: Number(s.homeScore.toFixed(2)),
+      awayScore: Number(s.awayScore.toFixed(2)),
+      totalScore: Number(s.totalScore.toFixed(2)),
+      league: s.fixture.league.name,
+      date: s.fixture.fixture.date,
+    }));
+  console.log(`[DBG] top 10 scored fixtures:`, JSON.stringify(topCandidates));
+
   const candidates = scored
     .filter(s => s.totalScore > 0.3 && s.homeScore > 0 && s.awayScore > 0)
     .sort((a, b) => b.totalScore - a.totalScore)
     .slice(0, 5);
+
+  console.log(`[DBG] candidates after filter (>0.3 AND both>0): ${candidates.length}`);
 
   if (candidates.length === 0) {
     return jsonResp({
