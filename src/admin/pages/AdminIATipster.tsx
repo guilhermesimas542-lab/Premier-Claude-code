@@ -20,16 +20,25 @@ import {
   Loader2,
   TrendingUp,
   DollarSign,
-  Zap,
-  Repeat,
+  Recycle,
+  Trophy,
+  User,
+  Calendar,
 } from "lucide-react";
+
+// ═══════════════════════════════════════════════════════════════════
+// CONSTANTS — Claude Sonnet 4.5 pricing (USD per 1M tokens)
+// ═══════════════════════════════════════════════════════════════════
+
+const INPUT_PRICE_PER_M = 3.0;
+const OUTPUT_PRICE_PER_M = 15.0;
+
+// ═══════════════════════════════════════════════════════════════════
+// TYPES
+// ═══════════════════════════════════════════════════════════════════
 
 type MatchTypeFilter = "all" | "chat" | "live";
 type PeriodFilter = "today" | "yesterday" | "7d" | "30d" | "custom";
-
-// Pricing Sonnet 4.5 (USD per 1M tokens)
-const PRICE_INPUT_PER_MTOK = 3.0;
-const PRICE_OUTPUT_PER_MTOK = 15.0;
 
 interface Tip {
   id: string;
@@ -46,6 +55,10 @@ interface Tip {
   content: any;
   source_data: any;
 }
+
+// ═══════════════════════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════════════════════
 
 function classifyMatchKey(key: string): "chat" | "live" | "other" {
   if (key.startsWith("chat_prematch:")) return "chat";
@@ -105,21 +118,44 @@ function formatBrazilDate(iso: string): string {
   });
 }
 
-function formatRelative(iso: string | null): string {
-  if (!iso) return "—";
-  const diff = Date.now() - new Date(iso).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return "agora";
-  if (mins < 60) return `há ${mins}min`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `há ${hrs}h`;
-  const days = Math.floor(hrs / 24);
-  return `há ${days}d`;
+function formatCostUSD(cost: number): string {
+  return `$${cost.toFixed(4)}`;
 }
 
-function estimateUsd(input: number, output: number): number {
-  return (input / 1_000_000) * PRICE_INPUT_PER_MTOK + (output / 1_000_000) * PRICE_OUTPUT_PER_MTOK;
+function calcCost(tokens_input: number, tokens_output: number): number {
+  return (
+    (tokens_input / 1_000_000) * INPUT_PRICE_PER_M +
+    (tokens_output / 1_000_000) * OUTPUT_PRICE_PER_M
+  );
 }
+
+async function fetchTipsInRange(
+  start: string | undefined,
+  end: string | undefined
+): Promise<Tip[]> {
+  let query = supabase
+    .from("ai_tip_cache")
+    .select(
+      "id, match_key, match_type, generated_at, expires_at, tokens_input, tokens_output, tokens_cached, hit_count, last_used_at, generated_by_user_id, content, source_data"
+    )
+    .or("match_key.like.chat_prematch:%,match_key.like.live_tip:%")
+    .order("generated_at", { ascending: false })
+    .limit(500);
+
+  if (start) query = query.gte("generated_at", start);
+  if (end) query = query.lte("generated_at", end);
+
+  const { data, error } = await query;
+  if (error) {
+    console.error("fetchTipsInRange error", error);
+    return [];
+  }
+  return (data ?? []) as Tip[];
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// SHARED COMPONENTS
+// ═══════════════════════════════════════════════════════════════════
 
 function FilterPill({
   active,
@@ -145,7 +181,7 @@ function FilterPill({
   );
 }
 
-function PeriodFilterBar({
+function PeriodFilterControls({
   period,
   setPeriod,
   customStart,
@@ -202,78 +238,68 @@ function PeriodFilterBar({
 function KpiCard({
   label,
   value,
-  icon: Icon,
   hint,
+  icon,
 }: {
   label: string;
-  value: React.ReactNode;
-  icon?: React.ComponentType<{ className?: string }>;
+  value: string;
   hint?: string;
+  icon?: React.ReactNode;
 }) {
   return (
     <div className="rounded-lg border p-4">
-      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-        {Icon && <Icon className="w-3.5 h-3.5" />}
-        {label}
+      <div className="flex items-center justify-between">
+        <span className="text-xs text-muted-foreground">{label}</span>
+        {icon && <span className="text-muted-foreground">{icon}</span>}
       </div>
       <div className="text-2xl font-bold mt-1">{value}</div>
-      {hint && <div className="text-[10px] text-muted-foreground mt-0.5">{hint}</div>}
+      {hint && <div className="text-[10px] text-muted-foreground mt-1">{hint}</div>}
     </div>
   );
 }
 
-/* ---------------- Tips Geradas ---------------- */
+function MatchTypeBadge({ matchKey }: { matchKey: string }) {
+  const cls = classifyMatchKey(matchKey);
+  if (cls === "live") {
+    return (
+      <span className="inline-flex items-center gap-1 text-xs">
+        <Radio className="w-3 h-3 text-red-500" />
+        Live
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1 text-xs">
+      <MessageSquare className="w-3 h-3 text-primary" />
+      Chat
+    </span>
+  );
+}
 
-function TipsGeradasTab({
-  period,
-  setPeriod,
-  customStart,
-  setCustomStart,
-  customEnd,
-  setCustomEnd,
-}: {
-  period: PeriodFilter;
-  setPeriod: (p: PeriodFilter) => void;
-  customStart: string;
-  setCustomStart: (s: string) => void;
-  customEnd: string;
-  setCustomEnd: (s: string) => void;
-}) {
+// ═══════════════════════════════════════════════════════════════════
+// TAB: TIPS GERADAS
+// ═══════════════════════════════════════════════════════════════════
+
+function TipsGeradasTab() {
   const [tips, setTips] = useState<Tip[]>([]);
   const [loading, setLoading] = useState(true);
+  const [period, setPeriod] = useState<PeriodFilter>("7d");
+  const [customStart, setCustomStart] = useState("");
+  const [customEnd, setCustomEnd] = useState("");
   const [typeFilter, setTypeFilter] = useState<MatchTypeFilter>("all");
   const [search, setSearch] = useState("");
   const [detailTip, setDetailTip] = useState<Tip | null>(null);
 
-  const fetchTips = async () => {
+  const fetchData = async () => {
     setLoading(true);
-    try {
-      const { start, end } = getPeriodRange(period, customStart, customEnd);
-      let query = supabase
-        .from("ai_tip_cache")
-        .select(
-          "id, match_key, match_type, generated_at, expires_at, tokens_input, tokens_output, tokens_cached, hit_count, last_used_at, generated_by_user_id, content, source_data"
-        )
-        .or("match_key.like.chat_prematch:%,match_key.like.live_tip:%")
-        .order("generated_at", { ascending: false })
-        .limit(200);
-
-      if (start) query = query.gte("generated_at", start);
-      if (end) query = query.lte("generated_at", end);
-
-      const { data, error } = await query;
-      if (error) {
-        console.error("fetchTips error", error);
-        return;
-      }
-      setTips((data ?? []) as Tip[]);
-    } finally {
-      setLoading(false);
-    }
+    const { start, end } = getPeriodRange(period, customStart, customEnd);
+    const list = await fetchTipsInRange(start, end);
+    setTips(list);
+    setLoading(false);
   };
 
   useEffect(() => {
-    fetchTips();
+    fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [period, customStart, customEnd]);
 
@@ -286,9 +312,7 @@ function TipsGeradasTab({
         const home = t.source_data?.fixture?.home?.name?.toLowerCase() ?? "";
         const away = t.source_data?.fixture?.away?.name?.toLowerCase() ?? "";
         const league = t.source_data?.fixture?.league?.name?.toLowerCase() ?? "";
-        if (!home.includes(q) && !away.includes(q) && !league.includes(q)) {
-          return false;
-        }
+        if (!home.includes(q) && !away.includes(q) && !league.includes(q)) return false;
       }
       return true;
     });
@@ -298,14 +322,14 @@ function TipsGeradasTab({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">Tips Geradas</h2>
-        <Button onClick={fetchTips} variant="outline" size="sm" disabled={loading}>
+        <Button onClick={fetchData} variant="outline" size="sm" disabled={loading}>
           <RefreshCw className={`w-3 h-3 mr-1 ${loading ? "animate-spin" : ""}`} />
           Atualizar
         </Button>
       </div>
 
       <div className="space-y-3">
-        <PeriodFilterBar
+        <PeriodFilterControls
           period={period}
           setPeriod={setPeriod}
           customStart={customStart}
@@ -329,27 +353,24 @@ function TipsGeradasTab({
           </div>
         </div>
 
-        <div>
-          <Input
-            placeholder="Buscar por time ou liga..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="max-w-md"
-          />
-        </div>
+        <Input
+          placeholder="Buscar por time ou liga..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="max-w-md"
+        />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <KpiCard label="Tips no período" value={filtered.length} />
+        <KpiCard label="Tips no período" value={String(filtered.length)} icon={<TrendingUp className="w-4 h-4" />} />
         <KpiCard
           label="Tokens consumidos"
-          value={filtered
-            .reduce((acc, t) => acc + (t.tokens_input ?? 0) + (t.tokens_output ?? 0), 0)
-            .toLocaleString("pt-BR")}
+          value={filtered.reduce((acc, t) => acc + (t.tokens_input ?? 0) + (t.tokens_output ?? 0), 0).toLocaleString("pt-BR")}
         />
         <KpiCard
           label="Reusos totais (hits)"
-          value={filtered.reduce((acc, t) => acc + (t.hit_count ?? 0), 0)}
+          value={String(filtered.reduce((acc, t) => acc + (t.hit_count ?? 0), 0))}
+          icon={<Recycle className="w-4 h-4" />}
         />
       </div>
 
@@ -362,7 +383,7 @@ function TipsGeradasTab({
           Nenhuma tip encontrada nos filtros atuais.
         </div>
       ) : (
-        <div className="border rounded-lg overflow-hidden">
+        <div className="border rounded-lg overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-muted/50 text-xs uppercase">
               <tr>
@@ -377,7 +398,6 @@ function TipsGeradasTab({
             </thead>
             <tbody>
               {filtered.map((t) => {
-                const cls = classifyMatchKey(t.match_key);
                 const home = t.source_data?.fixture?.home?.name ?? "—";
                 const away = t.source_data?.fixture?.away?.name ?? "—";
                 const league = t.source_data?.fixture?.league?.name ?? "—";
@@ -385,17 +405,7 @@ function TipsGeradasTab({
                 return (
                   <tr key={t.id} className="border-t hover:bg-muted/30 transition">
                     <td className="px-3 py-2">
-                      {cls === "live" ? (
-                        <span className="inline-flex items-center gap-1 text-xs">
-                          <Radio className="w-3 h-3 text-red-500" />
-                          Live
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 text-xs">
-                          <MessageSquare className="w-3 h-3 text-primary" />
-                          Chat
-                        </span>
-                      )}
+                      <MatchTypeBadge matchKey={t.match_key} />
                     </td>
                     <td className="px-3 py-2 font-medium">
                       {home} × {away}
@@ -473,11 +483,8 @@ function TipsGeradasTab({
                   <code className="text-[10px]">{detailTip.match_key}</code>
                 </div>
               </div>
-
               <div className="border-t pt-3">
-                <div className="text-xs text-muted-foreground mb-2">
-                  Markdown gerado pela IA:
-                </div>
+                <div className="text-xs text-muted-foreground mb-2">Markdown gerado pela IA:</div>
                 <pre className="text-xs bg-muted p-3 rounded overflow-auto whitespace-pre-wrap max-h-96">
                   {detailTip.content?.markdown ?? "(sem markdown)"}
                 </pre>
@@ -490,51 +497,23 @@ function TipsGeradasTab({
   );
 }
 
-/* ---------------- Cache & Reuso ---------------- */
+// ═══════════════════════════════════════════════════════════════════
+// TAB: CACHE & REUSO
+// ═══════════════════════════════════════════════════════════════════
 
-function CacheReusoTab({
-  period,
-  setPeriod,
-  customStart,
-  setCustomStart,
-  customEnd,
-  setCustomEnd,
-}: {
-  period: PeriodFilter;
-  setPeriod: (p: PeriodFilter) => void;
-  customStart: string;
-  setCustomStart: (s: string) => void;
-  customEnd: string;
-  setCustomEnd: (s: string) => void;
-}) {
+function CacheReusoTab() {
   const [tips, setTips] = useState<Tip[]>([]);
   const [loading, setLoading] = useState(true);
+  const [period, setPeriod] = useState<PeriodFilter>("7d");
+  const [customStart, setCustomStart] = useState("");
+  const [customEnd, setCustomEnd] = useState("");
 
   const fetchData = async () => {
     setLoading(true);
-    try {
-      const { start, end } = getPeriodRange(period, customStart, customEnd);
-      let query = supabase
-        .from("ai_tip_cache")
-        .select(
-          "id, match_key, match_type, generated_at, expires_at, tokens_input, tokens_output, tokens_cached, hit_count, last_used_at, generated_by_user_id, content, source_data"
-        )
-        .or("match_key.like.chat_prematch:%,match_key.like.live_tip:%")
-        .order("hit_count", { ascending: false })
-        .limit(500);
-
-      if (start) query = query.gte("generated_at", start);
-      if (end) query = query.lte("generated_at", end);
-
-      const { data, error } = await query;
-      if (error) {
-        console.error("fetch cache error", error);
-        return;
-      }
-      setTips((data ?? []) as Tip[]);
-    } finally {
-      setLoading(false);
-    }
+    const { start, end } = getPeriodRange(period, customStart, customEnd);
+    const list = await fetchTipsInRange(start, end);
+    setTips(list);
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -542,51 +521,42 @@ function CacheReusoTab({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [period, customStart, customEnd]);
 
-  const stats = useMemo(() => {
-    const reused = tips.filter((t) => (t.hit_count ?? 0) > 0);
-    const totalHits = tips.reduce((a, t) => a + (t.hit_count ?? 0), 0);
-    const totalGenerations = tips.length;
-    const avgTokensPerTip =
-      totalGenerations > 0
-        ? tips.reduce(
-            (a, t) => a + (t.tokens_input ?? 0) + (t.tokens_output ?? 0),
-            0
-          ) / totalGenerations
-        : 0;
-    const avgInput =
-      totalGenerations > 0
-        ? tips.reduce((a, t) => a + (t.tokens_input ?? 0), 0) / totalGenerations
-        : 0;
-    const avgOutput =
-      totalGenerations > 0
-        ? tips.reduce((a, t) => a + (t.tokens_output ?? 0), 0) / totalGenerations
-        : 0;
-    const tokensSaved = avgTokensPerTip * totalHits;
-    const usdSaved = estimateUsd(avgInput * totalHits, avgOutput * totalHits);
-    const totalCalls = totalGenerations + totalHits;
-    const hitRate = totalCalls > 0 ? (totalHits / totalCalls) * 100 : 0;
-    return {
-      reusedCount: reused.length,
-      totalHits,
-      tokensSaved: Math.round(tokensSaved),
-      usdSaved,
-      hitRate,
-    };
-  }, [tips]);
+  const totalTips = tips.length;
+  const totalHits = tips.reduce((acc, t) => acc + (t.hit_count ?? 0), 0);
+  const tipsWithHits = tips.filter((t) => (t.hit_count ?? 0) > 0).length;
 
-  const top20 = useMemo(() => tips.filter((t) => (t.hit_count ?? 0) > 0).slice(0, 20), [tips]);
+  const avgTokensPerTip = totalTips > 0
+    ? tips.reduce((acc, t) => acc + (t.tokens_input ?? 0) + (t.tokens_output ?? 0), 0) / totalTips
+    : 0;
+  const tokensSaved = totalHits * avgTokensPerTip;
+
+  // taxa de cache hit: hits / (hits + generations) → fração de pedidos que pegou cache
+  const cacheHitRate =
+    totalHits + totalTips > 0 ? (totalHits / (totalHits + totalTips)) * 100 : 0;
+
+  const avgCostPerTip = totalTips > 0
+    ? tips.reduce((acc, t) => acc + calcCost(t.tokens_input ?? 0, t.tokens_output ?? 0), 0) / totalTips
+    : 0;
+  const costSaved = totalHits * avgCostPerTip;
+
+  const topReused = useMemo(() => {
+    return [...tips]
+      .filter((t) => (t.hit_count ?? 0) > 0)
+      .sort((a, b) => (b.hit_count ?? 0) - (a.hit_count ?? 0))
+      .slice(0, 20);
+  }, [tips]);
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold">Cache &amp; Reuso</h2>
+        <h2 className="text-lg font-semibold">Cache & Reuso</h2>
         <Button onClick={fetchData} variant="outline" size="sm" disabled={loading}>
           <RefreshCw className={`w-3 h-3 mr-1 ${loading ? "animate-spin" : ""}`} />
           Atualizar
         </Button>
       </div>
 
-      <PeriodFilterBar
+      <PeriodFilterControls
         period={period}
         setPeriod={setPeriod}
         customStart={customStart}
@@ -596,84 +566,88 @@ function CacheReusoTab({
       />
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <KpiCard label="Tips com reuso" value={stats.reusedCount} icon={Repeat} />
-        <KpiCard label="Reusos totais" value={stats.totalHits} icon={TrendingUp} />
+        <KpiCard
+          label="Tips com reuso"
+          value={`${tipsWithHits}/${totalTips}`}
+          hint={`${totalTips > 0 ? ((tipsWithHits / totalTips) * 100).toFixed(1) : 0}% das tips`}
+          icon={<Recycle className="w-4 h-4" />}
+        />
+        <KpiCard
+          label="Reusos totais"
+          value={totalHits.toLocaleString("pt-BR")}
+          icon={<TrendingUp className="w-4 h-4" />}
+        />
         <KpiCard
           label="Tokens economizados"
-          value={stats.tokensSaved.toLocaleString("pt-BR")}
-          icon={Zap}
-          hint="estimativa baseada em média"
+          value={Math.round(tokensSaved).toLocaleString("pt-BR")}
+          hint="estimativa: hits × média"
         />
         <KpiCard
           label="USD economizado"
-          value={`$${stats.usdSaved.toFixed(4)}`}
-          icon={DollarSign}
-          hint="baseado em Sonnet 4.5"
+          value={formatCostUSD(costSaved)}
+          hint="estimativa com Sonnet 4.5"
+          icon={<DollarSign className="w-4 h-4" />}
         />
       </div>
 
       <div className="rounded-lg border p-4">
-        <div className="flex items-center justify-between mb-2">
-          <div className="text-xs font-medium">Taxa de cache hit</div>
-          <div className="text-xs font-bold text-primary">{stats.hitRate.toFixed(1)}%</div>
+        <div className="text-xs text-muted-foreground mb-2">Taxa de cache hit</div>
+        <div className="flex items-center gap-3">
+          <div className="flex-1 h-3 bg-muted rounded-full overflow-hidden">
+            <div
+              className="h-full bg-primary transition-all"
+              style={{ width: `${Math.min(100, cacheHitRate)}%` }}
+            />
+          </div>
+          <span className="text-sm font-semibold">{cacheHitRate.toFixed(1)}%</span>
         </div>
-        <div className="h-3 w-full rounded-full bg-muted overflow-hidden">
-          <div
-            className="h-full bg-primary transition-all"
-            style={{ width: `${Math.min(stats.hitRate, 100)}%` }}
-          />
+        <div className="text-[10px] text-muted-foreground mt-2">
+          {totalHits} hits de cache em {totalTips + totalHits} pedidos totais (gerações + reusos)
         </div>
       </div>
 
       <div>
-        <div className="text-sm font-medium mb-2">Top 20 tips mais reusadas</div>
+        <h3 className="text-sm font-semibold mb-2">Top 20 tips mais reusadas</h3>
         {loading ? (
-          <div className="flex justify-center py-6">
+          <div className="flex justify-center py-8">
             <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
           </div>
-        ) : top20.length === 0 ? (
+        ) : topReused.length === 0 ? (
           <div className="text-center py-8 text-sm text-muted-foreground border rounded-lg">
-            Nenhuma tip foi reusada ainda no período selecionado.
+            Nenhuma tip foi reusada no período. Esperado se não houver usuários
+            ativos consumindo análises repetidas.
           </div>
         ) : (
-          <div className="border rounded-lg overflow-hidden">
+          <div className="border rounded-lg overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="bg-muted/50 text-xs uppercase">
                 <tr>
                   <th className="text-left px-3 py-2">Tipo</th>
                   <th className="text-left px-3 py-2">Jogo</th>
+                  <th className="text-left px-3 py-2">Liga</th>
+                  <th className="text-left px-3 py-2">Última vez usada</th>
                   <th className="text-right px-3 py-2">Reusos</th>
-                  <th className="text-left px-3 py-2">Última vez</th>
                 </tr>
               </thead>
               <tbody>
-                {top20.map((t) => {
-                  const cls = classifyMatchKey(t.match_key);
+                {topReused.map((t) => {
                   const home = t.source_data?.fixture?.home?.name ?? "—";
                   const away = t.source_data?.fixture?.away?.name ?? "—";
+                  const league = t.source_data?.fixture?.league?.name ?? "—";
                   return (
                     <tr key={t.id} className="border-t hover:bg-muted/30 transition">
-                      <td className="px-3 py-2 text-xs">
-                        {cls === "live" ? (
-                          <span className="inline-flex items-center gap-1">
-                            <Radio className="w-3 h-3 text-red-500" />
-                            Live
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1">
-                            <MessageSquare className="w-3 h-3 text-primary" />
-                            Chat
-                          </span>
-                        )}
+                      <td className="px-3 py-2">
+                        <MatchTypeBadge matchKey={t.match_key} />
                       </td>
                       <td className="px-3 py-2 font-medium">
                         {home} × {away}
                       </td>
-                      <td className="px-3 py-2 text-right font-bold text-primary">
-                        {t.hit_count}
+                      <td className="px-3 py-2 text-xs text-muted-foreground">{league}</td>
+                      <td className="px-3 py-2 text-xs">
+                        {t.last_used_at ? formatBrazilDate(t.last_used_at) : "—"}
                       </td>
-                      <td className="px-3 py-2 text-xs text-muted-foreground">
-                        {formatRelative(t.last_used_at)}
+                      <td className="px-3 py-2 text-right">
+                        <span className="font-semibold text-primary">{t.hit_count}</span>
                       </td>
                     </tr>
                   );
@@ -687,72 +661,42 @@ function CacheReusoTab({
   );
 }
 
-/* ---------------- Telemetria ---------------- */
+// ═══════════════════════════════════════════════════════════════════
+// TAB: TELEMETRIA
+// ═══════════════════════════════════════════════════════════════════
 
-function TelemetriaTab({
-  period,
-  setPeriod,
-  customStart,
-  setCustomStart,
-  customEnd,
-  setCustomEnd,
-}: {
-  period: PeriodFilter;
-  setPeriod: (p: PeriodFilter) => void;
-  customStart: string;
-  setCustomStart: (s: string) => void;
-  customEnd: string;
-  setCustomEnd: (s: string) => void;
-}) {
+function TelemetriaTab() {
   const [tips, setTips] = useState<Tip[]>([]);
-  const [userEmails, setUserEmails] = useState<Record<string, string>>({});
+  const [emailsByUserId, setEmailsByUserId] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
+  const [period, setPeriod] = useState<PeriodFilter>("7d");
+  const [customStart, setCustomStart] = useState("");
+  const [customEnd, setCustomEnd] = useState("");
 
   const fetchData = async () => {
     setLoading(true);
-    try {
-      const { start, end } = getPeriodRange(period, customStart, customEnd);
-      let query = supabase
-        .from("ai_tip_cache")
-        .select(
-          "id, match_key, match_type, generated_at, expires_at, tokens_input, tokens_output, tokens_cached, hit_count, last_used_at, generated_by_user_id, content, source_data"
-        )
-        .or("match_key.like.chat_prematch:%,match_key.like.live_tip:%")
-        .order("generated_at", { ascending: false })
-        .limit(2000);
+    const { start, end } = getPeriodRange(period, customStart, customEnd);
+    const list = await fetchTipsInRange(start, end);
+    setTips(list);
 
-      if (start) query = query.gte("generated_at", start);
-      if (end) query = query.lte("generated_at", end);
-
-      const { data, error } = await query;
-      if (error) {
-        console.error("telemetria fetch error", error);
-        return;
-      }
-      const list = (data ?? []) as Tip[];
-      setTips(list);
-
-      const userIds = Array.from(
-        new Set(list.map((t) => t.generated_by_user_id).filter((x): x is string => !!x))
-      );
-      if (userIds.length > 0) {
-        const { data: users, error: userErr } = await supabase
-          .from("users")
-          .select("id, email")
-          .in("id", userIds);
-        if (!userErr && users) {
-          const map: Record<string, string> = {};
-          users.forEach((u: any) => {
-            map[u.id] = u.email;
-          });
-          setUserEmails(map);
-        }
-      } else {
-        setUserEmails({});
-      }
-    } finally {
-      setLoading(false);
+    const userIds = Array.from(
+      new Set(list.map((t) => t.generated_by_user_id).filter((id): id is string => !!id))
+    );
+    if (userIds.length > 0) {
+      const { data: users } = await supabase
+        .from("users")
+        .select("id, email")
+        .in("id", userIds);
+      const map: Record<string, string> = {};
+      (users ?? []).forEach((u: any) => {
+        map[u.id] = u.email ?? "";
+      });
+      setEmailsByUserId(map);
+    } else {
+      setEmailsByUserId({});
     }
+
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -760,72 +704,64 @@ function TelemetriaTab({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [period, customStart, customEnd]);
 
-  const summary = useMemo(() => {
-    const totalIn = tips.reduce((a, t) => a + (t.tokens_input ?? 0), 0);
-    const totalOut = tips.reduce((a, t) => a + (t.tokens_output ?? 0), 0);
-    const totalUsd = estimateUsd(totalIn, totalOut);
-    const count = tips.length;
-    return {
-      totalUsd,
-      count,
-      totalIn,
-      totalOut,
-      avgUsd: count > 0 ? totalUsd / count : 0,
-    };
-  }, [tips]);
+  const totalInput = tips.reduce((acc, t) => acc + (t.tokens_input ?? 0), 0);
+  const totalOutput = tips.reduce((acc, t) => acc + (t.tokens_output ?? 0), 0);
+  const totalCost = calcCost(totalInput, totalOutput);
+  const avgCostPerTip = tips.length > 0 ? totalCost / tips.length : 0;
 
-  const byDay = useMemo(() => {
-    const map = new Map<string, number>();
+  const topGames = useMemo(() => {
+    const map = new Map<string, { count: number; tokens: number; cost: number }>();
     tips.forEach((t) => {
-      const d = new Date(t.generated_at).toLocaleDateString("pt-BR", {
-        day: "2-digit",
-        month: "2-digit",
-        timeZone: "America/Sao_Paulo",
+      const home = t.source_data?.fixture?.home?.name;
+      const away = t.source_data?.fixture?.away?.name;
+      if (!home || !away) return;
+      const key = `${home} × ${away}`;
+      const tokens_in = t.tokens_input ?? 0;
+      const tokens_out = t.tokens_output ?? 0;
+      const cur = map.get(key) ?? { count: 0, tokens: 0, cost: 0 };
+      map.set(key, {
+        count: cur.count + 1,
+        tokens: cur.tokens + tokens_in + tokens_out,
+        cost: cur.cost + calcCost(tokens_in, tokens_out),
       });
-      map.set(d, (map.get(d) ?? 0) + (t.tokens_input ?? 0) + (t.tokens_output ?? 0));
     });
-    const arr = Array.from(map.entries()).map(([day, tokens]) => ({ day, tokens }));
-    arr.sort((a, b) => a.day.localeCompare(b.day));
-    return arr;
-  }, [tips]);
-
-  const maxDayTokens = useMemo(
-    () => Math.max(1, ...byDay.map((d) => d.tokens)),
-    [byDay]
-  );
-
-  const topMatches = useMemo(() => {
-    const map = new Map<string, { name: string; count: number; usd: number }>();
-    tips.forEach((t) => {
-      const home = t.source_data?.fixture?.home?.name ?? "?";
-      const away = t.source_data?.fixture?.away?.name ?? "?";
-      const name = `${home} × ${away}`;
-      const cur = map.get(name) ?? { name, count: 0, usd: 0 };
-      cur.count += 1;
-      cur.usd += estimateUsd(t.tokens_input ?? 0, t.tokens_output ?? 0);
-      map.set(name, cur);
-    });
-    return Array.from(map.values())
-      .sort((a, b) => b.count - a.count)
+    return Array.from(map.entries())
+      .sort((a, b) => b[1].count - a[1].count)
       .slice(0, 10);
   }, [tips]);
 
   const topUsers = useMemo(() => {
-    const map = new Map<string, { user_id: string; count: number; usd: number }>();
+    const map = new Map<string, { count: number; tokens: number; cost: number }>();
     tips.forEach((t) => {
       if (!t.generated_by_user_id) return;
-      const cur = map.get(t.generated_by_user_id) ?? {
-        user_id: t.generated_by_user_id,
-        count: 0,
-        usd: 0,
-      };
-      cur.count += 1;
-      cur.usd += estimateUsd(t.tokens_input ?? 0, t.tokens_output ?? 0);
-      map.set(t.generated_by_user_id, cur);
+      const tokens_in = t.tokens_input ?? 0;
+      const tokens_out = t.tokens_output ?? 0;
+      const cur = map.get(t.generated_by_user_id) ?? { count: 0, tokens: 0, cost: 0 };
+      map.set(t.generated_by_user_id, {
+        count: cur.count + 1,
+        tokens: cur.tokens + tokens_in + tokens_out,
+        cost: cur.cost + calcCost(tokens_in, tokens_out),
+      });
     });
-    return Array.from(map.values())
-      .sort((a, b) => b.count - a.count)
+    return Array.from(map.entries())
+      .sort((a, b) => b[1].count - a[1].count)
       .slice(0, 10);
+  }, [tips]);
+
+  const daily = useMemo(() => {
+    const map = new Map<string, { input: number; output: number; count: number }>();
+    tips.forEach((t) => {
+      const day = t.generated_at.split("T")[0];
+      const cur = map.get(day) ?? { input: 0, output: 0, count: 0 };
+      map.set(day, {
+        input: cur.input + (t.tokens_input ?? 0),
+        output: cur.output + (t.tokens_output ?? 0),
+        count: cur.count + 1,
+      });
+    });
+    const entries = Array.from(map.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+    const maxTokens = Math.max(...entries.map(([, d]) => d.input + d.output), 1);
+    return { entries, maxTokens };
   }, [tips]);
 
   return (
@@ -838,7 +774,7 @@ function TelemetriaTab({
         </Button>
       </div>
 
-      <PeriodFilterBar
+      <PeriodFilterControls
         period={period}
         setPeriod={setPeriod}
         customStart={customStart}
@@ -849,113 +785,134 @@ function TelemetriaTab({
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <KpiCard
-          label="Custo total (USD)"
-          value={`$${summary.totalUsd.toFixed(4)}`}
-          icon={DollarSign}
-        />
-        <KpiCard label="Análises geradas" value={summary.count} icon={Sparkles} />
-        <KpiCard
-          label="Tokens (in / out)"
-          value={`${summary.totalIn.toLocaleString("pt-BR")} / ${summary.totalOut.toLocaleString("pt-BR")}`}
-          icon={Zap}
+          label="Custo total"
+          value={formatCostUSD(totalCost)}
+          hint="Claude Sonnet 4.5"
+          icon={<DollarSign className="w-4 h-4" />}
         />
         <KpiCard
-          label="Custo médio / tip"
-          value={`$${summary.avgUsd.toFixed(4)}`}
-          icon={TrendingUp}
+          label="Análises geradas"
+          value={tips.length.toLocaleString("pt-BR")}
+          icon={<Sparkles className="w-4 h-4" />}
+        />
+        <KpiCard
+          label="Tokens consumidos"
+          value={(totalInput + totalOutput).toLocaleString("pt-BR")}
+          hint={`${totalInput.toLocaleString("pt-BR")} in / ${totalOutput.toLocaleString("pt-BR")} out`}
+        />
+        <KpiCard
+          label="Custo médio por tip"
+          value={formatCostUSD(avgCostPerTip)}
         />
       </div>
 
-      <div className="rounded-lg border p-4">
-        <div className="text-sm font-medium mb-3">Tokens por dia</div>
-        {loading ? (
-          <div className="flex justify-center py-6">
-            <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
-          </div>
-        ) : byDay.length === 0 ? (
-          <div className="text-center py-6 text-sm text-muted-foreground">
-            Sem dados no período.
-          </div>
-        ) : (
-          <div className="space-y-1.5">
-            {byDay.map((d) => (
-              <div key={d.day} className="flex items-center gap-2 text-xs">
-                <div className="w-12 text-muted-foreground tabular-nums">{d.day}</div>
-                <div className="flex-1 h-5 bg-muted rounded overflow-hidden">
-                  <div
-                    className="h-full bg-primary/80 transition-all"
-                    style={{ width: `${(d.tokens / maxDayTokens) * 100}%` }}
-                  />
-                </div>
-                <div className="w-20 text-right tabular-nums">
-                  {d.tokens.toLocaleString("pt-BR")}
-                </div>
+      {loading ? (
+        <div className="flex justify-center py-8">
+          <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+        </div>
+      ) : (
+        <>
+          <div className="rounded-lg border p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Calendar className="w-4 h-4 text-muted-foreground" />
+              <h3 className="text-sm font-semibold">Tokens por dia</h3>
+            </div>
+            {daily.entries.length === 0 ? (
+              <div className="text-xs text-muted-foreground">Sem dados no período.</div>
+            ) : (
+              <div className="space-y-1.5">
+                {daily.entries.map(([day, d]) => {
+                  const total = d.input + d.output;
+                  return (
+                    <div key={day} className="flex items-center gap-2">
+                      <span className="text-[10px] w-20 text-muted-foreground">{day}</span>
+                      <div className="flex-1 h-4 bg-muted rounded overflow-hidden">
+                        <div
+                          className="h-full bg-primary"
+                          style={{ width: `${(total / daily.maxTokens) * 100}%` }}
+                        />
+                      </div>
+                      <span className="text-[10px] w-24 text-right">
+                        {total.toLocaleString("pt-BR")} ({d.count})
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
-            ))}
+            )}
           </div>
-        )}
-      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="rounded-lg border p-4">
-          <div className="text-sm font-medium mb-3">Top 10 jogos analisados</div>
-          {topMatches.length === 0 ? (
-            <div className="text-xs text-muted-foreground">Sem dados.</div>
-          ) : (
-            <div className="space-y-1.5">
-              {topMatches.map((m) => (
-                <div
-                  key={m.name}
-                  className="flex items-center justify-between text-xs gap-2 border-b last:border-0 pb-1.5"
-                >
-                  <div className="truncate flex-1">{m.name}</div>
-                  <div className="flex items-center gap-3 shrink-0">
-                    <span className="text-muted-foreground tabular-nums">{m.count}×</span>
-                    <span className="font-medium tabular-nums">${m.usd.toFixed(4)}</span>
-                  </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="rounded-lg border p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Trophy className="w-4 h-4 text-muted-foreground" />
+                <h3 className="text-sm font-semibold">Top 10 jogos</h3>
+              </div>
+              {topGames.length === 0 ? (
+                <div className="text-xs text-muted-foreground">Sem dados.</div>
+              ) : (
+                <div className="space-y-1.5">
+                  {topGames.map(([key, d], i) => (
+                    <div key={key} className="flex items-center justify-between text-xs">
+                      <span className="text-muted-foreground w-5">{i + 1}.</span>
+                      <span className="flex-1 truncate" title={key}>
+                        {key}
+                      </span>
+                      <span className="font-semibold ml-2">{d.count}</span>
+                      <span className="text-muted-foreground ml-2 w-16 text-right">
+                        {formatCostUSD(d.cost)}
+                      </span>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
-          )}
-        </div>
 
-        <div className="rounded-lg border p-4">
-          <div className="text-sm font-medium mb-3">Top 10 usuários geradores</div>
-          {topUsers.length === 0 ? (
-            <div className="text-xs text-muted-foreground">Sem dados.</div>
-          ) : (
-            <div className="space-y-1.5">
-              {topUsers.map((u) => (
-                <div
-                  key={u.user_id}
-                  className="flex items-center justify-between text-xs gap-2 border-b last:border-0 pb-1.5"
-                >
-                  <div className="truncate flex-1">
-                    {userEmails[u.user_id] ?? (
-                      <code className="text-[10px]">{u.user_id.slice(0, 8)}…</code>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-3 shrink-0">
-                    <span className="text-muted-foreground tabular-nums">{u.count}×</span>
-                    <span className="font-medium tabular-nums">${u.usd.toFixed(4)}</span>
-                  </div>
+            <div className="rounded-lg border p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <User className="w-4 h-4 text-muted-foreground" />
+                <h3 className="text-sm font-semibold">Top 10 usuários (geração)</h3>
+              </div>
+              {topUsers.length === 0 ? (
+                <div className="text-xs text-muted-foreground">Sem dados.</div>
+              ) : (
+                <div className="space-y-1.5">
+                  {topUsers.map(([userId, d], i) => {
+                    const email = emailsByUserId[userId] ?? userId.slice(0, 8);
+                    return (
+                      <div key={userId} className="flex items-center justify-between text-xs">
+                        <span className="text-muted-foreground w-5">{i + 1}.</span>
+                        <span className="flex-1 truncate" title={email}>
+                          {email}
+                        </span>
+                        <span className="font-semibold ml-2">{d.count}</span>
+                        <span className="text-muted-foreground ml-2 w-16 text-right">
+                          {formatCostUSD(d.cost)}
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
-              ))}
+              )}
             </div>
-          )}
-        </div>
-      </div>
+          </div>
+
+          <div className="text-[10px] text-muted-foreground italic">
+            Preços usados: $3.00/M input, $15.00/M output (Claude Sonnet 4.5).
+            Cache de prompt não é descontado no cálculo (estimativa por cima).
+          </div>
+        </>
+      )}
     </div>
   );
 }
 
-/* ---------------- Page ---------------- */
+// ═══════════════════════════════════════════════════════════════════
+// MAIN PAGE
+// ═══════════════════════════════════════════════════════════════════
 
 export default function AdminIATipster() {
   const [activeTab, setActiveTab] = useState("tips");
-  const [period, setPeriod] = useState<PeriodFilter>("7d");
-  const [customStart, setCustomStart] = useState("");
-  const [customEnd, setCustomEnd] = useState("");
 
   return (
     <div className="space-y-4 p-4 md:p-6">
@@ -979,36 +936,15 @@ export default function AdminIATipster() {
         </TabsList>
 
         <TabsContent value="tips" className="mt-4">
-          <TipsGeradasTab
-            period={period}
-            setPeriod={setPeriod}
-            customStart={customStart}
-            setCustomStart={setCustomStart}
-            customEnd={customEnd}
-            setCustomEnd={setCustomEnd}
-          />
+          <TipsGeradasTab />
         </TabsContent>
 
         <TabsContent value="cache" className="mt-4">
-          <CacheReusoTab
-            period={period}
-            setPeriod={setPeriod}
-            customStart={customStart}
-            setCustomStart={setCustomStart}
-            customEnd={customEnd}
-            setCustomEnd={setCustomEnd}
-          />
+          <CacheReusoTab />
         </TabsContent>
 
         <TabsContent value="telemetria" className="mt-4">
-          <TelemetriaTab
-            period={period}
-            setPeriod={setPeriod}
-            customStart={customStart}
-            setCustomStart={setCustomStart}
-            customEnd={customEnd}
-            setCustomEnd={setCustomEnd}
-          />
+          <TelemetriaTab />
         </TabsContent>
 
         <TabsContent value="bugs" className="mt-4">
