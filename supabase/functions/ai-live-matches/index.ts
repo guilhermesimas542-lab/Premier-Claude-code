@@ -11,31 +11,35 @@ const AI_BETA_ALLOWLIST: string[] = [
   "teste@exemplo.com",
 ].map(e => e.toLowerCase().trim());
 
-// Lista provisória de 22 ligas top (IDs API-Football v3).
-// Quando o Fellipe enviar a lista final das 44 do FootyStats, atualizar aqui.
 const TOP_LEAGUES = [
-  71,  // Brasileirão Série A
-  72,  // Brasileirão Série B
-  73,  // Copa do Brasil
-  13,  // Libertadores
-  11,  // Sul-Americana
-  39,  // Premier League
-  40,  // Championship
-  140, // La Liga
-  135, // Serie A (Itália)
-  78,  // Bundesliga
-  61,  // Ligue 1
-  88,  // Eredivisie
-  94,  // Liga Portugal
-  2,   // Champions League
-  3,   // Europa League
-  848, // Conference League
-  253, // MLS
-  262, // Liga MX
-  128, // Argentina Liga Profesional
-  307, // Saudi Pro League
-  1,   // World Cup
-  4,   // Eurocopa
+  71, 72, 75, 73,
+  128, 129,
+  265,
+  239,
+  119,
+  242,
+  39, 40, 48,
+  2, 3, 848, 525,
+  61, 66, 62,
+  78, 79,
+  1,
+  135, 136,
+  262, 263,
+  88, 89,
+  103,
+  284,
+  281,
+  94, 95,
+  307,
+  179,
+  13, 11, 1042,
+  140, 141,
+  113,
+  203,
+  253, 254,
+  268,
+  299,
+  16,
 ];
 
 const CACHE_TTL_SECONDS = 60;
