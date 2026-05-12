@@ -45,51 +45,359 @@ const LIVE_STATUS = ["1H", "HT", "2H", "ET", "BT", "P", "LIVE"];
 const CLAUDE_MODEL = "claude-sonnet-4-5";
 const CACHE_TTL_SECONDS = 60;
 
-const SYSTEM_PROMPT_LIVE = `# IDENTIDADE
-Você é o IA Tipster do Premier, ferramenta de análise estatística de futebol em beta.
-Você analisa jogos AO VIVO com base nos dados da partida em curso.
+const SYSTEM_PROMPT_LIVE = `Você é o Savel, tipster especialista em futebol AO VIVO, fundador da Premier Ultra. Você analisa jogos em andamento combinando contexto pré-jogo (tabela, forma, percentuais, odds pré) com o que está acontecendo na partida em tempo real.
 
-# IDIOMA
-Português brasileiro, tom direto e técnico. Sem floreio, sem hype.
+# SUA FILOSOFIA
 
-# FORMATO DE SAÍDA OBRIGATÓRIO (markdown)
-🎯 **ENTRADA:** [mercado específico para AO VIVO]
-📊 **ODD:** [valor numérico se disponível, senão "consultar casa"]
-📈 **ANÁLISE:**
-- [bullet 1 citando dado verificável com momento da partida]
-- [bullet 2 idem]
-- [bullet 3 idem]
-⚡ **CONFIANÇA:** Alta / Média / Baixa
-🔗 *Análise válida pelos próximos 5-10 minutos.*
+Você não reage só ao placar. Você lê o cenário: quem é favorito, como o jogo está se desenhando, quando os gols costumam sair, e qual mercado tem valor agora.
 
-# REGRAS
-1. Toda estatística citada DEVE incluir o momento atual da partida.
-   Ex: "Real Madrid teve 8 finalizações nos primeiros 30 min (minuto atual: 35)".
+# DADOS QUE VOCÊ RECEBE
 
-2. Se os dados não permitem análise rigorosa, responda:
-   "Dados ao vivo insuficientes para análise rigorosa neste momento."
-   NÃO invente números.
+- live: placar atual, minuto, eventos do jogo (gols, cartões, escanteios cobrados), stats da partida
+- pre_match: tabela do campeonato, forma últimos 10 dos dois times, H2H, percentuais (over, BTTS, clean sheets), streaks, odds pré-jogo
+- odds_live: odds dos mercados ao vivo quando disponíveis
 
-3. Nunca sugerir odd > 3.00 sem justificativa explícita de risco.
+# LÓGICA DE MINUTAGEM
 
-4. Considere o minuto do jogo:
-   - <15: análise inicial, foco em tendências de abertura
-   - 16-60: estatísticas acumuladas + ritmo
-   - >60: pressão / urgência do placar
-   - >80: cautela com mercados de gol
+- 0-20 min: a amostra de eventos é pequena. Use principalmente pre_match.
+  Reconheça padrões dos times. Ex: "time X marca em 75% dos jogos no 1ºT."
+- 20-60 min: equilibre. Combine tendências pré-jogo com o que o jogo já mostrou.
+- 60-90+ min: momentum domina. Aplique as TÁTICAS SAVEL quando o gatilho bater.
 
-5. Citar APENAS a Esportiva Bet como casa.
+# RECONHECIMENTO DE FAVORITO
 
-6. Reconhecer que dados ao vivo são VOLÁTEIS.
+1. Use odds_pre_match: favorito = time com MENOR odd no Match Winner.
+2. Se odds pré ausentes: use posição na tabela + forma recente.
+3. Se ambos ausentes: deduza pelo H2H e forma.
 
-# FILOSOFIA
-- Tip com fundamento vence palpite com vibe.
-- Em ao vivo, momentum vale mais que histórico estático.
-- Preferir mercados de baixa variância em alta confiança.
+# TÁTICAS SAVEL (PRIORIDADE ALTA)
 
-# DADOS DO JOGO
-Use APENAS os dados estruturados injetados pela mensagem do usuário.
+TÁTICA 01 — Over Live no Fim
+Gatilho: minuto >= 60 E (placar empatado OU favorito perdendo)
+Entrada: Over [gols_total_atual + 0.5] do jogo
+Exemplo: 1x0 no minuto 65 → Over 1.5 do jogo
+         2x1 no minuto 70 → Over 3.5 do jogo
+Lógica: pressão + tempo restante = espaço pra mais 1 gol
+
+TÁTICA 02 — Escanteios em Favorito Perdendo Desde o Início
+Gatilho: favorito perdendo desde antes do minuto 30
+Entrada: Over escanteios alto no restante (linha atual + 4 ou + 5
+         dependendo de quanto tempo resta e dos escanteios já cobrados)
+Lógica: favorito vai pra cima → bola pra área → escanteios
+
+TÁTICA 03 — Over Jogo após 1ºT Desfavorável
+Gatilho: favorito perdendo no fim do 1º tempo (minuto 40-50, placar contra)
+Entrada: Over [gols_total_atual + 1.5] do jogo total
+Exemplo: 0x1 no intervalo → Over 2.5 do jogo
+Lógica: favorito vai forçar virada → mais 2 gols esperados no jogo todo
+
+Quando um gatilho de tática bater, PRIORIZE essa entrada como principal.
+
+# FORMATO DE SAÍDA (markdown PT-BR)
+
+[Linha narrativa curta abrindo: incluir minuto e placar atuais. Ex: "29 minutos, 1x0 pro Atlético em casa — jogo está se desenhando do jeito que os números previam."]
+
+**Entrada principal**
+[Mercado + linha + odd live aproximada se disponível]
+
+[1 parágrafo de 3-5 frases justificando, usando dados live E pré-jogo de forma narrativa. Se TÁTICA SAVEL acionada, mencionar o cenário (ex: "favorito perdendo aos 65 — clássico cenário de Over no fim"), sem nomear "Tática 01" explicitamente.]
+
+**Alternativas**
+- [Alternativa A em mercado DIFERENTE: linha + 1 frase de lógica]
+- [Alternativa B em mercado DIFERENTE: linha + 1 frase de lógica]
+
+[1 parágrafo final com ressalva ou contexto adicional. Pode mencionar variável de risco (cartão amarelo perigoso, time desfalcado, etc.) ou padrão histórico relevante.]
+
+*Análise válida pelos próximos minutos do jogo. Cenário pode mudar com novos eventos.*
+
+# REGRAS RÍGIDAS
+
+- NÃO emitir "CONFIANÇA: Alta/Média/Baixa". Modular tom internamente.
+- NÃO recusar análise por "dados insuficientes" antes dos 20 min. Use pre_match.
+- NÃO listar números brutos em formato vertical.
+- NÃO repetir nomes de times mais de 3 vezes.
+- NÃO incluir link da Esportiva Bet.
+- NÃO inventar dados. Campo null = ignorar.
+- USAR PT-BR brasileiro.
+- USAR termos técnicos de aposta.
+- ALTERNATIVAS em mercados diferentes da principal.
+- Quando aplicar TÁTICA SAVEL: deixar o raciocínio aparente sem nomear a tática como rótulo.
+- Entradas em jogos passando dos 80 min: ressalva clara sobre tempo restante.
 `;
+
+async function fetchStandings(
+  supabase: any,
+  leagueId: number,
+  apiKey: string
+): Promise<any | null> {
+  const cacheKey = `standings:league_${leagueId}`;
+  const { data: cached } = await supabase
+    .from("ai_tip_cache")
+    .select("content")
+    .eq("match_key", cacheKey)
+    .eq("match_type", "live")
+    .gt("expires_at", new Date().toISOString())
+    .order("generated_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (cached) return (cached.content as any)?.standings ?? null;
+
+  const year = new Date().getFullYear();
+  for (const season of [year, year - 1]) {
+    try {
+      const url = `https://v3.football.api-sports.io/standings?league=${leagueId}&season=${season}`;
+      const resp = await fetch(url, { headers: { "x-apisports-key": apiKey } });
+      if (!resp.ok) continue;
+      const data = await resp.json();
+      const league = data?.response?.[0]?.league;
+      const table = league?.standings?.[0];
+      if (Array.isArray(table) && table.length > 0) {
+        const simplified = table.map((t: any) => ({
+          rank: t.rank,
+          team: t.team?.name,
+          team_id: t.team?.id,
+          played: t.all?.played,
+          win: t.all?.win,
+          draw: t.all?.draw,
+          lose: t.all?.lose,
+          gf: t.all?.goals?.for,
+          ga: t.all?.goals?.against,
+          gd: t.goalsDiff,
+          pts: t.points,
+          form: t.form,
+          home_played: t.home?.played,
+          home_win: t.home?.win,
+          home_draw: t.home?.draw,
+          home_lose: t.home?.lose,
+          away_played: t.away?.played,
+          away_win: t.away?.win,
+          away_draw: t.away?.draw,
+          away_lose: t.away?.lose,
+        }));
+        const expiresAt = new Date(Date.now() + 6 * 3600 * 1000).toISOString();
+        await supabase.from("ai_tip_cache").insert({
+          match_key: cacheKey,
+          match_type: "live",
+          content: { standings: simplified, season },
+          source_data: { league_id: leagueId },
+          expires_at: expiresAt,
+          tokens_input: 0,
+          tokens_output: 0,
+        });
+        return simplified;
+      }
+    } catch (err) {
+      console.error("[standings] error", leagueId, season, err);
+    }
+  }
+  return null;
+}
+
+async function fetchOdds(
+  supabase: any,
+  fixtureId: number,
+  apiKey: string
+): Promise<any | null> {
+  const cacheKey = `odds:fixture_${fixtureId}`;
+  const { data: cached } = await supabase
+    .from("ai_tip_cache")
+    .select("content")
+    .eq("match_key", cacheKey)
+    .eq("match_type", "live")
+    .gt("expires_at", new Date().toISOString())
+    .order("generated_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (cached) return (cached.content as any)?.odds ?? null;
+
+  try {
+    const url = `https://v3.football.api-sports.io/odds?fixture=${fixtureId}`;
+    const resp = await fetch(url, { headers: { "x-apisports-key": apiKey } });
+    if (!resp.ok) return null;
+    const data = await resp.json();
+    const bookmakers = data?.response?.[0]?.bookmakers ?? [];
+    if (bookmakers.length === 0) return null;
+
+    const bookmaker = bookmakers[0];
+    const interestingMarkets = [
+      "Match Winner",
+      "Goals Over/Under",
+      "Both Teams Score",
+      "Asian Handicap",
+      "Double Chance",
+      "First Half Winner",
+      "Corners Over Under",
+      "Cards Over/Under",
+      "Home Team Total Goals",
+      "Away Team Total Goals",
+    ];
+    const filtered: any = {};
+    for (const bet of bookmaker?.bets ?? []) {
+      if (interestingMarkets.includes(bet.name)) {
+        filtered[bet.name] = bet.values?.slice(0, 6) ?? [];
+      }
+    }
+    const expiresAt = new Date(Date.now() + 30 * 60 * 1000).toISOString();
+    await supabase.from("ai_tip_cache").insert({
+      match_key: cacheKey,
+      match_type: "live",
+      content: { odds: filtered, bookmaker: bookmaker?.name },
+      source_data: { fixture_id: fixtureId },
+      expires_at: expiresAt,
+      tokens_input: 0,
+      tokens_output: 0,
+    });
+    return filtered;
+  } catch (err) {
+    console.error("[odds] error", fixtureId, err);
+    return null;
+  }
+}
+
+async function fetchLiveOdds(
+  fixtureId: number,
+  apiKey: string
+): Promise<any | null> {
+  // Sem cache: odds live mudam constantemente
+  try {
+    const url = `https://v3.football.api-sports.io/odds/live?fixture=${fixtureId}`;
+    const resp = await fetch(url, { headers: { "x-apisports-key": apiKey } });
+    if (!resp.ok) return null;
+    const data = await resp.json();
+    const odds = data?.response?.[0];
+    if (!odds) return null;
+    const interestingMarkets = [
+      "Match Winner",
+      "Goals Over/Under",
+      "Both Teams Score",
+      "Asian Handicap",
+      "Double Chance",
+      "Next Goal",
+      "Corners Over Under",
+      "Cards Over/Under",
+    ];
+    const filtered: any = {};
+    for (const bet of odds?.odds ?? []) {
+      if (interestingMarkets.includes(bet?.name)) {
+        filtered[bet.name] = bet.values?.slice(0, 6) ?? [];
+      }
+    }
+    return Object.keys(filtered).length > 0 ? filtered : null;
+  } catch (err) {
+    console.error("[live-odds] error", fixtureId, err);
+    return null;
+  }
+}
+
+function calcPercentages(fixtures: any[]): any {
+  const total = fixtures.length;
+  if (total === 0) return null;
+  let over15 = 0, over25 = 0, over35 = 0;
+  let btts = 0, cleanSheets = 0;
+  for (const f of fixtures) {
+    const homeGoals = f?.goals?.home ?? 0;
+    const awayGoals = f?.goals?.away ?? 0;
+    const totalGoals = homeGoals + awayGoals;
+    if (totalGoals >= 2) over15++;
+    if (totalGoals >= 3) over25++;
+    if (totalGoals >= 4) over35++;
+    if (homeGoals > 0 && awayGoals > 0) btts++;
+    if (homeGoals === 0 || awayGoals === 0) cleanSheets++;
+  }
+  return {
+    over_15_pct: Math.round((over15 / total) * 100),
+    over_25_pct: Math.round((over25 / total) * 100),
+    over_35_pct: Math.round((over35 / total) * 100),
+    btts_pct: Math.round((btts / total) * 100),
+    clean_sheets_pct: Math.round((cleanSheets / total) * 100),
+    sample: total,
+  };
+}
+
+function calcStreak(fixtures: any[], teamId: number): any {
+  if (fixtures.length === 0) return { result: null, length: 0 };
+  const resultFor = (f: any): string => {
+    const isHome = f?.teams?.home?.id === teamId;
+    const hg = f?.goals?.home ?? 0;
+    const ag = f?.goals?.away ?? 0;
+    if (hg === ag) return "D";
+    if (isHome && hg > ag) return "W";
+    if (!isHome && ag > hg) return "W";
+    return "L";
+  };
+  const first = resultFor(fixtures[0]);
+  let length = 1;
+  for (let i = 1; i < fixtures.length; i++) {
+    if (resultFor(fixtures[i]) === first) length++;
+    else break;
+  }
+  return { result: first, length };
+}
+
+async function fetchPreMatchContext(
+  supabase: any,
+  apiKey: string,
+  fixture: any
+): Promise<any> {
+  const homeId = fixture.teams.home.id;
+  const awayId = fixture.teams.away.id;
+  const leagueId = fixture.league.id;
+
+  const fetchTeamLast = async (teamId: number, _venue: "home" | "away") => {
+    try {
+      const url = `https://v3.football.api-sports.io/fixtures?team=${teamId}&last=10`;
+      const resp = await fetch(url, { headers: { "x-apisports-key": apiKey } });
+      if (!resp.ok) return [];
+      const data = await resp.json();
+      return Array.isArray(data?.response) ? data.response : [];
+    } catch (err) {
+      console.error("[live] team last error", teamId, err);
+      return [];
+    }
+  };
+
+  const fetchH2H = async () => {
+    try {
+      const url = `https://v3.football.api-sports.io/fixtures/headtohead?h2h=${homeId}-${awayId}&last=5`;
+      const resp = await fetch(url, { headers: { "x-apisports-key": apiKey } });
+      if (!resp.ok) return [];
+      const data = await resp.json();
+      return Array.isArray(data?.response) ? data.response : [];
+    } catch (err) {
+      console.error("[live] h2h error", err);
+      return [];
+    }
+  };
+
+  const [homeForm, awayForm, h2h, standings, oddsPre] = await Promise.all([
+    fetchTeamLast(homeId, "home"),
+    fetchTeamLast(awayId, "away"),
+    fetchH2H(),
+    fetchStandings(supabase, leagueId, apiKey),
+    fetchOdds(supabase, fixture.fixture.id, apiKey),
+  ]);
+
+  const trimForm = (arr: any[]) => arr.slice(0, 10).map((m: any) => ({
+    date: m.fixture?.date,
+    home: m.teams?.home?.name,
+    away: m.teams?.away?.name,
+    score: `${m.goals?.home ?? "-"}-${m.goals?.away ?? "-"}`,
+    league: m.league?.name,
+  }));
+
+  return {
+    home_last_10: trimForm(homeForm),
+    away_last_10: trimForm(awayForm),
+    h2h_last_5: trimForm(h2h),
+    standings_home: standings?.find((s: any) => s.team_id === homeId) ?? null,
+    standings_away: standings?.find((s: any) => s.team_id === awayId) ?? null,
+    percentages_home: calcPercentages(homeForm),
+    percentages_away: calcPercentages(awayForm),
+    streak_home: calcStreak(homeForm, homeId),
+    streak_away: calcStreak(awayForm, awayId),
+    odds_pre_match: oddsPre,
+  };
+}
 
 interface TokenPayload {
   user_id?: string;
@@ -223,39 +531,62 @@ Deno.serve(async (req: Request) => {
   const eventsData = evResp.ok ? await evResp.json() : { response: [] };
   const lineupsData = lineupResp.ok ? await lineupResp.json() : { response: [] };
 
-  // ─── MONTAR source_data ───
+  const events = (eventsData.response || []).slice(0, 30);
+  const matchStats = statsData.response || [];
+
+  // ─── DADOS AO VIVO ───
+  const liveData = {
+    status: fix.fixture?.status?.long,
+    minute: fix.fixture?.status?.elapsed,
+    score: {
+      home: fix.goals?.home ?? 0,
+      away: fix.goals?.away ?? 0,
+    },
+    score_halftime: {
+      home: fix.score?.halftime?.home ?? null,
+      away: fix.score?.halftime?.away ?? null,
+    },
+    events,
+    statistics: matchStats,
+    lineups: lineupsData.response || [],
+  };
+
+  // ─── DADOS PRÉ-JOGO + ODDS LIVE ───
+  const [preMatch, oddsLive] = await Promise.all([
+    fetchPreMatchContext(supabase, apiKey, fix),
+    fetchLiveOdds(fix.fixture.id, apiKey),
+  ]);
+
   const sourceData = {
     fixture: {
       id: fix.fixture.id,
-      league: { id: fix.league.id, name: fix.league.name, country: fix.league.country },
+      league: {
+        id: fix.league.id,
+        name: fix.league.name,
+        country: fix.league.country,
+      },
       home: { id: fix.teams.home.id, name: fix.teams.home.name },
       away: { id: fix.teams.away.id, name: fix.teams.away.name },
-      score: { home: fix.goals.home, away: fix.goals.away },
-      status: {
-        long: fix.fixture.status.long,
-        short: fix.fixture.status.short,
-        minute: fix.fixture.status.elapsed,
-      },
       kickoff_at: fix.fixture.date,
     },
-    statistics: statsData.response || [],
-    events: (eventsData.response || []).slice(0, 30),
-    lineups: lineupsData.response || [],
+    live: liveData,
+    pre_match: preMatch,
+    odds_live: oddsLive,
   };
 
   // ─── CHAMA CLAUDE ───
   const claudeKey = Deno.env.get("ANTHROPIC_API_KEY");
   if (!claudeKey) return jsonResp({ error: "anthropic_key_missing" }, 500);
 
-  const userMessage = `DADOS DO JOGO ao vivo:
+  const userMessage = `Contexto do jogo AO VIVO (use APENAS estes dados; campos null devem ser ignorados):
 
 ${JSON.stringify(sourceData, null, 2)}
 
-Gere sua análise no formato obrigatório.`;
+Gere a análise no formato definido no system prompt. Considere o minuto atual ao escolher mercado e aplicar táticas.`;
 
   const claudePayload = JSON.stringify({
     model: CLAUDE_MODEL,
-    max_tokens: 1024,
+    max_tokens: 1500,
     system: [
       { type: "text", text: SYSTEM_PROMPT_LIVE, cache_control: { type: "ephemeral" } },
     ],
