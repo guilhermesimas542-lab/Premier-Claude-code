@@ -370,3 +370,13 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   filter: invert(1);
   cursor: pointer;
 }
+
+/* IA Tipster — destaque visual da entrada principal */
+@layer components {
+  .prose strong em,
+  .prose em strong {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+  }
+}
