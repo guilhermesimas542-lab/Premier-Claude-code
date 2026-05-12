@@ -667,12 +667,3 @@ Gere a análise no formato definido no system prompt. Considere o minuto atual a
     generated_at: new Date().toISOString(),
   });
 });
-
-// helper local — evita conflito com nome reservado e mantém parsing seguro
-async function eventsData_pull(resp: Response) {
-  try {
-    return await resp.json();
-  } catch {
-    return { response: [] };
-  }
-}
