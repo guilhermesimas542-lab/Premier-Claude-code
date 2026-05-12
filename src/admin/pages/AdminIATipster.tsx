@@ -1698,7 +1698,7 @@ function BugReportsTab() {
     setLoading(true);
     const { data, error } = await supabase
       .from("user_feedback")
-      .select("id, created_at, user_id, comment, feedback, source, tip_cache_id")
+      .select("id, created_at, user_id, message, category, source, tip_cache_id")
       .eq("source", "ia-tipster")
       .order("created_at", { ascending: false })
       .limit(100);
