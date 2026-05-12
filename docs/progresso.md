@@ -1,10 +1,22 @@
 ---
 tipo: progresso
 projeto: ultrateste111
-atualizado: 2026-05-11
+atualizado: 2026-05-12
 ---
 
 # Progresso — ultrateste111
+
+## Sync via MCP Supabase: pay_cards `LOGIN_AQUISICAO` e `vitalicio` apontados pros checkouts CenterPag
+- **Data:** 2026-05-12
+- **Contexto:** Após push do commit `8bd53d3` (preços CLP + links CenterPag + rebranding), auditoria da tabela `pay_cards` via MCP mostrou que os planos NOVOS (premium, diamante, diamante_upgrade, add-ons) já estavam com os links CenterPag corretos, mas os planos LEGACY ainda ativos apontavam pros antigos `checkout.payt.com.br/*` ou estavam vazios.
+- **Risco real identificado:** `Login.tsx:201-204` chama `triggerPayCard('LOGIN_AQUISICAO')` antes do fallback `CHECKOUT_LINKS.funil_premium_full`. Como o card estava ativo apontando pro payt antigo, o botão "Adquirir acceso" ignorava o link novo do código. Mesmo padrão pra `vitalicio` (botão "Acceso Vitalicio" do header).
+- **Decisão:** atualizar APENAS os 6 cards de risco direto (`LOGIN_AQUISICAO` + `vitalicio`). Os outros legacy (basic, pro, ultra, UPGRADE_*, SUPORTE_UPGRADE, desaltas, live_telegram) ficam como estão — usuário decide depois via AdminPayCards.
+- **Updates aplicados:**
+  - `LOGIN_AQUISICAO` (3 cards) → `https://go.centerpag.com/PPU38CQBPB2` (14,90 — funil externo, lead frio)
+  - `vitalicio` (3 cards) → `https://go.centerpag.com/PPU38CQBQS8` (14,90 — Premium in-app)
+  - Ambos `checkout_url` e `checkout_url_2` foram atualizados via `jsonb_set`.
+- **Pendência conhecida (não tocada):** 24 pay_cards legacy ainda ativos apontam pra payt.com.br ou estão vazios — `basic`(3), `pro`(3), `ultra`(3), `UPGRADE_BASICO`(3), `UPGRADE_PRO`(3), `UPGRADE_ULTRA`(3), `SUPORTE_UPGRADE`(3), `desaltas`(1), `live_telegram`(1). Se algum fluxo do app chamar `triggerPayCard()` com essas chaves, vai bater no link antigo.
+- **Tags:** [[Supabase]] [[MCP]] [[pay_cards]] [[CenterPag]] [[LOGIN_AQUISICAO]] [[vitalicio]] [[ultrateste111]]
 
 ## Mapeamento dos checkout links CenterPag (Premium / Diamante / Add-ons)
 - **Data:** 2026-05-11
