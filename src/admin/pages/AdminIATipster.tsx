@@ -1808,8 +1808,8 @@ function BugReportsTab() {
             <tbody>
               {reports.map((r) => {
                 const email = r.user_id ? emails[r.user_id] ?? r.user_id.slice(0, 8) : "—";
-                const isPositive = r.feedback === "up";
-                const comment = r.comment ?? "";
+                const isPositive = r.category === "sugestao";
+                const comment = r.message ?? "";
                 const truncated =
                   comment.length > 80 ? comment.slice(0, 80) + "..." : comment;
                 return (
@@ -1822,12 +1822,12 @@ function BugReportsTab() {
                       {isPositive ? (
                         <span className="inline-flex items-center gap-1 text-xs text-green-500">
                           <ThumbsUp className="w-3 h-3" />
-                          Positivo
+                          {r.category}
                         </span>
                       ) : (
                         <span className="inline-flex items-center gap-1 text-xs text-red-500">
                           <Bug className="w-3 h-3" />
-                          {r.feedback ?? "bug"}
+                          {r.category ?? "bug"}
                         </span>
                       )}
                     </td>
