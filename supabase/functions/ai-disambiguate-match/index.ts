@@ -263,16 +263,7 @@ Deno.serve(async (req: Request) => {
       league: s.fixture.league.name,
       date: s.fixture.fixture.date,
     }));
-  console.log(`[DBG] top 10 scored fixtures:`, JSON.stringify(topCandidates));
-
   const candidates = scored
-    .filter(s => s.totalScore > 0.3 && s.homeScore > 0 && s.awayScore > 0)
-    .sort((a, b) => b.totalScore - a.totalScore)
-    .slice(0, 5);
-
-  console.log(`[DBG] candidates after filter (>0.3 AND both>0): ${candidates.length}`);
-
-  if (candidates.length === 0) {
     return jsonResp({
       status: "not_found",
       message: "Não encontrei esse confronto nas próximas duas semanas. Me dá mais detalhes (liga, data)?",
