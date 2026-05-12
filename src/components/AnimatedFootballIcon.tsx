@@ -15,7 +15,7 @@ const AnimatedFootballIcon = () => {
     >
       <img
         src={roboPremier}
-        alt="Premier Robot"
+        alt="CL Robot"
         style={{
           width: "100%",
           height: "100%",

@@ -101,13 +101,16 @@ export const FEATURE_EXPLANATIONS: Record<Exclude<FeatureKey, "free">, string> =
 };
 
 export const PRICES = {
-  premium: 47,
-  diamante: 147,
-  diamante_upgrade: 127,
-  /** preço cheio do avulso (backredirect / etapa 2 do upgrade) */
-  backredirect: "39,90",
-  /** preço descontado do avulso (backredirect — uso único por user) */
-  backredirect_discount: "29,90",
+  /** 14,90 — Premium in-app (free → premium) */
+  premium: "14,90",
+  /** 39,90 — Diamante in-app (free → diamante) */
+  diamante: "39,90",
+  /** 29,90 — Diamante upgrade in-app (premium → diamante) */
+  diamante_upgrade: "29,90",
+  /** 9,90 — preço cheio do avulso (backredirect / etapa 2 do upgrade) */
+  backredirect: "9,90",
+  /** 9,90 — preço descontado do avulso (backredirect — uso único por user) */
+  backredirect_discount: "9,90",
 } as const;
 
 export const TELEGRAM_URL_PLACEHOLDER = "https://t.me/+placeholder_premier_free";

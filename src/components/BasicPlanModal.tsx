@@ -100,7 +100,7 @@ const BasicPlanModal = ({ open, onClose }: BasicPlanModalProps) => {
     'Señales ocultas reveladas',
     'Tips exclusivos todos los días',
     'Prioridad en los análisis',
-    'Soporte Premier Ultra',
+    'Soporte CL Ultra',
     'Resultados en hasta 24h',
   ];
 
@@ -186,7 +186,7 @@ const BasicPlanModal = ({ open, onClose }: BasicPlanModalProps) => {
 
           {/* Micro-frame */}
           <p className="text-white/70 text-xs text-center mt-4 px-2 leading-relaxed">
-            Estás literalmente a un clic de salir del "modo gratis" y ver lo que realmente hace que Premier Ultra entregue consistencia.
+            Estás literalmente a un clic de salir del "modo gratis" y ver lo que realmente hace que CL Ultra entregue consistencia.
           </p>
         </div>
       </DialogContent>

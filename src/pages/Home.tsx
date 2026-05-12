@@ -101,7 +101,7 @@ const Home = () => {
   const handleLogout = () => { clearAuth(); toast.success("Sesión cerrada exitosamente"); navigate("/login"); };
   const handleSupport = () => { navigate("/support"); };
   const handlePromotions = () => { setShowPromotionsModal(true); };
-  const handleBuyLifetime = () => { window.open(CHECKOUT_LINKS.vitalicio, '_blank'); setShowLifetimeModal(false); };
+  const handleBuyLifetime = () => { window.open(CHECKOUT_LINKS.inapp_premium, '_blank'); setShowLifetimeModal(false); };
 
   const hasAccess = (card: CardData): boolean => {
     if (!card.requires_access) return true;
@@ -370,7 +370,7 @@ const Home = () => {
       <footer className="mt-12 pb-8">
         <div className="container max-w-7xl mx-auto px-4">
           <div className="pt-6 text-center space-y-2" style={{ borderTop: "1px solid rgba(0,255,0,0.1)" }}>
-            <p className="text-sm font-medium" style={{ color: "#FFFFFF" }}>Premier Ultra ©</p>
+            <p className="text-sm font-medium" style={{ color: "#FFFFFF" }}>CL Ultra ©</p>
             <p className="text-xs" style={{ color: "#AAAAAA" }}>Análisis procesados continuamente</p>
             <p className="text-[11px] pt-2" style={{ color: "#888888" }}>
               Datos protegidos • +18 • Juega con responsabilidad
@@ -399,7 +399,7 @@ const Home = () => {
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(0,255,0,0.1)", border: "1px solid rgba(0,255,0,0.3)" }}>
                   <Gift className="w-5 h-5" style={{ color: "#00FF00" }} />
                 </div>
-                <div><h2 className="text-lg font-bold" style={{ color: "#FFFFFF" }}>Promociones de Premier Ultra</h2></div>
+                <div><h2 className="text-lg font-bold" style={{ color: "#FFFFFF" }}>Promociones de CL Ultra</h2></div>
               </div>
               <button onClick={() => setShowPromotionsModal(false)} className="absolute top-4 right-4 p-1.5 rounded-lg transition-colors hover:bg-[rgba(0,255,0,0.08)]">
                 <X className="w-5 h-5" style={{ color: "#00FF00" }} />
@@ -411,7 +411,7 @@ const Home = () => {
               </div>
               <h3 className="text-lg font-semibold mb-2" style={{ color: "#FFFFFF" }}>¡Próximamente!</h3>
               <p className="text-sm leading-relaxed" style={{ color: "#CCCCCC" }}>
-                Bonos, condiciones especiales y liberaciones exclusivas para miembros de Premier Ultra.
+                Bonos, condiciones especiales y liberaciones exclusivas para miembros de CL Ultra.
               </p>
             </div>
             <div className="px-6 pb-6">
@@ -445,7 +445,7 @@ const Home = () => {
             </div>
             <div className="px-6 py-6">
               <p className="text-sm leading-relaxed" style={{ color: "#CCCCCC" }}>
-                Tienes <span style={{ color: "#00FF00", fontWeight: 600 }}>acceso vitalicio e ilimitado</span> a todas las funcionalidades y futuras actualizaciones de Premier Ultra. ¡Aprovéchalo!
+                Tienes <span style={{ color: "#00FF00", fontWeight: 600 }}>acceso vitalicio e ilimitado</span> a todas las funcionalidades y futuras actualizaciones de CL Ultra. ¡Aprovéchalo!
               </p>
             </div>
             <div className="px-6 pb-6">
@@ -468,7 +468,7 @@ const Home = () => {
               </button>
             </div>
             <div className="px-6 py-5 space-y-4 text-sm leading-relaxed" style={{ color: "#CCCCCC" }}>
-              <p>Premier Ultra es una plataforma de análisis y predicción de resultados deportivos. Al utilizar nuestros servicios, aceptas los siguientes términos:</p>
+              <p>CL Ultra es una plataforma de análisis y predicción de resultados deportivos. Al utilizar nuestros servicios, aceptas los siguientes términos:</p>
               <p><strong style={{ color: "#FFFFFF" }}>1. Naturaleza del servicio:</strong> Entregamos análisis estadísticos y pronósticos basados en datos. No garantizamos resultados.</p>
               <p><strong style={{ color: "#FFFFFF" }}>2. Responsabilidad:</strong> El usuario es responsable de sus decisiones de apuestas. Juega con responsabilidad.</p>
               <p><strong style={{ color: "#FFFFFF" }}>3. Edad mínima:</strong> Debes tener 18 años o más para utilizar nuestros servicios.</p>

@@ -543,7 +543,7 @@ function ProductsCatalogTab() {
     <div className="space-y-4 mt-4">
       <div className="flex justify-between items-center">
         <p className="text-sm text-gray-400">
-          Mapea el ID del producto en la plataforma de ventas al plan interno de Premier.
+          Mapea el ID del producto en la plataforma de ventas al plan interno de CL.
         </p>
         <Button size="sm" onClick={() => { setEditing(null); setModalOpen(true); }}>
           <Plus className="w-4 h-4 mr-1" /> Nuevo Producto
@@ -847,7 +847,7 @@ function ProductModal({
         <DialogHeader>
           <DialogTitle>{editing ? "Editar Producto" : "Nuevo Producto"}</DialogTitle>
           <DialogDescription className="text-gray-400">
-            Mapea un producto externo a un plan de Premier.
+            Mapea un producto externo a un plan de CL.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-3">

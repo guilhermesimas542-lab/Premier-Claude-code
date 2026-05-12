@@ -1,10 +1,67 @@
 ---
 tipo: progresso
 projeto: ultrateste111
-atualizado: 2026-05-08
+atualizado: 2026-05-11
 ---
 
 # Progresso — ultrateste111
+
+## Mapeamento dos checkout links CenterPag (Premium / Diamante / Add-ons)
+- **Data:** 2026-05-11
+- **Contexto:** Usuário forneceu os links reais da plataforma CenterPag substituindo os placeholders `checkout.premierfc.app`. Estrutura do funil é a do `paywallRouting.ts` novo (Free → Premium → Diamante + add-ons avulsos), não a legacy (basic/pro/ultra).
+- **Decisões:**
+  - `src/lib/checkoutLinks.ts` foi **reestruturado** para refletir o modelo novo: 3 grupos de chaves explícitas (`funil_*` externo, `inapp_*` in-app, `addon_*` avulso) + aliases `@deprecated` para os nomes legados.
+  - `paywallRouting.ts` `PRICES` mudou de `number` para `string` (preços agora são "14,90", "39,90", "29,90", "9,90") porque os valores em pesos chilenos têm vírgula decimal. Todos os consumidores usam apenas em template strings (`${PRICES.x}`), então a mudança não quebra nada.
+  - **Add-ons backredirect:** preço cheio E preço descontado viraram ambos 9,90 — ainda mostra duas variantes na UI (com/sem desconto), mas com mesmo valor. Se quiser remover o split, vale revisar `PaywallPopup.tsx:222-273`.
+- **Mapeamento aplicado:**
+
+  | Slot no código | Link |
+  |---|---|
+  | `Login.tsx:203` → `CHECKOUT_LINKS.funil_premium_full` (fallback do `acquire_access_url`) | 14,90 PPU38CQBPB2 |
+  | `Home.tsx:104` → `CHECKOUT_LINKS.inapp_premium` (botão "Acceso Vitalicio" no header) | 14,90 PPU38CQBQS8 |
+  | `Bd.tsx:110` → `CHECKOUT_LINKS.funil_premium_offer` (CTA `/bd` com desconto) | 9,90 PPU38CQBPB3 |
+  | `inapp_diamante` (Free → Diamante in-app) | 39,90 PPU38CQBQUE |
+  | `inapp_diamante_upgrade` (Premium → Diamante in-app) | 29,90 PPU38CQBQUF |
+  | `addon_esportes_americanos` (Cuotas de Ligas Americanas) | 9,90 PPU38CQBQSA |
+  | `addon_alavancagem` (Palancado Diario) | 9,90 PPU38CQBQSG |
+  | `addon_multiplas_bingo` (Múltiples/Bingo) | 9,90 **PPU38CQBQSI** (corrigido — usuário mandou PPU38CQBQSG por engano) |
+  | `addon_mercados_secundarios` (Mercados Secundarios) | 9,90 PPU38CQBQSL |
+
+- **Pendência crítica — Pay Cards Supabase:** `PaywallPopup.tsx`, `PlansModal.tsx` e `PayCardFunnelModal.tsx` NÃO consomem `CHECKOUT_LINKS`. Eles buscam `checkout_url` direto da tabela `pay_cards` no Supabase via `associated_plan`. Os mesmos links precisam ser cadastrados em `AdminPayCards` para os planos:
+  - `premium` → 14,90 PPU38CQBQS8 (in-app)
+  - `diamante` → 39,90 PPU38CQBQUE
+  - `diamante_upgrade` → 29,90 PPU38CQBQUF
+  - `esportes_americanos` / `esportes_americanos_discount` → 9,90 PPU38CQBQSA
+  - `alavancagem` / `alavancagem_discount` → 9,90 PPU38CQBQSG
+  - `multiplas_bingo` / `multiplas_bingo_discount` → 9,90 PPU38CQBQSI
+  - `mercados_secundarios` / `mercados_secundarios_discount` → 9,90 PPU38CQBQSL
+  - (e quaisquer outros features de `FeatureKey`: `odds_safes`, `odds_pro`, `odds_ultra` se forem comprados avulsos)
+- **TELEGRAM_URL_PLACEHOLDER:** mantido como está. Fluxo do app já busca primeiro `betting_houses.telegram_group_url` (admin > Default Links), só usa o placeholder como fallback.
+- **Validação:** `npx tsc --noEmit` sem erros. Validação visual ainda pendente.
+- **Tags:** [[CenterPag]] [[checkout-links]] [[paywall]] [[pay_cards]] [[Premium]] [[Diamante]] [[ultrateste111]]
+
+## Rebranding parcial: "Premier" → "CL" no texto visível + cleanup `/bd`
+- **Data:** 2026-05-11
+- **Contexto:** App clonado de outra operação. Usuário pediu para retirar a marca "Premier" de todas as páginas e corrigir um bug na `/bd` (container de "Métodos de pago" indesejado).
+- **Análise:** o termo "premier" aparecia em ~30 arquivos em 6 categorias diferentes — texto UI, comentários no código, imports de assets, URLs de checkout (`checkout.premierfc.app`), e-mails (`admin@premierultra.com`, `equipepremierfc@gmail.com`), chaves de `localStorage` (`premier_token`, `premier_user`, ...), nomes de eventos (`premier:login`), nomes de arquivos para CSV download e nomes físicos de assets (`premier-logo-*.png`, `robo-premier.png`).
+- **Opções consideradas:**
+  - A) Trocar tudo (incluindo URLs, e-mails, localStorage, assets) — risco alto: quebra login admin, links de checkout em produção e desloga usuários ativos.
+  - B) Trocar texto + renomear arquivos de asset — risco médio: precisa renomear arquivos físicos + atualizar imports.
+  - C) Trocar só texto visível ao usuário (UI, alts, meta tags, document.title, notificação do service worker) — risco zero.
+- **Decisão:** opção C, confirmada pelo usuário via prompt. URLs, e-mails, localStorage, eventos e assets ficam intactos.
+- **Substituições aplicadas:** `Premier Ultra` → `CL Ultra`, `PREMIER ULTRA` → `CL ULTRA`, `Premier FC` → `CL FC`, `Premier` standalone → `CL` (este último só no `Login.tsx` onde aparecia nos termos de uso, e em alguns alts/labels).
+- **Arquivos editados (19):** `index.html`, `public/sw.js`, `src/mocks/sports.ts`, `src/admin/components/AdminSidebar.tsx`, `src/admin/pages/{AdminLogin,AdminVerify,AdminWebhook,AdminDashboard}.tsx`, `src/components/{AnimatedFootballIcon,AppHeader,BasicPlanAlert,InstallAppButton,BasicPlanModal}.tsx`, `src/pages/{Casino,Home,Sport,Login,Bd,Obg}.tsx`.
+- **Bug `/bd`:** removido o bloco `<div>` que renderizava `/bd/payment-methods.svg` (logos de Mastercard/Visa/Amex) entre o CTA e a linha pontilhada. Removido o `<div>` separador junto, mantendo apenas uma divisão entre o CTA e a seção de atenção.
+- **Pendências conhecidas (não tocadas conforme decisão):**
+  - URLs `checkout.premierfc.app/*` em `src/lib/checkoutLinks.ts` (linhas 7–19) — trocar quando houver novo domínio.
+  - E-mail `admin@premierultra.com` em `src/admin/config/admins.ts` (acesso admin).
+  - E-mail `equipepremierfc@gmail.com` em `Login.tsx:612` (suporte).
+  - Asset filenames: `premier-logo-*.png`, `robo-premier.png` em `src/assets/` — se renomeados, atualizar imports em `AdminVerify.tsx`, `AppHeader.tsx`, `AnimatedFootballIcon.tsx`, `Login.tsx`, `Home.tsx`, `Support.tsx`, `Sport.tsx` + path `/obg/premier-fc-logo.png` em `public/obg/`.
+  - localStorage keys (`premier_token`, `premier_user`, `premier_access`, `premier_show_paywall`, `premier_checkout_url`, `premier_device_id`, `premier_session_id`, `premier_session_ts`, `premier_user_email`) e evento custom `premier:login` — trocar implica deslogar todos os usuários ativos.
+  - Nomes de CSV download (`ranking_premier_*.csv`, `tips_premier_*.csv`, `clientes_premier_*.csv`) — admin-only, sem impacto pro usuário final.
+  - Comentários no código (`src/lib/checkoutLinks.ts:2`, `src/lib/tierColors.ts:2`, `public/sw.js:1`).
+- **Validação:** `npx tsc --noEmit` sem erros. Validação visual da `/bd` e demais páginas pelo usuário pendente (sem dev server rodando aqui).
+- **Tags:** [[rebranding]] [[Premier]] [[CL]] [[ultrateste111]] [[bug-/bd]]
 
 ## Página `/obg` — confirmação de compra (es-CL)
 - **Data:** 2026-05-08

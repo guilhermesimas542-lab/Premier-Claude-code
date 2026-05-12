@@ -15,7 +15,7 @@ const ADDON_COLORS: Record<string, string> = { Apalancamiento: "#10b981", "Múlt
 
 /* ── Tooltip texts ── */
 const KPI_TOOLTIPS: Record<string, string> = {
-  "Usuarios Totales": "Total de usuarios registrados en Premier, incluyendo usuarios gratis y pagados. Este número no se ve afectado por el filtro de período.",
+  "Usuarios Totales": "Total de usuarios registrados en CL, incluyendo usuarios gratis y pagados. Este número no se ve afectado por el filtro de período.",
   "Usuarios Activos": "Usuarios únicos que abrieron la aplicación en el período seleccionado. Contabiliza cualquier sesión registrada dentro del intervalo de fechas.",
   "Usuarios En Línea": "Usuarios que están usando la aplicación en este momento exacto. Considera sesiones iniciadas en los últimos 5 minutos. Se actualiza automáticamente cada 30 segundos.",
   "Churn (Riesgo)": "Usuarios con plan pagado (Básico, Pro o Ultra) que no abrieron la aplicación en los últimos 15 días. Estos clientes están en riesgo de cancelación. Este número no se ve afectado por el filtro de período.",

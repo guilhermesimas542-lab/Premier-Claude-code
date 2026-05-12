@@ -16,7 +16,7 @@ const Bd = () => {
   const [secondsLeft, setSecondsLeft] = useState(COUNTDOWN_INITIAL_SECONDS);
 
   useEffect(() => {
-    document.title = "Última oportunidad: $10 OFF | Premier FC";
+    document.title = "Última oportunidad: $10 OFF | CL FC";
   }, []);
 
   useEffect(() => {
@@ -63,7 +63,7 @@ const Bd = () => {
             🔥 ¡DESCUENTO DE $10!
           </div>
           <div className="mt-2 text-base sm:text-lg text-white/85">
-            Ahorra $10 y asegura tu acceso a Premier FC ahora.
+            Ahorra $10 y asegura tu acceso a CL FC ahora.
           </div>
         </div>
 
@@ -89,7 +89,7 @@ const Bd = () => {
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1">
               <h1 className="font-extrabold text-2xl text-neutral-900 leading-tight">
-                Premier FC
+                CL FC
               </h1>
               <p className="text-xs text-neutral-500 mt-1">
                 Acceso vitalicio • Pago único
@@ -107,20 +107,12 @@ const Bd = () => {
         </div>
 
         <a
-          href={CHECKOUT_LINKS.vitalicio}
+          href={CHECKOUT_LINKS.funil_premium_offer}
           className="block w-full text-center rounded-xl py-4 font-extrabold uppercase tracking-wide text-white text-base sm:text-lg shadow-sm hover:opacity-95 transition"
           style={{ backgroundColor: BRAND_GREEN }}
         >
           Asegurar descuento de $10
         </a>
-
-        <div className="flex justify-center">
-          <img
-            src="/bd/payment-methods.svg"
-            alt="Métodos de pago aceptados: Mastercard, Visa y American Express"
-            className="w-full max-w-[262px] h-auto"
-          />
-        </div>
 
         <div className="border-t border-dashed border-neutral-300" />
 
@@ -129,7 +121,7 @@ const Bd = () => {
             ⚠️ ¡ATENCIÓN!
           </div>
           <p className="font-bold text-neutral-900 text-sm sm:text-base leading-snug">
-            Si entras a Premier FC y no logras al menos triplicar tu banca…
+            Si entras a CL FC y no logras al menos triplicar tu banca…
           </p>
           <p className="text-neutral-900 text-sm sm:text-base leading-snug">
             Te devolvemos <span className="font-bold">cada peso</span> que pagaste. ¡Es 100% sin riesgo para ti! 💯

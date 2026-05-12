@@ -674,7 +674,7 @@ const Sport = () => {
             <button className="p-1.5 rounded-lg transition-colors hover:bg-[rgba(0,255,0,0.08)]" onClick={() => navigate("/")}>
               <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6" style={{ color: "#00FF00" }} />
             </button>
-            <img src={logoImg} alt="Premier" className="h-10 sm:h-12 w-auto" onClick={() => navigate("/")} style={{ cursor: "pointer", filter: "drop-shadow(0 0 10px rgba(0,255,0,0.5))" }} />
+            <img src={logoImg} alt="CL" className="h-10 sm:h-12 w-auto" onClick={() => navigate("/")} style={{ cursor: "pointer", filter: "drop-shadow(0 0 10px rgba(0,255,0,0.5))" }} />
             
           </div>
         }
@@ -867,7 +867,7 @@ const Sport = () => {
             </div>
             <div className="px-6 py-6">
               <p className="text-sm leading-relaxed" style={{ color: "#CCCCCC" }}>
-                Tienes <span style={{ color: "#00FF00", fontWeight: 600 }}>acceso vitalicio e ilimitado</span> a todas las funcionalidades y futuras actualizaciones de Premier Ultra. ¡Disfruta!
+                Tienes <span style={{ color: "#00FF00", fontWeight: 600 }}>acceso vitalicio e ilimitado</span> a todas las funcionalidades y futuras actualizaciones de CL Ultra. ¡Disfruta!
               </p>
             </div>
             <div className="px-6 pb-6">

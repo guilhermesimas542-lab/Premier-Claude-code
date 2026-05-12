@@ -19,5 +19,5 @@ export const MOCK_SPORTS: MockSport[] = [
   { id: 8, name: "Hockey", enabled: true, isproplan: false, background: "cyberbet_255695b8-2046-4b5b-b6c5-17e7bb5e3df2", tipo: 1 },
   { id: 9, name: "E-Sports", enabled: true, isproplan: false, background: "cyberbet_3ef04120-9b39-44f5-9e4e-0127a76326bb", tipo: 1 },
   { id: 11, name: "Casino", enabled: true, isproplan: false, background: "casino-custom", tipo: 0 },
-  { id: 12, name: "Premier Ultra - IA", enabled: true, isproplan: false, background: "futsal-custom", tipo: 1 },
+  { id: 12, name: "CL Ultra - IA", enabled: true, isproplan: false, background: "futsal-custom", tipo: 1 },
 ];

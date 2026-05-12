@@ -200,7 +200,7 @@ const Login = () => {
     let found = await triggerPayCard('LOGIN_AQUISICAO');
     if (!found) found = await triggerPayCard('basic');
     if (!found) {
-      const url = links.acquire_access_url || CHECKOUT_LINKS.paywall_default;
+      const url = links.acquire_access_url || CHECKOUT_LINKS.funil_premium_full;
       window.open(url, "_blank");
     }
   };
@@ -239,7 +239,7 @@ const Login = () => {
         <div className="mb-4 pointer-events-none">
           <img
             src={logo}
-            alt="Premier Ultra"
+            alt="CL Ultra"
             className="h-16 w-auto mx-auto object-contain scale-[9.0]"
           />
         </div>
@@ -469,7 +469,7 @@ const Login = () => {
             {isLoading ? (
               <Loader2 className="w-5 h-5 animate-spin" />
             ) : (
-              "Entrar a Premier"
+              "Entrar a CL"
             )}
           </button>
         </form>
@@ -543,34 +543,34 @@ const Login = () => {
           </DialogHeader>
           <div className="space-y-4 py-2 max-h-[70vh] overflow-y-auto pr-2">
             <div className="text-sm space-y-4 leading-relaxed text-muted-foreground">
-              <p className="font-bold text-foreground">TÉRMINOS Y CONDICIONES DE USO — PREMIER ULTRA</p>
-              <p>Estos Términos y Condiciones ("Términos") regulan el acceso y uso de la aplicación y/o plataforma Premier Ultra ("Premier", "Aplicación", "Plataforma").</p>
-              <p>Al acceder, registrarte o utilizar Premier, declaras que has leído, comprendido y aceptado íntegramente estos Términos y nuestra Política de Privacidad.</p>
+              <p className="font-bold text-foreground">TÉRMINOS Y CONDICIONES DE USO — CL ULTRA</p>
+              <p>Estos Términos y Condiciones ("Términos") regulan el acceso y uso de la aplicación y/o plataforma CL Ultra ("CL", "Aplicación", "Plataforma").</p>
+              <p>Al acceder, registrarte o utilizar CL, declaras que has leído, comprendido y aceptado íntegramente estos Términos y nuestra Política de Privacidad.</p>
 
               <p className="font-bold text-foreground">1. Elegibilidad y Juego Responsable</p>
-              <p>1.1. Premier está destinado exclusivamente a mayores de 18 (dieciocho) años. Al utilizar la Plataforma, declaras ser mayor de edad y tener capacidad legal para contratar.</p>
-              <p>1.2. Premier apoya e incentiva el juego responsable. Las apuestas implican riesgo y pueden causar pérdidas financieras. Nunca apuestes valores que comprometan tu presupuesto y busca ayuda si percibes señales de compulsión.</p>
+              <p>1.1. CL está destinado exclusivamente a mayores de 18 (dieciocho) años. Al utilizar la Plataforma, declaras ser mayor de edad y tener capacidad legal para contratar.</p>
+              <p>1.2. CL apoya e incentiva el juego responsable. Las apuestas implican riesgo y pueden causar pérdidas financieras. Nunca apuestes valores que comprometan tu presupuesto y busca ayuda si percibes señales de compulsión.</p>
               <p>1.3. El usuario es el único responsable por decidir si va a apostar, cuánto va a apostar y por cualquier consecuencia derivada de las apuestas realizadas.</p>
 
-              <p className="font-bold text-foreground">2. Qué es Premier (y qué NO es)</p>
-              <p>2.1. Premier es una plataforma que entrega contenido informativo y/o sugerencias estadísticas ("tips", "análisis", "contenido") basadas en datos, modelos y criterios propios.</p>
-              <p>2.2. Premier no es: una casa de apuestas; una institución financiera; un gestor de inversiones; un intermediario de apuestas; un servicio de asesoría financiera individualizada.</p>
-              <p>2.3. Premier no realiza apuestas en nombre del usuario, no opera cuentas en casas de apuestas y no garantiza resultados, ganancias, retornos, greens ni ningún desempeño.</p>
+              <p className="font-bold text-foreground">2. Qué es CL (y qué NO es)</p>
+              <p>2.1. CL es una plataforma que entrega contenido informativo y/o sugerencias estadísticas ("tips", "análisis", "contenido") basadas en datos, modelos y criterios propios.</p>
+              <p>2.2. CL no es: una casa de apuestas; una institución financiera; un gestor de inversiones; un intermediario de apuestas; un servicio de asesoría financiera individualizada.</p>
+              <p>2.3. CL no realiza apuestas en nombre del usuario, no opera cuentas en casas de apuestas y no garantiza resultados, ganancias, retornos, greens ni ningún desempeño.</p>
 
               <p className="font-bold text-foreground">3. Ausencia de Vínculo con Casas de Apuestas</p>
-              <p>3.1. Premier no tiene control sobre sitios, aplicaciones, políticas, reglas, límites, cuotas, mercados, suspensiones, cambios de líneas, liquidaciones, cancelaciones ni cualquier otra decisión tomada por las casas de apuestas ("Operadores").</p>
-              <p>3.2. Premier no tiene responsabilidad por: saldo, bloqueos, restricciones, cierre de cuenta; divergencias de cuotas o cambios de mercado; fallas de pago, retiros, depósitos; problemas de autenticación, KYC, verificación de identidad; decisiones de liquidación, void, cashout, retraso, cancelación.</p>
-              <p>3.3. Cuando exista mención a Operadores/socios, esto no constituye garantía ni implica responsabilidad solidaria de Premier por actos de terceros.</p>
+              <p>3.1. CL no tiene control sobre sitios, aplicaciones, políticas, reglas, límites, cuotas, mercados, suspensiones, cambios de líneas, liquidaciones, cancelaciones ni cualquier otra decisión tomada por las casas de apuestas ("Operadores").</p>
+              <p>3.2. CL no tiene responsabilidad por: saldo, bloqueos, restricciones, cierre de cuenta; divergencias de cuotas o cambios de mercado; fallas de pago, retiros, depósitos; problemas de autenticación, KYC, verificación de identidad; decisiones de liquidación, void, cashout, retraso, cancelación.</p>
+              <p>3.3. Cuando exista mención a Operadores/socios, esto no constituye garantía ni implica responsabilidad solidaria de CL por actos de terceros.</p>
 
               <p className="font-bold text-foreground">4. Registro, Acceso y Seguridad</p>
-              <p>4.1. El acceso a Premier puede exigir registro por correo electrónico y/u otros medios. Te comprometes a entregar información verdadera y actualizada.</p>
+              <p>4.1. El acceso a CL puede exigir registro por correo electrónico y/u otros medios. Te comprometes a entregar información verdadera y actualizada.</p>
               <p>4.2. Eres responsable de mantener la seguridad de tu acceso y de todas las actividades realizadas en tu cuenta.</p>
               <p>4.3. Podemos suspender, bloquear o cancelar accesos en caso de sospecha de fraude, uso indebido, violación de estos Términos o por exigencia legal.</p>
 
               <p className="font-bold text-foreground">5. Contenido, Actualizaciones y Disponibilidad</p>
               <p>5.1. El contenido puede ser modificado, corregido, actualizado, eliminado o reorganizado en cualquier momento, sin aviso previo.</p>
               <p>5.2. No garantizamos que el servicio esté disponible ininterrumpidamente. Pueden ocurrir inestabilidades por mantenimiento, fallas técnicas, actualizaciones o factores externos.</p>
-              <p>5.3. Premier puede incluir recursos de IA y automatizaciones. Estos recursos generan probabilidades y estimaciones, no certezas.</p>
+              <p>5.3. CL puede incluir recursos de IA y automatizaciones. Estos recursos generan probabilidades y estimaciones, no certezas.</p>
 
               <p className="font-bold text-foreground">6. Pagos, Suscripciones, Reembolsos y Cancelación</p>
               <p>6.1. El acceso a ciertos recursos puede requerir pago (suscripción, plan, licencia o acceso vitalicio, según la oferta).</p>
@@ -580,15 +580,15 @@ const Login = () => {
 
               <p className="font-bold text-foreground">7. Limitación de Responsabilidad (Cláusula de "Blindaje")</p>
               <p>7.1. Reconoces y aceptas que: las apuestas pueden generar pérdidas; las cuotas varían; los resultados son impredecibles; el contenido es informativo y no es una promesa de ganancia.</p>
-              <p>7.2. En la máxima extensión permitida por la ley, Premier y sus socios, administradores, colaboradores y aliados no serán responsables por daños directos, indirectos, incidentales, especiales, punitivos o consecuenciales, incluyendo: pérdidas financieras; lucro cesante; caída de saldo; pérdida de oportunidades; interrupción del servicio; decisiones del usuario en casas de apuestas.</p>
-              <p>7.3. Si aún así existiera responsabilización judicial, la indemnización máxima queda limitada al monto pagado por el usuario a Premier en los últimos 3 (tres) meses anteriores al evento, cuando corresponda, salvo prohibición legal.</p>
+              <p>7.2. En la máxima extensión permitida por la ley, CL y sus socios, administradores, colaboradores y aliados no serán responsables por daños directos, indirectos, incidentales, especiales, punitivos o consecuenciales, incluyendo: pérdidas financieras; lucro cesante; caída de saldo; pérdida de oportunidades; interrupción del servicio; decisiones del usuario en casas de apuestas.</p>
+              <p>7.3. Si aún así existiera responsabilización judicial, la indemnización máxima queda limitada al monto pagado por el usuario a CL en los últimos 3 (tres) meses anteriores al evento, cuando corresponda, salvo prohibición legal.</p>
 
               <p className="font-bold text-foreground">8. Obligaciones del Usuario</p>
-              <p>8.1. Te comprometes a: usar Premier de forma lícita; no explotar fallas, vulnerar sistemas ni acceder a datos indebidos; no compartir tu acceso de forma irregular; no revender, redistribuir ni replicar el contenido; respetar los derechos de autor y la propiedad intelectual.</p>
-              <p>8.2. Está prohibido: ingeniería inversa, scraping, bots, automatizaciones abusivas; copiar layout, textos, modelos, tips, base de datos; usar la marca Premier sin autorización.</p>
+              <p>8.1. Te comprometes a: usar CL de forma lícita; no explotar fallas, vulnerar sistemas ni acceder a datos indebidos; no compartir tu acceso de forma irregular; no revender, redistribuir ni replicar el contenido; respetar los derechos de autor y la propiedad intelectual.</p>
+              <p>8.2. Está prohibido: ingeniería inversa, scraping, bots, automatizaciones abusivas; copiar layout, textos, modelos, tips, base de datos; usar la marca CL sin autorización.</p>
 
               <p className="font-bold text-foreground">9. Propiedad Intelectual</p>
-              <p>9.1. Premier, sus marcas, layouts, textos, base de datos, modelos, algoritmos, métodos y materiales son de titularidad de la Empresa o licenciados a esta.</p>
+              <p>9.1. CL, sus marcas, layouts, textos, base de datos, modelos, algoritmos, métodos y materiales son de titularidad de la Empresa o licenciados a esta.</p>
               <p>9.2. El uso de la App no concede al usuario ninguna licencia más allá del derecho de uso personal, revocable, no exclusivo e intransferible.</p>
 
               <p className="font-bold text-foreground">10. Privacidad y Protección de Datos</p>

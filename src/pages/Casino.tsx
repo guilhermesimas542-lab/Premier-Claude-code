@@ -153,7 +153,7 @@ const Casino = () => {
       <footer className="mt-12 pb-8">
         <div className="container max-w-7xl mx-auto px-4">
           <div className="pt-6 text-center space-y-2" style={{ borderTop: "1px solid rgba(0,255,0,0.1)" }}>
-            <p className="text-sm font-medium" style={{ color: "#FFFFFF" }}>Premier Ultra ©</p>
+            <p className="text-sm font-medium" style={{ color: "#FFFFFF" }}>CL Ultra ©</p>
             <p className="text-xs" style={{ color: "#AAAAAA" }}>Análisis procesados continuamente</p>
             <p className="text-[11px] pt-2" style={{ color: "#888888" }}>
               Datos protegidos • +18 • Juega con responsabilidad
@@ -184,7 +184,7 @@ const Casino = () => {
               </button>
             </div>
             <div className="px-6 py-5 space-y-4 text-sm leading-relaxed" style={{ color: "#CCCCCC" }}>
-              <p>Premier Ultra es una plataforma de análisis y predicción de resultados deportivos. Al utilizar nuestros servicios, aceptas los siguientes términos:</p>
+              <p>CL Ultra es una plataforma de análisis y predicción de resultados deportivos. Al utilizar nuestros servicios, aceptas los siguientes términos:</p>
               <p><strong style={{ color: "#FFFFFF" }}>1. Naturaleza del servicio:</strong> Entregamos análisis estadísticos y pronósticos basados en datos. No garantizamos resultados.</p>
               <p><strong style={{ color: "#FFFFFF" }}>2. Responsabilidad:</strong> El usuario es responsable de sus decisiones de apuestas. Juega con responsabilidad.</p>
               <p><strong style={{ color: "#FFFFFF" }}>3. Edad mínima:</strong> Debes tener 18 años o más para utilizar nuestros servicios.</p>

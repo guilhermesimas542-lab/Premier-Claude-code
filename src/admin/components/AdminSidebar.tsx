@@ -160,7 +160,7 @@ export function AdminSidebar() {
       className={`${collapsed ? "w-16" : "w-60"} bg-gray-900 border-r border-white/10 flex flex-col shrink-0 transition-all duration-200`}
     >
       <div className="h-14 flex items-center justify-between px-3 border-b border-white/10">
-        {!collapsed && <span className="text-sm font-bold text-white truncate">Premier Ultra</span>}
+        {!collapsed && <span className="text-sm font-bold text-white truncate">CL Ultra</span>}
         <button
           onClick={() => setCollapsed(!collapsed)}
           className="p-1.5 rounded-md hover:bg-white/10 text-gray-400"

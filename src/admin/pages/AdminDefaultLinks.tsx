@@ -27,7 +27,7 @@ const FIELDS = [
   { key: "mines_url", label: "💎 Mines", placeholder: "https://esportivabet.com/casino/mines", section: "casino" },
   { key: "football_studio_url", label: "⚽ Football Studio", placeholder: "https://esportivabet.com/casino/football", section: "casino" },
   { key: "support_whatsapp_url", label: "📞 URL Soporte WhatsApp", placeholder: "https://wa.me/56912345678", section: "buttons" },
-  { key: "acquire_access_url", label: "🛒 URL Adquirir Acceso", placeholder: "https://checkout.premierfc.app/...", section: "buttons" },
+  { key: "acquire_access_url", label: "🛒 URL Adquirir Acceso", placeholder: "https://go.centerpag.com/...", section: "buttons" },
 ] as const;
 
 type FormKey = "iframe_url" | "telegram_group_url" | "aviator_url" | "roleta_url" | "mines_url" | "football_studio_url" | "support_whatsapp_url" | "acquire_access_url";

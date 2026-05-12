@@ -72,7 +72,7 @@ export default function AdminLogin() {
     <div className="flex h-screen items-center justify-center bg-gray-950 px-4">
       <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-5">
         <div className="text-center space-y-1">
-          <h1 className="text-2xl font-bold text-white">Premier Ultra Admin</h1>
+          <h1 className="text-2xl font-bold text-white">CL Ultra Admin</h1>
           <p className="text-gray-500 text-sm">
             {mode === "login" ? "Inicia sesión con tu cuenta admin" : "Crea tu cuenta admin"}
           </p>

@@ -9,7 +9,7 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('push', (event) => {
-  let data = { title: 'Premier Ultra', body: 'Nova notificação' };
+  let data = { title: 'CL Ultra', body: 'Nova notificação' };
 
   if (event.data) {
     try {

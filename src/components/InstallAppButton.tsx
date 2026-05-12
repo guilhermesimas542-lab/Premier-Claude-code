@@ -68,7 +68,7 @@ export const InstallAppButton = ({ variant = 'header' }: InstallAppButtonProps) 
           <DialogHeader>
             <DialogTitle className="text-foreground text-lg font-bold flex items-center gap-2">
               <Smartphone className="w-5 h-5 text-[#00FF7F]" />
-              Instalar Premier Ultra
+              Instalar CL Ultra
             </DialogTitle>
           </DialogHeader>
           
@@ -105,7 +105,7 @@ export const InstallAppButton = ({ variant = 'header' }: InstallAppButtonProps) 
             </ol>
 
             <p className="text-xs text-muted-foreground pt-2 border-t border-border/30">
-              Instala el acceso directo de Premier Ultra en tu pantalla de inicio y vuelve a la app con 1 toque.
+              Instala el acceso directo de CL Ultra en tu pantalla de inicio y vuelve a la app con 1 toque.
             </p>
           </div>
         </DialogContent>

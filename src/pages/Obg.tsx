@@ -7,7 +7,7 @@ const Obg = () => {
   const { links } = useLinks();
 
   useEffect(() => {
-    document.title = "¡Compra confirmada! | Premier FC";
+    document.title = "¡Compra confirmada! | CL FC";
   }, []);
 
   const handleOpenSupport = () => {
@@ -22,11 +22,11 @@ const Obg = () => {
       <header className="relative z-10 flex flex-col items-center gap-3 mt-2 sm:mt-6">
         <img
           src="/obg/premier-fc-logo.png"
-          alt="Premier FC"
+          alt="CL FC"
           className="w-16 h-16 sm:w-20 sm:h-20 object-contain"
         />
         <span className="text-xs tracking-[0.3em] text-primary font-semibold uppercase">
-          Premier FC
+          CL FC
         </span>
       </header>
 
@@ -39,7 +39,7 @@ const Obg = () => {
           ¡Compra confirmada!
         </h1>
         <p className="text-muted-foreground mt-2 text-sm sm:text-base max-w-sm">
-          Pago aprobado. Tu acceso a Premier FC ya está en camino.
+          Pago aprobado. Tu acceso a CL FC ya está en camino.
         </p>
 
         <section className="w-full mt-7 rounded-2xl border border-border bg-card/70 backdrop-blur p-5 sm:p-6 text-left">
@@ -81,12 +81,12 @@ const Obg = () => {
 
         <div className="flex items-center gap-2 text-xs text-muted-foreground mt-4">
           <ShieldCheck className="w-4 h-4 text-primary/80" />
-          Atención oficial Premier FC • 100% seguro
+          Atención oficial CL FC • 100% seguro
         </div>
       </main>
 
       <footer className="relative z-10 text-[11px] text-muted-foreground mt-10 mb-2">
-        © 2026 Premier FC — Todos los derechos reservados
+        © 2026 CL FC — Todos los derechos reservados
       </footer>
     </div>
   );
