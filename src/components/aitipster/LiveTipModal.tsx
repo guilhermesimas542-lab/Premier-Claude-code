@@ -36,6 +36,7 @@ export function LiveTipModal({ open, onOpenChange, match }: Props) {
   const { refetch: refetchBalance } = useCreditBalance();
   const [showSource, setShowSource] = useState(false);
   const [feedback, setFeedback] = useState<"up" | "down" | null>(null);
+  const [bugOpen, setBugOpen] = useState(false);
 
   async function handleGenerate() {
     await generate(match.fixture_id);
