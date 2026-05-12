@@ -66,6 +66,7 @@ Use APENAS os dados estruturados injetados na mensagem do usuario.
 
 interface TokenPayload {
   user_id?: string;
+  email?: string;
   exp: number;
 }
 
@@ -89,6 +90,11 @@ Deno.serve(async (req: Request) => {
     return jsonResp({ error: "invalid_token" }, 401);
   }
   if (!token?.user_id || token.exp < Date.now()) return jsonResp({ error: "unauthorized" }, 401);
+
+  const tokenEmail = token.email?.toLowerCase()?.trim();
+  if (!tokenEmail || !AI_BETA_ALLOWLIST.includes(tokenEmail)) {
+    return jsonResp({ error: "beta_access_denied", message: "Beta privado" }, 403);
+  }
 
   let body: { fixture_id?: number };
   try {
