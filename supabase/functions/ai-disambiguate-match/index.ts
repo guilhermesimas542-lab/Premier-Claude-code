@@ -42,7 +42,7 @@ const TOP_LEAGUES = [
   16,
 ];
 const WINDOW_DAYS_FUTURE = 15;
-const WINDOW_DAYS_PAST = 30;
+const WINDOW_DAYS_PAST = 7;
 
 interface TokenPayload {
   user_id?: string;
@@ -150,22 +150,34 @@ Deno.serve(async (req: Request) => {
   if (!apiKey) return jsonResp({ error: "api_football_key_missing" }, 500);
 
   const today = new Date();
-  const fromDate = new Date(today.getTime() - WINDOW_DAYS_PAST * 86400000).toISOString().split("T")[0];
-  const toDate = new Date(today.getTime() + WINDOW_DAYS_FUTURE * 86400000).toISOString().split("T")[0];
-
+  const TOP_LEAGUES_SET = new Set(TOP_LEAGUES);
   const fixturesByLeague: any[] = [];
-  for (const leagueId of TOP_LEAGUES) {
-    try {
-      const season = today.getFullYear();
-      const url = `https://v3.football.api-sports.io/fixtures?league=${leagueId}&season=${season}&from=${fromDate}&to=${toDate}`;
-      const resp = await fetch(url, { headers: { "x-apisports-key": apiKey } });
-      if (!resp.ok) continue;
-      const data = await resp.json();
-      if (Array.isArray(data.response)) fixturesByLeague.push(...data.response);
-    } catch (err) {
-      console.error("[disambiguate] league fetch error", leagueId, err);
-    }
+  const dateOffsets: number[] = [];
+  for (let d = -WINDOW_DAYS_PAST; d <= WINDOW_DAYS_FUTURE; d++) {
+    dateOffsets.push(d);
   }
+
+  await Promise.all(
+    dateOffsets.map(async (dayOffset) => {
+      const target = new Date(today.getTime() + dayOffset * 86400000);
+      const dateStr = target.toISOString().split("T")[0];
+      try {
+        const url = `https://v3.football.api-sports.io/fixtures?date=${dateStr}`;
+        const resp = await fetch(url, { headers: { "x-apisports-key": apiKey } });
+        if (!resp.ok) return;
+        const data = await resp.json();
+        if (Array.isArray(data.response)) {
+          for (const f of data.response) {
+            if (f?.league?.id && TOP_LEAGUES_SET.has(f.league.id)) {
+              fixturesByLeague.push(f);
+            }
+          }
+        }
+      } catch (err) {
+        console.error("[disambiguate] date fetch error", dateStr, err);
+      }
+    })
+  );
 
   if (fixturesByLeague.length === 0) {
     return jsonResp({
