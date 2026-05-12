@@ -40,7 +40,7 @@ const Home = () => {
   const mockUser = mockGetUser();
   const config = getStoredConfig();
   const { house: userHouse } = useUserBettingHouse();
-  const { cards: availableEntries, loading: loadingEntries } = useCardsBySlugs(["futebol", "cassino"]);
+  const { cards: availableEntries, loading: loadingEntries } = useCardsBySlugs(["futebol"]);
   const { cards: quickCards } = useCards("quick_access");
   const { cards: ultimosGreensCards } = useCardsBySlugs(["ultimos-greens"]);
   const ultimosGreensCard = ultimosGreensCards?.[0] || null;
@@ -138,7 +138,6 @@ const Home = () => {
     }
     const s = (card.slug || "").toLowerCase();
     if (s === "futebol") { navigate("/sport/1"); return; }
-    if (s === "cassino") { navigate("/cassino"); return; }
     if (s === "multiplas_bingo") { navigate("/odds-altas"); return; }
     if (s === "alavancagem") { navigate("/alavancagem"); return; }
   };

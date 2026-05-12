@@ -13,8 +13,7 @@ import Sport from "./pages/Sport";
 import SportLayout from "./pages/SportLayout";
 import Login from "./pages/Login";
 
-import Casino from "./pages/Casino";
-import CasinoGame from "./pages/CasinoGame";
+import IATipster from "./pages/IATipster";
 
 import UltimosGreens from "./pages/UltimosGreens";
 import Support from "./pages/Support";
@@ -62,9 +61,6 @@ import { PendingTipProvider } from "./contexts/PendingTipContext";
 const queryClient = new QueryClient();
 
 const LEGACY_GAME_MAP: Record<string, string> = {
-  av8: "aviator",
-  roleta: "roleta",
-  slots: "mines",
   crash: "fortune-tiger",
 };
 
@@ -95,13 +91,12 @@ const App = () => {
             <Route path="/odds-altas" element={<Navigate to="/sport/1" replace />} />
             
             <Route path="/ultimos-greens" element={<UltimosGreens />} />
-            <Route path="/cassino" element={<Casino />} />
+            <Route path="/ia-tipster" element={<IATipster />} />
+            <Route path="/cassino" element={<Navigate to="/ia-tipster" replace />} />
+            <Route path="/cassino/:gameId" element={<Navigate to="/ia-tipster" replace />} />
             <Route path="/support" element={<Support />} />
             <Route path="/obrigado" element={<Obrigado />} />
             <Route path="/bd" element={<Backredirect />} />
-            
-            
-            <Route path="/cassino/:gameId" element={<CasinoGame />} />
             {/* Admin routes */}
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin/verify" element={<AdminVerify />} />

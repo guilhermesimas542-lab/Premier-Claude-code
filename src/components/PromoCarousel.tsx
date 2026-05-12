@@ -19,7 +19,7 @@ interface BannerItem {
 }
 
 interface PromoCarouselProps {
-  context?: "futebol" | "cassino";
+  context?: "futebol";
 }
 
 export const PromoCarousel = ({ context = "futebol" }: PromoCarouselProps) => {
