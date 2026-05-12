@@ -81,20 +81,23 @@ Deno.serve(async (req: Request) => {
 
   const now = new Date();
   const future = new Date(now.getTime() + WINDOW_HOURS * 3600 * 1000);
-  const fromStr = now.toISOString().split("T")[0];
-  const toStr = future.toISOString().split("T")[0];
-  const season = now.getFullYear();
+  const SUGGESTION_LEAGUES_SET = new Set(SUGGESTION_LEAGUES);
+  // Hoje + amanhã + depois-de-amanhã (cobre janela de 48h com folga)
+  const dayOffsets = [0, 1, 2];
 
   const all: any[] = [];
   await Promise.all(
-    SUGGESTION_LEAGUES.map(async (leagueId) => {
+    dayOffsets.map(async (dayOffset) => {
+      const target = new Date(now.getTime() + dayOffset * 86400000);
+      const dateStr = target.toISOString().split("T")[0];
       try {
-        const url = `https://v3.football.api-sports.io/fixtures?league=${leagueId}&season=${season}&from=${fromStr}&to=${toStr}`;
+        const url = `https://v3.football.api-sports.io/fixtures?date=${dateStr}`;
         const resp = await fetch(url, { headers: { "x-apisports-key": apiKey } });
         if (!resp.ok) return;
         const data = await resp.json();
         if (Array.isArray(data.response)) {
           for (const f of data.response) {
+            if (!f?.league?.id || !SUGGESTION_LEAGUES_SET.has(f.league.id)) continue;
             const kickoff = new Date(f.fixture.date).getTime();
             if (kickoff > now.getTime() && kickoff <= future.getTime()) {
               all.push(f);
@@ -102,7 +105,7 @@ Deno.serve(async (req: Request) => {
           }
         }
       } catch (err) {
-        console.error("[suggestions] league fetch error", leagueId, err);
+        console.error("[suggestions] date fetch error", dateStr, err);
       }
     })
   );
