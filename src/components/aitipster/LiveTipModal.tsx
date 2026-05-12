@@ -158,6 +158,11 @@ export function LiveTipModal({ open, onOpenChange, match }: Props) {
           </div>
         )}
       </DialogContent>
+      <BugReportDrawer
+        open={bugOpen}
+        onOpenChange={setBugOpen}
+        tipCacheId={tip?.tip_cache_id ?? ""}
+      />
     </Dialog>
   );
 }
