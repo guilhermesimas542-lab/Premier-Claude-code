@@ -528,7 +528,7 @@ Deno.serve(async (req: Request) => {
   }
 
   const statsData = statsResp.ok ? await statsResp.json() : { response: [] };
-  const eventsData = evResp.ok ? await eventsData_pull(evResp) : { response: [] };
+  const eventsData = evResp.ok ? await evResp.json() : { response: [] };
   const lineupsData = lineupResp.ok ? await lineupResp.json() : { response: [] };
 
   const events = (eventsData.response || []).slice(0, 30);
