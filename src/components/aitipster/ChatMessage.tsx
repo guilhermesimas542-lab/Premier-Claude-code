@@ -4,8 +4,7 @@ import ReactMarkdown from "react-markdown";
 import { ChatMessage as Msg } from "@/hooks/useChatTipster";
 import { DisambiguationCard } from "./DisambiguationCard";
 import { Button } from "@/components/ui/button";
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
-import { ThumbsUp, ThumbsDown, FileText, ExternalLink, AlertCircle, Loader2 } from "lucide-react";
+import { ThumbsUp, ThumbsDown, ExternalLink, AlertCircle, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface Props {
@@ -16,7 +15,6 @@ interface Props {
 export function ChatMessage({ message, onConfirmFixture }: Props) {
   const navigate = useNavigate();
   const [feedback, setFeedback] = useState<"up" | "down" | null>(null);
-  const [showSource, setShowSource] = useState(false);
 
   if (message.role === "user") {
     return (
@@ -121,14 +119,6 @@ export function ChatMessage({ message, onConfirmFixture }: Props) {
             <ThumbsDown className="w-3 h-3" />
           </Button>
           <Button
-            onClick={() => setShowSource(true)}
-            variant="ghost"
-            size="sm"
-          >
-            <FileText className="w-3 h-3 mr-1" />
-            Ver dados
-          </Button>
-          <Button
             onClick={() => navigate("/sport/1")}
             variant="default"
             size="sm"
@@ -138,18 +128,6 @@ export function ChatMessage({ message, onConfirmFixture }: Props) {
             Esportiva
           </Button>
         </div>
-        <Drawer open={showSource} onOpenChange={setShowSource}>
-          <DrawerContent>
-            <DrawerHeader>
-              <DrawerTitle>Dados brutos da partida</DrawerTitle>
-            </DrawerHeader>
-            <div className="px-4 pb-6 overflow-auto max-h-[60vh]">
-              <pre className="text-[10px] bg-muted p-3 rounded overflow-auto">
-                {JSON.stringify(message.sourceData, null, 2)}
-              </pre>
-            </div>
-          </DrawerContent>
-        </Drawer>
       </div>
     );
   }

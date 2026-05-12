@@ -11,12 +11,6 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-} from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import {
   Sparkles,
@@ -24,7 +18,6 @@ import {
   ChevronRight,
   ThumbsUp,
   ThumbsDown,
-  FileText,
   RefreshCw,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -146,15 +139,6 @@ export function LiveTipModal({ open, onOpenChange, match }: Props) {
               >
                 <ThumbsDown className="w-4 h-4" />
               </Button>
-              <Button
-                onClick={() => setShowSource(true)}
-                variant="ghost"
-                size="sm"
-                className="ml-auto"
-              >
-                <FileText className="w-4 h-4 mr-1" />
-                Ver dados
-              </Button>
             </div>
 
             <Button onClick={handleOpenEsportiva} className="w-full" variant="default">
@@ -164,20 +148,8 @@ export function LiveTipModal({ open, onOpenChange, match }: Props) {
             </Button>
           </div>
         )}
-
-        <Drawer open={showSource} onOpenChange={setShowSource}>
-          <DrawerContent>
-            <DrawerHeader>
-              <DrawerTitle>Dados brutos da partida</DrawerTitle>
-            </DrawerHeader>
-            <div className="px-4 pb-6 max-h-[60vh] overflow-y-auto">
-              <pre className="text-[10px] bg-muted/50 p-3 rounded overflow-x-auto">
-                {JSON.stringify(tip?.source_data, null, 2)}
-              </pre>
-            </div>
-          </DrawerContent>
-        </Drawer>
       </DialogContent>
     </Dialog>
   );
 }
+
