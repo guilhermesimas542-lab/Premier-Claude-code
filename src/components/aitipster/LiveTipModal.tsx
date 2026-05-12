@@ -148,3 +148,8 @@ export function LiveTipModal({ open, onOpenChange, match }: Props) {
             </Button>
           </div>
         )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
