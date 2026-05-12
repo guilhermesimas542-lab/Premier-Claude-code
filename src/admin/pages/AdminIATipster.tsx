@@ -1417,7 +1417,7 @@ function BugReportsTab() {
     const { data, error } = await supabase
       .from("user_feedback")
       .select(
-        "id, created_at, user_id, comment, feedback, source, tip_cache_id"
+        "id, created_at, user_id, message, category, source, tip_cache_id"
       )
       .eq("source", "ia-tipster")
       .order("created_at", { ascending: false })
@@ -1428,7 +1428,15 @@ function BugReportsTab() {
       setLoading(false);
       return;
     }
-    const list = (data ?? []) as BugReport[];
+    const list: BugReport[] = (data ?? []).map((r: any) => ({
+      id: r.id,
+      created_at: r.created_at,
+      user_id: r.user_id,
+      comment: r.message ?? null,
+      feedback: r.category ?? null,
+      source: r.source,
+      tip_cache_id: r.tip_cache_id,
+    }));
     setReports(list);
 
     const userIds = Array.from(
