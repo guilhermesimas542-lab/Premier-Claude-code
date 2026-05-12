@@ -584,7 +584,7 @@ function TipsGeradasTab() {
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <KpiCard
           label="Tips no período"
           value={String(filtered.length)}
@@ -595,6 +595,17 @@ function TipsGeradasTab() {
           value={filtered
             .reduce((acc, t) => acc + (t.tokens_input ?? 0) + (t.tokens_output ?? 0), 0)
             .toLocaleString("pt-BR")}
+        />
+        <KpiCard
+          label="USD gasto"
+          value={formatCostUSD(
+            filtered.reduce(
+              (acc, t) => acc + calcCost(t.tokens_input ?? 0, t.tokens_output ?? 0),
+              0
+            )
+          )}
+          hint="Claude Sonnet 4.5"
+          icon={<DollarSign className="w-4 h-4" />}
         />
         <KpiCard
           label="Reusos totais (hits)"
@@ -786,7 +797,7 @@ function PartidasAnalisadasTab() {
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <KpiCard
           label="Partidas no período"
           value={String(sorted.length)}
@@ -795,6 +806,17 @@ function PartidasAnalisadasTab() {
         <KpiCard
           label="Tokens consumidos"
           value={totalTokens.toLocaleString("pt-BR")}
+        />
+        <KpiCard
+          label="USD gasto"
+          value={formatCostUSD(
+            sorted.reduce(
+              (acc, t) => acc + calcCost(t.tokens_input ?? 0, t.tokens_output ?? 0),
+              0
+            )
+          )}
+          hint="Claude Sonnet 4.5"
+          icon={<DollarSign className="w-4 h-4" />}
         />
         <KpiCard
           label="Reusos totais (hits)"
