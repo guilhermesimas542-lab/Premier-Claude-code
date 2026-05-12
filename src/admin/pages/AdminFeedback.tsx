@@ -17,6 +17,8 @@ interface Feedback {
   screenshot_url: string | null;
   status: string;
   created_at: string;
+  source?: "app" | "ia-tipster";
+  tip_cache_id?: string | null;
 }
 
 type SortField = "email" | "category" | "created_at" | "status";
@@ -55,6 +57,7 @@ export default function AdminFeedback() {
   const [loading, setLoading] = useState(true);
   const [filterCategory, setFilterCategory] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
+  const [sourceFilter, setSourceFilter] = useState<"todos" | "app" | "ia-tipster">("todos");
   const [datePreset, setDatePreset] = useState<string>("all");
   const [customFrom, setCustomFrom] = useState("");
   const [customTo, setCustomTo] = useState("");
@@ -86,8 +89,13 @@ export default function AdminFeedback() {
 
   useEffect(() => { fetchFeedbacks(); }, [fetchFeedbacks]);
 
-  const totalCount = feedbacks.length;
-  const newCount = feedbacks.filter((f) => f.status === "novo").length;
+  const filteredFeedbacks = useMemo(
+    () => feedbacks.filter((f) => sourceFilter === "todos" || (f.source ?? "app") === sourceFilter),
+    [feedbacks, sourceFilter],
+  );
+
+  const totalCount = filteredFeedbacks.length;
+  const newCount = filteredFeedbacks.filter((f) => f.status === "novo").length;
 
   const handleStatusChange = async (id: string, newStatus: string) => {
     const { error } = await (supabase.from("user_feedback" as any).update({ status: newStatus } as any).eq("id", id) as any);
@@ -223,6 +231,18 @@ export default function AdminFeedback() {
             ]}
           />
         </div>
+        <div>
+          <span className="text-xs text-gray-500 mr-2">Origem:</span>
+          <FilterPills
+            value={sourceFilter}
+            onChange={(v) => setSourceFilter(v as any)}
+            options={[
+              { key: "todos", label: "Todos" },
+              { key: "app", label: "App" },
+              { key: "ia-tipster", label: "IA Tipster" },
+            ]}
+          />
+        </div>
         <div className="space-y-1">
           <span className="text-xs text-gray-500 mr-2">Período:</span>
           <div className="flex items-center gap-2 flex-wrap">
@@ -282,17 +302,29 @@ export default function AdminFeedback() {
           <tbody className="divide-y divide-white/5">
             {loading ? (
               <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-500">Carregando...</td></tr>
-            ) : feedbacks.length === 0 ? (
+            ) : filteredFeedbacks.length === 0 ? (
               <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-500">Nenhum feedback encontrado</td></tr>
             ) : (
-              feedbacks.map((fb) => {
+              filteredFeedbacks.map((fb) => {
                 const cat = CATEGORY_COLORS[fb.category] || CATEGORY_COLORS.outro;
                 const st = STATUS_COLORS[fb.status] || STATUS_COLORS.novo;
                 const truncated = fb.message.length > 100 ? fb.message.slice(0, 100) + "…" : fb.message;
 
                 return (
                   <tr key={fb.id} className="hover:bg-white/5 cursor-pointer" onClick={(e) => handleRowClick(fb, e)}>
-                    <td className="px-4 py-3 text-white text-xs">{fb.email}</td>
+                    <td className="px-4 py-3 text-white text-xs">
+                      <div className="flex items-center gap-1.5">
+                        <span>{fb.email}</span>
+                        {fb.source === "ia-tipster" && (
+                          <span
+                            className="px-1.5 py-0.5 rounded text-[9px] font-bold"
+                            style={{ background: "rgba(168,85,247,0.18)", color: "#C084FC", border: "1px solid rgba(168,85,247,0.35)" }}
+                          >
+                            IA
+                          </span>
+                        )}
+                      </div>
+                    </td>
                     <td className="px-4 py-3">
                       <span className="px-2 py-0.5 rounded-full text-[10px] font-bold" style={{ background: cat.bg, color: cat.text }}>
                         {cat.label}
@@ -423,6 +455,14 @@ export default function AdminFeedback() {
                   {format(new Date(fb.created_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
                 </p>
               </div>
+
+              {/* IA Tipster: tip relacionada */}
+              {fb.source === "ia-tipster" && fb.tip_cache_id && (
+                <div>
+                  <p className="text-[10px] text-gray-500 mb-1">Tip relacionada</p>
+                  <p className="text-xs font-mono text-purple-300 break-all">{fb.tip_cache_id}</p>
+                </div>
+              )}
 
               {/* Message */}
               <div>

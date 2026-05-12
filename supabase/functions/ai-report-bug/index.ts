@@ -67,12 +67,14 @@ Deno.serve(async (req: Request) => {
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
   );
 
-  const { error } = await supabase.from("ai_bug_reports").insert({
+  const { error } = await supabase.from("user_feedback").insert({
     user_id: token.user_id,
-    user_email: tokenEmail,
-    tip_cache_id: tipCacheId,
+    email: tokenEmail,
+    category: "bug",
     message,
-    status: "open",
+    status: "novo",
+    source: "ia-tipster",
+    tip_cache_id: tipCacheId,
   });
 
   if (error) {
