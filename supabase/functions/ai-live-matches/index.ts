@@ -7,6 +7,10 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
+const AI_BETA_ALLOWLIST: string[] = [
+  "teste@exemplo.com",
+].map(e => e.toLowerCase().trim());
+
 // Lista provisória de 22 ligas top (IDs API-Football v3).
 // Quando o Fellipe enviar a lista final das 44 do FootyStats, atualizar aqui.
 const TOP_LEAGUES = [
@@ -88,6 +92,15 @@ Deno.serve(async (req: Request) => {
   }
   if (tokenData.exp < Date.now()) {
     return unauthorized("token_expired");
+  }
+
+  // ───── BETA ALLOWLIST ─────
+  const tokenEmail = tokenData.email?.toLowerCase()?.trim();
+  if (!tokenEmail || !AI_BETA_ALLOWLIST.includes(tokenEmail)) {
+    return new Response(
+      JSON.stringify({ error: "beta_access_denied", message: "Beta privado" }),
+      { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
   }
 
   // ───── SUPABASE CLIENT (service role para escrever cache) ─────
