@@ -494,6 +494,12 @@ Deno.serve(async (req: Request) => {
 
   // ─── SE CACHE HIT, RETORNA ───
   if (isCacheHit && cached) {
+    // Incrementa hit_count async (não bloqueia retorno)
+    supabase
+      .rpc("increment_tip_hit", { p_tip_id: cached.id })
+      .then(({ error }: { error: any }) => {
+        if (error) console.error("increment_tip_hit error", error);
+      });
     return jsonResp({
       cached: true,
       tip_cache_id: cached.id,

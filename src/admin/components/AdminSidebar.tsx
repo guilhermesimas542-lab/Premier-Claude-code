@@ -3,7 +3,7 @@ import {
   LayoutDashboard, Image, PlusCircle, List,
   Users, Bell, BarChart3, ChevronLeft, ChevronRight,
   DollarSign, Activity, Home, Link, Layers, Shield, CreditCard, Bug, Zap,
-  ChevronDown, UserPlus, UserX, UserCheck, Trophy, MessageSquare,
+  ChevronDown, UserPlus, UserX, UserCheck, Trophy, MessageSquare, Sparkles,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAdminMode } from "../context/AdminModeContext";
@@ -71,6 +71,12 @@ export function AdminSidebar() {
         { to: "/admin/tips/analytics", icon: BarChart3, label: "Analytics" },
         { to: "/admin/teams", icon: Shield, label: "Times (Logos)" },
         { to: "/admin/predictions", icon: Layers, label: "Palpites/Mercado" },
+      ],
+    },
+    {
+      label: "IA Tipster",
+      items: [
+        { to: "/admin/ia-tipster", icon: Sparkles, label: "IA Tipster" },
       ],
     },
     {

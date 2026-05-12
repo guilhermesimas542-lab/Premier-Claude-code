@@ -48,6 +48,7 @@ import AdminCards from "./admin/pages/AdminCards";
 import AdminPayCards from "./admin/pages/AdminPayCards";
 import AdminErrors from "./admin/pages/AdminErrors";
 import AdminFeedback from "./admin/pages/AdminFeedback";
+import AdminIATipster from "./admin/pages/AdminIATipster";
 import AdminWebhook from "./admin/pages/AdminWebhook";
 import AdminNaoAcessou from "./admin/pages/AdminNaoAcessou";
 import AdminClientesFree from "./admin/pages/AdminClientesFree";
@@ -125,6 +126,7 @@ const App = () => {
               <Route path="pay-cards" element={<AdminPayCards />} />
               <Route path="errors" element={<AdminErrors />} />
               <Route path="feedback" element={<AdminFeedback />} />
+              <Route path="ia-tipster" element={<AdminIATipster />} />
               <Route path="webhook" element={<AdminWebhook />} />
               {/* Cassino placeholders */}
               <Route path="cassino" element={<AdminCassinoPlaceholder />} />
