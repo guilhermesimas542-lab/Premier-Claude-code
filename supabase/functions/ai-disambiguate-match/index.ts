@@ -157,6 +157,8 @@ Deno.serve(async (req: Request) => {
     dateOffsets.push(d);
   }
 
+  console.log(`[DBG] query="${query}", windowDaysPast=${WINDOW_DAYS_PAST}, windowDaysFuture=${WINDOW_DAYS_FUTURE}`);
+
   await Promise.all(
     dateOffsets.map(async (dayOffset) => {
       const target = new Date(today.getTime() + dayOffset * 86400000);
@@ -164,8 +166,13 @@ Deno.serve(async (req: Request) => {
       try {
         const url = `https://v3.football.api-sports.io/fixtures?date=${dateStr}`;
         const resp = await fetch(url, { headers: { "x-apisports-key": apiKey } });
-        if (!resp.ok) return;
+        if (!resp.ok) {
+          console.log(`[DBG] date=${dateStr}: API returned 0 fixtures, status=${resp.status}`);
+          return;
+        }
         const data = await resp.json();
+        const totalInResponse = Array.isArray(data?.response) ? data.response.length : 0;
+        console.log(`[DBG] date=${dateStr}: API returned ${totalInResponse} fixtures, status=${resp.status}`);
         if (Array.isArray(data.response)) {
           for (const f of data.response) {
             if (f?.league?.id && TOP_LEAGUES_SET.has(f.league.id)) {
@@ -178,6 +185,18 @@ Deno.serve(async (req: Request) => {
       }
     })
   );
+
+  console.log(`[DBG] total fixtures filtered by TOP_LEAGUES: ${fixturesByLeague.length}`);
+  if (fixturesByLeague.length > 0) {
+    const sample = fixturesByLeague.slice(0, 3).map(f => ({
+      league: f.league?.name,
+      league_id: f.league?.id,
+      home: f.teams?.home?.name,
+      away: f.teams?.away?.name,
+      date: f.fixture?.date,
+    }));
+    console.log(`[DBG] sample fixtures:`, JSON.stringify(sample));
+  }
 
   if (fixturesByLeague.length === 0) {
     return jsonResp({
@@ -211,10 +230,26 @@ Deno.serve(async (req: Request) => {
     return { fixture: f, homeScore, awayScore, totalScore };
   });
 
+  const topCandidates = [...scored]
+    .sort((a, b) => b.totalScore - a.totalScore)
+    .slice(0, 10)
+    .map(s => ({
+      home: s.fixture.teams.home.name,
+      away: s.fixture.teams.away.name,
+      homeScore: Number(s.homeScore.toFixed(2)),
+      awayScore: Number(s.awayScore.toFixed(2)),
+      totalScore: Number(s.totalScore.toFixed(2)),
+      league: s.fixture.league.name,
+      date: s.fixture.fixture.date,
+    }));
+  console.log(`[DBG] top 10 scored fixtures:`, JSON.stringify(topCandidates));
+
   const candidates = scored
     .filter(s => s.totalScore > 0.3 && s.homeScore > 0 && s.awayScore > 0)
     .sort((a, b) => b.totalScore - a.totalScore)
     .slice(0, 5);
+
+  console.log(`[DBG] candidates after filter (>0.3 AND both>0): ${candidates.length}`);
 
   if (candidates.length === 0) {
     return jsonResp({
