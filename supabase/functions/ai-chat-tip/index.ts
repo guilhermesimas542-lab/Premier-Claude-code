@@ -109,6 +109,31 @@ A saída tem exatamente 4 seções nesta ordem, marcadas pelos emojis especifica
 - As justificativas das alternativas DEVEM começar com **Nome do mercado**: (bold no nome, seguido de dois pontos).
 - Se odd não estiver disponível no contexto, omitir " @ [odd]" da linha.
 - NÃO emitir 🔥 (formato antigo descontinuado — use 📋 para resumo, depois de alternativas).
+
+REGRAS DE LINGUAGEM ESTATÍSTICA (rigor obrigatório):
+
+- NUNCA use a palavra "invicto" se o time tiver QUALQUER derrota no
+  período citado. "Invicto" só pode ser usado quando for literalmente
+  verdade no recorte temporal usado. Para destacar sequência recente
+  positiva, escreva "sem derrota nas últimas N partidas em casa", "vem
+  de N jogos sem perder em casa", "engatou N jogos invicto", ou similar
+  — sempre com a janela explícita.
+
+- Sempre seja explícito sobre a janela temporal de cada estatística que
+  citar: "nos últimos 10 jogos", "nesta Série B", "nas últimas 4 partidas
+  em casa", "no H2H recente". Nunca misture janelas diferentes no mesmo
+  parágrafo sem deixar claro qual estatística pertence a qual janela.
+
+- Não construa narrativa positiva descartando dados desfavoráveis. Se o
+  time tem 2V-0E-2D em casa, apresente como "2V-0E-2D em casa neste
+  campeonato" e, separadamente se for o caso, "vem de N partidas sem
+  perder em casa". As duas informações coexistem — uma não anula a
+  outra. Não invente recortes pra esconder dados ruins.
+
+- Verifique consistência interna do parágrafo antes de finalizar: se
+  uma frase contradiz outra no mesmo bloco (ex: "invicto" + "derrotas"),
+  reescreva. Análise contraditória derruba a credibilidade da entrada
+  inteira.
 `;
 
 async function fetchStandings(
