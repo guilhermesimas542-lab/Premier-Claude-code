@@ -456,6 +456,14 @@ export default function AdminFeedback() {
                 </p>
               </div>
 
+              {/* IA Tipster: tip relacionada */}
+              {fb.source === "ia-tipster" && fb.tip_cache_id && (
+                <div>
+                  <p className="text-[10px] text-gray-500 mb-1">Tip relacionada</p>
+                  <p className="text-xs font-mono text-purple-300 break-all">{fb.tip_cache_id}</p>
+                </div>
+              )}
+
               {/* Message */}
               <div>
                 <p className="text-[10px] text-gray-500 mb-1">Mensagem</p>
