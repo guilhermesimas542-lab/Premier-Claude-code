@@ -302,17 +302,29 @@ export default function AdminFeedback() {
           <tbody className="divide-y divide-white/5">
             {loading ? (
               <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-500">Carregando...</td></tr>
-            ) : feedbacks.length === 0 ? (
+            ) : filteredFeedbacks.length === 0 ? (
               <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-500">Nenhum feedback encontrado</td></tr>
             ) : (
-              feedbacks.map((fb) => {
+              filteredFeedbacks.map((fb) => {
                 const cat = CATEGORY_COLORS[fb.category] || CATEGORY_COLORS.outro;
                 const st = STATUS_COLORS[fb.status] || STATUS_COLORS.novo;
                 const truncated = fb.message.length > 100 ? fb.message.slice(0, 100) + "…" : fb.message;
 
                 return (
                   <tr key={fb.id} className="hover:bg-white/5 cursor-pointer" onClick={(e) => handleRowClick(fb, e)}>
-                    <td className="px-4 py-3 text-white text-xs">{fb.email}</td>
+                    <td className="px-4 py-3 text-white text-xs">
+                      <div className="flex items-center gap-1.5">
+                        <span>{fb.email}</span>
+                        {fb.source === "ia-tipster" && (
+                          <span
+                            className="px-1.5 py-0.5 rounded text-[9px] font-bold"
+                            style={{ background: "rgba(168,85,247,0.18)", color: "#C084FC", border: "1px solid rgba(168,85,247,0.35)" }}
+                          >
+                            IA
+                          </span>
+                        )}
+                      </div>
+                    </td>
                     <td className="px-4 py-3">
                       <span className="px-2 py-0.5 rounded-full text-[10px] font-bold" style={{ background: cat.bg, color: cat.text }}>
                         {cat.label}
