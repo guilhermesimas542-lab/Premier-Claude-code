@@ -54,19 +54,15 @@ export function MarketingCards() {
     return userLevel < requiredLevel;
   };
 
-  const handleCardClick = async (card: Card) => {
-    if (card.card_type === "funnel") {
-      const { data } = await supabase
-        .from("funnel_steps" as any)
-        .select("*")
-        .eq("card_id", card.id)
-        .order("step_order", { ascending: true });
-      setFunnelSteps((data as any as FunnelStep[]) ?? []);
-      setSelectedCard(card);
-      setFunnelOpen(true);
-    } else if (card.checkout_url) {
-      window.open(card.checkout_url, "_blank");
-    }
+  const openFunnel = async (card: Card) => {
+    const { data } = await supabase
+      .from("funnel_steps" as any)
+      .select("*")
+      .eq("card_id", card.id)
+      .order("step_order", { ascending: true });
+    setFunnelSteps((data as any as FunnelStep[]) ?? []);
+    setSelectedCard(card);
+    setFunnelOpen(true);
   };
 
   if (cards.length === 0) return null;
@@ -76,12 +72,12 @@ export function MarketingCards() {
       <div className="grid grid-cols-2 gap-3 w-full">
         {cards.map((card) => {
           const locked = isLocked(card);
-          return (
-            <button
-              key={card.id}
-              onClick={() => !locked ? handleCardClick(card) : undefined}
-              className={`relative rounded-xl overflow-hidden border border-border/30 text-left transition-transform hover:scale-[1.02] active:scale-[0.98] ${locked ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}`}
-            >
+          const isCheckoutLink = card.card_type !== "funnel" && !!card.checkout_url;
+          const cardClassName = `cta-checkout relative rounded-xl overflow-hidden border border-border/30 text-left block transition-transform hover:scale-[1.02] active:scale-[0.98] ${locked ? "opacity-60 cursor-not-allowed pointer-events-none" : "cursor-pointer"}`;
+          const cardId = `cta-checkout-marketing-card-${card.id}`;
+
+          const inner = (
+            <>
               {card.image_url ? (
                 <img src={card.image_url} alt={card.title} className="w-full h-28 object-cover" />
               ) : (
@@ -98,6 +94,33 @@ export function MarketingCards() {
                   <Lock className="w-6 h-6 text-muted-foreground" />
                 </div>
               )}
+            </>
+          );
+
+          if (isCheckoutLink) {
+            return (
+              <a
+                key={card.id}
+                href={card.checkout_url!}
+                id={cardId}
+                className={cardClassName}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-disabled={locked}
+              >
+                {inner}
+              </a>
+            );
+          }
+
+          return (
+            <button
+              key={card.id}
+              id={cardId}
+              onClick={() => !locked && card.card_type === "funnel" ? openFunnel(card) : undefined}
+              className={cardClassName}
+            >
+              {inner}
             </button>
           );
         })}

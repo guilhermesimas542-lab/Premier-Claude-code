@@ -1,5 +1,4 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Lock } from "lucide-react";
 import { getUnlockLink } from "@/lib/checkoutLinks";
 import { trackEvent } from "@/lib/events";
@@ -13,14 +12,14 @@ interface LockedTipModalProps {
 }
 
 export function LockedTipModal({ isOpen, onClose, tierLabel, tierRequired, addonRequired }: LockedTipModalProps) {
+  const unlockLink = getUnlockLink(tierRequired, addonRequired);
+
   const handleUpgrade = () => {
     trackEvent("upgrade_click", {
       target_plan: tierRequired,
       addon: addonRequired,
       screen: window.location.pathname,
     });
-    const link = getUnlockLink(tierRequired, addonRequired);
-    window.open(link, "_blank");
     onClose();
   };
 
@@ -39,12 +38,16 @@ export function LockedTipModal({ isOpen, onClose, tierLabel, tierRequired, addon
             }
           </DialogDescription>
         </DialogHeader>
-        <Button
+        <a
+          href={unlockLink}
+          id={`cta-checkout-locked-tip-${tierRequired}${addonRequired ? `-${addonRequired}` : ""}`}
+          className="cta-checkout flex items-center justify-center w-full h-10 px-4 py-2 rounded-md bg-yellow-500 hover:bg-yellow-400 text-black font-bold mt-2"
+          target="_blank"
+          rel="noopener noreferrer"
           onClick={handleUpgrade}
-          className="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-bold mt-2"
         >
           🔓 Desbloquear Plan {tierLabel}
-        </Button>
+        </a>
       </DialogContent>
     </Dialog>
   );

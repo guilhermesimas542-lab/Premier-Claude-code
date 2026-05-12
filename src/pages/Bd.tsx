@@ -97,10 +97,10 @@ const Bd = () => {
             </div>
             <div className="bg-neutral-100 rounded-xl px-3 py-2 text-right">
               <div className="text-xs text-neutral-500 line-through leading-tight">
-                De $ 37,90 por
+                De $ 14,90 por
               </div>
               <div className="font-extrabold text-2xl text-neutral-900 leading-tight">
-                $ 27,90
+                $ 9,90
               </div>
             </div>
           </div>
@@ -108,7 +108,8 @@ const Bd = () => {
 
         <a
           href={CHECKOUT_LINKS.funil_premium_offer}
-          className="block w-full text-center rounded-xl py-4 font-extrabold uppercase tracking-wide text-white text-base sm:text-lg shadow-sm hover:opacity-95 transition"
+          id="cta-checkout-bd-funil-premium-offer"
+          className="cta-checkout block w-full text-center rounded-xl py-4 font-extrabold uppercase tracking-wide text-white text-base sm:text-lg shadow-sm hover:opacity-95 transition"
           style={{ backgroundColor: BRAND_GREEN }}
         >
           Asegurar descuento de $10

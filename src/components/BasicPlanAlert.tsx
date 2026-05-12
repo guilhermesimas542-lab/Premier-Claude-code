@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import { Zap, ChevronRight } from "lucide-react";
 
 interface BasicPlanAlertProps {
@@ -6,12 +5,6 @@ interface BasicPlanAlertProps {
 }
 
 export const BasicPlanAlert = ({ checkoutUrl }: BasicPlanAlertProps) => {
-  const handleClick = () => {
-    if (checkoutUrl) {
-      window.open(checkoutUrl, "_blank");
-    }
-  };
-
   return (
     <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#000636] via-[#001B70] to-[#000636] border-2 border-[#FFD700] p-6 shadow-2xl shadow-[#FFD700]/30 animate-fade-in">
       <div className="absolute inset-0 rounded-2xl border-glow"></div>
@@ -52,13 +45,17 @@ export const BasicPlanAlert = ({ checkoutUrl }: BasicPlanAlertProps) => {
         </div>
 
         {/* CTA Button */}
-        <Button
-          onClick={handleClick}
-          className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary hover:bg-primary/90 h-10 bg-gradient-to-r from-[#FFA500] via-[#FFD700] to-[#FFA500] hover:from-[#FFD700] hover:via-[#FFE44D] hover:to-[#FFD700] text-black font-black px-8 py-6 text-base shadow-xl shadow-[#FFD700]/50 hover:shadow-[#FFE44D]/70 transition-all duration-300 border-0"
+        <a
+          href={checkoutUrl || "#"}
+          id="cta-checkout-alert-basic-plan"
+          className="cta-checkout inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 h-10 bg-gradient-to-r from-[#FFA500] via-[#FFD700] to-[#FFA500] hover:from-[#FFD700] hover:via-[#FFE44D] hover:to-[#FFD700] text-black font-black px-8 py-6 text-base shadow-xl shadow-[#FFD700]/50 hover:shadow-[#FFE44D]/70 transition-all duration-300 border-0"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-disabled={!checkoutUrl}
         >
           Ver Entradas
           <ChevronRight className="w-5 h-5 ml-2" />
-        </Button>
+        </a>
       </div>
 
       <div className="absolute -inset-1 bg-gradient-to-r from-[#FFD700]/20 via-[#FFA500]/20 to-[#FFD700]/20 blur-2xl -z-10 animate-pulse"></div>

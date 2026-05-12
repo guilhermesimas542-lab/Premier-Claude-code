@@ -1,10 +1,30 @@
 ---
 tipo: decisoes
 projeto: ultrateste111
-atualizado: 2026-05-08
+atualizado: 2026-05-12
 ---
 
 # Decisões — ultrateste111
+
+## CTAs de checkout migrados para `<a href>` nativo (GTM `gtm.linkClick`)
+- **Data:** 2026-05-12
+- **Contexto:** O time precisa rastrear cliques nos CTAs de checkout via [[GTM]] usando o trigger nativo "Just Links". Esse trigger só dispara `gtm.linkClick` para elementos `<a>` reais — `<button onClick={() => window.open(url)}>` cai em `gtm.click` genérico, sem URL no dataLayer, o que dificulta criar tags por destino.
+- **Decisão:** converter os 7 CTAs de checkout do site público para `<a href target="_blank" rel="noopener noreferrer">` com `id` semântico (`cta-checkout-*`) e class comum `cta-checkout`. Em modais com lógica adicional (fechar dialog, `trackEvent`), o `onClick` foi mantido em paralelo ao `href` — o browser executa o handler e segue o link, então o `gtm.linkClick` continua sendo capturado.
+- **Opções consideradas e descartadas:**
+  - **Opção A — manter `<button>` e enviar evento custom para `dataLayer.push({event: 'cta_click', url})`:** funciona mas exige criar/manter tag custom no GTM, fora do padrão "Just Links". Mais frágil (esquecer de chamar em algum botão = perda silenciosa).
+  - **Opção B — wrapper `<a><button></button></a>`:** HTML inválido aninhar button dentro de anchor; gera warning no React e quebra estilos.
+  - **Opção C — refatorar tudo no admin também:** descartado porque GTM normalmente não trackeia admin e o escopo combinado com o usuário foi "apenas CTAs de checkout/CTA público".
+- **Padrão de id:** `cta-checkout-{contexto}-{detalhe}` (ex: `cta-checkout-bd-funil-premium-offer`, `cta-checkout-locked-tip-pro-alavancagem`). Permite criar trigger único no GTM com `Click ID matches RegEx ^cta-checkout-`.
+- **Arquivos afetados:** `src/pages/Bd.tsx`, `src/components/BasicPlanAlert.tsx`, `src/components/ProPlanAlert.tsx`, `src/components/BasicPlanModal.tsx`, `src/components/LockedTipModal.tsx`, `src/components/EntryCard.tsx`, `src/components/MarketingCards.tsx` (caso especial: só vira `<a>` quando `card_type !== "funnel"`).
+- **Validação:** `npx tsc --noEmit` passa sem erros.
+- **Tags:** [[GTM]] [[analytics]] [[checkout]] [[acessibilidade]] [[CenterPag]]
+
+## Página `/bd` — preço atualizado para $14,90 → $9,90 (USD)
+- **Data:** 2026-05-12
+- **Contexto:** Usuário pediu para alterar o box de preços de "De $37,90 por $27,90" para "De $14,90 por $9,90". Confirmou que a venda é em **dólar** (não pesos chilenos), apesar do resto do site estar localizado para [[es-CL]].
+- **Decisão:** mantido o formato `$ X,XX` (vírgula como decimal) por ser o que o usuário pediu literalmente e por consistência com o restante dos componentes de checkout que já usam esse padrão.
+- **Arquivo:** `src/pages/Bd.tsx:100-103`.
+- **Tags:** [[preco]] [[BD]] [[USD]]
 
 ## Página `/bd` — abordagem React + Tailwind, moeda `$`, link vitalicio, countdown 5min
 - **Data:** 2026-05-08

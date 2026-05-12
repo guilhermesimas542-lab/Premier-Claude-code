@@ -6,6 +6,25 @@ atualizado: 2026-05-12
 
 # Progresso — ultrateste111
 
+## CTAs de checkout convertidos para `<a>` rastreável pelo GTM
+- **Data:** 2026-05-12
+- **Contexto:** Demanda do usuário — botões com URL de redirecionamento precisam ser do tipo `<a>` com `href`, `id` e `class`, e compatíveis com o trigger nativo `gtm.linkClick` do GTM.
+- **Detalhes:**
+  - Auditoria identificou 7 CTAs de checkout no site público usando `<button onClick={() => window.open(url)}>` (não detectáveis como `gtm.linkClick`).
+  - Refatorados: `Bd.tsx`, `BasicPlanAlert`, `ProPlanAlert`, `BasicPlanModal`, `LockedTipModal`, `EntryCard`, `MarketingCards`.
+  - Padrão de id: `cta-checkout-{contexto}-{detalhe}`. Class comum: `cta-checkout`.
+  - Em modais (`BasicPlanModal`, `LockedTipModal`), `onClick` paralelo preserva `onClose()` e `trackEvent` antes da navegação.
+  - `MarketingCards`: condicional — vira `<a>` só para `card_type !== "funnel"` com `checkout_url`; tipo "funnel" continua `<button>` (abre dialog, não navega).
+  - `npx tsc --noEmit` passa.
+- **Próximos passos:** Configurar no GTM o trigger "Just Links" com `Click ID matches RegEx ^cta-checkout-` e tag GA4 com `{{Click ID}}` e `{{Click URL}}`. (responsabilidade do usuário — fora do escopo do código).
+- **Tags:** [[GTM]] [[analytics]] [[checkout]]
+
+## Preço da página /bd atualizado para $14,90 → $9,90 (USD)
+- **Data:** 2026-05-12
+- **Contexto:** Pedido direto do usuário.
+- **Detalhes:** `src/pages/Bd.tsx:100-103` — `De $ 37,90 por $ 27,90` → `De $ 14,90 por $ 9,90`. Mantido formato `$ X,XX` por ser dólar (não CLP), conforme confirmação explícita.
+- **Tags:** [[preco]] [[BD]]
+
 ## Sync via MCP Supabase: pay_cards `LOGIN_AQUISICAO` e `vitalicio` apontados pros checkouts CenterPag
 - **Data:** 2026-05-12
 - **Contexto:** Após push do commit `8bd53d3` (preços CLP + links CenterPag + rebranding), auditoria da tabela `pay_cards` via MCP mostrou que os planos NOVOS (premium, diamante, diamante_upgrade, add-ons) já estavam com os links CenterPag corretos, mas os planos LEGACY ainda ativos apontavam pros antigos `checkout.payt.com.br/*` ou estavam vazios.

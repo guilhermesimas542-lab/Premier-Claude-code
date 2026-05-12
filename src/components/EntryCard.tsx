@@ -1,5 +1,4 @@
 import { Lock, TrendingUp, Unlock } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { getUnlockLink } from '@/lib/checkoutLinks';
 
 export interface EntryCardProps {
@@ -21,10 +20,7 @@ export function EntryCard({
   tier_required,
   addon_required,
 }: EntryCardProps) {
-  const handleUnlockClick = () => {
-    const unlockLink = getUnlockLink(tier_required, addon_required);
-    window.open(unlockLink, '_blank');
-  };
+  const unlockLink = getUnlockLink(tier_required, addon_required);
 
   const tierColors: Record<string, string> = {
     free: 'bg-[#94A3B8]/20 text-[#94A3B8] border-[#94A3B8]/30',
@@ -62,10 +58,16 @@ export function EntryCard({
           </div>
         </div>
         <div className="relative z-20 mt-4">
-          <Button onClick={handleUnlockClick} variant="outline" size="sm" className="w-full border-purple-500/50 bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 hover:text-purple-200">
+          <a
+            href={unlockLink}
+            id={`cta-checkout-entry-card-${id}`}
+            className="cta-checkout inline-flex items-center justify-center w-full h-9 px-3 rounded-md text-xs font-medium border border-purple-500/50 bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 hover:text-purple-200"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             <Unlock className="w-3.5 h-3.5 mr-1.5" />
             Desbloquear
-          </Button>
+          </a>
         </div>
       </div>
     );

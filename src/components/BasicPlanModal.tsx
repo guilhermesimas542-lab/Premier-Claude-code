@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 import { Check, Flame, Clock } from 'lucide-react';
 import { getStoredConfig } from '@/lib/auth';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
@@ -85,13 +84,6 @@ const BasicPlanModal = ({ open, onClose }: BasicPlanModalProps) => {
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   };
 
-  const handleActivate = () => {
-    if (config?.checkout) {
-      window.open(config.checkout, '_blank');
-    }
-    onClose();
-  };
-
   const handleClose = useCallback(() => {
     onClose();
   }, [onClose]);
@@ -171,12 +163,17 @@ const BasicPlanModal = ({ open, onClose }: BasicPlanModalProps) => {
             </div>
 
             {/* CTA Button */}
-            <Button
-              onClick={handleActivate}
-              className="w-full h-14 bg-[#007AFF] hover:bg-[#0066DD] text-white font-bold text-base rounded-xl shadow-lg shadow-[#007AFF]/30 transition-all duration-300 hover:shadow-xl hover:shadow-[#007AFF]/40 hover:scale-[1.02]"
+            <a
+              href={config?.checkout || "#"}
+              id="cta-checkout-modal-basic-plan"
+              className="cta-checkout flex items-center justify-center w-full h-14 bg-[#007AFF] hover:bg-[#0066DD] text-white font-bold text-base rounded-xl shadow-lg shadow-[#007AFF]/30 transition-all duration-300 hover:shadow-xl hover:shadow-[#007AFF]/40 hover:scale-[1.02]"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={onClose}
+              aria-disabled={!config?.checkout}
             >
               ACTIVAR PLAN BASIC AHORA →
-            </Button>
+            </a>
 
             {/* Social proof */}
             <p className="text-[#666666] text-xs text-center mt-4">
