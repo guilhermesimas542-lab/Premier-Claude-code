@@ -522,7 +522,9 @@ export type Database = {
           expires_at: string
           generated_at: string
           generated_by_user_id: string | null
+          hit_count: number
           id: string
+          last_used_at: string | null
           match_key: string
           match_type: string
           source_data: Json | null
@@ -539,7 +541,9 @@ export type Database = {
           expires_at: string
           generated_at?: string
           generated_by_user_id?: string | null
+          hit_count?: number
           id?: string
+          last_used_at?: string | null
           match_key: string
           match_type: string
           source_data?: Json | null
@@ -556,7 +560,9 @@ export type Database = {
           expires_at?: string
           generated_at?: string
           generated_by_user_id?: string | null
+          hit_count?: number
           id?: string
+          last_used_at?: string | null
           match_key?: string
           match_type?: string
           source_data?: Json | null
@@ -2327,6 +2333,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_tip_hit: { Args: { p_tip_id: string }; Returns: undefined }
       is_admin: { Args: never; Returns: boolean }
       update_user_access: {
         Args: { p_now: string; p_user_id: string }
