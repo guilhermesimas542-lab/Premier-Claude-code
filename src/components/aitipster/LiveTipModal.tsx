@@ -11,12 +11,6 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-} from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import {
   Sparkles,
@@ -24,7 +18,6 @@ import {
   ChevronRight,
   ThumbsUp,
   ThumbsDown,
-  FileText,
   RefreshCw,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
