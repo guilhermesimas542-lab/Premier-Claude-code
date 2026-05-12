@@ -11,7 +11,36 @@ const AI_BETA_ALLOWLIST: string[] = [
   "teste@exemplo.com",
 ].map(e => e.toLowerCase().trim());
 
-const TOP_LEAGUES = [71,72,73,13,11,39,40,140,135,78,61,88,94,2,3,848,253,262,128,307,1,4];
+const TOP_LEAGUES = [
+  71, 72, 75, 73,
+  128, 129,
+  265,
+  239,
+  119,
+  242,
+  39, 40, 48,
+  2, 3, 848, 525,
+  61, 66, 62,
+  78, 79,
+  1,
+  135, 136,
+  262, 263,
+  88, 89,
+  103,
+  284,
+  281,
+  94, 95,
+  307,
+  179,
+  13, 11, 1042,
+  140, 141,
+  113,
+  203,
+  253, 254,
+  268,
+  299,
+  16,
+];
 const LIVE_STATUS = ["1H", "HT", "2H", "ET", "BT", "P", "LIVE"];
 const CLAUDE_MODEL = "claude-sonnet-4-5";
 const CACHE_TTL_SECONDS = 60;
