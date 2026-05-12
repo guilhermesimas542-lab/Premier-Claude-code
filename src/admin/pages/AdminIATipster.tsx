@@ -39,7 +39,10 @@ const OUTPUT_PRICE_PER_M = 15.0;
 
 type MatchTypeFilter = "all" | "chat" | "live";
 
-// Filtro para a tab "Partidas Analisadas" (kickoff)
+// Para a tab "Tips Geradas" e Cache & Reuso e Telemetria (data de geração)
+type GenPeriod = "today" | "yesterday" | "7d" | "30d" | "custom";
+
+// Para a tab "Partidas Analisadas" (data do jogo — kickoff)
 type KickoffPeriod =
   | "today"
   | "tomorrow"
@@ -48,9 +51,6 @@ type KickoffPeriod =
   | "last7d"
   | "all"
   | "custom";
-
-// Filtro para Cache & Reuso e Telemetria (data de geração)
-type GenPeriod = "today" | "yesterday" | "7d" | "30d" | "custom";
 
 interface Tip {
   id: string;
@@ -89,6 +89,40 @@ function endOfDay(d: Date): Date {
   return x;
 }
 
+function getGenRange(
+  period: GenPeriod,
+  customStart?: string,
+  customEnd?: string
+): { start: string | undefined; end: string | undefined } {
+  const now = new Date();
+
+  if (period === "today") {
+    return { start: startOfDay(now).toISOString(), end: endOfDay(now).toISOString() };
+  }
+  if (period === "yesterday") {
+    const y = new Date(now);
+    y.setDate(y.getDate() - 1);
+    return { start: startOfDay(y).toISOString(), end: endOfDay(y).toISOString() };
+  }
+  if (period === "7d") {
+    const s = new Date(now);
+    s.setDate(s.getDate() - 7);
+    return { start: startOfDay(s).toISOString(), end: endOfDay(now).toISOString() };
+  }
+  if (period === "30d") {
+    const s = new Date(now);
+    s.setDate(s.getDate() - 30);
+    return { start: startOfDay(s).toISOString(), end: endOfDay(now).toISOString() };
+  }
+  if (period === "custom" && customStart && customEnd) {
+    return {
+      start: startOfDay(new Date(customStart + "T00:00:00")).toISOString(),
+      end: endOfDay(new Date(customEnd + "T00:00:00")).toISOString(),
+    };
+  }
+  return { start: undefined, end: undefined };
+}
+
 function getKickoffRange(
   period: KickoffPeriod,
   customStart?: string,
@@ -125,54 +159,7 @@ function getKickoffRange(
       end: endOfDay(new Date(customEnd + "T00:00:00")),
     };
   }
-  // "all" ou inválido
   return { start: null, end: null };
-}
-
-function getGenRange(
-  period: GenPeriod,
-  customStart?: string,
-  customEnd?: string
-): { start: string | undefined; end: string | undefined } {
-  const now = new Date();
-
-  if (period === "today") {
-    return {
-      start: startOfDay(now).toISOString(),
-      end: endOfDay(now).toISOString(),
-    };
-  }
-  if (period === "yesterday") {
-    const y = new Date(now);
-    y.setDate(y.getDate() - 1);
-    return {
-      start: startOfDay(y).toISOString(),
-      end: endOfDay(y).toISOString(),
-    };
-  }
-  if (period === "7d") {
-    const s = new Date(now);
-    s.setDate(s.getDate() - 7);
-    return {
-      start: startOfDay(s).toISOString(),
-      end: endOfDay(now).toISOString(),
-    };
-  }
-  if (period === "30d") {
-    const s = new Date(now);
-    s.setDate(s.getDate() - 30);
-    return {
-      start: startOfDay(s).toISOString(),
-      end: endOfDay(now).toISOString(),
-    };
-  }
-  if (period === "custom" && customStart && customEnd) {
-    return {
-      start: startOfDay(new Date(customStart + "T00:00:00")).toISOString(),
-      end: endOfDay(new Date(customEnd + "T00:00:00")).toISOString(),
-    };
-  }
-  return { start: undefined, end: undefined };
 }
 
 function formatBrazilDateTime(iso: string): string {
@@ -186,14 +173,6 @@ function formatBrazilDateTime(iso: string): string {
   });
 }
 
-function formatBrazilDate(iso: string): string {
-  return new Date(iso).toLocaleString("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    timeZone: "America/Sao_Paulo",
-  });
-}
-
 function formatCostUSD(cost: number): string {
   return `$${cost.toFixed(4)}`;
 }
@@ -203,24 +182,6 @@ function calcCost(tokens_input: number, tokens_output: number): number {
     (tokens_input / 1_000_000) * INPUT_PRICE_PER_M +
     (tokens_output / 1_000_000) * OUTPUT_PRICE_PER_M
   );
-}
-
-async function fetchAllRecentTips(): Promise<Tip[]> {
-  // Busca os últimos 500 tips (suficiente — cache TTL é 24h)
-  const { data, error } = await supabase
-    .from("ai_tip_cache")
-    .select(
-      "id, match_key, match_type, generated_at, expires_at, tokens_input, tokens_output, tokens_cached, hit_count, last_used_at, generated_by_user_id, content, source_data"
-    )
-    .or("match_key.like.chat_prematch:%,match_key.like.live_tip:%")
-    .order("generated_at", { ascending: false })
-    .limit(500);
-
-  if (error) {
-    console.error("fetchAllRecentTips error", error);
-    return [];
-  }
-  return (data ?? []) as Tip[];
 }
 
 async function fetchTipsByGenRange(
@@ -242,6 +203,23 @@ async function fetchTipsByGenRange(
   const { data, error } = await query;
   if (error) {
     console.error("fetchTipsByGenRange error", error);
+    return [];
+  }
+  return (data ?? []) as Tip[];
+}
+
+async function fetchAllRecentTips(): Promise<Tip[]> {
+  const { data, error } = await supabase
+    .from("ai_tip_cache")
+    .select(
+      "id, match_key, match_type, generated_at, expires_at, tokens_input, tokens_output, tokens_cached, hit_count, last_used_at, generated_by_user_id, content, source_data"
+    )
+    .or("match_key.like.chat_prematch:%,match_key.like.live_tip:%")
+    .order("generated_at", { ascending: false })
+    .limit(500);
+
+  if (error) {
+    console.error("fetchAllRecentTips error", error);
     return [];
   }
   return (data ?? []) as Tip[];
@@ -330,6 +308,7 @@ function GenPeriodControls({
   setCustomStart,
   customEnd,
   setCustomEnd,
+  label = "Período",
 }: {
   period: GenPeriod;
   setPeriod: (p: GenPeriod) => void;
@@ -337,12 +316,11 @@ function GenPeriodControls({
   setCustomStart: (s: string) => void;
   customEnd: string;
   setCustomEnd: (s: string) => void;
+  label?: string;
 }) {
   return (
     <div>
-      <div className="text-xs text-muted-foreground mb-1">
-        Período (data da geração)
-      </div>
+      <div className="text-xs text-muted-foreground mb-1">{label}</div>
       <div className="flex flex-wrap gap-1.5">
         {(["today", "yesterday", "7d", "30d", "custom"] as GenPeriod[]).map((p) => (
           <FilterPill key={p} active={period === p} onClick={() => setPeriod(p)}>
@@ -441,8 +419,264 @@ function KickoffPeriodControls({
   );
 }
 
+function TipDetailModal({
+  tip,
+  onClose,
+}: {
+  tip: Tip | null;
+  onClose: () => void;
+}) {
+  return (
+    <Dialog open={!!tip} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="max-w-3xl max-h-[80vh] overflow-auto">
+        <DialogHeader>
+          <DialogTitle>
+            {tip?.source_data?.fixture?.home?.name ?? "—"} ×{" "}
+            {tip?.source_data?.fixture?.away?.name ?? "—"}
+          </DialogTitle>
+        </DialogHeader>
+        {tip && (
+          <div className="space-y-3 text-sm">
+            <div className="grid grid-cols-2 gap-3 text-xs">
+              <div>
+                <span className="text-muted-foreground">Tipo:</span>{" "}
+                {classifyMatchKey(tip.match_key) === "live" ? "Ao Vivo" : "Chat"}
+              </div>
+              <div>
+                <span className="text-muted-foreground">Liga:</span>{" "}
+                {tip.source_data?.fixture?.league?.name ?? "—"}
+              </div>
+              <div>
+                <span className="text-muted-foreground">Data do jogo:</span>{" "}
+                {(() => {
+                  const ko = getKickoff(tip);
+                  return ko ? formatBrazilDateTime(ko.toISOString()) : "—";
+                })()}
+              </div>
+              <div>
+                <span className="text-muted-foreground">Gerada em:</span>{" "}
+                {formatBrazilDateTime(tip.generated_at)}
+              </div>
+              <div>
+                <span className="text-muted-foreground">Expira em:</span>{" "}
+                {formatBrazilDateTime(tip.expires_at)}
+              </div>
+              <div>
+                <span className="text-muted-foreground">Reusos:</span>{" "}
+                {tip.hit_count ?? 0}
+              </div>
+              <div>
+                <span className="text-muted-foreground">Tokens input:</span>{" "}
+                {tip.tokens_input?.toLocaleString("pt-BR") ?? 0}
+              </div>
+              <div>
+                <span className="text-muted-foreground">Tokens output:</span>{" "}
+                {tip.tokens_output?.toLocaleString("pt-BR") ?? 0}
+              </div>
+              <div>
+                <span className="text-muted-foreground">Tokens cached:</span>{" "}
+                {tip.tokens_cached?.toLocaleString("pt-BR") ?? 0}
+              </div>
+              <div className="col-span-2">
+                <span className="text-muted-foreground">match_key:</span>{" "}
+                <code className="text-[10px]">{tip.match_key}</code>
+              </div>
+            </div>
+            <div className="border-t pt-3">
+              <div className="text-xs text-muted-foreground mb-2">
+                Markdown gerado pela IA:
+              </div>
+              <pre className="text-xs bg-muted p-3 rounded overflow-auto whitespace-pre-wrap max-h-96">
+                {tip.content?.markdown ?? "(sem markdown)"}
+              </pre>
+            </div>
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 // ═══════════════════════════════════════════════════════════════════
-// TAB: PARTIDAS ANALISADAS (renomeada de Tips Geradas, filtro por kickoff)
+// TAB 1: TIPS GERADAS (filtro por data de geração — DEFAULT)
+// ═══════════════════════════════════════════════════════════════════
+
+function TipsGeradasTab() {
+  const [tips, setTips] = useState<Tip[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [period, setPeriod] = useState<GenPeriod>("7d");
+  const [customStart, setCustomStart] = useState("");
+  const [customEnd, setCustomEnd] = useState("");
+  const [typeFilter, setTypeFilter] = useState<MatchTypeFilter>("all");
+  const [search, setSearch] = useState("");
+  const [detailTip, setDetailTip] = useState<Tip | null>(null);
+
+  const fetchData = async () => {
+    setLoading(true);
+    const { start, end } = getGenRange(period, customStart, customEnd);
+    const list = await fetchTipsByGenRange(start, end);
+    setTips(list);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [period, customStart, customEnd]);
+
+  const filtered = useMemo(() => {
+    return tips.filter((t) => {
+      const cls = classifyMatchKey(t.match_key);
+      if (typeFilter !== "all" && cls !== typeFilter) return false;
+      if (search.trim()) {
+        const q = search.toLowerCase();
+        const home = t.source_data?.fixture?.home?.name?.toLowerCase() ?? "";
+        const away = t.source_data?.fixture?.away?.name?.toLowerCase() ?? "";
+        const league = t.source_data?.fixture?.league?.name?.toLowerCase() ?? "";
+        if (!home.includes(q) && !away.includes(q) && !league.includes(q))
+          return false;
+      }
+      return true;
+    });
+  }, [tips, typeFilter, search]);
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold">Tips Geradas</h2>
+        <Button onClick={fetchData} variant="outline" size="sm" disabled={loading}>
+          <RefreshCw className={`w-3 h-3 mr-1 ${loading ? "animate-spin" : ""}`} />
+          Atualizar
+        </Button>
+      </div>
+
+      <div className="space-y-3">
+        <GenPeriodControls
+          period={period}
+          setPeriod={setPeriod}
+          customStart={customStart}
+          setCustomStart={setCustomStart}
+          customEnd={customEnd}
+          setCustomEnd={setCustomEnd}
+          label="Período (data da geração)"
+        />
+
+        <div>
+          <div className="text-xs text-muted-foreground mb-1">Tipo</div>
+          <div className="flex gap-1.5">
+            <FilterPill active={typeFilter === "all"} onClick={() => setTypeFilter("all")}>
+              Todos
+            </FilterPill>
+            <FilterPill active={typeFilter === "chat"} onClick={() => setTypeFilter("chat")}>
+              Chat
+            </FilterPill>
+            <FilterPill active={typeFilter === "live"} onClick={() => setTypeFilter("live")}>
+              Ao Vivo
+            </FilterPill>
+          </div>
+        </div>
+
+        <Input
+          placeholder="Buscar por time ou liga..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="max-w-md"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <KpiCard
+          label="Tips no período"
+          value={String(filtered.length)}
+          icon={<TrendingUp className="w-4 h-4" />}
+        />
+        <KpiCard
+          label="Tokens consumidos"
+          value={filtered
+            .reduce((acc, t) => acc + (t.tokens_input ?? 0) + (t.tokens_output ?? 0), 0)
+            .toLocaleString("pt-BR")}
+        />
+        <KpiCard
+          label="Reusos totais (hits)"
+          value={String(filtered.reduce((acc, t) => acc + (t.hit_count ?? 0), 0))}
+          icon={<Recycle className="w-4 h-4" />}
+        />
+      </div>
+
+      {loading ? (
+        <div className="flex justify-center py-8">
+          <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+        </div>
+      ) : filtered.length === 0 ? (
+        <div className="text-center py-8 text-sm text-muted-foreground border rounded-lg">
+          Nenhuma tip encontrada nos filtros atuais.
+        </div>
+      ) : (
+        <div className="border rounded-lg overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-muted/50 text-xs uppercase">
+              <tr>
+                <th className="text-left px-3 py-2">Tipo</th>
+                <th className="text-left px-3 py-2">Jogo</th>
+                <th className="text-left px-3 py-2">Liga</th>
+                <th className="text-left px-3 py-2">Gerada em</th>
+                <th className="text-right px-3 py-2">Tokens</th>
+                <th className="text-right px-3 py-2">Reusos</th>
+                <th className="text-right px-3 py-2"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((t) => {
+                const home = t.source_data?.fixture?.home?.name ?? "—";
+                const away = t.source_data?.fixture?.away?.name ?? "—";
+                const league = t.source_data?.fixture?.league?.name ?? "—";
+                const totalTokens = (t.tokens_input ?? 0) + (t.tokens_output ?? 0);
+                return (
+                  <tr key={t.id} className="border-t hover:bg-muted/30 transition">
+                    <td className="px-3 py-2">
+                      <MatchTypeBadge matchKey={t.match_key} />
+                    </td>
+                    <td className="px-3 py-2 font-medium">
+                      {home} × {away}
+                    </td>
+                    <td className="px-3 py-2 text-xs text-muted-foreground">
+                      {league}
+                    </td>
+                    <td className="px-3 py-2 text-xs">
+                      {formatBrazilDateTime(t.generated_at)}
+                    </td>
+                    <td className="px-3 py-2 text-right text-xs">
+                      {totalTokens.toLocaleString("pt-BR")}
+                    </td>
+                    <td className="px-3 py-2 text-right text-xs">
+                      {(t.hit_count ?? 0) > 0 ? (
+                        <span className="font-semibold text-primary">
+                          {t.hit_count}
+                        </span>
+                      ) : (
+                        <span className="text-muted-foreground">0</span>
+                      )}
+                    </td>
+                    <td className="px-3 py-2 text-right">
+                      <Button variant="ghost" size="sm" onClick={() => setDetailTip(t)}>
+                        <FileText className="w-3 h-3" />
+                      </Button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      <TipDetailModal tip={detailTip} onClose={() => setDetailTip(null)} />
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// TAB 2: PARTIDAS ANALISADAS (filtro por kickoff)
 // ═══════════════════════════════════════════════════════════════════
 
 function PartidasAnalisadasTab() {
@@ -470,18 +704,15 @@ function PartidasAnalisadasTab() {
     const range = getKickoffRange(period, customStart, customEnd);
 
     return tips.filter((t) => {
-      // Filtro por tipo
       const cls = classifyMatchKey(t.match_key);
       if (typeFilter !== "all" && cls !== typeFilter) return false;
 
-      // Filtro por kickoff
       if (range.start && range.end) {
         const ko = getKickoff(t);
-        if (!ko) return false; // sem kickoff registrado → fora
+        if (!ko) return false;
         if (ko < range.start || ko > range.end) return false;
       }
 
-      // Filtro por busca
       if (search.trim()) {
         const q = search.toLowerCase();
         const home = t.source_data?.fixture?.home?.name?.toLowerCase() ?? "";
@@ -495,7 +726,6 @@ function PartidasAnalisadasTab() {
     });
   }, [tips, period, customStart, customEnd, typeFilter, search]);
 
-  // Ordena por kickoff DESC (mais recente/próximo primeiro)
   const sorted = useMemo(() => {
     return [...filtered].sort((a, b) => {
       const ka = getKickoff(a);
@@ -536,22 +766,13 @@ function PartidasAnalisadasTab() {
         <div>
           <div className="text-xs text-muted-foreground mb-1">Tipo</div>
           <div className="flex gap-1.5">
-            <FilterPill
-              active={typeFilter === "all"}
-              onClick={() => setTypeFilter("all")}
-            >
+            <FilterPill active={typeFilter === "all"} onClick={() => setTypeFilter("all")}>
               Todos
             </FilterPill>
-            <FilterPill
-              active={typeFilter === "chat"}
-              onClick={() => setTypeFilter("chat")}
-            >
+            <FilterPill active={typeFilter === "chat"} onClick={() => setTypeFilter("chat")}>
               Chat
             </FilterPill>
-            <FilterPill
-              active={typeFilter === "live"}
-              onClick={() => setTypeFilter("live")}
-            >
+            <FilterPill active={typeFilter === "live"} onClick={() => setTypeFilter("live")}>
               Ao Vivo
             </FilterPill>
           </div>
@@ -618,10 +839,7 @@ function PartidasAnalisadasTab() {
                 const ko = getKickoff(t);
                 const totalTk = (t.tokens_input ?? 0) + (t.tokens_output ?? 0);
                 return (
-                  <tr
-                    key={t.id}
-                    className="border-t hover:bg-muted/30 transition"
-                  >
+                  <tr key={t.id} className="border-t hover:bg-muted/30 transition">
                     <td className="px-3 py-2">
                       <MatchTypeBadge matchKey={t.match_key} />
                     </td>
@@ -650,11 +868,7 @@ function PartidasAnalisadasTab() {
                       )}
                     </td>
                     <td className="px-3 py-2 text-right">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setDetailTip(t)}
-                      >
+                      <Button variant="ghost" size="sm" onClick={() => setDetailTip(t)}>
                         <FileText className="w-3 h-3" />
                       </Button>
                     </td>
@@ -666,81 +880,13 @@ function PartidasAnalisadasTab() {
         </div>
       )}
 
-      <Dialog open={!!detailTip} onOpenChange={(o) => !o && setDetailTip(null)}>
-        <DialogContent className="max-w-3xl max-h-[80vh] overflow-auto">
-          <DialogHeader>
-            <DialogTitle>
-              {detailTip?.source_data?.fixture?.home?.name ?? "—"} ×{" "}
-              {detailTip?.source_data?.fixture?.away?.name ?? "—"}
-            </DialogTitle>
-          </DialogHeader>
-          {detailTip && (
-            <div className="space-y-3 text-sm">
-              <div className="grid grid-cols-2 gap-3 text-xs">
-                <div>
-                  <span className="text-muted-foreground">Tipo:</span>{" "}
-                  {classifyMatchKey(detailTip.match_key) === "live"
-                    ? "Ao Vivo"
-                    : "Chat"}
-                </div>
-                <div>
-                  <span className="text-muted-foreground">Liga:</span>{" "}
-                  {detailTip.source_data?.fixture?.league?.name ?? "—"}
-                </div>
-                <div>
-                  <span className="text-muted-foreground">Data do jogo:</span>{" "}
-                  {(() => {
-                    const ko = getKickoff(detailTip);
-                    return ko ? formatBrazilDateTime(ko.toISOString()) : "—";
-                  })()}
-                </div>
-                <div>
-                  <span className="text-muted-foreground">Gerada em:</span>{" "}
-                  {formatBrazilDateTime(detailTip.generated_at)}
-                </div>
-                <div>
-                  <span className="text-muted-foreground">Expira em:</span>{" "}
-                  {formatBrazilDateTime(detailTip.expires_at)}
-                </div>
-                <div>
-                  <span className="text-muted-foreground">Reusos:</span>{" "}
-                  {detailTip.hit_count ?? 0}
-                </div>
-                <div>
-                  <span className="text-muted-foreground">Tokens input:</span>{" "}
-                  {detailTip.tokens_input?.toLocaleString("pt-BR") ?? 0}
-                </div>
-                <div>
-                  <span className="text-muted-foreground">Tokens output:</span>{" "}
-                  {detailTip.tokens_output?.toLocaleString("pt-BR") ?? 0}
-                </div>
-                <div>
-                  <span className="text-muted-foreground">Tokens cached:</span>{" "}
-                  {detailTip.tokens_cached?.toLocaleString("pt-BR") ?? 0}
-                </div>
-                <div className="col-span-2">
-                  <span className="text-muted-foreground">match_key:</span>{" "}
-                  <code className="text-[10px]">{detailTip.match_key}</code>
-                </div>
-              </div>
-              <div className="border-t pt-3">
-                <div className="text-xs text-muted-foreground mb-2">
-                  Markdown gerado pela IA:
-                </div>
-                <pre className="text-xs bg-muted p-3 rounded overflow-auto whitespace-pre-wrap max-h-96">
-                  {detailTip.content?.markdown ?? "(sem markdown)"}
-                </pre>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+      <TipDetailModal tip={detailTip} onClose={() => setDetailTip(null)} />
     </div>
   );
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// TAB: CACHE & REUSO
+// TAB 3: CACHE & REUSO
 // ═══════════════════════════════════════════════════════════════════
 
 function CacheReusoTab() {
@@ -818,9 +964,7 @@ function CacheReusoTab() {
         <KpiCard
           label="Tips com reuso"
           value={`${tipsWithHits}/${totalTips}`}
-          hint={`${
-            totalTips > 0 ? ((tipsWithHits / totalTips) * 100).toFixed(1) : 0
-          }% das tips`}
+          hint={`${totalTips > 0 ? ((tipsWithHits / totalTips) * 100).toFixed(1) : 0}% das tips`}
           icon={<Recycle className="w-4 h-4" />}
         />
         <KpiCard
@@ -850,13 +994,10 @@ function CacheReusoTab() {
               style={{ width: `${Math.min(100, cacheHitRate)}%` }}
             />
           </div>
-          <span className="text-sm font-semibold">
-            {cacheHitRate.toFixed(1)}%
-          </span>
+          <span className="text-sm font-semibold">{cacheHitRate.toFixed(1)}%</span>
         </div>
         <div className="text-[10px] text-muted-foreground mt-2">
-          {totalHits} hits de cache em {totalTips + totalHits} pedidos totais
-          (gerações + reusos)
+          {totalHits} hits de cache em {totalTips + totalHits} pedidos totais (gerações + reusos)
         </div>
       </div>
 
@@ -888,10 +1029,7 @@ function CacheReusoTab() {
                   const away = t.source_data?.fixture?.away?.name ?? "—";
                   const league = t.source_data?.fixture?.league?.name ?? "—";
                   return (
-                    <tr
-                      key={t.id}
-                      className="border-t hover:bg-muted/30 transition"
-                    >
+                    <tr key={t.id} className="border-t hover:bg-muted/30 transition">
                       <td className="px-3 py-2">
                         <MatchTypeBadge matchKey={t.match_key} />
                       </td>
@@ -902,14 +1040,10 @@ function CacheReusoTab() {
                         {league}
                       </td>
                       <td className="px-3 py-2 text-xs">
-                        {t.last_used_at
-                          ? formatBrazilDateTime(t.last_used_at)
-                          : "—"}
+                        {t.last_used_at ? formatBrazilDateTime(t.last_used_at) : "—"}
                       </td>
                       <td className="px-3 py-2 text-right">
-                        <span className="font-semibold text-primary">
-                          {t.hit_count}
-                        </span>
+                        <span className="font-semibold text-primary">{t.hit_count}</span>
                       </td>
                     </tr>
                   );
@@ -924,7 +1058,7 @@ function CacheReusoTab() {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// TAB: TELEMETRIA
+// TAB 4: TELEMETRIA
 // ═══════════════════════════════════════════════════════════════════
 
 function TelemetriaTab() {
@@ -943,9 +1077,7 @@ function TelemetriaTab() {
 
     const userIds = Array.from(
       new Set(
-        list
-          .map((t) => t.generated_by_user_id)
-          .filter((id): id is string => !!id)
+        list.map((t) => t.generated_by_user_id).filter((id): id is string => !!id)
       )
     );
     if (userIds.length > 0) {
@@ -1002,11 +1134,7 @@ function TelemetriaTab() {
       if (!t.generated_by_user_id) return;
       const tokens_in = t.tokens_input ?? 0;
       const tokens_out = t.tokens_output ?? 0;
-      const cur = map.get(t.generated_by_user_id) ?? {
-        count: 0,
-        tokens: 0,
-        cost: 0,
-      };
+      const cur = map.get(t.generated_by_user_id) ?? { count: 0, tokens: 0, cost: 0 };
       map.set(t.generated_by_user_id, {
         count: cur.count + 1,
         tokens: cur.tokens + tokens_in + tokens_out,
@@ -1029,9 +1157,7 @@ function TelemetriaTab() {
         count: cur.count + 1,
       });
     });
-    const entries = Array.from(map.entries()).sort((a, b) =>
-      a[0].localeCompare(b[0])
-    );
+    const entries = Array.from(map.entries()).sort((a, b) => a[0].localeCompare(b[0]));
     const maxTokens = Math.max(...entries.map(([, d]) => d.input + d.output), 1);
     return { entries, maxTokens };
   }, [tips]);
@@ -1072,10 +1198,7 @@ function TelemetriaTab() {
           value={(totalInput + totalOutput).toLocaleString("pt-BR")}
           hint={`${totalInput.toLocaleString("pt-BR")} in / ${totalOutput.toLocaleString("pt-BR")} out`}
         />
-        <KpiCard
-          label="Custo médio por tip"
-          value={formatCostUSD(avgCostPerTip)}
-        />
+        <KpiCard label="Custo médio por tip" value={formatCostUSD(avgCostPerTip)} />
       </div>
 
       {loading ? (
@@ -1090,24 +1213,18 @@ function TelemetriaTab() {
               <h3 className="text-sm font-semibold">Tokens por dia</h3>
             </div>
             {daily.entries.length === 0 ? (
-              <div className="text-xs text-muted-foreground">
-                Sem dados no período.
-              </div>
+              <div className="text-xs text-muted-foreground">Sem dados no período.</div>
             ) : (
               <div className="space-y-1.5">
                 {daily.entries.map(([day, d]) => {
                   const total = d.input + d.output;
                   return (
                     <div key={day} className="flex items-center gap-2">
-                      <span className="text-[10px] w-20 text-muted-foreground">
-                        {day}
-                      </span>
+                      <span className="text-[10px] w-20 text-muted-foreground">{day}</span>
                       <div className="flex-1 h-4 bg-muted rounded overflow-hidden">
                         <div
                           className="h-full bg-primary"
-                          style={{
-                            width: `${(total / daily.maxTokens) * 100}%`,
-                          }}
+                          style={{ width: `${(total / daily.maxTokens) * 100}%` }}
                         />
                       </div>
                       <span className="text-[10px] w-24 text-right">
@@ -1131,10 +1248,7 @@ function TelemetriaTab() {
               ) : (
                 <div className="space-y-1.5">
                   {topGames.map(([key, d], i) => (
-                    <div
-                      key={key}
-                      className="flex items-center justify-between text-xs"
-                    >
+                    <div key={key} className="flex items-center justify-between text-xs">
                       <span className="text-muted-foreground w-5">{i + 1}.</span>
                       <span className="flex-1 truncate" title={key}>
                         {key}
@@ -1152,9 +1266,7 @@ function TelemetriaTab() {
             <div className="rounded-lg border p-4">
               <div className="flex items-center gap-2 mb-3">
                 <User className="w-4 h-4 text-muted-foreground" />
-                <h3 className="text-sm font-semibold">
-                  Top 10 usuários (geração)
-                </h3>
+                <h3 className="text-sm font-semibold">Top 10 usuários (geração)</h3>
               </div>
               {topUsers.length === 0 ? (
                 <div className="text-xs text-muted-foreground">Sem dados.</div>
@@ -1163,10 +1275,7 @@ function TelemetriaTab() {
                   {topUsers.map(([userId, d], i) => {
                     const email = emailsByUserId[userId] ?? userId.slice(0, 8);
                     return (
-                      <div
-                        key={userId}
-                        className="flex items-center justify-between text-xs"
-                      >
+                      <div key={userId} className="flex items-center justify-between text-xs">
                         <span className="text-muted-foreground w-5">{i + 1}.</span>
                         <span className="flex-1 truncate" title={email}>
                           {email}
@@ -1198,7 +1307,7 @@ function TelemetriaTab() {
 // ═══════════════════════════════════════════════════════════════════
 
 export default function AdminIATipster() {
-  const [activeTab, setActiveTab] = useState("partidas");
+  const [activeTab, setActiveTab] = useState("tips");
 
   return (
     <div className="space-y-4 p-4 md:p-6">
@@ -1214,12 +1323,17 @@ export default function AdminIATipster() {
       </p>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList>
+        <TabsList className="flex-wrap h-auto">
+          <TabsTrigger value="tips">Tips Geradas</TabsTrigger>
           <TabsTrigger value="partidas">Partidas Analisadas</TabsTrigger>
           <TabsTrigger value="cache">Cache &amp; Reuso</TabsTrigger>
           <TabsTrigger value="telemetria">Telemetria</TabsTrigger>
           <TabsTrigger value="bugs">Bug Reports</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="tips" className="mt-4">
+          <TipsGeradasTab />
+        </TabsContent>
 
         <TabsContent value="partidas" className="mt-4">
           <PartidasAnalisadasTab />
