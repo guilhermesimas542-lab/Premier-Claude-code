@@ -28,6 +28,9 @@ import {
   ThumbsUp,
   ThumbsDown,
   Bug,
+  ChevronUp,
+  ChevronDown,
+  ChevronsUpDown,
 } from "lucide-react";
 
 // ═══════════════════════════════════════════════════════════════════
@@ -51,6 +54,20 @@ type KickoffPeriod =
   | "last7d"
   | "all"
   | "custom";
+
+// Chaves de ordenação para Tips Geradas
+type TipsSortKey = "tipo" | "jogo" | "liga" | "gerada_em" | "tokens" | "reusos";
+// Chaves de ordenação para Partidas Analisadas (tem coluna extra)
+type PartidasSortKey =
+  | "tipo"
+  | "jogo"
+  | "liga"
+  | "data_jogo"
+  | "gerada_em"
+  | "tokens"
+  | "reusos";
+
+type SortDir = "asc" | "desc";
 
 interface Tip {
   id: string;
@@ -153,7 +170,7 @@ function getKickoffRange(
   if (period === "next7d") {
     const t = new Date(now);
     t.setDate(t.getDate() + 7);
-    // start = AGORA (não startOfDay), pra não pegar jogos que já rolaram hoje
+    // start = AGORA, não startOfDay — pra não pegar jogos já rolados hoje
     return { start: now, end: endOfDay(t) };
   }
   if (period === "yesterday") {
@@ -235,11 +252,35 @@ async function fetchAllRecentTips(): Promise<Tip[]> {
   return (data ?? []) as Tip[];
 }
 
+async function fetchEmailsByUserIds(
+  userIds: string[]
+): Promise<Record<string, string>> {
+  const unique = Array.from(new Set(userIds.filter((id) => !!id)));
+  if (unique.length === 0) return {};
+  const { data } = await supabase.from("users").select("id, email").in("id", unique);
+  const map: Record<string, string> = {};
+  (data ?? []).forEach((u: any) => {
+    map[u.id] = u.email ?? "";
+  });
+  return map;
+}
+
 function getKickoff(t: Tip): Date | null {
   const raw = t.source_data?.fixture?.kickoff_at;
   if (!raw) return null;
   const d = new Date(raw);
   return isNaN(d.getTime()) ? null : d;
+}
+
+function compareValues(av: any, bv: any, dir: SortDir): number {
+  if (av === null || av === undefined) return dir === "asc" ? 1 : -1;
+  if (bv === null || bv === undefined) return dir === "asc" ? -1 : 1;
+  if (typeof av === "string" && typeof bv === "string") {
+    return dir === "asc"
+      ? av.localeCompare(bv, "pt-BR")
+      : bv.localeCompare(av, "pt-BR");
+  }
+  return dir === "asc" ? av - bv : bv - av;
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -307,6 +348,50 @@ function MatchTypeBadge({ matchKey }: { matchKey: string }) {
       <MessageSquare className="w-3 h-3 text-primary" />
       Chat
     </span>
+  );
+}
+
+/**
+ * Cabeçalho de coluna clicável que controla ordenação.
+ * Genérico: aceita qualquer string como key.
+ */
+function SortableHeader<K extends string>({
+  label,
+  sortKey,
+  currentSortKey,
+  currentSortDir,
+  onSort,
+  align = "left",
+}: {
+  label: string;
+  sortKey: K;
+  currentSortKey: K;
+  currentSortDir: SortDir;
+  onSort: (key: K) => void;
+  align?: "left" | "right";
+}) {
+  const isActive = currentSortKey === sortKey;
+  return (
+    <th className={`px-3 py-2 ${align === "right" ? "text-right" : "text-left"}`}>
+      <button
+        type="button"
+        onClick={() => onSort(sortKey)}
+        className={`inline-flex items-center gap-1 text-xs uppercase font-semibold hover:text-foreground transition-colors ${
+          isActive ? "text-foreground" : "text-muted-foreground"
+        } ${align === "right" ? "flex-row-reverse" : ""}`}
+      >
+        <span>{label}</span>
+        {isActive ? (
+          currentSortDir === "asc" ? (
+            <ChevronUp className="w-3 h-3" />
+          ) : (
+            <ChevronDown className="w-3 h-3" />
+          )
+        ) : (
+          <ChevronsUpDown className="w-3 h-3 opacity-40" />
+        )}
+      </button>
+    </th>
   );
 }
 
@@ -390,7 +475,6 @@ function KickoffPeriodControls({
     { value: "all", label: "Todos" },
     { value: "custom", label: "Custom" },
   ];
-
   return (
     <div>
       <div className="text-xs text-muted-foreground mb-1">
@@ -430,9 +514,11 @@ function KickoffPeriodControls({
 
 function TipDetailModal({
   tip,
+  userEmail,
   onClose,
 }: {
   tip: Tip | null;
+  userEmail?: string;
   onClose: () => void;
 }) {
   return (
@@ -454,6 +540,15 @@ function TipDetailModal({
               <div>
                 <span className="text-muted-foreground">Liga:</span>{" "}
                 {tip.source_data?.fixture?.league?.name ?? "—"}
+              </div>
+              <div className="col-span-2">
+                <span className="text-muted-foreground">Solicitada por:</span>{" "}
+                <span className="font-medium">
+                  {userEmail ||
+                    (tip.generated_by_user_id
+                      ? tip.generated_by_user_id.slice(0, 8) + "..."
+                      : "(anônimo)")}
+                </span>
               </div>
               <div>
                 <span className="text-muted-foreground">Data do jogo:</span>{" "}
@@ -512,6 +607,7 @@ function TipDetailModal({
 
 function TipsGeradasTab() {
   const [tips, setTips] = useState<Tip[]>([]);
+  const [emailsByUserId, setEmailsByUserId] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState<GenPeriod>("7d");
   const [customStart, setCustomStart] = useState("");
@@ -519,12 +615,27 @@ function TipsGeradasTab() {
   const [typeFilter, setTypeFilter] = useState<MatchTypeFilter>("all");
   const [search, setSearch] = useState("");
   const [detailTip, setDetailTip] = useState<Tip | null>(null);
+  const [sortKey, setSortKey] = useState<TipsSortKey>("gerada_em");
+  const [sortDir, setSortDir] = useState<SortDir>("desc");
+
+  const toggleSort = (key: TipsSortKey) => {
+    if (sortKey === key) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortKey(key);
+      setSortDir(key === "gerada_em" ? "desc" : "asc");
+    }
+  };
 
   const fetchData = async () => {
     setLoading(true);
     const { start, end } = getGenRange(period, customStart, customEnd);
     const list = await fetchTipsByGenRange(start, end);
     setTips(list);
+    const userIds = list
+      .map((t) => t.generated_by_user_id)
+      .filter((id): id is string => !!id);
+    setEmailsByUserId(await fetchEmailsByUserIds(userIds));
     setLoading(false);
   };
 
@@ -549,10 +660,54 @@ function TipsGeradasTab() {
     });
   }, [tips, typeFilter, search]);
 
+  const sorted = useMemo(() => {
+    const arr = [...filtered];
+    arr.sort((a, b) => {
+      let av: any;
+      let bv: any;
+      switch (sortKey) {
+        case "tipo":
+          av = classifyMatchKey(a.match_key);
+          bv = classifyMatchKey(b.match_key);
+          break;
+        case "jogo":
+          av = `${a.source_data?.fixture?.home?.name ?? ""} ${
+            a.source_data?.fixture?.away?.name ?? ""
+          }`.toLowerCase();
+          bv = `${b.source_data?.fixture?.home?.name ?? ""} ${
+            b.source_data?.fixture?.away?.name ?? ""
+          }`.toLowerCase();
+          break;
+        case "liga":
+          av = (a.source_data?.fixture?.league?.name ?? "").toLowerCase();
+          bv = (b.source_data?.fixture?.league?.name ?? "").toLowerCase();
+          break;
+        case "gerada_em":
+          av = new Date(a.generated_at).getTime();
+          bv = new Date(b.generated_at).getTime();
+          break;
+        case "tokens":
+          av = (a.tokens_input ?? 0) + (a.tokens_output ?? 0);
+          bv = (b.tokens_input ?? 0) + (b.tokens_output ?? 0);
+          break;
+        case "reusos":
+          av = a.hit_count ?? 0;
+          bv = b.hit_count ?? 0;
+          break;
+      }
+      return compareValues(av, bv, sortDir);
+    });
+    return arr;
+  }, [filtered, sortKey, sortDir]);
+
   const totalCostUSD = filtered.reduce(
     (acc, t) => acc + calcCost(t.tokens_input ?? 0, t.tokens_output ?? 0),
     0
   );
+
+  const detailEmail = detailTip?.generated_by_user_id
+    ? emailsByUserId[detailTip.generated_by_user_id]
+    : undefined;
 
   return (
     <div className="space-y-4">
@@ -627,26 +782,64 @@ function TipsGeradasTab() {
         <div className="flex justify-center py-8">
           <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
         </div>
-      ) : filtered.length === 0 ? (
+      ) : sorted.length === 0 ? (
         <div className="text-center py-8 text-sm text-muted-foreground border rounded-lg">
           Nenhuma tip encontrada nos filtros atuais.
         </div>
       ) : (
         <div className="border rounded-lg overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="bg-muted/50 text-xs uppercase">
+            <thead className="bg-muted/50">
               <tr>
-                <th className="text-left px-3 py-2">Tipo</th>
-                <th className="text-left px-3 py-2">Jogo</th>
-                <th className="text-left px-3 py-2">Liga</th>
-                <th className="text-left px-3 py-2">Gerada em</th>
-                <th className="text-right px-3 py-2">Tokens</th>
-                <th className="text-right px-3 py-2">Reusos</th>
+                <SortableHeader<TipsSortKey>
+                  label="Tipo"
+                  sortKey="tipo"
+                  currentSortKey={sortKey}
+                  currentSortDir={sortDir}
+                  onSort={toggleSort}
+                />
+                <SortableHeader<TipsSortKey>
+                  label="Jogo"
+                  sortKey="jogo"
+                  currentSortKey={sortKey}
+                  currentSortDir={sortDir}
+                  onSort={toggleSort}
+                />
+                <SortableHeader<TipsSortKey>
+                  label="Liga"
+                  sortKey="liga"
+                  currentSortKey={sortKey}
+                  currentSortDir={sortDir}
+                  onSort={toggleSort}
+                />
+                <SortableHeader<TipsSortKey>
+                  label="Gerada em"
+                  sortKey="gerada_em"
+                  currentSortKey={sortKey}
+                  currentSortDir={sortDir}
+                  onSort={toggleSort}
+                />
+                <SortableHeader<TipsSortKey>
+                  label="Tokens"
+                  sortKey="tokens"
+                  currentSortKey={sortKey}
+                  currentSortDir={sortDir}
+                  onSort={toggleSort}
+                  align="right"
+                />
+                <SortableHeader<TipsSortKey>
+                  label="Reusos"
+                  sortKey="reusos"
+                  currentSortKey={sortKey}
+                  currentSortDir={sortDir}
+                  onSort={toggleSort}
+                  align="right"
+                />
                 <th className="text-right px-3 py-2"></th>
               </tr>
             </thead>
             <tbody>
-              {filtered.map((t) => {
+              {sorted.map((t) => {
                 const home = t.source_data?.fixture?.home?.name ?? "—";
                 const away = t.source_data?.fixture?.away?.name ?? "—";
                 const league = t.source_data?.fixture?.league?.name ?? "—";
@@ -686,7 +879,11 @@ function TipsGeradasTab() {
         </div>
       )}
 
-      <TipDetailModal tip={detailTip} onClose={() => setDetailTip(null)} />
+      <TipDetailModal
+        tip={detailTip}
+        userEmail={detailEmail}
+        onClose={() => setDetailTip(null)}
+      />
     </div>
   );
 }
@@ -697,6 +894,7 @@ function TipsGeradasTab() {
 
 function PartidasAnalisadasTab() {
   const [tips, setTips] = useState<Tip[]>([]);
+  const [emailsByUserId, setEmailsByUserId] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState<KickoffPeriod>("next7d");
   const [customStart, setCustomStart] = useState("");
@@ -704,11 +902,26 @@ function PartidasAnalisadasTab() {
   const [typeFilter, setTypeFilter] = useState<MatchTypeFilter>("all");
   const [search, setSearch] = useState("");
   const [detailTip, setDetailTip] = useState<Tip | null>(null);
+  const [sortKey, setSortKey] = useState<PartidasSortKey>("data_jogo");
+  const [sortDir, setSortDir] = useState<SortDir>("desc");
+
+  const toggleSort = (key: PartidasSortKey) => {
+    if (sortKey === key) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortKey(key);
+      setSortDir(key === "data_jogo" || key === "gerada_em" ? "desc" : "asc");
+    }
+  };
 
   const fetchData = async () => {
     setLoading(true);
     const list = await fetchAllRecentTips();
     setTips(list);
+    const userIds = list
+      .map((t) => t.generated_by_user_id)
+      .filter((id): id is string => !!id);
+    setEmailsByUserId(await fetchEmailsByUserIds(userIds));
     setLoading(false);
   };
 
@@ -739,15 +952,51 @@ function PartidasAnalisadasTab() {
   }, [tips, period, customStart, customEnd, typeFilter, search]);
 
   const sorted = useMemo(() => {
-    return [...filtered].sort((a, b) => {
-      const ka = getKickoff(a);
-      const kb = getKickoff(b);
-      if (!ka && !kb) return 0;
-      if (!ka) return 1;
-      if (!kb) return -1;
-      return kb.getTime() - ka.getTime();
+    const arr = [...filtered];
+    arr.sort((a, b) => {
+      let av: any;
+      let bv: any;
+      switch (sortKey) {
+        case "tipo":
+          av = classifyMatchKey(a.match_key);
+          bv = classifyMatchKey(b.match_key);
+          break;
+        case "jogo":
+          av = `${a.source_data?.fixture?.home?.name ?? ""} ${
+            a.source_data?.fixture?.away?.name ?? ""
+          }`.toLowerCase();
+          bv = `${b.source_data?.fixture?.home?.name ?? ""} ${
+            b.source_data?.fixture?.away?.name ?? ""
+          }`.toLowerCase();
+          break;
+        case "liga":
+          av = (a.source_data?.fixture?.league?.name ?? "").toLowerCase();
+          bv = (b.source_data?.fixture?.league?.name ?? "").toLowerCase();
+          break;
+        case "data_jogo": {
+          const ka = getKickoff(a);
+          const kb = getKickoff(b);
+          av = ka ? ka.getTime() : null;
+          bv = kb ? kb.getTime() : null;
+          break;
+        }
+        case "gerada_em":
+          av = new Date(a.generated_at).getTime();
+          bv = new Date(b.generated_at).getTime();
+          break;
+        case "tokens":
+          av = (a.tokens_input ?? 0) + (a.tokens_output ?? 0);
+          bv = (b.tokens_input ?? 0) + (b.tokens_output ?? 0);
+          break;
+        case "reusos":
+          av = a.hit_count ?? 0;
+          bv = b.hit_count ?? 0;
+          break;
+      }
+      return compareValues(av, bv, sortDir);
     });
-  }, [filtered]);
+    return arr;
+  }, [filtered, sortKey, sortDir]);
 
   const totalTokens = sorted.reduce(
     (acc, t) => acc + (t.tokens_input ?? 0) + (t.tokens_output ?? 0),
@@ -758,6 +1007,10 @@ function PartidasAnalisadasTab() {
     (acc, t) => acc + calcCost(t.tokens_input ?? 0, t.tokens_output ?? 0),
     0
   );
+
+  const detailEmail = detailTip?.generated_by_user_id
+    ? emailsByUserId[detailTip.generated_by_user_id]
+    : undefined;
 
   return (
     <div className="space-y-4">
@@ -836,15 +1089,59 @@ function PartidasAnalisadasTab() {
       ) : (
         <div className="border rounded-lg overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="bg-muted/50 text-xs uppercase">
+            <thead className="bg-muted/50">
               <tr>
-                <th className="text-left px-3 py-2">Tipo</th>
-                <th className="text-left px-3 py-2">Jogo</th>
-                <th className="text-left px-3 py-2">Liga</th>
-                <th className="text-left px-3 py-2">Data do jogo</th>
-                <th className="text-left px-3 py-2">Gerada em</th>
-                <th className="text-right px-3 py-2">Tokens</th>
-                <th className="text-right px-3 py-2">Reusos</th>
+                <SortableHeader<PartidasSortKey>
+                  label="Tipo"
+                  sortKey="tipo"
+                  currentSortKey={sortKey}
+                  currentSortDir={sortDir}
+                  onSort={toggleSort}
+                />
+                <SortableHeader<PartidasSortKey>
+                  label="Jogo"
+                  sortKey="jogo"
+                  currentSortKey={sortKey}
+                  currentSortDir={sortDir}
+                  onSort={toggleSort}
+                />
+                <SortableHeader<PartidasSortKey>
+                  label="Liga"
+                  sortKey="liga"
+                  currentSortKey={sortKey}
+                  currentSortDir={sortDir}
+                  onSort={toggleSort}
+                />
+                <SortableHeader<PartidasSortKey>
+                  label="Data do jogo"
+                  sortKey="data_jogo"
+                  currentSortKey={sortKey}
+                  currentSortDir={sortDir}
+                  onSort={toggleSort}
+                />
+                <SortableHeader<PartidasSortKey>
+                  label="Gerada em"
+                  sortKey="gerada_em"
+                  currentSortKey={sortKey}
+                  currentSortDir={sortDir}
+                  onSort={toggleSort}
+                />
+                <SortableHeader<PartidasSortKey>
+                  label="Tokens"
+                  sortKey="tokens"
+                  currentSortKey={sortKey}
+                  currentSortDir={sortDir}
+                  onSort={toggleSort}
+                  align="right"
+                />
+                <SortableHeader<PartidasSortKey>
+                  label="Reusos"
+                  sortKey="reusos"
+                  currentSortKey={sortKey}
+                  currentSortDir={sortDir}
+                  onSort={toggleSort}
+                  align="right"
+                />
                 <th className="text-right px-3 py-2"></th>
               </tr>
             </thead>
@@ -893,13 +1190,17 @@ function PartidasAnalisadasTab() {
         </div>
       )}
 
-      <TipDetailModal tip={detailTip} onClose={() => setDetailTip(null)} />
+      <TipDetailModal
+        tip={detailTip}
+        userEmail={detailEmail}
+        onClose={() => setDetailTip(null)}
+      />
     </div>
   );
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// TAB 3: CACHE & REUSO
+// TAB 3: CACHE & REUSO (sem ordenação por enquanto)
 // ═══════════════════════════════════════════════════════════════════
 
 function CacheReusoTab() {
@@ -927,20 +1228,16 @@ function CacheReusoTab() {
   const tipsWithHits = tips.filter((t) => (t.hit_count ?? 0) > 0).length;
   const avgTokensPerTip =
     totalTips > 0
-      ? tips.reduce(
-          (acc, t) => acc + (t.tokens_input ?? 0) + (t.tokens_output ?? 0),
-          0
-        ) / totalTips
+      ? tips.reduce((acc, t) => acc + (t.tokens_input ?? 0) + (t.tokens_output ?? 0), 0) /
+        totalTips
       : 0;
   const tokensSaved = totalHits * avgTokensPerTip;
   const cacheHitRate =
     totalHits + totalTips > 0 ? (totalHits / (totalHits + totalTips)) * 100 : 0;
   const avgCostPerTip =
     totalTips > 0
-      ? tips.reduce(
-          (acc, t) => acc + calcCost(t.tokens_input ?? 0, t.tokens_output ?? 0),
-          0
-        ) / totalTips
+      ? tips.reduce((acc, t) => acc + calcCost(t.tokens_input ?? 0, t.tokens_output ?? 0), 0) /
+        totalTips
       : 0;
   const costSaved = totalHits * avgCostPerTip;
 
@@ -1008,7 +1305,6 @@ function CacheReusoTab() {
         </div>
         <div className="text-[10px] text-muted-foreground mt-2">
           {totalHits} hits de cache em {totalTips + totalHits} pedidos totais
-          (gerações + reusos)
         </div>
       </div>
 
@@ -1067,7 +1363,7 @@ function CacheReusoTab() {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// API-FOOTBALL STATUS PANEL (usado dentro da Telemetria)
+// API-FOOTBALL STATUS PANEL
 // ═══════════════════════════════════════════════════════════════════
 
 function ApiFootballStatusPanel() {
@@ -1095,9 +1391,7 @@ function ApiFootballStatusPanel() {
   }, []);
 
   const pct =
-    status && status.limit_day > 0
-      ? (status.current / status.limit_day) * 100
-      : 0;
+    status && status.limit_day > 0 ? (status.current / status.limit_day) * 100 : 0;
   const barColor =
     pct > 90
       ? "bg-red-500"
@@ -1147,10 +1441,12 @@ function ApiFootballStatusPanel() {
           </div>
           {(status.plan || status.end_subscription) && (
             <div className="text-[10px] text-muted-foreground pt-1 border-t">
-              {status.plan && <>Plano: <span className="font-mono">{status.plan}</span>{" "}</>}
-              {status.end_subscription && (
-                <>· Renova em: {status.end_subscription}</>
+              {status.plan && (
+                <>
+                  Plano: <span className="font-mono">{status.plan}</span>{" "}
+                </>
               )}
+              {status.end_subscription && <>· Renova em: {status.end_subscription}</>}
             </div>
           )}
         </div>
@@ -1176,25 +1472,10 @@ function TelemetriaTab() {
     const { start, end } = getGenRange(period, customStart, customEnd);
     const list = await fetchTipsByGenRange(start, end);
     setTips(list);
-
-    const userIds = Array.from(
-      new Set(
-        list.map((t) => t.generated_by_user_id).filter((id): id is string => !!id)
-      )
-    );
-    if (userIds.length > 0) {
-      const { data: users } = await supabase
-        .from("users")
-        .select("id, email")
-        .in("id", userIds);
-      const map: Record<string, string> = {};
-      (users ?? []).forEach((u: any) => {
-        map[u.id] = u.email ?? "";
-      });
-      setEmailsByUserId(map);
-    } else {
-      setEmailsByUserId({});
-    }
+    const userIds = list
+      .map((t) => t.generated_by_user_id)
+      .filter((id): id is string => !!id);
+    setEmailsByUserId(await fetchEmailsByUserIds(userIds));
     setLoading(false);
   };
 
@@ -1402,7 +1683,7 @@ function TelemetriaTab() {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// TAB 5: BUG REPORTS (replicada do /admin/feedback)
+// TAB 5: BUG REPORTS
 // ═══════════════════════════════════════════════════════════════════
 
 function BugReportsTab() {
@@ -1417,9 +1698,7 @@ function BugReportsTab() {
     setLoading(true);
     const { data, error } = await supabase
       .from("user_feedback")
-      .select(
-        "id, created_at, user_id, message, category, source, tip_cache_id"
-      )
+      .select("id, created_at, user_id, comment, feedback, source, tip_cache_id")
       .eq("source", "ia-tipster")
       .order("created_at", { ascending: false })
       .limit(100);
@@ -1429,34 +1708,18 @@ function BugReportsTab() {
       setLoading(false);
       return;
     }
-    const list: BugReport[] = (data ?? []).map((r: any) => ({
-      id: r.id,
-      created_at: r.created_at,
-      user_id: r.user_id,
-      comment: r.message ?? null,
-      feedback: r.category ?? null,
-      source: r.source,
-      tip_cache_id: r.tip_cache_id,
-    }));
+    const list = (data ?? []) as BugReport[];
     setReports(list);
 
     const userIds = Array.from(
       new Set(list.map((r) => r.user_id).filter((id): id is string => !!id))
     );
     if (userIds.length > 0) {
-      const { data: users } = await supabase
-        .from("users")
-        .select("id, email")
-        .in("id", userIds);
-      const map: Record<string, string> = {};
-      (users ?? []).forEach((u: any) => {
-        map[u.id] = u.email ?? "";
-      });
+      const map = await fetchEmailsByUserIds(userIds);
       setEmails(map);
     } else {
       setEmails({});
     }
-
     setLoading(false);
   };
 
@@ -1485,12 +1748,7 @@ function BugReportsTab() {
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">Bug Reports</h2>
         <div className="flex items-center gap-2">
-          <Button
-            onClick={fetchReports}
-            variant="outline"
-            size="sm"
-            disabled={loading}
-          >
+          <Button onClick={fetchReports} variant="outline" size="sm" disabled={loading}>
             <RefreshCw className={`w-3 h-3 mr-1 ${loading ? "animate-spin" : ""}`} />
             Atualizar
           </Button>
@@ -1504,8 +1762,8 @@ function BugReportsTab() {
       </div>
 
       <div className="text-xs text-muted-foreground">
-        Mostrando até 100 reports recentes do IA Tipster. Para ver feedback
-        de outras origens (app etc), abra a tela de Feedback dos clientes.
+        Mostrando até 100 reports recentes do IA Tipster. Para ver feedback de
+        outras origens (app etc), abra a tela de Feedback dos clientes.
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -1551,9 +1809,7 @@ function BugReportsTab() {
             </thead>
             <tbody>
               {reports.map((r) => {
-                const email = r.user_id
-                  ? emails[r.user_id] ?? r.user_id.slice(0, 8)
-                  : "—";
+                const email = r.user_id ? emails[r.user_id] ?? r.user_id.slice(0, 8) : "—";
                 const isPositive = r.feedback === "up";
                 const comment = r.comment ?? "";
                 const truncated =
@@ -1590,11 +1846,7 @@ function BugReportsTab() {
                       )}
                     </td>
                     <td className="px-3 py-2 text-right">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => openDetail(r)}
-                      >
+                      <Button variant="ghost" size="sm" onClick={() => openDetail(r)}>
                         <FileText className="w-3 h-3" />
                       </Button>
                     </td>
@@ -1606,11 +1858,7 @@ function BugReportsTab() {
         </div>
       )}
 
-      {/* Detail Modal */}
-      <Dialog
-        open={!!detailReport}
-        onOpenChange={(o) => !o && setDetailReport(null)}
-      >
+      <Dialog open={!!detailReport} onOpenChange={(o) => !o && setDetailReport(null)}>
         <DialogContent className="max-w-3xl max-h-[80vh] overflow-auto">
           <DialogHeader>
             <DialogTitle>Bug report</DialogTitle>
@@ -1644,9 +1892,7 @@ function BugReportsTab() {
                 </div>
                 <div className="text-sm bg-muted p-3 rounded whitespace-pre-wrap">
                   {detailReport.comment || (
-                    <span className="italic text-muted-foreground">
-                      (sem comentário)
-                    </span>
+                    <span className="italic text-muted-foreground">(sem comentário)</span>
                   )}
                 </div>
               </div>
