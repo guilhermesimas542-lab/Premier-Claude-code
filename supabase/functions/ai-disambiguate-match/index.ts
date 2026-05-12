@@ -264,11 +264,11 @@ Deno.serve(async (req: Request) => {
       date: s.fixture.fixture.date,
     }));
   const candidates = scored
-    return jsonResp({
-      status: "not_found",
-      message: "Não encontrei esse confronto nas próximas duas semanas. Me dá mais detalhes (liga, data)?",
-    });
-  }
+    .filter(s => s.totalScore > 0.3 && s.homeScore > 0 && s.awayScore > 0)
+    .sort((a, b) => b.totalScore - a.totalScore)
+    .slice(0, 5);
+
+  if (candidates.length === 0) {
 
   const now = Date.now();
   const futureCandidates = candidates.filter(c => new Date(c.fixture.fixture.date).getTime() > now);
