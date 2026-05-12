@@ -95,6 +95,442 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_credit_daily: {
+        Row: {
+          cache_hits_today: number
+          daily_used: number
+          date: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cache_hits_today?: number
+          daily_used?: number
+          date: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cache_hits_today?: number
+          daily_used?: number
+          date?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_credit_daily_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_credit_extras: {
+        Row: {
+          balance_bonus: number
+          balance_purchased: number
+          preview_used: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          balance_bonus?: number
+          balance_purchased?: number
+          preview_used?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          balance_bonus?: number
+          balance_purchased?: number
+          preview_used?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_credit_extras_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_credit_log: {
+        Row: {
+          amount: number
+          created_at: string
+          event_type: string
+          id: string
+          metadata: Json | null
+          reason: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          event_type: string
+          id?: string
+          metadata?: Json | null
+          reason?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          event_type?: string
+          id?: string
+          metadata?: Json | null
+          reason?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_credit_log_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_credit_packages: {
+        Row: {
+          created_at: string
+          credits_amount: number
+          id: string
+          is_active: boolean
+          name: string
+          price_brl: number
+          slug: string
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          credits_amount: number
+          id?: string
+          is_active?: boolean
+          name: string
+          price_brl: number
+          slug: string
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          credits_amount?: number
+          id?: string
+          is_active?: boolean
+          name?: string
+          price_brl?: number
+          slug?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
+      ai_credit_purchase: {
+        Row: {
+          amount_paid: number
+          created_at: string
+          credits_granted: number
+          id: string
+          package_id: string | null
+          paid_at: string | null
+          payment_id: string | null
+          payment_provider: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          amount_paid: number
+          created_at?: string
+          credits_granted: number
+          id?: string
+          package_id?: string | null
+          paid_at?: string | null
+          payment_id?: string | null
+          payment_provider: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          amount_paid?: number
+          created_at?: string
+          credits_granted?: number
+          id?: string
+          package_id?: string | null
+          paid_at?: string | null
+          payment_id?: string | null
+          payment_provider?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_credit_purchase_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "ai_credit_packages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_credit_purchase_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_featured_matches: {
+        Row: {
+          added_by: string | null
+          api_football_fixture_id: number
+          created_at: string
+          date: string
+          id: string
+          priority: number
+          source: string
+        }
+        Insert: {
+          added_by?: string | null
+          api_football_fixture_id: number
+          created_at?: string
+          date: string
+          id?: string
+          priority?: number
+          source?: string
+        }
+        Update: {
+          added_by?: string | null
+          api_football_fixture_id?: number
+          created_at?: string
+          date?: string
+          id?: string
+          priority?: number
+          source?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_featured_matches_added_by_fkey"
+            columns: ["added_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_feedback: {
+        Row: {
+          comment: string | null
+          created_at: string
+          feedback: string
+          id: string
+          tip_cache_id: string | null
+          user_id: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          feedback: string
+          id?: string
+          tip_cache_id?: string | null
+          user_id: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          feedback?: string
+          id?: string
+          tip_cache_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_feedback_tip_cache_id_fkey"
+            columns: ["tip_cache_id"]
+            isOneToOne: false
+            referencedRelation: "ai_tip_cache"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_feedback_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_match_altenar_map: {
+        Row: {
+          altenar_event_id: string
+          api_football_fixture_id: number
+          away_team: string
+          confidence: string
+          created_at: string
+          expires_at: string
+          home_team: string
+          kickoff_at: string
+          league_id: number | null
+          league_name: string | null
+        }
+        Insert: {
+          altenar_event_id: string
+          api_football_fixture_id: number
+          away_team: string
+          confidence?: string
+          created_at?: string
+          expires_at: string
+          home_team: string
+          kickoff_at: string
+          league_id?: number | null
+          league_name?: string | null
+        }
+        Update: {
+          altenar_event_id?: string
+          api_football_fixture_id?: number
+          away_team?: string
+          confidence?: string
+          created_at?: string
+          expires_at?: string
+          home_team?: string
+          kickoff_at?: string
+          league_id?: number | null
+          league_name?: string | null
+        }
+        Relationships: []
+      }
+      ai_prematch_jobs: {
+        Row: {
+          errors: Json | null
+          failed_count: number
+          finished_at: string | null
+          id: string
+          matches_processed: number
+          run_date: string
+          started_at: string
+          success_count: number
+          total_cost_usd: number
+          total_tokens_input: number
+          total_tokens_output: number
+        }
+        Insert: {
+          errors?: Json | null
+          failed_count?: number
+          finished_at?: string | null
+          id?: string
+          matches_processed?: number
+          run_date: string
+          started_at?: string
+          success_count?: number
+          total_cost_usd?: number
+          total_tokens_input?: number
+          total_tokens_output?: number
+        }
+        Update: {
+          errors?: Json | null
+          failed_count?: number
+          finished_at?: string | null
+          id?: string
+          matches_processed?: number
+          run_date?: string
+          started_at?: string
+          success_count?: number
+          total_cost_usd?: number
+          total_tokens_input?: number
+          total_tokens_output?: number
+        }
+        Relationships: []
+      }
+      ai_team_aliases: {
+        Row: {
+          alias: string
+          api_football_team_id: number
+          created_at: string
+          id: string
+          priority: number
+        }
+        Insert: {
+          alias: string
+          api_football_team_id: number
+          created_at?: string
+          id?: string
+          priority?: number
+        }
+        Update: {
+          alias?: string
+          api_football_team_id?: number
+          created_at?: string
+          id?: string
+          priority?: number
+        }
+        Relationships: []
+      }
+      ai_tip_cache: {
+        Row: {
+          altenar_event_id: string | null
+          api_football_fixture_id: number | null
+          content: Json
+          created_at: string
+          expires_at: string
+          generated_at: string
+          generated_by_user_id: string | null
+          id: string
+          match_key: string
+          match_type: string
+          source_data: Json | null
+          tokens_cached: number | null
+          tokens_input: number | null
+          tokens_output: number | null
+          version: number | null
+        }
+        Insert: {
+          altenar_event_id?: string | null
+          api_football_fixture_id?: number | null
+          content: Json
+          created_at?: string
+          expires_at: string
+          generated_at?: string
+          generated_by_user_id?: string | null
+          id?: string
+          match_key: string
+          match_type: string
+          source_data?: Json | null
+          tokens_cached?: number | null
+          tokens_input?: number | null
+          tokens_output?: number | null
+          version?: number | null
+        }
+        Update: {
+          altenar_event_id?: string | null
+          api_football_fixture_id?: number | null
+          content?: Json
+          created_at?: string
+          expires_at?: string
+          generated_at?: string
+          generated_by_user_id?: string | null
+          id?: string
+          match_key?: string
+          match_type?: string
+          source_data?: Json | null
+          tokens_cached?: number | null
+          tokens_input?: number | null
+          tokens_output?: number | null
+          version?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_tip_cache_generated_by_user_id_fkey"
+            columns: ["generated_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       app_errors: {
         Row: {
           component: string | null
@@ -1719,11 +2155,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_and_debit_credit: {
+        Args: { p_is_cache_hit?: boolean; p_user_id: string }
+        Returns: Json
+      }
       check_is_admin_email: { Args: { p_email: string }; Returns: boolean }
+      get_ai_telemetry_dashboard: {
+        Args: { p_period_days?: number }
+        Returns: Json
+      }
       get_allowed_tiers: {
         Args: { user_tier: Database["public"]["Enums"]["main_tier"] }
         Returns: Database["public"]["Enums"]["main_tier"][]
       }
+      get_credit_balance: { Args: { p_user_id: string }; Returns: Json }
       get_display_tips: {
         Args: { p_email: string }
         Returns: {
@@ -1805,6 +2250,19 @@ export type Database = {
               isSetofReturn: false
             }
           }
+      grant_bonus_credits: {
+        Args: {
+          p_admin_id?: string
+          p_amount: number
+          p_reason?: string
+          p_user_id: string
+        }
+        Returns: Json
+      }
+      grant_purchased_credits: {
+        Args: { p_amount: number; p_purchase_id?: string; p_user_id: string }
+        Returns: Json
+      }
       has_active_entitlement: {
         Args: {
           p_product: Database["public"]["Enums"]["product_key"]
