@@ -1,0 +1,223 @@
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+};
+
+const TOP_LEAGUES = [71,72,73,13,11,39,40,140,135,78,61,88,94,2,3,848,253,262,128,307,1,4];
+const WINDOW_DAYS_FUTURE = 15;
+const WINDOW_DAYS_PAST = 30;
+
+interface TokenPayload {
+  user_id?: string;
+  exp: number;
+}
+
+function jsonResp(body: unknown, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+}
+
+function normalize(s: string): string {
+  return s
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\b(fc|ac|cf|sc|ec|sp|rj|club|clube|de|do|da|the)\b/g, "")
+    .replace(/[^\w\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function tokenSimilarity(a: string, b: string): number {
+  const na = normalize(a);
+  const nb = normalize(b);
+  if (!na || !nb) return 0;
+  if (na === nb) return 1;
+  if (na.includes(nb) || nb.includes(na)) return 0.85;
+  const ta = na.split(" ").filter(x => x.length >= 3);
+  const tb = nb.split(" ").filter(x => x.length >= 3);
+  if (ta.length === 0 || tb.length === 0) return 0;
+  const matches = ta.filter(x => tb.some(y => y.startsWith(x) || x.startsWith(y))).length;
+  return matches / Math.max(ta.length, tb.length);
+}
+
+Deno.serve(async (req: Request) => {
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  if (req.method !== "POST") return jsonResp({ error: "method_not_allowed" }, 405);
+
+  const authHeader = req.headers.get("Authorization");
+  if (!authHeader?.startsWith("Bearer ")) return jsonResp({ error: "missing_bearer" }, 401);
+  let token: TokenPayload;
+  try {
+    token = JSON.parse(atob(authHeader.replace("Bearer ", "")));
+  } catch {
+    return jsonResp({ error: "invalid_token" }, 401);
+  }
+  if (!token?.user_id || token.exp < Date.now()) return jsonResp({ error: "unauthorized" }, 401);
+
+  let body: { query?: string };
+  try {
+    body = await req.json();
+  } catch {
+    return jsonResp({ error: "invalid_body" }, 400);
+  }
+  const query = (body.query || "").trim();
+  if (!query || query.length < 3) {
+    return jsonResp({ error: "query_too_short" }, 400);
+  }
+
+  const supabase = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+  );
+
+  const { data: aliases } = await supabase
+    .from("ai_team_aliases")
+    .select("api_football_team_id, alias");
+
+  const aliasMap = new Map<number, string[]>();
+  (aliases || []).forEach((a: any) => {
+    const arr = aliasMap.get(a.api_football_team_id) || [];
+    arr.push(a.alias);
+    aliasMap.set(a.api_football_team_id, arr);
+  });
+
+  const apiKey = Deno.env.get("API_FOOTBALL_KEY");
+  if (!apiKey) return jsonResp({ error: "api_football_key_missing" }, 500);
+
+  const today = new Date();
+  const fromDate = new Date(today.getTime() - WINDOW_DAYS_PAST * 86400000).toISOString().split("T")[0];
+  const toDate = new Date(today.getTime() + WINDOW_DAYS_FUTURE * 86400000).toISOString().split("T")[0];
+
+  const fixturesByLeague: any[] = [];
+  for (const leagueId of TOP_LEAGUES) {
+    try {
+      const season = today.getFullYear();
+      const url = `https://v3.football.api-sports.io/fixtures?league=${leagueId}&season=${season}&from=${fromDate}&to=${toDate}`;
+      const resp = await fetch(url, { headers: { "x-apisports-key": apiKey } });
+      if (!resp.ok) continue;
+      const data = await resp.json();
+      if (Array.isArray(data.response)) fixturesByLeague.push(...data.response);
+    } catch (err) {
+      console.error("[disambiguate] league fetch error", leagueId, err);
+    }
+  }
+
+  if (fixturesByLeague.length === 0) {
+    return jsonResp({
+      status: "not_found",
+      message: "Não encontrei jogos nas ligas cobertas na janela atual.",
+    });
+  }
+
+  const scored = fixturesByLeague.map((f: any) => {
+    const homeAliases = aliasMap.get(f.teams.home.id) || [];
+    const awayAliases = aliasMap.get(f.teams.away.id) || [];
+    const homeNames = [f.teams.home.name, ...homeAliases];
+    const awayNames = [f.teams.away.name, ...awayAliases];
+
+    const queryTokens = normalize(query).split(" ").filter(t => t.length >= 3);
+    let homeScore = 0;
+    let awayScore = 0;
+
+    for (const qt of queryTokens) {
+      for (const hn of homeNames) {
+        const sim = tokenSimilarity(qt, hn);
+        if (sim > homeScore) homeScore = sim;
+      }
+      for (const an of awayNames) {
+        const sim = tokenSimilarity(qt, an);
+        if (sim > awayScore) awayScore = sim;
+      }
+    }
+
+    const totalScore = (homeScore + awayScore) / 2;
+    return { fixture: f, homeScore, awayScore, totalScore };
+  });
+
+  const candidates = scored
+    .filter(s => s.totalScore > 0.3 && s.homeScore > 0 && s.awayScore > 0)
+    .sort((a, b) => b.totalScore - a.totalScore)
+    .slice(0, 5);
+
+  if (candidates.length === 0) {
+    return jsonResp({
+      status: "not_found",
+      message: "Não encontrei esse confronto nas próximas duas semanas. Me dá mais detalhes (liga, data)?",
+    });
+  }
+
+  const now = Date.now();
+  const futureCandidates = candidates.filter(c => new Date(c.fixture.fixture.date).getTime() > now);
+  const pastCandidates = candidates.filter(c => new Date(c.fixture.fixture.date).getTime() <= now);
+
+  if (futureCandidates.length > 0 && futureCandidates[0].totalScore >= 0.7) {
+    const c = futureCandidates[0];
+    const kickoff = new Date(c.fixture.fixture.date);
+    const daysAhead = (kickoff.getTime() - now) / 86400000;
+    if (daysAhead > WINDOW_DAYS_FUTURE) {
+      return jsonResp({
+        status: "out_of_window",
+        message: `Esse jogo é em ${Math.ceil(daysAhead)} dias — analisamos apenas os próximos ${WINDOW_DAYS_FUTURE}.`,
+      });
+    }
+    return jsonResp({
+      status: "found",
+      confidence: "high",
+      matches: [{
+        fixture_id: c.fixture.fixture.id,
+        home: c.fixture.teams.home.name,
+        away: c.fixture.teams.away.name,
+        league: c.fixture.league.name,
+        kickoff_at: c.fixture.fixture.date,
+        kickoff_label: kickoff.toLocaleString("pt-BR", { day: "2-digit", month: "long", hour: "2-digit", minute: "2-digit", timeZone: "America/Sao_Paulo" }),
+        score: c.totalScore,
+      }],
+    });
+  }
+
+  if (futureCandidates.length > 0) {
+    return jsonResp({
+      status: "ambiguous",
+      confidence: "medium",
+      matches: futureCandidates.slice(0, 3).map(c => ({
+        fixture_id: c.fixture.fixture.id,
+        home: c.fixture.teams.home.name,
+        away: c.fixture.teams.away.name,
+        league: c.fixture.league.name,
+        kickoff_at: c.fixture.fixture.date,
+        kickoff_label: new Date(c.fixture.fixture.date).toLocaleString("pt-BR", { day: "2-digit", month: "long", hour: "2-digit", minute: "2-digit", timeZone: "America/Sao_Paulo" }),
+        score: c.totalScore,
+      })),
+    });
+  }
+
+  if (pastCandidates.length > 0) {
+    const c = pastCandidates[0];
+    return jsonResp({
+      status: "past",
+      match: {
+        home: c.fixture.teams.home.name,
+        away: c.fixture.teams.away.name,
+        league: c.fixture.league.name,
+        played_at: c.fixture.fixture.date,
+        played_label: new Date(c.fixture.fixture.date).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" }),
+        result: c.fixture.goals.home !== null
+          ? `${c.fixture.teams.home.name} ${c.fixture.goals.home} x ${c.fixture.goals.away} ${c.fixture.teams.away.name}`
+          : "resultado não disponível",
+      },
+      message: "Esse jogo já aconteceu. Não há entrada possível para jogos passados.",
+    });
+  }
+
+  return jsonResp({
+    status: "not_found",
+    message: "Não encontrei esse confronto. Me dá mais detalhes (liga, data)?",
+  });
+});
