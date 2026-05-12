@@ -29,8 +29,9 @@ export function useGenerateLiveTip() {
         }
       );
       if (invokeErr) throw new Error(invokeErr.message || "tip_failed");
-      if ((data as any)?.error) {
-        setError((data as any).error);
+      const d = data as any;
+      if (d?.error) {
+        setError(d.message || d.error);
         return;
       }
       setTip(data as LiveTipResponse);
