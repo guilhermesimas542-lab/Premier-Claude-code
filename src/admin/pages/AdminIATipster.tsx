@@ -1876,7 +1876,7 @@ function BugReportsTab() {
                 </div>
                 <div>
                   <span className="text-muted-foreground">Tipo:</span>{" "}
-                  {detailReport.feedback ?? "bug"}
+                  {detailReport.category ?? "bug"}
                 </div>
                 <div>
                   <span className="text-muted-foreground">Origem:</span>{" "}
@@ -1889,7 +1889,7 @@ function BugReportsTab() {
                   Comentário do usuário:
                 </div>
                 <div className="text-sm bg-muted p-3 rounded whitespace-pre-wrap">
-                  {detailReport.comment || (
+                  {detailReport.message || (
                     <span className="italic text-muted-foreground">(sem comentário)</span>
                   )}
                 </div>
