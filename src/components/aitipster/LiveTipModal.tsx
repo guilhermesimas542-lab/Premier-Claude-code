@@ -121,9 +121,7 @@ export function LiveTipModal({ open, onOpenChange, match }: Props) {
                 Análise gerada por outro usuário · cache compartilhado · 0 créditos
               </div>
             )}
-            <div className="prose prose-sm prose-invert max-w-none text-sm leading-relaxed">
-              <ReactMarkdown>{tip.content.markdown}</ReactMarkdown>
-            </div>
+            <TipAnalysis markdown={tip.content?.markdown ?? ""} />
 
             <div className="flex items-center gap-2">
               <Button
@@ -141,6 +139,14 @@ export function LiveTipModal({ open, onOpenChange, match }: Props) {
                 disabled={!!feedback}
               >
                 <ThumbsDown className="w-4 h-4" />
+              </Button>
+              <Button
+                onClick={() => setBugOpen(true)}
+                variant="outline"
+                size="sm"
+                title="Reportar bug"
+              >
+                <Bug className="w-4 h-4" />
               </Button>
             </div>
 
