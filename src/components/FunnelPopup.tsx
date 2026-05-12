@@ -72,7 +72,7 @@ export function FunnelPopup({ popup, onClose }: FunnelPopupProps) {
   };
 
   const handleImageClick = () => {
-    if (popup.type === "casino_welcome" || popup.type === "welcome_paid") {
+    if (popup.type === "welcome_paid") {
       handleClose();
       return;
     }
@@ -109,9 +109,7 @@ export function FunnelPopup({ popup, onClose }: FunnelPopupProps) {
             background: "linear-gradient(180deg, hsl(0,0%,8%), hsl(0,0%,4%))",
             borderRadius: "20px",
             boxShadow: "0 24px 48px rgba(0,0,0,0.6)",
-            cursor: popup.type === "casino_welcome" ? "pointer" : undefined,
           }}
-          onClick={popup.type === "casino_welcome" ? handleClose : undefined}
         >
           <button
             onClick={handleClose}

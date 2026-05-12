@@ -97,8 +97,6 @@ function isEligibleForType(
       return !addons.includes("live_telegram");
     case "promotional":
       return true;
-    case "casino_welcome":
-      return true; // Any user visiting /cassino for the first time
     // Legacy "welcome" type — treat as welcome_free
     case "welcome":
       return tier === "free";
@@ -146,7 +144,7 @@ function SimpleImagePopup({
           </button>
           <button
             onClick={() => {
-              if (popupData.type === "casino_welcome" || popupData.type === "welcome_paid") {
+              if (popupData.type === "welcome_paid") {
                 handleClose();
                 return;
               }
@@ -236,9 +234,8 @@ export function WelcomePopup({ house }: { house: HousePopupData | null }) {
 
       // Filter by user eligibility (tier + addons + audience + route)
       const eligible = popups.filter((p: any) => {
-        // Route-based filtering
-        if (p.type === "casino_welcome" && location.pathname !== "/cassino") return false;
-        if (p.type !== "casino_welcome" && location.pathname !== "/") return false;
+        // Route-based filtering — only show on home
+        if (location.pathname !== "/") return false;
 
         const audience = p.target_audience || "all";
         if (audience !== "all" && audience !== user.mainTier) return false;
