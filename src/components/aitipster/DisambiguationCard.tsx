@@ -7,7 +7,7 @@ interface Props {
   matches: DisambiguationMatch[];
   confidence: "high" | "medium";
   onConfirm: (fixtureId: number, label: string) => void;
-  onReject?: () => void;
+  onReject?: (fixtureIds: number[]) => void;
 }
 
 export function DisambiguationCard({ matches, confidence, onConfirm, onReject }: Props) {
