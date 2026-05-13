@@ -63,6 +63,13 @@ export function LiveTipModal({ open, onOpenChange, match }: Props) {
   function handleOpenEsportiva() {
     const altenarUrl = tip?.source_data?.altenar_event_url as string | undefined;
     const altenarId = tip?.source_data?.altenar_event_id as string | undefined;
+    console.log("[DEBUG ia-esportiva-click]", {
+      source: "live",
+      has_url: !!altenarUrl,
+      altenarUrl,
+      altenarId,
+      fullSourceData: tip?.source_data,
+    });
     if (altenarUrl) {
       sessionStorage.setItem("pending_iframe_url", altenarUrl);
       trackEvent("ia_tipster_open_esportiva", {
