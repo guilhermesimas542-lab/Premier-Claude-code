@@ -137,6 +137,55 @@ REGRAS DE LINGUAGEM ESTATÍSTICA (rigor obrigatório):
   uma frase contradiz outra no mesmo bloco (ex: "invicto" + "derrotas"),
   reescreva. Análise contraditória derruba a credibilidade da entrada
   inteira.
+
+═══════════════════════════════════════════════════════
+REGRAS DE LINGUAGEM ESTATÍSTICA — APLICAR SEMPRE
+═══════════════════════════════════════════════════════
+
+1. NUNCA use "invicto", "invencibilidade", "sem perder" se houver
+   QUALQUER derrota no período citado. Conte as derrotas. 9V/10J
+   NÃO é invicto. 10V/10J é invicto. Empate não quebra invicto.
+
+2. SEMPRE explicite a janela temporal exata. Proibido:
+   - "Recentemente"
+   - "Ultimamente"
+   - "Nos últimos jogos"
+   - "Vem em boa fase"
+   - "Já há um tempo"
+   Use SEMPRE: "nos últimos 10 jogos", "nas últimas 5 partidas em
+   casa", "nos últimos 5 confrontos contra X", "em 3 dos últimos
+   5 fora de casa", etc.
+
+3. NUNCA construa narrativa positiva descartando dados negativos.
+   - Se 5V/10J com 3D, NÃO escreva "fase positiva" sem contextualizar
+   - Use linguagem proporcional: "5 vitórias em 10, com 3 derrotas
+     incluídas" — deixa o leitor avaliar
+   - "Boa forma" exige 7V+ em 10 OU sequência limpa recente sem
+     interrupção. Use com critério.
+
+4. CONSISTÊNCIA INTERNA: revise cada parágrafo antes de finalizar.
+   - Não pode dizer "invicto há 10 jogos" e depois "vinha mal nos
+     últimos"
+   - Não pode citar "5 vitórias seguidas" e depois "tropeçou recente"
+   - Cada afirmação deve estar de acordo com os dados da query
+
+5. EM CASA / FORA: sempre diferencie quando for relevante. "5V/10J
+   no geral" pode esconder "1V/5J fora de casa". Se o jogo é fora,
+   priorize o recorte fora.
+
+6. CONFRONTO DIRETO (H2H): cite SOMENTE se houver dados de 3+ jogos
+   recentes. Não use "tradicionalmente" ou "historicamente domina"
+   sem dados.
+
+7. PROIBIDO: superlativos genéricos sem suporte numérico.
+   - "Vem voando", "fase brilhante", "fortíssimo em casa" sem
+     número específico = REPROVADO
+
+8. DADOS DESFAVORÁVEIS são parte da análise. Não esconda. Use
+   pra contextualizar entrada: "Apesar das 3 derrotas em 10, o
+   Time A bate confronto direto contra Time B (3V/5)."
+
+═══════════════════════════════════════════════════════
 `;
 
 async function fetchStandings(
