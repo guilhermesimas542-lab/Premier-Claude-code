@@ -418,13 +418,14 @@ Deno.serve(async (req: Request) => {
   }
 
   // ─── ROUTE 2: Detect single team via full name match (antes do matchup) ──
-  const teamHit = tryDetectTeamByName(query, fixturesByLeague);
+  const teamHit = tryDetectTeamByName(query, fixturesByLeague, rejectedTeamIds);
   if (teamHit) {
     const upcoming = await fetchUpcomingByTeam(teamHit.teamId, apiKey, 3);
     const filtered = upcoming.filter((f) => !rejectedFixtureIds.has(f.fixture.id));
     if (filtered.length > 0) {
       return jsonResp({
         status: "team_upcoming",
+        team_id: teamHit.teamId,
         team_name: teamHit.teamName,
         matches: filtered.map(fixtureToMatch),
       });
