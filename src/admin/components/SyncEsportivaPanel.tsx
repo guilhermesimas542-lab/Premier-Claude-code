@@ -29,23 +29,63 @@ export function SyncEsportivaPanel() {
   const [error, setError] = useState<string | null>(null);
   const [elapsed, setElapsed] = useState<number | null>(null);
 
+  const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
+
   const runSync = async () => {
     setLoading(true);
     setError(null);
     setResult(null);
+    setProgress(null);
     const startedAt = Date.now();
     try {
-      const { data, error: fnError } = await supabase.functions.invoke(
-        "sync-altenar-events",
-        { body: {} }
-      );
-      if (fnError) throw fnError;
-      setResult(data as SyncResult);
+      // 1) Fetch league IDs to chunk client-side and avoid 150s edge timeout
+      const { data: champs, error: champErr } = await supabase
+        .from("ai_altenar_championships")
+        .select("api_football_league_id")
+        .eq("active", true);
+      if (champErr) throw champErr;
+      const allIds = (champs ?? [])
+        .map((c: any) => c.api_football_league_id)
+        .filter((x: any) => typeof x === "number");
+
+      const CHUNK_SIZE = 6;
+      const chunks: number[][] = [];
+      for (let i = 0; i < allIds.length; i += CHUNK_SIZE) {
+        chunks.push(allIds.slice(i, i + CHUNK_SIZE));
+      }
+
+      const aggregated: SyncResult = {
+        ok: true,
+        championships_synced: 0,
+        totals: { events: 0, matched: 0, skipped: 0 },
+        per_championship: [],
+      };
+      setProgress({ done: 0, total: allIds.length });
+
+      for (const chunk of chunks) {
+        const { data, error: fnError } = await supabase.functions.invoke(
+          "sync-altenar-events",
+          { body: { league_ids: chunk } }
+        );
+        if (fnError) throw fnError;
+        const part = data as SyncResult;
+        aggregated.championships_synced += part.championships_synced;
+        aggregated.totals.events += part.totals.events;
+        aggregated.totals.matched += part.totals.matched;
+        aggregated.totals.skipped += part.totals.skipped;
+        aggregated.per_championship.push(...part.per_championship);
+        setProgress((p) =>
+          p ? { done: p.done + chunk.length, total: p.total } : null
+        );
+      }
+
+      setResult(aggregated);
       setElapsed(Math.round((Date.now() - startedAt) / 1000));
     } catch (e: any) {
       setError(e?.message ?? "Erro desconhecido");
     }
     setLoading(false);
+    setProgress(null);
   };
 
   return (
@@ -80,7 +120,10 @@ export function SyncEsportivaPanel() {
 
       {loading && (
         <div className="rounded-md bg-muted p-3 text-sm text-muted-foreground">
-          Processando 46 ligas... não feche essa aba.
+          {progress
+            ? `Processando ligas em lotes... ${progress.done}/${progress.total}`
+            : "Carregando lista de ligas..."}{" "}
+          não feche essa aba.
         </div>
       )}
 
