@@ -7,6 +7,7 @@ import { BugReportDrawer } from "./BugReportDrawer";
 import { Button } from "@/components/ui/button";
 import { ThumbsUp, ThumbsDown, Bug, ExternalLink, AlertCircle, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { trackEvent } from "@/lib/events";
 
 interface Props {
   message: Msg;
@@ -127,7 +128,24 @@ export function ChatMessage({ message, onConfirmFixture }: Props) {
             Reportar erro
           </Button>
           <Button
-            onClick={() => navigate("/sport/1")}
+            onClick={() => {
+              const altenarUrl = message.sourceData?.altenar_event_url as string | undefined;
+              const altenarId = message.sourceData?.altenar_event_id as string | undefined;
+              if (altenarUrl) {
+                sessionStorage.setItem("pending_iframe_url", altenarUrl);
+                trackEvent("ia_tipster_open_esportiva", {
+                  mode: "event_specific",
+                  altenar_event_id: altenarId ?? null,
+                  source: "chat",
+                });
+              } else {
+                trackEvent("ia_tipster_open_esportiva", {
+                  mode: "fallback_home",
+                  source: "chat",
+                });
+              }
+              navigate("/sport/1");
+            }}
             variant="default"
             size="sm"
             className="ml-auto"
