@@ -8,6 +8,15 @@ import { ThumbsUp, ThumbsDown, Bug, ExternalLink, AlertCircle, Loader2 } from "l
 import { supabase } from "@/integrations/supabase/client";
 import { trackEvent } from "@/lib/events";
 
+function getTeamName(team: any): string {
+  if (!team) return "";
+  if (typeof team === "string") return team;
+  if (typeof team === "object" && team !== null) {
+    return team.name ?? "";
+  }
+  return String(team);
+}
+
 export interface OpenEsportivaPayload {
   matchLabel: string;
   markdown: string | null;
@@ -136,8 +145,8 @@ export function ChatMessage({ message, onConfirmFixture, onOpenEsportiva }: Prop
             onClick={() => {
               const altenarUrl = message.sourceData?.altenar_event_url as string | undefined;
               const altenarId = message.sourceData?.altenar_event_id as string | undefined;
-              const home = message.sourceData?.fixture?.home ?? "";
-              const away = message.sourceData?.fixture?.away ?? "";
+              const home = getTeamName(message.sourceData?.fixture?.home);
+              const away = getTeamName(message.sourceData?.fixture?.away);
 
               trackEvent("ia_tipster_open_esportiva", {
                 mode: altenarUrl ? "event_specific" : "fallback_home",

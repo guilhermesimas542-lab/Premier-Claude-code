@@ -25,6 +25,15 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { trackEvent } from "@/lib/events";
 
+function getTeamName(team: any): string {
+  if (!team) return "";
+  if (typeof team === "string") return team;
+  if (typeof team === "object" && team !== null) {
+    return team.name ?? "";
+  }
+  return String(team);
+}
+
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -63,8 +72,8 @@ export function LiveTipModal({ open, onOpenChange, match, onOpenEsportiva }: Pro
   function handleOpenEsportiva() {
     const altenarUrl = tip?.source_data?.altenar_event_url as string | undefined;
     const altenarId = tip?.source_data?.altenar_event_id as string | undefined;
-    const home = tip?.source_data?.fixture?.home ?? match.home.name;
-    const away = tip?.source_data?.fixture?.away ?? match.away.name;
+    const home = getTeamName(tip?.source_data?.fixture?.home) || match.home.name;
+    const away = getTeamName(tip?.source_data?.fixture?.away) || match.away.name;
 
     trackEvent("ia_tipster_open_esportiva", {
       mode: altenarUrl ? "event_specific" : "fallback_home",
