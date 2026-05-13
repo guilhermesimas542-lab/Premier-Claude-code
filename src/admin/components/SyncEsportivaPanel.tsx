@@ -120,7 +120,10 @@ export function SyncEsportivaPanel() {
 
       {loading && (
         <div className="rounded-md bg-muted p-3 text-sm text-muted-foreground">
-          Processando 46 ligas... não feche essa aba.
+          {progress
+            ? `Processando ligas em lotes... ${progress.done}/${progress.total}`
+            : "Carregando lista de ligas..."}{" "}
+          não feche essa aba.
         </div>
       )}
 
