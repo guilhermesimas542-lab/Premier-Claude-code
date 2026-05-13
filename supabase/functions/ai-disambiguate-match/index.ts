@@ -338,17 +338,25 @@ Deno.serve(async (req: Request) => {
   const apiKey = Deno.env.get("API_FOOTBALL_KEY");
   if (!apiKey) return jsonResp({ error: "api_football_key_missing" }, 500);
 
-  // Carrega fixtures rejeitadas pelo user para essa query (últimos 7 dias)
+  // Carrega rejeições do user para essa query (últimos 7 dias)
   const rejectedFixtureIds = new Set<number>();
+  const rejectedTeamIds = new Set<number>();
+  const rejectedLeagueIds = new Set<number>();
   try {
     const queryNormForRej = normalize(query);
     const { data: rejRows } = await supabase
       .from("ai_user_rejected_fixtures")
-      .select("fixture_id")
+      .select("fixture_id, rejected_team_id, rejected_league_ids")
       .eq("user_id", token.user_id)
       .eq("query_normalized", queryNormForRej)
       .gt("expires_at", new Date().toISOString());
-    (rejRows || []).forEach((r: any) => rejectedFixtureIds.add(Number(r.fixture_id)));
+    for (const r of rejRows || []) {
+      if (r.fixture_id && Number(r.fixture_id) > 0) rejectedFixtureIds.add(Number(r.fixture_id));
+      if (r.rejected_team_id) rejectedTeamIds.add(Number(r.rejected_team_id));
+      if (Array.isArray(r.rejected_league_ids)) {
+        for (const lid of r.rejected_league_ids) rejectedLeagueIds.add(Number(lid));
+      }
+    }
   } catch (e) {
     console.warn("[disambiguate] rejected lookup failed", e);
   }
@@ -356,13 +364,17 @@ Deno.serve(async (req: Request) => {
   // ─── ROUTE 1: Detect league name → próximos jogos da liga ────
   const leagueIds = detectLeague(query);
   if (leagueIds && leagueIds.length > 0) {
-    const fixtures = await fetchUpcomingByLeague(leagueIds, apiKey, 10);
-    const filtered = fixtures.filter((f) => !rejectedFixtureIds.has(f.fixture.id));
-    if (filtered.length > 0) {
-      return jsonResp({
-        status: "league_upcoming",
-        matches: filtered.map(fixtureToMatch),
-      });
+    const filteredLeagueIds = leagueIds.filter((id) => !rejectedLeagueIds.has(id));
+    if (filteredLeagueIds.length > 0) {
+      const fixtures = await fetchUpcomingByLeague(filteredLeagueIds, apiKey, 10);
+      const filtered = fixtures.filter((f) => !rejectedFixtureIds.has(f.fixture.id));
+      if (filtered.length > 0) {
+        return jsonResp({
+          status: "league_upcoming",
+          league_ids: filteredLeagueIds,
+          matches: filtered.map(fixtureToMatch),
+        });
+      }
     }
   }
 
