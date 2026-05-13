@@ -114,7 +114,7 @@ export function ChatSection({ onOpenEsportiva }: ChatSectionProps = {}) {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-200px)]">
+    <div className="flex flex-col h-[calc(100dvh-208px)]">
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-4 space-y-3">
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center text-center pt-10 px-3">
