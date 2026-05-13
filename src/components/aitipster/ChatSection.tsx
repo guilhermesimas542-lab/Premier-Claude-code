@@ -132,6 +132,7 @@ export function ChatSection({ onOpenEsportiva }: ChatSectionProps = {}) {
             key={m.id}
             message={m}
             onConfirmFixture={handleConfirm}
+            onOpenEsportiva={onOpenEsportiva}
           />
         ))}
       </div>
