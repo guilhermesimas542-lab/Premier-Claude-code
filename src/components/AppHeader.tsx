@@ -67,7 +67,16 @@ const AppHeader = ({ leftContent, headerStyle, title }: AppHeaderProps) => {
         <div className="container max-w-7xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
           <div className="flex items-center justify-between gap-2 sm:gap-4">
             {leftContent ? leftContent : (
-              <div className="flex items-center gap-3 shrink-0">
+              <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+                {!isHome && (
+                  <button
+                    onClick={() => navigate(-1)}
+                    className="p-1 hover:bg-white/10 rounded-md transition-colors text-white"
+                    aria-label="Voltar"
+                  >
+                    <ArrowLeft className="w-5 h-5" />
+                  </button>
+                )}
                 <img src={logoImg} alt="Premier Ultra" className="h-10 sm:h-12 w-auto" onClick={() => navigate("/")} style={{ cursor: "pointer", filter: "drop-shadow(0 0 10px rgba(0,255,0,0.5))" }} />
                 {title && (
                   <span className="font-bold text-white text-sm">{title}</span>
