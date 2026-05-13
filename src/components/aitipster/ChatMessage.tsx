@@ -83,6 +83,7 @@ export function ChatMessage({ message, onConfirmFixture, onOpenEsportiva, onReje
           matches={message.matches}
           confidence={message.confidence}
           onConfirm={onConfirmFixture}
+          onReject={onRejectMatch}
         />
       </div>
     );
