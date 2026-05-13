@@ -62,7 +62,7 @@ export function LiveMatchesSection({ onOpenEsportiva }: Props = {}) {
         </Button>
       </div>
       {data.matches.map((m) => (
-        <LiveMatchCard key={m.fixture_id} match={m} />
+        <LiveMatchCard key={m.fixture_id} match={m} onOpenEsportiva={onOpenEsportiva} />
       ))}
     </div>
   );
