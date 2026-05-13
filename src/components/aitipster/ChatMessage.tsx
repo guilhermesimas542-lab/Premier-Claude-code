@@ -7,6 +7,7 @@ import { BugReportDrawer } from "./BugReportDrawer";
 import { Button } from "@/components/ui/button";
 import { ThumbsUp, ThumbsDown, Bug, ExternalLink, AlertCircle, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { trackEvent } from "@/lib/events";
 
 interface Props {
   message: Msg;
