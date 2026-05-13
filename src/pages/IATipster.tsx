@@ -23,6 +23,7 @@ export default function IATipster() {
   const isBeta = isAIBetaUser(email);
 
   const [activeTab, setActiveTab] = useState<"chat" | "live">("live");
+  const [openEsportiva, setOpenEsportiva] = useState<OpenEsportivaPayload | null>(null);
   const { balance } = useCreditBalance();
 
   const creditsLabel = balance
