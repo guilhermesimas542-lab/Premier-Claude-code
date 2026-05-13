@@ -47,16 +47,14 @@ function teamSimilarity(a: string, b: string): number {
 
 function buildEventUrl(
   event: any,
-  champ: any | undefined,
-  category: any | undefined,
-  competitorsById: Map<number, any>
+  _champ: any | undefined,
+  _category: any | undefined,
+  _competitorsById: Map<number, any>
 ): string {
-  const c1 = competitorsById.get(event.competitorIds?.[0]);
-  const c2 = competitorsById.get(event.competitorIds?.[1]);
-  const catSlug = slugify(category?.name ?? "outros");
-  const champSlug = slugify(champ?.name ?? "liga");
-  const matchSlug = `${slugify(c1?.name ?? "home")}-vs-${slugify(c2?.name ?? "away")}`;
-  return `https://esportiva.bet.br/sports/futebol/${catSlug}/${champSlug}/${matchSlug}/ev-${event.id}`;
+  // URL mínima: deixa a Esportiva resolver redirect interno pra
+  // página com slugs corretos. Evita 404 por slug divergente
+  // (ex: "brasileirao-a" vs "brasileirao-serie-a").
+  return `https://esportiva.bet.br/sports/futebol/ev-${event.id}`;
 }
 
 async function fetchAltenarEvents(champId: number, sportId = 66) {
