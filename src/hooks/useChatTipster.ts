@@ -22,11 +22,21 @@ export interface ChatTipResponse {
   generated_at: string;
 }
 
+export interface UpcomingMatch {
+  fixture_id: number;
+  home: string;
+  away: string;
+  league: string;
+  kickoff_at: string;
+  kickoff_label: string;
+}
+
 export type ChatMessage =
   | { id: string; role: "user"; content: string; createdAt: number }
   | { id: string; role: "bot"; type: "text"; content: string; createdAt: number }
   | { id: string; role: "bot"; type: "loading"; label: string; createdAt: number }
   | { id: string; role: "bot"; type: "disambiguation"; matches: DisambiguationMatch[]; confidence: "high" | "medium"; createdAt: number }
+  | { id: string; role: "bot"; type: "upcoming_list"; matches: UpcomingMatch[]; createdAt: number }
   | { id: string; role: "bot"; type: "tip"; tipCacheId: string; markdown: string; sourceData: any; cached: boolean; createdAt: number }
   | { id: string; role: "bot"; type: "error"; message: string; createdAt: number };
 
