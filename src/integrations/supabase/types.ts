@@ -95,6 +95,51 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_altenar_championships: {
+        Row: {
+          active: boolean
+          altenar_cat_id: number | null
+          altenar_champ_id: number
+          altenar_sport_id: number
+          api_football_league_id: number
+          country: string | null
+          created_at: string
+          id: string
+          last_sync_events_count: number | null
+          last_synced_at: string | null
+          league_name: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          altenar_cat_id?: number | null
+          altenar_champ_id: number
+          altenar_sport_id?: number
+          api_football_league_id: number
+          country?: string | null
+          created_at?: string
+          id?: string
+          last_sync_events_count?: number | null
+          last_synced_at?: string | null
+          league_name: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          altenar_cat_id?: number | null
+          altenar_champ_id?: number
+          altenar_sport_id?: number
+          api_football_league_id?: number
+          country?: string | null
+          created_at?: string
+          id?: string
+          last_sync_events_count?: number | null
+          last_synced_at?: string | null
+          league_name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       ai_bug_reports: {
         Row: {
           created_at: string
@@ -411,6 +456,7 @@ export type Database = {
       ai_match_altenar_map: {
         Row: {
           altenar_event_id: string
+          altenar_event_url: string | null
           api_football_fixture_id: number
           away_team: string
           confidence: string
@@ -423,6 +469,7 @@ export type Database = {
         }
         Insert: {
           altenar_event_id: string
+          altenar_event_url?: string | null
           api_football_fixture_id: number
           away_team: string
           confidence?: string
@@ -435,6 +482,7 @@ export type Database = {
         }
         Update: {
           altenar_event_id?: string
+          altenar_event_url?: string | null
           api_football_fixture_id?: number
           away_team?: string
           confidence?: string
