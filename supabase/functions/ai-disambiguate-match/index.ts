@@ -147,7 +147,8 @@ async function fetchUpcomingByTeam(teamId: number, apiKey: string, limit = 3): P
  */
 function tryDetectTeamByName(
   rawQuery: string,
-  allFixtures: any[]
+  allFixtures: any[],
+  rejectedTeamIds: Set<number> = new Set()
 ): { teamId: number; teamName: string } | null {
   const normalizedQuery = normalize(rawQuery);
   if (normalizedQuery.length < 4) return null;
@@ -156,6 +157,7 @@ function tryDetectTeamByName(
     for (const side of ["home", "away"] as const) {
       const team = f.teams[side];
       if (!team?.id || !team?.name) continue;
+      if (rejectedTeamIds.has(team.id)) continue;
       const teamNorm = normalize(team.name);
       let score = 0;
       if (teamNorm === normalizedQuery) {
