@@ -8,6 +8,15 @@ import { ThumbsUp, ThumbsDown, Bug, ExternalLink, AlertCircle, Loader2 } from "l
 import { supabase } from "@/integrations/supabase/client";
 import { trackEvent } from "@/lib/events";
 
+function getTeamName(team: any): string {
+  if (!team) return "";
+  if (typeof team === "string") return team;
+  if (typeof team === "object" && team !== null) {
+    return team.name ?? "";
+  }
+  return String(team);
+}
+
 export interface OpenEsportivaPayload {
   matchLabel: string;
   markdown: string | null;
