@@ -48,11 +48,6 @@ function SectionCard({
             {title}
           </span>
         </div>
-        {expanded ? (
-          <ChevronUp className="w-5 h-5 text-muted-foreground" />
-        ) : (
-          <ChevronDown className={`w-5 h-5 ${iconColorClass} animate-pulse`} />
-        )}
       </div>
       <div
         className="px-4 pb-3 relative"
@@ -79,15 +74,14 @@ function SectionCard({
             {markdown}
           </ReactMarkdown>
         </div>
-        {!expanded && (
-          <div
-            className={`absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t ${gradientFromClass} via-${gradientFromClass.replace("from-", "")}/80 to-transparent pointer-events-none flex items-end justify-center pb-1`}
-          >
-            <span className="text-[10px] text-muted-foreground italic">
-              Toque para ver mais
-            </span>
-          </div>
-        )}
+      </div>
+      <div className="flex justify-center pb-2">
+        <ChevronDown
+          aria-label={expanded ? "Recolher" : "Expandir"}
+          className={`w-4 h-4 ${iconColorClass} transition-transform ${
+            expanded ? "rotate-180" : "animate-bounce"
+          }`}
+        />
       </div>
     </div>
   );
