@@ -41,8 +41,27 @@ function getAuthToken(): string | null {
 }
 
 export function useChatTipster() {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>(() => {
+    if (typeof window === "undefined") return [];
+    try {
+      const saved = sessionStorage.getItem(SESSION_KEY);
+      if (!saved) return [];
+      const parsed = JSON.parse(saved) as ChatMessage[];
+      // drop any orphaned loading messages from previous session
+      return parsed.filter((m) => !(m.role === "bot" && (m as any).type === "loading"));
+    } catch {
+      return [];
+    }
+  });
   const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(SESSION_KEY, JSON.stringify(messages));
+    } catch (e) {
+      console.warn("Falha ao persistir chat", e);
+    }
+  }, [messages]);
 
   const append = useCallback((msg: ChatMessage) => {
     setMessages((prev) => [...prev, msg]);
