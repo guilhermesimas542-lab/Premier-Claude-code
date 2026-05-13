@@ -73,7 +73,20 @@ export function useChatTipster() {
 
   const clear = useCallback(() => {
     setMessages([]);
+    try {
+      sessionStorage.removeItem(SESSION_KEY);
+    } catch {}
   }, []);
+
+  const rejectMatch = useCallback(() => {
+    append({
+      id: genId(),
+      role: "bot",
+      type: "text",
+      content: "Beleza, qual jogo então? Pode escrever os dois times ou só o nome de um.",
+      createdAt: Date.now(),
+    });
+  }, [append]);
 
   const sendQuery = useCallback(async (text: string) => {
     if (!text.trim() || busy) return;
