@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { LiveMatch } from "@/hooks/useLiveMatches";
 import { useGenerateLiveTip } from "@/hooks/useGenerateLiveTip";
 import { useCreditBalance } from "@/hooks/useCreditBalance";
 import { TipAnalysis } from "./TipAnalysis";
 import { BugReportDrawer } from "./BugReportDrawer";
+import type { OpenEsportivaPayload } from "./ChatMessage";
 import {
   Dialog,
   DialogContent,
@@ -29,10 +29,10 @@ interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   match: LiveMatch;
+  onOpenEsportiva?: (payload: OpenEsportivaPayload) => void;
 }
 
-export function LiveTipModal({ open, onOpenChange, match }: Props) {
-  const navigate = useNavigate();
+export function LiveTipModal({ open, onOpenChange, match, onOpenEsportiva }: Props) {
   const { tip, loading, error, generate } = useGenerateLiveTip();
   const { refetch: refetchBalance } = useCreditBalance();
   const [showSource, setShowSource] = useState(false);
@@ -63,28 +63,21 @@ export function LiveTipModal({ open, onOpenChange, match }: Props) {
   function handleOpenEsportiva() {
     const altenarUrl = tip?.source_data?.altenar_event_url as string | undefined;
     const altenarId = tip?.source_data?.altenar_event_id as string | undefined;
-    console.log("[DEBUG ia-esportiva-click]", {
+    const home = tip?.source_data?.fixture?.home ?? match.home.name;
+    const away = tip?.source_data?.fixture?.away ?? match.away.name;
+
+    trackEvent("ia_tipster_open_esportiva", {
+      mode: altenarUrl ? "event_specific" : "fallback_home",
+      altenar_event_id: altenarId ?? null,
       source: "live",
-      has_url: !!altenarUrl,
-      altenarUrl,
-      altenarId,
-      fullSourceData: tip?.source_data,
     });
-    if (altenarUrl) {
-      sessionStorage.setItem("pending_iframe_url", altenarUrl);
-      trackEvent("ia_tipster_open_esportiva", {
-        mode: "event_specific",
-        altenar_event_id: altenarId ?? null,
-        source: "live",
-      });
-    } else {
-      trackEvent("ia_tipster_open_esportiva", {
-        mode: "fallback_home",
-        source: "live",
-      });
-    }
+
     onOpenChange(false);
-    navigate("/sport/1");
+    onOpenEsportiva?.({
+      matchLabel: `${home} × ${away}`,
+      markdown: tip?.content?.markdown ?? null,
+      altenarEventUrl: altenarUrl ?? null,
+    });
   }
 
   return (
