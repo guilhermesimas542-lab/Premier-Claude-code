@@ -46,10 +46,10 @@ function extractSection(
 
 // 1. Formato moderno (emojis padronizados)
 function parseModern(markdown: string): ParsedAnalysis {
-  const entradaMarker = /🎯\s*ENTRADA PRINCIPAL\s*\n/i;
-  const alternativasMarker = /⚡\s*ALTERNATIVAS\s*\n/i;
-  const resumoMarker = /📋\s*RESUMO\s*\n/i;
-  const contextoMarker = /🔍\s*CONTEXTO\s*\n/i;
+  const entradaMarker = /🎯\s*\*{0,2}\s*ENTRADA PRINCIPAL\s*\*{0,2}\s*\n/i;
+  const alternativasMarker = /⚡\s*\*{0,2}\s*ALTERNATIVAS\s*\*{0,2}\s*\n/i;
+  const resumoMarker = /📋\s*\*{0,2}\s*RESUMO\s*\*{0,2}\s*\n/i;
+  const contextoMarker = /🔍\s*\*{0,2}\s*CONTEXTO\s*\*{0,2}\s*\n/i;
   const footerMarker = /⏱️/;
 
   const allEnds = [
