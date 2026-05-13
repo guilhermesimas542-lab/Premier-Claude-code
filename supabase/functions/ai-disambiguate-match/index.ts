@@ -387,6 +387,19 @@ Deno.serve(async (req: Request) => {
     });
   }
 
+  // ─── ROUTE 2: Detect single team via full name match (antes do matchup) ──
+  const teamHit = tryDetectTeamByName(query, fixturesByLeague);
+  if (teamHit) {
+    const upcoming = await fetchUpcomingByTeam(teamHit.teamId, apiKey, 3);
+    if (upcoming.length > 0) {
+      return jsonResp({
+        status: "team_upcoming",
+        team_name: teamHit.teamName,
+        matches: upcoming.map(fixtureToMatch),
+      });
+    }
+  }
+
   const scored = fixturesByLeague.map((f: any) => {
     const homeAliases = aliasMap.get(f.teams.home.id) || [];
     const awayAliases = aliasMap.get(f.teams.away.id) || [];
