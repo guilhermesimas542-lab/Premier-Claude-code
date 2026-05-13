@@ -35,20 +35,7 @@ const SportLayout = () => {
   const iframeLoadedRef = useRef(false);
   const { pendingTip, clearPendingTip } = usePendingTip();
 
-  // Inicializa a URL do iframe: prioriza pendingIframeUrl (vindo da IA Tipster
-  // com altenar_event_url específico do jogo). Fallback: URL padrão da casa.
   useEffect(() => {
-    const pending = sessionStorage.getItem("pending_iframe_url");
-    console.log("[DEBUG sportlayout-mount]", {
-      has_pending: !!pending,
-      pending,
-      userHouseIframe: userHouse?.iframe_url,
-    });
-    if (pending) {
-      sessionStorage.removeItem("pending_iframe_url");
-      setIframeUrl(pending);
-      return;
-    }
     if (userHouse?.iframe_url) {
       setIframeUrl(userHouse.iframe_url);
     }

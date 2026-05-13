@@ -2,6 +2,8 @@ import { useState, useMemo } from "react";
 import { Sparkles, MessageSquare, Radio, Lock } from "lucide-react";
 import { LiveMatchesSection } from "@/components/aitipster/LiveMatchesSection";
 import { ChatSection } from "@/components/aitipster/ChatSection";
+import { EsportivaInlinePanel } from "@/components/aitipster/EsportivaInlinePanel";
+import type { OpenEsportivaPayload } from "@/components/aitipster/ChatMessage";
 import { useCreditBalance } from "@/hooks/useCreditBalance";
 import { isAIBetaUser } from "@/lib/aiBetaAllowlist";
 
@@ -21,6 +23,7 @@ export default function IATipster() {
   const isBeta = isAIBetaUser(email);
 
   const [activeTab, setActiveTab] = useState<"chat" | "live">("live");
+  const [openEsportiva, setOpenEsportiva] = useState<OpenEsportivaPayload | null>(null);
   const { balance } = useCreditBalance();
 
   const creditsLabel = balance
@@ -55,6 +58,17 @@ export default function IATipster() {
           </p>
         </div>
       </div>
+    );
+  }
+
+  if (openEsportiva) {
+    return (
+      <EsportivaInlinePanel
+        matchLabel={openEsportiva.matchLabel}
+        markdown={openEsportiva.markdown}
+        altenarEventUrl={openEsportiva.altenarEventUrl}
+        onClose={() => setOpenEsportiva(null)}
+      />
     );
   }
 
@@ -101,9 +115,9 @@ export default function IATipster() {
       </header>
 
       {activeTab === "live" ? (
-        <LiveMatchesSection />
+        <LiveMatchesSection onOpenEsportiva={setOpenEsportiva} />
       ) : (
-        <ChatSection />
+        <ChatSection onOpenEsportiva={setOpenEsportiva} />
       )}
     </div>
   );

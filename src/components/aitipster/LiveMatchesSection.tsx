@@ -2,8 +2,13 @@ import { useLiveMatches } from "@/hooks/useLiveMatches";
 import { LiveMatchCard } from "./LiveMatchCard";
 import { Radio, RefreshCw, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import type { OpenEsportivaPayload } from "./ChatMessage";
 
-export function LiveMatchesSection() {
+interface Props {
+  onOpenEsportiva?: (payload: OpenEsportivaPayload) => void;
+}
+
+export function LiveMatchesSection({ onOpenEsportiva }: Props = {}) {
   const { data, loading, error, refetch } = useLiveMatches();
 
   if (loading && !data) {
@@ -57,7 +62,7 @@ export function LiveMatchesSection() {
         </Button>
       </div>
       {data.matches.map((m) => (
-        <LiveMatchCard key={m.fixture_id} match={m} />
+        <LiveMatchCard key={m.fixture_id} match={m} onOpenEsportiva={onOpenEsportiva} />
       ))}
     </div>
   );
