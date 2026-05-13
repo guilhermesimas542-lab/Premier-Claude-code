@@ -459,7 +459,7 @@ export type Database = {
           altenar_event_url: string | null
           api_football_fixture_id: number
           away_team: string
-          confidence: string
+          confidence: number
           created_at: string
           expires_at: string
           home_team: string
@@ -472,7 +472,7 @@ export type Database = {
           altenar_event_url?: string | null
           api_football_fixture_id: number
           away_team: string
-          confidence?: string
+          confidence: number
           created_at?: string
           expires_at: string
           home_team: string
@@ -485,7 +485,7 @@ export type Database = {
           altenar_event_url?: string | null
           api_football_fixture_id?: number
           away_team?: string
-          confidence?: string
+          confidence?: number
           created_at?: string
           expires_at?: string
           home_team?: string
