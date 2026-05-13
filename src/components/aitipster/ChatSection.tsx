@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useChatTipster } from "@/hooks/useChatTipster";
 import { useCreditBalance } from "@/hooks/useCreditBalance";
 import { ChatMessage } from "./ChatMessage";
+import type { OpenEsportivaPayload } from "./ChatMessage";
 import { ChatInput } from "./ChatInput";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Trash2, Calendar, Trophy } from "lucide-react";
@@ -14,7 +15,11 @@ interface Suggestion {
   kickoff_label: string;
 }
 
-export function ChatSection() {
+interface ChatSectionProps {
+  onOpenEsportiva?: (payload: OpenEsportivaPayload) => void;
+}
+
+export function ChatSection({ onOpenEsportiva }: ChatSectionProps = {}) {
   const { messages, busy, sendQuery, confirmFixture, clear } = useChatTipster();
   const { refetch: refetchBalance } = useCreditBalance();
   const scrollRef = useRef<HTMLDivElement>(null);
