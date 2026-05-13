@@ -89,7 +89,19 @@ export function useChatTipster() {
     } catch {}
   }, []);
 
-  const rejectMatch = useCallback(() => {
+  const rejectMatch = useCallback(async (fixtureIds?: number[]) => {
+    const query = lastQueryRef.current;
+    if (query && fixtureIds && fixtureIds.length > 0) {
+      try {
+        const token = getAuthToken();
+        await supabase.functions.invoke("ai-reject-fixture", {
+          body: { query, fixture_ids: fixtureIds },
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      } catch (e) {
+        console.warn("failed to register rejection", e);
+      }
+    }
     append({
       id: genId(),
       role: "bot",
