@@ -1,9 +1,15 @@
 import { useState } from "react";
 import { LiveMatch } from "@/hooks/useLiveMatches";
 import { LiveTipModal } from "./LiveTipModal";
+import type { OpenEsportivaPayload } from "./ChatMessage";
 import { Radio } from "lucide-react";
 
-export function LiveMatchCard({ match }: { match: LiveMatch }) {
+interface Props {
+  match: LiveMatch;
+  onOpenEsportiva?: (payload: OpenEsportivaPayload) => void;
+}
+
+export function LiveMatchCard({ match, onOpenEsportiva }: Props) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -54,7 +60,12 @@ export function LiveMatchCard({ match }: { match: LiveMatch }) {
         </div>
       </button>
 
-      <LiveTipModal open={open} onOpenChange={setOpen} match={match} />
+      <LiveTipModal
+        open={open}
+        onOpenChange={setOpen}
+        match={match}
+        onOpenEsportiva={onOpenEsportiva}
+      />
     </>
   );
 }
