@@ -483,17 +483,18 @@ Deno.serve(async (req: Request) => {
       const [teamId, top] = Array.from(teamScores.entries())
         .sort((a, b) => b[1].score - a[1].score)[0];
       const upcoming = await fetchUpcomingByTeam(teamId, apiKey, 3);
-      if (upcoming.length > 0) {
+      const filtered = upcoming.filter((f) => !rejectedFixtureIds.has(f.fixture.id));
+      if (filtered.length > 0) {
         return jsonResp({
           status: "team_upcoming",
           team_name: top.name,
-          matches: upcoming.map(fixtureToMatch),
+          matches: filtered.map(fixtureToMatch),
         });
       }
     }
     return jsonResp({
       status: "not_found",
-      message: "Não encontrei esse confronto nas próximas duas semanas. Me dá mais detalhes (liga, data)?",
+      message: "Não achei outro jogo pra essa busca. Tenta com mais detalhes (ex: nome completo do time).",
     });
   }
 
