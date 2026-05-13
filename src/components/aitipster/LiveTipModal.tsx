@@ -25,6 +25,15 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { trackEvent } from "@/lib/events";
 
+function getTeamName(team: any): string {
+  if (!team) return "";
+  if (typeof team === "string") return team;
+  if (typeof team === "object" && team !== null) {
+    return team.name ?? "";
+  }
+  return String(team);
+}
+
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
