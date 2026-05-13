@@ -191,6 +191,10 @@ export function useChatTipster() {
           role: "bot",
           type: "upcoming_list",
           matches: d.matches || [],
+          listType: status === "team_upcoming" ? "team" : "league",
+          teamId: d.team_id ?? null,
+          leagueIds: Array.isArray(d.league_ids) ? d.league_ids : null,
+          originalQuery: lastQueryRef.current,
           createdAt: Date.now(),
         });
         return;
