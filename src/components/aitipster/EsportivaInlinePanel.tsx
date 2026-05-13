@@ -81,28 +81,32 @@ export function EsportivaInlinePanel({
 
       {/* Resumo da análise */}
       {(entrada || alternativas.length > 0) && (
-        <div className="px-3 py-2 border-b bg-muted/30 space-y-1">
+        <div className="px-3 py-2 border-b bg-muted/30 space-y-1.5">
           {entrada && (
-            <div className="flex items-start gap-1.5 text-[11px] leading-snug">
-              <span>🎯</span>
-              <p className="flex-1">
-                <span className="font-semibold text-primary">Entrada: </span>
-                <span className="text-foreground">{entrada}</span>
-              </p>
+            <div className="flex items-start gap-1.5 text-sm">
+              <span className="text-primary font-semibold shrink-0 text-base">🎯</span>
+              <div className="flex-1 min-w-0">
+                <span className="font-bold text-primary">Entrada: </span>
+                <span className="text-foreground font-medium">{entrada}</span>
+              </div>
             </div>
           )}
           {alternativas.length > 0 && (
-            <div className="flex items-start gap-1.5 text-[11px] leading-snug">
-              <span>⚡</span>
-              <p className="flex-1">
-                <span className="font-semibold text-primary">Alternativas: </span>
+            <div className="flex items-start gap-1.5 text-xs">
+              <span className="text-yellow-500 font-semibold shrink-0">⚡</span>
+              <div className="flex-1 min-w-0">
+                <span className="font-semibold text-muted-foreground">
+                  Alternativas:{" "}
+                </span>
                 {alternativas.map((alt, i) => (
-                  <span key={i} className="text-foreground">
-                    {i > 0 && <span className="text-muted-foreground mx-1">|</span>}
-                    {alt}
+                  <span key={i}>
+                    {i > 0 && (
+                      <span className="text-muted-foreground/50 mx-1">|</span>
+                    )}
+                    <span className="text-muted-foreground">{alt}</span>
                   </span>
                 ))}
-              </p>
+              </div>
             </div>
           )}
         </div>
