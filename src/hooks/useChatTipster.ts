@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 const SESSION_KEY = "ia_tipster_chat_messages_v1";
@@ -64,6 +64,7 @@ export function useChatTipster() {
     }
   });
   const [busy, setBusy] = useState(false);
+  const lastQueryRef = useRef<string>("");
 
   useEffect(() => {
     try {
@@ -88,7 +89,19 @@ export function useChatTipster() {
     } catch {}
   }, []);
 
-  const rejectMatch = useCallback(() => {
+  const rejectMatch = useCallback(async (fixtureIds?: number[]) => {
+    const query = lastQueryRef.current;
+    if (query && fixtureIds && fixtureIds.length > 0) {
+      try {
+        const token = getAuthToken();
+        await supabase.functions.invoke("ai-reject-fixture", {
+          body: { query, fixture_ids: fixtureIds },
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      } catch (e) {
+        console.warn("failed to register rejection", e);
+      }
+    }
     append({
       id: genId(),
       role: "bot",
@@ -100,6 +113,7 @@ export function useChatTipster() {
 
   const sendQuery = useCallback(async (text: string) => {
     if (!text.trim() || busy) return;
+    lastQueryRef.current = text.trim();
     setBusy(true);
 
     append({

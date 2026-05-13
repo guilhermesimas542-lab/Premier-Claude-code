@@ -629,6 +629,33 @@ export type Database = {
           },
         ]
       }
+      ai_user_rejected_fixtures: {
+        Row: {
+          expires_at: string
+          fixture_id: number
+          id: string
+          query_normalized: string
+          rejected_at: string
+          user_id: string
+        }
+        Insert: {
+          expires_at?: string
+          fixture_id: number
+          id?: string
+          query_normalized: string
+          rejected_at?: string
+          user_id: string
+        }
+        Update: {
+          expires_at?: string
+          fixture_id?: number
+          id?: string
+          query_normalized?: string
+          rejected_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       app_errors: {
         Row: {
           component: string | null

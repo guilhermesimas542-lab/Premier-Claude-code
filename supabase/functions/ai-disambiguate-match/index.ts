@@ -336,14 +336,30 @@ Deno.serve(async (req: Request) => {
   const apiKey = Deno.env.get("API_FOOTBALL_KEY");
   if (!apiKey) return jsonResp({ error: "api_football_key_missing" }, 500);
 
+  // Carrega fixtures rejeitadas pelo user para essa query (últimos 7 dias)
+  const rejectedFixtureIds = new Set<number>();
+  try {
+    const queryNormForRej = normalize(query);
+    const { data: rejRows } = await supabase
+      .from("ai_user_rejected_fixtures")
+      .select("fixture_id")
+      .eq("user_id", token.user_id)
+      .eq("query_normalized", queryNormForRej)
+      .gt("expires_at", new Date().toISOString());
+    (rejRows || []).forEach((r: any) => rejectedFixtureIds.add(Number(r.fixture_id)));
+  } catch (e) {
+    console.warn("[disambiguate] rejected lookup failed", e);
+  }
+
   // ─── ROUTE 1: Detect league name → próximos jogos da liga ────
   const leagueIds = detectLeague(query);
   if (leagueIds && leagueIds.length > 0) {
     const fixtures = await fetchUpcomingByLeague(leagueIds, apiKey, 10);
-    if (fixtures.length > 0) {
+    const filtered = fixtures.filter((f) => !rejectedFixtureIds.has(f.fixture.id));
+    if (filtered.length > 0) {
       return jsonResp({
         status: "league_upcoming",
-        matches: fixtures.map(fixtureToMatch),
+        matches: filtered.map(fixtureToMatch),
       });
     }
   }
@@ -391,11 +407,12 @@ Deno.serve(async (req: Request) => {
   const teamHit = tryDetectTeamByName(query, fixturesByLeague);
   if (teamHit) {
     const upcoming = await fetchUpcomingByTeam(teamHit.teamId, apiKey, 3);
-    if (upcoming.length > 0) {
+    const filtered = upcoming.filter((f) => !rejectedFixtureIds.has(f.fixture.id));
+    if (filtered.length > 0) {
       return jsonResp({
         status: "team_upcoming",
         team_name: teamHit.teamName,
-        matches: upcoming.map(fixtureToMatch),
+        matches: filtered.map(fixtureToMatch),
       });
     }
   }
@@ -439,6 +456,7 @@ Deno.serve(async (req: Request) => {
     }));
   const candidates = scored
     .filter(s => s.totalScore > 0.3 && s.homeScore > 0 && s.awayScore > 0)
+    .filter(s => !rejectedFixtureIds.has(s.fixture.fixture.id))
     .sort((a, b) => b.totalScore - a.totalScore)
     .slice(0, 5);
 
@@ -465,17 +483,18 @@ Deno.serve(async (req: Request) => {
       const [teamId, top] = Array.from(teamScores.entries())
         .sort((a, b) => b[1].score - a[1].score)[0];
       const upcoming = await fetchUpcomingByTeam(teamId, apiKey, 3);
-      if (upcoming.length > 0) {
+      const filtered = upcoming.filter((f) => !rejectedFixtureIds.has(f.fixture.id));
+      if (filtered.length > 0) {
         return jsonResp({
           status: "team_upcoming",
           team_name: top.name,
-          matches: upcoming.map(fixtureToMatch),
+          matches: filtered.map(fixtureToMatch),
         });
       }
     }
     return jsonResp({
       status: "not_found",
-      message: "Não encontrei esse confronto nas próximas duas semanas. Me dá mais detalhes (liga, data)?",
+      message: "Não achei outro jogo pra essa busca. Tenta com mais detalhes (ex: nome completo do time).",
     });
   }
 
