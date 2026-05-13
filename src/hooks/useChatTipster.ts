@@ -160,6 +160,27 @@ export function useChatTipster() {
         });
         return;
       }
+      if (status === "league_upcoming" || status === "team_upcoming") {
+        const d = data as any;
+        const header = status === "league_upcoming"
+          ? "Próximos jogos da rodada — qual quer analisar?"
+          : `Próximos jogos${d.team_name ? ` de ${d.team_name}` : ""} — qual quer analisar?`;
+        append({
+          id: genId(),
+          role: "bot",
+          type: "text",
+          content: header,
+          createdAt: Date.now(),
+        });
+        append({
+          id: genId(),
+          role: "bot",
+          type: "upcoming_list",
+          matches: d.matches || [],
+          createdAt: Date.now(),
+        });
+        return;
+      }
       if (status === "past") {
         const m = (data as any).match;
         append({
