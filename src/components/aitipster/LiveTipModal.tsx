@@ -61,6 +61,21 @@ export function LiveTipModal({ open, onOpenChange, match }: Props) {
   }
 
   function handleOpenEsportiva() {
+    const altenarUrl = tip?.source_data?.altenar_event_url as string | undefined;
+    const altenarId = tip?.source_data?.altenar_event_id as string | undefined;
+    if (altenarUrl) {
+      sessionStorage.setItem("pending_iframe_url", altenarUrl);
+      trackEvent("ia_tipster_open_esportiva", {
+        mode: "event_specific",
+        altenar_event_id: altenarId ?? null,
+        source: "live",
+      });
+    } else {
+      trackEvent("ia_tipster_open_esportiva", {
+        mode: "fallback_home",
+        source: "live",
+      });
+    }
     onOpenChange(false);
     navigate("/sport/1");
   }
