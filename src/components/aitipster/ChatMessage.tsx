@@ -89,6 +89,39 @@ export function ChatMessage({ message, onConfirmFixture, onOpenEsportiva, onReje
     );
   }
 
+  if (message.type === "upcoming_list") {
+    return (
+      <div className="w-full space-y-2">
+        {message.matches.map((m) => (
+          <button
+            key={m.fixture_id}
+            onClick={() => onConfirmFixture(m.fixture_id, `${m.home} x ${m.away}`)}
+            className="w-full text-left rounded-lg border bg-card hover:bg-accent p-3 transition-colors"
+          >
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-semibold truncate">
+                  {m.home} <span className="text-muted-foreground mx-1">×</span> {m.away}
+                </div>
+                <div className="text-xs text-muted-foreground flex items-center gap-3 mt-1">
+                  <span className="flex items-center gap-1 truncate">
+                    <Trophy className="w-3 h-3 shrink-0" />
+                    <span className="truncate">{m.league}</span>
+                  </span>
+                  <span className="flex items-center gap-1 shrink-0">
+                    <Calendar className="w-3 h-3" />
+                    {m.kickoff_label}
+                  </span>
+                </div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
+            </div>
+          </button>
+        ))}
+      </div>
+    );
+  }
+
   if (message.type === "tip") {
     const sendFeedback = async (value: "up" | "down") => {
       if (feedback) return;
