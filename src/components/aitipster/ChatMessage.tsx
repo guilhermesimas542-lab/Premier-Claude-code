@@ -131,6 +131,13 @@ export function ChatMessage({ message, onConfirmFixture }: Props) {
             onClick={() => {
               const altenarUrl = message.sourceData?.altenar_event_url as string | undefined;
               const altenarId = message.sourceData?.altenar_event_id as string | undefined;
+              console.log("[DEBUG ia-esportiva-click]", {
+                source: "chat",
+                has_url: !!altenarUrl,
+                altenarUrl,
+                altenarId,
+                fullSourceData: message.sourceData,
+              });
               if (altenarUrl) {
                 sessionStorage.setItem("pending_iframe_url", altenarUrl);
                 trackEvent("ia_tipster_open_esportiva", {
