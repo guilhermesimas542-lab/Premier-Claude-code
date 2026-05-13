@@ -46,6 +46,109 @@ const TOP_LEAGUES = [
 const WINDOW_DAYS_FUTURE = 15;
 const WINDOW_DAYS_PAST = 7;
 
+// Mapping: alias normalizado → array de league_ids (suporta múltiplos
+// pra casos como "Primera División" que existem em Chile/Uruguai/Venezuela)
+const LEAGUE_ALIASES: Record<string, number[]> = {
+  "brasileirao": [71], "brasileirao a": [71], "brasileirao serie a": [71], "br serie a": [71],
+  "brasileirao b": [72], "br serie b": [72], "serie b brasil": [72],
+  "copa do brasil": [73],
+  "brasileirao c": [75], "serie c": [75],
+  "liga profesional": [128], "liga profesional argentina": [128], "primera argentina": [128],
+  "copa argentina": [130], "primera b nacional": [129],
+  "libertadores": [13], "copa libertadores": [13],
+  "sulamericana": [11], "sudamericana": [11], "copa sulamericana": [11], "copa sudamericana": [11],
+  "premier": [39], "premier league": [39], "pl": [39],
+  "championship": [40], "efl championship": [40],
+  "efl cup": [48], "carabao": [48], "carabao cup": [48],
+  "la liga": [140], "laliga": [140], "espanhol": [140], "campeonato espanhol": [140],
+  "la liga 2": [141], "segunda espanhola": [141],
+  "serie a italia": [135], "campeonato italiano": [135], "serie b italia": [136],
+  "bundesliga": [78], "campeonato alemao": [78], "2 bundesliga": [79], "segunda bundesliga": [79],
+  "ligue 1": [61], "ligue 2": [62], "campeonato frances": [61], "coupe de france": [66],
+  "primeira liga": [94], "liga portugal": [94], "campeonato portugues": [94], "liga portugal 2": [95],
+  "eredivisie": [88], "campeonato holandes": [88],
+  "champions": [2], "champions league": [2], "ucl": [2], "liga dos campeoes": [2],
+  "europa league": [3], "uel": [3],
+  "conference": [848], "conference league": [848],
+  "mls": [253], "major league soccer": [253],
+  "liga mx": [262], "campeonato mexicano": [262],
+  "liga betplay": [239], "colombia": [239], "liga colombiana": [239],
+  "primera chile": [265], "primera division chile": [265],
+  "primera uruguai": [268], "primera division uruguai": [268],
+  "liga 1 peru": [281], "primera peru": [281],
+  "primera venezuela": [299],
+  "ligapro": [242], "liga pro": [242], "campeonato equatoriano": [242],
+  "liga 2 romenia": [284],
+  "allsvenskan": [113],
+  "eliteserien": [103], "campeonato noruegues": [103],
+  "superliga dinamarca": [119],
+  "super lig": [203], "campeonato turco": [203],
+  "saudi pro league": [307], "liga saudita": [307],
+  "world cup": [1], "copa do mundo": [1],
+  "primera division": [265, 268, 299], "primera a": [265, 268, 299],
+};
+
+function detectLeague(rawQuery: string): number[] | null {
+  const normalized = normalize(rawQuery);
+  if (!normalized) return null;
+  if (LEAGUE_ALIASES[normalized]) return LEAGUE_ALIASES[normalized];
+  for (const [alias, leagueIds] of Object.entries(LEAGUE_ALIASES)) {
+    if (alias.length < 6) continue;
+    if (normalized === alias) return leagueIds;
+    if (normalized.length >= 6 && normalized.includes(alias)) return leagueIds;
+    if (alias.includes(normalized) && normalized.length >= 8) return leagueIds;
+  }
+  return null;
+}
+
+function formatKickoff(iso: string): string {
+  return new Date(iso).toLocaleString("pt-BR", {
+    day: "2-digit", month: "long", hour: "2-digit", minute: "2-digit",
+    timeZone: "America/Sao_Paulo",
+  });
+}
+
+async function fetchUpcomingByLeague(leagueIds: number[], apiKey: string, limit = 10): Promise<any[]> {
+  const all: any[] = [];
+  await Promise.all(leagueIds.map(async (leagueId) => {
+    try {
+      const url = `https://v3.football.api-sports.io/fixtures?league=${leagueId}&next=${limit}`;
+      const resp = await fetch(url, { headers: { "x-apisports-key": apiKey } });
+      if (!resp.ok) return;
+      const data = await resp.json();
+      if (Array.isArray(data.response)) all.push(...data.response);
+    } catch (e) {
+      console.warn(`fetchUpcomingByLeague league=${leagueId} failed`, e);
+    }
+  }));
+  all.sort((a, b) => new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime());
+  return all.slice(0, limit);
+}
+
+async function fetchUpcomingByTeam(teamId: number, apiKey: string, limit = 3): Promise<any[]> {
+  try {
+    const url = `https://v3.football.api-sports.io/fixtures?team=${teamId}&next=${limit}`;
+    const resp = await fetch(url, { headers: { "x-apisports-key": apiKey } });
+    if (!resp.ok) return [];
+    const data = await resp.json();
+    return Array.isArray(data.response) ? data.response : [];
+  } catch (e) {
+    console.warn(`fetchUpcomingByTeam team=${teamId} failed`, e);
+    return [];
+  }
+}
+
+function fixtureToMatch(f: any) {
+  return {
+    fixture_id: f.fixture.id,
+    home: f.teams.home.name,
+    away: f.teams.away.name,
+    league: f.league.name,
+    kickoff_at: f.fixture.date,
+    kickoff_label: formatKickoff(f.fixture.date),
+  };
+}
+
 interface TokenPayload {
   user_id?: string;
   email?: string;
@@ -189,6 +292,18 @@ Deno.serve(async (req: Request) => {
   const apiKey = Deno.env.get("API_FOOTBALL_KEY");
   if (!apiKey) return jsonResp({ error: "api_football_key_missing" }, 500);
 
+  // ─── ROUTE 1: Detect league name → próximos jogos da liga ────
+  const leagueIds = detectLeague(query);
+  if (leagueIds && leagueIds.length > 0) {
+    const fixtures = await fetchUpcomingByLeague(leagueIds, apiKey, 10);
+    if (fixtures.length > 0) {
+      return jsonResp({
+        status: "league_upcoming",
+        matches: fixtures.map(fixtureToMatch),
+      });
+    }
+  }
+
   const today = new Date();
   const TOP_LEAGUES_SET = new Set(TOP_LEAGUES);
   const fixturesByLeague: any[] = [];
@@ -271,6 +386,36 @@ Deno.serve(async (req: Request) => {
     .slice(0, 5);
 
   if (candidates.length === 0) {
+    // ─── ROUTE 2: fallback single-team — usa o mesmo `scored` ───
+    const teamScores = new Map<number, { score: number; name: string }>();
+    for (const s of scored) {
+      const home = s.fixture.teams.home;
+      const away = s.fixture.teams.away;
+      if (s.homeScore >= 0.6) {
+        const prev = teamScores.get(home.id);
+        if (!prev || s.homeScore > prev.score) {
+          teamScores.set(home.id, { score: s.homeScore, name: home.name });
+        }
+      }
+      if (s.awayScore >= 0.6) {
+        const prev = teamScores.get(away.id);
+        if (!prev || s.awayScore > prev.score) {
+          teamScores.set(away.id, { score: s.awayScore, name: away.name });
+        }
+      }
+    }
+    if (teamScores.size > 0) {
+      const [teamId, top] = Array.from(teamScores.entries())
+        .sort((a, b) => b[1].score - a[1].score)[0];
+      const upcoming = await fetchUpcomingByTeam(teamId, apiKey, 3);
+      if (upcoming.length > 0) {
+        return jsonResp({
+          status: "team_upcoming",
+          team_name: top.name,
+          matches: upcoming.map(fixtureToMatch),
+        });
+      }
+    }
     return jsonResp({
       status: "not_found",
       message: "Não encontrei esse confronto nas próximas duas semanas. Me dá mais detalhes (liga, data)?",

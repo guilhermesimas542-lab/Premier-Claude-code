@@ -22,11 +22,21 @@ export interface ChatTipResponse {
   generated_at: string;
 }
 
+export interface UpcomingMatch {
+  fixture_id: number;
+  home: string;
+  away: string;
+  league: string;
+  kickoff_at: string;
+  kickoff_label: string;
+}
+
 export type ChatMessage =
   | { id: string; role: "user"; content: string; createdAt: number }
   | { id: string; role: "bot"; type: "text"; content: string; createdAt: number }
   | { id: string; role: "bot"; type: "loading"; label: string; createdAt: number }
   | { id: string; role: "bot"; type: "disambiguation"; matches: DisambiguationMatch[]; confidence: "high" | "medium"; createdAt: number }
+  | { id: string; role: "bot"; type: "upcoming_list"; matches: UpcomingMatch[]; createdAt: number }
   | { id: string; role: "bot"; type: "tip"; tipCacheId: string; markdown: string; sourceData: any; cached: boolean; createdAt: number }
   | { id: string; role: "bot"; type: "error"; message: string; createdAt: number };
 
@@ -146,6 +156,27 @@ export function useChatTipster() {
           type: "disambiguation",
           matches: (data as any).matches,
           confidence: "medium",
+          createdAt: Date.now(),
+        });
+        return;
+      }
+      if (status === "league_upcoming" || status === "team_upcoming") {
+        const d = data as any;
+        const header = status === "league_upcoming"
+          ? "Próximos jogos da rodada — qual quer analisar?"
+          : `Próximos jogos${d.team_name ? ` de ${d.team_name}` : ""} — qual quer analisar?`;
+        append({
+          id: genId(),
+          role: "bot",
+          type: "text",
+          content: header,
+          createdAt: Date.now(),
+        });
+        append({
+          id: genId(),
+          role: "bot",
+          type: "upcoming_list",
+          matches: d.matches || [],
           createdAt: Date.now(),
         });
         return;
