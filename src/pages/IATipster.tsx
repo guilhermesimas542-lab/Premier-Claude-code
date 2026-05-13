@@ -2,6 +2,8 @@ import { useState, useMemo } from "react";
 import { Sparkles, MessageSquare, Radio, Lock } from "lucide-react";
 import { LiveMatchesSection } from "@/components/aitipster/LiveMatchesSection";
 import { ChatSection } from "@/components/aitipster/ChatSection";
+import { EsportivaInlinePanel } from "@/components/aitipster/EsportivaInlinePanel";
+import type { OpenEsportivaPayload } from "@/components/aitipster/ChatMessage";
 import { useCreditBalance } from "@/hooks/useCreditBalance";
 import { isAIBetaUser } from "@/lib/aiBetaAllowlist";
 
