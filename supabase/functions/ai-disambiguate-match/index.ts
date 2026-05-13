@@ -292,6 +292,18 @@ Deno.serve(async (req: Request) => {
   const apiKey = Deno.env.get("API_FOOTBALL_KEY");
   if (!apiKey) return jsonResp({ error: "api_football_key_missing" }, 500);
 
+  // ─── ROUTE 1: Detect league name → próximos jogos da liga ────
+  const leagueIds = detectLeague(query);
+  if (leagueIds && leagueIds.length > 0) {
+    const fixtures = await fetchUpcomingByLeague(leagueIds, apiKey, 10);
+    if (fixtures.length > 0) {
+      return jsonResp({
+        status: "league_upcoming",
+        matches: fixtures.map(fixtureToMatch),
+      });
+    }
+  }
+
   const today = new Date();
   const TOP_LEAGUES_SET = new Set(TOP_LEAGUES);
   const fixturesByLeague: any[] = [];
