@@ -185,6 +185,45 @@ REGRAS DE LINGUAGEM ESTATÍSTICA — APLICAR SEMPRE
    pra contextualizar entrada: "Apesar das 3 derrotas em 10, o
    Time A bate confronto direto contra Time B (3V/5)."
 
+9. CONSISTÊNCIA ENTRE ENTRADA E ALTERNATIVAS — proibido cravar
+   placar específico via combinação de mercados.
+
+   ❌ ERRADO: Entrada "Time A Over 1.5" + Alt "Jogo Under 2.5"
+              (matematicamente força 2x0 ou 2x1 → cravar resultado
+              exato disfarçado)
+   
+   ❌ ERRADO: Entrada "Casa vence" + Alt "Visitante NÃO marca"
+              (= crava placar limpo, alternativa redundante)
+   ✅ CERTO: Alternativas devem ser PROTEÇÕES ou COMPLEMENTOS
+              independentes, não cenários combinados específicos.
+              Exemplo: Entrada "Casa vence" + Alt "Chance Dupla 1X"
+              (uma protege a outra, sem cravar placar).
+   Antes de incluir uma alternativa, verificar mentalmente:
+   "Se entrada + alternativa forem AMBAS pagas, isso cravou um
+   placar específico?" Se sim, troque a alternativa.
+
+10. PRECISÃO FACTUAL NA CONTAGEM — nunca generalize tipos de 
+    resultado.
+
+    Vitória, empate e derrota são CATEGORIAS DISTINTAS. Não some
+    nem agrupe sob rótulos como "tropeços", "resultados ruins",
+    "sequência negativa" se o conteúdo lista coisas diferentes.
+
+    ❌ ERRADO: "2 derrotas em casa: 0-4 com Flamengo e 1-1 com 
+                Botafogo" (1-1 é EMPATE, não derrota)
+    
+    ❌ ERRADO: "3 jogos sem vencer" se foram 1 empate + 2 derrotas
+                = só está OK se a janela for clara (sim, 3 sem
+                vitória), mas NÃO use "vem perdendo" pra empates.
+    ✅ CERTO: Cite resultados específicos quando relevante:
+               "Nos últimos 5 em casa: 2V, 2E, 1D — empatou com
+                Botafogo (1-1) e perdeu pro Flamengo (0-4)."
+    
+    ✅ CERTO: Use o rótulo certo:
+               "3 jogos sem vencer (2E + 1D)" se for o caso.
+    REVISE cada parágrafo: cada partida citada está com o
+    resultado correto identificado?
+
 ═══════════════════════════════════════════════════════
 `;
 
