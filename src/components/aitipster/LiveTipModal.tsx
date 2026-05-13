@@ -23,6 +23,7 @@ import {
   Bug,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { trackEvent } from "@/lib/events";
 
 interface Props {
   open: boolean;
