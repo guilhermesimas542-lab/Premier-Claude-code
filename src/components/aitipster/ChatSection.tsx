@@ -114,7 +114,7 @@ export function ChatSection({ onOpenEsportiva }: ChatSectionProps = {}) {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100dvh-208px)]">
+    <div className="flex flex-col h-full">
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-4 space-y-3">
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center text-center pt-10 px-3">
@@ -137,21 +137,23 @@ export function ChatSection({ onOpenEsportiva }: ChatSectionProps = {}) {
         ))}
       </div>
 
-      {messages.length > 0 && (
-        <div className="px-3 py-1 border-t flex justify-end">
-          <Button
-            onClick={clear}
-            variant="ghost"
-            size="sm"
-            className="h-7 text-xs text-muted-foreground"
-          >
-            <Trash2 className="w-3 h-3 mr-1" />
-            Limpar
-          </Button>
-        </div>
-      )}
+      <div className="shrink-0 bg-background border-t">
+        {messages.length > 0 && (
+          <div className="px-3 py-1 flex justify-end">
+            <Button
+              onClick={clear}
+              variant="ghost"
+              size="sm"
+              className="h-7 text-xs text-muted-foreground"
+            >
+              <Trash2 className="w-3 h-3 mr-1" />
+              Limpar
+            </Button>
+          </div>
+        )}
 
-      <ChatInput onSend={sendQuery} disabled={busy} />
+        <ChatInput onSend={sendQuery} disabled={busy} />
+      </div>
     </div>
   );
 }
