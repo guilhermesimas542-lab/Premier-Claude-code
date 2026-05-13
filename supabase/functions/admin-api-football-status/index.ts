@@ -20,6 +20,7 @@ serve(async (req) => {
   try {
     const authHeader = req.headers.get("authorization");
     if (!authHeader) {
+      console.error("[auth] missing authorization header");
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -27,32 +28,32 @@ serve(async (req) => {
     }
 
     const token = authHeader.replace("Bearer ", "");
-    let userEmail: string | null = null;
-    try {
-      const payload = JSON.parse(atob(token));
-      userEmail = payload.email ?? null;
-    } catch {
+    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+
+    const { data: authData, error: authError } = await supabase.auth.getUser(token);
+    if (authError || !authData?.user?.email) {
+      console.error("[auth] JWT validation failed", authError);
       return new Response(JSON.stringify({ error: "Invalid token" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+    const userEmail = authData.user.email;
 
-    if (!userEmail) {
-      return new Response(JSON.stringify({ error: "Missing email in token" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
-    const { data: adminCheck } = await supabase
+    const { data: adminCheck, error: adminError } = await supabase
       .from("admin_emails")
       .select("email")
       .eq("email", userEmail)
       .maybeSingle();
-
+    if (adminError) {
+      console.error("[auth] admin lookup error", adminError);
+      return new Response(JSON.stringify({ error: "Lookup failed" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
     if (!adminCheck) {
+      console.error("[auth] not admin", { email: userEmail });
       return new Response(JSON.stringify({ error: "Forbidden — not admin" }), {
         status: 403,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
