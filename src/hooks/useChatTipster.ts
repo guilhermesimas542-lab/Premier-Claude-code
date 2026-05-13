@@ -113,6 +113,7 @@ export function useChatTipster() {
 
   const sendQuery = useCallback(async (text: string) => {
     if (!text.trim() || busy) return;
+    lastQueryRef.current = text.trim();
     setBusy(true);
 
     append({
