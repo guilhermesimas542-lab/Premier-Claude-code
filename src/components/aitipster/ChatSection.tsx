@@ -20,7 +20,7 @@ interface ChatSectionProps {
 }
 
 export function ChatSection({ onOpenEsportiva }: ChatSectionProps = {}) {
-  const { messages, busy, sendQuery, confirmFixture, clear } = useChatTipster();
+  const { messages, busy, sendQuery, confirmFixture, clear, rejectMatch } = useChatTipster();
   const { refetch: refetchBalance } = useCreditBalance();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [suggestions, setSuggestions] = useState<Suggestion[] | null>(null);
@@ -133,6 +133,7 @@ export function ChatSection({ onOpenEsportiva }: ChatSectionProps = {}) {
             message={m}
             onConfirmFixture={handleConfirm}
             onOpenEsportiva={onOpenEsportiva}
+            onRejectMatch={rejectMatch}
           />
         ))}
       </div>

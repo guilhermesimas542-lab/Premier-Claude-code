@@ -27,9 +27,10 @@ interface Props {
   message: Msg;
   onConfirmFixture: (fixtureId: number, label: string) => void;
   onOpenEsportiva?: (payload: OpenEsportivaPayload) => void;
+  onRejectMatch?: () => void;
 }
 
-export function ChatMessage({ message, onConfirmFixture, onOpenEsportiva }: Props) {
+export function ChatMessage({ message, onConfirmFixture, onOpenEsportiva, onRejectMatch }: Props) {
   const [feedback, setFeedback] = useState<"up" | "down" | null>(null);
   const [bugOpen, setBugOpen] = useState(false);
 
@@ -82,6 +83,7 @@ export function ChatMessage({ message, onConfirmFixture, onOpenEsportiva }: Prop
           matches={message.matches}
           confidence={message.confidence}
           onConfirm={onConfirmFixture}
+          onReject={onRejectMatch}
         />
       </div>
     );

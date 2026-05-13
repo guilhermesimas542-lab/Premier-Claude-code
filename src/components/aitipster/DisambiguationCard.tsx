@@ -7,15 +7,23 @@ interface Props {
   matches: DisambiguationMatch[];
   confidence: "high" | "medium";
   onConfirm: (fixtureId: number, label: string) => void;
+  onReject?: () => void;
 }
 
-export function DisambiguationCard({ matches, confidence, onConfirm }: Props) {
+export function DisambiguationCard({ matches, confidence, onConfirm, onReject }: Props) {
   const [chosen, setChosen] = useState<number | null>(null);
+  const [rejected, setRejected] = useState(false);
 
   const handleClick = (m: DisambiguationMatch) => {
-    if (chosen !== null) return;
+    if (chosen !== null || rejected) return;
     setChosen(m.fixture_id);
     onConfirm(m.fixture_id, `${m.home} x ${m.away}`);
+  };
+
+  const handleReject = () => {
+    if (chosen !== null || rejected) return;
+    setRejected(true);
+    onReject?.();
   };
 
   return (
@@ -27,7 +35,7 @@ export function DisambiguationCard({ matches, confidence, onConfirm }: Props) {
       </p>
       {matches.map((m) => {
         const isChosen = chosen === m.fixture_id;
-        const isDisabled = chosen !== null && !isChosen;
+        const isDisabled = (chosen !== null && !isChosen) || rejected;
         return (
           <div
             key={m.fixture_id}
@@ -48,16 +56,27 @@ export function DisambiguationCard({ matches, confidence, onConfirm }: Props) {
             </div>
             <Button
               onClick={() => handleClick(m)}
-              disabled={chosen !== null}
+              disabled={chosen !== null || rejected}
               size="sm"
               variant={isChosen ? "default" : "outline"}
-              className="w-full"
+              className="w-full text-black font-semibold"
             >
               {isChosen ? "Selecionado" : "Sim, é esse jogo"}
             </Button>
           </div>
         );
       })}
+      {onReject && (
+        <Button
+          onClick={handleReject}
+          disabled={chosen !== null || rejected}
+          size="sm"
+          variant="outline"
+          className="w-full text-xs"
+        >
+          Não é esse jogo
+        </Button>
+      )}
     </div>
   );
 }

@@ -1,5 +1,7 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+
+const SESSION_KEY = "ia_tipster_chat_messages_v1";
 
 export interface DisambiguationMatch {
   fixture_id: number;
@@ -39,8 +41,27 @@ function getAuthToken(): string | null {
 }
 
 export function useChatTipster() {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>(() => {
+    if (typeof window === "undefined") return [];
+    try {
+      const saved = sessionStorage.getItem(SESSION_KEY);
+      if (!saved) return [];
+      const parsed = JSON.parse(saved) as ChatMessage[];
+      // drop any orphaned loading messages from previous session
+      return parsed.filter((m) => !(m.role === "bot" && (m as any).type === "loading"));
+    } catch {
+      return [];
+    }
+  });
   const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(SESSION_KEY, JSON.stringify(messages));
+    } catch (e) {
+      console.warn("Falha ao persistir chat", e);
+    }
+  }, [messages]);
 
   const append = useCallback((msg: ChatMessage) => {
     setMessages((prev) => [...prev, msg]);
@@ -52,7 +73,20 @@ export function useChatTipster() {
 
   const clear = useCallback(() => {
     setMessages([]);
+    try {
+      sessionStorage.removeItem(SESSION_KEY);
+    } catch {}
   }, []);
+
+  const rejectMatch = useCallback(() => {
+    append({
+      id: genId(),
+      role: "bot",
+      type: "text",
+      content: "Beleza, qual jogo então? Pode escrever os dois times ou só o nome de um.",
+      createdAt: Date.now(),
+    });
+  }, [append]);
 
   const sendQuery = useCallback(async (text: string) => {
     if (!text.trim() || busy) return;
@@ -243,5 +277,5 @@ export function useChatTipster() {
     }
   }, [append, removeLoading, busy]);
 
-  return { messages, busy, sendQuery, confirmFixture, clear };
+  return { messages, busy, sendQuery, confirmFixture, clear, rejectMatch };
 }
