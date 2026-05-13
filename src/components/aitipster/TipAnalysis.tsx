@@ -1,6 +1,6 @@
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
-import { Target, Zap, ClipboardList, Search, ChevronDown, ChevronUp } from "lucide-react";
+import { Target, Zap, ClipboardList, Search, ChevronDown } from "lucide-react";
 import { parseAnalysis } from "@/lib/parseAnalysis";
 
 interface SectionCardProps {
