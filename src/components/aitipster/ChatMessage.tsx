@@ -4,7 +4,7 @@ import { DisambiguationCard } from "./DisambiguationCard";
 import { TipAnalysis } from "./TipAnalysis";
 import { BugReportDrawer } from "./BugReportDrawer";
 import { Button } from "@/components/ui/button";
-import { ThumbsUp, ThumbsDown, Bug, ExternalLink, AlertCircle, Loader2 } from "lucide-react";
+import { ThumbsUp, ThumbsDown, Bug, ExternalLink, AlertCircle, Loader2, Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { trackEvent } from "@/lib/events";
 
@@ -170,6 +170,24 @@ export function ChatMessage({ message, onConfirmFixture, onOpenEsportiva, onReje
             Esportiva
           </Button>
         </div>
+
+        <Button
+          onClick={() => {
+            const input = document.querySelector<HTMLInputElement | HTMLTextAreaElement>(
+              'input[placeholder*="Pergunte sobre um jogo"], textarea[placeholder*="Pergunte sobre um jogo"]'
+            );
+            if (input) {
+              input.focus();
+              input.scrollIntoView({ behavior: "smooth", block: "center" });
+            }
+          }}
+          variant="outline"
+          size="sm"
+          className="w-full"
+        >
+          <Search className="w-3 h-3 mr-1" />
+          Pedir análise de outro jogo
+        </Button>
 
         <BugReportDrawer
           open={bugOpen}
