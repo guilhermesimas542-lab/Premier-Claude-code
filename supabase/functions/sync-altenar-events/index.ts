@@ -202,7 +202,7 @@ async function syncChampionship(
             league_id: champ.api_football_league_id,
             league_name: champ.league_name,
             kickoff_at: ev.startDate,
-            confidence: Number(match.confidence.toFixed(2)),
+            confidence: Number(Math.min(1, match.confidence).toFixed(2)),
             expires_at: new Date(
               new Date(ev.startDate).getTime() + 3 * 3_600_000
             ).toISOString(),
