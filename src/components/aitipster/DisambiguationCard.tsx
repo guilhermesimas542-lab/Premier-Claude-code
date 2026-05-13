@@ -58,8 +58,8 @@ export function DisambiguationCard({ matches, confidence, onConfirm, onReject }:
               onClick={() => handleClick(m)}
               disabled={chosen !== null || rejected}
               size="sm"
-              variant={isChosen ? "default" : "outline"}
-              className="w-full text-black font-semibold"
+              variant="default"
+              className="w-full bg-primary text-black font-semibold hover:bg-primary/90"
             >
               {isChosen ? "Selecionado" : "Sim, é esse jogo"}
             </Button>
