@@ -21,9 +21,14 @@ function extractMarketLine(rawLine: string): string {
 function extractEntrada(section: string): string {
   if (!section) return "";
   const lines = section.split("\n").map((l) => l.trim()).filter(Boolean);
+  // Prioridade:
+  // 1. Linha que TEM mercado em negrito (***...*** ou **...**)
+  //    — funciona mesmo sem @ (caso Live com odds suspensas)
+  // 2. Linha com @ (fallback para Chat com odd numérica)
+  // 3. Primeira linha não-vazia
   const marketLine =
+    lines.find((l) => /^\*{2,3}[^*].*?\*{2,3}/.test(l)) ??
     lines.find((l) => l.includes("@")) ??
-    lines.find((l) => l.includes("**")) ??
     lines[0];
   if (!marketLine) return "";
   return extractMarketLine(marketLine).slice(0, 140);

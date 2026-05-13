@@ -96,7 +96,9 @@ A saída tem exatamente 4 seções nesta ordem:
 
 🎯 **ENTRADA PRINCIPAL**
 
-***[Mercado + linha exata]*** @ [odd live se disponível, senão omitir]
+***[Mercado + linha exata]*** @ [odd live se disponível, senão "@ odds suspensas" ou "@ indisponível"]
+
+OBRIGATÓRIO: a linha do mercado SEMPRE termina com "@ algo". Nunca omitir o @ — se a odd live não está disponível, escrever literalmente "@ odds suspensas" ou "@ indisponível". Sem exceções.
 
 [Parágrafo de 3-5 frases. Mencione minuto e placar contextualmente. Se TÁTICA SAVEL acionada, faça o cenário aparecer ("favorito perdendo aos 65 — clássico cenário de pressão no fim") sem nomear a tática.]
 
