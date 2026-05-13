@@ -147,7 +147,8 @@ async function fetchUpcomingByTeam(teamId: number, apiKey: string, limit = 3): P
  */
 function tryDetectTeamByName(
   rawQuery: string,
-  allFixtures: any[]
+  allFixtures: any[],
+  rejectedTeamIds: Set<number> = new Set()
 ): { teamId: number; teamName: string } | null {
   const normalizedQuery = normalize(rawQuery);
   if (normalizedQuery.length < 4) return null;
@@ -156,6 +157,7 @@ function tryDetectTeamByName(
     for (const side of ["home", "away"] as const) {
       const team = f.teams[side];
       if (!team?.id || !team?.name) continue;
+      if (rejectedTeamIds.has(team.id)) continue;
       const teamNorm = normalize(team.name);
       let score = 0;
       if (teamNorm === normalizedQuery) {
@@ -336,17 +338,25 @@ Deno.serve(async (req: Request) => {
   const apiKey = Deno.env.get("API_FOOTBALL_KEY");
   if (!apiKey) return jsonResp({ error: "api_football_key_missing" }, 500);
 
-  // Carrega fixtures rejeitadas pelo user para essa query (últimos 7 dias)
+  // Carrega rejeições do user para essa query (últimos 7 dias)
   const rejectedFixtureIds = new Set<number>();
+  const rejectedTeamIds = new Set<number>();
+  const rejectedLeagueIds = new Set<number>();
   try {
     const queryNormForRej = normalize(query);
     const { data: rejRows } = await supabase
       .from("ai_user_rejected_fixtures")
-      .select("fixture_id")
+      .select("fixture_id, rejected_team_id, rejected_league_ids")
       .eq("user_id", token.user_id)
       .eq("query_normalized", queryNormForRej)
       .gt("expires_at", new Date().toISOString());
-    (rejRows || []).forEach((r: any) => rejectedFixtureIds.add(Number(r.fixture_id)));
+    for (const r of rejRows || []) {
+      if (r.fixture_id && Number(r.fixture_id) > 0) rejectedFixtureIds.add(Number(r.fixture_id));
+      if (r.rejected_team_id) rejectedTeamIds.add(Number(r.rejected_team_id));
+      if (Array.isArray(r.rejected_league_ids)) {
+        for (const lid of r.rejected_league_ids) rejectedLeagueIds.add(Number(lid));
+      }
+    }
   } catch (e) {
     console.warn("[disambiguate] rejected lookup failed", e);
   }
@@ -354,13 +364,17 @@ Deno.serve(async (req: Request) => {
   // ─── ROUTE 1: Detect league name → próximos jogos da liga ────
   const leagueIds = detectLeague(query);
   if (leagueIds && leagueIds.length > 0) {
-    const fixtures = await fetchUpcomingByLeague(leagueIds, apiKey, 10);
-    const filtered = fixtures.filter((f) => !rejectedFixtureIds.has(f.fixture.id));
-    if (filtered.length > 0) {
-      return jsonResp({
-        status: "league_upcoming",
-        matches: filtered.map(fixtureToMatch),
-      });
+    const filteredLeagueIds = leagueIds.filter((id) => !rejectedLeagueIds.has(id));
+    if (filteredLeagueIds.length > 0) {
+      const fixtures = await fetchUpcomingByLeague(filteredLeagueIds, apiKey, 10);
+      const filtered = fixtures.filter((f) => !rejectedFixtureIds.has(f.fixture.id));
+      if (filtered.length > 0) {
+        return jsonResp({
+          status: "league_upcoming",
+          league_ids: filteredLeagueIds,
+          matches: filtered.map(fixtureToMatch),
+        });
+      }
     }
   }
 
@@ -404,13 +418,14 @@ Deno.serve(async (req: Request) => {
   }
 
   // ─── ROUTE 2: Detect single team via full name match (antes do matchup) ──
-  const teamHit = tryDetectTeamByName(query, fixturesByLeague);
+  const teamHit = tryDetectTeamByName(query, fixturesByLeague, rejectedTeamIds);
   if (teamHit) {
     const upcoming = await fetchUpcomingByTeam(teamHit.teamId, apiKey, 3);
     const filtered = upcoming.filter((f) => !rejectedFixtureIds.has(f.fixture.id));
     if (filtered.length > 0) {
       return jsonResp({
         status: "team_upcoming",
+        team_id: teamHit.teamId,
         team_name: teamHit.teamName,
         matches: filtered.map(fixtureToMatch),
       });
@@ -466,13 +481,13 @@ Deno.serve(async (req: Request) => {
     for (const s of scored) {
       const home = s.fixture.teams.home;
       const away = s.fixture.teams.away;
-      if (s.homeScore >= 0.6) {
+      if (s.homeScore >= 0.6 && !rejectedTeamIds.has(home.id)) {
         const prev = teamScores.get(home.id);
         if (!prev || s.homeScore > prev.score) {
           teamScores.set(home.id, { score: s.homeScore, name: home.name });
         }
       }
-      if (s.awayScore >= 0.6) {
+      if (s.awayScore >= 0.6 && !rejectedTeamIds.has(away.id)) {
         const prev = teamScores.get(away.id);
         if (!prev || s.awayScore > prev.score) {
           teamScores.set(away.id, { score: s.awayScore, name: away.name });
@@ -487,6 +502,7 @@ Deno.serve(async (req: Request) => {
       if (filtered.length > 0) {
         return jsonResp({
           status: "team_upcoming",
+          team_id: teamId,
           team_name: top.name,
           matches: filtered.map(fixtureToMatch),
         });
