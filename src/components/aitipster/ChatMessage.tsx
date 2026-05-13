@@ -171,6 +171,24 @@ export function ChatMessage({ message, onConfirmFixture, onOpenEsportiva, onReje
           </Button>
         </div>
 
+        <Button
+          onClick={() => {
+            const input = document.querySelector<HTMLInputElement | HTMLTextAreaElement>(
+              'input[placeholder*="Pergunte sobre um jogo"], textarea[placeholder*="Pergunte sobre um jogo"]'
+            );
+            if (input) {
+              input.focus();
+              input.scrollIntoView({ behavior: "smooth", block: "center" });
+            }
+          }}
+          variant="outline"
+          size="sm"
+          className="w-full"
+        >
+          <Search className="w-3 h-3 mr-1" />
+          Pedir análise de outro jogo
+        </Button>
+
         <BugReportDrawer
           open={bugOpen}
           onOpenChange={setBugOpen}
