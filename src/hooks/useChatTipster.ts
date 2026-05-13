@@ -64,6 +64,7 @@ export function useChatTipster() {
     }
   });
   const [busy, setBusy] = useState(false);
+  const lastQueryRef = useRef<string>("");
 
   useEffect(() => {
     try {
