@@ -386,6 +386,36 @@ Deno.serve(async (req: Request) => {
     .slice(0, 5);
 
   if (candidates.length === 0) {
+    // ─── ROUTE 2: fallback single-team — usa o mesmo `scored` ───
+    const teamScores = new Map<number, { score: number; name: string }>();
+    for (const s of scored) {
+      const home = s.fixture.teams.home;
+      const away = s.fixture.teams.away;
+      if (s.homeScore >= 0.6) {
+        const prev = teamScores.get(home.id);
+        if (!prev || s.homeScore > prev.score) {
+          teamScores.set(home.id, { score: s.homeScore, name: home.name });
+        }
+      }
+      if (s.awayScore >= 0.6) {
+        const prev = teamScores.get(away.id);
+        if (!prev || s.awayScore > prev.score) {
+          teamScores.set(away.id, { score: s.awayScore, name: away.name });
+        }
+      }
+    }
+    if (teamScores.size > 0) {
+      const [teamId, top] = Array.from(teamScores.entries())
+        .sort((a, b) => b[1].score - a[1].score)[0];
+      const upcoming = await fetchUpcomingByTeam(teamId, apiKey, 3);
+      if (upcoming.length > 0) {
+        return jsonResp({
+          status: "team_upcoming",
+          team_name: top.name,
+          matches: upcoming.map(fixtureToMatch),
+        });
+      }
+    }
     return jsonResp({
       status: "not_found",
       message: "Não encontrei esse confronto nas próximas duas semanas. Me dá mais detalhes (liga, data)?",
