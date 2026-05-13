@@ -32,6 +32,7 @@ import {
   ChevronDown,
   ChevronsUpDown,
 } from "lucide-react";
+import { SyncEsportivaPanel } from "@/admin/components/SyncEsportivaPanel";
 
 // ═══════════════════════════════════════════════════════════════════
 // CONSTANTS
@@ -1580,6 +1581,7 @@ function TelemetriaTab() {
       </div>
 
       <ApiFootballStatusPanel />
+      <SyncEsportivaPanel />
 
       {loading ? (
         <div className="flex justify-center py-8">
