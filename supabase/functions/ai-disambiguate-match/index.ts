@@ -481,13 +481,13 @@ Deno.serve(async (req: Request) => {
     for (const s of scored) {
       const home = s.fixture.teams.home;
       const away = s.fixture.teams.away;
-      if (s.homeScore >= 0.6) {
+      if (s.homeScore >= 0.6 && !rejectedTeamIds.has(home.id)) {
         const prev = teamScores.get(home.id);
         if (!prev || s.homeScore > prev.score) {
           teamScores.set(home.id, { score: s.homeScore, name: home.name });
         }
       }
-      if (s.awayScore >= 0.6) {
+      if (s.awayScore >= 0.6 && !rejectedTeamIds.has(away.id)) {
         const prev = teamScores.get(away.id);
         if (!prev || s.awayScore > prev.score) {
           teamScores.set(away.id, { score: s.awayScore, name: away.name });
@@ -502,6 +502,7 @@ Deno.serve(async (req: Request) => {
       if (filtered.length > 0) {
         return jsonResp({
           status: "team_upcoming",
+          team_id: teamId,
           team_name: top.name,
           matches: filtered.map(fixtureToMatch),
         });
