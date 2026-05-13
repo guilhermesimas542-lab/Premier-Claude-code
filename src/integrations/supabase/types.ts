@@ -632,26 +632,32 @@ export type Database = {
       ai_user_rejected_fixtures: {
         Row: {
           expires_at: string
-          fixture_id: number
+          fixture_id: number | null
           id: string
           query_normalized: string
           rejected_at: string
+          rejected_league_ids: number[] | null
+          rejected_team_id: number | null
           user_id: string
         }
         Insert: {
           expires_at?: string
-          fixture_id: number
+          fixture_id?: number | null
           id?: string
           query_normalized: string
           rejected_at?: string
+          rejected_league_ids?: number[] | null
+          rejected_team_id?: number | null
           user_id: string
         }
         Update: {
           expires_at?: string
-          fixture_id?: number
+          fixture_id?: number | null
           id?: string
           query_normalized?: string
           rejected_at?: string
+          rejected_league_ids?: number[] | null
+          rejected_team_id?: number | null
           user_id?: string
         }
         Relationships: []
