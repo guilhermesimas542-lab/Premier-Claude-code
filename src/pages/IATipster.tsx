@@ -54,21 +54,23 @@ export default function IATipster() {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="h-[100dvh] flex flex-col overflow-hidden bg-background">
       <AppHeader />
 
       {openEsportiva ? (
-        <div className="max-w-5xl mx-auto">
-          <EsportivaInlinePanel
-            matchLabel={openEsportiva.matchLabel}
-            markdown={openEsportiva.markdown}
-            altenarEventUrl={openEsportiva.altenarEventUrl}
-            onClose={() => setOpenEsportiva(null)}
-          />
+        <div className="flex-1 overflow-hidden pb-[64px]">
+          <div className="max-w-5xl mx-auto h-full">
+            <EsportivaInlinePanel
+              matchLabel={openEsportiva.matchLabel}
+              markdown={openEsportiva.markdown}
+              altenarEventUrl={openEsportiva.altenarEventUrl}
+              onClose={() => setOpenEsportiva(null)}
+            />
+          </div>
         </div>
       ) : (
-        <div className="max-w-3xl mx-auto">
-          <div className="sticky top-[64px] sm:top-[72px] z-20 bg-background/95 backdrop-blur border-b">
+        <div className="flex-1 flex flex-col overflow-hidden pb-[64px]">
+          <div className="max-w-3xl w-full mx-auto shrink-0 z-40 bg-background border-b">
             <div className="flex items-center justify-between px-4 py-2">
               <div className="flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-primary" />
@@ -108,11 +110,15 @@ export default function IATipster() {
             </div>
           </div>
 
-          {activeTab === "live" ? (
-            <LiveMatchesSection onOpenEsportiva={setOpenEsportiva} />
-          ) : (
-            <ChatSection onOpenEsportiva={setOpenEsportiva} />
-          )}
+          <div className="flex-1 overflow-hidden max-w-3xl w-full mx-auto">
+            {activeTab === "live" ? (
+              <div className="h-full overflow-y-auto">
+                <LiveMatchesSection onOpenEsportiva={setOpenEsportiva} />
+              </div>
+            ) : (
+              <ChatSection onOpenEsportiva={setOpenEsportiva} />
+            )}
+          </div>
         </div>
       )}
 
