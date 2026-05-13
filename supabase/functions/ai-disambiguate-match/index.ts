@@ -138,6 +138,50 @@ async function fetchUpcomingByTeam(teamId: number, apiKey: string, limit = 3): P
   }
 }
 
+/**
+ * Tenta identificar um time específico via match do nome COMPLETO
+ * contra a query. Diferente do matchup, que fragmenta em tokens,
+ * essa função compara strings normalizadas inteiras.
+ *
+ * Retorna o time com melhor score (>= 0.7). Caso contrário null.
+ */
+function tryDetectTeamByName(
+  rawQuery: string,
+  allFixtures: any[]
+): { teamId: number; teamName: string } | null {
+  const normalizedQuery = normalize(rawQuery);
+  if (normalizedQuery.length < 4) return null;
+  const teamScores = new Map<number, { score: number; name: string }>();
+  for (const f of allFixtures) {
+    for (const side of ["home", "away"] as const) {
+      const team = f.teams[side];
+      if (!team?.id || !team?.name) continue;
+      const teamNorm = normalize(team.name);
+      let score = 0;
+      if (teamNorm === normalizedQuery) {
+        score = 1.0;
+      } else if (teamNorm.includes(normalizedQuery)) {
+        score = (normalizedQuery.length / teamNorm.length) * 0.95;
+      } else if (normalizedQuery.includes(teamNorm) && teamNorm.length >= 4) {
+        score = teamNorm.length / normalizedQuery.length;
+      }
+      if (score > 0) {
+        const prev = teamScores.get(team.id)?.score ?? 0;
+        if (score > prev) {
+          teamScores.set(team.id, { score, name: team.name });
+        }
+      }
+    }
+  }
+  if (teamScores.size === 0) return null;
+  const sorted = Array.from(teamScores.entries()).sort(
+    (a, b) => b[1].score - a[1].score
+  );
+  const [topId, topData] = sorted[0];
+  if (topData.score < 0.7) return null;
+  return { teamId: topId, teamName: topData.name };
+}
+
 function fixtureToMatch(f: any) {
   return {
     fixture_id: f.fixture.id,
@@ -341,6 +385,19 @@ Deno.serve(async (req: Request) => {
       status: "not_found",
       message: "Não encontrei jogos nas ligas cobertas na janela atual.",
     });
+  }
+
+  // ─── ROUTE 2: Detect single team via full name match (antes do matchup) ──
+  const teamHit = tryDetectTeamByName(query, fixturesByLeague);
+  if (teamHit) {
+    const upcoming = await fetchUpcomingByTeam(teamHit.teamId, apiKey, 3);
+    if (upcoming.length > 0) {
+      return jsonResp({
+        status: "team_upcoming",
+        team_name: teamHit.teamName,
+        matches: upcoming.map(fixtureToMatch),
+      });
+    }
   }
 
   const scored = fixturesByLeague.map((f: any) => {
