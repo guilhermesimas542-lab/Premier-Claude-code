@@ -90,6 +90,30 @@ export function ChatMessage({ message, onConfirmFixture, onOpenEsportiva, onReje
   }
 
   if (message.type === "upcoming_list") {
+    const rejectLabel = message.listType === "team" ? "Não é esse time" : "Não é essa liga";
+    const canReject =
+      (message.listType === "team" && !!message.teamId) ||
+      (message.listType === "league" && !!message.leagueIds && message.leagueIds.length > 0);
+
+    const handleRejectList = async () => {
+      try {
+        const token = localStorage.getItem("premier_token");
+        const body: any = { query: message.originalQuery };
+        if (message.listType === "team" && message.teamId) {
+          body.team_id = message.teamId;
+        } else if (message.listType === "league" && message.leagueIds) {
+          body.league_ids = message.leagueIds;
+        }
+        await supabase.functions.invoke("ai-reject-fixture", {
+          body,
+          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        });
+      } catch (e) {
+        console.warn("failed to reject list", e);
+      }
+      onRejectMatch?.([]);
+    };
+
     return (
       <div className="w-full space-y-2">
         {message.matches.map((m) => (
@@ -118,6 +142,16 @@ export function ChatMessage({ message, onConfirmFixture, onOpenEsportiva, onReje
             </div>
           </button>
         ))}
+        {canReject && (
+          <Button
+            onClick={handleRejectList}
+            variant="outline"
+            size="sm"
+            className="w-full text-xs"
+          >
+            {rejectLabel}
+          </Button>
+        )}
       </div>
     );
   }
