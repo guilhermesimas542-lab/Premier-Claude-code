@@ -162,7 +162,7 @@ export function ChatMessage({ message, onConfirmFixture, onOpenEsportiva }: Prop
             }}
             variant="default"
             size="sm"
-            className="ml-auto"
+            className="ml-auto text-black font-semibold"
           >
             <ExternalLink className="w-3 h-3 mr-1" />
             Esportiva
