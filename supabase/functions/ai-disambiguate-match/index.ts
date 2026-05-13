@@ -355,10 +355,11 @@ Deno.serve(async (req: Request) => {
   const leagueIds = detectLeague(query);
   if (leagueIds && leagueIds.length > 0) {
     const fixtures = await fetchUpcomingByLeague(leagueIds, apiKey, 10);
-    if (fixtures.length > 0) {
+    const filtered = fixtures.filter((f) => !rejectedFixtureIds.has(f.fixture.id));
+    if (filtered.length > 0) {
       return jsonResp({
         status: "league_upcoming",
-        matches: fixtures.map(fixtureToMatch),
+        matches: filtered.map(fixtureToMatch),
       });
     }
   }
