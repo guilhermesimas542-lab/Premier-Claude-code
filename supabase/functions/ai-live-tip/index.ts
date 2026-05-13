@@ -1,5 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { lookupAltenarMapping } from "../_shared/altenar-lookup.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -599,6 +600,8 @@ Deno.serve(async (req: Request) => {
     fetchLiveOdds(fix.fixture.id, apiKey),
   ]);
 
+  const altenar = await lookupAltenarMapping(supabase, fix.fixture.id);
+
   const sourceData = {
     fixture: {
       id: fix.fixture.id,
@@ -614,6 +617,7 @@ Deno.serve(async (req: Request) => {
     live: liveData,
     pre_match: preMatch,
     odds_live: oddsLive,
+    altenar_event_url: altenar?.altenar_event_url ?? null,
   };
 
   // ─── CHAMA CLAUDE ───
@@ -689,6 +693,7 @@ Gere a análise no formato definido no system prompt. Considere o minuto atual a
       match_key: cacheKey,
       match_type: "live",
       api_football_fixture_id: fixtureId,
+      altenar_event_id: altenar?.altenar_event_id ?? null,
       content: { markdown: responseText },
       source_data: sourceData,
       tokens_input: usage.input_tokens || 0,
