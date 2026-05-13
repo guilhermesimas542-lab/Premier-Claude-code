@@ -1,5 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { lookupAltenarMapping } from "../_shared/altenar-lookup.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -457,6 +458,8 @@ Deno.serve(async (req: Request) => {
     league: m.league.name,
   }));
 
+  const altenar = await lookupAltenarMapping(supabase, fix.fixture.id);
+
   const sourceData = {
     fixture: {
       id: fix.fixture.id,
@@ -476,6 +479,7 @@ Deno.serve(async (req: Request) => {
     streak_home: homeStreak,
     streak_away: awayStreak,
     odds,
+    altenar_event_url: altenar?.altenar_event_url ?? null,
   };
 
   const claudeKey = Deno.env.get("ANTHROPIC_API_KEY");
@@ -533,6 +537,7 @@ Gere a análise no formato definido no system prompt.`;
       match_key: cacheKey,
       match_type: "chat_prematch",
       api_football_fixture_id: fixtureId,
+      altenar_event_id: altenar?.altenar_event_id ?? null,
       content: { markdown: responseText },
       source_data: sourceData,
       tokens_input: usage.input_tokens || 0,
