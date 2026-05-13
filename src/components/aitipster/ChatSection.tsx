@@ -133,6 +133,7 @@ export function ChatSection({ onOpenEsportiva }: ChatSectionProps = {}) {
             message={m}
             onConfirmFixture={handleConfirm}
             onOpenEsportiva={onOpenEsportiva}
+            onRejectMatch={rejectMatch}
           />
         ))}
       </div>
