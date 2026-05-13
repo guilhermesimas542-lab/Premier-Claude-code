@@ -23,7 +23,7 @@ export function DisambiguationCard({ matches, confidence, onConfirm, onReject }:
   const handleReject = () => {
     if (chosen !== null || rejected) return;
     setRejected(true);
-    onReject?.();
+    onReject?.(matches.map((m) => m.fixture_id));
   };
 
   return (
