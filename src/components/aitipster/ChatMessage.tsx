@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { ChatMessage as Msg } from "@/hooks/useChatTipster";
 import { DisambiguationCard } from "./DisambiguationCard";
 import { TipAnalysis } from "./TipAnalysis";
@@ -9,13 +8,19 @@ import { ThumbsUp, ThumbsDown, Bug, ExternalLink, AlertCircle, Loader2 } from "l
 import { supabase } from "@/integrations/supabase/client";
 import { trackEvent } from "@/lib/events";
 
+export interface OpenEsportivaPayload {
+  matchLabel: string;
+  markdown: string | null;
+  altenarEventUrl: string | null;
+}
+
 interface Props {
   message: Msg;
   onConfirmFixture: (fixtureId: number, label: string) => void;
+  onOpenEsportiva?: (payload: OpenEsportivaPayload) => void;
 }
 
-export function ChatMessage({ message, onConfirmFixture }: Props) {
-  const navigate = useNavigate();
+export function ChatMessage({ message, onConfirmFixture, onOpenEsportiva }: Props) {
   const [feedback, setFeedback] = useState<"up" | "down" | null>(null);
   const [bugOpen, setBugOpen] = useState(false);
 
@@ -131,27 +136,20 @@ export function ChatMessage({ message, onConfirmFixture }: Props) {
             onClick={() => {
               const altenarUrl = message.sourceData?.altenar_event_url as string | undefined;
               const altenarId = message.sourceData?.altenar_event_id as string | undefined;
-              console.log("[DEBUG ia-esportiva-click]", {
+              const home = message.sourceData?.fixture?.home ?? "";
+              const away = message.sourceData?.fixture?.away ?? "";
+
+              trackEvent("ia_tipster_open_esportiva", {
+                mode: altenarUrl ? "event_specific" : "fallback_home",
+                altenar_event_id: altenarId ?? null,
                 source: "chat",
-                has_url: !!altenarUrl,
-                altenarUrl,
-                altenarId,
-                fullSourceData: message.sourceData,
               });
-              if (altenarUrl) {
-                sessionStorage.setItem("pending_iframe_url", altenarUrl);
-                trackEvent("ia_tipster_open_esportiva", {
-                  mode: "event_specific",
-                  altenar_event_id: altenarId ?? null,
-                  source: "chat",
-                });
-              } else {
-                trackEvent("ia_tipster_open_esportiva", {
-                  mode: "fallback_home",
-                  source: "chat",
-                });
-              }
-              navigate("/sport/1");
+
+              onOpenEsportiva?.({
+                matchLabel: `${home} × ${away}`,
+                markdown: message.markdown ?? null,
+                altenarEventUrl: altenarUrl ?? null,
+              });
             }}
             variant="default"
             size="sm"
