@@ -277,5 +277,5 @@ export function useChatTipster() {
     }
   }, [append, removeLoading, busy]);
 
-  return { messages, busy, sendQuery, confirmFixture, clear };
+  return { messages, busy, sendQuery, confirmFixture, clear, rejectMatch };
 }
