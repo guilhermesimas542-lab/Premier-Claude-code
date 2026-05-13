@@ -61,6 +61,17 @@ export default function IATipster() {
     );
   }
 
+  if (openEsportiva) {
+    return (
+      <EsportivaInlinePanel
+        matchLabel={openEsportiva.matchLabel}
+        markdown={openEsportiva.markdown}
+        altenarEventUrl={openEsportiva.altenarEventUrl}
+        onClose={() => setOpenEsportiva(null)}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background pb-24">
       <header className="sticky top-0 z-30 bg-background/95 backdrop-blur border-b">
@@ -104,9 +115,9 @@ export default function IATipster() {
       </header>
 
       {activeTab === "live" ? (
-        <LiveMatchesSection />
+        <LiveMatchesSection onOpenEsportiva={setOpenEsportiva} />
       ) : (
-        <ChatSection />
+        <ChatSection onOpenEsportiva={setOpenEsportiva} />
       )}
     </div>
   );
