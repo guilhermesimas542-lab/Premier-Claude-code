@@ -407,11 +407,12 @@ Deno.serve(async (req: Request) => {
   const teamHit = tryDetectTeamByName(query, fixturesByLeague);
   if (teamHit) {
     const upcoming = await fetchUpcomingByTeam(teamHit.teamId, apiKey, 3);
-    if (upcoming.length > 0) {
+    const filtered = upcoming.filter((f) => !rejectedFixtureIds.has(f.fixture.id));
+    if (filtered.length > 0) {
       return jsonResp({
         status: "team_upcoming",
         team_name: teamHit.teamName,
-        matches: upcoming.map(fixtureToMatch),
+        matches: filtered.map(fixtureToMatch),
       });
     }
   }
