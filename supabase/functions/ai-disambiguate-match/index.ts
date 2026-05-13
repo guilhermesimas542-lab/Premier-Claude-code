@@ -456,6 +456,7 @@ Deno.serve(async (req: Request) => {
     }));
   const candidates = scored
     .filter(s => s.totalScore > 0.3 && s.homeScore > 0 && s.awayScore > 0)
+    .filter(s => !rejectedFixtureIds.has(s.fixture.fixture.id))
     .sort((a, b) => b.totalScore - a.totalScore)
     .slice(0, 5);
 
