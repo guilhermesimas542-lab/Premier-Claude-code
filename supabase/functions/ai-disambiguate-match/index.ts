@@ -336,6 +336,21 @@ Deno.serve(async (req: Request) => {
   const apiKey = Deno.env.get("API_FOOTBALL_KEY");
   if (!apiKey) return jsonResp({ error: "api_football_key_missing" }, 500);
 
+  // Carrega fixtures rejeitadas pelo user para essa query (últimos 7 dias)
+  const rejectedFixtureIds = new Set<number>();
+  try {
+    const queryNormForRej = normalize(query);
+    const { data: rejRows } = await supabase
+      .from("ai_user_rejected_fixtures")
+      .select("fixture_id")
+      .eq("user_id", token.user_id)
+      .eq("query_normalized", queryNormForRej)
+      .gt("expires_at", new Date().toISOString());
+    (rejRows || []).forEach((r: any) => rejectedFixtureIds.add(Number(r.fixture_id)));
+  } catch (e) {
+    console.warn("[disambiguate] rejected lookup failed", e);
+  }
+
   // ─── ROUTE 1: Detect league name → próximos jogos da liga ────
   const leagueIds = detectLeague(query);
   if (leagueIds && leagueIds.length > 0) {
