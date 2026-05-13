@@ -19,8 +19,10 @@ interface AppHeaderProps {
 
 const AppHeader = ({ leftContent, headerStyle, title }: AppHeaderProps) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const mockUser = mockGetUser();
   const { house: userHouse } = useUserBettingHouse();
+  const isHome = location.pathname === "/" || location.pathname === "/tips";
 
   const [tier, setTier] = useState<string>("");
   const [tierLoaded, setTierLoaded] = useState(false);
