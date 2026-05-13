@@ -1,5 +1,7 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+
+const SESSION_KEY = "ia_tipster_chat_messages_v1";
 
 export interface DisambiguationMatch {
   fixture_id: number;
