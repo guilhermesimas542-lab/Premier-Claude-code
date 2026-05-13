@@ -36,13 +36,7 @@ export function ChatMessage({ message, onConfirmFixture, onOpenEsportiva }: Prop
   if (message.role === "user") {
     return (
       <div className="flex justify-end">
-        <div
-          className="max-w-[80%] rounded-2xl rounded-br-md bg-primary px-4 py-2 text-primary-foreground text-sm"
-          style={{
-            textShadow:
-              "-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000",
-          }}
-        >
+        <div className="max-w-[80%] rounded-2xl rounded-br-md bg-primary px-4 py-2 text-black font-semibold text-sm">
           {message.content}
         </div>
       </div>
