@@ -66,7 +66,7 @@ export function EsportivaInlinePanel({
   const alternativas = extractAlternativas(parsed.alternativas);
 
   return (
-    <div className="flex flex-col h-[100dvh] bg-background fixed inset-0 z-50">
+    <div className="flex flex-col h-[calc(100dvh-64px)] bg-background">
       {/* Header sticky compacto */}
       <div className="flex items-center justify-between px-2 py-1.5 border-b bg-card sticky top-0 z-10">
         <Button onClick={onClose} variant="ghost" size="sm" className="h-8 px-2 shrink-0">
