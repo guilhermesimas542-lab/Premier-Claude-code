@@ -27,7 +27,7 @@ interface Props {
   message: Msg;
   onConfirmFixture: (fixtureId: number, label: string) => void;
   onOpenEsportiva?: (payload: OpenEsportivaPayload) => void;
-  onRejectMatch?: () => void;
+  onRejectMatch?: (fixtureIds: number[]) => void;
 }
 
 export function ChatMessage({ message, onConfirmFixture, onOpenEsportiva, onRejectMatch }: Props) {
