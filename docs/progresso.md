@@ -1,10 +1,33 @@
 ---
 tipo: progresso
 projeto: ultrateste111
-atualizado: 2026-05-12
+atualizado: 2026-05-14
 ---
 
 # Progresso — ultrateste111
+
+## Rebranding visual: Premier FC → CL Score (substituição de imagens)
+- **Data:** 2026-05-14
+- **Contexto:** Usuário entregou pasta `imagens novas/` com 18 arquivos novos correspondendo ao rebranding da marca de "Premier FC" para "CL Score" (foco aparente: mercado chileno — personagens novos usam camisa da seleção do Chile). O objetivo era trocar as imagens antigas pelas novas no devido lugar.
+- **Plano escolhido (entre 3 abordagens consideradas):**
+  - **Opção A — Substituir mantendo nomes antigos dos arquivos:** ESCOLHIDA. Maior probabilidade de sucesso (não quebra imports `.tsx`/`.ts` espalhados pelo código). Risco baixo.
+  - Opção B — Renomear arquivos para nomes novos (`clscore-logo.png` etc) + refatorar imports: alto risco de quebrar build em vários lugares (~7 arquivos com import direto).
+  - Opção C — Manter arquivos antigos e adicionar novos em paralelo: gera lixo, deixa estado ambíguo, e usuário pediu para "trocar".
+- **Detalhes da execução (13 substituições):**
+  - **Popups (5):** `ALAVANCAGEM.png`→`popups/alavancagem.png`; `CUOTAS PRO/SAFE/ULTRA.png`→`popups/odds_pro/safe/ultra.png`; `ACESSO VITALICO.png`→`popups/acesso_vitalicio.png` (NOVO — feature `acesso_vitalicio` já existia no código mas faltava o popup).
+  - **Logos (5):** `CLSCORE LOGO 4.png`→`premier-logo.png` (horizontal principal); `CLSCORE LOGO 5.png`→`premier-logo-new.png` (verde, usada em Login/AdminVerify); `CLSCORE LOGO 3.png`→`premier-logo-new2.png`, `premier-logo-custom.png` (usada em AppHeader/Home/Support/Sport), e `public/obg/premier-fc-logo.png`.
+  - **Personagens (3):** `site clscore (2).jpeg`→`robo-premier.png` e `robot-football.png`; `site clscore (4).jpeg`→`robo-cassino.png`. Convertidos de JPEG→PNG real via `sips` (não só renomeados).
+- **Itens NÃO substituídos (intencionalmente):**
+  - `premier-logo.svg` — é vetor, substituir por PNG quebraria a extensão.
+  - `src/assets/logo.jpg` e `public/logo.jpg` — mascote brasileiro (homem com binóculos camisa Brasil), não é logo da marca, sem equivalente.
+  - `public/images/futsal-arena.jpg`, `robo_premier_bola_fogo.mp4` — sem equivalentes nas imagens novas.
+  - `site clscore (1, 3, 5, 6).jpeg` — personagens e logo extra sem destino claro, deixados em `imagens novas/` para uso futuro.
+- **Riscos identificados:**
+  - `premier-logo-custom.png` (usada em vários headers) era um hexágono pequeno; agora é texto "CL". Pode afetar visual do header. Usuário ciente.
+  - Texto e classes `addon_alavancagem`, `Apalancamiento`, IDs de plano, etc. NÃO foram trocados — só imagens. Se quiser rebranding completo de texto/UX, é trabalho separado.
+- **Decisões prévias:** usuário confirmou via prompt: (a) tratar como rebranding completo; (b) Claude decide mapeamento das logos por formato/uso; (c) sem backup explícito — confia no git.
+- **Próximos passos sugeridos:** rodar `npm run dev` e verificar visualmente headers, popups e telas com personagens; decidir destino das 4 imagens novas remanescentes; eventualmente fazer rebranding de texto (`Premier FC`→`CL Score`) em strings hardcoded e metadata (`index.html`, `package.json`).
+- **Tags:** [[rebranding]] [[CL-Score]] [[Premier-FC]] [[imagens]] [[ultrateste111]]
 
 ## CTAs de checkout convertidos para `<a>` rastreável pelo GTM
 - **Data:** 2026-05-12

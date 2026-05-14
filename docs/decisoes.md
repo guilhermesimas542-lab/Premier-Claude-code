@@ -1,10 +1,27 @@
 ---
 tipo: decisoes
 projeto: ultrateste111
-atualizado: 2026-05-12
+atualizado: 2026-05-14
 ---
 
 # Decisões — ultrateste111
+
+## Rebranding visual: manter nomes antigos dos arquivos ao substituir imagens
+- **Data:** 2026-05-14
+- **Contexto:** Substituição de imagens Premier FC → CL Score. Existiam ~7 arquivos `.tsx`/`.ts` com imports diretos (`@/assets/premier-logo-*.png`, `@/assets/popups/*.png`, `@/assets/robo-*.png`). Renomear os arquivos exigiria refatoração em cascata; manter os nomes evita esse risco.
+- **Detalhes:** Optei por sobrescrever os arquivos antigos com o conteúdo novo, preservando o nome (`alavancagem.png`, `premier-logo.png`, etc). Único arquivo novo criado: `src/assets/popups/acesso_vitalicio.png` (feature já existia no código, faltava o asset).
+- **Impacto:** Build não quebra. Custo: nomes de arquivo agora não refletem a marca atual ("premier-logo.png" contém logo CL Score). Aceitável como dívida cosmética até refatoração futura ([[debitos-tecnicos]]).
+- **Tags:** [[rebranding]] [[imagens]] [[CL-Score]]
+
+## Mapeamento de logos por formato visual (Claude decide)
+- **Data:** 2026-05-14
+- **Contexto:** 6 logos novas (`CLSCORE LOGO 1-6.png`) vs 5 logos antigas (`premier-logo*.png` + `premier-fc-logo.png`). Sem correspondência 1:1 nominal.
+- **Detalhes:** Mapeado por proporção/contexto de uso:
+  - Horizontais coloridas (LOGO 4, 5) → versões "header" do logo (`premier-logo.png`, `premier-logo-new.png`).
+  - Quadrada só símbolo (LOGO 3) → versões "símbolo isolado" (`premier-logo-new2.png`, `premier-logo-custom.png`, `premier-fc-logo.png`).
+  - LOGO 1, 2, 6 não usadas (ficaram em `imagens novas/` para uso futuro).
+- **Trade-off:** `premier-logo-custom.png` antes era hexágono pequeno (ícone), agora é texto "CL" (LOGO 3). Visual do header muda. Usuário ciente do risco.
+- **Tags:** [[rebranding]] [[logos]]
 
 ## CTAs de checkout migrados para `<a href>` nativo (GTM `gtm.linkClick`)
 - **Data:** 2026-05-12
