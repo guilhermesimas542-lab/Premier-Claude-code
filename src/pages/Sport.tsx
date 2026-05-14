@@ -712,9 +712,8 @@ const Sport = () => {
 
               const handleClick = () => {
                 if (f === "free" && !hasContent) {
-                  // Grátis tab always opens telegram popup, even with no tips
-                  const synthetic = { tier_required: "free", addon_required: null, feature_required: "free", title: meta.label } as any;
-                  handleLockedClick(synthetic);
+                  // Aba Cuota Gratis sem conteúdo: apenas seleciona (sem popup).
+                  scrollToFeature(f);
                   return;
                 }
                 if (hasContent && userHasAccess) {

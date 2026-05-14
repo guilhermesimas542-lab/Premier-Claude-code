@@ -6,7 +6,6 @@ import { PaywallEducationStep } from "@/components/PaywallEducationStep";
 import { supabase } from "@/integrations/supabase/client";
 import { PayCardFunnelModal } from "@/components/PayCardFunnelModal";
 import { EmbeddedCheckout } from "@/components/EmbeddedCheckout";
-import { TelegramRedeemModal } from "@/components/TelegramRedeemModal";
 import type { PayCardData } from "@/hooks/usePayCards";
 import { useUserBettingHouse } from "@/hooks/useUserBettingHouse";
 import { mockGetUser } from "@/mocks/user";
@@ -17,7 +16,6 @@ import {
   FEATURE_EXPLANATIONS,
   FEATURE_HEADLINES,
   PRICES,
-  TELEGRAM_URL_PLACEHOLDER,
   variantToPlanKey,
   featureToBackredirectPlanKey,
   featureToDiscountPlanKey,
@@ -84,20 +82,7 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
   const [discountUsed, setDiscountUsed] = useState<boolean>(true); // default safe = no discount
   const [funnelOpen, setFunnelOpen] = useState<PayCardData | null>(null);
   const [hasFetched, setHasFetched] = useState(false);
-  const [telegramGroupUrl, setTelegramGroupUrl] = useState<string | null>(null);
   const [premiumCheckoutUrl, setPremiumCheckoutUrl] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!house?.id) return;
-    supabase
-      .from("betting_houses")
-      .select("telegram_group_url")
-      .eq("id", house.id)
-      .maybeSingle()
-      .then(({ data }) => {
-        setTelegramGroupUrl((data as any)?.telegram_group_url ?? null);
-      });
-  }, [house?.id]);
 
   const isDiamanteUpgrade = variant === "diamante_upgrade";
 
@@ -117,7 +102,6 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
   // Fetch pay_cards + user discount_used when popup opens
   useEffect(() => {
     if (!open || hasFetched) return;
-    if (variant === "telegram") { setHasFetched(true); return; }
     setHasFetched(true);
 
     const fetchAll = async () => {
@@ -157,17 +141,6 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
   }, [open, variant, feature, house?.id, hasFetched, isDiamanteUpgrade]);
 
   if (!open) return null;
-
-  // ===== TELEGRAM =====
-  if (variant === "telegram") {
-    return (
-      <TelegramRedeemModal
-        open={open}
-        onClose={onClose}
-        telegramUrl={telegramGroupUrl}
-      />
-    );
-  }
 
   if (funnelOpen) {
     return (

@@ -6,6 +6,14 @@ atualizado: 2026-05-14
 
 # Decisões — ultrateste111
 
+## Aba Cuota Gratis: remover popup Telegram em vez de manter estrutura intacta
+- **Data:** 2026-05-14
+- **Contexto:** Usuário pediu para remover o popup que redirecionava clientes para Telegram quando clicavam em "Odd Gratis" e reabilitar a aba para apenas mostrar a odd. Existiam 3 caminhos.
+- **Decisão:** Optei pela remoção mais completa: deletar a variant `"telegram"` do paywall, deletar o componente `TelegramRedeemModal`, e remover o botão "Reclamar Cuota Gratis" do header. PlansModal também perdeu o redirect (botão "Gratis" agora é info/current, não abre popup).
+- **Trade-off:** Mais código removido = mais limpo, mas se no futuro quiser voltar a usar Telegram precisa reescrever. Alternativa conservadora seria manter componentes e apenas trocar `paywallRouting` para não retornar "telegram" — porém isso deixaria botões mortos no header e PlansModal. Como o usuário foi claro ("não vou usar essa funcionalidade no CL Score"), valeu remover.
+- **Mantido intacto:** Filtro que esconde a aba para usuários pagos (eles têm odds melhores, faz sentido não ver "Cuota Gratis"); campo `betting_houses.telegram_group_url` (pode servir outras integrações tipo suporte).
+- **Tags:** [[paywall]] [[telegram]] [[CL-Score]]
+
 ## Rebranding visual: manter nomes antigos dos arquivos ao substituir imagens
 - **Data:** 2026-05-14
 - **Contexto:** Substituição de imagens Premier FC → CL Score. Existiam ~7 arquivos `.tsx`/`.ts` com imports diretos (`@/assets/premier-logo-*.png`, `@/assets/popups/*.png`, `@/assets/robo-*.png`). Renomear os arquivos exigiria refatoração em cascata; manter os nomes evita esse risco.

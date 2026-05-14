@@ -2,10 +2,8 @@ import { Sparkles } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { mockGetUser } from "@/mocks/user";
-import { useUserBettingHouse } from "@/hooks/useUserBettingHouse";
 import logoImg from "@/assets/premier-logo-custom.png";
 import { useNavigate } from "react-router-dom";
-import { TelegramRedeemModal } from "@/components/TelegramRedeemModal";
 import { PlansModal } from "@/components/PlansModal";
 
 interface AppHeaderProps {
@@ -20,12 +18,9 @@ interface AppHeaderProps {
 const AppHeader = ({ leftContent, headerStyle, title }: AppHeaderProps) => {
   const navigate = useNavigate();
   const mockUser = mockGetUser();
-  const { house: userHouse } = useUserBettingHouse();
 
   const [tier, setTier] = useState<string>("");
   const [tierLoaded, setTierLoaded] = useState(false);
-  const [telegramGroupUrl, setTelegramGroupUrl] = useState<string | null>(null);
-  const [showTelegramModal, setShowTelegramModal] = useState(false);
   const [showPlansModal, setShowPlansModal] = useState(false);
 
   useEffect(() => {
@@ -44,20 +39,7 @@ const AppHeader = ({ leftContent, headerStyle, title }: AppHeaderProps) => {
       });
   }, [mockUser?.email]);
 
-  useEffect(() => {
-    if (!userHouse?.id) return;
-    supabase
-      .from("betting_houses")
-      .select("telegram_group_url")
-      .eq("id", userHouse.id)
-      .maybeSingle()
-      .then(({ data }) => {
-        setTelegramGroupUrl((data as any)?.telegram_group_url ?? null);
-      });
-  }, [userHouse?.id]);
-
   const isPaid = tier === "premium" || tier === "diamante";
-  const isFree = tier === "free";
 
   return (
     <>
@@ -74,25 +56,6 @@ const AppHeader = ({ leftContent, headerStyle, title }: AppHeaderProps) => {
             )}
 
             <div className="flex items-center gap-2 sm:gap-3">
-              {tierLoaded && isFree && (
-                <button
-                  onClick={() => setShowTelegramModal(true)}
-                  className="inline-flex items-center gap-1.5 rounded-full transition-all hover:scale-105"
-                  style={{
-                    padding: "7px 14px",
-                    background: "rgba(255,255,255,0.06)",
-                    border: "1px solid rgba(255,255,255,0.18)",
-                    fontFamily: "'Barlow Condensed', sans-serif",
-                    fontWeight: 700,
-                    fontSize: "13px",
-                    color: "#FFFFFF",
-                    letterSpacing: "0.5px",
-                  }}
-                >
-                  <Sparkles size={14} />
-                  Reclamar Cuota Gratis
-                </button>
-              )}
               {tierLoaded && isPaid && (
                 <button
                   onClick={() => setShowPlansModal(true)}
@@ -117,11 +80,6 @@ const AppHeader = ({ leftContent, headerStyle, title }: AppHeaderProps) => {
         </div>
       </header>
 
-      <TelegramRedeemModal
-        open={showTelegramModal}
-        onClose={() => setShowTelegramModal(false)}
-        telegramUrl={telegramGroupUrl}
-      />
       <PlansModal
         open={showPlansModal}
         onClose={() => setShowPlansModal(false)}

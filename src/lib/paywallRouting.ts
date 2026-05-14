@@ -10,7 +10,6 @@ export type FeatureKey =
   | "odds_ultra";
 
 export type PaywallVariant =
-  | "telegram"          // free tab → telegram
   | "premium"           // R$47 — free user, odds_safes/odds_pro/mercados_secundarios
   | "diamante"          // R$147 — free user, diamante-only feature
   | "diamante_upgrade"; // R$127 — premium user upgrading
@@ -46,7 +45,6 @@ export function resolvePaywallVariant(
   feature: FeatureKey,
   userTier: string,
 ): PaywallVariant {
-  if (feature === "free") return "telegram";
   const isDiamanteOnly = DIAMANTE_ONLY.includes(feature);
 
   if (userTier === "premium" || userTier === "basic" || userTier === "pro") {
@@ -113,5 +111,4 @@ export const PRICES = {
   backredirect_discount: "9,90",
 } as const;
 
-export const TELEGRAM_URL_PLACEHOLDER = "https://t.me/+placeholder_premier_free";
 export const TELEGRAM_SUPPORT_URL_PLACEHOLDER = "https://t.me/+placeholder_premier_support";

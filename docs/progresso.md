@@ -6,6 +6,28 @@ atualizado: 2026-05-14
 
 # Progresso — ultrateste111
 
+## Remoção do redirect Telegram em "Cuota Gratis" e PlansModal
+- **Data:** 2026-05-14
+- **Contexto:** Em Premier FC, qualquer clique em "Reclamar Cuota Gratis" (header) ou na aba "Cuota Gratis" (página Sport) abria um popup que redirecionava o lead para um grupo de Telegram. No CL Score esse funil não será usado — o objetivo agora é que o lead apenas veja a odd gratuita diretamente.
+- **Plano escolhido (3 opções consideradas):**
+  - **Opção A — Reabilitar aba pra usuários free + remover botão do header (ESCOLHIDA):** Sem popup. Aba "Cuota Gratis" continua visível só pra usuários free (pagos continuam sem a aba, pois eles já têm odds melhores). Botão do header removido por ficar redundante. PlansModal também perde o redirect.
+  - Opção B — Manter botão do header como atalho que rola até a aba.
+  - Opção C — Só desativar popup, manter botões/estrutura. Mais conservador, menos limpo.
+- **Mudanças por arquivo:**
+  - `src/lib/paywallRouting.ts` — Removida variant `"telegram"` e a regra `if (feature === "free") return "telegram"`. Removida constante `TELEGRAM_URL_PLACEHOLDER` (sem uso).
+  - `src/components/PaywallPopup.tsx` — Removido bloco `if (variant === "telegram")` que renderizava `TelegramRedeemModal`. Removidos state `telegramGroupUrl` e fetch de `betting_houses.telegram_group_url`. Removido import.
+  - `src/pages/Sport.tsx` — Alterado `handleClick` da aba: quando feature `"free"` sem conteúdo, agora chama `scrollToFeature` em vez de disparar paywall.
+  - `src/components/AppHeader.tsx` — Removido botão "Reclamar Cuota Gratis" (só visível pra `isFree`). Removidos state/effects de telegramGroupUrl/showTelegramModal e import de `TelegramRedeemModal` e `useUserBettingHouse`.
+  - `src/components/PlansModal.tsx` — Botão "Gratis" do plano free agora vira `current` (se user é free) ou `info "Plan Gratis"` (caso contrário). Removidos type `"telegram"` no CtaSpec, renderização do botão telegram, state `showTelegramModal`/`telegramGroupUrl`, fetch e import.
+  - `src/components/TelegramRedeemModal.tsx` — **DELETADO** (sem mais usos).
+- **Não tocado:**
+  - Filtro `Sport.tsx:325-328` que esconde tips `feature_required = "free"` para usuários pagos — mantido (pagos continuam sem aba).
+  - Campo `betting_houses.telegram_group_url` no banco — pode ser usado por outras integrações.
+  - `TELEGRAM_SUPPORT_URL_PLACEHOLDER` em `paywallRouting.ts` — fora do escopo.
+- **Verificação:** `npx tsc --noEmit` sem erros. Grep por `variant === "telegram"` e `TelegramRedeemModal` em `src/` confirma zero ocorrências fora dos arquivos que mantêm a infra (LinksContext/AdminDefaultLinks usam apenas `telegram_group_url` da betting_house, não o popup).
+- **Riscos / próximos passos:** Se houver odd com `feature_required = "free"` no banco, agora ela aparece direto no card sem paywall. Verificar visualmente que `content_entries` da aba Cuota Gratis renderiza com `display_status` correto. Validar que pagos continuam sem ver a aba.
+- **Tags:** [[CL-Score]] [[paywall]] [[telegram]] [[odd-gratis]] [[ultrateste111]]
+
 ## Rebranding visual: Premier FC → CL Score (substituição de imagens)
 - **Data:** 2026-05-14
 - **Contexto:** Usuário entregou pasta `imagens novas/` com 18 arquivos novos correspondendo ao rebranding da marca de "Premier FC" para "CL Score" (foco aparente: mercado chileno — personagens novos usam camisa da seleção do Chile). O objetivo era trocar as imagens antigas pelas novas no devido lugar.
