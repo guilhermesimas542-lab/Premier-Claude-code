@@ -19,20 +19,36 @@ import { PredictionAutocomplete } from "../components/PredictionAutocomplete";
 import type { AdminContentEntry } from "../types";
 import { useBettingHouseAdmin } from "../context/BettingHouseContext";
 
-const CATEGORIA_MAP: Record<string, { tier: string; addon: string | null }> = {
-  free: { tier: "free", addon: null },
-  basico: { tier: "basic", addon: null },
-  pro: { tier: "pro", addon: null },
-  ultra: { tier: "ultra", addon: null },
-  alavancagem: { tier: "pro", addon: "alavancagem" },
-  multiplas_bingo: { tier: "premium", addon: "multiplas_bingo" },
+const CATEGORIA_MAP: Record<string, { tier: string; addon: string | null; feature: string | null }> = {
+  free:                 { tier: "free",  addon: null,              feature: null },
+  basico:               { tier: "basic", addon: null,              feature: "odds_safes" },
+  pro:                  { tier: "pro",   addon: null,              feature: "odds_pro" },
+  ultra:                { tier: "ultra", addon: null,              feature: "odds_pro" },
+  alavancagem:          { tier: "ultra", addon: "alavancagem",     feature: "alavancagem" },
+  multiplas_bingo:      { tier: "ultra", addon: "multiplas_bingo", feature: "multiplas_bingo" },
+  mercados_secundarios: { tier: "ultra", addon: null,              feature: "mercados_secundarios" },
+  esportes_americanos:  { tier: "ultra", addon: null,              feature: "esportes_americanos" },
+  odds_ultra:           { tier: "ultra", addon: null,              feature: "odds_ultra" },
 };
 
-function tierToCategoria(tier: string, addon: string | null): string {
-  if (addon === "alavancagem") return "alavancagem";
+function tierToCategoria(tier: string | null, addon: string | null, feature: string | null): string {
+  // Prioridade 1: feature_required (modelo novo, granular)
+  if (feature === "odds_safes")           return "basico";
+  if (feature === "odds_pro")             return "pro";
+  if (feature === "odds_ultra")           return "odds_ultra";
+  if (feature === "alavancagem")          return "alavancagem";
+  if (feature === "multiplas_bingo")      return "multiplas_bingo";
+  if (feature === "mercados_secundarios") return "mercados_secundarios";
+  if (feature === "esportes_americanos")  return "esportes_americanos";
+  // Prioridade 2: addon_required (legacy)
+  if (addon === "alavancagem")     return "alavancagem";
   if (addon === "multiplas_bingo") return "multiplas_bingo";
+  // Prioridade 3: tier_required puro
+  if (tier === "free")  return "free";
   if (tier === "basic") return "basico";
-  return tier;
+  if (tier === "pro")   return "pro";
+  if (tier === "ultra") return "odds_ultra";
+  return "free";
 }
 
 type SortColumn = "title" | "palpite" | "date" | "starts_at" | "odd" | "tier_required" | "result";
