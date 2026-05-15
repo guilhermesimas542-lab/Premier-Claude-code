@@ -19,20 +19,36 @@ import { PredictionAutocomplete } from "../components/PredictionAutocomplete";
 import type { AdminContentEntry } from "../types";
 import { useBettingHouseAdmin } from "../context/BettingHouseContext";
 
-const CATEGORIA_MAP: Record<string, { tier: string; addon: string | null }> = {
-  free: { tier: "free", addon: null },
-  basico: { tier: "basic", addon: null },
-  pro: { tier: "pro", addon: null },
-  ultra: { tier: "ultra", addon: null },
-  alavancagem: { tier: "pro", addon: "alavancagem" },
-  multiplas_bingo: { tier: "premium", addon: "multiplas_bingo" },
+const CATEGORIA_MAP: Record<string, { tier: string; addon: string | null; feature: string | null }> = {
+  free:                 { tier: "free",  addon: null,              feature: null },
+  basico:               { tier: "basic", addon: null,              feature: "odds_safes" },
+  pro:                  { tier: "pro",   addon: null,              feature: "odds_pro" },
+  ultra:                { tier: "ultra", addon: null,              feature: "odds_pro" },
+  alavancagem:          { tier: "ultra", addon: "alavancagem",     feature: "alavancagem" },
+  multiplas_bingo:      { tier: "ultra", addon: "multiplas_bingo", feature: "multiplas_bingo" },
+  mercados_secundarios: { tier: "ultra", addon: null,              feature: "mercados_secundarios" },
+  esportes_americanos:  { tier: "ultra", addon: null,              feature: "esportes_americanos" },
+  odds_ultra:           { tier: "ultra", addon: null,              feature: "odds_ultra" },
 };
 
-function tierToCategoria(tier: string, addon: string | null): string {
-  if (addon === "alavancagem") return "alavancagem";
+function tierToCategoria(tier: string | null, addon: string | null, feature: string | null): string {
+  // Prioridade 1: feature_required (modelo novo, granular)
+  if (feature === "odds_safes")           return "basico";
+  if (feature === "odds_pro")             return "pro";
+  if (feature === "odds_ultra")           return "odds_ultra";
+  if (feature === "alavancagem")          return "alavancagem";
+  if (feature === "multiplas_bingo")      return "multiplas_bingo";
+  if (feature === "mercados_secundarios") return "mercados_secundarios";
+  if (feature === "esportes_americanos")  return "esportes_americanos";
+  // Prioridade 2: addon_required (legacy)
+  if (addon === "alavancagem")     return "alavancagem";
   if (addon === "multiplas_bingo") return "multiplas_bingo";
+  // Prioridade 3: tier_required puro
+  if (tier === "free")  return "free";
   if (tier === "basic") return "basico";
-  return tier;
+  if (tier === "pro")   return "pro";
+  if (tier === "ultra") return "odds_ultra";
+  return "free";
 }
 
 type SortColumn = "title" | "palpite" | "date" | "starts_at" | "odd" | "tier_required" | "result";
@@ -101,7 +117,7 @@ export default function AdminTipsList() {
       team1_logo_url: (t as any).team1_logo_url ?? "",
       team2_name: t.team2_name ?? "",
       team2_logo_url: (t as any).team2_logo_url ?? "",
-      categoria: tierToCategoria(t.tier_required, (t as any).addon_required),
+      categoria: tierToCategoria(t.tier_required, (t as any).addon_required, (t as any).feature_required),
       odd: t.odd?.toString() ?? "",
       palpite: t.condition_to_win ?? "",
       mercado: t.market ?? "",
@@ -176,6 +192,7 @@ export default function AdminTipsList() {
       odd: editForm.odd ? parseFloat(Number(editForm.odd).toFixed(2)) : null,
       tier_required: cat.tier,
       addon_required: cat.addon,
+      feature_required: cat.feature,
       team1_name: editForm.team1_name,
       team1_logo_url: editForm.team1_logo_url || null,
       team2_name: editForm.team2_name,
@@ -629,11 +646,13 @@ export default function AdminTipsList() {
                     <SelectTrigger className="bg-gray-800 border-gray-700"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="free">Free</SelectItem>
-                      <SelectItem value="basico">Básico</SelectItem>
-                      <SelectItem value="pro">Pro</SelectItem>
-                      <SelectItem value="ultra">Ultra</SelectItem>
+                      <SelectItem value="basico">Odds Safes (Básico)</SelectItem>
+                      <SelectItem value="pro">Odds Pró</SelectItem>
                       <SelectItem value="alavancagem">Alavancagem</SelectItem>
                       <SelectItem value="multiplas_bingo">Múltiplas / Bingo</SelectItem>
+                      <SelectItem value="mercados_secundarios">Mercados Secundários</SelectItem>
+                      <SelectItem value="esportes_americanos">Esportes Americanos</SelectItem>
+                      <SelectItem value="odds_ultra">Odds Ultra</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
