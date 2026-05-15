@@ -3,6 +3,7 @@ import { Outlet, useOutletContext } from "react-router-dom";
 import { toast } from "sonner";
 import { useUserBettingHouse } from "@/hooks/useUserBettingHouse";
 import { BottomNav } from "@/components/BottomNav";
+import { ScrollToTopButton } from "@/components/ScrollToTopButton";
 import { usePendingTip } from "@/contexts/PendingTipContext";
 
 /**
@@ -128,6 +129,7 @@ const SportLayout = () => {
         )}
       </section>
 
+      <ScrollToTopButton />
       <BottomNav />
     </div>
   );
