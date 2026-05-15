@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { CircleCheck, MessageCircle, ShieldCheck } from "lucide-react";
+import { MessageCircle, ShieldCheck } from "lucide-react";
 
 const Obg = () => {
   useEffect(() => {
@@ -26,20 +26,18 @@ const Obg = () => {
         </span>
       </header>
 
-      <main className="relative z-10 w-full max-w-md flex flex-col items-center text-center mt-8 sm:mt-10">
-        {/* Aviso topo */}
-        <p className="text-xs sm:text-sm tracking-[0.18em] text-primary font-bold uppercase max-w-sm leading-snug">
-          Haz clic ahora en el botón de abajo para recibir tu acceso en WhatsApp
-        </p>
-
-        <div className="w-16 h-16 rounded-full bg-primary/15 border border-primary/40 flex items-center justify-center mt-6 mb-5 shadow-[0_0_30px_rgba(0,255,127,0.25)]">
-          <CircleCheck className="w-9 h-9 text-primary" />
-        </div>
-
+      <main className="relative z-10 w-full max-w-md flex flex-col items-center text-center mt-10 sm:mt-12">
+        {/* Headline principal */}
         <h1 className="font-['Barlow_Condensed'] font-extrabold text-3xl sm:text-4xl uppercase leading-tight">
-          ¡Felicitaciones! Tu compra fue aprobada ✅
+          Haz clic ahora en el botón de abajo para recibir tu acceso en WhatsApp
         </h1>
 
+        {/* Subtítulo de confirmação */}
+        <p className="mt-4 text-base sm:text-lg text-primary font-semibold">
+          ¡Felicitaciones! Tu compra fue aprobada ✅
+        </p>
+
+        {/* Bloco explicativo */}
         <section className="w-full mt-7 rounded-2xl border border-border bg-card/70 backdrop-blur p-5 sm:p-6 text-left">
           <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
             Tu acceso a la <span className="text-foreground font-semibold">I.A NO aparece en esta página</span>. Para activarlo, haz clic en el botón verde de abajo: serás redirigido a WhatsApp, donde recibirás tu enlace de acceso de forma inmediata y automática.
