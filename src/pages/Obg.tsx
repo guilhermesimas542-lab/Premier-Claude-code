@@ -11,7 +11,7 @@ const Obg = () => {
   }, []);
 
   const handleOpenSupport = () => {
-    const url = links.support_whatsapp_url || SUPPORT_WHATSAPP_URL_FALLBACK;
+    const url = "https://wa.me/5511965075328?text=Quiero%20mi%20acceso%20a%20Clscore";
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
