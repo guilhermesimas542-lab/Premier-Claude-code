@@ -192,6 +192,7 @@ export default function AdminTipsList() {
       odd: editForm.odd ? parseFloat(Number(editForm.odd).toFixed(2)) : null,
       tier_required: cat.tier,
       addon_required: cat.addon,
+      feature_required: cat.feature,
       team1_name: editForm.team1_name,
       team1_logo_url: editForm.team1_logo_url || null,
       team2_name: editForm.team2_name,
