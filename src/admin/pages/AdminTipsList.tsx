@@ -646,11 +646,13 @@ export default function AdminTipsList() {
                     <SelectTrigger className="bg-gray-800 border-gray-700"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="free">Free</SelectItem>
-                      <SelectItem value="basico">Básico</SelectItem>
-                      <SelectItem value="pro">Pro</SelectItem>
-                      <SelectItem value="ultra">Ultra</SelectItem>
+                      <SelectItem value="basico">Odds Safes (Básico)</SelectItem>
+                      <SelectItem value="pro">Odds Pró</SelectItem>
                       <SelectItem value="alavancagem">Alavancagem</SelectItem>
                       <SelectItem value="multiplas_bingo">Múltiplas / Bingo</SelectItem>
+                      <SelectItem value="mercados_secundarios">Mercados Secundários</SelectItem>
+                      <SelectItem value="esportes_americanos">Esportes Americanos</SelectItem>
+                      <SelectItem value="odds_ultra">Odds Ultra</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
