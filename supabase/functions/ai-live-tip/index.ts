@@ -45,7 +45,8 @@ const TOP_LEAGUES = [
   16,
 ];
 const LIVE_STATUS = ["1H", "HT", "2H", "ET", "BT", "P", "LIVE"];
-const CLAUDE_MODEL = "claude-sonnet-4-5";
+const PRIMARY_MODEL = "claude-sonnet-4-5";
+const FALLBACK_MODEL = "claude-opus-4-7";
 const CACHE_TTL_SECONDS = 60;
 
 const SYSTEM_PROMPT_LIVE = `Você é o Savel, tipster especialista em futebol AO VIVO, fundador da Premier Ultra. Você analisa jogos em andamento combinando contexto pré-jogo (tabela, forma, percentuais, odds pré) com o que está acontecendo na partida em tempo real.
@@ -721,41 +722,63 @@ ${JSON.stringify(sourceData, null, 2)}
 
 Gere a análise no formato definido no system prompt. Considere o minuto atual ao escolher mercado e aplicar táticas.`;
 
-  const claudePayload = JSON.stringify({
-    model: CLAUDE_MODEL,
+  const baseBody = {
     max_tokens: 1500,
     system: [
       { type: "text", text: SYSTEM_PROMPT_LIVE, cache_control: { type: "ephemeral" } },
     ],
     messages: [{ role: "user", content: userMessage }],
-  });
+  };
+  async function callClaude(model: string): Promise<Response> {
+    return await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": claudeKey,
+        "anthropic-version": "2023-06-01",
+      },
+      body: JSON.stringify({ ...baseBody, model }),
+    });
+  }
 
   let claudeResp: Response | null = null;
   let lastErrText = "";
+  let modelUsed = PRIMARY_MODEL;
   const RETRY_STATUSES = new Set([429, 500, 502, 503, 504, 529]);
+
   for (let attempt = 0; attempt < 3; attempt++) {
     try {
-      claudeResp = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": claudeKey,
-          "anthropic-version": "2023-06-01",
-        },
-        body: claudePayload,
-      });
+      claudeResp = await callClaude(PRIMARY_MODEL);
     } catch (err) {
-      console.error(`[ai-live-tip] claude fetch error (attempt ${attempt + 1})`, err);
+      console.error(`[ai-live-tip] claude primary fetch error (attempt ${attempt + 1})`, err);
       claudeResp = null;
       lastErrText = String(err);
     }
     if (claudeResp && claudeResp.ok) break;
     if (claudeResp) {
       lastErrText = await claudeResp.text();
-      console.error(`[ai-live-tip] claude error ${claudeResp.status} (attempt ${attempt + 1})`, lastErrText);
+      console.error(`[ai-live-tip] claude primary ${claudeResp.status} (attempt ${attempt + 1})`, lastErrText);
       if (!RETRY_STATUSES.has(claudeResp.status)) break;
     }
     if (attempt < 2) await new Promise((r) => setTimeout(r, 600 * (attempt + 1)));
+  }
+
+  if (!claudeResp?.ok && (claudeResp === null || RETRY_STATUSES.has(claudeResp.status))) {
+    console.warn(`[ai-live-tip] primary failed, trying fallback ${FALLBACK_MODEL}`);
+    try {
+      const fbResp = await callClaude(FALLBACK_MODEL);
+      if (fbResp.ok) {
+        claudeResp = fbResp;
+        modelUsed = FALLBACK_MODEL;
+        console.warn(`[ai-live-tip] fallback ${FALLBACK_MODEL} succeeded`);
+      } else {
+        lastErrText = await fbResp.text();
+        console.error(`[ai-live-tip] fallback ${FALLBACK_MODEL} ${fbResp.status}`, lastErrText);
+        claudeResp = fbResp;
+      }
+    } catch (err) {
+      console.error(`[ai-live-tip] fallback fetch error`, err);
+    }
   }
 
   if (!claudeResp || !claudeResp.ok) {
@@ -786,7 +809,7 @@ Gere a análise no formato definido no system prompt. Considere o minuto atual a
       api_football_fixture_id: fixtureId,
       altenar_event_id: altenar?.altenar_event_id ?? null,
       content: { markdown: responseText },
-      source_data: sourceData,
+      source_data: { ...sourceData, claude_model_used: modelUsed },
       tokens_input: usage.input_tokens || 0,
       tokens_output: usage.output_tokens || 0,
       tokens_cached: usage.cache_read_input_tokens || 0,
