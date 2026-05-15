@@ -240,7 +240,7 @@ const Login = () => {
           <img
             src={logo}
             alt="CL Ultra"
-            className="h-16 w-auto mx-auto object-contain scale-[9.0]"
+            className="h-16 w-auto mx-auto object-contain"
           />
         </div>
 
