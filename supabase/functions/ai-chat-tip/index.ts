@@ -667,7 +667,7 @@ Gere a análise no formato definido no system prompt.`;
       api_football_fixture_id: fixtureId,
       altenar_event_id: altenar?.altenar_event_id ?? null,
       content: { markdown: responseText },
-      source_data: sourceData,
+      source_data: { ...sourceData, claude_model_used: modelUsed },
       tokens_input: usage.input_tokens || 0,
       tokens_output: usage.output_tokens || 0,
       tokens_cached: usage.cache_read_input_tokens || 0,
