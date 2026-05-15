@@ -117,7 +117,7 @@ export default function AdminTipsList() {
       team1_logo_url: (t as any).team1_logo_url ?? "",
       team2_name: t.team2_name ?? "",
       team2_logo_url: (t as any).team2_logo_url ?? "",
-      categoria: tierToCategoria(t.tier_required, (t as any).addon_required),
+      categoria: tierToCategoria(t.tier_required, (t as any).addon_required, (t as any).feature_required),
       odd: t.odd?.toString() ?? "",
       palpite: t.condition_to_win ?? "",
       mercado: t.market ?? "",
