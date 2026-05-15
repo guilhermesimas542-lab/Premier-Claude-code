@@ -290,12 +290,22 @@ export function useChatTipster() {
         });
         return;
       }
+      if (d?.error === "ai_overloaded" || d?.error === "claude_failed") {
+        append({
+          id: genId(),
+          role: "bot",
+          type: "error",
+          message: d.message ?? "A IA está sobrecarregada. Tente em alguns segundos.",
+          createdAt: Date.now(),
+        });
+        return;
+      }
       if (d?.error) {
         append({
           id: genId(),
           role: "bot",
           type: "error",
-          message: `Erro: ${d.error}`,
+          message: d.message ?? `Erro: ${d.error}`,
           createdAt: Date.now(),
         });
         return;
