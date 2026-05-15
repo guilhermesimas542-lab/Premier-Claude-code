@@ -272,8 +272,8 @@ export const PremiumBettingCard = ({
           alignItems: "flex-start",
           justifyContent: "center",
           gap: 12,
-          padding: "6px 10px 2px 10px",
-          height: "82px",
+          padding: "6px 10px 8px 10px",
+          minHeight: "100px",
           position: "relative",
         }}>
           {/* Team 1 */}
