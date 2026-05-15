@@ -91,6 +91,30 @@ export default function AdminTipsList() {
   const [sortCol, setSortCol] = useState<SortColumn | null>(null);
   const [sortDir, setSortDir] = useState<SortDir>("asc");
 
+function getPlanoLabel(t: any): { label: string; color: string } {
+  const feature = t.feature_required;
+  const addon = t.addon_required;
+  const tier = t.tier_required;
+  const SPECIAL = {
+    free:                 "#94A3B8",
+    alavancagem:          "#F0B429",
+    multiplas_bingo:      "#EC4899",
+    mercados_secundarios: "#38BDF8",
+    esportes_americanos:  "#FB923C",
+  };
+  const DEFAULT_COLOR = "inherit";
+  if (feature === "odds_safes")           return { label: "Odds Safes",        color: DEFAULT_COLOR };
+  if (feature === "odds_pro")             return { label: "Odds Pró",          color: DEFAULT_COLOR };
+  if (feature === "odds_ultra")           return { label: "Odds Ultra",        color: DEFAULT_COLOR };
+  if (feature === "alavancagem")          return { label: "Alavancagem",       color: SPECIAL.alavancagem };
+  if (feature === "multiplas_bingo")      return { label: "Múltiplas / Bingo", color: SPECIAL.multiplas_bingo };
+  if (feature === "mercados_secundarios") return { label: "Merc. Secundários", color: SPECIAL.mercados_secundarios };
+  if (feature === "esportes_americanos")  return { label: "Esp. Americanos",   color: SPECIAL.esportes_americanos };
+  if (addon === "alavancagem")     return { label: "Alavancagem",       color: SPECIAL.alavancagem };
+  if (addon === "multiplas_bingo") return { label: "Múltiplas / Bingo", color: SPECIAL.multiplas_bingo };
+  if (tier === "free") return { label: "Free", color: SPECIAL.free };
+  return { label: tier ?? "—", color: DEFAULT_COLOR };
+}
 
   const hourOptions = useMemo(() => Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, "0")), []);
   const minuteOptions = useMemo(() => Array.from({ length: 12 }, (_, i) => (i * 5).toString().padStart(2, "0")), []);
