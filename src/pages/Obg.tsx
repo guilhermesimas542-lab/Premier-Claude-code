@@ -1,11 +1,7 @@
 import { useEffect } from "react";
-import { CircleCheck, MessageCircle, Clock, ShieldCheck } from "lucide-react";
-import { useLinks } from "@/contexts/LinksContext";
-import { SUPPORT_WHATSAPP_URL_FALLBACK } from "@/lib/userMock";
+import { CircleCheck, MessageCircle, ShieldCheck } from "lucide-react";
 
 const Obg = () => {
-  const { links } = useLinks();
-
   useEffect(() => {
     document.title = "¡Compra confirmada! | CL FC";
   }, []);
@@ -31,43 +27,23 @@ const Obg = () => {
       </header>
 
       <main className="relative z-10 w-full max-w-md flex flex-col items-center text-center mt-8 sm:mt-10">
-        <div className="w-16 h-16 rounded-full bg-primary/15 border border-primary/40 flex items-center justify-center mb-5 shadow-[0_0_30px_rgba(0,255,127,0.25)]">
+        {/* Aviso topo */}
+        <p className="text-xs sm:text-sm tracking-[0.18em] text-primary font-bold uppercase max-w-sm leading-snug">
+          Haz clic ahora en el botón de abajo para recibir tu acceso en WhatsApp
+        </p>
+
+        <div className="w-16 h-16 rounded-full bg-primary/15 border border-primary/40 flex items-center justify-center mt-6 mb-5 shadow-[0_0_30px_rgba(0,255,127,0.25)]">
           <CircleCheck className="w-9 h-9 text-primary" />
         </div>
 
         <h1 className="font-['Barlow_Condensed'] font-extrabold text-3xl sm:text-4xl uppercase leading-tight">
-          ¡Compra confirmada!
+          ¡Felicitaciones! Tu compra fue aprobada ✅
         </h1>
-        <p className="text-muted-foreground mt-2 text-sm sm:text-base max-w-sm">
-          Pago aprobado. Tu acceso a CL FC ya está en camino.
-        </p>
 
         <section className="w-full mt-7 rounded-2xl border border-border bg-card/70 backdrop-blur p-5 sm:p-6 text-left">
-          <div className="flex items-start gap-3">
-            <MessageCircle className="w-5 h-5 text-primary mt-0.5 shrink-0" />
-            <div>
-              <h2 className="font-semibold text-base sm:text-lg">
-                Tu acceso llega por WhatsApp
-              </h2>
-              <p className="text-sm text-muted-foreground mt-1">
-                Lo enviamos directo al número que usaste en la compra. Suele llegar en pocos minutos — no necesitas hacer nada.
-              </p>
-            </div>
-          </div>
-
-          <div className="my-5 h-px bg-border" />
-
-          <div className="flex items-start gap-3">
-            <Clock className="w-5 h-5 text-primary mt-0.5 shrink-0" />
-            <div>
-              <h3 className="font-semibold text-sm sm:text-base">
-                ¿No quieres esperar?
-              </h3>
-              <p className="text-sm text-muted-foreground mt-1">
-                Mándanos un "hola" por WhatsApp y nuestro equipo libera tu acceso al instante (en horario comercial).
-              </p>
-            </div>
-          </div>
+          <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+            Tu acceso a la <span className="text-foreground font-semibold">I.A NO aparece en esta página</span>. Para activarlo, haz clic en el botón verde de abajo: serás redirigido a WhatsApp, donde recibirás tu enlace de acceso de forma inmediata y automática.
+          </p>
         </section>
 
         <button
@@ -76,7 +52,7 @@ const Obg = () => {
           className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 px-4 py-2 w-full mt-6 h-14 text-base font-bold uppercase tracking-wide bg-primary text-black hover:bg-primary/90 hover:text-black shadow-[0_0_25px_rgba(0,255,127,0.35)]"
         >
           <MessageCircle className="w-5 h-5 mr-1" />
-          Quiero mi acceso ahora
+          Activar mi cuenta en WhatsApp
         </button>
 
         <div className="flex items-center gap-2 text-xs text-muted-foreground mt-4">
