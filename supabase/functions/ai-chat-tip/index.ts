@@ -44,7 +44,9 @@ const TOP_LEAGUES = [
   299,
   16,
 ];
-const CLAUDE_MODEL = "claude-sonnet-4-5";
+const PRIMARY_MODEL = "claude-sonnet-4-5";
+const FALLBACK_MODEL = "claude-opus-4-7";
+const RETRY_STATUSES = new Set([429, 500, 502, 503, 504, 529]);
 const CACHE_TTL_HOURS = 24;
 
 const SYSTEM_PROMPT_CHAT = `Você é o Savel, tipster especialista em futebol e fundador da Premier Ultra. Você analisa jogos com base em dados estatísticos, percentuais e contexto, não em paixão ou achismo.
@@ -579,36 +581,74 @@ ${JSON.stringify(sourceData, null, 2)}
 
 Gere a análise no formato definido no system prompt.`;
 
-  let claudeResp: Response;
-  try {
-    claudeResp = await fetch("https://api.anthropic.com/v1/messages", {
+  const baseBody = {
+    max_tokens: 1500,
+    system: [
+      { type: "text", text: SYSTEM_PROMPT_CHAT, cache_control: { type: "ephemeral" } },
+    ],
+    messages: [{ role: "user", content: userMessage }],
+  };
+  async function callClaude(model: string): Promise<Response> {
+    return await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "x-api-key": claudeKey,
         "anthropic-version": "2023-06-01",
       },
-      body: JSON.stringify({
-        model: CLAUDE_MODEL,
-        max_tokens: 1500,
-        system: [
-          {
-            type: "text",
-            text: SYSTEM_PROMPT_CHAT,
-            cache_control: { type: "ephemeral" },
-          },
-        ],
-        messages: [{ role: "user", content: userMessage }],
-      }),
+      body: JSON.stringify({ ...baseBody, model }),
     });
-  } catch (err) {
-    return jsonResp({ error: "claude_unreachable" }, 502);
   }
 
-  if (!claudeResp.ok) {
-    const errText = await claudeResp.text();
-    console.error("[ai-chat-tip] claude error", claudeResp.status, errText);
-    return jsonResp({ error: "claude_failed", status: claudeResp.status }, 502);
+  let claudeResp: Response | null = null;
+  let lastErrText = "";
+  let modelUsed = PRIMARY_MODEL;
+
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      claudeResp = await callClaude(PRIMARY_MODEL);
+      if (claudeResp.ok) break;
+      lastErrText = await claudeResp.text();
+      console.error(`[ai-chat-tip] claude primary ${claudeResp.status} (attempt ${attempt + 1})`, lastErrText);
+      if (!RETRY_STATUSES.has(claudeResp.status)) break;
+    } catch (err) {
+      console.error(`[ai-chat-tip] claude primary fetch error (attempt ${attempt + 1})`, err);
+      claudeResp = null;
+      lastErrText = String(err);
+    }
+    if (attempt < 2) await new Promise((r) => setTimeout(r, 500 * Math.pow(3, attempt)));
+  }
+
+  if (!claudeResp?.ok && (claudeResp === null || RETRY_STATUSES.has(claudeResp.status))) {
+    console.warn(`[ai-chat-tip] primary failed, trying fallback ${FALLBACK_MODEL}`);
+    try {
+      const fbResp = await callClaude(FALLBACK_MODEL);
+      if (fbResp.ok) {
+        claudeResp = fbResp;
+        modelUsed = FALLBACK_MODEL;
+        console.warn(`[ai-chat-tip] fallback ${FALLBACK_MODEL} succeeded`);
+      } else {
+        lastErrText = await fbResp.text();
+        console.error(`[ai-chat-tip] fallback ${FALLBACK_MODEL} ${fbResp.status}`, lastErrText);
+        claudeResp = fbResp;
+      }
+    } catch (err) {
+      console.error(`[ai-chat-tip] fallback fetch error`, err);
+    }
+  }
+
+  if (!claudeResp || !claudeResp.ok) {
+    const status = claudeResp?.status ?? 0;
+    const overloaded = status === 503 || status === 529 || status === 429 || status === 0;
+    return jsonResp({
+      error: overloaded ? "ai_overloaded" : "claude_failed",
+      message: overloaded
+        ? "A IA está sobrecarregada no momento. Tente novamente em alguns segundos."
+        : "Falha ao gerar análise. Tente novamente.",
+      fixture_id: fixtureId,
+      status_received: status,
+      retryable: overloaded,
+    }, 200);
   }
 
   const claudeData = await claudeResp.json();
