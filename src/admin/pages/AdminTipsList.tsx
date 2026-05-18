@@ -667,8 +667,6 @@ function getPlanoLabel(t: any): { label: string; color: string } {
                   </td>
                 </tr>
               ))}
-                </tr>
-              ))}
               {items.length === 0 && <tr><td colSpan={11} className="px-3 py-6 text-center text-gray-600">Nenhuma tip encontrada</td></tr>}
             </tbody>
           </table>
