@@ -652,9 +652,21 @@ function getPlanoLabel(t: any): { label: string; color: string } {
                   </td>
                   <td className="px-3 py-2 flex gap-1">
                     <button onClick={() => handleFreeze(t)} className="text-cyan-400 hover:text-cyan-300 transition-colors" title="Freezar (duplicar como Free)"><Snowflake className="w-3.5 h-3.5" /></button>
-                    <button onClick={() => openEditModal(t)} className="text-blue-400"><Pencil className="w-3.5 h-3.5" /></button>
-                    <button onClick={() => handleDelete(t.id)} className="text-red-400"><Trash2 className="w-3.5 h-3.5" /></button>
+                    <button onClick={() => openEditModal(t)} className="text-blue-400" title="Editar"><Pencil className="w-3.5 h-3.5" /></button>
+                    {(t as any).result === "green" && (
+                      <button
+                        onClick={() => handleExportSingle(t)}
+                        disabled={exportingId === t.id}
+                        className="text-emerald-400 hover:text-emerald-300 disabled:opacity-50"
+                        title="Exportar PNG (story + recortado)"
+                      >
+                        {exportingId === t.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ImageDown className="w-3.5 h-3.5" />}
+                      </button>
+                    )}
+                    <button onClick={() => handleDelete(t.id)} className="text-red-400" title="Excluir"><Trash2 className="w-3.5 h-3.5" /></button>
                   </td>
+                </tr>
+              ))}
                 </tr>
               ))}
               {items.length === 0 && <tr><td colSpan={11} className="px-3 py-6 text-center text-gray-600">Nenhuma tip encontrada</td></tr>}
