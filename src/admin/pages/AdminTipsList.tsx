@@ -11,7 +11,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Pencil, Trash2, ArrowUpDown, ArrowUp, ArrowDown, Snowflake, RefreshCw } from "lucide-react";
+import { Pencil, Trash2, ArrowUpDown, ArrowUp, ArrowDown, Snowflake, RefreshCw, ImageDown, Loader2 } from "lucide-react";
+import { downloadSingleTipPngs, exportGreensAsZip, type TipForExport } from "@/admin/lib/exportTipPng";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { TeamAutocomplete } from "../components/TeamAutocomplete";
@@ -90,6 +91,55 @@ export default function AdminTipsList() {
   const [bulkDeleting, setBulkDeleting] = useState(false);
   const [sortCol, setSortCol] = useState<SortColumn | null>(null);
   const [sortDir, setSortDir] = useState<SortDir>("asc");
+  const [exportingId, setExportingId] = useState<string | null>(null);
+  const [exportingBatch, setExportingBatch] = useState(false);
+
+  const tipToExport = (t: any): TipForExport => ({
+    id: t.id,
+    title: t.title ?? `${t.team1_name ?? ""} x ${t.team2_name ?? ""}`,
+    team1_name: t.team1_name,
+    team2_name: t.team2_name,
+    team1_logo_url: t.team1_logo_url,
+    team2_logo_url: t.team2_logo_url,
+    market: t.market,
+    bet_choice: t.condition_to_win,
+    odds: t.odd,
+    match_date: t.starts_at ? t.starts_at.substring(11, 16) : (t.date ?? null),
+    result: t.result ?? "pending",
+    feature_required: t.feature_required,
+    addon_required: t.addon_required,
+  });
+
+  const handleExportSingle = async (t: any) => {
+    if (t.result !== "green") { toast.error("Só tips GREEN podem ser exportadas"); return; }
+    setExportingId(t.id);
+    try {
+      await downloadSingleTipPngs(tipToExport(t));
+      toast.success("PNGs baixados (story + recortado)");
+    } catch (e: any) {
+      console.error("[export single]", e);
+      toast.error("Falha ao gerar PNG: " + (e?.message ?? "erro"));
+    } finally {
+      setExportingId(null);
+    }
+  };
+
+  const handleExportBatchGreens = async () => {
+    const greens = (items as any[]).filter((t) => t.result === "green");
+    if (greens.length === 0) { toast.error("Nenhuma tip GREEN no filtro atual"); return; }
+    setExportingBatch(true);
+    toast.info(`Exportando ${greens.length} tips green...`);
+    try {
+      const label = filters.dateFrom || new Date().toISOString().split("T")[0];
+      await exportGreensAsZip(greens.map(tipToExport), label);
+      toast.success(`ZIP com ${greens.length} tips baixado`);
+    } catch (e: any) {
+      console.error("[export batch]", e);
+      toast.error("Falha no batch: " + (e?.message ?? "erro"));
+    } finally {
+      setExportingBatch(false);
+    }
+  };
 
 function getPlanoLabel(t: any): { label: string; color: string } {
   const feature = t.feature_required;
@@ -473,6 +523,14 @@ function getPlanoLabel(t: any): { label: string; color: string } {
         >
           Exportar CSV
         </button>
+        <button
+          onClick={handleExportBatchGreens}
+          disabled={exportingBatch}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 disabled:bg-gray-600 text-black text-sm font-bold transition-colors"
+          title="Exportar PNGs de todas as tips GREEN do filtro atual"
+        >
+          {exportingBatch ? (<><Loader2 className="w-4 h-4 animate-spin" />Processando...</>) : (<><ImageDown className="w-4 h-4" />Exportar Greens (ZIP)</>)}
+        </button>
       </div>
 
       {/* Date shortcut buttons */}
@@ -602,8 +660,18 @@ function getPlanoLabel(t: any): { label: string; color: string } {
                   </td>
                   <td className="px-3 py-2 flex gap-1">
                     <button onClick={() => handleFreeze(t)} className="text-cyan-400 hover:text-cyan-300 transition-colors" title="Freezar (duplicar como Free)"><Snowflake className="w-3.5 h-3.5" /></button>
-                    <button onClick={() => openEditModal(t)} className="text-blue-400"><Pencil className="w-3.5 h-3.5" /></button>
-                    <button onClick={() => handleDelete(t.id)} className="text-red-400"><Trash2 className="w-3.5 h-3.5" /></button>
+                    <button onClick={() => openEditModal(t)} className="text-blue-400" title="Editar"><Pencil className="w-3.5 h-3.5" /></button>
+                    {(t as any).result === "green" && (
+                      <button
+                        onClick={() => handleExportSingle(t)}
+                        disabled={exportingId === t.id}
+                        className="text-emerald-400 hover:text-emerald-300 disabled:opacity-50"
+                        title="Exportar PNG (story + recortado)"
+                      >
+                        {exportingId === t.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ImageDown className="w-3.5 h-3.5" />}
+                      </button>
+                    )}
+                    <button onClick={() => handleDelete(t.id)} className="text-red-400" title="Excluir"><Trash2 className="w-3.5 h-3.5" /></button>
                   </td>
                 </tr>
               ))}
