@@ -799,8 +799,8 @@ function ProductModal({
       } else {
         const row = {
           provider,
-          provider_product_id: externalId,
-          product_name: name,
+          provider_product_id: trimmedExternalId,
+          product_name: trimmedName,
           tier: type === "tier" ? tierValue : null,
           entitlement_key: type === "addon" ? addonValue : null,
           product_type: type === "tier" ? "plan" : "addon",
