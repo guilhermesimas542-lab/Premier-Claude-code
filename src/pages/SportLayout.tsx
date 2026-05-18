@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type RefObject, type Dispatch, type SetStateAction } from "react";
+import { useEffect, useRef, useState, type RefObject, type Dispatch, type SetStateAction, type SyntheticEvent } from "react";
 import { Outlet, useOutletContext } from "react-router-dom";
 import { toast } from "sonner";
 import { useUserBettingHouse } from "@/hooks/useUserBettingHouse";
