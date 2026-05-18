@@ -523,6 +523,14 @@ function getPlanoLabel(t: any): { label: string; color: string } {
         >
           Exportar CSV
         </button>
+        <button
+          onClick={handleExportBatchGreens}
+          disabled={exportingBatch}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 disabled:bg-gray-600 text-black text-sm font-bold transition-colors"
+          title="Exportar PNGs de todas as tips GREEN do filtro atual"
+        >
+          {exportingBatch ? (<><Loader2 className="w-4 h-4 animate-spin" />Processando...</>) : (<><ImageDown className="w-4 h-4" />Exportar Greens (ZIP)</>)}
+        </button>
       </div>
 
       {/* Date shortcut buttons */}
