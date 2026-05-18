@@ -56,8 +56,13 @@ const SportLayout = () => {
   // o protocolo (ex.: iframeReady, iframeLoading, etc.).
   useEffect(() => {
     const handleEsportivaMessage = (event: MessageEvent) => {
-      if (event.origin !== ESPORTIVA_ORIGIN) return;
-      console.log("[ESPORTIVA RESPONDEU]", event.data);
+      const expected = getExpectedOrigin(iframeRef.current);
+      const isFromEsportiva =
+        event.origin === expected ||
+        event.origin.endsWith("esportiva.bet.br") ||
+        event.origin.endsWith("esportiva.bet");
+      if (!isFromEsportiva) return;
+      console.log("[ESPORTIVA RESPONDEU]", { origin: event.origin, data: event.data });
     };
     window.addEventListener("message", handleEsportivaMessage);
     return () => window.removeEventListener("message", handleEsportivaMessage);
@@ -70,7 +75,7 @@ const SportLayout = () => {
     if (!target) return;
     target.postMessage(
       { type: "wsdk-toggle-selections", data: { selections: pendingTip.selections } },
-      ESPORTIVA_ORIGIN
+      "*"
     );
     toast.success("Tip adicionada ao bilhete!");
     clearPendingTip();
