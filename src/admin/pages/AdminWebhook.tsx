@@ -755,22 +755,22 @@ function ProductModal({
         const bundleRows = [
           {
             provider,
-            provider_product_id: externalId,
-            product_name: `${name} (Plano)`,
+            provider_product_id: trimmedExternalId,
+            product_name: `${trimmedName} (Plano)`,
             tier: tierValue,
             entitlement_key: null,
             product_type: "bundle",
-            bundle_name: name,
+            bundle_name: trimmedName,
             active,
           },
           ...bundleAddons.map(addonKey => ({
             provider,
-            provider_product_id: externalId,
-            product_name: `${name} (${addonKey})`,
+            provider_product_id: trimmedExternalId,
+            product_name: `${trimmedName} (${addonKey})`,
             tier: null,
             entitlement_key: addonKey,
             product_type: "bundle",
-            bundle_name: name,
+            bundle_name: trimmedName,
             active,
           })),
         ];
@@ -779,8 +779,8 @@ function ProductModal({
           const { error: bundleDeleteError } = await supabase
             .from("products_catalog")
             .delete()
-            .eq("bundle_name", editing.bundle_name ?? name)
-            .eq("provider_product_id", externalId);
+            .eq("bundle_name", editing.bundle_name ?? trimmedName)
+            .eq("provider_product_id", trimmedExternalId);
           if (bundleDeleteError) {
             console.error("Erro ao remover bundle anterior:", bundleDeleteError);
             toast.error(`Erro ao salvar: ${bundleDeleteError.message}`);
