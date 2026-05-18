@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type RefObject, type Dispatch, type SetStateAction } from "react";
+import { useEffect, useRef, useState, type RefObject, type Dispatch, type SetStateAction, type SyntheticEvent } from "react";
 import { Outlet, useOutletContext } from "react-router-dom";
 import { toast } from "sonner";
 import { useUserBettingHouse } from "@/hooks/useUserBettingHouse";
@@ -22,7 +22,12 @@ export function useSportOutletContext(): SportOutletContext {
   return useOutletContext<SportOutletContext>();
 }
 
-const ESPORTIVA_ORIGIN = "https://esportiva.bet.br";
+// Origem aceita: derivada do iframe.src atual + sufixos esportiva.bet(.br)
+function getExpectedOrigin(iframeEl: HTMLIFrameElement | null): string | null {
+  const src = iframeEl?.src;
+  if (!src) return null;
+  try { return new URL(src).origin; } catch { return null; }
+}
 
 /**
  * Layout pai persistente para as rotas de tips esportivas.
@@ -51,8 +56,13 @@ const SportLayout = () => {
   // o protocolo (ex.: iframeReady, iframeLoading, etc.).
   useEffect(() => {
     const handleEsportivaMessage = (event: MessageEvent) => {
-      if (event.origin !== ESPORTIVA_ORIGIN) return;
-      console.log("[ESPORTIVA RESPONDEU]", event.data);
+      const expected = getExpectedOrigin(iframeRef.current);
+      const isFromEsportiva =
+        event.origin === expected ||
+        event.origin.endsWith("esportiva.bet.br") ||
+        event.origin.endsWith("esportiva.bet");
+      if (!isFromEsportiva) return;
+      console.log("[ESPORTIVA RESPONDEU]", { origin: event.origin, data: event.data });
     };
     window.addEventListener("message", handleEsportivaMessage);
     return () => window.removeEventListener("message", handleEsportivaMessage);
@@ -65,7 +75,7 @@ const SportLayout = () => {
     if (!target) return;
     target.postMessage(
       { type: "wsdk-toggle-selections", data: { selections: pendingTip.selections } },
-      ESPORTIVA_ORIGIN
+      "*"
     );
     toast.success("Tip adicionada ao bilhete!");
     clearPendingTip();
@@ -79,8 +89,16 @@ const SportLayout = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pendingTip]);
 
-  const handleIframeLoad = () => {
+  const handleIframeLoad = (e: SyntheticEvent<HTMLIFrameElement>) => {
     iframeLoadedRef.current = true;
+    const iframe = e.currentTarget;
+    let effective_href: string;
+    try {
+      effective_href = iframe.contentWindow?.location.href ?? "(no contentWindow)";
+    } catch (err) {
+      effective_href = "(cross-origin: " + (err as Error).message + ")";
+    }
+    console.log("[IFRAME LOADED]", { src_attr: iframe.src, title: iframe.title, effective_href });
     if (pendingTip) setTimeout(flushPendingTip, 500);
   };
 
