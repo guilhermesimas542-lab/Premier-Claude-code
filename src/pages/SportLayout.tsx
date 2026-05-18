@@ -89,7 +89,7 @@ const SportLayout = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pendingTip]);
 
-  const handleIframeLoad = (e: React.SyntheticEvent<HTMLIFrameElement>) => {
+  const handleIframeLoad = (e: SyntheticEvent<HTMLIFrameElement>) => {
     iframeLoadedRef.current = true;
     const iframe = e.currentTarget;
     let effective_href: string;
