@@ -22,7 +22,12 @@ export function useSportOutletContext(): SportOutletContext {
   return useOutletContext<SportOutletContext>();
 }
 
-const ESPORTIVA_ORIGIN = "https://esportiva.bet.br";
+// Origem aceita: derivada do iframe.src atual + sufixos esportiva.bet(.br)
+function getExpectedOrigin(iframeEl: HTMLIFrameElement | null): string | null {
+  const src = iframeEl?.src;
+  if (!src) return null;
+  try { return new URL(src).origin; } catch { return null; }
+}
 
 /**
  * Layout pai persistente para as rotas de tips esportivas.
