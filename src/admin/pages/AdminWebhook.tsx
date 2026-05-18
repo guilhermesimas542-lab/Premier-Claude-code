@@ -731,7 +731,12 @@ function ProductModal({
   }, [editing, open]);
 
   const handleSave = async () => {
-    if (!externalId || !name) {
+    // Defensivo: remove espaços acidentais no início/fim (causa bug de lookup no webhook)
+    const trimmedExternalId = externalId.trim();
+    const trimmedName = name.trim();
+    if (trimmedExternalId !== externalId) setExternalId(trimmedExternalId);
+    if (trimmedName !== name) setName(trimmedName);
+    if (!trimmedExternalId || !trimmedName) {
       toast.error("Preencha todos os campos obrigatórios");
       return;
     }
