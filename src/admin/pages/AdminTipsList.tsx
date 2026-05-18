@@ -91,6 +91,55 @@ export default function AdminTipsList() {
   const [bulkDeleting, setBulkDeleting] = useState(false);
   const [sortCol, setSortCol] = useState<SortColumn | null>(null);
   const [sortDir, setSortDir] = useState<SortDir>("asc");
+  const [exportingId, setExportingId] = useState<string | null>(null);
+  const [exportingBatch, setExportingBatch] = useState(false);
+
+  const tipToExport = (t: any): TipForExport => ({
+    id: t.id,
+    title: t.title ?? `${t.team1_name ?? ""} x ${t.team2_name ?? ""}`,
+    team1_name: t.team1_name,
+    team2_name: t.team2_name,
+    team1_logo_url: t.team1_logo_url,
+    team2_logo_url: t.team2_logo_url,
+    market: t.market,
+    bet_choice: t.condition_to_win,
+    odds: t.odd,
+    match_date: t.starts_at ? t.starts_at.substring(11, 16) : (t.date ?? null),
+    result: t.result ?? "pending",
+    feature_required: t.feature_required,
+    addon_required: t.addon_required,
+  });
+
+  const handleExportSingle = async (t: any) => {
+    if (t.result !== "green") { toast.error("Só tips GREEN podem ser exportadas"); return; }
+    setExportingId(t.id);
+    try {
+      await downloadSingleTipPngs(tipToExport(t));
+      toast.success("PNGs baixados (story + recortado)");
+    } catch (e: any) {
+      console.error("[export single]", e);
+      toast.error("Falha ao gerar PNG: " + (e?.message ?? "erro"));
+    } finally {
+      setExportingId(null);
+    }
+  };
+
+  const handleExportBatchGreens = async () => {
+    const greens = (items as any[]).filter((t) => t.result === "green");
+    if (greens.length === 0) { toast.error("Nenhuma tip GREEN no filtro atual"); return; }
+    setExportingBatch(true);
+    toast.info(`Exportando ${greens.length} tips green...`);
+    try {
+      const label = filters.dateFrom || new Date().toISOString().split("T")[0];
+      await exportGreensAsZip(greens.map(tipToExport), label);
+      toast.success(`ZIP com ${greens.length} tips baixado`);
+    } catch (e: any) {
+      console.error("[export batch]", e);
+      toast.error("Falha no batch: " + (e?.message ?? "erro"));
+    } finally {
+      setExportingBatch(false);
+    }
+  };
 
 function getPlanoLabel(t: any): { label: string; color: string } {
   const feature = t.feature_required;
