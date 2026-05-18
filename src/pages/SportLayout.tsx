@@ -89,8 +89,16 @@ const SportLayout = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pendingTip]);
 
-  const handleIframeLoad = () => {
+  const handleIframeLoad = (e: React.SyntheticEvent<HTMLIFrameElement>) => {
     iframeLoadedRef.current = true;
+    const iframe = e.currentTarget;
+    let effective_href: string;
+    try {
+      effective_href = iframe.contentWindow?.location.href ?? "(no contentWindow)";
+    } catch (err) {
+      effective_href = "(cross-origin: " + (err as Error).message + ")";
+    }
+    console.log("[IFRAME LOADED]", { src_attr: iframe.src, title: iframe.title, effective_href });
     if (pendingTip) setTimeout(flushPendingTip, 500);
   };
 
