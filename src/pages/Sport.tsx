@@ -322,11 +322,6 @@ const Sport = () => {
 
       const rawEntries = (entries || []) as unknown as ContentEntry[];
       const processed: DisplayTip[] = rawEntries
-        .filter((e: ContentEntry) => {
-          // Paid users don't see Grátis tab content
-          if (_isPaidUser && getEntryFeature(e) === "free") return false;
-          return true;
-        })
         .map((e: ContentEntry) => ({
           ...e,
           display_status: calculateDisplayStatus(e, features),
@@ -700,7 +695,6 @@ const Sport = () => {
         <div className="relative">
         <div ref={tabsScrollRef} className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-2 px-1" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
           {TAB_ORDER
-            .filter(f => !(isPaidUser && f === "free"))
             .map((f) => {
               const meta = TAB_META[f];
               const isActive = activeFeatureHighlight === f;
