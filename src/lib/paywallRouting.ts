@@ -50,8 +50,8 @@ export function resolvePaywallVariant(
   if (userTier === "premium" || userTier === "basic" || userTier === "pro") {
     return isDiamanteOnly ? "diamante_upgrade" : "premium";
   }
-  // free / unknown tier
-  return isDiamanteOnly ? "diamante" : "premium";
+  // free / unknown tier — sempre oferta premium primeiro (escada de upgrade)
+  return "premium";
 }
 
 /** associated_plan slug for pay_cards lookup per variant */
