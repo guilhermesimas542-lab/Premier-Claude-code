@@ -422,14 +422,16 @@ Deno.serve(async (req) => {
     const effectiveProvider = isPayt ? "payt" : provider;
 
     if (productIds.length > 0) {
+      // Defensivo: trim para tolerar cadastros com espaços acidentais no products_catalog
+      const normalizedIds = productIds.map((id) => (typeof id === "string" ? id.trim() : id)).filter(Boolean);
       const { data: catalogItems, error: catalogError } = await supabase
         .from("products_catalog")
         .select("provider_product_id, tier, entitlement_key")
         .eq("provider", effectiveProvider)
-        .in("provider_product_id", productIds)
+        .in("provider_product_id", normalizedIds)
         .eq("active", true);
 
-      console.log("[webhook] catalog lookup by provider_product_id:", { productIds, provider: effectiveProvider, catalogItems, catalogError });
+      console.log("[webhook] catalog lookup by provider_product_id:", { productIds: normalizedIds, provider: effectiveProvider, catalogItems, catalogError });
 
       if (catalogItems && catalogItems.length > 0) {
         for (const item of catalogItems) {
