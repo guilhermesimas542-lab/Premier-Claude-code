@@ -731,12 +731,7 @@ function ProductModal({
   }, [editing, open]);
 
   const handleSave = async () => {
-    // Defensivo: remove espaços acidentais no início/fim (causa bug de lookup no webhook)
-    const trimmedExternalId = externalId.trim();
-    const trimmedName = name.trim();
-    if (trimmedExternalId !== externalId) setExternalId(trimmedExternalId);
-    if (trimmedName !== name) setName(trimmedName);
-    if (!trimmedExternalId || !trimmedName) {
+    if (!externalId || !name) {
       toast.error("Preencha todos os campos obrigatórios");
       return;
     }
@@ -755,22 +750,22 @@ function ProductModal({
         const bundleRows = [
           {
             provider,
-            provider_product_id: trimmedExternalId,
-            product_name: `${trimmedName} (Plano)`,
+            provider_product_id: externalId,
+            product_name: `${name} (Plano)`,
             tier: tierValue,
             entitlement_key: null,
             product_type: "bundle",
-            bundle_name: trimmedName,
+            bundle_name: name,
             active,
           },
           ...bundleAddons.map(addonKey => ({
             provider,
-            provider_product_id: trimmedExternalId,
-            product_name: `${trimmedName} (${addonKey})`,
+            provider_product_id: externalId,
+            product_name: `${name} (${addonKey})`,
             tier: null,
             entitlement_key: addonKey,
             product_type: "bundle",
-            bundle_name: trimmedName,
+            bundle_name: name,
             active,
           })),
         ];
@@ -779,8 +774,8 @@ function ProductModal({
           const { error: bundleDeleteError } = await supabase
             .from("products_catalog")
             .delete()
-            .eq("bundle_name", editing.bundle_name ?? trimmedName)
-            .eq("provider_product_id", trimmedExternalId);
+            .eq("bundle_name", editing.bundle_name ?? name)
+            .eq("provider_product_id", externalId);
           if (bundleDeleteError) {
             console.error("Erro ao remover bundle anterior:", bundleDeleteError);
             toast.error(`Erro ao salvar: ${bundleDeleteError.message}`);
@@ -799,8 +794,8 @@ function ProductModal({
       } else {
         const row = {
           provider,
-          provider_product_id: trimmedExternalId,
-          product_name: trimmedName,
+          provider_product_id: externalId,
+          product_name: name,
           tier: type === "tier" ? tierValue : null,
           entitlement_key: type === "addon" ? addonValue : null,
           product_type: type === "tier" ? "plan" : "addon",
