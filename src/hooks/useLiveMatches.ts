@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { invokeWithAuth } from "@/lib/invokeWithAuth";
 
 export interface LiveMatch {
   fixture_id: number;
@@ -27,12 +27,9 @@ export function useLiveMatches() {
   const fetchMatches = useCallback(async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem("premier_token");
-      if (!token) throw new Error("not_authenticated");
-
-      const { data: resp, error: invokeErr } = await supabase.functions.invoke(
+      const { data: resp, error: invokeErr } = await invokeWithAuth<LiveMatchesResponse>(
         "ai-live-matches",
-        { headers: { Authorization: `Bearer ${token}` } }
+        {}
       );
 
       if (invokeErr) throw new Error(invokeErr.message || "fetch_failed");

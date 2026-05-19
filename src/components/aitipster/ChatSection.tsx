@@ -6,7 +6,7 @@ import type { OpenEsportivaPayload } from "./ChatMessage";
 import { ChatInput } from "./ChatInput";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Trash2, Calendar, Trophy } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { invokeWithAuth } from "@/lib/invokeWithAuth";
 
 interface Suggestion {
   home: string;
@@ -40,11 +40,7 @@ export function ChatSection({ onOpenEsportiva }: ChatSectionProps = {}) {
     const fetchSuggestions = async () => {
       setLoadingSuggestions(true);
       try {
-        const token = localStorage.getItem("premier_token");
-        if (!token) return;
-        const { data, error } = await supabase.functions.invoke("ai-upcoming-suggestions", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const { data, error } = await invokeWithAuth("ai-upcoming-suggestions", {});
         if (error) {
           console.error("suggestions error", error);
           setSuggestions([]);

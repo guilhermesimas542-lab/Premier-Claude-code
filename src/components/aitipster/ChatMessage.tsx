@@ -6,6 +6,7 @@ import { BugReportDrawer } from "./BugReportDrawer";
 import { Button } from "@/components/ui/button";
 import { ThumbsUp, ThumbsDown, Bug, ExternalLink, AlertCircle, Loader2, Search, ChevronRight, Trophy, Calendar } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { invokeWithAuth } from "@/lib/invokeWithAuth";
 import { trackEvent } from "@/lib/events";
 
 function getTeamName(team: any): string {
@@ -97,17 +98,13 @@ export function ChatMessage({ message, onConfirmFixture, onOpenEsportiva, onReje
 
     const handleRejectList = async () => {
       try {
-        const token = localStorage.getItem("premier_token");
         const body: any = { query: message.originalQuery };
         if (message.listType === "team" && message.teamId) {
           body.team_id = message.teamId;
         } else if (message.listType === "league" && message.leagueIds) {
           body.league_ids = message.leagueIds;
         }
-        await supabase.functions.invoke("ai-reject-fixture", {
-          body,
-          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-        });
+        await invokeWithAuth("ai-reject-fixture", { body });
       } catch (e) {
         console.warn("failed to reject list", e);
       }

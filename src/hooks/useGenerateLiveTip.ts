@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { invokeWithAuth } from "@/lib/invokeWithAuth";
 
 export interface LiveTipResponse {
   cached: boolean;
@@ -20,13 +20,9 @@ export function useGenerateLiveTip() {
     setError(null);
     setTip(null);
     try {
-      const token = localStorage.getItem("premier_token");
-      const { data, error: invokeErr } = await supabase.functions.invoke(
+      const { data, error: invokeErr } = await invokeWithAuth<LiveTipResponse>(
         "ai-live-tip",
-        {
-          body: { fixture_id: fixtureId },
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { body: { fixture_id: fixtureId } }
       );
       if (invokeErr) throw new Error(invokeErr.message || "tip_failed");
       const d = data as any;

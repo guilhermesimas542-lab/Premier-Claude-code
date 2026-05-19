@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Bug, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { invokeWithAuth } from "@/lib/invokeWithAuth";
 
 interface Props {
   open: boolean;
@@ -32,14 +33,8 @@ export function BugReportDrawer({ open, onOpenChange, tipCacheId }: Props) {
     setSubmitting(true);
     setErrorMsg(null);
     try {
-      const token = localStorage.getItem("premier_token");
-      if (!token) {
-        setErrorMsg("Sessão expirada. Faça login novamente.");
-        return;
-      }
-      const { data, error } = await supabase.functions.invoke("ai-report-bug", {
+      const { data, error } = await invokeWithAuth("ai-report-bug", {
         body: { tip_cache_id: tipCacheId, message: trimmed },
-        headers: { Authorization: `Bearer ${token}` },
       });
       if (error || (data as any)?.error) {
         const msg = error?.message || (data as any)?.error || "Falha ao enviar.";

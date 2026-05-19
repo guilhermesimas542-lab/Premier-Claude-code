@@ -93,7 +93,7 @@ Deno.serve(async (req) => {
       user_id: user.id,
       email: user.email,
       tier: user.main_tier,
-      exp: Date.now() + (24 * 60 * 60 * 1000) // 24 horas
+      exp: Date.now() + (7 * 24 * 60 * 60 * 1000) // 7 dias
     }));
 
     // AJUSTE 1: Free loga normalmente mas recebe show_paywall_popup=true
@@ -136,14 +136,17 @@ Deno.serve(async (req) => {
 
 function getAllowedTiers(mainTier: string): string[] {
   switch (mainTier) {
-    case 'free':
-      return ['free'];
-    case 'basic':
-      return ['basic'];
-    case 'pro':
-      return ['basic', 'pro'];
+    case 'diamante':
+      return ['free', 'basic', 'pro', 'ultra', 'premium', 'diamante'];
+    case 'premium':
+      return ['free', 'basic', 'pro', 'ultra', 'premium'];
     case 'ultra':
-      return ['basic', 'pro', 'ultra'];
+      return ['free', 'basic', 'pro', 'ultra'];
+    case 'pro':
+      return ['free', 'basic', 'pro'];
+    case 'basic':
+      return ['free', 'basic'];
+    case 'free':
     default:
       return ['free'];
   }

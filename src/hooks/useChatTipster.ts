@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { invokeWithAuth } from "@/lib/invokeWithAuth";
 
 const SESSION_KEY = "ia_tipster_chat_messages_v1";
 
@@ -46,9 +46,6 @@ function genId(): string {
     : `${Date.now()}_${Math.random().toString(36).slice(2)}`;
 }
 
-function getAuthToken(): string | null {
-  return localStorage.getItem("premier_token");
-}
 
 export function useChatTipster() {
   const [messages, setMessages] = useState<ChatMessage[]>(() => {
@@ -93,10 +90,8 @@ export function useChatTipster() {
     const query = lastQueryRef.current;
     if (query && fixtureIds && fixtureIds.length > 0) {
       try {
-        const token = getAuthToken();
-        await supabase.functions.invoke("ai-reject-fixture", {
+        await invokeWithAuth("ai-reject-fixture", {
           body: { query, fixture_ids: fixtureIds },
-          headers: { Authorization: `Bearer ${token}` },
         });
       } catch (e) {
         console.warn("failed to register rejection", e);
@@ -131,10 +126,8 @@ export function useChatTipster() {
     });
 
     try {
-      const token = getAuthToken();
-      const { data, error } = await supabase.functions.invoke("ai-disambiguate-match", {
+      const { data, error } = await invokeWithAuth("ai-disambiguate-match", {
         body: { query: text.trim() },
-        headers: { Authorization: `Bearer ${token}` },
       });
 
       removeLoading();
@@ -260,10 +253,8 @@ export function useChatTipster() {
     });
 
     try {
-      const token = getAuthToken();
-      const { data, error } = await supabase.functions.invoke("ai-chat-tip", {
+      const { data, error } = await invokeWithAuth("ai-chat-tip", {
         body: { fixture_id: fixtureId },
-        headers: { Authorization: `Bearer ${token}` },
       });
 
       removeLoading();
