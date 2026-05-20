@@ -40,35 +40,18 @@ export default function Obrigado() {
         </div>
 
         <h1 className="font-['Barlow_Condensed'] font-extrabold text-3xl sm:text-4xl uppercase leading-tight">
-          Compra confirmada!
+          Parabéns! Sua compra foi aprovada ✅
         </h1>
-        <p className="text-muted-foreground mt-2 text-sm sm:text-base max-w-sm">
-          Pagamento aprovado. Seu acesso ao Premier FC já tá saindo.
-        </p>
 
         <section className="w-full mt-7 rounded-2xl border border-border bg-card/70 backdrop-blur p-5 sm:p-6 text-left">
           <div className="flex items-start gap-3">
             <MessageCircle className="w-5 h-5 text-primary mt-0.5 shrink-0" />
             <div>
               <h2 className="font-semibold text-base sm:text-lg">
-                Seu login chega no WhatsApp
+                Clique no botão abaixo para receber seu acesso no WhatsApp
               </h2>
-              <p className="text-sm text-muted-foreground mt-1">
-                A gente manda direto pro número que você usou na compra. Costuma chegar em poucos minutos — não precisa fazer nada.
-              </p>
-            </div>
-          </div>
-
-          <div className="my-5 h-px bg-border" />
-
-          <div className="flex items-start gap-3">
-            <Clock className="w-5 h-5 text-primary mt-0.5 shrink-0" />
-            <div>
-              <h3 className="font-semibold text-sm sm:text-base">
-                Não quer esperar?
-              </h3>
-              <p className="text-sm text-muted-foreground mt-1">
-                Manda um "oi" no WhatsApp e nosso time libera seu acesso no ato (em horário comercial).
+              <p className="text-sm text-muted-foreground mt-2">
+                Seu acesso à I.A não aparece nesta página. Para ativá-lo, clique no botão verde abaixo: você será redirecionado para o WhatsApp, onde receberá seu link de acesso de forma imediata e automática.
               </p>
             </div>
           </div>
@@ -79,7 +62,7 @@ export default function Obrigado() {
           className="w-full mt-6 h-14 text-base font-bold uppercase tracking-wide bg-primary text-black hover:bg-primary/90 hover:text-black shadow-[0_0_25px_rgba(0,255,127,0.35)]"
         >
           <MessageCircle className="w-5 h-5 mr-1" />
-          Quero meu acesso agora
+          Ativar minha conta no WhatsApp
         </Button>
 
         <div className="flex items-center gap-2 text-xs text-muted-foreground mt-4">
