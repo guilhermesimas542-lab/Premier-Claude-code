@@ -72,19 +72,6 @@ const Home = () => {
     trackEvent("app_open");
   }, []);
 
-  // Listen for pay_card banner events
-  useEffect(() => {
-    const handlePayCardFromBanner = async (e: Event) => {
-      const { payCardId } = (e as CustomEvent).detail;
-      if (!payCardId) return;
-      const { data } = await supabase.from("pay_cards" as any).select("*").eq("id", payCardId).maybeSingle();
-      if (data) {
-        setBannerPayCard(data as any as PayCardData);
-      }
-    };
-    window.addEventListener("open-paycard-from-banner", handlePayCardFromBanner);
-    return () => window.removeEventListener("open-paycard-from-banner", handlePayCardFromBanner);
-  }, []);
 
   useEffect(() => {
     console.log("DADOS BRUTOS RECEBIDOS DO BANCO:", JSON.stringify(availableEntries, null, 2));
