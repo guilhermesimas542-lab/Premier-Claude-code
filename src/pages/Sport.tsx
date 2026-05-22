@@ -260,6 +260,8 @@ const Sport = () => {
   const activeCardRefs = useRef<(HTMLDivElement | null)[]>([]);
   
   const initialTabParam = searchParams.get("tab"); // e.g. "alavancagem"
+  const fallbackParam = searchParams.get("fallback"); // "auto" | null
+
 
   // Fetch tips directly from content_entries + user features
   const [userFeatures, setUserFeatures] = useState<Set<string>>(new Set());
