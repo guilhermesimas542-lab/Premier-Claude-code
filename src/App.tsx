@@ -38,7 +38,7 @@ import AdminRanking from "./admin/pages/AdminRanking";
 import AdminEventsPage from "./admin/pages/AdminEventsPage";
 import AdminOverview from "./admin/pages/AdminOverview";
 import AdminRevenue from "./admin/pages/AdminRevenue";
-import AdminCassinoPlaceholder from "./admin/pages/AdminCassinoPlaceholder";
+
 import AdminBettingHouses from "./admin/pages/AdminBettingHouses";
 import AdminDefaultLinks from "./admin/pages/AdminDefaultLinks";
 import AdminPopups from "./admin/pages/AdminFunnelPopups";
@@ -93,8 +93,6 @@ const App = () => {
             
             <Route path="/ultimos-greens" element={<UltimosGreens />} />
             <Route path="/ia-tipster" element={<IATipster />} />
-            <Route path="/cassino" element={<Navigate to="/ia-tipster" replace />} />
-            <Route path="/cassino/:gameId" element={<Navigate to="/ia-tipster" replace />} />
             <Route path="/support" element={<Support />} />
             <Route path="/obrigado" element={<Obrigado />} />
             <Route path="/bd" element={<Backredirect />} />
@@ -128,10 +126,6 @@ const App = () => {
               <Route path="feedback" element={<AdminFeedback />} />
               <Route path="ia-tipster" element={<AdminIATipster />} />
               <Route path="webhook" element={<AdminWebhook />} />
-              {/* Cassino placeholders */}
-              <Route path="cassino" element={<AdminCassinoPlaceholder />} />
-              <Route path="cassino/analytics" element={<AdminCassinoPlaceholder />} />
-              <Route path="cassino/revenue" element={<AdminCassinoPlaceholder />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
