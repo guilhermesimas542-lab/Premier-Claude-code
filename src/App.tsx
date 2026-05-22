@@ -26,7 +26,7 @@ import { AdminLayout } from "./admin/components/AdminLayout";
 import AdminLogin from "./admin/pages/AdminLogin";
 import AdminVerify from "./admin/pages/AdminVerify";
 import AdminDashboard from "./admin/pages/AdminDashboard";
-import AdminBanners from "./admin/pages/AdminBanners";
+
 import AdminTipsCreate from "./admin/pages/AdminTipsCreate";
 import AdminTipsList from "./admin/pages/AdminTipsList";
 import AdminTipsAnalytics from "./admin/pages/AdminTipsAnalytics";
@@ -103,7 +103,7 @@ const App = () => {
             <Route path="/admin/verify" element={<AdminVerify />} />
             <Route path="/admin" element={<AdminGuard><AdminLayout /></AdminGuard>}>
               <Route index element={<AdminDashboard />} />
-              <Route path="banners" element={<AdminBanners />} />
+              
               <Route path="betting-houses" element={<AdminBettingHouses />} />
               <Route path="teams" element={<AdminTeams />} />
               <Route path="predictions" element={<AdminPredictions />} />

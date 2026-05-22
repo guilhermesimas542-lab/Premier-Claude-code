@@ -709,45 +709,6 @@ export type Database = {
           },
         ]
       }
-      banner_analytics: {
-        Row: {
-          banner_id: string
-          created_at: string
-          event_type: string
-          id: string
-          user_id: string | null
-        }
-        Insert: {
-          banner_id: string
-          created_at?: string
-          event_type: string
-          id?: string
-          user_id?: string | null
-        }
-        Update: {
-          banner_id?: string
-          created_at?: string
-          event_type?: string
-          id?: string
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "banner_analytics_banner_id_fkey"
-            columns: ["banner_id"]
-            isOneToOne: false
-            referencedRelation: "content_banners"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "banner_analytics_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       betting_houses: {
         Row: {
           acquire_access_url: string | null
@@ -941,77 +902,6 @@ export type Database = {
             columns: ["pay_card_id"]
             isOneToOne: false
             referencedRelation: "pay_cards"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      content_banners: {
-        Row: {
-          action_type: string
-          action_value: string | null
-          betting_house_id: string | null
-          button_link: string | null
-          button_text: string | null
-          context: string
-          created_at: string
-          display_order: number
-          ends_at: string | null
-          id: string
-          image_url: string
-          starts_at: string
-          status: string
-          subtitle: string
-          tag: string
-          target_audience: string
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          action_type?: string
-          action_value?: string | null
-          betting_house_id?: string | null
-          button_link?: string | null
-          button_text?: string | null
-          context?: string
-          created_at?: string
-          display_order?: number
-          ends_at?: string | null
-          id?: string
-          image_url: string
-          starts_at?: string
-          status?: string
-          subtitle?: string
-          tag?: string
-          target_audience?: string
-          title?: string
-          updated_at?: string
-        }
-        Update: {
-          action_type?: string
-          action_value?: string | null
-          betting_house_id?: string | null
-          button_link?: string | null
-          button_text?: string | null
-          context?: string
-          created_at?: string
-          display_order?: number
-          ends_at?: string | null
-          id?: string
-          image_url?: string
-          starts_at?: string
-          status?: string
-          subtitle?: string
-          tag?: string
-          target_audience?: string
-          title?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "content_banners_betting_house_id_fkey"
-            columns: ["betting_house_id"]
-            isOneToOne: false
-            referencedRelation: "betting_houses"
             referencedColumns: ["id"]
           },
         ]

@@ -47,7 +47,7 @@ export function AdminSidebar() {
       label: "Gestão",
       items: [
         { to: "/admin", icon: LayoutDashboard, label: "Dashboard", end: true },
-        { to: "/admin/banners", icon: Image, label: "Banners" },
+        
         {
           to: "/admin/clients",
           icon: Users,

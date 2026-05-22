@@ -11,7 +11,7 @@ import type { PayCardData } from "@/hooks/usePayCards";
 import { mockGetUser } from "@/mocks/user";
 import { trackEvent } from "@/lib/events";
 import BasicPlanModal from "@/components/BasicPlanModal";
-import { PromoCarousel } from "@/components/PromoCarousel";
+
 import { BottomNav } from "@/components/BottomNav";
 import { CHECKOUT_LINKS } from "@/lib/checkoutLinks";
 import logoImg from "@/assets/premier-logo-custom.png";
@@ -72,19 +72,6 @@ const Home = () => {
     trackEvent("app_open");
   }, []);
 
-  // Listen for pay_card banner events
-  useEffect(() => {
-    const handlePayCardFromBanner = async (e: Event) => {
-      const { payCardId } = (e as CustomEvent).detail;
-      if (!payCardId) return;
-      const { data } = await supabase.from("pay_cards" as any).select("*").eq("id", payCardId).maybeSingle();
-      if (data) {
-        setBannerPayCard(data as any as PayCardData);
-      }
-    };
-    window.addEventListener("open-paycard-from-banner", handlePayCardFromBanner);
-    return () => window.removeEventListener("open-paycard-from-banner", handlePayCardFromBanner);
-  }, []);
 
   useEffect(() => {
     console.log("DADOS BRUTOS RECEBIDOS DO BANCO:", JSON.stringify(availableEntries, null, 2));
@@ -179,7 +166,7 @@ const Home = () => {
       <AppHeader onShowLifetimeInfoModal={() => setShowLifetimeInfoModal(true)} />
 
       <main className="container max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6 relative z-10">
-        <PromoCarousel />
+        
 
         {/* Main Entry Cards */}
         <section className="space-y-4 sm:space-y-6">
