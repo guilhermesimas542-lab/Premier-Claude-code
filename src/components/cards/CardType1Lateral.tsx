@@ -50,9 +50,10 @@ function isGreenColor(c: string | null): boolean {
   return lower === '#00e87a' || lower === '#00ff7f' || lower.includes('00e87a') || lower.includes('00ff7f');
 }
 
-export function CardType1Lateral({ card, onAction }: Props) {
+export function CardType1Lateral({ card, hasAccess = true, onAction }: Props) {
   const imgs = card.image_urls;
   const mobileImg = imgs?.mobile || imgs?.tablet || imgs?.desktop || null;
+  const locked = !hasAccess;
 
   const buttonBg = card.button_bg_color || '#00FF7F';
   const buttonColor = card.button_font_color
