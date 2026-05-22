@@ -2,6 +2,7 @@ import type { CardData } from "@/hooks/useCards";
 
 interface Props {
   card: CardData;
+  hasAccess?: boolean;
   onAction: () => void;
 }
 
