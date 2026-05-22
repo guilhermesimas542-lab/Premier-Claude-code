@@ -125,8 +125,13 @@ const Home = () => {
     }
     const s = (card.slug || "").toLowerCase();
     if (s === "futebol") { navigate("/sport/1"); return; }
+    if (s === "odds_altas" || s === "odds-altas") {
+      navigate("/sport/1?tab=odds_ultra&fallback=auto"); return;
+    }
+    if (s === "alavancagem") {
+      navigate("/sport/1?tab=alavancagem&fallback=auto"); return;
+    }
     if (s === "multiplas_bingo") { navigate("/odds-altas"); return; }
-    if (s === "alavancagem") { navigate("/alavancagem"); return; }
   };
 
   const renderCard = (card: CardData) => {
