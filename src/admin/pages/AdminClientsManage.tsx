@@ -464,7 +464,7 @@ export default function AdminClientsManage() {
       await supabase.from("user_gamification").delete().in("user_id", ids);
       await supabase.from("user_popup_views").delete().in("user_id", ids);
       await supabase.from("push_subscriptions").delete().in("user_id", ids);
-      await supabase.from("banner_analytics").delete().in("user_id", ids);
+      
 
       // Delete users
       const { error } = await supabase.from("users").delete().in("id", ids);
