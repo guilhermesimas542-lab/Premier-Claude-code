@@ -24,7 +24,15 @@ import CardType2Top from "@/components/cards/CardType2Top";
 import { CardFunnelModal } from "@/components/cards/CardFunnelModal";
 import { usePayCardTrigger } from "@/hooks/usePayCardTrigger";
 import { PayCardFunnelModal } from "@/components/PayCardFunnelModal";
+import { PaywallPopup } from "@/components/PaywallPopup";
+import { resolvePaywallVariant, type FeatureKey } from "@/lib/paywallRouting";
 import { useLinks } from "@/contexts/LinksContext";
+
+const CARD_TO_FEATURE: Record<string, FeatureKey> = {
+  odds_altas: "multiplas_bingo",
+  "odds-altas": "multiplas_bingo",
+  alavancagem: "alavancagem",
+};
 
 const Home = () => {
   const navigate = useNavigate();
@@ -36,6 +44,7 @@ const Home = () => {
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [funnelCard, setFunnelCard] = useState<CardData | null>(null);
   const [bannerPayCard, setBannerPayCard] = useState<PayCardData | null>(null);
+  const [paywallFeature, setPaywallFeature] = useState<FeatureKey | null>(null);
 
   const mockUser = mockGetUser();
   const config = getStoredConfig();
@@ -114,6 +123,12 @@ const Home = () => {
 
   const handleCardAction = (card: CardData) => {
     if (card.requires_access && !hasAccess(card)) {
+      const slug = (card.slug || "").toLowerCase();
+      const feature = CARD_TO_FEATURE[slug];
+      if (feature) {
+        setPaywallFeature(feature);
+        return;
+      }
       if (card.pay_card_id) {
         handleOpenPayCardById(card.pay_card_id);
         return;
@@ -481,6 +496,14 @@ const Home = () => {
       {/* PayCard modal now in AppHeader for header pills; keep for banner pay cards */}
       {bannerPayCard && (
         <PayCardFunnelModal payCard={bannerPayCard} open={!!bannerPayCard} onClose={() => setBannerPayCard(null)} />
+      )}
+      {paywallFeature && (
+        <PaywallPopup
+          open={paywallFeature !== null}
+          onClose={() => setPaywallFeature(null)}
+          variant={resolvePaywallVariant(paywallFeature, access.mainTier)}
+          feature={paywallFeature}
+        />
       )}
     </div>
     </>
