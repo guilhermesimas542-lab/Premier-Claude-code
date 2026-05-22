@@ -73,7 +73,7 @@ const EMPTY_FORM = {
 
 const CATEGORY_LABELS: Record<string, string> = {
   sport: "Esporte",
-  casino: "Cassino",
+  
   quick_access: "Acesso Rápido",
   blocked: "Bloqueado",
 };
@@ -471,7 +471,7 @@ export default function AdminCards() {
                     <SelectTrigger className="bg-gray-900 border-gray-800"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="sport">Esporte</SelectItem>
-                      <SelectItem value="casino">Cassino</SelectItem>
+                      
                       <SelectItem value="quick_access">Acesso Rápido</SelectItem>
                       <SelectItem value="blocked">Bloqueado</SelectItem>
                     </SelectContent>
