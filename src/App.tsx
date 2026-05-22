@@ -26,7 +26,7 @@ import { AdminLayout } from "./admin/components/AdminLayout";
 import AdminLogin from "./admin/pages/AdminLogin";
 import AdminVerify from "./admin/pages/AdminVerify";
 import AdminDashboard from "./admin/pages/AdminDashboard";
-import AdminBanners from "./admin/pages/AdminBanners";
+
 import AdminTipsCreate from "./admin/pages/AdminTipsCreate";
 import AdminTipsList from "./admin/pages/AdminTipsList";
 import AdminTipsAnalytics from "./admin/pages/AdminTipsAnalytics";
