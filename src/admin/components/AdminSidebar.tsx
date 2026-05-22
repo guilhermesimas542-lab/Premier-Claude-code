@@ -154,10 +154,6 @@ export function AdminSidebar() {
         </button>
       </div>
 
-            </button>
-          </div>
-        </div>
-      )}
 
       <nav className="flex-1 overflow-y-auto py-2 space-y-4">
         {sections.map((section) => (
