@@ -11,7 +11,7 @@ import type { PayCardData } from "@/hooks/usePayCards";
 import { mockGetUser } from "@/mocks/user";
 import { trackEvent } from "@/lib/events";
 import BasicPlanModal from "@/components/BasicPlanModal";
-import { PromoCarousel } from "@/components/PromoCarousel";
+
 import { BottomNav } from "@/components/BottomNav";
 import { CHECKOUT_LINKS } from "@/lib/checkoutLinks";
 import logoImg from "@/assets/premier-logo-custom.png";
