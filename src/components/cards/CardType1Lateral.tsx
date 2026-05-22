@@ -100,6 +100,16 @@ export function CardType1Lateral({ card, hasAccess = true, onAction }: Props) {
           </div>
         )}
         <div className="absolute inset-0" style={{ background: "linear-gradient(to right, transparent, #112236)" }} />
+        {locked && (
+          <div
+            className="absolute inset-0 flex items-center justify-center rounded-l-xl"
+            style={{ background: 'rgba(6,13,30,0.75)' }}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="#FFFFFF" xmlns="http://www.w3.org/2000/svg">
+              <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zM9 8V6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9z"/>
+            </svg>
+          </div>
+        )}
       </div>
 
       {/* Content */}
@@ -110,14 +120,12 @@ export function CardType1Lateral({ card, hasAccess = true, onAction }: Props) {
           fontSize: '20px',
           color: '#FFFFFF',
         }}>{card.title}</h3>
-        {card.subtitle && (
-          <p style={{
-            fontFamily: "'DM Sans', sans-serif",
-            fontWeight: 400,
-            fontSize: '12px',
-            color: '#94A3B8',
-          }}>{card.subtitle}</p>
-        )}
+        <p style={{
+          fontFamily: "'DM Sans', sans-serif",
+          fontWeight: 400,
+          fontSize: '12px',
+          color: '#94A3B8',
+        }}>{locked ? 'Desbloqueie para acessar' : (card.subtitle || '')}</p>
         <button
           onClick={(e) => { e.stopPropagation(); onAction(); }}
           style={{
@@ -129,13 +137,13 @@ export function CardType1Lateral({ card, hasAccess = true, onAction }: Props) {
             fontSize: '13px',
             letterSpacing: '0.5px',
             cursor: 'pointer',
-            border: 'none',
-            background: buttonBg,
-            color: buttonColor,
             transition: 'opacity 0.2s',
+            ...(locked
+              ? { background: 'transparent', border: '1px solid #FFFFFF', color: '#FFFFFF' }
+              : { background: buttonBg, color: buttonColor, border: 'none' }),
           }}
         >
-          {card.button_text_access || 'ACESSAR'}
+          {locked ? 'DESBLOQUEAR' : (card.button_text_access || 'ACESSAR')}
         </button>
       </div>
     </button>
