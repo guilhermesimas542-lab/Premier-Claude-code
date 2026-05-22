@@ -27,8 +27,10 @@ export function usePayCardByPlan() {
       .select("*")
       .eq("associated_plan", plan)
       .eq("is_active", true)
+      .order("updated_at", { ascending: false })
+      .order("created_at", { ascending: false })
       .limit(1)
-      .single();
+      .maybeSingle();
     setLoading(false);
     return (data as any as PayCardData) ?? null;
   }, []);
