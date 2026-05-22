@@ -166,7 +166,7 @@ const Home = () => {
       <AppHeader onShowLifetimeInfoModal={() => setShowLifetimeInfoModal(true)} />
 
       <main className="container max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6 relative z-10">
-        <PromoCarousel />
+        
 
         {/* Main Entry Cards */}
         <section className="space-y-4 sm:space-y-6">
