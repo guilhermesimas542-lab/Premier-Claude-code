@@ -103,7 +103,7 @@ const App = () => {
             <Route path="/admin/verify" element={<AdminVerify />} />
             <Route path="/admin" element={<AdminGuard><AdminLayout /></AdminGuard>}>
               <Route index element={<AdminDashboard />} />
-              <Route path="banners" element={<AdminBanners />} />
+              
               <Route path="betting-houses" element={<AdminBettingHouses />} />
               <Route path="teams" element={<AdminTeams />} />
               <Route path="predictions" element={<AdminPredictions />} />
