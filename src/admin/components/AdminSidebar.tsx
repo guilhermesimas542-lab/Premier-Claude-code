@@ -6,7 +6,7 @@ import {
   ChevronDown, UserPlus, UserX, UserCheck, Trophy, MessageSquare, Sparkles,
 } from "lucide-react";
 import { useState, useEffect } from "react";
-import { useAdminMode } from "../context/AdminModeContext";
+
 import { useAdmin } from "../hooks/useAdmin";
 import { useAdminBadges } from "../hooks/useAdminBadges";
 
@@ -27,7 +27,7 @@ interface Section {
 
 export function AdminSidebar() {
   const [collapsed, setCollapsed] = useState(false);
-  const { mode, setMode } = useAdminMode();
+  
   const location = useLocation();
   const [expandedMenus, setExpandedMenus] = useState<Set<string>>(new Set());
   const { user } = useAdmin();
@@ -113,28 +113,7 @@ export function AdminSidebar() {
     },
   ];
 
-  const cassinoSections: Section[] = [
-    {
-      label: "Gestão",
-      items: [
-        { to: "/admin/cassino", icon: LayoutDashboard, label: "Dashboard", end: true },
-      ],
-    },
-    {
-      label: "Analytics",
-      items: [
-        { to: "/admin/cassino/analytics", icon: BarChart3, label: "Visão Geral" },
-      ],
-    },
-    {
-      label: "Finanças",
-      items: [
-        { to: "/admin/cassino/revenue", icon: DollarSign, label: "Receita" },
-      ],
-    },
-  ];
-
-  const sections = mode === "futebol" ? futebolSections : cassinoSections;
+  const sections = futebolSections;
 
   const isChildActive = (item: MenuItem) =>
     item.children?.some((c) => c.end ? location.pathname === c.to : location.pathname.startsWith(c.to)) ?? false;
@@ -175,29 +154,6 @@ export function AdminSidebar() {
         </button>
       </div>
 
-      {/* Mode Toggle */}
-      {!collapsed && (
-        <div className="px-3 py-3 border-b border-white/10">
-          <div className="flex rounded-lg bg-gray-800 p-0.5">
-            <button
-              onClick={() => setMode("futebol")}
-              className={`flex-1 text-xs py-1.5 rounded-md font-medium transition-colors ${
-                mode === "futebol" ? "bg-blue-600 text-white" : "text-gray-400 hover:text-white"
-              }`}
-            >
-              ⚽ Futebol
-            </button>
-            <button
-              onClick={() => setMode("cassino")}
-              className={`flex-1 text-xs py-1.5 rounded-md font-medium transition-colors ${
-                mode === "cassino" ? "bg-purple-600 text-white" : "text-gray-400 hover:text-white"
-              }`}
-            >
-              🎰 Cassino
-            </button>
-          </div>
-        </div>
-      )}
 
       <nav className="flex-1 overflow-y-auto py-2 space-y-4">
         {sections.map((section) => (

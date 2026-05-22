@@ -7,10 +7,6 @@ interface LinksData {
   acquire_access_url: string | null;
   telegram_group_url: string | null;
   iframe_url: string | null;
-  aviator_url: string | null;
-  roleta_url: string | null;
-  mines_url: string | null;
-  football_studio_url: string | null;
 }
 
 const DEFAULT_LINKS: LinksData = {
@@ -18,10 +14,6 @@ const DEFAULT_LINKS: LinksData = {
   acquire_access_url: null,
   telegram_group_url: null,
   iframe_url: null,
-  aviator_url: null,
-  roleta_url: null,
-  mines_url: null,
-  football_studio_url: null,
 };
 
 interface LinksContextValue {
@@ -66,7 +58,7 @@ export function LinksProvider({ children }: { children: ReactNode }) {
       if (houseId) {
         const { data } = await supabase
           .from("betting_houses")
-          .select("support_whatsapp_url, acquire_access_url, telegram_group_url, iframe_url, aviator_url, roleta_url, mines_url, football_studio_url")
+          .select("support_whatsapp_url, acquire_access_url, telegram_group_url, iframe_url")
           .eq("id", houseId)
           .single();
 
@@ -75,11 +67,7 @@ export function LinksProvider({ children }: { children: ReactNode }) {
             support_whatsapp_url: (data as any).support_whatsapp_url ?? null,
             acquire_access_url: (data as any).acquire_access_url ?? null,
             telegram_group_url: (data as any).telegram_group_url ?? null,
-            iframe_url: data.iframe_url ?? null,
-            aviator_url: data.aviator_url ?? null,
-            roleta_url: data.roleta_url ?? null,
-            mines_url: data.mines_url ?? null,
-            football_studio_url: data.football_studio_url ?? null,
+            iframe_url: (data as any).iframe_url ?? null,
           });
         }
       }
@@ -89,7 +77,6 @@ export function LinksProvider({ children }: { children: ReactNode }) {
 
     fetchLinks();
 
-    // Re-fetch when user logs in
     const handler = () => fetchLinks();
     window.addEventListener("premier:login", handler);
     return () => window.removeEventListener("premier:login", handler);
