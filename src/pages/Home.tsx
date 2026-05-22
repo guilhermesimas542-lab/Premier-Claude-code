@@ -217,11 +217,7 @@ const Home = () => {
             >
               ⚡ Acesso Rápido
             </h2>
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: '10px',
-            }}>
+            <div className="flex flex-col gap-3">
               {quickCards.map(renderCard)}
             </div>
           </section>
