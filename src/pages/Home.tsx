@@ -130,11 +130,12 @@ const Home = () => {
   };
 
   const renderCard = (card: CardData) => {
+    const access = hasAccess(card);
     if (card.card_type === "type1_lateral") {
-      return <CardType1Lateral key={card.id} card={card} onAction={() => handleCardAction(card)} />;
+      return <CardType1Lateral key={card.id} card={card} hasAccess={access} onAction={() => handleCardAction(card)} />;
     }
     return (
-      <CardType2Top key={card.id} card={card} hasAccess={hasAccess(card)} onAction={() => handleCardAction(card)} />
+      <CardType2Top key={card.id} card={card} hasAccess={access} onAction={() => handleCardAction(card)} />
     );
   };
 
@@ -216,11 +217,7 @@ const Home = () => {
             >
               ⚡ Acesso Rápido
             </h2>
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: '10px',
-            }}>
+            <div className="flex flex-col gap-3">
               {quickCards.map(renderCard)}
             </div>
           </section>
