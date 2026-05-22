@@ -108,7 +108,7 @@ const Home = () => {
   };
 
   const handleOpenPayCardById = async (payCardId: string) => {
-    const { data } = await supabase.from("pay_cards" as any).select("*").eq("id", payCardId).maybeSingle();
+    const { data } = await supabase.from("pay_cards" as any).select("*").eq("id", payCardId).eq("is_active", true).maybeSingle();
     if (data) setBannerPayCard(data as any as PayCardData);
   };
 

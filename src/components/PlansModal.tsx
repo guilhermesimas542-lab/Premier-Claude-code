@@ -83,6 +83,8 @@ async function fetchPayCardByPlan(plan: string, houseId?: string | null): Promis
       .eq("associated_plan", plan)
       .eq("betting_house_id", houseId)
       .eq("is_active", true)
+      .order("updated_at", { ascending: false })
+      .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
     if (data) return data as any;
@@ -93,6 +95,8 @@ async function fetchPayCardByPlan(plan: string, houseId?: string | null): Promis
     .eq("associated_plan", plan)
     .is("betting_house_id", null)
     .eq("is_active", true)
+    .order("updated_at", { ascending: false })
+    .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle();
   return (data as any) ?? null;
