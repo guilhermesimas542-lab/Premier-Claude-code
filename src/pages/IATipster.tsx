@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { Sparkles, MessageSquare, Radio, Lock, Loader2 } from "lucide-react";
+import { Sparkles, MessageSquare, Radio, Lock, Loader2, AlertTriangle } from "lucide-react";
 import { LiveMatchesSection } from "@/components/aitipster/LiveMatchesSection";
 import { ChatSection } from "@/components/aitipster/ChatSection";
 import { EsportivaInlinePanel } from "@/components/aitipster/EsportivaInlinePanel";
@@ -8,6 +8,7 @@ import { useCreditBalance } from "@/hooks/useCreditBalance";
 import { isAIBetaUser } from "@/lib/aiBetaAllowlist";
 import AppHeader from "@/components/AppHeader";
 import { BottomNav } from "@/components/BottomNav";
+import { CreditBalanceBadge } from "@/components/ia-tipster/CreditBalanceBadge";
 
 function getEmailFromToken(): string | null {
   try {
