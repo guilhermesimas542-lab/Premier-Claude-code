@@ -208,38 +208,6 @@ export type Database = {
           },
         ]
       }
-      ai_credit_daily: {
-        Row: {
-          cache_hits_today: number
-          daily_used: number
-          date: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          cache_hits_today?: number
-          daily_used?: number
-          date: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          cache_hits_today?: number
-          daily_used?: number
-          date?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "ai_credit_daily_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       ai_credit_extras: {
         Row: {
           balance_bonus: number
@@ -392,6 +360,44 @@ export type Database = {
             foreignKeyName: "ai_credit_purchase_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_credit_weekly: {
+        Row: {
+          created_at: string
+          last_tier: string | null
+          updated_at: string
+          user_id: string
+          week_start_date: string
+          weekly_quota: number
+          weekly_used: number
+        }
+        Insert: {
+          created_at?: string
+          last_tier?: string | null
+          updated_at?: string
+          user_id: string
+          week_start_date: string
+          weekly_quota?: number
+          weekly_used?: number
+        }
+        Update: {
+          created_at?: string
+          last_tier?: string | null
+          updated_at?: string
+          user_id?: string
+          week_start_date?: string
+          weekly_quota?: number
+          weekly_used?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_credit_weekly_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
             referencedRelation: "users"
             referencedColumns: ["id"]
           },
@@ -2202,7 +2208,7 @@ export type Database = {
     }
     Functions: {
       check_and_debit_credit: {
-        Args: { p_is_cache_hit?: boolean; p_user_id: string }
+        Args: { p_source: string; p_user_id: string }
         Returns: Json
       }
       check_is_admin_email: { Args: { p_email: string }; Returns: boolean }

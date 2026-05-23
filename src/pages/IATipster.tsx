@@ -35,9 +35,7 @@ export default function IATipster() {
   const { balance } = useCreditBalance();
 
   const creditsLabel = balance
-    ? balance.is_unlimited
-      ? "∞ créditos"
-      : `${balance.daily_remaining + balance.bonus + balance.purchased} créditos`
+    ? `${balance.total_available} créditos`
     : "...";
 
   if (isBeta === null) {

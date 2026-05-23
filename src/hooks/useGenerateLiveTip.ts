@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "sonner";
 import { invokeWithAuth } from "@/lib/invokeWithAuth";
 
 export interface LiveTipResponse {
@@ -25,10 +26,24 @@ export function useGenerateLiveTip() {
         { body: { fixture_id: fixtureId } }
       );
       if (invokeErr) {
-        const isDailyCap =
-          (invokeErr as any)?.context?.status === 429 ||
-          (invokeErr as any)?.status === 429 ||
-          /daily_cost_limit_reached/i.test(invokeErr.message || "");
+        const status = (invokeErr as any)?.context?.status ?? (invokeErr as any)?.status;
+        if (status === 402) {
+          let resetsLabel = "segunda-feira";
+          try {
+            const body = await (invokeErr as any)?.context?.json?.();
+            if (body?.resets_at) {
+              resetsLabel = new Date(body.resets_at).toLocaleDateString("pt-BR", {
+                weekday: "short", day: "2-digit", month: "short",
+              });
+            }
+          } catch {}
+          toast.error("Sem créditos", {
+            description: `Você usou todos os créditos da semana. Renova em ${resetsLabel}.`,
+          });
+          setError("insufficient_credits");
+          return;
+        }
+        const isDailyCap = status === 429 || /daily_cost_limit_reached/i.test(invokeErr.message || "");
         throw new Error(
           isDailyCap
             ? "⚠️ Análise IA temporariamente indisponível. Tente novamente em algumas horas."

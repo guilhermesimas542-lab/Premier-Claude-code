@@ -631,6 +631,19 @@ Deno.serve(async (req: Request) => {
   const apiKey = Deno.env.get("API_FOOTBALL_KEY");
   if (!apiKey) return jsonResp({ error: "api_football_key_missing" }, 500);
 
+  // ─── DÉBITO DE CRÉDITO (ANTES de cache lookup) ───
+  const { data: creditResult, error: creditErr } = await supabase.rpc(
+    "check_and_debit_credit",
+    { p_user_id: token.user_id, p_source: "live_tip" }
+  );
+  if (creditErr) {
+    console.error("[ai-live-tip] credit RPC error", creditErr);
+    return jsonResp({ error: "credit_check_failed" }, 500);
+  }
+  if (!creditResult?.success) {
+    return jsonResp(creditResult ?? { error: "insufficient_credits" }, 402);
+  }
+
   // ─── CACHE LOOKUP (event-based invalidation) ───
   const cacheKey = `live_tip:fixture_${fixtureId}`;
   const { data: cached } = await supabase
@@ -647,7 +660,6 @@ Deno.serve(async (req: Request) => {
   if (cached) {
     const currentEvents = await getRelevantEventsCount(fixtureId, apiKey);
     const cachedEvents = (cached.source_data as any)?.relevant_events_count ?? -1;
-    // Fail-open: se API-Football falhou (null), invalida cache (gera nova).
     if (currentEvents !== null && currentEvents === cachedEvents) {
       isCacheHit = true;
     } else {
@@ -655,25 +667,8 @@ Deno.serve(async (req: Request) => {
     }
   }
 
-  // ─── DÉBITO DE CRÉDITO ───
-  const { data: creditResult, error: creditErr } = await supabase.rpc(
-    "check_and_debit_credit",
-    { p_user_id: token.user_id, p_is_cache_hit: isCacheHit }
-  );
-  if (creditErr) {
-    console.error("[ai-live-tip] credit RPC error", creditErr);
-    return jsonResp({ error: "credit_check_failed" }, 500);
-  }
-  if (!creditResult?.allowed) {
-    return jsonResp(
-      { error: "insufficient_credits", reason: creditResult?.reason },
-      402
-    );
-  }
-
   // ─── SE CACHE HIT, RETORNA ───
   if (isCacheHit && cached) {
-    // Incrementa hit_count async (não bloqueia retorno)
     supabase
       .rpc("increment_tip_hit", { p_tip_id: cached.id })
       .then(({ error }: { error: any }) => {
@@ -682,7 +677,7 @@ Deno.serve(async (req: Request) => {
     return jsonResp({
       cached: true,
       tip_cache_id: cached.id,
-      credit_source: creditResult.source,
+      credit_source: creditResult.debit_type,
       content: cached.content,
       source_data: cached.source_data,
       generated_at: cached.generated_at,
@@ -883,7 +878,7 @@ Gere a análise no formato definido no system prompt. Considere o minuto atual a
   return jsonResp({
     cached: false,
     tip_cache_id: inserted?.id,
-    credit_source: creditResult.source,
+    credit_source: creditResult.debit_type,
     content: { markdown: responseText },
     source_data: sourceData,
     generated_at: new Date().toISOString(),
