@@ -778,30 +778,43 @@ function TipsGeradasTab() {
         />
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <KpiCard
-          label="Tips no período"
-          value={String(filtered.length)}
-          icon={<TrendingUp className="w-4 h-4" />}
-        />
-        <KpiCard
-          label="Tokens consumidos"
-          value={filtered
-            .reduce((acc, t) => acc + (t.tokens_input ?? 0) + (t.tokens_output ?? 0), 0)
-            .toLocaleString("pt-BR")}
-        />
-        <KpiCard
-          label="USD gasto"
-          value={formatCostUSD(totalCostUSD)}
-          hint="Claude Sonnet 4.5"
-          icon={<DollarSign className="w-4 h-4" />}
-        />
-        <KpiCard
-          label="Reusos totais (hits)"
-          value={String(filtered.reduce((acc, t) => acc + (t.hit_count ?? 0), 0))}
-          icon={<Recycle className="w-4 h-4" />}
-        />
-      </div>
+      {(() => {
+        const opusCount = filtered.filter((t) => (getClaudeModel(t) ?? "").startsWith("claude-opus")).length;
+        const opusPct = filtered.length > 0 ? (opusCount / filtered.length) * 100 : 0;
+        const opusColor =
+          opusPct >= 10 ? "text-red-500" : opusPct >= 5 ? "text-orange-500" : "text-muted-foreground";
+        return (
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+            <KpiCard
+              label="Tips no período"
+              value={String(filtered.length)}
+              icon={<TrendingUp className="w-4 h-4" />}
+            />
+            <KpiCard
+              label="Tokens consumidos"
+              value={filtered
+                .reduce((acc, t) => acc + (t.tokens_input ?? 0) + (t.tokens_output ?? 0), 0)
+                .toLocaleString("pt-BR")}
+            />
+            <KpiCard
+              label="USD gasto"
+              value={formatCostUSD(totalCostUSD)}
+              hint="Claude Sonnet 4.5"
+              icon={<DollarSign className="w-4 h-4" />}
+            />
+            <KpiCard
+              label="Reusos totais (hits)"
+              value={String(filtered.reduce((acc, t) => acc + (t.hit_count ?? 0), 0))}
+              icon={<Recycle className="w-4 h-4" />}
+            />
+            <KpiCard
+              label="% Opus fallback"
+              value={<span className={opusPct >= 5 ? opusColor : ""}>{opusPct.toFixed(1)}%</span> as any}
+              hint={`${opusCount} de ${filtered.length}`}
+            />
+          </div>
+        );
+      })()}
 
       {loading ? (
         <div className="flex justify-center py-8">
