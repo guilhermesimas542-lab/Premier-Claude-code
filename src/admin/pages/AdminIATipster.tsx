@@ -38,8 +38,15 @@ import { SyncEsportivaPanel } from "@/admin/components/SyncEsportivaPanel";
 // CONSTANTS
 // ═══════════════════════════════════════════════════════════════════
 
-const INPUT_PRICE_PER_M = 3.0;
-const OUTPUT_PRICE_PER_M = 15.0;
+const SONNET_INPUT_PRICE_PER_M = 3.0;
+const SONNET_OUTPUT_PRICE_PER_M = 15.0;
+const OPUS_INPUT_PRICE_PER_M = 15.0;
+const OPUS_OUTPUT_PRICE_PER_M = 75.0;
+// Legacy aliases (kept for any downstream import — not used directly anymore)
+const INPUT_PRICE_PER_M = SONNET_INPUT_PRICE_PER_M;
+const OUTPUT_PRICE_PER_M = SONNET_OUTPUT_PRICE_PER_M;
+void INPUT_PRICE_PER_M;
+void OUTPUT_PRICE_PER_M;
 
 // ─── Helpers Claude model (B.3) ───
 function getClaudeModel(tip: Tip): string | null {
@@ -232,11 +239,11 @@ function formatCostUSD(cost: number): string {
   return `$${cost.toFixed(4)}`;
 }
 
-function calcCost(tokens_input: number, tokens_output: number): number {
-  return (
-    (tokens_input / 1_000_000) * INPUT_PRICE_PER_M +
-    (tokens_output / 1_000_000) * OUTPUT_PRICE_PER_M
-  );
+function calcCost(tokens_input: number, tokens_output: number, model?: string | null): number {
+  const isOpus = !!model && model.startsWith("claude-opus");
+  const inputPrice = isOpus ? OPUS_INPUT_PRICE_PER_M : SONNET_INPUT_PRICE_PER_M;
+  const outputPrice = isOpus ? OPUS_OUTPUT_PRICE_PER_M : SONNET_OUTPUT_PRICE_PER_M;
+  return (tokens_input / 1_000_000) * inputPrice + (tokens_output / 1_000_000) * outputPrice;
 }
 
 async function fetchTipsByGenRange(
@@ -726,7 +733,7 @@ function TipsGeradasTab() {
   }, [filtered, sortKey, sortDir]);
 
   const totalCostUSD = filtered.reduce(
-    (acc, t) => acc + calcCost(t.tokens_input ?? 0, t.tokens_output ?? 0),
+    (acc, t) => acc + calcCost(t.tokens_input ?? 0, t.tokens_output ?? 0, t.source_data?.claude_model_used),
     0
   );
 
@@ -1046,7 +1053,7 @@ function PartidasAnalisadasTab() {
   );
   const totalReusos = sorted.reduce((acc, t) => acc + (t.hit_count ?? 0), 0);
   const totalCostUSD = sorted.reduce(
-    (acc, t) => acc + calcCost(t.tokens_input ?? 0, t.tokens_output ?? 0),
+    (acc, t) => acc + calcCost(t.tokens_input ?? 0, t.tokens_output ?? 0, t.source_data?.claude_model_used),
     0
   );
 
@@ -1286,7 +1293,7 @@ function CacheReusoTab() {
   const liveHitRate = liveTips.length > 0 ? (liveHits / liveTips.length) * 100 : 0;
   const avgCostPerTip =
     totalTips > 0
-      ? tips.reduce((acc, t) => acc + calcCost(t.tokens_input ?? 0, t.tokens_output ?? 0), 0) /
+      ? tips.reduce((acc, t) => acc + calcCost(t.tokens_input ?? 0, t.tokens_output ?? 0, t.source_data?.claude_model_used), 0) /
         totalTips
       : 0;
   const costSaved = totalHits * avgCostPerTip;
@@ -1557,7 +1564,12 @@ function TelemetriaTab() {
 
   const totalInput = tips.reduce((acc, t) => acc + (t.tokens_input ?? 0), 0);
   const totalOutput = tips.reduce((acc, t) => acc + (t.tokens_output ?? 0), 0);
-  const totalCost = calcCost(totalInput, totalOutput);
+  // Aggregate cost — uses per-row model when available, sums precisely
+  const totalCost = tips.reduce(
+    (acc, t) => acc + calcCost(t.tokens_input ?? 0, t.tokens_output ?? 0, t.source_data?.claude_model_used),
+    0
+  );
+  void totalInput; void totalOutput;
   const avgCostPerTip = tips.length > 0 ? totalCost / tips.length : 0;
 
   const topGames = useMemo(() => {
@@ -1573,7 +1585,7 @@ function TelemetriaTab() {
       map.set(key, {
         count: cur.count + 1,
         tokens: cur.tokens + tokens_in + tokens_out,
-        cost: cur.cost + calcCost(tokens_in, tokens_out),
+        cost: cur.cost + calcCost(tokens_in, tokens_out, t.source_data?.claude_model_used),
       });
     });
     return Array.from(map.entries()).sort((a, b) => b[1].count - a[1].count).slice(0, 10);
@@ -1589,7 +1601,7 @@ function TelemetriaTab() {
       map.set(t.generated_by_user_id, {
         count: cur.count + 1,
         tokens: cur.tokens + tokens_in + tokens_out,
-        cost: cur.cost + calcCost(tokens_in, tokens_out),
+        cost: cur.cost + calcCost(tokens_in, tokens_out, t.source_data?.claude_model_used),
       });
     });
     return Array.from(map.entries()).sort((a, b) => b[1].count - a[1].count).slice(0, 10);
