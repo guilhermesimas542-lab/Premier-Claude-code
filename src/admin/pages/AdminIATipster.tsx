@@ -873,6 +873,7 @@ function TipsGeradasTab() {
                   onSort={toggleSort}
                   align="right"
                 />
+                <th className="text-left px-3 py-2 text-xs uppercase">Modelo</th>
                 <th className="text-right px-3 py-2"></th>
               </tr>
             </thead>
