@@ -213,6 +213,7 @@ export type Database = {
           balance_bonus: number
           balance_purchased: number
           preview_used: boolean
+          unlimited_until: string | null
           updated_at: string
           user_id: string
         }
@@ -220,6 +221,7 @@ export type Database = {
           balance_bonus?: number
           balance_purchased?: number
           preview_used?: boolean
+          unlimited_until?: string | null
           updated_at?: string
           user_id: string
         }
@@ -227,6 +229,7 @@ export type Database = {
           balance_bonus?: number
           balance_purchased?: number
           preview_used?: boolean
+          unlimited_until?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -278,46 +281,12 @@ export type Database = {
           },
         ]
       }
-      ai_credit_packages: {
-        Row: {
-          created_at: string
-          credits_amount: number
-          id: string
-          is_active: boolean
-          name: string
-          price_brl: number
-          slug: string
-          sort_order: number
-        }
-        Insert: {
-          created_at?: string
-          credits_amount: number
-          id?: string
-          is_active?: boolean
-          name: string
-          price_brl: number
-          slug: string
-          sort_order?: number
-        }
-        Update: {
-          created_at?: string
-          credits_amount?: number
-          id?: string
-          is_active?: boolean
-          name?: string
-          price_brl?: number
-          slug?: string
-          sort_order?: number
-        }
-        Relationships: []
-      }
       ai_credit_purchase: {
         Row: {
           amount_paid: number
           created_at: string
           credits_granted: number
           id: string
-          package_id: string | null
           paid_at: string | null
           payment_id: string | null
           payment_provider: string
@@ -329,7 +298,6 @@ export type Database = {
           created_at?: string
           credits_granted: number
           id?: string
-          package_id?: string | null
           paid_at?: string | null
           payment_id?: string | null
           payment_provider: string
@@ -341,7 +309,6 @@ export type Database = {
           created_at?: string
           credits_granted?: number
           id?: string
-          package_id?: string | null
           paid_at?: string | null
           payment_id?: string | null
           payment_provider?: string
@@ -349,13 +316,6 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "ai_credit_purchase_package_id_fkey"
-            columns: ["package_id"]
-            isOneToOne: false
-            referencedRelation: "ai_credit_packages"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "ai_credit_purchase_user_id_fkey"
             columns: ["user_id"]
@@ -1629,6 +1589,7 @@ export type Database = {
         Row: {
           active: boolean | null
           bundle_name: string | null
+          checkout_url: string | null
           created_at: string | null
           entitlement_key: string | null
           id: string
@@ -1643,6 +1604,7 @@ export type Database = {
         Insert: {
           active?: boolean | null
           bundle_name?: string | null
+          checkout_url?: string | null
           created_at?: string | null
           entitlement_key?: string | null
           id?: string
@@ -1657,6 +1619,7 @@ export type Database = {
         Update: {
           active?: boolean | null
           bundle_name?: string | null
+          checkout_url?: string | null
           created_at?: string | null
           entitlement_key?: string | null
           id?: string
@@ -2314,6 +2277,10 @@ export type Database = {
       }
       grant_purchased_credits: {
         Args: { p_amount: number; p_purchase_id?: string; p_user_id: string }
+        Returns: Json
+      }
+      grant_unlimited_access: {
+        Args: { p_days: number; p_purchase_id?: string; p_user_id: string }
         Returns: Json
       }
       has_active_entitlement: {
