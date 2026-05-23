@@ -873,7 +873,7 @@ function ProductModal({
             return;
           }
         } else {
-          const { error: insertError } = await supabase.from("products_catalog").insert(row);
+          const { error: insertError } = await supabase.from("products_catalog").insert(row as any);
           if (insertError) {
             console.error("Erro ao inserir produto:", insertError);
             toast.error(`Erro ao salvar: ${insertError.message}`);
