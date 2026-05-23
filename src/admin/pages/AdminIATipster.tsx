@@ -41,6 +41,30 @@ import { SyncEsportivaPanel } from "@/admin/components/SyncEsportivaPanel";
 const INPUT_PRICE_PER_M = 3.0;
 const OUTPUT_PRICE_PER_M = 15.0;
 
+// ─── Helpers Claude model (B.3) ───
+function getClaudeModel(tip: Tip): string | null {
+  return tip.source_data?.claude_model_used ?? null;
+}
+
+function ModelBadge({ model }: { model: string | null }) {
+  if (!model) return <span className="text-[10px] text-muted-foreground">—</span>;
+  if (model.startsWith("claude-opus")) {
+    return (
+      <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-orange-500/20 text-orange-600">
+        Opus (fallback)
+      </span>
+    );
+  }
+  if (model.startsWith("claude-sonnet")) {
+    return (
+      <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-green-500/20 text-green-600">
+        Sonnet 4.5
+      </span>
+    );
+  }
+  return <span className="text-[10px] text-muted-foreground">{model}</span>;
+}
+
 // ═══════════════════════════════════════════════════════════════════
 // TYPES
 // ═══════════════════════════════════════════════════════════════════
