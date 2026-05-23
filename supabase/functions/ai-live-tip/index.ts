@@ -690,9 +690,6 @@ Deno.serve(async (req: Request) => {
   }
 
   // ─── FETCH API-FOOTBALL ───
-  const apiKey = Deno.env.get("API_FOOTBALL_KEY");
-  if (!apiKey) return jsonResp({ error: "api_football_key_missing" }, 500);
-
   const headers = { "x-apisports-key": apiKey };
   const [fixResp, statsResp, evResp, lineupResp] = await Promise.all([
     fetch(`https://v3.football.api-sports.io/fixtures?id=${fixtureId}`, { headers }),
