@@ -812,16 +812,57 @@ function ProductModal({
           return;
         }
       } else {
-        const row = {
+        const isCreditPack = type === "ai_credit_pack";
+        const isUnlimited = type === "ai_credit_unlimited";
+        const isCredit = isCreditPack || isUnlimited;
+
+        if (isCredit) {
+          const priceNum = Number(priceBrl);
+          if (!priceBrl || isNaN(priceNum) || priceNum <= 0) {
+            toast.error("Informe um preço válido (R$)");
+            setSaving(false);
+            return;
+          }
+          if (isCreditPack) {
+            const credits = Number(creditsAmount);
+            if (!creditsAmount || isNaN(credits) || credits <= 0) {
+              toast.error("Informe a quantidade de créditos");
+              setSaving(false);
+              return;
+            }
+          }
+          if (isUnlimited) {
+            const days = Number(unlimitedDays);
+            if (!unlimitedDays || isNaN(days) || days <= 0) {
+              toast.error("Informe a duração (dias)");
+              setSaving(false);
+              return;
+            }
+          }
+        }
+
+        const pricing: Record<string, unknown> = {};
+        if (isCredit) pricing.price_brl = Number(priceBrl);
+        if (isCreditPack) pricing.credits_amount = Number(creditsAmount);
+        if (isUnlimited) pricing.unlimited_days = Number(unlimitedDays);
+
+        const row: Record<string, unknown> = {
           provider,
           provider_product_id: externalId,
           product_name: name,
           tier: type === "tier" ? tierValue : null,
           entitlement_key: type === "addon" ? addonValue : null,
-          product_type: type === "tier" ? "plan" : "addon",
+          product_type:
+            type === "tier" ? "plan" :
+            type === "addon" ? "addon" :
+            type,
           bundle_name: null,
           active,
         };
+        if (isCredit) {
+          row.pricing = pricing;
+          row.checkout_url = checkoutUrl || null;
+        }
 
         if (editing) {
           const { error: updateError } = await supabase.from("products_catalog").update(row).eq("id", editing.id);
@@ -841,6 +882,7 @@ function ProductModal({
           }
         }
       }
+
 
       toast.success("Produto salvo com sucesso!");
       setSaving(false);
