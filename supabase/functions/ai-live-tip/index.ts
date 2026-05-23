@@ -58,7 +58,29 @@ const TOP_LEAGUES = [
 const LIVE_STATUS = ["1H", "HT", "2H", "ET", "BT", "P", "LIVE"];
 const PRIMARY_MODEL = "claude-sonnet-4-5";
 const FALLBACK_MODEL = "claude-opus-4-7";
-const CACHE_TTL_SECONDS = 60;
+const CACHE_TTL_SECONDS = 21600; // 6h safety net; invalidação real é por evento (gol/vermelho)
+
+async function getRelevantEventsCount(
+  fixtureId: number,
+  apiKey: string,
+): Promise<number | null> {
+  try {
+    const response = await fetch(
+      `https://v3.football.api-sports.io/fixtures/events?fixture=${fixtureId}`,
+      { headers: { "x-apisports-key": apiKey } },
+    );
+    if (!response.ok) return null;
+    const data = await response.json();
+    const events = data.response || [];
+    return events.filter((e: any) =>
+      e.type === "Goal" ||
+      (e.type === "Card" && e.detail === "Red Card")
+    ).length;
+  } catch (err) {
+    console.error("[getRelevantEventsCount] error:", err);
+    return null;
+  }
+}
 
 const SYSTEM_PROMPT_LIVE = `Você é o Savel, tipster especialista em futebol AO VIVO, fundador da Premier Ultra. Você analisa jogos em andamento combinando contexto pré-jogo (tabela, forma, percentuais, odds pré) com o que está acontecendo na partida em tempo real.
 
@@ -593,7 +615,7 @@ Deno.serve(async (req: Request) => {
   );
 
   // ─── HARD COST CAP (B.1) ───
-  const DAILY_COST_CAP_USD = 20.0;
+  const DAILY_COST_CAP_USD = 100.0;
   const { data: dailyCost, error: costError } = await supabase.rpc("get_daily_ai_cost_usd");
   if (costError) {
     console.error("[cost-check] Failed to get daily cost:", costError);
@@ -605,12 +627,15 @@ Deno.serve(async (req: Request) => {
     );
   }
 
-  // ─── CACHE LOOKUP (bucket de 60s) ───
-  const bucket = Math.floor(Date.now() / 60000);
-  const cacheKey = `live_tip:${fixtureId}:${bucket}`;
+  // ─── API-FOOTBALL KEY (usada no lookup e no fetch) ───
+  const apiKey = Deno.env.get("API_FOOTBALL_KEY");
+  if (!apiKey) return jsonResp({ error: "api_football_key_missing" }, 500);
+
+  // ─── CACHE LOOKUP (event-based invalidation) ───
+  const cacheKey = `live_tip:fixture_${fixtureId}`;
   const { data: cached } = await supabase
     .from("ai_tip_cache")
-    .select("id, content, source_data, generated_at")
+    .select("id, content, source_data, generated_at, hit_count")
     .eq("match_key", cacheKey)
     .eq("match_type", "live_tip")
     .gt("expires_at", new Date().toISOString())
@@ -618,7 +643,17 @@ Deno.serve(async (req: Request) => {
     .limit(1)
     .maybeSingle();
 
-  const isCacheHit = !!cached;
+  let isCacheHit = false;
+  if (cached) {
+    const currentEvents = await getRelevantEventsCount(fixtureId, apiKey);
+    const cachedEvents = (cached.source_data as any)?.relevant_events_count ?? -1;
+    // Fail-open: se API-Football falhou (null), invalida cache (gera nova).
+    if (currentEvents !== null && currentEvents === cachedEvents) {
+      isCacheHit = true;
+    } else {
+      console.log("[live-cache] invalidated", { fixtureId, cachedEvents, currentEvents });
+    }
+  }
 
   // ─── DÉBITO DE CRÉDITO ───
   const { data: creditResult, error: creditErr } = await supabase.rpc(
@@ -655,9 +690,6 @@ Deno.serve(async (req: Request) => {
   }
 
   // ─── FETCH API-FOOTBALL ───
-  const apiKey = Deno.env.get("API_FOOTBALL_KEY");
-  if (!apiKey) return jsonResp({ error: "api_football_key_missing" }, 500);
-
   const headers = { "x-apisports-key": apiKey };
   const [fixResp, statsResp, evResp, lineupResp] = await Promise.all([
     fetch(`https://v3.football.api-sports.io/fixtures?id=${fixtureId}`, { headers }),
@@ -690,7 +722,11 @@ Deno.serve(async (req: Request) => {
   const eventsData = evResp.ok ? await evResp.json() : { response: [] };
   const lineupsData = lineupResp.ok ? await lineupResp.json() : { response: [] };
 
-  const events = (eventsData.response || []).slice(0, 30);
+  const allEvents = eventsData.response || [];
+  const events = allEvents.slice(0, 30);
+  const relevantEventsCount = allEvents.filter((e: any) =>
+    e.type === "Goal" || (e.type === "Card" && e.detail === "Red Card")
+  ).length;
   const matchStats = statsData.response || [];
 
   // ─── DADOS AO VIVO ───
@@ -734,6 +770,7 @@ Deno.serve(async (req: Request) => {
     pre_match: preMatch,
     odds_live: oddsLive,
     altenar_event_url: altenar?.altenar_event_url ?? null,
+    relevant_events_count: relevantEventsCount,
   };
 
   // ─── CHAMA CLAUDE ───

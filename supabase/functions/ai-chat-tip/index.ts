@@ -463,7 +463,7 @@ Deno.serve(async (req: Request) => {
   );
 
   // ─── HARD COST CAP (B.1) ───
-  const DAILY_COST_CAP_USD = 20.0;
+  const DAILY_COST_CAP_USD = 100.0;
   const { data: dailyCost, error: costError } = await supabase.rpc("get_daily_ai_cost_usd");
   if (costError) {
     console.error("[cost-check] Failed to get daily cost:", costError);
