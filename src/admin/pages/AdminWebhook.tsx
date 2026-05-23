@@ -779,7 +779,7 @@ function ProductModal({
         const bundleRows = [
           {
             provider,
-            provider_product_id: externalId,
+            provider_product_id: externalIdToSave,
             product_name: `${name} (Plano)`,
             tier: tierValue,
             entitlement_key: null,
@@ -789,7 +789,7 @@ function ProductModal({
           },
           ...bundleAddons.map(addonKey => ({
             provider,
-            provider_product_id: externalId,
+            provider_product_id: externalIdToSave,
             product_name: `${name} (${addonKey})`,
             tier: null,
             entitlement_key: addonKey,
@@ -804,7 +804,7 @@ function ProductModal({
             .from("products_catalog")
             .delete()
             .eq("bundle_name", editing.bundle_name ?? name)
-            .eq("provider_product_id", externalId);
+            .eq("provider_product_id", externalIdToSave);
           if (bundleDeleteError) {
             console.error("Erro ao remover bundle anterior:", bundleDeleteError);
             toast.error(`Erro ao salvar: ${bundleDeleteError.message}`);
@@ -857,7 +857,7 @@ function ProductModal({
 
         const row: Record<string, unknown> = {
           provider,
-          provider_product_id: externalId,
+          provider_product_id: externalIdToSave,
           product_name: name,
           tier: type === "tier" ? tierValue : null,
           entitlement_key: type === "addon" ? addonValue : null,
