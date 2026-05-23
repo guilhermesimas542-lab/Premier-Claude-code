@@ -2215,6 +2215,7 @@ export type Database = {
         Returns: Database["public"]["Enums"]["main_tier"][]
       }
       get_credit_balance: { Args: { p_user_id: string }; Returns: Json }
+      get_daily_ai_cost_usd: { Args: never; Returns: number }
       get_display_tips: {
         Args: { p_email: string }
         Returns: {
