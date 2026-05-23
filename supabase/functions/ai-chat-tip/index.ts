@@ -705,7 +705,7 @@ Gere a análise no formato definido no system prompt.`;
   return jsonResp({
     cached: false,
     tip_cache_id: inserted?.id,
-    credit_source: creditResult.source,
+    credit_source: creditResult.debit_type,
     content: { markdown: responseText },
     source_data: sourceData,
     generated_at: new Date().toISOString(),
