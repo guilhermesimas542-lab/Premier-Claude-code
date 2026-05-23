@@ -58,7 +58,29 @@ const TOP_LEAGUES = [
 const LIVE_STATUS = ["1H", "HT", "2H", "ET", "BT", "P", "LIVE"];
 const PRIMARY_MODEL = "claude-sonnet-4-5";
 const FALLBACK_MODEL = "claude-opus-4-7";
-const CACHE_TTL_SECONDS = 60;
+const CACHE_TTL_SECONDS = 21600; // 6h safety net; invalidação real é por evento (gol/vermelho)
+
+async function getRelevantEventsCount(
+  fixtureId: number,
+  apiKey: string,
+): Promise<number | null> {
+  try {
+    const response = await fetch(
+      `https://v3.football.api-sports.io/fixtures/events?fixture=${fixtureId}`,
+      { headers: { "x-apisports-key": apiKey } },
+    );
+    if (!response.ok) return null;
+    const data = await response.json();
+    const events = data.response || [];
+    return events.filter((e: any) =>
+      e.type === "Goal" ||
+      (e.type === "Card" && e.detail === "Red Card")
+    ).length;
+  } catch (err) {
+    console.error("[getRelevantEventsCount] error:", err);
+    return null;
+  }
+}
 
 const SYSTEM_PROMPT_LIVE = `Você é o Savel, tipster especialista em futebol AO VIVO, fundador da Premier Ultra. Você analisa jogos em andamento combinando contexto pré-jogo (tabela, forma, percentuais, odds pré) com o que está acontecendo na partida em tempo real.
 
