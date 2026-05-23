@@ -770,6 +770,7 @@ Deno.serve(async (req: Request) => {
     pre_match: preMatch,
     odds_live: oddsLive,
     altenar_event_url: altenar?.altenar_event_url ?? null,
+    relevant_events_count: relevantEventsCount,
   };
 
   // ─── CHAMA CLAUDE ───
