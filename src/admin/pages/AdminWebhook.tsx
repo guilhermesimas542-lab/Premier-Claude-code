@@ -685,12 +685,17 @@ function ProductModal({
   const [provider, setProvider] = useState("lastlink");
   const [externalId, setExternalId] = useState("");
   const [name, setName] = useState("");
-  const [type, setType] = useState<"tier" | "addon" | "bundle">("tier");
+  const [type, setType] = useState<"tier" | "addon" | "bundle" | "ai_credit_pack" | "ai_credit_unlimited">("tier");
   const [tierValue, setTierValue] = useState("basic");
   const [addonValue, setAddonValue] = useState("alavancagem");
   const [bundleAddons, setBundleAddons] = useState<string[]>([]);
   const [active, setActive] = useState(true);
   const [saving, setSaving] = useState(false);
+  // AI credit fields
+  const [priceBrl, setPriceBrl] = useState<string>("");
+  const [creditsAmount, setCreditsAmount] = useState<string>("");
+  const [unlimitedDays, setUnlimitedDays] = useState<string>("");
+  const [checkoutUrl, setCheckoutUrl] = useState<string>("");
 
   const toggleBundleAddon = (key: string) => {
     setBundleAddons(prev =>
@@ -703,11 +708,21 @@ function ProductModal({
       setProvider(editing.provider);
       setExternalId(editing.provider_product_id);
       setActive(editing.active);
-      if (editing.product_type === "bundle" && editing.bundle_name) {
+      const ed: any = editing;
+      setPriceBrl(ed.pricing?.price_brl != null ? String(ed.pricing.price_brl) : "");
+      setCreditsAmount(ed.pricing?.credits_amount != null ? String(ed.pricing.credits_amount) : "");
+      setUnlimitedDays(ed.pricing?.unlimited_days != null ? String(ed.pricing.unlimited_days) : "");
+      setCheckoutUrl(ed.checkout_url ?? "");
+      if (editing.product_type === "ai_credit_pack") {
+        setType("ai_credit_pack");
+        setName(editing.product_name);
+      } else if (editing.product_type === "ai_credit_unlimited") {
+        setType("ai_credit_unlimited");
+        setName(editing.product_name);
+      } else if (editing.product_type === "bundle" && editing.bundle_name) {
         setType("bundle");
         setName(editing.bundle_name);
         setTierValue(editing.tier ?? "basic");
-        // We'll load bundle addons from onDone's refetch; for now set from editing context
         setBundleAddons([]);
       } else if (editing.tier) {
         setType("tier");
@@ -727,8 +742,13 @@ function ProductModal({
       setAddonValue("alavancagem");
       setBundleAddons([]);
       setActive(true);
+      setPriceBrl("");
+      setCreditsAmount("");
+      setUnlimitedDays("");
+      setCheckoutUrl("");
     }
   }, [editing, open]);
+
 
   const handleSave = async () => {
     if (!externalId || !name) {
