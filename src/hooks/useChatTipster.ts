@@ -345,6 +345,7 @@ export function useChatTipster() {
         cached: tipResp.cached,
         createdAt: Date.now(),
       });
+      refreshCreditBalance();
     } catch (err: any) {
       removeLoading();
       append({
