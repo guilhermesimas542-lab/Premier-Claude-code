@@ -76,7 +76,7 @@ Deno.serve(async (req: Request) => {
     .from("ai_tip_cache")
     .select("content, generated_at")
     .eq("match_key", cacheKey)
-    .eq("match_type", "live")
+    .eq("match_type", "aux_upcoming")
     .gt("expires_at", new Date().toISOString())
     .order("generated_at", { ascending: false })
     .limit(1)
@@ -146,7 +146,7 @@ Deno.serve(async (req: Request) => {
   const expiresAt = new Date(Date.now() + CACHE_TTL_SECONDS * 1000).toISOString();
   await supabase.from("ai_tip_cache").insert({
     match_key: cacheKey,
-    match_type: "live",
+    match_type: "aux_upcoming",
     content: { suggestions },
     source_data: { total_fixtures_found: all.length },
     expires_at: expiresAt,

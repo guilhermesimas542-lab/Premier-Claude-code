@@ -260,17 +260,33 @@ export function useChatTipster() {
       removeLoading();
 
       if (error) {
+        const isDailyCap =
+          (error as any)?.context?.status === 429 ||
+          (error as any)?.status === 429 ||
+          /daily_cost_limit_reached/i.test(error.message || "");
         append({
           id: genId(),
           role: "bot",
           type: "error",
-          message: error.message || "Erro ao gerar análise.",
+          message: isDailyCap
+            ? "⚠️ Análise IA temporariamente indisponível. Tente novamente em algumas horas."
+            : error.message || "Erro ao gerar análise.",
           createdAt: Date.now(),
         });
         return;
       }
 
       const d = data as any;
+      if (d?.error === "daily_cost_limit_reached") {
+        append({
+          id: genId(),
+          role: "bot",
+          type: "error",
+          message: "⚠️ Análise IA temporariamente indisponível. Tente novamente em algumas horas.",
+          createdAt: Date.now(),
+        });
+        return;
+      }
       if (d?.error === "insufficient_credits") {
         append({
           id: genId(),

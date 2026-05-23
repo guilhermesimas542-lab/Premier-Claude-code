@@ -24,8 +24,22 @@ export function useGenerateLiveTip() {
         "ai-live-tip",
         { body: { fixture_id: fixtureId } }
       );
-      if (invokeErr) throw new Error(invokeErr.message || "tip_failed");
+      if (invokeErr) {
+        const isDailyCap =
+          (invokeErr as any)?.context?.status === 429 ||
+          (invokeErr as any)?.status === 429 ||
+          /daily_cost_limit_reached/i.test(invokeErr.message || "");
+        throw new Error(
+          isDailyCap
+            ? "⚠️ Análise IA temporariamente indisponível. Tente novamente em algumas horas."
+            : invokeErr.message || "tip_failed"
+        );
+      }
       const d = data as any;
+      if (d?.error === "daily_cost_limit_reached") {
+        setError("⚠️ Análise IA temporariamente indisponível. Tente novamente em algumas horas.");
+        return;
+      }
       if (d?.error) {
         setError(d.message || d.error);
         return;
