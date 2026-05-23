@@ -40,6 +40,18 @@ export default function IATipster() {
       : `${balance.daily_remaining + balance.bonus + balance.purchased} créditos`
     : "...";
 
+  if (isBeta === null) {
+    return (
+      <div className="min-h-screen bg-background pb-20">
+        <AppHeader />
+        <div className="flex flex-col items-center justify-center py-20 px-6 gap-4">
+          <Loader2 className="w-6 h-6 animate-spin text-primary" />
+        </div>
+        <BottomNav />
+      </div>
+    );
+  }
+
   if (!isBeta) {
     return (
       <div className="min-h-screen bg-background pb-20">
