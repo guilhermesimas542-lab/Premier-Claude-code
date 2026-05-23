@@ -7,11 +7,22 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-const AI_BETA_ALLOWLIST: string[] = [
-  "teste@exemplo.com",
-  "hugofm350@gmail.com",
-  "gabriel.fedds@icloud.com",
-].map((e) => e.toLowerCase().trim());
+async function isBetaEmailAllowed(email: string): Promise<boolean> {
+  try {
+    const sb = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+    );
+    const { data } = await sb
+      .from("ai_beta_allowlist")
+      .select("id")
+      .eq("email", email)
+      .maybeSingle();
+    return !!data;
+  } catch {
+    return false;
+  }
+}
 
 interface TokenPayload {
   user_id?: string;
