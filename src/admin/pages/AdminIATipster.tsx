@@ -905,6 +905,9 @@ function TipsGeradasTab() {
                         <span className="text-muted-foreground">0</span>
                       )}
                     </td>
+                    <td className="px-3 py-2">
+                      <ModelBadge model={getClaudeModel(t)} />
+                    </td>
                     <td className="px-3 py-2 text-right">
                       <Button variant="ghost" size="sm" onClick={() => setDetailTip(t)}>
                         <FileText className="w-3 h-3" />
