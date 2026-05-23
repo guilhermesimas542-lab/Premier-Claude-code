@@ -62,6 +62,7 @@ export function useGenerateLiveTip() {
         return;
       }
       setTip(data as LiveTipResponse);
+      refreshCreditBalance();
     } catch (err: any) {
       setError(err.message || "unknown_error");
     } finally {
