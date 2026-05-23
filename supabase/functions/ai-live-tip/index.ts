@@ -722,7 +722,11 @@ Deno.serve(async (req: Request) => {
   const eventsData = evResp.ok ? await evResp.json() : { response: [] };
   const lineupsData = lineupResp.ok ? await lineupResp.json() : { response: [] };
 
-  const events = (eventsData.response || []).slice(0, 30);
+  const allEvents = eventsData.response || [];
+  const events = allEvents.slice(0, 30);
+  const relevantEventsCount = allEvents.filter((e: any) =>
+    e.type === "Goal" || (e.type === "Card" && e.detail === "Red Card")
+  ).length;
   const matchStats = statsData.response || [];
 
   // ─── DADOS AO VIVO ───
