@@ -75,6 +75,18 @@ export default function IATipster() {
     );
   }
 
+  if (!aiStatusLoading && aiStatus && !aiStatus.enabled) {
+    return (
+      <div className="h-[100dvh] flex flex-col overflow-hidden bg-background">
+        <AppHeader />
+        <div className="flex-1 flex flex-col pb-[64px] overflow-hidden">
+          <MaintenanceScreen message={aiStatus.message} />
+        </div>
+        <BottomNav />
+      </div>
+    );
+  }
+
   return (
     <div className="h-[100dvh] flex flex-col overflow-hidden bg-background">
       <AppHeader />
