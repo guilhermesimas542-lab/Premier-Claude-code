@@ -3,15 +3,12 @@ import { supabase } from "@/integrations/supabase/client";
 
 export interface CreditBalance {
   tier: string;
-  is_unlimited: boolean;
-  daily_limit: number;
-  daily_used: number;
-  daily_remaining: number;
-  bonus: number;
-  purchased: number;
-  cache_hits_today: number;
-  cache_hits_limit: number;
+  weekly_remaining: number;
+  weekly_quota: number;
+  extras_bonus: number;
+  extras_purchased: number;
   total_available: number;
+  resets_at: string | null;
 }
 
 function getUserIdFromToken(): string | null {
@@ -37,7 +34,22 @@ export function useCreditBalance() {
       const { data } = await supabase.rpc("get_credit_balance", {
         p_user_id: userId,
       });
-      if (data && !(data as any).error) setBalance(data as unknown as CreditBalance);
+      const d = data as any;
+      if (d && !d.error) {
+        const bal = d.balance ?? {};
+        const weekly_remaining = bal.weekly_remaining ?? 0;
+        const extras_bonus = bal.extras_bonus ?? 0;
+        const extras_purchased = bal.extras_purchased ?? 0;
+        setBalance({
+          tier: d.tier,
+          weekly_remaining,
+          weekly_quota: bal.weekly_quota ?? 0,
+          extras_bonus,
+          extras_purchased,
+          total_available: weekly_remaining + extras_bonus + extras_purchased,
+          resets_at: d.resets_at ?? null,
+        });
+      }
     } finally {
       setLoading(false);
     }
