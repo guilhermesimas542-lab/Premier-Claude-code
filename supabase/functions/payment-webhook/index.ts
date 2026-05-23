@@ -480,7 +480,13 @@ Deno.serve(async (req) => {
     }
 
     // ── Fail explicitly if no product matched ─────────────────────────────
-    if (!tierToSet && entitlementKeysToGrant.length === 0 && productIds.length > 0) {
+    if (
+      !tierToSet &&
+      entitlementKeysToGrant.length === 0 &&
+      creditPacks.length === 0 &&
+      unlimitedGrants.length === 0 &&
+      productIds.length > 0
+    ) {
       const errMsg = `Produto não encontrado no catálogo para IDs: ${productIds.join(", ")} (provider: ${effectiveProvider})`;
       console.error("[webhook]", errMsg);
       await supabase
@@ -493,6 +499,7 @@ Deno.serve(async (req) => {
         { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+
 
     const TIER_RANK: Record<string, number> = {
       free: 0,
