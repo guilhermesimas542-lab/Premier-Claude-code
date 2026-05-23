@@ -277,6 +277,7 @@ export function useChatTipster() {
           toast.error("Sem créditos", {
             description: `Você usou todos os créditos da semana. Renova em ${resetsLabel}.`,
           });
+          refreshCreditBalance();
           return;
         }
         append({
