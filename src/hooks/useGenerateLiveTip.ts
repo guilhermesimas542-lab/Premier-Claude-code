@@ -2,6 +2,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { invokeWithAuth } from "@/lib/invokeWithAuth";
 import { refreshCreditBalance } from "@/hooks/useCreditBalance";
+import { refreshAiTipsterStatus } from "@/hooks/useAiTipsterStatus";
 
 export interface LiveTipResponse {
   cached: boolean;

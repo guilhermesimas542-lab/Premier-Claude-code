@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { invokeWithAuth } from "@/lib/invokeWithAuth";
 import { refreshCreditBalance } from "@/hooks/useCreditBalance";
+import { refreshAiTipsterStatus } from "@/hooks/useAiTipsterStatus";
 
 const SESSION_KEY = "ia_tipster_chat_messages_v1";
 
