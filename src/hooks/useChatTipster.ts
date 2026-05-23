@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from "react";
+import { toast } from "sonner";
 import { invokeWithAuth } from "@/lib/invokeWithAuth";
 
 const SESSION_KEY = "ia_tipster_chat_messages_v1";
