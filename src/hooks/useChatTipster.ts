@@ -261,10 +261,23 @@ export function useChatTipster() {
       removeLoading();
 
       if (error) {
-        const isDailyCap =
-          (error as any)?.context?.status === 429 ||
-          (error as any)?.status === 429 ||
-          /daily_cost_limit_reached/i.test(error.message || "");
+        const status = (error as any)?.context?.status ?? (error as any)?.status;
+        const isDailyCap = status === 429 || /daily_cost_limit_reached/i.test(error.message || "");
+        if (status === 402) {
+          let resetsLabel = "segunda-feira";
+          try {
+            const body = await (error as any)?.context?.json?.();
+            if (body?.resets_at) {
+              resetsLabel = new Date(body.resets_at).toLocaleDateString("pt-BR", {
+                weekday: "short", day: "2-digit", month: "short",
+              });
+            }
+          } catch {}
+          toast.error("Sem créditos", {
+            description: `Você usou todos os créditos da semana. Renova em ${resetsLabel}.`,
+          });
+          return;
+        }
         append({
           id: genId(),
           role: "bot",
