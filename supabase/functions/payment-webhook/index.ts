@@ -417,6 +417,18 @@ Deno.serve(async (req) => {
     }
 
     // ── Map products via products_catalog ──────────────────────────────────
+    // Hardening B.2: normaliza productIds (trim + dedupe) ANTES do lookup.
+    // Mesmo com o DB limpo, defesa em profundidade evita 404 se PayT
+    // enviar code com espaço em algum payload futuro.
+    productIds = Array.from(
+      new Set(
+        (productIds || [])
+          .filter((c): c is string => typeof c === "string")
+          .map((c) => c.trim())
+          .filter((c) => c.length > 0)
+      )
+    );
+
     let tierToSet: string | null = null;
     const entitlementKeysToGrant: string[] = [];
     const creditPacks: Array<{ id: string; credits: number; price: number }> = [];

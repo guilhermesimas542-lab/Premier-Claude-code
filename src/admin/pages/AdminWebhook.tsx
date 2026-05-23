@@ -751,8 +751,14 @@ function ProductModal({
 
 
   const handleSave = async () => {
-    if (!externalId || !name) {
-      toast.error("Preencha todos os campos obrigatórios");
+    // Hardening B.3: trim no provider_product_id evita reintroduzir bug
+    // de whitespace via copy-paste no formulário admin.
+    const trimmedExternalId = externalId?.trim() ?? "";
+    if (trimmedExternalId !== externalId) {
+      setExternalId(trimmedExternalId);
+    }
+    if (!trimmedExternalId || !name) {
+      toast.error("Preencha todos os campos obrigatórios (code do produto não pode ser vazio nem conter apenas espaços)");
       return;
     }
     if (type === "bundle" && bundleAddons.length === 0) {
@@ -763,14 +769,17 @@ function ProductModal({
       toast.error("Selecione o plano incluído no bundle");
       return;
     }
+    // Usa versão trimada em todos os inserts/updates abaixo
+    const externalIdToSave = trimmedExternalId;
     setSaving(true);
+
 
     try {
       if (type === "bundle") {
         const bundleRows = [
           {
             provider,
-            provider_product_id: externalId,
+            provider_product_id: externalIdToSave,
             product_name: `${name} (Plano)`,
             tier: tierValue,
             entitlement_key: null,
@@ -780,7 +789,7 @@ function ProductModal({
           },
           ...bundleAddons.map(addonKey => ({
             provider,
-            provider_product_id: externalId,
+            provider_product_id: externalIdToSave,
             product_name: `${name} (${addonKey})`,
             tier: null,
             entitlement_key: addonKey,
@@ -795,7 +804,7 @@ function ProductModal({
             .from("products_catalog")
             .delete()
             .eq("bundle_name", editing.bundle_name ?? name)
-            .eq("provider_product_id", externalId);
+            .eq("provider_product_id", externalIdToSave);
           if (bundleDeleteError) {
             console.error("Erro ao remover bundle anterior:", bundleDeleteError);
             toast.error(`Erro ao salvar: ${bundleDeleteError.message}`);
@@ -848,7 +857,7 @@ function ProductModal({
 
         const row: Record<string, unknown> = {
           provider,
-          provider_product_id: externalId,
+          provider_product_id: externalIdToSave,
           product_name: name,
           tier: type === "tier" ? tierValue : null,
           entitlement_key: type === "addon" ? addonValue : null,
