@@ -429,12 +429,27 @@ Deno.serve(async (req) => {
       )
     );
 
+    // B.1: TIER_RANK promovido para escopo da função e com premium/diamante.
+    const TIER_RANK: Record<string, number> = {
+      free: 0,
+      basic: 1,
+      pro: 2,
+      premium: 3,
+      ultra: 4,
+      diamante: 5,
+    };
+
     let tierToSet: string | null = null;
-    const entitlementKeysToGrant: string[] = [];
+    let highestTierRank = -1;
+    const entitlementKeysSet = new Set<string>();
     const creditPacks: Array<{ id: string; credits: number; price: number }> = [];
     const unlimitedGrants: Array<{ id: string; days: number; price: number }> = [];
     const effectiveProvider = isPayt ? "payt" : provider;
 
+    // B.1: rank-aggregation — múltiplos product codes (bundle PayT) precisam
+    // resolver para o tier de maior rank, e a união (não substituição) dos
+    // entitlement_keys. Antes pegávamos sempre o último item, perdendo tiers
+    // quando o último era addon (tier=null).
     const collectCatalog = (items: any[] | null | undefined) => {
       if (!items) return;
       for (const item of items) {
@@ -447,8 +462,14 @@ Deno.serve(async (req) => {
           const price = Number(item.pricing?.price_brl ?? amount ?? 0);
           if (days > 0) unlimitedGrants.push({ id: item.id, days, price });
         } else {
-          if (item.tier) tierToSet = item.tier;
-          if (item.entitlement_key) entitlementKeysToGrant.push(item.entitlement_key);
+          if (item.tier) {
+            const r = TIER_RANK[item.tier] ?? -1;
+            if (r > highestTierRank) {
+              highestTierRank = r;
+              tierToSet = item.tier;
+            }
+          }
+          if (item.entitlement_key) entitlementKeysSet.add(item.entitlement_key);
         }
       }
     };
@@ -479,7 +500,14 @@ Deno.serve(async (req) => {
     }
 
 
-    console.log("[webhook] resolved:", { tierToSet, entitlementKeysToGrant, userId });
+    const entitlementKeysToGrant: string[] = Array.from(entitlementKeysSet);
+
+    console.log("[webhook] resolved multi-code:", {
+      tier: tierToSet,
+      entitlements: entitlementKeysToGrant,
+      n_matches: (entitlementKeysToGrant.length + (tierToSet ? 1 : 0) + creditPacks.length + unlimitedGrants.length),
+      productIds,
+    });
 
     // Fallback: legacy product_key
     if (!tierToSet && entitlementKeysToGrant.length === 0 && payload.product_key) {
@@ -513,12 +541,6 @@ Deno.serve(async (req) => {
     }
 
 
-    const TIER_RANK: Record<string, number> = {
-      free: 0,
-      basic: 1,
-      pro: 2,
-      ultra: 3,
-    };
 
     if (isPurchaseApproved) {
       if (tierToSet && userId) {
