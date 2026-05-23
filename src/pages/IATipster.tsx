@@ -9,6 +9,8 @@ import { isAIBetaUser } from "@/lib/aiBetaAllowlist";
 import AppHeader from "@/components/AppHeader";
 import { BottomNav } from "@/components/BottomNav";
 import { CreditBalanceBadge } from "@/components/ia-tipster/CreditBalanceBadge";
+import { MaintenanceScreen } from "@/components/ia-tipster/MaintenanceScreen";
+import { useAiTipsterStatus } from "@/hooks/useAiTipsterStatus";
 
 function getEmailFromToken(): string | null {
   try {
