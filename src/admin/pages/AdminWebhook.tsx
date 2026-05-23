@@ -685,12 +685,17 @@ function ProductModal({
   const [provider, setProvider] = useState("lastlink");
   const [externalId, setExternalId] = useState("");
   const [name, setName] = useState("");
-  const [type, setType] = useState<"tier" | "addon" | "bundle">("tier");
+  const [type, setType] = useState<"tier" | "addon" | "bundle" | "ai_credit_pack" | "ai_credit_unlimited">("tier");
   const [tierValue, setTierValue] = useState("basic");
   const [addonValue, setAddonValue] = useState("alavancagem");
   const [bundleAddons, setBundleAddons] = useState<string[]>([]);
   const [active, setActive] = useState(true);
   const [saving, setSaving] = useState(false);
+  // AI credit fields
+  const [priceBrl, setPriceBrl] = useState<string>("");
+  const [creditsAmount, setCreditsAmount] = useState<string>("");
+  const [unlimitedDays, setUnlimitedDays] = useState<string>("");
+  const [checkoutUrl, setCheckoutUrl] = useState<string>("");
 
   const toggleBundleAddon = (key: string) => {
     setBundleAddons(prev =>
@@ -703,11 +708,21 @@ function ProductModal({
       setProvider(editing.provider);
       setExternalId(editing.provider_product_id);
       setActive(editing.active);
-      if (editing.product_type === "bundle" && editing.bundle_name) {
+      const ed: any = editing;
+      setPriceBrl(ed.pricing?.price_brl != null ? String(ed.pricing.price_brl) : "");
+      setCreditsAmount(ed.pricing?.credits_amount != null ? String(ed.pricing.credits_amount) : "");
+      setUnlimitedDays(ed.pricing?.unlimited_days != null ? String(ed.pricing.unlimited_days) : "");
+      setCheckoutUrl(ed.checkout_url ?? "");
+      if (editing.product_type === "ai_credit_pack") {
+        setType("ai_credit_pack");
+        setName(editing.product_name);
+      } else if (editing.product_type === "ai_credit_unlimited") {
+        setType("ai_credit_unlimited");
+        setName(editing.product_name);
+      } else if (editing.product_type === "bundle" && editing.bundle_name) {
         setType("bundle");
         setName(editing.bundle_name);
         setTierValue(editing.tier ?? "basic");
-        // We'll load bundle addons from onDone's refetch; for now set from editing context
         setBundleAddons([]);
       } else if (editing.tier) {
         setType("tier");
@@ -727,8 +742,13 @@ function ProductModal({
       setAddonValue("alavancagem");
       setBundleAddons([]);
       setActive(true);
+      setPriceBrl("");
+      setCreditsAmount("");
+      setUnlimitedDays("");
+      setCheckoutUrl("");
     }
   }, [editing, open]);
+
 
   const handleSave = async () => {
     if (!externalId || !name) {
@@ -792,16 +812,57 @@ function ProductModal({
           return;
         }
       } else {
-        const row = {
+        const isCreditPack = type === "ai_credit_pack";
+        const isUnlimited = type === "ai_credit_unlimited";
+        const isCredit = isCreditPack || isUnlimited;
+
+        if (isCredit) {
+          const priceNum = Number(priceBrl);
+          if (!priceBrl || isNaN(priceNum) || priceNum <= 0) {
+            toast.error("Informe um preço válido (R$)");
+            setSaving(false);
+            return;
+          }
+          if (isCreditPack) {
+            const credits = Number(creditsAmount);
+            if (!creditsAmount || isNaN(credits) || credits <= 0) {
+              toast.error("Informe a quantidade de créditos");
+              setSaving(false);
+              return;
+            }
+          }
+          if (isUnlimited) {
+            const days = Number(unlimitedDays);
+            if (!unlimitedDays || isNaN(days) || days <= 0) {
+              toast.error("Informe a duração (dias)");
+              setSaving(false);
+              return;
+            }
+          }
+        }
+
+        const pricing: Record<string, unknown> = {};
+        if (isCredit) pricing.price_brl = Number(priceBrl);
+        if (isCreditPack) pricing.credits_amount = Number(creditsAmount);
+        if (isUnlimited) pricing.unlimited_days = Number(unlimitedDays);
+
+        const row: Record<string, unknown> = {
           provider,
           provider_product_id: externalId,
           product_name: name,
           tier: type === "tier" ? tierValue : null,
           entitlement_key: type === "addon" ? addonValue : null,
-          product_type: type === "tier" ? "plan" : "addon",
+          product_type:
+            type === "tier" ? "plan" :
+            type === "addon" ? "addon" :
+            type,
           bundle_name: null,
           active,
         };
+        if (isCredit) {
+          row.pricing = pricing;
+          row.checkout_url = checkoutUrl || null;
+        }
 
         if (editing) {
           const { error: updateError } = await supabase.from("products_catalog").update(row).eq("id", editing.id);
@@ -812,7 +873,7 @@ function ProductModal({
             return;
           }
         } else {
-          const { error: insertError } = await supabase.from("products_catalog").insert(row);
+          const { error: insertError } = await supabase.from("products_catalog").insert(row as any);
           if (insertError) {
             console.error("Erro ao inserir produto:", insertError);
             toast.error(`Erro ao salvar: ${insertError.message}`);
@@ -821,6 +882,7 @@ function ProductModal({
           }
         }
       }
+
 
       toast.success("Produto salvo com sucesso!");
       setSaving(false);
@@ -914,7 +976,7 @@ function ProductModal({
 
           <div>
             <label className="text-xs text-gray-400 block mb-1">Tipo</label>
-            <Select value={type} onValueChange={(v) => setType(v as "tier" | "addon" | "bundle")}>
+            <Select value={type} onValueChange={(v) => setType(v as typeof type)}>
               <SelectTrigger className="bg-gray-800 border-white/10">
                 <SelectValue />
               </SelectTrigger>
@@ -922,9 +984,68 @@ function ProductModal({
                 <SelectItem value="tier">Plano</SelectItem>
                 <SelectItem value="addon">Add-on</SelectItem>
                 <SelectItem value="bundle">Bundle (Plano + Add-ons)</SelectItem>
+                <SelectItem value="ai_credit_pack">Pacote de Créditos IA</SelectItem>
+                <SelectItem value="ai_credit_unlimited">IA Ilimitado (por dias)</SelectItem>
               </SelectContent>
             </Select>
           </div>
+
+          {/* AI credit fields */}
+          {(type === "ai_credit_pack" || type === "ai_credit_unlimited") && (
+            <>
+              <div>
+                <label className="text-xs text-gray-400 block mb-1">Preço (R$)</label>
+                <Input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  placeholder="Ex: 29.90"
+                  value={priceBrl}
+                  onChange={(e) => setPriceBrl(e.target.value)}
+                  className="bg-gray-800 border-white/10"
+                />
+              </div>
+              {type === "ai_credit_pack" && (
+                <div>
+                  <label className="text-xs text-gray-400 block mb-1">Quantidade de créditos</label>
+                  <Input
+                    type="number"
+                    min="1"
+                    step="1"
+                    placeholder="Ex: 6"
+                    value={creditsAmount}
+                    onChange={(e) => setCreditsAmount(e.target.value)}
+                    className="bg-gray-800 border-white/10"
+                  />
+                </div>
+              )}
+              {type === "ai_credit_unlimited" && (
+                <div>
+                  <label className="text-xs text-gray-400 block mb-1">Duração (dias)</label>
+                  <Input
+                    type="number"
+                    min="1"
+                    step="1"
+                    placeholder="Ex: 30 ou 90"
+                    value={unlimitedDays}
+                    onChange={(e) => setUnlimitedDays(e.target.value)}
+                    className="bg-gray-800 border-white/10"
+                  />
+                </div>
+              )}
+              <div>
+                <label className="text-xs text-gray-400 block mb-1">URL de checkout (PayT)</label>
+                <Input
+                  placeholder="https://payt.com.br/..."
+                  value={checkoutUrl}
+                  onChange={(e) => setCheckoutUrl(e.target.value)}
+                  className="bg-gray-800 border-white/10"
+                />
+                <p className="text-[11px] text-gray-500 mt-1.5">URL que será exibida ao usuário no checkout embedado.</p>
+              </div>
+            </>
+          )}
+
 
           {/* Tier selector — for "tier" and "bundle" */}
           {(type === "tier" || type === "bundle") && (
