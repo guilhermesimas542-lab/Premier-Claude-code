@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { Sparkles, MessageSquare, Radio, Lock, Loader2 } from "lucide-react";
+import { Sparkles, MessageSquare, Radio, Lock, Loader2, AlertTriangle } from "lucide-react";
 import { LiveMatchesSection } from "@/components/aitipster/LiveMatchesSection";
 import { ChatSection } from "@/components/aitipster/ChatSection";
 import { EsportivaInlinePanel } from "@/components/aitipster/EsportivaInlinePanel";
@@ -8,6 +8,7 @@ import { useCreditBalance } from "@/hooks/useCreditBalance";
 import { isAIBetaUser } from "@/lib/aiBetaAllowlist";
 import AppHeader from "@/components/AppHeader";
 import { BottomNav } from "@/components/BottomNav";
+import { CreditBalanceBadge } from "@/components/ia-tipster/CreditBalanceBadge";
 
 function getEmailFromToken(): string | null {
   try {
@@ -33,10 +34,12 @@ export default function IATipster() {
   const [activeTab, setActiveTab] = useState<"chat" | "live">("live");
   const [openEsportiva, setOpenEsportiva] = useState<OpenEsportivaPayload | null>(null);
   const { balance } = useCreditBalance();
-
-  const creditsLabel = balance
-    ? `${balance.total_available} créditos`
-    : "...";
+  const showNoCreditsBanner = balance != null && balance.total_available === 0;
+  const resetLabel = balance?.resets_at
+    ? new Date(balance.resets_at).toLocaleDateString("pt-BR", {
+        weekday: "short", day: "2-digit", month: "2-digit",
+      })
+    : "segunda-feira";
 
   if (isBeta === null) {
     return (
@@ -95,10 +98,15 @@ export default function IATipster() {
                   BETA
                 </span>
               </div>
-              <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-1 rounded">
-                {creditsLabel}
-              </span>
+              <CreditBalanceBadge />
             </div>
+
+            {showNoCreditsBanner && (
+              <div className="flex items-center gap-2 px-4 py-2 bg-destructive/10 border-t border-destructive/20 text-xs text-destructive">
+                <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                <span>Você está sem créditos. Próximo reset: {resetLabel}.</span>
+              </div>
+            )}
 
             <div className="flex border-b">
               <button

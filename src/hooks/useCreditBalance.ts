@@ -57,7 +57,16 @@ export function useCreditBalance() {
 
   useEffect(() => {
     fetchBalance();
+    const handler = () => fetchBalance();
+    window.addEventListener("credit-balance-refresh", handler);
+    return () => window.removeEventListener("credit-balance-refresh", handler);
   }, [fetchBalance]);
 
   return { balance, loading, refetch: fetchBalance };
+}
+
+export function refreshCreditBalance() {
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event("credit-balance-refresh"));
+  }
 }

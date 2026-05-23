@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { invokeWithAuth } from "@/lib/invokeWithAuth";
+import { refreshCreditBalance } from "@/hooks/useCreditBalance";
 
 const SESSION_KEY = "ia_tipster_chat_messages_v1";
 
@@ -276,6 +277,7 @@ export function useChatTipster() {
           toast.error("Sem créditos", {
             description: `Você usou todos os créditos da semana. Renova em ${resetsLabel}.`,
           });
+          refreshCreditBalance();
           return;
         }
         append({
@@ -343,6 +345,7 @@ export function useChatTipster() {
         cached: tipResp.cached,
         createdAt: Date.now(),
       });
+      refreshCreditBalance();
     } catch (err: any) {
       removeLoading();
       append({

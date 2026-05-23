@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { invokeWithAuth } from "@/lib/invokeWithAuth";
+import { refreshCreditBalance } from "@/hooks/useCreditBalance";
 
 export interface LiveTipResponse {
   cached: boolean;
@@ -41,6 +42,7 @@ export function useGenerateLiveTip() {
             description: `Você usou todos os créditos da semana. Renova em ${resetsLabel}.`,
           });
           setError("insufficient_credits");
+          refreshCreditBalance();
           return;
         }
         const isDailyCap = status === 429 || /daily_cost_limit_reached/i.test(invokeErr.message || "");
@@ -60,6 +62,7 @@ export function useGenerateLiveTip() {
         return;
       }
       setTip(data as LiveTipResponse);
+      refreshCreditBalance();
     } catch (err: any) {
       setError(err.message || "unknown_error");
     } finally {
