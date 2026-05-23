@@ -250,7 +250,7 @@ async function fetchStandings(
     .from("ai_tip_cache")
     .select("content")
     .eq("match_key", cacheKey)
-    .eq("match_type", "live")
+    .eq("match_type", "aux_standings")
     .gt("expires_at", new Date().toISOString())
     .order("generated_at", { ascending: false })
     .limit(1)
@@ -292,7 +292,7 @@ async function fetchStandings(
         const expiresAt = new Date(Date.now() + 6 * 3600 * 1000).toISOString();
         await supabase.from("ai_tip_cache").insert({
           match_key: cacheKey,
-          match_type: "live",
+          match_type: "aux_standings",
           content: { standings: simplified, season },
           source_data: { league_id: leagueId },
           expires_at: expiresAt,
@@ -318,7 +318,7 @@ async function fetchOdds(
     .from("ai_tip_cache")
     .select("content")
     .eq("match_key", cacheKey)
-    .eq("match_type", "live")
+    .eq("match_type", "aux_odds")
     .gt("expires_at", new Date().toISOString())
     .order("generated_at", { ascending: false })
     .limit(1)
@@ -355,7 +355,7 @@ async function fetchOdds(
     const expiresAt = new Date(Date.now() + 30 * 60 * 1000).toISOString();
     await supabase.from("ai_tip_cache").insert({
       match_key: cacheKey,
-      match_type: "live",
+      match_type: "aux_odds",
       content: { odds: filtered, bookmaker: bookmaker?.name },
       source_data: { fixture_id: fixtureId },
       expires_at: expiresAt,
@@ -461,6 +461,21 @@ Deno.serve(async (req: Request) => {
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
   );
+
+  // ─── HARD COST CAP (B.1) ───
+  const DAILY_COST_CAP_USD = 20.0;
+  const { data: dailyCost, error: costError } = await supabase.rpc("get_daily_ai_cost_usd");
+  if (costError) {
+    console.error("[cost-check] Failed to get daily cost:", costError);
+  } else if (dailyCost && Number(dailyCost) >= DAILY_COST_CAP_USD) {
+    console.warn("[cost-check] Daily cap reached:", dailyCost);
+    return jsonResp(
+      { error: "daily_cost_limit_reached", message: "Limite operacional diário atingido. Tente novamente em algumas horas." },
+      429
+    );
+  }
+
+
 
   const cacheKey = `chat_prematch:${fixtureId}`;
   const { data: cached } = await supabase
