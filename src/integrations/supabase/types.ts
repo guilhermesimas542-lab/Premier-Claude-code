@@ -2194,7 +2194,9 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      admin_replay_payt_webhook: { Args: { p_log_id: string }; Returns: Json }
+      admin_replay_payt_webhook:
+        | { Args: { p_log_id: string }; Returns: Json }
+        | { Args: { p_force?: boolean; p_log_id: string }; Returns: Json }
       check_and_debit_credit: {
         Args: { p_source: string; p_user_id: string }
         Returns: Json
