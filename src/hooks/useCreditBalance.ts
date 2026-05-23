@@ -9,6 +9,8 @@ export interface CreditBalance {
   extras_purchased: number;
   total_available: number;
   resets_at: string | null;
+  unlimited_until: string | null;
+  unlimited_active: boolean;
 }
 
 function getUserIdFromToken(): string | null {
@@ -48,12 +50,15 @@ export function useCreditBalance() {
           extras_purchased,
           total_available: weekly_remaining + extras_bonus + extras_purchased,
           resets_at: d.resets_at ?? null,
+          unlimited_until: d.unlimited_until ?? null,
+          unlimited_active: !!d.unlimited_active,
         });
       }
     } finally {
       setLoading(false);
     }
   }, []);
+
 
   useEffect(() => {
     fetchBalance();
