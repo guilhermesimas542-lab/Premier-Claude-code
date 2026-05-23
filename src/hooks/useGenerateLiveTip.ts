@@ -42,6 +42,7 @@ export function useGenerateLiveTip() {
             description: `Você usou todos os créditos da semana. Renova em ${resetsLabel}.`,
           });
           setError("insufficient_credits");
+          refreshCreditBalance();
           return;
         }
         const isDailyCap = status === 429 || /daily_cost_limit_reached/i.test(invokeErr.message || "");
