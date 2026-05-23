@@ -419,12 +419,32 @@ Deno.serve(async (req) => {
     // ── Map products via products_catalog ──────────────────────────────────
     let tierToSet: string | null = null;
     const entitlementKeysToGrant: string[] = [];
+    const creditPacks: Array<{ id: string; credits: number; price: number }> = [];
+    const unlimitedGrants: Array<{ id: string; days: number; price: number }> = [];
     const effectiveProvider = isPayt ? "payt" : provider;
+
+    const collectCatalog = (items: any[] | null | undefined) => {
+      if (!items) return;
+      for (const item of items) {
+        if (item.product_type === "ai_credit_pack") {
+          const credits = Number(item.pricing?.credits_amount ?? 0);
+          const price = Number(item.pricing?.price_brl ?? amount ?? 0);
+          if (credits > 0) creditPacks.push({ id: item.id, credits, price });
+        } else if (item.product_type === "ai_credit_unlimited") {
+          const days = Number(item.pricing?.unlimited_days ?? 0);
+          const price = Number(item.pricing?.price_brl ?? amount ?? 0);
+          if (days > 0) unlimitedGrants.push({ id: item.id, days, price });
+        } else {
+          if (item.tier) tierToSet = item.tier;
+          if (item.entitlement_key) entitlementKeysToGrant.push(item.entitlement_key);
+        }
+      }
+    };
 
     if (productIds.length > 0) {
       const { data: catalogItems, error: catalogError } = await supabase
         .from("products_catalog")
-        .select("provider_product_id, tier, entitlement_key")
+        .select("id, provider_product_id, tier, entitlement_key, product_type, pricing")
         .eq("provider", effectiveProvider)
         .in("provider_product_id", productIds)
         .eq("active", true);
@@ -432,29 +452,20 @@ Deno.serve(async (req) => {
       console.log("[webhook] catalog lookup by provider_product_id:", { productIds, provider: effectiveProvider, catalogItems, catalogError });
 
       if (catalogItems && catalogItems.length > 0) {
-        for (const item of catalogItems) {
-          if (item.tier) tierToSet = item.tier;
-          if (item.entitlement_key) entitlementKeysToGrant.push(item.entitlement_key);
-        }
+        collectCatalog(catalogItems);
       } else if (!isPayt) {
-        // Fallback por lastlink_product_uuid — SOMENTE para Lastlink
         const { data: uuidItems, error: uuidError } = await supabase
           .from("products_catalog")
-          .select("provider_product_id, tier, entitlement_key")
+          .select("id, provider_product_id, tier, entitlement_key, product_type, pricing")
           .eq("provider", provider)
           .in("lastlink_product_uuid", productIds)
           .eq("active", true);
 
         console.log("[webhook] catalog fallback by lastlink_product_uuid:", { uuidItems, uuidError });
-
-        if (uuidItems && uuidItems.length > 0) {
-          for (const item of uuidItems) {
-            if (item.tier) tierToSet = item.tier;
-            if (item.entitlement_key) entitlementKeysToGrant.push(item.entitlement_key);
-          }
-        }
+        collectCatalog(uuidItems);
       }
     }
+
 
     console.log("[webhook] resolved:", { tierToSet, entitlementKeysToGrant, userId });
 
