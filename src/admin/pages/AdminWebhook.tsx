@@ -751,8 +751,14 @@ function ProductModal({
 
 
   const handleSave = async () => {
-    if (!externalId || !name) {
-      toast.error("Preencha todos os campos obrigatórios");
+    // Hardening B.3: trim no provider_product_id evita reintroduzir bug
+    // de whitespace via copy-paste no formulário admin.
+    const trimmedExternalId = externalId?.trim() ?? "";
+    if (trimmedExternalId !== externalId) {
+      setExternalId(trimmedExternalId);
+    }
+    if (!trimmedExternalId || !name) {
+      toast.error("Preencha todos os campos obrigatórios (code do produto não pode ser vazio nem conter apenas espaços)");
       return;
     }
     if (type === "bundle" && bundleAddons.length === 0) {
@@ -763,7 +769,10 @@ function ProductModal({
       toast.error("Selecione o plano incluído no bundle");
       return;
     }
+    // Usa versão trimada em todos os inserts/updates abaixo
+    const externalIdToSave = trimmedExternalId;
     setSaving(true);
+
 
     try {
       if (type === "bundle") {
