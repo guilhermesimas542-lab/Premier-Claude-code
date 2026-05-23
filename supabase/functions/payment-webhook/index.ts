@@ -552,8 +552,59 @@ Deno.serve(async (req) => {
           });
         }
       }
+      // AI credit packs — grant_purchased_credits
+      for (const pack of creditPacks) {
+        if (!userId) break;
+        const { data: purchase, error: purchaseErr } = await supabase
+          .from("ai_credit_purchase")
+          .insert({
+            user_id: userId,
+            credits_granted: pack.credits,
+            amount_paid: pack.price,
+            payment_provider: effectiveProvider === "payt" ? "payt" : (effectiveProvider === "lastlink" ? "lastlink" : "manual"),
+            payment_id: paymentId,
+            status: "paid",
+            paid_at: new Date().toISOString(),
+          })
+          .select("id")
+          .single();
+        if (purchaseErr) console.error("[webhook] ai_credit_purchase insert error:", purchaseErr);
+
+        const { data: grantRes, error: grantErr } = await supabase.rpc("grant_purchased_credits", {
+          p_user_id: userId,
+          p_amount: pack.credits,
+          p_purchase_id: purchase?.id ?? null,
+        });
+        console.log("[webhook] grant_purchased_credits:", { pack, grantRes, grantErr });
+      }
+
+      // AI unlimited grants — grant_unlimited_access
+      for (const u of unlimitedGrants) {
+        if (!userId) break;
+        const { data: purchase, error: purchaseErr } = await supabase
+          .from("ai_credit_purchase")
+          .insert({
+            user_id: userId,
+            credits_granted: 0,
+            amount_paid: u.price,
+            payment_provider: effectiveProvider === "payt" ? "payt" : (effectiveProvider === "lastlink" ? "lastlink" : "manual"),
+            payment_id: paymentId,
+            status: "paid",
+            paid_at: new Date().toISOString(),
+          })
+          .select("id")
+          .single();
+        if (purchaseErr) console.error("[webhook] ai_credit_purchase (unlimited) insert error:", purchaseErr);
+
+        const { data: grantRes, error: grantErr } = await supabase.rpc("grant_unlimited_access", {
+          p_user_id: userId,
+          p_days: u.days,
+          p_purchase_id: purchase?.id ?? null,
+        });
+        console.log("[webhook] grant_unlimited_access:", { u, grantRes, grantErr });
+      }
     } else if (isRefundOrCancel) {
-      // Refund recebido — tier mantido conforme política (acesso já concedido, não revertemos por reembolso).
+      // Refund recebido — tier/entitlements mantidos conforme política (acesso já concedido, não revertemos por reembolso).
       if (tierToSet && userId) {
         console.log(`[refund] User ${userId} refunded but tier kept (was mapped to ${tierToSet}). Acesso permanece.`);
       }
@@ -567,7 +618,31 @@ Deno.serve(async (req) => {
             .eq("status", "active");
         }
       }
+
+      // AI credits refund — política: NÃO reverter créditos/unlimited já concedidos.
+      if (userId && (creditPacks.length > 0 || unlimitedGrants.length > 0)) {
+        const { error: refundErr } = await supabase
+          .from("ai_credit_purchase")
+          .update({ status: "refunded" })
+          .eq("user_id", userId)
+          .eq("payment_id", paymentId);
+        if (refundErr) console.error("[webhook] ai_credit_purchase refund mark error:", refundErr);
+
+        await supabase.from("ai_credit_log").insert({
+          user_id: userId,
+          event_type: "refund_no_revert",
+          amount: 0,
+          reason: "refund recebido — créditos/unlimited mantidos por política",
+          metadata: {
+            payment_id: paymentId,
+            credit_packs: creditPacks,
+            unlimited_grants: unlimitedGrants,
+          },
+        });
+        console.log(`[refund] AI credits/unlimited NOT reverted for user=${userId} payment_id=${paymentId}`);
+      }
     }
+
 
     // ── Record in orders ───────────────────────────────────────────────────
     await supabase.from("orders").insert({
