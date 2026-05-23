@@ -477,6 +477,20 @@ Deno.serve(async (req: Request) => {
 
 
 
+  // ─── DÉBITO DE CRÉDITO (ANTES de cache lookup) ───
+  const { data: creditResult, error: creditErr } = await supabase.rpc(
+    "check_and_debit_credit",
+    { p_user_id: token.user_id, p_source: "chat_prematch" }
+  );
+  if (creditErr) {
+    console.error("[ai-chat-tip] credit RPC error", creditErr);
+    return jsonResp({ error: "credit_check_failed" }, 500);
+  }
+  if (!creditResult?.success) {
+    return jsonResp(creditResult ?? { error: "insufficient_credits" }, 402);
+  }
+
+  // ─── CACHE LOOKUP ───
   const cacheKey = `chat_prematch:${fixtureId}`;
   const { data: cached } = await supabase
     .from("ai_tip_cache")
@@ -488,22 +502,7 @@ Deno.serve(async (req: Request) => {
     .limit(1)
     .maybeSingle();
 
-  const isCacheHit = !!cached;
-
-  const { data: creditResult, error: creditErr } = await supabase.rpc(
-    "check_and_debit_credit",
-    { p_user_id: token.user_id, p_is_cache_hit: isCacheHit }
-  );
-  if (creditErr) return jsonResp({ error: "credit_check_failed" }, 500);
-  if (!creditResult?.allowed) {
-    return jsonResp(
-      { error: "insufficient_credits", reason: creditResult?.reason },
-      402
-    );
-  }
-
-  if (isCacheHit && cached) {
-    // Incrementa hit_count async (não bloqueia retorno)
+  if (cached) {
     supabase
       .rpc("increment_tip_hit", { p_tip_id: cached.id })
       .then(({ error }: { error: any }) => {
@@ -512,7 +511,7 @@ Deno.serve(async (req: Request) => {
     return jsonResp({
       cached: true,
       tip_cache_id: cached.id,
-      credit_source: creditResult.source,
+      credit_source: creditResult.debit_type,
       content: cached.content,
       source_data: cached.source_data,
       generated_at: cached.generated_at,
