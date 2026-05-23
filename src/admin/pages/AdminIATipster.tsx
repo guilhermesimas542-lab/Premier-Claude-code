@@ -1276,6 +1276,14 @@ function CacheReusoTab() {
   const tokensSaved = totalHits * avgTokensPerTip;
   const cacheHitRate =
     totalHits + totalTips > 0 ? (totalHits / (totalHits + totalTips)) * 100 : 0;
+
+  // B.4: hit rate separado chat_prematch vs live_tip (exclui aux_*)
+  const prematchTips = tips.filter((t) => t.match_key?.startsWith("chat_prematch:"));
+  const liveTips = tips.filter((t) => t.match_key?.startsWith("live_tip:"));
+  const prematchHits = prematchTips.filter((t) => (t.hit_count ?? 0) > 0).length;
+  const liveHits = liveTips.filter((t) => (t.hit_count ?? 0) > 0).length;
+  const prematchHitRate = prematchTips.length > 0 ? (prematchHits / prematchTips.length) * 100 : 0;
+  const liveHitRate = liveTips.length > 0 ? (liveHits / liveTips.length) * 100 : 0;
   const avgCostPerTip =
     totalTips > 0
       ? tips.reduce((acc, t) => acc + calcCost(t.tokens_input ?? 0, t.tokens_output ?? 0), 0) /
