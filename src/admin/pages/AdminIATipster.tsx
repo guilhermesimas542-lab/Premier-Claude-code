@@ -1342,19 +1342,40 @@ function CacheReusoTab() {
         />
       </div>
 
-      <div className="rounded-lg border p-4">
-        <div className="text-xs text-muted-foreground mb-2">Taxa de cache hit</div>
-        <div className="flex items-center gap-3">
-          <div className="flex-1 h-3 bg-muted rounded-full overflow-hidden">
-            <div
-              className="h-full bg-primary transition-all"
-              style={{ width: `${Math.min(100, cacheHitRate)}%` }}
-            />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className="rounded-lg border p-4">
+          <div className="text-xs text-muted-foreground mb-2">Hit rate Pré-jogo</div>
+          <div className="flex items-center gap-3">
+            <div className="flex-1 h-3 bg-muted rounded-full overflow-hidden">
+              <div className="h-full bg-primary transition-all" style={{ width: `${Math.min(100, prematchHitRate)}%` }} />
+            </div>
+            <span className="text-sm font-semibold">{prematchHitRate.toFixed(1)}%</span>
           </div>
-          <span className="text-sm font-semibold">{cacheHitRate.toFixed(1)}%</span>
+          <div className="text-[10px] text-muted-foreground mt-2">
+            {prematchHits} tips reusadas de {prematchTips.length} pré-jogo no período
+          </div>
         </div>
-        <div className="text-[10px] text-muted-foreground mt-2">
-          {totalHits} hits de cache em {totalTips + totalHits} pedidos totais
+        <div className="rounded-lg border p-4">
+          <div className="text-xs text-muted-foreground mb-2">Hit rate Ao Vivo</div>
+          <div className="flex items-center gap-3">
+            <div className="flex-1 h-3 bg-muted rounded-full overflow-hidden">
+              <div className="h-full bg-red-500 transition-all" style={{ width: `${Math.min(100, liveHitRate)}%` }} />
+            </div>
+            <span className="text-sm font-semibold">{liveHitRate.toFixed(1)}%</span>
+          </div>
+          <div className="text-[10px] text-muted-foreground mt-2">
+            {liveHits} tips reusadas de {liveTips.length} ao vivo no período
+          </div>
+        </div>
+      </div>
+
+      <div className="rounded-lg border p-4">
+        <div className="text-xs text-muted-foreground mb-2">Taxa consolidada (contexto)</div>
+        <div className="flex items-center gap-3">
+          <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+            <div className="h-full bg-muted-foreground/40" style={{ width: `${Math.min(100, cacheHitRate)}%` }} />
+          </div>
+          <span className="text-xs">{cacheHitRate.toFixed(1)}%</span>
         </div>
       </div>
 
