@@ -98,10 +98,15 @@ export default function IATipster() {
                   BETA
                 </span>
               </div>
-              <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-1 rounded">
-                {creditsLabel}
-              </span>
+              <CreditBalanceBadge />
             </div>
+
+            {showNoCreditsBanner && (
+              <div className="flex items-center gap-2 px-4 py-2 bg-destructive/10 border-t border-destructive/20 text-xs text-destructive">
+                <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                <span>Você está sem créditos. Próximo reset: {resetLabel}.</span>
+              </div>
+            )}
 
             <div className="flex border-b">
               <button
