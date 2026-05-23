@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { Sparkles, MessageSquare, Radio, Lock } from "lucide-react";
+import { useState, useMemo, useEffect } from "react";
+import { Sparkles, MessageSquare, Radio, Lock, Loader2 } from "lucide-react";
 import { LiveMatchesSection } from "@/components/aitipster/LiveMatchesSection";
 import { ChatSection } from "@/components/aitipster/ChatSection";
 import { EsportivaInlinePanel } from "@/components/aitipster/EsportivaInlinePanel";
@@ -22,7 +22,13 @@ function getEmailFromToken(): string | null {
 
 export default function IATipster() {
   const email = useMemo(() => getEmailFromToken(), []);
-  const isBeta = isAIBetaUser(email);
+  const [isBeta, setIsBeta] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    isAIBetaUser(email).then((v) => { if (alive) setIsBeta(v); });
+    return () => { alive = false; };
+  }, [email]);
 
   const [activeTab, setActiveTab] = useState<"chat" | "live">("live");
   const [openEsportiva, setOpenEsportiva] = useState<OpenEsportivaPayload | null>(null);

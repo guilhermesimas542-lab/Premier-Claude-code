@@ -46,7 +46,7 @@ Deno.serve(async (req: Request) => {
   }
 
   const tokenEmail = token.email?.toLowerCase()?.trim();
-  if (!tokenEmail || !AI_BETA_ALLOWLIST.includes(tokenEmail)) {
+  if (!tokenEmail || !(await isBetaEmailAllowed(tokenEmail))) {
     return jsonResp({ error: "beta_access_denied", message: "Beta privado" }, 403);
   }
 
