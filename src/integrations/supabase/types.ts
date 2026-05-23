@@ -140,6 +140,30 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_beta_allowlist: {
+        Row: {
+          added_at: string
+          added_by: string | null
+          email: string
+          id: string
+          notes: string | null
+        }
+        Insert: {
+          added_at?: string
+          added_by?: string | null
+          email: string
+          id?: string
+          notes?: string | null
+        }
+        Update: {
+          added_at?: string
+          added_by?: string | null
+          email?: string
+          id?: string
+          notes?: string | null
+        }
+        Relationships: []
+      }
       ai_bug_reports: {
         Row: {
           created_at: string

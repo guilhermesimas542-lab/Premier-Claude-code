@@ -1,13 +1,23 @@
-// Lista de emails autorizados para o beta privado do IA Tipster.
-// Quando o beta for liberado geral, removemos os gates (frontend e backend)
-// que importam essa lista.
-export const AI_BETA_ALLOWLIST: string[] = [
-  "teste@exemplo.com",
-  "hugofm350@gmail.com",
-  "gabriel.fedds@icloud.com",
-].map(e => e.toLowerCase().trim());
+// Beta allowlist — agora alimentado pela tabela public.ai_beta_allowlist.
+// Para adicionar/remover emails, edite a tabela no admin (sem deploy).
+import { supabase } from "@/integrations/supabase/client";
 
-export function isAIBetaUser(email?: string | null): boolean {
+const cache = new Map<string, boolean>();
+
+export async function isAIBetaUser(email?: string | null): Promise<boolean> {
   if (!email) return false;
-  return AI_BETA_ALLOWLIST.includes(email.toLowerCase().trim());
+  const e = email.toLowerCase().trim();
+  if (cache.has(e)) return cache.get(e)!;
+  try {
+    const { data } = await supabase
+      .from("ai_beta_allowlist" as any)
+      .select("id")
+      .eq("email", e)
+      .maybeSingle();
+    const allowed = !!data;
+    cache.set(e, allowed);
+    return allowed;
+  } catch {
+    return false;
+  }
 }

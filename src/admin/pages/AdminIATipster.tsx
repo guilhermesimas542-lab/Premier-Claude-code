@@ -41,6 +41,30 @@ import { SyncEsportivaPanel } from "@/admin/components/SyncEsportivaPanel";
 const INPUT_PRICE_PER_M = 3.0;
 const OUTPUT_PRICE_PER_M = 15.0;
 
+// ─── Helpers Claude model (B.3) ───
+function getClaudeModel(tip: Tip): string | null {
+  return tip.source_data?.claude_model_used ?? null;
+}
+
+function ModelBadge({ model }: { model: string | null }) {
+  if (!model) return <span className="text-[10px] text-muted-foreground">—</span>;
+  if (model.startsWith("claude-opus")) {
+    return (
+      <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-orange-500/20 text-orange-600">
+        Opus (fallback)
+      </span>
+    );
+  }
+  if (model.startsWith("claude-sonnet")) {
+    return (
+      <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-green-500/20 text-green-600">
+        Sonnet 4.5
+      </span>
+    );
+  }
+  return <span className="text-[10px] text-muted-foreground">{model}</span>;
+}
+
 // ═══════════════════════════════════════════════════════════════════
 // TYPES
 // ═══════════════════════════════════════════════════════════════════
@@ -319,7 +343,7 @@ function KpiCard({
   icon,
 }: {
   label: string;
-  value: string;
+  value: React.ReactNode;
   hint?: string;
   icon?: React.ReactNode;
 }) {
@@ -754,30 +778,43 @@ function TipsGeradasTab() {
         />
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <KpiCard
-          label="Tips no período"
-          value={String(filtered.length)}
-          icon={<TrendingUp className="w-4 h-4" />}
-        />
-        <KpiCard
-          label="Tokens consumidos"
-          value={filtered
-            .reduce((acc, t) => acc + (t.tokens_input ?? 0) + (t.tokens_output ?? 0), 0)
-            .toLocaleString("pt-BR")}
-        />
-        <KpiCard
-          label="USD gasto"
-          value={formatCostUSD(totalCostUSD)}
-          hint="Claude Sonnet 4.5"
-          icon={<DollarSign className="w-4 h-4" />}
-        />
-        <KpiCard
-          label="Reusos totais (hits)"
-          value={String(filtered.reduce((acc, t) => acc + (t.hit_count ?? 0), 0))}
-          icon={<Recycle className="w-4 h-4" />}
-        />
-      </div>
+      {(() => {
+        const opusCount = filtered.filter((t) => (getClaudeModel(t) ?? "").startsWith("claude-opus")).length;
+        const opusPct = filtered.length > 0 ? (opusCount / filtered.length) * 100 : 0;
+        const opusColor =
+          opusPct >= 10 ? "text-red-500" : opusPct >= 5 ? "text-orange-500" : "text-muted-foreground";
+        return (
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+            <KpiCard
+              label="Tips no período"
+              value={String(filtered.length)}
+              icon={<TrendingUp className="w-4 h-4" />}
+            />
+            <KpiCard
+              label="Tokens consumidos"
+              value={filtered
+                .reduce((acc, t) => acc + (t.tokens_input ?? 0) + (t.tokens_output ?? 0), 0)
+                .toLocaleString("pt-BR")}
+            />
+            <KpiCard
+              label="USD gasto"
+              value={formatCostUSD(totalCostUSD)}
+              hint="Claude Sonnet 4.5"
+              icon={<DollarSign className="w-4 h-4" />}
+            />
+            <KpiCard
+              label="Reusos totais (hits)"
+              value={String(filtered.reduce((acc, t) => acc + (t.hit_count ?? 0), 0))}
+              icon={<Recycle className="w-4 h-4" />}
+            />
+            <KpiCard
+              label="% Opus fallback"
+              value={<span className={opusPct >= 5 ? opusColor : ""}>{opusPct.toFixed(1)}%</span> as any}
+              hint={`${opusCount} de ${filtered.length}`}
+            />
+          </div>
+        );
+      })()}
 
       {loading ? (
         <div className="flex justify-center py-8">
@@ -836,6 +873,7 @@ function TipsGeradasTab() {
                   onSort={toggleSort}
                   align="right"
                 />
+                <th className="text-left px-3 py-2 text-xs uppercase">Modelo</th>
                 <th className="text-right px-3 py-2"></th>
               </tr>
             </thead>
@@ -866,6 +904,9 @@ function TipsGeradasTab() {
                       ) : (
                         <span className="text-muted-foreground">0</span>
                       )}
+                    </td>
+                    <td className="px-3 py-2">
+                      <ModelBadge model={getClaudeModel(t)} />
                     </td>
                     <td className="px-3 py-2 text-right">
                       <Button variant="ghost" size="sm" onClick={() => setDetailTip(t)}>
@@ -1235,6 +1276,14 @@ function CacheReusoTab() {
   const tokensSaved = totalHits * avgTokensPerTip;
   const cacheHitRate =
     totalHits + totalTips > 0 ? (totalHits / (totalHits + totalTips)) * 100 : 0;
+
+  // B.4: hit rate separado chat_prematch vs live_tip (exclui aux_*)
+  const prematchTips = tips.filter((t) => t.match_key?.startsWith("chat_prematch:"));
+  const liveTips = tips.filter((t) => t.match_key?.startsWith("live_tip:"));
+  const prematchHits = prematchTips.filter((t) => (t.hit_count ?? 0) > 0).length;
+  const liveHits = liveTips.filter((t) => (t.hit_count ?? 0) > 0).length;
+  const prematchHitRate = prematchTips.length > 0 ? (prematchHits / prematchTips.length) * 100 : 0;
+  const liveHitRate = liveTips.length > 0 ? (liveHits / liveTips.length) * 100 : 0;
   const avgCostPerTip =
     totalTips > 0
       ? tips.reduce((acc, t) => acc + calcCost(t.tokens_input ?? 0, t.tokens_output ?? 0), 0) /
@@ -1293,19 +1342,40 @@ function CacheReusoTab() {
         />
       </div>
 
-      <div className="rounded-lg border p-4">
-        <div className="text-xs text-muted-foreground mb-2">Taxa de cache hit</div>
-        <div className="flex items-center gap-3">
-          <div className="flex-1 h-3 bg-muted rounded-full overflow-hidden">
-            <div
-              className="h-full bg-primary transition-all"
-              style={{ width: `${Math.min(100, cacheHitRate)}%` }}
-            />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className="rounded-lg border p-4">
+          <div className="text-xs text-muted-foreground mb-2">Hit rate Pré-jogo</div>
+          <div className="flex items-center gap-3">
+            <div className="flex-1 h-3 bg-muted rounded-full overflow-hidden">
+              <div className="h-full bg-primary transition-all" style={{ width: `${Math.min(100, prematchHitRate)}%` }} />
+            </div>
+            <span className="text-sm font-semibold">{prematchHitRate.toFixed(1)}%</span>
           </div>
-          <span className="text-sm font-semibold">{cacheHitRate.toFixed(1)}%</span>
+          <div className="text-[10px] text-muted-foreground mt-2">
+            {prematchHits} tips reusadas de {prematchTips.length} pré-jogo no período
+          </div>
         </div>
-        <div className="text-[10px] text-muted-foreground mt-2">
-          {totalHits} hits de cache em {totalTips + totalHits} pedidos totais
+        <div className="rounded-lg border p-4">
+          <div className="text-xs text-muted-foreground mb-2">Hit rate Ao Vivo</div>
+          <div className="flex items-center gap-3">
+            <div className="flex-1 h-3 bg-muted rounded-full overflow-hidden">
+              <div className="h-full bg-red-500 transition-all" style={{ width: `${Math.min(100, liveHitRate)}%` }} />
+            </div>
+            <span className="text-sm font-semibold">{liveHitRate.toFixed(1)}%</span>
+          </div>
+          <div className="text-[10px] text-muted-foreground mt-2">
+            {liveHits} tips reusadas de {liveTips.length} ao vivo no período
+          </div>
+        </div>
+      </div>
+
+      <div className="rounded-lg border p-4">
+        <div className="text-xs text-muted-foreground mb-2">Taxa consolidada (contexto)</div>
+        <div className="flex items-center gap-3">
+          <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+            <div className="h-full bg-muted-foreground/40" style={{ width: `${Math.min(100, cacheHitRate)}%` }} />
+          </div>
+          <span className="text-xs">{cacheHitRate.toFixed(1)}%</span>
         </div>
       </div>
 
