@@ -615,7 +615,7 @@ Deno.serve(async (req: Request) => {
   );
 
   // ─── HARD COST CAP (B.1) ───
-  const DAILY_COST_CAP_USD = 20.0;
+  const DAILY_COST_CAP_USD = 100.0;
   const { data: dailyCost, error: costError } = await supabase.rpc("get_daily_ai_cost_usd");
   if (costError) {
     console.error("[cost-check] Failed to get daily cost:", costError);
@@ -627,12 +627,15 @@ Deno.serve(async (req: Request) => {
     );
   }
 
-  // ─── CACHE LOOKUP (bucket de 60s) ───
-  const bucket = Math.floor(Date.now() / 60000);
-  const cacheKey = `live_tip:${fixtureId}:${bucket}`;
+  // ─── API-FOOTBALL KEY (usada no lookup e no fetch) ───
+  const apiKey = Deno.env.get("API_FOOTBALL_KEY");
+  if (!apiKey) return jsonResp({ error: "api_football_key_missing" }, 500);
+
+  // ─── CACHE LOOKUP (event-based invalidation) ───
+  const cacheKey = `live_tip:fixture_${fixtureId}`;
   const { data: cached } = await supabase
     .from("ai_tip_cache")
-    .select("id, content, source_data, generated_at")
+    .select("id, content, source_data, generated_at, hit_count")
     .eq("match_key", cacheKey)
     .eq("match_type", "live_tip")
     .gt("expires_at", new Date().toISOString())
@@ -640,7 +643,17 @@ Deno.serve(async (req: Request) => {
     .limit(1)
     .maybeSingle();
 
-  const isCacheHit = !!cached;
+  let isCacheHit = false;
+  if (cached) {
+    const currentEvents = await getRelevantEventsCount(fixtureId, apiKey);
+    const cachedEvents = (cached.source_data as any)?.relevant_events_count ?? -1;
+    // Fail-open: se API-Football falhou (null), invalida cache (gera nova).
+    if (currentEvents !== null && currentEvents === cachedEvents) {
+      isCacheHit = true;
+    } else {
+      console.log("[live-cache] invalidated", { fixtureId, cachedEvents, currentEvents });
+    }
+  }
 
   // ─── DÉBITO DE CRÉDITO ───
   const { data: creditResult, error: creditErr } = await supabase.rpc(
