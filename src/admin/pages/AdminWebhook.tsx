@@ -976,7 +976,7 @@ function ProductModal({
 
           <div>
             <label className="text-xs text-gray-400 block mb-1">Tipo</label>
-            <Select value={type} onValueChange={(v) => setType(v as "tier" | "addon" | "bundle")}>
+            <Select value={type} onValueChange={(v) => setType(v as typeof type)}>
               <SelectTrigger className="bg-gray-800 border-white/10">
                 <SelectValue />
               </SelectTrigger>
@@ -984,9 +984,68 @@ function ProductModal({
                 <SelectItem value="tier">Plano</SelectItem>
                 <SelectItem value="addon">Add-on</SelectItem>
                 <SelectItem value="bundle">Bundle (Plano + Add-ons)</SelectItem>
+                <SelectItem value="ai_credit_pack">Pacote de Créditos IA</SelectItem>
+                <SelectItem value="ai_credit_unlimited">IA Ilimitado (por dias)</SelectItem>
               </SelectContent>
             </Select>
           </div>
+
+          {/* AI credit fields */}
+          {(type === "ai_credit_pack" || type === "ai_credit_unlimited") && (
+            <>
+              <div>
+                <label className="text-xs text-gray-400 block mb-1">Preço (R$)</label>
+                <Input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  placeholder="Ex: 29.90"
+                  value={priceBrl}
+                  onChange={(e) => setPriceBrl(e.target.value)}
+                  className="bg-gray-800 border-white/10"
+                />
+              </div>
+              {type === "ai_credit_pack" && (
+                <div>
+                  <label className="text-xs text-gray-400 block mb-1">Quantidade de créditos</label>
+                  <Input
+                    type="number"
+                    min="1"
+                    step="1"
+                    placeholder="Ex: 6"
+                    value={creditsAmount}
+                    onChange={(e) => setCreditsAmount(e.target.value)}
+                    className="bg-gray-800 border-white/10"
+                  />
+                </div>
+              )}
+              {type === "ai_credit_unlimited" && (
+                <div>
+                  <label className="text-xs text-gray-400 block mb-1">Duração (dias)</label>
+                  <Input
+                    type="number"
+                    min="1"
+                    step="1"
+                    placeholder="Ex: 30 ou 90"
+                    value={unlimitedDays}
+                    onChange={(e) => setUnlimitedDays(e.target.value)}
+                    className="bg-gray-800 border-white/10"
+                  />
+                </div>
+              )}
+              <div>
+                <label className="text-xs text-gray-400 block mb-1">URL de checkout (PayT)</label>
+                <Input
+                  placeholder="https://payt.com.br/..."
+                  value={checkoutUrl}
+                  onChange={(e) => setCheckoutUrl(e.target.value)}
+                  className="bg-gray-800 border-white/10"
+                />
+                <p className="text-[11px] text-gray-500 mt-1.5">URL que será exibida ao usuário no checkout embedado.</p>
+              </div>
+            </>
+          )}
+
 
           {/* Tier selector — for "tier" and "bundle" */}
           {(type === "tier" || type === "bundle") && (
