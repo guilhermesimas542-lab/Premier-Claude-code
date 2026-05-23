@@ -15,7 +15,7 @@ import { BottomNav } from "@/components/BottomNav";
 
 import ProfileModal from "@/components/ProfileModal";
 import { useUserAccess } from "@/hooks/useUserAccess";
-import { PaywallPopup } from "@/components/PaywallPopup";
+
 import { PlansModal } from "@/components/PlansModal";
 import AppHeader from "@/components/AppHeader";
 import FeedbackModal from "@/components/FeedbackModal";
@@ -38,18 +38,15 @@ const NEXT_TIER: Record<string, string> = {
 
 const PlanUpgradeCard = () => {
   const { mainTier, loading } = useUserAccess();
-  const [paywallOpen, setPaywallOpen] = useState(false);
   const [plansOpen, setPlansOpen] = useState(false);
   if (loading) return null;
-  // Diamante: já tem tudo, esconde botão
-  if (mainTier === 'diamante' || mainTier === 'ultra') return null;
 
   const isPremium = mainTier === 'premium';
-  const planLabel = isPremium ? 'Premium' : 'Gratuito';
+  const isDiamante = mainTier === 'diamante' || mainTier === 'ultra';
+  const planLabel = isDiamante ? 'Diamante' : isPremium ? 'Premium' : 'Gratuito';
 
   const handleClick = () => {
-    if (isPremium) setPlansOpen(true);
-    else setPaywallOpen(true);
+    setPlansOpen(true);
   };
 
   return (
@@ -72,30 +69,22 @@ const PlanUpgradeCard = () => {
             {planLabel}
           </span>
         </p>
-        <button
-          onClick={handleClick}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all hover:scale-[1.03]"
-          style={{
-            background: 'linear-gradient(135deg, #00FF7F, #00CC66)',
-            color: '#000000',
-            boxShadow: '0 4px 15px rgba(0,255,127,0.25)',
-          }}
-        >
-          <Rocket className="w-4 h-4" />
-          Upgrade
-        </button>
+        {!isDiamante && (
+          <button
+            onClick={handleClick}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all hover:scale-[1.03]"
+            style={{
+              background: 'linear-gradient(135deg, #00FF7F, #00CC66)',
+              color: '#000000',
+              boxShadow: '0 4px 15px rgba(0,255,127,0.25)',
+            }}
+          >
+            <Rocket className="w-4 h-4" />
+            Upgrade
+          </button>
+        )}
       </div>
-      {!isPremium && (
-        <PaywallPopup
-          open={paywallOpen}
-          onClose={() => setPaywallOpen(false)}
-          variant="premium"
-          feature="odds_safes"
-        />
-      )}
-      {isPremium && (
-        <PlansModal open={plansOpen} onClose={() => setPlansOpen(false)} />
-      )}
+      <PlansModal open={plansOpen} onClose={() => setPlansOpen(false)} />
     </section>
   );
 };
