@@ -36,6 +36,7 @@ export default function IATipster() {
   const [activeTab, setActiveTab] = useState<"chat" | "live">("live");
   const [openEsportiva, setOpenEsportiva] = useState<OpenEsportivaPayload | null>(null);
   const { balance } = useCreditBalance();
+  const { status: aiStatus, loading: aiStatusLoading } = useAiTipsterStatus();
   const showNoCreditsBanner = balance != null && !balance.unlimited_active && balance.total_available === 0;
   const resetLabel = balance?.resets_at
     ? new Date(balance.resets_at).toLocaleDateString("pt-BR", {
