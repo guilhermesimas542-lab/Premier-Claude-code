@@ -33,6 +33,7 @@ import {
   ChevronsUpDown,
 } from "lucide-react";
 import { SyncEsportivaPanel } from "@/admin/components/SyncEsportivaPanel";
+import { AiTipsterKillSwitchCard } from "@/admin/components/AiTipsterKillSwitchCard";
 
 // ═══════════════════════════════════════════════════════════════════
 // CONSTANTS
@@ -2037,6 +2038,8 @@ export default function AdminIATipster() {
       <p className="text-sm text-muted-foreground">
         Painel de gerenciamento das análises geradas pela IA Tipster.
       </p>
+
+      <AiTipsterKillSwitchCard />
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="flex-wrap h-auto">

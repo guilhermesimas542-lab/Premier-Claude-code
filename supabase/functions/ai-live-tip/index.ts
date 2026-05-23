@@ -576,6 +576,24 @@ function jsonResp(body: unknown, status = 200) {
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+
+  // ─── KILL SWITCH ───
+  try {
+    const sbKill = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+    );
+    const { data: status } = await sbKill.rpc("get_ai_tipster_status");
+    if (status && (status as any).enabled === false) {
+      return jsonResp({
+        error: "system_disabled",
+        message: (status as any).message || "Sistema temporariamente indisponível.",
+      }, 503);
+    }
+  } catch (e) {
+    console.error("[kill-switch] failed:", e);
+  }
+
   if (req.method !== "POST") return jsonResp({ error: "method_not_allowed" }, 405);
 
   // ─── AUTH ───

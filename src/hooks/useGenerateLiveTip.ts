@@ -2,6 +2,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { invokeWithAuth } from "@/lib/invokeWithAuth";
 import { refreshCreditBalance } from "@/hooks/useCreditBalance";
+import { refreshAiTipsterStatus } from "@/hooks/useAiTipsterStatus";
 
 export interface LiveTipResponse {
   cached: boolean;
@@ -28,6 +29,17 @@ export function useGenerateLiveTip() {
       );
       if (invokeErr) {
         const status = (invokeErr as any)?.context?.status ?? (invokeErr as any)?.status;
+        if (status === 503) {
+          let msg = "Sistema temporariamente indisponível.";
+          try {
+            const body = await (invokeErr as any)?.context?.json?.();
+            if (body?.message) msg = body.message;
+          } catch {}
+          toast.error("IA Tipster indisponível", { description: msg });
+          setError("system_disabled");
+          refreshAiTipsterStatus();
+          return;
+        }
         if (status === 402) {
           let resetsLabel = "segunda-feira";
           try {

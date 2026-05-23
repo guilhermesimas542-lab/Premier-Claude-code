@@ -619,6 +619,30 @@ export type Database = {
           },
         ]
       }
+      ai_tipster_settings: {
+        Row: {
+          disabled_message: string
+          id: number
+          is_enabled: boolean
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          disabled_message?: string
+          id?: number
+          is_enabled?: boolean
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          disabled_message?: string
+          id?: number
+          is_enabled?: boolean
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       ai_user_rejected_fixtures: {
         Row: {
           expires_at: string
@@ -2179,6 +2203,7 @@ export type Database = {
         Args: { p_period_days?: number }
         Returns: Json
       }
+      get_ai_tipster_status: { Args: never; Returns: Json }
       get_allowed_tiers: {
         Args: { user_tier: Database["public"]["Enums"]["main_tier"] }
         Returns: Database["public"]["Enums"]["main_tier"][]

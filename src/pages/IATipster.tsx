@@ -9,6 +9,8 @@ import { isAIBetaUser } from "@/lib/aiBetaAllowlist";
 import AppHeader from "@/components/AppHeader";
 import { BottomNav } from "@/components/BottomNav";
 import { CreditBalanceBadge } from "@/components/ia-tipster/CreditBalanceBadge";
+import { MaintenanceScreen } from "@/components/ia-tipster/MaintenanceScreen";
+import { useAiTipsterStatus } from "@/hooks/useAiTipsterStatus";
 
 function getEmailFromToken(): string | null {
   try {
@@ -34,6 +36,7 @@ export default function IATipster() {
   const [activeTab, setActiveTab] = useState<"chat" | "live">("live");
   const [openEsportiva, setOpenEsportiva] = useState<OpenEsportivaPayload | null>(null);
   const { balance } = useCreditBalance();
+  const { status: aiStatus, loading: aiStatusLoading } = useAiTipsterStatus();
   const showNoCreditsBanner = balance != null && !balance.unlimited_active && balance.total_available === 0;
   const resetLabel = balance?.resets_at
     ? new Date(balance.resets_at).toLocaleDateString("pt-BR", {
@@ -66,6 +69,18 @@ export default function IATipster() {
             Estamos liberando o IA Tipster em fases. Você ainda não tem acesso.
             Em breve disponibilizaremos para todos os assinantes.
           </p>
+        </div>
+        <BottomNav />
+      </div>
+    );
+  }
+
+  if (!aiStatusLoading && aiStatus && !aiStatus.enabled) {
+    return (
+      <div className="h-[100dvh] flex flex-col overflow-hidden bg-background">
+        <AppHeader />
+        <div className="flex-1 flex flex-col pb-[64px] overflow-hidden">
+          <MaintenanceScreen message={aiStatus.message} />
         </div>
         <BottomNav />
       </div>

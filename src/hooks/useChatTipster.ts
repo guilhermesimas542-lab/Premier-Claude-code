@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { invokeWithAuth } from "@/lib/invokeWithAuth";
 import { refreshCreditBalance } from "@/hooks/useCreditBalance";
+import { refreshAiTipsterStatus } from "@/hooks/useAiTipsterStatus";
 
 const SESSION_KEY = "ia_tipster_chat_messages_v1";
 
@@ -264,6 +265,16 @@ export function useChatTipster() {
       if (error) {
         const status = (error as any)?.context?.status ?? (error as any)?.status;
         const isDailyCap = status === 429 || /daily_cost_limit_reached/i.test(error.message || "");
+        if (status === 503) {
+          let msg = "Sistema temporariamente indisponível.";
+          try {
+            const body = await (error as any)?.context?.json?.();
+            if (body?.message) msg = body.message;
+          } catch {}
+          toast.error("IA Tipster indisponível", { description: msg });
+          refreshAiTipsterStatus();
+          return;
+        }
         if (status === 402) {
           let resetsLabel = "segunda-feira";
           try {
