@@ -500,7 +500,14 @@ Deno.serve(async (req) => {
     }
 
 
-    console.log("[webhook] resolved:", { tierToSet, entitlementKeysToGrant, userId });
+    const entitlementKeysToGrant: string[] = Array.from(entitlementKeysSet);
+
+    console.log("[webhook] resolved multi-code:", {
+      tier: tierToSet,
+      entitlements: entitlementKeysToGrant,
+      n_matches: (entitlementKeysToGrant.length + (tierToSet ? 1 : 0) + creditPacks.length + unlimitedGrants.length),
+      productIds,
+    });
 
     // Fallback: legacy product_key
     if (!tierToSet && entitlementKeysToGrant.length === 0 && payload.product_key) {
@@ -534,12 +541,6 @@ Deno.serve(async (req) => {
     }
 
 
-    const TIER_RANK: Record<string, number> = {
-      free: 0,
-      basic: 1,
-      pro: 2,
-      ultra: 3,
-    };
 
     if (isPurchaseApproved) {
       if (tierToSet && userId) {
