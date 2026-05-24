@@ -1,30 +1,21 @@
 import { useEffect } from "react";
-import { CheckCircle2, MessageCircle, Clock, ShieldCheck } from "lucide-react";
+import { CheckCircle2, Send, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useLinks } from "@/contexts/LinksContext";
-import { SUPPORT_WHATSAPP_URL_FALLBACK } from "@/lib/userMock";
 import logoImg from "@/assets/premier-logo-custom.png";
 
-const WA_MESSAGE = encodeURIComponent(
-  "Olá! Acabei de finalizar minha compra no app Premier FC e quero liberar meu acesso agora. 🚀"
-);
+const TELEGRAM_URL = "https://t.me/savelfcbot?start=w54787724";
 
 export default function Obrigado() {
-  const { links } = useLinks();
-
   useEffect(() => {
     document.title = "Compra confirmada | Premier FC";
   }, []);
 
-  const waUrl = "https://api.whatsapp.com/send?phone=5518976007112&text=Quero%20meu%20acesso%20ao%20Premier!";
-
-  const handleWhatsApp = () => {
-    window.open(waUrl, "_blank", "noopener,noreferrer");
+  const handleTelegram = () => {
+    window.open(TELEGRAM_URL, "_blank", "noopener,noreferrer");
   };
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col items-center px-5 py-8 sm:py-12 relative overflow-hidden">
-      {/* subtle glow */}
       <div className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-[520px] h-[520px] rounded-full bg-primary/10 blur-3xl" />
 
       <header className="relative z-10 flex flex-col items-center gap-3 mt-2 sm:mt-6">
@@ -40,34 +31,44 @@ export default function Obrigado() {
         </div>
 
         <h1 className="font-['Barlow_Condensed'] font-extrabold text-3xl sm:text-4xl uppercase leading-tight">
-          Parabéns! Sua compra foi aprovada ✅
+          Compra aprovada! Falta 1 passo ⚡
         </h1>
 
-        <section className="w-full mt-7 rounded-2xl border border-border bg-card/70 backdrop-blur p-5 sm:p-6 text-left">
+        <p className="text-sm sm:text-base text-muted-foreground mt-4 max-w-sm">
+          Seu acesso <span className="text-foreground font-semibold">não é liberado automaticamente</span>. Para ativar agora, você precisa falar com nosso bot oficial no Telegram.
+        </p>
+
+        <section className="w-full mt-7 rounded-2xl border p-5 sm:p-6 text-left" style={{ borderColor: "rgba(0,136,204,0.35)", background: "rgba(0,136,204,0.08)" }}>
           <div className="flex items-start gap-3">
-            <MessageCircle className="w-5 h-5 text-primary mt-0.5 shrink-0" />
+            <Send className="w-5 h-5 mt-0.5 shrink-0" style={{ color: "#0088cc" }} />
             <div>
-              <h2 className="font-semibold text-base sm:text-lg">
-                Clique no botão abaixo para receber seu acesso no WhatsApp
+              <h2 className="font-semibold text-base sm:text-lg text-foreground">
+                Clique no botão abaixo e resgate seu acesso no Telegram
               </h2>
               <p className="text-sm text-muted-foreground mt-2">
-                Seu acesso à I.A não aparece nesta página. Para ativá-lo, clique no botão verde abaixo: você será redirecionado para o WhatsApp, onde receberá seu link de acesso de forma imediata e automática.
+                Você será redirecionado para o nosso bot oficial no Telegram, onde seu acesso à I.A será liberado de forma imediata e automática. Sem esse passo, sua conta não fica ativa.
               </p>
             </div>
           </div>
         </section>
 
         <Button
-          onClick={handleWhatsApp}
-          className="w-full mt-6 h-14 text-base font-bold uppercase tracking-wide bg-primary text-black hover:bg-primary/90 hover:text-black shadow-[0_0_25px_rgba(0,255,127,0.35)]"
+          onClick={handleTelegram}
+          className="w-full mt-6 h-14 text-base font-bold uppercase tracking-wide text-white hover:text-white"
+          style={{
+            background: "#0088cc",
+            boxShadow: "0 0 25px rgba(0,136,204,0.45)",
+          }}
         >
-          <MessageCircle className="w-5 h-5 mr-1" />
-          Ativar minha conta no WhatsApp
+          <svg viewBox="0 0 24 24" className="w-5 h-5 mr-1" fill="currentColor" aria-hidden="true">
+            <path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z" />
+          </svg>
+          Resgatar acesso no Telegram
         </Button>
 
         <div className="flex items-center gap-2 text-xs text-muted-foreground mt-4">
           <ShieldCheck className="w-4 h-4 text-primary/80" />
-          Atendimento oficial Premier FC • 100% seguro
+          Bot oficial Premier FC • Liberação imediata
         </div>
       </main>
 
