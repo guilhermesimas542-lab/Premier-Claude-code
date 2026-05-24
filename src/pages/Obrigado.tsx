@@ -3,7 +3,7 @@ import { CheckCircle2, Send, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import logoImg from "@/assets/premier-logo-custom.png";
 
-const TELEGRAM_URL = "https://t.me/savelfcbot?start=w54787724";
+const TELEGRAM_URL = "https://t.me/SavelFC_PremierBot?start=6a134ea22fe5dd3f3001a122";
 
 export default function Obrigado() {
   useEffect(() => {
