@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Navigate } from "react-router-dom";
 import { Sparkles, MessageSquare, Radio, AlertTriangle } from "lucide-react";
 import { LiveMatchesSection } from "@/components/aitipster/LiveMatchesSection";
 import { ChatSection } from "@/components/aitipster/ChatSection";
@@ -10,8 +11,14 @@ import { BottomNav } from "@/components/BottomNav";
 import { CreditBalanceBadge } from "@/components/ia-tipster/CreditBalanceBadge";
 import { MaintenanceScreen } from "@/components/ia-tipster/MaintenanceScreen";
 import { useAiTipsterStatus } from "@/hooks/useAiTipsterStatus";
+import { isPreviewEnv } from "@/lib/previewEnv";
 
 export default function IATipster() {
+  // Gate de produção: IA Tipster habilitada APENAS em preview/local até liberação oficial.
+  if (!isPreviewEnv()) {
+    return <Navigate to="/home" replace />;
+  }
+
   const [activeTab, setActiveTab] = useState<"chat" | "live">("live");
   const [openEsportiva, setOpenEsportiva] = useState<OpenEsportivaPayload | null>(null);
   const { balance } = useCreditBalance();
