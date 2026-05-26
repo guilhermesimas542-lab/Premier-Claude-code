@@ -21,6 +21,13 @@ import { toast } from "sonner";
 import type { AdminUser } from "../types";
 import { ClientProfileModal } from "../components/ClientProfileModal";
 import { useBettingHouseAdmin } from "../context/BettingHouseContext";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+
+interface CreditInfo {
+  display: string;
+  color: "green" | "gray" | "purple";
+  tooltip: string[];
+}
 
 interface BettingHouseOption { id: string; name: string; }
 
