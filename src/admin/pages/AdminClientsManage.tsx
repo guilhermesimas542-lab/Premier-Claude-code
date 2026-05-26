@@ -502,7 +502,7 @@ export default function AdminClientsManage() {
     load({ search: "", liberacaoFrom: "", liberacaoTo: "", firstAccessFrom: "", firstAccessTo: "", lastSeenFrom: "", lastSeenTo: "", selectedTier: null, selectedAddons: [], filterNotAccessed: false });
   };
 
-  const sortedUsers = sortUsers(users, sortKey, sortDir);
+  const sortedUsers = sortUsers(users, sortKey, sortDir, creditMap);
 
   // Bulk selection helpers
   const allVisibleSelected = sortedUsers.length > 0 && sortedUsers.every((u) => selectedIds.has(u.id));
