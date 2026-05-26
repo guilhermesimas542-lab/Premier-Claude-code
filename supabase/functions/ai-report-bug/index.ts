@@ -64,7 +64,7 @@ Deno.serve(async (req: Request) => {
 
   const { error } = await supabase.from("user_feedback").insert({
     user_id: token.user_id,
-    email: tokenEmail,
+    email: token.email?.toLowerCase()?.trim() ?? "",
     category: "bug",
     message,
     status: "novo",
