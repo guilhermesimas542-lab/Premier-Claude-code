@@ -649,20 +649,7 @@ Deno.serve(async (req: Request) => {
   const apiKey = Deno.env.get("API_FOOTBALL_KEY");
   if (!apiKey) return jsonResp({ error: "api_football_key_missing" }, 500);
 
-  // ─── DÉBITO DE CRÉDITO (ANTES de cache lookup) ───
-  const { data: creditResult, error: creditErr } = await supabase.rpc(
-    "check_and_debit_credit",
-    { p_user_id: token.user_id, p_source: "live_tip" }
-  );
-  if (creditErr) {
-    console.error("[ai-live-tip] credit RPC error", creditErr);
-    return jsonResp({ error: "credit_check_failed" }, 500);
-  }
-  if (!creditResult?.success) {
-    return jsonResp(creditResult ?? { error: "insufficient_credits" }, 402);
-  }
-
-  // ─── CACHE LOOKUP (event-based invalidation) ───
+  // ─── CACHE LOOKUP (ANTES do débito — cache hit é grátis) ───
   const cacheKey = `live_tip:fixture_${fixtureId}`;
   const { data: cached } = await supabase
     .from("ai_tip_cache")
@@ -685,8 +672,15 @@ Deno.serve(async (req: Request) => {
     }
   }
 
-  // ─── SE CACHE HIT, RETORNA ───
+  // ─── SE CACHE HIT, RETORNA (sem débito) ───
   if (isCacheHit && cached) {
+    await supabase.from("ai_credit_log").insert({
+      user_id: token.user_id,
+      event_type: "cache_hit_free",
+      amount: 0,
+      reason: "live_tip",
+      metadata: { cache_id: cached.id, match_key: cacheKey },
+    });
     supabase
       .rpc("increment_tip_hit", { p_tip_id: cached.id })
       .then(({ error }: { error: any }) => {
@@ -695,12 +689,41 @@ Deno.serve(async (req: Request) => {
     return jsonResp({
       cached: true,
       tip_cache_id: cached.id,
-      credit_source: creditResult.debit_type,
+      credit_source: "cache_hit_free",
+      credit_consumed: false,
       content: cached.content,
       source_data: cached.source_data,
       generated_at: cached.generated_at,
     });
   }
+
+  // ─── CACHE MISS — agora sim debita ───
+  const { data: creditResult, error: creditErr } = await supabase.rpc(
+    "check_and_debit_credit",
+    { p_user_id: token.user_id, p_source: "live_tip" }
+  );
+  if (creditErr) {
+    console.error("[ai-live-tip] credit RPC error", creditErr);
+    return jsonResp({ error: "credit_check_failed" }, 500);
+  }
+  if (!creditResult?.success) {
+    return jsonResp(creditResult ?? { error: "insufficient_credits" }, 402);
+  }
+  const debitType: string = creditResult.debit_type;
+
+  async function refundIfFailed(reasonTag: string) {
+    try {
+      await supabase.rpc("refund_credit", {
+        p_user_id: token.user_id,
+        p_source: "live_tip",
+        p_debit_type: debitType,
+      });
+      console.warn(`[ai-live-tip] credit refunded (${reasonTag})`);
+    } catch (e) {
+      console.error("[ai-live-tip] refund_credit failed", e);
+    }
+  }
+
 
   // ─── FETCH API-FOOTBALL ───
   const headers = { "x-apisports-key": apiKey };
