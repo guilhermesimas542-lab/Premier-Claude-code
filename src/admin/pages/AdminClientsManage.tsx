@@ -167,6 +167,8 @@ export default function AdminClientsManage() {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
   const [search, setSearch] = useState("");
+  const [creditMap, setCreditMap] = useState<Record<string, CreditInfo>>({});
+
 
   const [liberacaoFrom, setLiberacaoFrom] = useState("");
   const [liberacaoTo, setLiberacaoTo] = useState("");
