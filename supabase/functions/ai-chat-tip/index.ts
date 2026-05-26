@@ -559,197 +559,218 @@ Deno.serve(async (req: Request) => {
     }
   }
 
+  try {
+    const apiKey = Deno.env.get("API_FOOTBALL_KEY");
+    if (!apiKey) {
+      await refundIfFailed("api_football_key_missing");
+      return jsonResp({ error: "api_football_key_missing" }, 500);
+    }
 
-  const apiKey = Deno.env.get("API_FOOTBALL_KEY");
-  if (!apiKey) return jsonResp({ error: "api_football_key_missing" }, 500);
+    const headers = { "x-apisports-key": apiKey };
 
-  const headers = { "x-apisports-key": apiKey };
+    const fixResp = await fetch(`https://v3.football.api-sports.io/fixtures?id=${fixtureId}`, { headers });
+    if (!fixResp.ok) {
+      await refundIfFailed("fixture_fetch_failed");
+      return jsonResp({ error: "fixture_fetch_failed" }, 502);
+    }
+    const fixtureData = await fixResp.json();
+    const fix = fixtureData.response?.[0];
+    if (!fix) {
+      await refundIfFailed("fixture_not_found");
+      return jsonResp({ error: "fixture_not_found" }, 404);
+    }
+    if (!TOP_LEAGUES.includes(fix.league.id)) {
+      await refundIfFailed("league_not_supported");
+      return jsonResp({ error: "league_not_supported" }, 400);
+    }
 
-  const fixResp = await fetch(`https://v3.football.api-sports.io/fixtures?id=${fixtureId}`, { headers });
-  if (!fixResp.ok) return jsonResp({ error: "fixture_fetch_failed" }, 502);
-  const fixtureData = await fixResp.json();
-  const fix = fixtureData.response?.[0];
-  if (!fix) return jsonResp({ error: "fixture_not_found" }, 404);
-  if (!TOP_LEAGUES.includes(fix.league.id)) {
-    return jsonResp({ error: "league_not_supported" }, 400);
-  }
+    const kickoff = new Date(fix.fixture.date);
+    if (kickoff.getTime() < Date.now()) {
+      await refundIfFailed("fixture_already_started_or_past");
+      return jsonResp({
+        error: "fixture_already_started_or_past",
+        message: "Esse jogo ja comecou ou ja aconteceu. Use a aba Ao Vivo se ainda esta em andamento.",
+      }, 400);
+    }
 
-  const kickoff = new Date(fix.fixture.date);
-  if (kickoff.getTime() < Date.now()) {
-    return jsonResp({
-      error: "fixture_already_started_or_past",
-      message: "Esse jogo ja comecou ou ja aconteceu. Use a aba Ao Vivo se ainda esta em andamento.",
-    }, 400);
-  }
+    const homeId = fix.teams.home.id;
+    const awayId = fix.teams.away.id;
+    const leagueId = fix.league.id;
 
-  const homeId = fix.teams.home.id;
-  const awayId = fix.teams.away.id;
-  const leagueId = fix.league.id;
+    const [homeFormResp, awayFormResp, h2hResp] = await Promise.all([
+      fetch(`https://v3.football.api-sports.io/fixtures?team=${homeId}&last=10`, { headers }),
+      fetch(`https://v3.football.api-sports.io/fixtures?team=${awayId}&last=10`, { headers }),
+      fetch(`https://v3.football.api-sports.io/fixtures/headtohead?h2h=${homeId}-${awayId}&last=5`, { headers }),
+    ]);
 
-  const [homeFormResp, awayFormResp, h2hResp] = await Promise.all([
-    fetch(`https://v3.football.api-sports.io/fixtures?team=${homeId}&last=10`, { headers }),
-    fetch(`https://v3.football.api-sports.io/fixtures?team=${awayId}&last=10`, { headers }),
-    fetch(`https://v3.football.api-sports.io/fixtures/headtohead?h2h=${homeId}-${awayId}&last=5`, { headers }),
-  ]);
+    const homeForm = homeFormResp.ok ? (await homeFormResp.json()).response || [] : [];
+    const awayForm = awayFormResp.ok ? (await awayFormResp.json()).response || [] : [];
+    const h2h = h2hResp.ok ? (await h2hResp.json()).response || [] : [];
 
-  const homeForm = homeFormResp.ok ? (await homeFormResp.json()).response || [] : [];
-  const awayForm = awayFormResp.ok ? (await awayFormResp.json()).response || [] : [];
-  const h2h = h2hResp.ok ? (await h2hResp.json()).response || [] : [];
+    const [standings, odds] = await Promise.all([
+      fetchStandings(supabase, leagueId, apiKey),
+      fetchOdds(supabase, fixtureId, apiKey),
+    ]);
+    const homePercentages = calcPercentages(homeForm);
+    const awayPercentages = calcPercentages(awayForm);
+    const homeStreak = calcStreak(homeForm, homeId);
+    const awayStreak = calcStreak(awayForm, awayId);
+    const homeTableRow = standings?.find((s: any) => s.team_id === homeId) ?? null;
+    const awayTableRow = standings?.find((s: any) => s.team_id === awayId) ?? null;
 
-  const [standings, odds] = await Promise.all([
-    fetchStandings(supabase, leagueId, apiKey),
-    fetchOdds(supabase, fixtureId, apiKey),
-  ]);
-  const homePercentages = calcPercentages(homeForm);
-  const awayPercentages = calcPercentages(awayForm);
-  const homeStreak = calcStreak(homeForm, homeId);
-  const awayStreak = calcStreak(awayForm, awayId);
-  const homeTableRow = standings?.find((s: any) => s.team_id === homeId) ?? null;
-  const awayTableRow = standings?.find((s: any) => s.team_id === awayId) ?? null;
+    const trimForm = (arr: any[]) => arr.slice(0, 10).map((m: any) => ({
+      date: m.fixture.date,
+      home: m.teams.home.name,
+      away: m.teams.away.name,
+      score: `${m.goals.home}-${m.goals.away}`,
+      league: m.league.name,
+    }));
 
-  const trimForm = (arr: any[]) => arr.slice(0, 10).map((m: any) => ({
-    date: m.fixture.date,
-    home: m.teams.home.name,
-    away: m.teams.away.name,
-    score: `${m.goals.home}-${m.goals.away}`,
-    league: m.league.name,
-  }));
+    const altenar = await lookupAltenarMapping(supabase, fix.fixture.id);
 
-  const altenar = await lookupAltenarMapping(supabase, fix.fixture.id);
+    const sourceData = {
+      fixture: {
+        id: fix.fixture.id,
+        league: { id: fix.league.id, name: fix.league.name, country: fix.league.country },
+        home: { id: homeId, name: fix.teams.home.name },
+        away: { id: awayId, name: fix.teams.away.name },
+        kickoff_at: fix.fixture.date,
+        venue: fix.fixture.venue?.name,
+      },
+      home_last_10: trimForm(homeForm),
+      away_last_10: trimForm(awayForm),
+      h2h_last_5: trimForm(h2h),
+      standings_home: homeTableRow,
+      standings_away: awayTableRow,
+      percentages_home: homePercentages,
+      percentages_away: awayPercentages,
+      streak_home: homeStreak,
+      streak_away: awayStreak,
+      odds,
+      altenar_event_url: altenar?.altenar_event_url ?? null,
+    };
 
-  const sourceData = {
-    fixture: {
-      id: fix.fixture.id,
-      league: { id: fix.league.id, name: fix.league.name, country: fix.league.country },
-      home: { id: homeId, name: fix.teams.home.name },
-      away: { id: awayId, name: fix.teams.away.name },
-      kickoff_at: fix.fixture.date,
-      venue: fix.fixture.venue?.name,
-    },
-    home_last_10: trimForm(homeForm),
-    away_last_10: trimForm(awayForm),
-    h2h_last_5: trimForm(h2h),
-    standings_home: homeTableRow,
-    standings_away: awayTableRow,
-    percentages_home: homePercentages,
-    percentages_away: awayPercentages,
-    streak_home: homeStreak,
-    streak_away: awayStreak,
-    odds,
-    altenar_event_url: altenar?.altenar_event_url ?? null,
-  };
+    const claudeKey = Deno.env.get("ANTHROPIC_API_KEY");
+    if (!claudeKey) {
+      await refundIfFailed("anthropic_key_missing");
+      return jsonResp({ error: "anthropic_key_missing" }, 500);
+    }
 
-  const claudeKey = Deno.env.get("ANTHROPIC_API_KEY");
-  if (!claudeKey) return jsonResp({ error: "anthropic_key_missing" }, 500);
-
-  const userMessage = `Contexto do jogo (use APENAS estes dados; ignore campos null):
+    const userMessage = `Contexto do jogo (use APENAS estes dados; ignore campos null):
 
 ${JSON.stringify(sourceData, null, 2)}
 
 Gere a análise no formato definido no system prompt.`;
 
-  const baseBody = {
-    max_tokens: 1500,
-    system: [
-      { type: "text", text: SYSTEM_PROMPT_CHAT, cache_control: { type: "ephemeral" } },
-    ],
-    messages: [{ role: "user", content: userMessage }],
-  };
-  async function callClaude(model: string): Promise<Response> {
-    return await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": claudeKey,
-        "anthropic-version": "2023-06-01",
-      },
-      body: JSON.stringify({ ...baseBody, model }),
-    });
-  }
-
-  let claudeResp: Response | null = null;
-  let lastErrText = "";
-  let modelUsed = PRIMARY_MODEL;
-
-  for (let attempt = 0; attempt < 3; attempt++) {
-    try {
-      claudeResp = await callClaude(PRIMARY_MODEL);
-      if (claudeResp.ok) break;
-      lastErrText = await claudeResp.text();
-      console.error(`[ai-chat-tip] claude primary ${claudeResp.status} (attempt ${attempt + 1})`, lastErrText);
-      if (!RETRY_STATUSES.has(claudeResp.status)) break;
-    } catch (err) {
-      console.error(`[ai-chat-tip] claude primary fetch error (attempt ${attempt + 1})`, err);
-      claudeResp = null;
-      lastErrText = String(err);
+    const baseBody = {
+      max_tokens: 1500,
+      system: [
+        { type: "text", text: SYSTEM_PROMPT_CHAT, cache_control: { type: "ephemeral" } },
+      ],
+      messages: [{ role: "user", content: userMessage }],
+    };
+    async function callClaude(model: string): Promise<Response> {
+      return await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": claudeKey,
+          "anthropic-version": "2023-06-01",
+        },
+        body: JSON.stringify({ ...baseBody, model }),
+      });
     }
-    if (attempt < 2) await new Promise((r) => setTimeout(r, 500 * Math.pow(3, attempt)));
-  }
 
-  if (!claudeResp?.ok && (claudeResp === null || RETRY_STATUSES.has(claudeResp.status))) {
-    console.warn(`[ai-chat-tip] primary failed, trying fallback ${FALLBACK_MODEL}`);
-    try {
-      const fbResp = await callClaude(FALLBACK_MODEL);
-      if (fbResp.ok) {
-        claudeResp = fbResp;
-        modelUsed = FALLBACK_MODEL;
-        console.warn(`[ai-chat-tip] fallback ${FALLBACK_MODEL} succeeded`);
-      } else {
-        lastErrText = await fbResp.text();
-        console.error(`[ai-chat-tip] fallback ${FALLBACK_MODEL} ${fbResp.status}`, lastErrText);
-        claudeResp = fbResp;
+    let claudeResp: Response | null = null;
+    let lastErrText = "";
+    let modelUsed = PRIMARY_MODEL;
+
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        claudeResp = await callClaude(PRIMARY_MODEL);
+        if (claudeResp.ok) break;
+        lastErrText = await claudeResp.text();
+        console.error(`[ai-chat-tip] claude primary ${claudeResp.status} (attempt ${attempt + 1})`, lastErrText);
+        if (!RETRY_STATUSES.has(claudeResp.status)) break;
+      } catch (err) {
+        console.error(`[ai-chat-tip] claude primary fetch error (attempt ${attempt + 1})`, err);
+        claudeResp = null;
+        lastErrText = String(err);
       }
-    } catch (err) {
-      console.error(`[ai-chat-tip] fallback fetch error`, err);
+      if (attempt < 2) await new Promise((r) => setTimeout(r, 500 * Math.pow(3, attempt)));
     }
-  }
 
-  if (!claudeResp || !claudeResp.ok) {
-    const status = claudeResp?.status ?? 0;
-    const overloaded = status === 503 || status === 529 || status === 429 || status === 0;
+    if (!claudeResp?.ok && (claudeResp === null || RETRY_STATUSES.has(claudeResp.status))) {
+      console.warn(`[ai-chat-tip] primary failed, trying fallback ${FALLBACK_MODEL}`);
+      try {
+        const fbResp = await callClaude(FALLBACK_MODEL);
+        if (fbResp.ok) {
+          claudeResp = fbResp;
+          modelUsed = FALLBACK_MODEL;
+          console.warn(`[ai-chat-tip] fallback ${FALLBACK_MODEL} succeeded`);
+        } else {
+          lastErrText = await fbResp.text();
+          console.error(`[ai-chat-tip] fallback ${FALLBACK_MODEL} ${fbResp.status}`, lastErrText);
+          claudeResp = fbResp;
+        }
+      } catch (err) {
+        console.error(`[ai-chat-tip] fallback fetch error`, err);
+      }
+    }
+
+    if (!claudeResp || !claudeResp.ok) {
+      await refundIfFailed("claude_failed");
+      const status = claudeResp?.status ?? 0;
+      return jsonResp({
+        error: "generation_failed",
+        message: "Falha temporária na análise. Seu crédito foi restituído. Tente novamente em alguns segundos.",
+        fixture_id: fixtureId,
+        status_received: status,
+        retryable: true,
+      }, 500);
+    }
+
+    const claudeData = await claudeResp.json();
+    const responseText = claudeData.content?.[0]?.text || "";
+    const usage = claudeData.usage || {};
+
+    const expiresKickoff = kickoff.getTime();
+    const expires24h = Date.now() + CACHE_TTL_HOURS * 3600000;
+    const expiresAt = new Date(Math.min(expiresKickoff, expires24h)).toISOString();
+
+    const { data: inserted } = await supabase
+      .from("ai_tip_cache")
+      .insert({
+        match_key: cacheKey,
+        match_type: "chat_prematch",
+        api_football_fixture_id: fixtureId,
+        altenar_event_id: altenar?.altenar_event_id ?? null,
+        content: { markdown: responseText },
+        source_data: { ...sourceData, claude_model_used: modelUsed },
+        tokens_input: usage.input_tokens || 0,
+        tokens_output: usage.output_tokens || 0,
+        tokens_cached: usage.cache_read_input_tokens || 0,
+        expires_at: expiresAt,
+        generated_by_user_id: token.user_id,
+      })
+      .select("id")
+      .single();
+
     return jsonResp({
-      error: overloaded ? "ai_overloaded" : "claude_failed",
-      message: overloaded
-        ? "A IA está sobrecarregada no momento. Tente novamente em alguns segundos."
-        : "Falha ao gerar análise. Tente novamente.",
-      fixture_id: fixtureId,
-      status_received: status,
-      retryable: overloaded,
-    }, 200);
-  }
-
-  const claudeData = await claudeResp.json();
-  const responseText = claudeData.content?.[0]?.text || "";
-  const usage = claudeData.usage || {};
-
-  const expiresKickoff = kickoff.getTime();
-  const expires24h = Date.now() + CACHE_TTL_HOURS * 3600000;
-  const expiresAt = new Date(Math.min(expiresKickoff, expires24h)).toISOString();
-
-  const { data: inserted } = await supabase
-    .from("ai_tip_cache")
-    .insert({
-      match_key: cacheKey,
-      match_type: "chat_prematch",
-      api_football_fixture_id: fixtureId,
-      altenar_event_id: altenar?.altenar_event_id ?? null,
+      cached: false,
+      tip_cache_id: inserted?.id,
+      credit_source: creditResult.debit_type,
       content: { markdown: responseText },
-      source_data: { ...sourceData, claude_model_used: modelUsed },
-      tokens_input: usage.input_tokens || 0,
-      tokens_output: usage.output_tokens || 0,
-      tokens_cached: usage.cache_read_input_tokens || 0,
-      expires_at: expiresAt,
-      generated_by_user_id: token.user_id,
-    })
-    .select("id")
-    .single();
-
-  return jsonResp({
-    cached: false,
-    tip_cache_id: inserted?.id,
-    credit_source: creditResult.debit_type,
-    content: { markdown: responseText },
-    source_data: sourceData,
-    generated_at: new Date().toISOString(),
-  });
+      source_data: sourceData,
+      generated_at: new Date().toISOString(),
+    });
+  } catch (unexpected) {
+    console.error("[ai-chat-tip] unexpected error, refunding", unexpected);
+    await refundIfFailed("unexpected_error");
+    return jsonResp({
+      error: "generation_failed",
+      message: "Falha temporária na análise. Seu crédito foi restituído. Tente novamente em alguns segundos.",
+    }, 500);
+  }
 });
+
