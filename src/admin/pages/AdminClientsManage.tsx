@@ -21,6 +21,13 @@ import { toast } from "sonner";
 import type { AdminUser } from "../types";
 import { ClientProfileModal } from "../components/ClientProfileModal";
 import { useBettingHouseAdmin } from "../context/BettingHouseContext";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+
+interface CreditInfo {
+  display: string;
+  color: "green" | "gray" | "purple";
+  tooltip: string[];
+}
 
 interface BettingHouseOption { id: string; name: string; }
 
@@ -160,6 +167,8 @@ export default function AdminClientsManage() {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
   const [search, setSearch] = useState("");
+  const [creditMap, setCreditMap] = useState<Record<string, CreditInfo>>({});
+
 
   const [liberacaoFrom, setLiberacaoFrom] = useState("");
   const [liberacaoTo, setLiberacaoTo] = useState("");
@@ -344,6 +353,60 @@ export default function AdminClientsManage() {
         betting_house_id: u.betting_house_id ?? null,
       }))
     );
+
+    // Fetch credit info for visible users (batch)
+    const visibleIds = filtered.map((u: any) => u.id);
+    if (visibleIds.length > 0) {
+      const [weeklyRes, extrasRes, debitsRes] = await Promise.all([
+        supabase.from("ai_credit_weekly").select("user_id, weekly_quota, weekly_used").in("user_id", visibleIds),
+        supabase.from("ai_credit_extras").select("user_id, balance_bonus, balance_purchased, unlimited_until").in("user_id", visibleIds),
+        supabase.from("ai_credit_log").select("user_id").in("user_id", visibleIds).eq("event_type", "debit"),
+      ]);
+      const weeklyMap = new Map((weeklyRes.data || []).map((r: any) => [r.user_id, r]));
+      const extrasMap = new Map((extrasRes.data || []).map((r: any) => [r.user_id, r]));
+      const allTimeMap = new Map<string, number>();
+      (debitsRes.data || []).forEach((row: any) => {
+        allTimeMap.set(row.user_id, (allTimeMap.get(row.user_id) || 0) + 1);
+      });
+      const nextCredits: Record<string, CreditInfo> = {};
+      visibleIds.forEach((uid: string) => {
+        const weekly: any = weeklyMap.get(uid);
+        const extras: any = extrasMap.get(uid);
+        const allTime = allTimeMap.get(uid) || 0;
+        const weeklySpent = weekly?.weekly_used ?? 0;
+        if (extras?.unlimited_until && new Date(extras.unlimited_until) > new Date()) {
+          nextCredits[uid] = {
+            display: "∞",
+            color: "purple",
+            tooltip: [
+              `Ilimitado até ${new Date(extras.unlimited_until).toLocaleDateString("pt-BR")}`,
+              `Gastos esta semana: ${weeklySpent}`,
+              `Gastos all-time: ${allTime}`,
+            ],
+          };
+          return;
+        }
+        const weeklyRemaining = Math.max((weekly?.weekly_quota ?? 0) - weeklySpent, 0);
+        const extrasTotal = (extras?.balance_bonus ?? 0) + (extras?.balance_purchased ?? 0);
+        const total = weeklyRemaining + extrasTotal;
+        nextCredits[uid] = {
+          display: String(total),
+          color: total > 0 ? "green" : "gray",
+          tooltip: [
+            `Disponível: ${total}`,
+            `Cota semanal: ${weeklyRemaining}/${weekly?.weekly_quota ?? 0}`,
+            `Bônus: ${extras?.balance_bonus ?? 0}`,
+            `Comprados: ${extras?.balance_purchased ?? 0}`,
+            `Gastos esta semana: ${weeklySpent}`,
+            `Gastos all-time: ${allTime}`,
+          ],
+        };
+      });
+      setCreditMap(nextCredits);
+    } else {
+      setCreditMap({});
+    }
+
     setLoading(false);
   }, [search, liberacaoFrom, liberacaoTo, firstAccessFrom, firstAccessTo, lastSeenFrom, lastSeenTo, selectedHouseId, selectedTier, selectedAddons, filterNotAccessed, currentPage]);
 
@@ -825,6 +888,7 @@ export default function AdminClientsManage() {
                 <th className={thClass} onClick={() => handleSort("main_tier")}>
                   <span className="flex items-center">Plano <SortIcon col="main_tier" sortKey={sortKey} sortDir={sortDir} /></span>
                 </th>
+                <th className="px-3 py-2 text-xs">Créditos</th>
                 <th className={thClass} onClick={() => handleSort("upsells")}>
                   <span className="flex items-center">Upsell <SortIcon col="upsells" sortKey={sortKey} sortDir={sortDir} /></span>
                 </th>
@@ -908,6 +972,34 @@ export default function AdminClientsManage() {
                     </span>
                   </td>
                   <td className="px-3 py-2">
+                    {(() => {
+                      const ci = creditMap[u.id];
+                      if (!ci) return <span className="text-gray-600">—</span>;
+                      const colorClass =
+                        ci.color === "purple"
+                          ? "bg-purple-500/20 text-purple-300 border border-purple-400/30"
+                          : ci.color === "green"
+                            ? "bg-green-500/20 text-green-400 border border-green-400/30"
+                            : "bg-gray-700/40 text-gray-400 border border-gray-600/30";
+                      return (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className={`inline-flex items-center justify-center min-w-[28px] px-2 py-0.5 rounded-full text-xs font-bold cursor-help ${colorClass}`}>
+                              {ci.display}
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent side="top" className="bg-gray-900 border-gray-700">
+                            <div className="space-y-0.5 text-xs">
+                              {ci.tooltip.map((line, i) => (
+                                <div key={i}>{line}</div>
+                              ))}
+                            </div>
+                          </TooltipContent>
+                        </Tooltip>
+                      );
+                    })()}
+                  </td>
+                  <td className="px-3 py-2">
                     <UpsellBadges upsells={u.upsells} />
                   </td>
                   <td className="px-3 py-2 text-center">
@@ -953,7 +1045,7 @@ export default function AdminClientsManage() {
               ))}
               {sortedUsers.length === 0 && (
                 <tr>
-                  <td colSpan={10} className="px-3 py-8 text-center text-gray-600">
+                  <td colSpan={11} className="px-3 py-8 text-center text-gray-600">
                     Nenhum cliente encontrado
                   </td>
                 </tr>
