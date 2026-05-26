@@ -7,22 +7,7 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-async function isBetaEmailAllowed(email: string): Promise<boolean> {
-  try {
-    const sb = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-    );
-    const { data } = await sb
-      .from("ai_beta_allowlist")
-      .select("id")
-      .eq("email", email)
-      .maybeSingle();
-    return !!data;
-  } catch {
-    return false;
-  }
-}
+// Beta allowlist removido — launch técnico (tier-based credit check)
 
 interface TokenPayload {
   user_id?: string;
@@ -56,10 +41,7 @@ Deno.serve(async (req: Request) => {
     return jsonResp({ error: "unauthorized" }, 401);
   }
 
-  const tokenEmail = token.email?.toLowerCase()?.trim();
-  if (!tokenEmail || !(await isBetaEmailAllowed(tokenEmail))) {
-    return jsonResp({ error: "beta_access_denied", message: "Beta privado" }, 403);
-  }
+
 
   let body: any;
   try {
@@ -82,7 +64,7 @@ Deno.serve(async (req: Request) => {
 
   const { error } = await supabase.from("user_feedback").insert({
     user_id: token.user_id,
-    email: tokenEmail,
+    email: token.email?.toLowerCase()?.trim() ?? "",
     category: "bug",
     message,
     status: "novo",

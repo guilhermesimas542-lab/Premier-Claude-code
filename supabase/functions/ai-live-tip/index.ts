@@ -8,22 +8,7 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-async function isBetaEmailAllowed(email: string): Promise<boolean> {
-  try {
-    const sb = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-    );
-    const { data } = await sb
-      .from("ai_beta_allowlist")
-      .select("id")
-      .eq("email", email)
-      .maybeSingle();
-    return !!data;
-  } catch {
-    return false;
-  }
-}
+// Beta allowlist removido — launch técnico (tier-based credit check)
 
 const TOP_LEAGUES = [
   71, 72, 75, 73,
@@ -608,11 +593,7 @@ Deno.serve(async (req: Request) => {
   if (!token?.user_id) return jsonResp({ error: "no_user_id" }, 401);
   if (token.exp < Date.now()) return jsonResp({ error: "token_expired" }, 401);
 
-  // ─── BETA ALLOWLIST ───
-  const tokenEmail = token.email?.toLowerCase()?.trim();
-  if (!tokenEmail || !(await isBetaEmailAllowed(tokenEmail))) {
-    return jsonResp({ error: "beta_access_denied", message: "Beta privado" }, 403);
-  }
+
 
   // ─── BODY ───
   let body: { fixture_id?: number };

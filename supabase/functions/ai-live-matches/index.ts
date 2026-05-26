@@ -7,22 +7,7 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-async function isBetaEmailAllowed(email: string): Promise<boolean> {
-  try {
-    const sb = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-    );
-    const { data } = await sb
-      .from("ai_beta_allowlist")
-      .select("id")
-      .eq("email", email)
-      .maybeSingle();
-    return !!data;
-  } catch {
-    return false;
-  }
-}
+// Beta allowlist removido — launch técnico (tier-based credit check)
 
 const TOP_LEAGUES = [
   71, 72, 75, 73,
@@ -111,14 +96,7 @@ Deno.serve(async (req: Request) => {
     return unauthorized("token_expired");
   }
 
-  // ───── BETA ALLOWLIST ─────
-  const tokenEmail = tokenData.email?.toLowerCase()?.trim();
-  if (!tokenEmail || !(await isBetaEmailAllowed(tokenEmail))) {
-    return new Response(
-      JSON.stringify({ error: "beta_access_denied", message: "Beta privado" }),
-      { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
-  }
+
 
   // ───── SUPABASE CLIENT (service role para escrever cache) ─────
   const supabaseUrl = Deno.env.get("SUPABASE_URL");

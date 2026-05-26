@@ -46,7 +46,7 @@ const HOUSE_BADGE_COLORS = [
 ];
 
 
-type SortKey = "email" | "phone" | "main_tier" | "upsells" | "created_at" | "first_access_at" | "last_seen_at";
+type SortKey = "email" | "phone" | "main_tier" | "upsells" | "created_at" | "first_access_at" | "last_seen_at" | "credits";
 type SortDir = "asc" | "desc";
 
 const UPSELL_KEYS = ["alavancagem", "multiplas_bingo", "acesso_vitalicio", "live_telegram"];
@@ -114,7 +114,19 @@ function SortIcon({ col, sortKey, sortDir }: { col: SortKey; sortKey: SortKey; s
 
 const TIER_ORDER: Record<string, number> = { free: 0, basic: 1, pro: 2, ultra: 3 };
 
-function sortUsers(users: UserWithUpsells[], key: SortKey, dir: SortDir): UserWithUpsells[] {
+function creditSortValue(ci?: { display: string; color: string }): number {
+  if (!ci) return -1;
+  if (ci.color === "purple") return Number.MAX_SAFE_INTEGER;
+  const n = parseInt(ci.display, 10);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function sortUsers(
+  users: UserWithUpsells[],
+  key: SortKey,
+  dir: SortDir,
+  creditMap: Record<string, { display: string; color: string }>,
+): UserWithUpsells[] {
   return [...users].sort((a, b) => {
     let av: string | number = "";
     let bv: string | number = "";
@@ -126,6 +138,7 @@ function sortUsers(users: UserWithUpsells[], key: SortKey, dir: SortDir): UserWi
     else if (key === "created_at") { av = a.created_at ?? ""; bv = b.created_at ?? ""; }
     else if (key === "first_access_at") { av = (a as any).first_access_at ?? ""; bv = (b as any).first_access_at ?? ""; }
     else if (key === "last_seen_at") { av = a.last_seen_at ?? ""; bv = b.last_seen_at ?? ""; }
+    else if (key === "credits") { av = creditSortValue(creditMap[a.id]); bv = creditSortValue(creditMap[b.id]); }
 
     if (av < bv) return dir === "asc" ? -1 : 1;
     if (av > bv) return dir === "asc" ? 1 : -1;
@@ -489,7 +502,7 @@ export default function AdminClientsManage() {
     load({ search: "", liberacaoFrom: "", liberacaoTo: "", firstAccessFrom: "", firstAccessTo: "", lastSeenFrom: "", lastSeenTo: "", selectedTier: null, selectedAddons: [], filterNotAccessed: false });
   };
 
-  const sortedUsers = sortUsers(users, sortKey, sortDir);
+  const sortedUsers = sortUsers(users, sortKey, sortDir, creditMap);
 
   // Bulk selection helpers
   const allVisibleSelected = sortedUsers.length > 0 && sortedUsers.every((u) => selectedIds.has(u.id));
@@ -888,7 +901,9 @@ export default function AdminClientsManage() {
                 <th className={thClass} onClick={() => handleSort("main_tier")}>
                   <span className="flex items-center">Plano <SortIcon col="main_tier" sortKey={sortKey} sortDir={sortDir} /></span>
                 </th>
-                <th className="px-3 py-2 text-xs">Créditos</th>
+                <th className={thClass} onClick={() => handleSort("credits")}>
+                  <span className="flex items-center">Créditos <SortIcon col="credits" sortKey={sortKey} sortDir={sortDir} /></span>
+                </th>
                 <th className={thClass} onClick={() => handleSort("upsells")}>
                   <span className="flex items-center">Upsell <SortIcon col="upsells" sortKey={sortKey} sortDir={sortDir} /></span>
                 </th>

@@ -1,5 +1,6 @@
-// Beta allowlist — agora alimentado pela tabela public.ai_beta_allowlist.
-// Para adicionar/remover emails, edite a tabela no admin (sem deploy).
+// @deprecated since launch técnico — não usar
+// Mantido por compatibilidade temporária. Será removido em sessão futura.
+// Beta allowlist foi substituído por tier-based credit check.
 import { supabase } from "@/integrations/supabase/client";
 
 const cache = new Map<string, boolean>();
