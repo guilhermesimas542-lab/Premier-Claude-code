@@ -1045,7 +1045,7 @@ export default function AdminClientsManage() {
               ))}
               {sortedUsers.length === 0 && (
                 <tr>
-                  <td colSpan={10} className="px-3 py-8 text-center text-gray-600">
+                  <td colSpan={11} className="px-3 py-8 text-center text-gray-600">
                     Nenhum cliente encontrado
                   </td>
                 </tr>
