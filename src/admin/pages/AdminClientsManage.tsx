@@ -901,7 +901,9 @@ export default function AdminClientsManage() {
                 <th className={thClass} onClick={() => handleSort("main_tier")}>
                   <span className="flex items-center">Plano <SortIcon col="main_tier" sortKey={sortKey} sortDir={sortDir} /></span>
                 </th>
-                <th className="px-3 py-2 text-xs">Créditos</th>
+                <th className={thClass} onClick={() => handleSort("credits")}>
+                  <span className="flex items-center">Créditos <SortIcon col="credits" sortKey={sortKey} sortDir={sortDir} /></span>
+                </th>
                 <th className={thClass} onClick={() => handleSort("upsells")}>
                   <span className="flex items-center">Upsell <SortIcon col="upsells" sortKey={sortKey} sortDir={sortDir} /></span>
                 </th>
