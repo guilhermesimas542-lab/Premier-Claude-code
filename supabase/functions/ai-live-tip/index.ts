@@ -593,11 +593,7 @@ Deno.serve(async (req: Request) => {
   if (!token?.user_id) return jsonResp({ error: "no_user_id" }, 401);
   if (token.exp < Date.now()) return jsonResp({ error: "token_expired" }, 401);
 
-  // ─── BETA ALLOWLIST ───
-  const tokenEmail = token.email?.toLowerCase()?.trim();
-  if (!tokenEmail || !(await isBetaEmailAllowed(tokenEmail))) {
-    return jsonResp({ error: "beta_access_denied", message: "Beta privado" }, 403);
-  }
+
 
   // ─── BODY ───
   let body: { fixture_id?: number };
