@@ -972,6 +972,34 @@ export default function AdminClientsManage() {
                     </span>
                   </td>
                   <td className="px-3 py-2">
+                    {(() => {
+                      const ci = creditMap[u.id];
+                      if (!ci) return <span className="text-gray-600">—</span>;
+                      const colorClass =
+                        ci.color === "purple"
+                          ? "bg-purple-500/20 text-purple-300 border border-purple-400/30"
+                          : ci.color === "green"
+                            ? "bg-green-500/20 text-green-400 border border-green-400/30"
+                            : "bg-gray-700/40 text-gray-400 border border-gray-600/30";
+                      return (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className={`inline-flex items-center justify-center min-w-[28px] px-2 py-0.5 rounded-full text-xs font-bold cursor-help ${colorClass}`}>
+                              {ci.display}
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent side="top" className="bg-gray-900 border-gray-700">
+                            <div className="space-y-0.5 text-xs">
+                              {ci.tooltip.map((line, i) => (
+                                <div key={i}>{line}</div>
+                              ))}
+                            </div>
+                          </TooltipContent>
+                        </Tooltip>
+                      );
+                    })()}
+                  </td>
+                  <td className="px-3 py-2">
                     <UpsellBadges upsells={u.upsells} />
                   </td>
                   <td className="px-3 py-2 text-center">
