@@ -96,14 +96,7 @@ Deno.serve(async (req: Request) => {
     return unauthorized("token_expired");
   }
 
-  // ───── BETA ALLOWLIST ─────
-  const tokenEmail = tokenData.email?.toLowerCase()?.trim();
-  if (!tokenEmail || !(await isBetaEmailAllowed(tokenEmail))) {
-    return new Response(
-      JSON.stringify({ error: "beta_access_denied", message: "Beta privado" }),
-      { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
-  }
+
 
   // ───── SUPABASE CLIENT (service role para escrever cache) ─────
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
