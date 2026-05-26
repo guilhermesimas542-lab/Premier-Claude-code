@@ -649,20 +649,7 @@ Deno.serve(async (req: Request) => {
   const apiKey = Deno.env.get("API_FOOTBALL_KEY");
   if (!apiKey) return jsonResp({ error: "api_football_key_missing" }, 500);
 
-  // ─── DÉBITO DE CRÉDITO (ANTES de cache lookup) ───
-  const { data: creditResult, error: creditErr } = await supabase.rpc(
-    "check_and_debit_credit",
-    { p_user_id: token.user_id, p_source: "live_tip" }
-  );
-  if (creditErr) {
-    console.error("[ai-live-tip] credit RPC error", creditErr);
-    return jsonResp({ error: "credit_check_failed" }, 500);
-  }
-  if (!creditResult?.success) {
-    return jsonResp(creditResult ?? { error: "insufficient_credits" }, 402);
-  }
-
-  // ─── CACHE LOOKUP (event-based invalidation) ───
+  // ─── CACHE LOOKUP (ANTES do débito — cache hit é grátis) ───
   const cacheKey = `live_tip:fixture_${fixtureId}`;
   const { data: cached } = await supabase
     .from("ai_tip_cache")
@@ -685,8 +672,15 @@ Deno.serve(async (req: Request) => {
     }
   }
 
-  // ─── SE CACHE HIT, RETORNA ───
+  // ─── SE CACHE HIT, RETORNA (sem débito) ───
   if (isCacheHit && cached) {
+    await supabase.from("ai_credit_log").insert({
+      user_id: token.user_id,
+      event_type: "cache_hit_free",
+      amount: 0,
+      reason: "live_tip",
+      metadata: { cache_id: cached.id, match_key: cacheKey },
+    });
     supabase
       .rpc("increment_tip_hit", { p_tip_id: cached.id })
       .then(({ error }: { error: any }) => {
@@ -695,210 +689,241 @@ Deno.serve(async (req: Request) => {
     return jsonResp({
       cached: true,
       tip_cache_id: cached.id,
-      credit_source: creditResult.debit_type,
+      credit_source: "cache_hit_free",
+      credit_consumed: false,
       content: cached.content,
       source_data: cached.source_data,
       generated_at: cached.generated_at,
     });
   }
 
-  // ─── FETCH API-FOOTBALL ───
-  const headers = { "x-apisports-key": apiKey };
-  const [fixResp, statsResp, evResp, lineupResp] = await Promise.all([
-    fetch(`https://v3.football.api-sports.io/fixtures?id=${fixtureId}`, { headers }),
-    fetch(`https://v3.football.api-sports.io/fixtures/statistics?fixture=${fixtureId}`, { headers }),
-    fetch(`https://v3.football.api-sports.io/fixtures/events?fixture=${fixtureId}`, { headers }),
-    fetch(`https://v3.football.api-sports.io/fixtures/lineups?fixture=${fixtureId}`, { headers }),
-  ]);
+  // ─── CACHE MISS — agora sim debita ───
+  const { data: creditResult, error: creditErr } = await supabase.rpc(
+    "check_and_debit_credit",
+    { p_user_id: token.user_id, p_source: "live_tip" }
+  );
+  if (creditErr) {
+    console.error("[ai-live-tip] credit RPC error", creditErr);
+    return jsonResp({ error: "credit_check_failed" }, 500);
+  }
+  if (!creditResult?.success) {
+    return jsonResp(creditResult ?? { error: "insufficient_credits" }, 402);
+  }
+  const debitType: string = creditResult.debit_type;
 
-  if (!fixResp.ok) {
-    console.error("[ai-live-tip] fixture fetch failed", fixResp.status);
-    return jsonResp({ error: "fixture_fetch_failed" }, 502);
+  async function refundIfFailed(reasonTag: string) {
+    try {
+      await supabase.rpc("refund_credit", {
+        p_user_id: token.user_id,
+        p_source: "live_tip",
+        p_debit_type: debitType,
+      });
+      console.warn(`[ai-live-tip] credit refunded (${reasonTag})`);
+    } catch (e) {
+      console.error("[ai-live-tip] refund_credit failed", e);
+    }
   }
 
-  const fixtureData = await fixResp.json();
-  const fix = fixtureData.response?.[0];
-  if (!fix) return jsonResp({ error: "fixture_not_found" }, 404);
+  try {
+    // ─── FETCH API-FOOTBALL ───
+    const headers = { "x-apisports-key": apiKey };
+    const [fixResp, statsResp, evResp, lineupResp] = await Promise.all([
+      fetch(`https://v3.football.api-sports.io/fixtures?id=${fixtureId}`, { headers }),
+      fetch(`https://v3.football.api-sports.io/fixtures/statistics?fixture=${fixtureId}`, { headers }),
+      fetch(`https://v3.football.api-sports.io/fixtures/events?fixture=${fixtureId}`, { headers }),
+      fetch(`https://v3.football.api-sports.io/fixtures/lineups?fixture=${fixtureId}`, { headers }),
+    ]);
 
-  if (!TOP_LEAGUES.includes(fix.league.id)) {
-    return jsonResp({ error: "league_not_supported" }, 400);
-  }
-  if (!LIVE_STATUS.includes(fix.fixture.status.short)) {
-    return jsonResp({
-      error: "not_live",
-      status: fix.fixture.status.long,
-      kickoff_at: fix.fixture.date,
-    }, 400);
-  }
+    if (!fixResp.ok) {
+      console.error("[ai-live-tip] fixture fetch failed", fixResp.status);
+      await refundIfFailed("fixture_fetch_failed");
+      return jsonResp({ error: "fixture_fetch_failed" }, 502);
+    }
 
-  const statsData = statsResp.ok ? await statsResp.json() : { response: [] };
-  const eventsData = evResp.ok ? await evResp.json() : { response: [] };
-  const lineupsData = lineupResp.ok ? await lineupResp.json() : { response: [] };
+    const fixtureData = await fixResp.json();
+    const fix = fixtureData.response?.[0];
+    if (!fix) {
+      await refundIfFailed("fixture_not_found");
+      return jsonResp({ error: "fixture_not_found" }, 404);
+    }
 
-  const allEvents = eventsData.response || [];
-  const events = allEvents.slice(0, 30);
-  const relevantEventsCount = allEvents.filter((e: any) =>
-    e.type === "Goal" || (e.type === "Card" && e.detail === "Red Card")
-  ).length;
-  const matchStats = statsData.response || [];
+    if (!TOP_LEAGUES.includes(fix.league.id)) {
+      await refundIfFailed("league_not_supported");
+      return jsonResp({ error: "league_not_supported" }, 400);
+    }
+    if (!LIVE_STATUS.includes(fix.fixture.status.short)) {
+      await refundIfFailed("not_live");
+      return jsonResp({
+        error: "not_live",
+        status: fix.fixture.status.long,
+        kickoff_at: fix.fixture.date,
+      }, 400);
+    }
 
-  // ─── DADOS AO VIVO ───
-  const liveData = {
-    status: fix.fixture?.status?.long,
-    minute: fix.fixture?.status?.elapsed,
-    score: {
-      home: fix.goals?.home ?? 0,
-      away: fix.goals?.away ?? 0,
-    },
-    score_halftime: {
-      home: fix.score?.halftime?.home ?? null,
-      away: fix.score?.halftime?.away ?? null,
-    },
-    events,
-    statistics: matchStats,
-    lineups: lineupsData.response || [],
-  };
+    const statsData = statsResp.ok ? await statsResp.json() : { response: [] };
+    const eventsData = evResp.ok ? await evResp.json() : { response: [] };
+    const lineupsData = lineupResp.ok ? await lineupResp.json() : { response: [] };
 
-  // ─── DADOS PRÉ-JOGO + ODDS LIVE ───
-  const [preMatch, oddsLive] = await Promise.all([
-    fetchPreMatchContext(supabase, apiKey, fix),
-    fetchLiveOdds(fix.fixture.id, apiKey),
-  ]);
+    const allEvents = eventsData.response || [];
+    const events = allEvents.slice(0, 30);
+    const relevantEventsCount = allEvents.filter((e: any) =>
+      e.type === "Goal" || (e.type === "Card" && e.detail === "Red Card")
+    ).length;
+    const matchStats = statsData.response || [];
 
-  const altenar = await lookupAltenarMapping(supabase, fix.fixture.id);
-
-  const sourceData = {
-    fixture: {
-      id: fix.fixture.id,
-      league: {
-        id: fix.league.id,
-        name: fix.league.name,
-        country: fix.league.country,
+    const liveData = {
+      status: fix.fixture?.status?.long,
+      minute: fix.fixture?.status?.elapsed,
+      score: { home: fix.goals?.home ?? 0, away: fix.goals?.away ?? 0 },
+      score_halftime: {
+        home: fix.score?.halftime?.home ?? null,
+        away: fix.score?.halftime?.away ?? null,
       },
-      home: { id: fix.teams.home.id, name: fix.teams.home.name },
-      away: { id: fix.teams.away.id, name: fix.teams.away.name },
-      kickoff_at: fix.fixture.date,
-    },
-    live: liveData,
-    pre_match: preMatch,
-    odds_live: oddsLive,
-    altenar_event_url: altenar?.altenar_event_url ?? null,
-    relevant_events_count: relevantEventsCount,
-  };
+      events,
+      statistics: matchStats,
+      lineups: lineupsData.response || [],
+    };
 
-  // ─── CHAMA CLAUDE ───
-  const claudeKey = Deno.env.get("ANTHROPIC_API_KEY");
-  if (!claudeKey) return jsonResp({ error: "anthropic_key_missing" }, 500);
+    const [preMatch, oddsLive] = await Promise.all([
+      fetchPreMatchContext(supabase, apiKey, fix),
+      fetchLiveOdds(fix.fixture.id, apiKey),
+    ]);
 
-  const userMessage = `Contexto do jogo AO VIVO (use APENAS estes dados; campos null devem ser ignorados):
+    const altenar = await lookupAltenarMapping(supabase, fix.fixture.id);
+
+    const sourceData = {
+      fixture: {
+        id: fix.fixture.id,
+        league: { id: fix.league.id, name: fix.league.name, country: fix.league.country },
+        home: { id: fix.teams.home.id, name: fix.teams.home.name },
+        away: { id: fix.teams.away.id, name: fix.teams.away.name },
+        kickoff_at: fix.fixture.date,
+      },
+      live: liveData,
+      pre_match: preMatch,
+      odds_live: oddsLive,
+      altenar_event_url: altenar?.altenar_event_url ?? null,
+      relevant_events_count: relevantEventsCount,
+    };
+
+    const claudeKey = Deno.env.get("ANTHROPIC_API_KEY");
+    if (!claudeKey) {
+      await refundIfFailed("anthropic_key_missing");
+      return jsonResp({ error: "anthropic_key_missing" }, 500);
+    }
+
+    const userMessage = `Contexto do jogo AO VIVO (use APENAS estes dados; campos null devem ser ignorados):
 
 ${JSON.stringify(sourceData, null, 2)}
 
 Gere a análise no formato definido no system prompt. Considere o minuto atual ao escolher mercado e aplicar táticas.`;
 
-  const baseBody = {
-    max_tokens: 1500,
-    system: [
-      { type: "text", text: SYSTEM_PROMPT_LIVE, cache_control: { type: "ephemeral" } },
-    ],
-    messages: [{ role: "user", content: userMessage }],
-  };
-  async function callClaude(model: string): Promise<Response> {
-    return await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": claudeKey,
-        "anthropic-version": "2023-06-01",
-      },
-      body: JSON.stringify({ ...baseBody, model }),
-    });
-  }
-
-  let claudeResp: Response | null = null;
-  let lastErrText = "";
-  let modelUsed = PRIMARY_MODEL;
-  const RETRY_STATUSES = new Set([429, 500, 502, 503, 504, 529]);
-
-  for (let attempt = 0; attempt < 3; attempt++) {
-    try {
-      claudeResp = await callClaude(PRIMARY_MODEL);
-    } catch (err) {
-      console.error(`[ai-live-tip] claude primary fetch error (attempt ${attempt + 1})`, err);
-      claudeResp = null;
-      lastErrText = String(err);
+    const baseBody = {
+      max_tokens: 1500,
+      system: [
+        { type: "text", text: SYSTEM_PROMPT_LIVE, cache_control: { type: "ephemeral" } },
+      ],
+      messages: [{ role: "user", content: userMessage }],
+    };
+    async function callClaude(model: string): Promise<Response> {
+      return await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": claudeKey,
+          "anthropic-version": "2023-06-01",
+        },
+        body: JSON.stringify({ ...baseBody, model }),
+      });
     }
-    if (claudeResp && claudeResp.ok) break;
-    if (claudeResp) {
-      lastErrText = await claudeResp.text();
-      console.error(`[ai-live-tip] claude primary ${claudeResp.status} (attempt ${attempt + 1})`, lastErrText);
-      if (!RETRY_STATUSES.has(claudeResp.status)) break;
-    }
-    if (attempt < 2) await new Promise((r) => setTimeout(r, 600 * (attempt + 1)));
-  }
 
-  if (!claudeResp?.ok && (claudeResp === null || RETRY_STATUSES.has(claudeResp.status))) {
-    console.warn(`[ai-live-tip] primary failed, trying fallback ${FALLBACK_MODEL}`);
-    try {
-      const fbResp = await callClaude(FALLBACK_MODEL);
-      if (fbResp.ok) {
-        claudeResp = fbResp;
-        modelUsed = FALLBACK_MODEL;
-        console.warn(`[ai-live-tip] fallback ${FALLBACK_MODEL} succeeded`);
-      } else {
-        lastErrText = await fbResp.text();
-        console.error(`[ai-live-tip] fallback ${FALLBACK_MODEL} ${fbResp.status}`, lastErrText);
-        claudeResp = fbResp;
+    let claudeResp: Response | null = null;
+    let lastErrText = "";
+    let modelUsed = PRIMARY_MODEL;
+    const RETRY_STATUSES = new Set([429, 500, 502, 503, 504, 529]);
+
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        claudeResp = await callClaude(PRIMARY_MODEL);
+      } catch (err) {
+        console.error(`[ai-live-tip] claude primary fetch error (attempt ${attempt + 1})`, err);
+        claudeResp = null;
+        lastErrText = String(err);
       }
-    } catch (err) {
-      console.error(`[ai-live-tip] fallback fetch error`, err);
+      if (claudeResp && claudeResp.ok) break;
+      if (claudeResp) {
+        lastErrText = await claudeResp.text();
+        console.error(`[ai-live-tip] claude primary ${claudeResp.status} (attempt ${attempt + 1})`, lastErrText);
+        if (!RETRY_STATUSES.has(claudeResp.status)) break;
+      }
+      if (attempt < 2) await new Promise((r) => setTimeout(r, 600 * (attempt + 1)));
     }
-  }
 
-  if (!claudeResp || !claudeResp.ok) {
-    const status = claudeResp?.status ?? 0;
-    const overloaded = status === 503 || status === 529 || status === 429 || status === 0;
+    if (!claudeResp?.ok && (claudeResp === null || RETRY_STATUSES.has(claudeResp.status))) {
+      console.warn(`[ai-live-tip] primary failed, trying fallback ${FALLBACK_MODEL}`);
+      try {
+        const fbResp = await callClaude(FALLBACK_MODEL);
+        if (fbResp.ok) {
+          claudeResp = fbResp;
+          modelUsed = FALLBACK_MODEL;
+        } else {
+          lastErrText = await fbResp.text();
+          claudeResp = fbResp;
+        }
+      } catch (err) {
+        console.error(`[ai-live-tip] fallback fetch error`, err);
+      }
+    }
+
+    if (!claudeResp || !claudeResp.ok) {
+      await refundIfFailed("claude_failed");
+      const status = claudeResp?.status ?? 0;
+      return jsonResp({
+        error: "generation_failed",
+        message: "Falha temporária na análise. Seu crédito foi restituído. Tente novamente em alguns segundos.",
+        status_received: status,
+        retryable: true,
+      }, 500);
+    }
+
+    const claudeData = await claudeResp.json();
+    const responseText = claudeData.content?.[0]?.text || "";
+    const usage = claudeData.usage || {};
+
+    const expiresAt = new Date(Date.now() + CACHE_TTL_SECONDS * 1000).toISOString();
+    const { data: inserted } = await supabase
+      .from("ai_tip_cache")
+      .insert({
+        match_key: cacheKey,
+        match_type: "live_tip",
+        api_football_fixture_id: fixtureId,
+        altenar_event_id: altenar?.altenar_event_id ?? null,
+        content: { markdown: responseText },
+        source_data: { ...sourceData, claude_model_used: modelUsed },
+        tokens_input: usage.input_tokens || 0,
+        tokens_output: usage.output_tokens || 0,
+        tokens_cached: usage.cache_read_input_tokens || 0,
+        expires_at: expiresAt,
+        generated_by_user_id: token.user_id,
+      })
+      .select("id")
+      .single();
+
     return jsonResp({
-      error: overloaded ? "ai_overloaded" : "claude_failed",
-      message: overloaded
-        ? "A IA está sobrecarregada no momento. Tente novamente em alguns segundos."
-        : "Falha ao gerar análise. Tente novamente.",
-      status,
-      fallback: true,
-      retryable: overloaded,
-    }, 200);
-  }
-
-  const claudeData = await claudeResp.json();
-  const responseText = claudeData.content?.[0]?.text || "";
-  const usage = claudeData.usage || {};
-
-  // ─── SALVAR CACHE ───
-  const expiresAt = new Date(Date.now() + CACHE_TTL_SECONDS * 1000).toISOString();
-  const { data: inserted } = await supabase
-    .from("ai_tip_cache")
-    .insert({
-      match_key: cacheKey,
-      match_type: "live_tip",
-      api_football_fixture_id: fixtureId,
-      altenar_event_id: altenar?.altenar_event_id ?? null,
+      cached: false,
+      tip_cache_id: inserted?.id,
+      credit_source: creditResult.debit_type,
       content: { markdown: responseText },
-      source_data: { ...sourceData, claude_model_used: modelUsed },
-      tokens_input: usage.input_tokens || 0,
-      tokens_output: usage.output_tokens || 0,
-      tokens_cached: usage.cache_read_input_tokens || 0,
-      expires_at: expiresAt,
-      generated_by_user_id: token.user_id,
-    })
-    .select("id")
-    .single();
-
-  return jsonResp({
-    cached: false,
-    tip_cache_id: inserted?.id,
-    credit_source: creditResult.debit_type,
-    content: { markdown: responseText },
-    source_data: sourceData,
-    generated_at: new Date().toISOString(),
-  });
+      source_data: sourceData,
+      generated_at: new Date().toISOString(),
+    });
+  } catch (unexpected) {
+    console.error("[ai-live-tip] unexpected error, refunding", unexpected);
+    await refundIfFailed("unexpected_error");
+    return jsonResp({
+      error: "generation_failed",
+      message: "Falha temporária na análise. Seu crédito foi restituído. Tente novamente em alguns segundos.",
+    }, 500);
+  }
 });
+
