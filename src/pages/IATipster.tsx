@@ -1,38 +1,17 @@
-import { useState, useMemo, useEffect } from "react";
-import { Sparkles, MessageSquare, Radio, Lock, Loader2, AlertTriangle } from "lucide-react";
+import { useState } from "react";
+import { Sparkles, MessageSquare, Radio, AlertTriangle } from "lucide-react";
 import { LiveMatchesSection } from "@/components/aitipster/LiveMatchesSection";
 import { ChatSection } from "@/components/aitipster/ChatSection";
 import { EsportivaInlinePanel } from "@/components/aitipster/EsportivaInlinePanel";
 import type { OpenEsportivaPayload } from "@/components/aitipster/ChatMessage";
 import { useCreditBalance } from "@/hooks/useCreditBalance";
-import { isAIBetaUser } from "@/lib/aiBetaAllowlist";
 import AppHeader from "@/components/AppHeader";
 import { BottomNav } from "@/components/BottomNav";
 import { CreditBalanceBadge } from "@/components/ia-tipster/CreditBalanceBadge";
 import { MaintenanceScreen } from "@/components/ia-tipster/MaintenanceScreen";
 import { useAiTipsterStatus } from "@/hooks/useAiTipsterStatus";
 
-function getEmailFromToken(): string | null {
-  try {
-    const token = localStorage.getItem("premier_token");
-    if (!token) return null;
-    const payload = JSON.parse(atob(token));
-    return payload?.email ?? null;
-  } catch {
-    return null;
-  }
-}
-
 export default function IATipster() {
-  const email = useMemo(() => getEmailFromToken(), []);
-  const [isBeta, setIsBeta] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    let alive = true;
-    isAIBetaUser(email).then((v) => { if (alive) setIsBeta(v); });
-    return () => { alive = false; };
-  }, [email]);
-
   const [activeTab, setActiveTab] = useState<"chat" | "live">("live");
   const [openEsportiva, setOpenEsportiva] = useState<OpenEsportivaPayload | null>(null);
   const { balance } = useCreditBalance();
@@ -44,36 +23,6 @@ export default function IATipster() {
       })
     : "segunda-feira";
 
-  if (isBeta === null) {
-    return (
-      <div className="min-h-screen bg-background pb-20">
-        <AppHeader />
-        <div className="flex flex-col items-center justify-center py-20 px-6 gap-4">
-          <Loader2 className="w-6 h-6 animate-spin text-primary" />
-        </div>
-        <BottomNav />
-      </div>
-    );
-  }
-
-  if (!isBeta) {
-    return (
-      <div className="min-h-screen bg-background pb-20">
-        <AppHeader />
-        <div className="flex flex-col items-center justify-center py-20 px-6 gap-4 max-w-md mx-auto">
-          <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center">
-            <Lock className="w-10 h-10 text-primary" />
-          </div>
-          <h2 className="text-xl font-bold">Beta Privado</h2>
-          <p className="text-sm text-muted-foreground text-center max-w-sm leading-relaxed">
-            Estamos liberando o IA Tipster em fases. Você ainda não tem acesso.
-            Em breve disponibilizaremos para todos os assinantes.
-          </p>
-        </div>
-        <BottomNav />
-      </div>
-    );
-  }
 
   if (!aiStatusLoading && aiStatus && !aiStatus.enabled) {
     return (
