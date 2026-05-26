@@ -353,6 +353,60 @@ export default function AdminClientsManage() {
         betting_house_id: u.betting_house_id ?? null,
       }))
     );
+
+    // Fetch credit info for visible users (batch)
+    const visibleIds = filtered.map((u: any) => u.id);
+    if (visibleIds.length > 0) {
+      const [weeklyRes, extrasRes, debitsRes] = await Promise.all([
+        supabase.from("ai_credit_weekly").select("user_id, weekly_quota, weekly_used").in("user_id", visibleIds),
+        supabase.from("ai_credit_extras").select("user_id, balance_bonus, balance_purchased, unlimited_until").in("user_id", visibleIds),
+        supabase.from("ai_credit_log").select("user_id").in("user_id", visibleIds).eq("event_type", "debit"),
+      ]);
+      const weeklyMap = new Map((weeklyRes.data || []).map((r: any) => [r.user_id, r]));
+      const extrasMap = new Map((extrasRes.data || []).map((r: any) => [r.user_id, r]));
+      const allTimeMap = new Map<string, number>();
+      (debitsRes.data || []).forEach((row: any) => {
+        allTimeMap.set(row.user_id, (allTimeMap.get(row.user_id) || 0) + 1);
+      });
+      const nextCredits: Record<string, CreditInfo> = {};
+      visibleIds.forEach((uid: string) => {
+        const weekly: any = weeklyMap.get(uid);
+        const extras: any = extrasMap.get(uid);
+        const allTime = allTimeMap.get(uid) || 0;
+        const weeklySpent = weekly?.weekly_used ?? 0;
+        if (extras?.unlimited_until && new Date(extras.unlimited_until) > new Date()) {
+          nextCredits[uid] = {
+            display: "∞",
+            color: "purple",
+            tooltip: [
+              `Ilimitado até ${new Date(extras.unlimited_until).toLocaleDateString("pt-BR")}`,
+              `Gastos esta semana: ${weeklySpent}`,
+              `Gastos all-time: ${allTime}`,
+            ],
+          };
+          return;
+        }
+        const weeklyRemaining = Math.max((weekly?.weekly_quota ?? 0) - weeklySpent, 0);
+        const extrasTotal = (extras?.balance_bonus ?? 0) + (extras?.balance_purchased ?? 0);
+        const total = weeklyRemaining + extrasTotal;
+        nextCredits[uid] = {
+          display: String(total),
+          color: total > 0 ? "green" : "gray",
+          tooltip: [
+            `Disponível: ${total}`,
+            `Cota semanal: ${weeklyRemaining}/${weekly?.weekly_quota ?? 0}`,
+            `Bônus: ${extras?.balance_bonus ?? 0}`,
+            `Comprados: ${extras?.balance_purchased ?? 0}`,
+            `Gastos esta semana: ${weeklySpent}`,
+            `Gastos all-time: ${allTime}`,
+          ],
+        };
+      });
+      setCreditMap(nextCredits);
+    } else {
+      setCreditMap({});
+    }
+
     setLoading(false);
   }, [search, liberacaoFrom, liberacaoTo, firstAccessFrom, firstAccessTo, lastSeenFrom, lastSeenTo, selectedHouseId, selectedTier, selectedAddons, filterNotAccessed, currentPage]);
 
