@@ -299,10 +299,7 @@ Deno.serve(async (req: Request) => {
   }
   if (!token?.user_id || token.exp < Date.now()) return jsonResp({ error: "unauthorized" }, 401);
 
-  const tokenEmail = token.email?.toLowerCase()?.trim();
-  if (!tokenEmail || !(await isBetaEmailAllowed(tokenEmail))) {
-    return jsonResp({ error: "beta_access_denied", message: "Beta privado" }, 403);
-  }
+
 
   let body: { query?: string };
   try {
