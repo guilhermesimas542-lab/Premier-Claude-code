@@ -264,31 +264,43 @@ export function useChatTipster() {
 
       if (error) {
         const status = (error as any)?.context?.status ?? (error as any)?.status;
+        let errorBody: any = null;
+        try { errorBody = await (error as any)?.context?.json?.(); } catch {}
         const isDailyCap = status === 429 || /daily_cost_limit_reached/i.test(error.message || "");
         if (status === 503) {
-          let msg = "Sistema temporariamente indisponível.";
-          try {
-            const body = await (error as any)?.context?.json?.();
-            if (body?.message) msg = body.message;
-          } catch {}
+          let msg = errorBody?.message || "Sistema temporariamente indisponível.";
           toast.error("IA Tipster indisponível", { description: msg });
           refreshAiTipsterStatus();
           return;
         }
         if (status === 402) {
           let resetsLabel = "segunda-feira";
-          try {
-            const body = await (error as any)?.context?.json?.();
-            if (body?.resets_at) {
-              resetsLabel = new Date(body.resets_at).toLocaleDateString("pt-BR", {
-                weekday: "short", day: "2-digit", month: "short",
-              });
-            }
-          } catch {}
+          if (errorBody?.resets_at) {
+            resetsLabel = new Date(errorBody.resets_at).toLocaleDateString("pt-BR", {
+              weekday: "short", day: "2-digit", month: "short",
+            });
+          }
           toast.error("Sem créditos", {
             description: `Você usou todos os créditos da semana. Renova em ${resetsLabel}.`,
           });
           refreshCreditBalance();
+          return;
+        }
+        if (status === 500 && errorBody?.error === "generation_failed") {
+          toast.error("Falha temporária", {
+            description: errorBody.message || "Não conseguimos gerar a análise agora. Seu crédito foi restituído. Tente novamente em alguns segundos.",
+          });
+          refreshCreditBalance();
+          return;
+        }
+        if (
+          error.message?.includes("non-2xx") ||
+          error.message?.includes("FunctionsHttpError") ||
+          (error as any).name === "FunctionsHttpError"
+        ) {
+          toast.error("Falha temporária", {
+            description: "Não conseguimos gerar a análise agora. Tente novamente em alguns segundos.",
+          });
           return;
         }
         append({
