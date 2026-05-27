@@ -15,6 +15,7 @@ import Login from "./pages/Login";
 
 import Casino from "./pages/Casino";
 import CasinoGame from "./pages/CasinoGame";
+import IATipster from "./pages/IATipster";
 
 import UltimosGreens from "./pages/UltimosGreens";
 import Support from "./pages/Support";
@@ -96,6 +97,7 @@ const App = () => {
             
             <Route path="/ultimos-greens" element={<UltimosGreens />} />
             <Route path="/cassino" element={<Casino />} />
+            <Route path="/ia-tipster" element={<IATipster />} />
             <Route path="/support" element={<Support />} />
             <Route path="/bd" element={<Bd />} />
             <Route path="/obg" element={<Obg />} />
