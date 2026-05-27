@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { CircleCheck, Send, ShieldCheck } from "lucide-react";
 
-const TELEGRAM_BOT_URL = "https://clscore-bot.tg.pulse.is";
+const TELEGRAM_BOT_URL = "https://t.me/Clscore_bot?start=6a16457d978ba54070095b90";
 
 const Obg = () => {
   useEffect(() => {
