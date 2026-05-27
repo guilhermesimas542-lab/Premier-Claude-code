@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { CircleCheck, Send, ShieldCheck } from "lucide-react";
 
-const TELEGRAM_BOT_URL = "https://savelfc-premierbot.tg.pulse.is";
+const TELEGRAM_BOT_URL = "https://clscore-bot.tg.pulse.is";
 
 const Obg = () => {
   useEffect(() => {
