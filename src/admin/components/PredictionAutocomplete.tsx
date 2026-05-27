@@ -21,9 +21,49 @@ export function PredictionAutocomplete({ value, onChange }: Props) {
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    supabase.from("market_predictions").select("*").order("prediction").then(({ data }) => {
-      setAllPredictions((data as MarketPrediction[]) ?? []);
-    });
+    // Carrega predictions de 2 fontes:
+    // 1. market_predictions (fonte oficial, editável)
+    // 2. content_entries.condition_to_win (histórico — pega palpites usados que nunca foram salvos formalmente)
+    // Deduplica case-insensitive, priorizando market_predictions (que tem market/explanation).
+    const load = async () => {
+      const [mpRes, ceRes] = await Promise.all([
+        supabase.from("market_predictions").select("*").order("prediction"),
+        supabase
+          .from("content_entries")
+          .select("condition_to_win, market, category_explanation")
+          .not("condition_to_win", "is", null)
+          .order("created_at", { ascending: false })
+          .limit(500),
+      ]);
+
+      const mp = (mpRes.data as MarketPrediction[]) ?? [];
+      const seen = new Set(mp.map((p) => (p.prediction || "").trim().toLowerCase()));
+
+      const fromHistory: MarketPrediction[] = [];
+      for (const row of (ceRes.data ?? []) as Array<{
+        condition_to_win: string | null;
+        market: string | null;
+        category_explanation: string | null;
+      }>) {
+        const pred = (row.condition_to_win || "").trim();
+        if (!pred) continue;
+        const key = pred.toLowerCase();
+        if (seen.has(key)) continue;
+        seen.add(key);
+        fromHistory.push({
+          id: `history-${key}`,
+          prediction: pred,
+          market: (row.market || "").trim() || "Otro",
+          market_explanation: (row.category_explanation || row.market || "").trim() || null,
+        });
+      }
+
+      const merged = [...mp, ...fromHistory].sort((a, b) =>
+        a.prediction.localeCompare(b.prediction, "es", { sensitivity: "base" }),
+      );
+      setAllPredictions(merged);
+    };
+    load();
   }, []);
 
   useEffect(() => {
