@@ -107,7 +107,7 @@ const Bd = () => {
         </div>
 
         <a
-          href={CHECKOUT_LINKS.funil_premium_offer}
+          href="https://go.centerpag.com/PPU38CQBPB3"
           id="cta-checkout-bd-funil-premium-offer"
           className="cta-checkout block w-full text-center rounded-xl py-4 font-extrabold uppercase tracking-wide text-white text-base sm:text-lg shadow-sm hover:opacity-95 transition"
           style={{ backgroundColor: BRAND_GREEN }}
