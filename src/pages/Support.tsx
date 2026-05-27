@@ -15,7 +15,6 @@ import { BottomNav } from "@/components/BottomNav";
 
 import ProfileModal from "@/components/ProfileModal";
 import { useUserAccess } from "@/hooks/useUserAccess";
-import { PaywallPopup } from "@/components/PaywallPopup";
 import { PlansModal } from "@/components/PlansModal";
 import AppHeader from "@/components/AppHeader";
 import FeedbackModal from "@/components/FeedbackModal";
@@ -38,7 +37,6 @@ const NEXT_TIER: Record<string, string> = {
 
 const PlanUpgradeCard = () => {
   const { mainTier, loading } = useUserAccess();
-  const [paywallOpen, setPaywallOpen] = useState(false);
   const [plansOpen, setPlansOpen] = useState(false);
   if (loading) return null;
   // Diamante: já tem tudo, esconde botão
@@ -47,10 +45,7 @@ const PlanUpgradeCard = () => {
   const isPremium = mainTier === 'premium';
   const planLabel = isPremium ? 'Premium' : 'Gratis';
 
-  const handleClick = () => {
-    if (isPremium) setPlansOpen(true);
-    else setPaywallOpen(true);
-  };
+  const handleClick = () => setPlansOpen(true);
 
   return (
     <section
@@ -85,17 +80,7 @@ const PlanUpgradeCard = () => {
           Mejorar plan
         </button>
       </div>
-      {!isPremium && (
-        <PaywallPopup
-          open={paywallOpen}
-          onClose={() => setPaywallOpen(false)}
-          variant="premium"
-          feature="odds_safes"
-        />
-      )}
-      {isPremium && (
-        <PlansModal open={plansOpen} onClose={() => setPlansOpen(false)} />
-      )}
+      <PlansModal open={plansOpen} onClose={() => setPlansOpen(false)} />
     </section>
   );
 };
