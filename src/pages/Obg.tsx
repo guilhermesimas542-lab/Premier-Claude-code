@@ -1,14 +1,15 @@
 import { useEffect } from "react";
-import { MessageCircle, ShieldCheck } from "lucide-react";
+import { CircleCheck, Send, ShieldCheck } from "lucide-react";
+
+const TELEGRAM_BOT_URL = "https://savelfc-premierbot.tg.pulse.is";
 
 const Obg = () => {
   useEffect(() => {
-    document.title = "¡Compra confirmada! | CL FC";
+    document.title = "¡Compra aprobada! Falta 1 paso | CL Score";
   }, []);
 
-  const handleOpenSupport = () => {
-    const url = "https://wa.me/5511965075328?text=Quiero%20mi%20acceso%20a%20Clscore";
-    window.open(url, "_blank", "noopener,noreferrer");
+  const handleOpenTelegram = () => {
+    window.open(TELEGRAM_BOT_URL, "_blank", "noopener,noreferrer");
   };
 
   return (
@@ -18,49 +19,63 @@ const Obg = () => {
       <header className="relative z-10 flex flex-col items-center gap-3 mt-2 sm:mt-6">
         <img
           src="/obg/premier-fc-logo.png"
-          alt="CL FC"
+          alt="CL Score"
           className="w-16 h-16 sm:w-20 sm:h-20 object-contain"
         />
         <span className="text-xs tracking-[0.3em] text-primary font-semibold uppercase">
-          CL FC
+          CL Score
         </span>
       </header>
 
-      <main className="relative z-10 w-full max-w-md flex flex-col items-center text-center mt-10 sm:mt-12">
-        {/* Headline principal */}
+      <main className="relative z-10 w-full max-w-md flex flex-col items-center text-center mt-6 sm:mt-8">
+        {/* Check icon */}
+        <div className="w-14 h-14 rounded-full bg-primary/15 border border-primary/40 flex items-center justify-center mb-5 shadow-[0_0_30px_rgba(0,255,127,0.25)]">
+          <CircleCheck className="w-8 h-8 text-primary" />
+        </div>
+
+        {/* Headline */}
         <h1 className="font-['Barlow_Condensed'] font-extrabold text-3xl sm:text-4xl uppercase leading-tight">
-          Haz clic ahora en el botón de abajo para recibir tu acceso en WhatsApp
+          ¡Compra aprobada! Falta 1 paso <span className="text-yellow-400">⚡</span>
         </h1>
 
-        {/* Subtítulo de confirmação */}
-        <p className="mt-4 text-base sm:text-lg text-primary font-semibold">
-          ¡Felicitaciones! Tu compra fue aprobada ✅
+        {/* Subtítulo */}
+        <p className="mt-4 text-sm sm:text-base text-muted-foreground max-w-sm leading-relaxed">
+          Tu acceso <span className="text-foreground font-semibold">no se libera automáticamente</span>. Para activarlo ahora, necesitas hablar con nuestro bot oficial en Telegram.
         </p>
 
-        {/* Bloco explicativo */}
+        {/* Card explicativo */}
         <section className="w-full mt-7 rounded-2xl border border-border bg-card/70 backdrop-blur p-5 sm:p-6 text-left">
-          <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
-            Tu acceso a la <span className="text-foreground font-semibold">I.A NO aparece en esta página</span>. Para activarlo, haz clic en el botón verde de abajo: serás redirigido a WhatsApp, donde recibirás tu enlace de acceso de forma inmediata y automática.
-          </p>
+          <div className="flex items-start gap-3">
+            <Send className="w-5 h-5 text-[#3B9EFF] mt-0.5 shrink-0" />
+            <div>
+              <h2 className="font-semibold text-base sm:text-lg leading-snug">
+                Haz clic en el botón de abajo y rescata tu acceso en Telegram
+              </h2>
+              <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
+                Serás redirigido a nuestro bot oficial en Telegram, donde tu acceso a la I.A será liberado de forma inmediata y automática. Sin este paso, tu cuenta no queda activa.
+              </p>
+            </div>
+          </div>
         </section>
 
+        {/* CTA Telegram (azul) */}
         <button
           type="button"
-          onClick={handleOpenSupport}
-          className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 px-4 py-2 w-full mt-6 h-14 text-base font-bold uppercase tracking-wide bg-primary text-black hover:bg-primary/90 hover:text-black shadow-[0_0_25px_rgba(0,255,127,0.35)]"
+          onClick={handleOpenTelegram}
+          className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 px-4 py-2 w-full mt-6 h-14 text-base font-bold uppercase tracking-wide bg-[#3B9EFF] text-white hover:bg-[#2E8AE6] shadow-[0_0_25px_rgba(59,158,255,0.35)]"
         >
-          <MessageCircle className="w-5 h-5 mr-1" />
-          Activar mi cuenta en WhatsApp
+          <Send className="w-5 h-5 mr-1" />
+          Rescatar acceso en Telegram
         </button>
 
         <div className="flex items-center gap-2 text-xs text-muted-foreground mt-4">
           <ShieldCheck className="w-4 h-4 text-primary/80" />
-          Atención oficial CL FC • 100% seguro
+          Bot oficial CL Score • Activación inmediata
         </div>
       </main>
 
       <footer className="relative z-10 text-[11px] text-muted-foreground mt-10 mb-2">
-        © 2026 CL FC — Todos los derechos reservados
+        © 2026 CL Score — Todos los derechos reservados
       </footer>
     </div>
   );
