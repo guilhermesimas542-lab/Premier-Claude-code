@@ -1024,6 +1024,51 @@ export type Database = {
           },
         ]
       }
+      crm_audience_members: {
+        Row: {
+          audience_id: string
+          created_at: string
+          email: string | null
+          id: string
+          metadata: Json
+          phone: string | null
+          user_id: string | null
+        }
+        Insert: {
+          audience_id: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          metadata?: Json
+          phone?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          audience_id?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          metadata?: Json
+          phone?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_audience_members_audience_id_fkey"
+            columns: ["audience_id"]
+            isOneToOne: false
+            referencedRelation: "crm_audiences"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_audience_members_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       crm_audiences: {
         Row: {
           created_at: string
@@ -1031,6 +1076,7 @@ export type Database = {
           description: string | null
           filters: Json
           id: string
+          kind: string
           name: string
           updated_at: string
         }
@@ -1040,6 +1086,7 @@ export type Database = {
           description?: string | null
           filters?: Json
           id?: string
+          kind?: string
           name: string
           updated_at?: string
         }
@@ -1049,6 +1096,7 @@ export type Database = {
           description?: string | null
           filters?: Json
           id?: string
+          kind?: string
           name?: string
           updated_at?: string
         }
