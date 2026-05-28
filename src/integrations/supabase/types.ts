@@ -1101,6 +1101,231 @@ export type Database = {
         }
         Relationships: []
       }
+      crm_journey_enrollments: {
+        Row: {
+          completed_at: string | null
+          current_step_at: string | null
+          current_step_id: string | null
+          enrolled_at: string
+          id: string
+          journey_id: string
+          metadata: Json
+          status: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          current_step_at?: string | null
+          current_step_id?: string | null
+          enrolled_at?: string
+          id?: string
+          journey_id: string
+          metadata?: Json
+          status?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          current_step_at?: string | null
+          current_step_id?: string | null
+          enrolled_at?: string
+          id?: string
+          journey_id?: string
+          metadata?: Json
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_journey_enrollments_current_step_id_fkey"
+            columns: ["current_step_id"]
+            isOneToOne: false
+            referencedRelation: "crm_journey_steps"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_journey_enrollments_journey_id_fkey"
+            columns: ["journey_id"]
+            isOneToOne: false
+            referencedRelation: "crm_journeys"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_journey_enrollments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_journey_step_events: {
+        Row: {
+          channel: string
+          content_snapshot: Json
+          created_at: string
+          enrollment_id: string
+          error_code: string | null
+          error_message: string | null
+          id: string
+          metadata: Json
+          provider_message_id: string | null
+          status: string
+          step_id: string
+          updated_at: string
+        }
+        Insert: {
+          channel: string
+          content_snapshot?: Json
+          created_at?: string
+          enrollment_id: string
+          error_code?: string | null
+          error_message?: string | null
+          id?: string
+          metadata?: Json
+          provider_message_id?: string | null
+          status?: string
+          step_id: string
+          updated_at?: string
+        }
+        Update: {
+          channel?: string
+          content_snapshot?: Json
+          created_at?: string
+          enrollment_id?: string
+          error_code?: string | null
+          error_message?: string | null
+          id?: string
+          metadata?: Json
+          provider_message_id?: string | null
+          status?: string
+          step_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_journey_step_events_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "crm_journey_enrollments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_journey_step_events_step_id_fkey"
+            columns: ["step_id"]
+            isOneToOne: false
+            referencedRelation: "crm_journey_steps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_journey_steps: {
+        Row: {
+          audience_filters: Json | null
+          channel: string
+          content: Json
+          created_at: string
+          delay_unit: string
+          delay_value: number
+          id: string
+          journey_id: string
+          step_order: number
+          updated_at: string
+        }
+        Insert: {
+          audience_filters?: Json | null
+          channel: string
+          content?: Json
+          created_at?: string
+          delay_unit?: string
+          delay_value?: number
+          id?: string
+          journey_id: string
+          step_order: number
+          updated_at?: string
+        }
+        Update: {
+          audience_filters?: Json | null
+          channel?: string
+          content?: Json
+          created_at?: string
+          delay_unit?: string
+          delay_value?: number
+          id?: string
+          journey_id?: string
+          step_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_journey_steps_journey_id_fkey"
+            columns: ["journey_id"]
+            isOneToOne: false
+            referencedRelation: "crm_journeys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_journeys: {
+        Row: {
+          audience_filters: Json | null
+          audience_id: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          name: string
+          stats: Json
+          status: string
+          trigger_config: Json
+          trigger_type: string
+          updated_at: string
+        }
+        Insert: {
+          audience_filters?: Json | null
+          audience_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          stats?: Json
+          status?: string
+          trigger_config?: Json
+          trigger_type: string
+          updated_at?: string
+        }
+        Update: {
+          audience_filters?: Json | null
+          audience_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          stats?: Json
+          status?: string
+          trigger_config?: Json
+          trigger_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_journeys_audience_id_fkey"
+            columns: ["audience_id"]
+            isOneToOne: false
+            referencedRelation: "crm_audiences"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_journeys_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       crm_schedule_events: {
         Row: {
           channel: string
