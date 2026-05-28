@@ -1024,6 +1024,218 @@ export type Database = {
           },
         ]
       }
+      crm_audiences: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          filters: Json
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          filters?: Json
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          filters?: Json
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_audiences_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_channel_settings: {
+        Row: {
+          active: boolean
+          channel: string
+          config: Json
+          created_at: string
+          id: string
+          last_test_at: string | null
+          last_test_success: boolean | null
+          notes: string | null
+          provider: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          channel: string
+          config?: Json
+          created_at?: string
+          id?: string
+          last_test_at?: string | null
+          last_test_success?: boolean | null
+          notes?: string | null
+          provider: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          channel?: string
+          config?: Json
+          created_at?: string
+          id?: string
+          last_test_at?: string | null
+          last_test_success?: boolean | null
+          notes?: string | null
+          provider?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      crm_schedule_events: {
+        Row: {
+          channel: string
+          created_at: string
+          error_code: string | null
+          error_message: string | null
+          id: string
+          metadata: Json | null
+          provider_message_id: string | null
+          recipient_identifier: string | null
+          recipient_user_id: string | null
+          schedule_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          channel: string
+          created_at?: string
+          error_code?: string | null
+          error_message?: string | null
+          id?: string
+          metadata?: Json | null
+          provider_message_id?: string | null
+          recipient_identifier?: string | null
+          recipient_user_id?: string | null
+          schedule_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          channel?: string
+          created_at?: string
+          error_code?: string | null
+          error_message?: string | null
+          id?: string
+          metadata?: Json | null
+          provider_message_id?: string | null
+          recipient_identifier?: string | null
+          recipient_user_id?: string | null
+          schedule_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_schedule_events_recipient_user_id_fkey"
+            columns: ["recipient_user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_schedule_events_schedule_id_fkey"
+            columns: ["schedule_id"]
+            isOneToOne: false
+            referencedRelation: "crm_schedules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_schedules: {
+        Row: {
+          audience_filters: Json | null
+          audience_id: string | null
+          channel: string
+          click_count: number
+          content: Json
+          created_at: string
+          created_by: string | null
+          delivered_count: number
+          failed_count: number
+          id: string
+          name: string
+          open_count: number
+          reach_count: number
+          scheduled_at: string | null
+          sent_at: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          audience_filters?: Json | null
+          audience_id?: string | null
+          channel: string
+          click_count?: number
+          content?: Json
+          created_at?: string
+          created_by?: string | null
+          delivered_count?: number
+          failed_count?: number
+          id?: string
+          name: string
+          open_count?: number
+          reach_count?: number
+          scheduled_at?: string | null
+          sent_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          audience_filters?: Json | null
+          audience_id?: string | null
+          channel?: string
+          click_count?: number
+          content?: Json
+          created_at?: string
+          created_by?: string | null
+          delivered_count?: number
+          failed_count?: number
+          id?: string
+          name?: string
+          open_count?: number
+          reach_count?: number
+          scheduled_at?: string | null
+          sent_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_schedules_audience_id_fkey"
+            columns: ["audience_id"]
+            isOneToOne: false
+            referencedRelation: "crm_audiences"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_schedules_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       entitlements: {
         Row: {
           created_at: string
