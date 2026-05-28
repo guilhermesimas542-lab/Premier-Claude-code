@@ -2639,6 +2639,18 @@ export type Database = {
         Returns: Json
       }
       check_is_admin_email: { Args: { p_email: string }; Returns: boolean }
+      crm_clear_channel_secret: {
+        Args: { p_channel: string; p_key: string }
+        Returns: Json
+      }
+      crm_get_channel_secret: {
+        Args: { p_channel: string; p_key: string }
+        Returns: string
+      }
+      crm_save_channel_secret: {
+        Args: { p_channel: string; p_key: string; p_value: string }
+        Returns: Json
+      }
       get_ai_telemetry_dashboard: {
         Args: { p_period_days?: number }
         Returns: Json
