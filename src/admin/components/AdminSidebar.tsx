@@ -4,7 +4,7 @@ import {
   Users, Bell, BarChart3, ChevronLeft, ChevronRight,
   DollarSign, Activity, Home, Link, Layers, Shield, CreditCard, Bug, Zap,
   ChevronDown, UserPlus, UserX, UserCheck, Trophy, MessageSquare, Sparkles,
-  Megaphone, Send, Settings, Workflow, BarChart3,
+  Megaphone, Send, Settings, Workflow,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 

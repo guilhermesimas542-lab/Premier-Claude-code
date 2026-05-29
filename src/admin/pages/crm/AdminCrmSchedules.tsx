@@ -214,6 +214,7 @@ function ScheduleRow({
   onPauseToggle: () => void;
   onDispatch: () => void;
 }) {
+  const navigate = useNavigate();
   const ch = CHANNELS[schedule.channel];
   const status = SCHEDULE_STATUS_META[schedule.status];
   const Icon = ch.icon;
