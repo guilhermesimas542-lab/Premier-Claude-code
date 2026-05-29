@@ -46,6 +46,11 @@ export function useUserBettingHouse() {
           .eq("id", houseId)
           .single();
         setHouse(houseData as BettingHouseData);
+        // Persiste no localStorage pra que trackEvent() capture house_id em
+        // todos os eventos subsequentes (a coluna estava sempre NULL antes).
+        if (houseData?.id) {
+          localStorage.setItem("selected_house_id", houseData.id);
+        }
       }
 
       setLoading(false);

@@ -4,6 +4,7 @@ import {
   Users, Bell, BarChart3, ChevronLeft, ChevronRight,
   DollarSign, Activity, Home, Link, Layers, Shield, CreditCard, Bug, Zap,
   ChevronDown, UserPlus, UserX, UserCheck, Trophy, MessageSquare, Sparkles,
+  Megaphone, Send, Settings, Workflow, BarChart3,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 
@@ -46,8 +47,9 @@ export function AdminSidebar() {
     {
       label: "Gestão",
       items: [
-        { to: "/admin", icon: LayoutDashboard, label: "Dashboard", end: true },
-        
+        { to: "/admin", icon: LayoutDashboard, label: "Relatórios", end: true },
+        { to: "/admin/behavior", icon: BarChart3, label: "Comportamento" },
+
         {
           to: "/admin/clients",
           icon: Users,
@@ -77,6 +79,16 @@ export function AdminSidebar() {
       label: "IA Tipster",
       items: [
         { to: "/admin/ia-tipster", icon: Sparkles, label: "IA Tipster" },
+      ],
+    },
+    {
+      label: "CRM",
+      items: [
+        { to: "/admin/crm", icon: Megaphone, label: "Dashboard", end: true },
+        { to: "/admin/crm/schedules", icon: Send, label: "Schedules" },
+        { to: "/admin/crm/journeys", icon: Workflow, label: "Jornadas" },
+        { to: "/admin/crm/audiences", icon: Users, label: "Audiências" },
+        { to: "/admin/crm/settings", icon: Settings, label: "Configurações" },
       ],
     },
     {

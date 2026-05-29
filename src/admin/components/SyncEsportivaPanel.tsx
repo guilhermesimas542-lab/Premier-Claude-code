@@ -94,7 +94,7 @@ export function SyncEsportivaPanel() {
         <div className="flex items-center gap-2">
           <LinkIcon className="h-5 w-5 text-primary" />
           <h3 className="text-lg font-semibold text-foreground">
-            Sincronizar mapeamento Esportiva
+            Sincronizar mapeamento Esportiva Bet
           </h3>
         </div>
         <Button onClick={runSync} disabled={loading} size="sm">
@@ -113,7 +113,7 @@ export function SyncEsportivaPanel() {
       </div>
 
       <p className="text-sm text-muted-foreground">
-        Busca todos os jogos das ligas mapeadas na Altenar (Esportiva) e cruza
+        Busca todos os jogos das ligas mapeadas na Altenar (Esportiva Bet) e cruza
         com fixtures da API-Football. Atualiza ai_match_altenar_map. Demora 3-6
         minutos.
       </p>

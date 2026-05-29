@@ -550,7 +550,7 @@ export default function AdminTipsCreate() {
             {betBuilderImported && <span className="text-green-400 text-sm">✓ Importado</span>}
           </div>
           <p className="text-xs text-muted-foreground mb-2">
-            Cole o JSON do campo WSDK_esportiva_betSelections do localStorage da Esportiva.
+            Cole o JSON do campo WSDK_esportiva_betSelections do localStorage da Esportiva Bet.
           </p>
           {!betBuilderImported ? (
             <>
@@ -582,7 +582,7 @@ export default function AdminTipsCreate() {
                   variant="outline"
                   onClick={() => {
                     navigator.clipboard.writeText("localStorage.getItem('WSDK_esportiva_betSelections')");
-                    toast.success("Comando copiado! Cole no console da Esportiva.");
+                    toast.success("Comando copiado! Cole no console da Esportiva Bet.");
                   }}
                 >
                   Copiar Comando

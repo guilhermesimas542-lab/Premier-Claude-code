@@ -27,6 +27,13 @@ import { PayCardFunnelModal } from "@/components/PayCardFunnelModal";
 import { PaywallPopup } from "@/components/PaywallPopup";
 import { resolvePaywallVariant, type FeatureKey } from "@/lib/paywallRouting";
 import { useLinks } from "@/contexts/LinksContext";
+import { isPreviewEnv } from "@/lib/previewEnv";
+import iaTipsterCartoon from "@/assets/ia-tipster-cartoon.png";
+import { IATipsterOnboardingModal } from "@/components/ia-tipster/IATipsterOnboardingModal";
+
+// Mesmo localStorage key usado em IATipster.tsx — mantém sincronizado o estado
+// "lead já viu o anúncio da feature" entre Home e a página interna.
+const LS_IA_ONBOARDING_SEEN = "ia_tipster_onboarding_seen";
 
 const CARD_TO_FEATURE: Record<string, FeatureKey> = {
   odds_altas: "multiplas_bingo",
@@ -39,6 +46,9 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [showBasicModal, setShowBasicModal] = useState(false);
   const [showPromotionsModal, setShowPromotionsModal] = useState(false);
+  // Anúncio da nova feature IA Tipster — aparece UMA VEZ pra todo lead
+  // que entrar no app pela primeira vez após a release.
+  const [showIaAnnouncement, setShowIaAnnouncement] = useState(false);
   const [showLifetimeModal, setShowLifetimeModal] = useState(false);
   const [showLifetimeInfoModal, setShowLifetimeInfoModal] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
@@ -92,7 +102,21 @@ const Home = () => {
     Object.keys(localStorage).forEach(key => {
       if (key.startsWith('popup_shown_') || key === 'welcome_popup_shown') localStorage.removeItem(key);
     });
+    // Anúncio IA Tipster: aparece 1x pra todo lead autenticado (só em preview).
+    if (isPreviewEnv() && localStorage.getItem(LS_IA_ONBOARDING_SEEN) !== "true") {
+      setShowIaAnnouncement(true);
+    }
   }, [navigate]);
+
+  /** Conclusão do funil de onboarding (todos os 4 steps do modal vistos).
+   *  Marca onboarding+tutorial como concluídos pra não exibir mais o tutorial
+   *  da sidebar quando o lead chegar em /ia-tipster, e redireciona pra lá. */
+  const handleIaOnboardingComplete = () => {
+    localStorage.setItem(LS_IA_ONBOARDING_SEEN, "true");
+    localStorage.setItem("ia_tipster_tutorial_completed", "true");
+    setShowIaAnnouncement(false);
+    navigate("/ia-tipster");
+  };
 
   const handleLogout = () => { clearAuth(); toast.success("Logout realizado com sucesso"); navigate("/login"); };
   const handleSupport = () => { navigate("/support"); };
@@ -180,6 +204,7 @@ const Home = () => {
     border-radius: 15px;
     overflow: hidden;
       }
+
     `}</style>
     <div className="min-h-screen relative overflow-hidden pb-20 md:pb-0 bg-navy-dark">
       <div className="absolute top-0 left-1/4 w-96 h-96 rounded-full blur-[140px] pointer-events-none" style={{ background: "rgba(0,255,127,0.06)" }} />
@@ -187,7 +212,121 @@ const Home = () => {
       <AppHeader onShowLifetimeInfoModal={() => setShowLifetimeInfoModal(true)} />
 
       <main className="container max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6 relative z-10">
-        
+
+        {/* IA Tipster — Hero (somente preview/local até liberação em produção) */}
+        {isPreviewEnv() && (
+          <section className="space-y-3">
+            <h2
+              style={{
+                fontFamily: "'Barlow Condensed', sans-serif",
+                fontWeight: 800,
+                fontSize: '20px',
+                color: '#FFFFFF',
+                textTransform: 'uppercase',
+                letterSpacing: '1px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+              }}
+            >
+              ✨ IA Tipster
+            </h2>
+            <button
+              onClick={() => navigate("/ia-tipster")}
+              className="relative w-full overflow-hidden rounded-xl border flex hover:-translate-y-0.5 transition-all duration-200 text-left group"
+              style={{
+                background: "#112236",
+                borderColor: 'rgba(0,255,127,0.45)',
+                minHeight: '140px',
+                boxShadow: '0 0 30px rgba(0,255,127,0.12)',
+              }}
+            >
+              {/* Badges NOVO + BETA no canto superior direito */}
+              <div className="absolute top-2 right-2 z-20 flex gap-1">
+                <span style={{
+                  background: 'rgba(240,180,41,0.15)',
+                  border: '1px solid rgba(240,180,41,0.3)',
+                  color: '#F0B429',
+                  fontFamily: "'Barlow Condensed', sans-serif",
+                  fontWeight: 700,
+                  fontSize: '11px',
+                  letterSpacing: '1px',
+                  padding: '2px 10px',
+                  borderRadius: '6px',
+                }}>
+                  NOVO
+                </span>
+                <span style={{
+                  background: 'rgba(148,163,184,0.15)',
+                  border: '1px solid rgba(148,163,184,0.3)',
+                  color: '#94A3B8',
+                  fontFamily: "'Barlow Condensed', sans-serif",
+                  fontWeight: 700,
+                  fontSize: '11px',
+                  letterSpacing: '1px',
+                  padding: '2px 10px',
+                  borderRadius: '6px',
+                }}>
+                  BETA
+                </span>
+              </div>
+
+              {/* Cartoon IA Tipster — padrão lateral idêntico ao CardType1Lateral */}
+              <div className="relative shrink-0" style={{ width: '120px', height: '140px' }}>
+                <img
+                  src={iaTipsterCartoon}
+                  alt="IA Tipster"
+                  className="w-full h-full object-cover rounded-l-xl"
+                />
+                {/* Gradient fade pro conteúdo do card */}
+                <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(to right, transparent 55%, #112236 100%)" }} />
+              </div>
+
+              {/* Conteúdo direito */}
+              <div className="flex-1 p-4 flex flex-col justify-center gap-2 pr-3">
+                <h3 style={{
+                  fontFamily: "'Barlow Condensed', sans-serif",
+                  fontWeight: 800,
+                  fontSize: '20px',
+                  color: '#FFFFFF',
+                  lineHeight: 1.1,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                  paddingRight: '90px',
+                }}>
+                  Análises de IA em tempo real
+                </h3>
+                <p style={{
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontWeight: 400,
+                  fontSize: '12px',
+                  color: '#94A3B8',
+                  lineHeight: 1.3,
+                }}>
+                  Pergunte sobre qualquer jogo ou escolha uma partida ao vivo.
+                </p>
+                <button
+                  onClick={(e) => { e.stopPropagation(); navigate("/ia-tipster"); }}
+                  style={{
+                    width: '100%',
+                    padding: '8px 0',
+                    background: '#24c660',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontFamily: "'Barlow Condensed', sans-serif",
+                    fontWeight: 800,
+                    fontSize: '13px',
+                    color: '#FFFFFF',
+                    letterSpacing: '0.5px',
+                    cursor: 'pointer',
+                  }}
+                >
+                  TESTAR A IA TIPSTER
+                </button>
+              </div>
+            </button>
+          </section>
+        )}
 
         {/* Main Entry Cards */}
         <section className="space-y-4 sm:space-y-6">
@@ -392,6 +531,12 @@ const Home = () => {
       </footer>
 
       <BasicPlanModal open={showBasicModal} onClose={() => setShowBasicModal(false)} />
+
+      {/* Funil de onboarding IA Tipster — modal 4 steps, 1x por lead. */}
+      <IATipsterOnboardingModal
+        open={showIaAnnouncement}
+        onComplete={handleIaOnboardingComplete}
+      />
 
       {/* Modal Promoções */}
       {showPromotionsModal && (

@@ -1,4 +1,4 @@
-import { Sparkles, ArrowLeft } from "lucide-react";
+import { Sparkles, ArrowLeft, Coins } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { mockGetUser } from "@/mocks/user";
@@ -7,6 +7,8 @@ import logoImg from "@/assets/premier-logo-custom.png";
 import { useNavigate, useLocation } from "react-router-dom";
 import { TelegramRedeemModal } from "@/components/TelegramRedeemModal";
 import { PlansModal } from "@/components/PlansModal";
+import { BuyCreditsModal } from "@/components/ia-tipster/BuyCreditsModal";
+import { isPreviewEnv } from "@/lib/previewEnv";
 
 interface AppHeaderProps {
   onShowLifetimeInfoModal?: () => void; // kept for backward compat (unused)
@@ -29,6 +31,8 @@ const AppHeader = ({ leftContent, headerStyle, title }: AppHeaderProps) => {
   const [telegramGroupUrl, setTelegramGroupUrl] = useState<string | null>(null);
   const [showTelegramModal, setShowTelegramModal] = useState(false);
   const [showPlansModal, setShowPlansModal] = useState(false);
+  const [showBuyCreditsModal, setShowBuyCreditsModal] = useState(false);
+  const isIATipsterRoute = location.pathname === "/ia-tipster";
 
   useEffect(() => {
     if (!mockUser) {
@@ -85,6 +89,26 @@ const AppHeader = ({ leftContent, headerStyle, title }: AppHeaderProps) => {
             )}
 
             <div className="flex items-center gap-2 sm:gap-3">
+              {/* CTA IA Tipster — só na aba Tips (rotas /sport/*) e em preview */}
+              {isPreviewEnv() && location.pathname.startsWith("/sport") && (
+                <button
+                  onClick={() => navigate("/ia-tipster")}
+                  className="inline-flex items-center gap-1.5 rounded-full transition-all hover:scale-105"
+                  style={{
+                    padding: "7px 14px",
+                    background: "rgba(0,255,127,0.10)",
+                    border: "1px solid rgba(0,255,127,0.5)",
+                    fontFamily: "'Barlow Condensed', sans-serif",
+                    fontWeight: 700,
+                    fontSize: "13px",
+                    color: "#FFFFFF",
+                    letterSpacing: "0.5px",
+                  }}
+                >
+                  <Sparkles size={14} style={{ color: "#00FF7F" }} />
+                  Criar Odds
+                </button>
+              )}
               {tierLoaded && isFree && (
                 <button
                   onClick={() => setShowTelegramModal(true)}
@@ -123,6 +147,27 @@ const AppHeader = ({ leftContent, headerStyle, title }: AppHeaderProps) => {
                   Planos
                 </button>
               )}
+              {isIATipsterRoute && (
+                <button
+                  onClick={() => setShowBuyCreditsModal(true)}
+                  className="inline-flex items-center gap-1.5 rounded-full transition-all hover:scale-105"
+                  style={{
+                    padding: "7px 14px",
+                    background: "#24c660",
+                    border: "1px solid rgba(0,255,127,0.5)",
+                    fontFamily: "'Barlow Condensed', sans-serif",
+                    fontWeight: 700,
+                    fontSize: "13px",
+                    color: "#FFFFFF",
+                    letterSpacing: "0.5px",
+                    boxShadow: "0 0 14px rgba(0,255,127,0.3)",
+                  }}
+                  aria-label="Comprar créditos"
+                >
+                  <Coins size={14} />
+                  + Créditos
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -136,6 +181,10 @@ const AppHeader = ({ leftContent, headerStyle, title }: AppHeaderProps) => {
       <PlansModal
         open={showPlansModal}
         onClose={() => setShowPlansModal(false)}
+      />
+      <BuyCreditsModal
+        open={showBuyCreditsModal}
+        onClose={() => setShowBuyCreditsModal(false)}
       />
     </>
   );

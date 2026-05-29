@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { trackEvent } from "@/lib/events";
+import { trackAnalysisOpened, trackEsportivaOpened } from "@/lib/analysisTracking";
 
 function getTeamName(team: any): string {
   if (!team) return "";
@@ -51,6 +52,23 @@ export function LiveTipModal({ open, onOpenChange, match, onOpenEsportiva }: Pro
   async function handleGenerate() {
     await generate(match.fixture_id);
     refetchBalance();
+    // Tracking enriquecido pós-geração
+    trackAnalysisOpened({
+      source: "live",
+      fixture: {
+        fixture_id: match.fixture_id,
+        home: match.home?.name ?? null,
+        away: match.away?.name ?? null,
+        league_id: match.league?.id ?? null,
+        league_name: match.league?.name ?? null,
+        league_country: match.league?.country ?? null,
+      },
+      markdown: tip?.content?.markdown,
+      altenar_event_id:
+        (tip?.source_data?.altenar_event_id as string | undefined) ?? null,
+      altenar_event_url:
+        (tip?.source_data?.altenar_event_url as string | undefined) ?? null,
+    });
   }
 
   async function sendFeedback(value: "up" | "down") {
@@ -75,10 +93,19 @@ export function LiveTipModal({ open, onOpenChange, match, onOpenEsportiva }: Pro
     const home = getTeamName(tip?.source_data?.fixture?.home) || match.home.name;
     const away = getTeamName(tip?.source_data?.fixture?.away) || match.away.name;
 
-    trackEvent("ia_tipster_open_esportiva", {
-      mode: altenarUrl ? "event_specific" : "fallback_home",
-      altenar_event_id: altenarId ?? null,
+    trackEsportivaOpened({
       source: "live",
+      fixture: {
+        fixture_id: match.fixture_id,
+        home,
+        away,
+        league_id: match.league?.id ?? null,
+        league_name: match.league?.name ?? null,
+        league_country: match.league?.country ?? null,
+      },
+      markdown: tip?.content?.markdown,
+      altenar_event_id: altenarId ?? null,
+      altenar_event_url: altenarUrl ?? null,
     });
 
     onOpenChange(false);
@@ -177,7 +204,7 @@ export function LiveTipModal({ open, onOpenChange, match, onOpenEsportiva }: Pro
 
             <Button onClick={handleOpenEsportiva} className="w-full text-black font-semibold" variant="default">
               <ExternalLink className="w-4 h-4 mr-2" />
-              Abrir Esportiva
+              Abrir Esportiva Bet
               <ChevronRight className="w-4 h-4 ml-auto" />
             </Button>
           </div>

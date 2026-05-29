@@ -121,7 +121,7 @@ export function EsportivaInlinePanel({
       {!hasMapping && (
         <div className="flex items-center gap-2 px-3 py-2 bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[11px] border-b border-amber-500/20">
           <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-          <span>Jogo não disponível na Esportiva — mostrando home.</span>
+          <span>Jogo não disponível na Esportiva Bet — mostrando home.</span>
         </div>
       )}
 
@@ -129,7 +129,7 @@ export function EsportivaInlinePanel({
       <div className="flex-1 min-h-0 bg-background">
         <iframe
           src={iframeSrc}
-          title={`Esportiva - ${matchLabel}`}
+          title={`Esportiva Bet - ${matchLabel}`}
           className="w-full h-full border-0"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen

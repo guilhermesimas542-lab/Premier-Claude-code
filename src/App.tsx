@@ -14,6 +14,7 @@ import SportLayout from "./pages/SportLayout";
 import Login from "./pages/Login";
 
 import IATipster from "./pages/IATipster";
+import IATipsterPreview from "./pages/IATipsterPreview";
 
 import UltimosGreens from "./pages/UltimosGreens";
 import Support from "./pages/Support";
@@ -49,6 +50,16 @@ import AdminPayCards from "./admin/pages/AdminPayCards";
 import AdminErrors from "./admin/pages/AdminErrors";
 import AdminFeedback from "./admin/pages/AdminFeedback";
 import AdminIATipster from "./admin/pages/AdminIATipster";
+import AdminCrmDashboard from "./admin/pages/crm/AdminCrmDashboard";
+import AdminCrmSchedules from "./admin/pages/crm/AdminCrmSchedules";
+import AdminCrmScheduleNew from "./admin/pages/crm/AdminCrmScheduleNew";
+import AdminCrmScheduleEdit from "./admin/pages/crm/AdminCrmScheduleEdit";
+import AdminCrmAudiences from "./admin/pages/crm/AdminCrmAudiences";
+import AdminCrmJourneys from "./admin/pages/crm/AdminCrmJourneys";
+import AdminCrmJourneyBuilder from "./admin/pages/crm/AdminCrmJourneyBuilder";
+import AdminCrmJourneyDetail from "./admin/pages/crm/AdminCrmJourneyDetail";
+import AdminBehavior from "./admin/pages/AdminBehavior";
+import AdminCrmSettings from "./admin/pages/crm/AdminCrmSettings";
 import AdminWebhook from "./admin/pages/AdminWebhook";
 import AdminNaoAcessou from "./admin/pages/AdminNaoAcessou";
 import AdminClientesFree from "./admin/pages/AdminClientesFree";
@@ -93,6 +104,7 @@ const App = () => {
             
             <Route path="/ultimos-greens" element={<UltimosGreens />} />
             <Route path="/ia-tipster" element={<IATipster />} />
+            <Route path="/ia-tipster-preview" element={<IATipsterPreview />} />
             <Route path="/support" element={<Support />} />
             <Route path="/obrigado" element={<Obrigado />} />
             <Route path="/bd" element={<Backredirect />} />
@@ -115,6 +127,7 @@ const App = () => {
               <Route path="notifications" element={<AdminNotifications />} />
               <Route path="analytics" element={<AdminAnalytics />} />
               <Route path="analytics/events" element={<AdminEventsPage />} />
+              <Route path="behavior" element={<AdminBehavior />} />
               <Route path="ranking" element={<AdminRanking />} />
               <Route path="revenue" element={<AdminRevenue />} />
               <Route path="default-links" element={<AdminDefaultLinks />} />
@@ -126,6 +139,17 @@ const App = () => {
               <Route path="feedback" element={<AdminFeedback />} />
               <Route path="ia-tipster" element={<AdminIATipster />} />
               <Route path="webhook" element={<AdminWebhook />} />
+              {/* CRM — orquestrador multicanal */}
+              <Route path="crm" element={<AdminCrmDashboard />} />
+              <Route path="crm/schedules" element={<AdminCrmSchedules />} />
+              <Route path="crm/schedules/new" element={<AdminCrmScheduleNew />} />
+              <Route path="crm/schedules/:id/edit" element={<AdminCrmScheduleEdit />} />
+              <Route path="crm/audiences" element={<AdminCrmAudiences />} />
+              <Route path="crm/journeys" element={<AdminCrmJourneys />} />
+              <Route path="crm/journeys/new" element={<AdminCrmJourneyBuilder />} />
+              <Route path="crm/journeys/:id" element={<AdminCrmJourneyDetail />} />
+              <Route path="crm/journeys/:id/edit" element={<AdminCrmJourneyBuilder />} />
+              <Route path="crm/settings" element={<AdminCrmSettings />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>

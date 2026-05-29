@@ -1,14 +1,27 @@
 // ============================================================
-// crm-process-schedule — processa um Schedule (Sub-fase 1.6a)
+// crm-process-schedule — processa um Schedule (Sub-fase 1.6b)
 //
-// MODO ATUAL: dry-run por padrão.
+// MODO ATUAL: mock-first (default dry_run=true).
 //   - Resolve a audiência
-//   - Cria events em crm_schedule_events (status='sent', metadata.dry_run=true)
-//   - Atualiza schedule (status='sent', sent_at, counts)
-//   - NÃO chama Resend / SMS / WhatsApp ainda — só loga
+//   - Para cada chunk de destinatários chama mockProviders.sendBatch
+//     (simula latência + 95% delivered + open/click realistas)
+//   - Push e Popup forçam failed (channel_blocked)
+//   - Telegram x1 = broadcast (1 event sintético)
+//   - Atualiza schedule com métricas reais (reach/delivered/failed/open/click)
+//
+// QUANDO INTEGRAR PROVIDERS (Pilar 4): substituir mockProviders.ts por
+// realProviders.ts mantendo a mesma interface SendResult.
 // ============================================================
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import {
+  sendBatch,
+  sendBroadcast,
+  getChannelCapabilities,
+  type ChannelKey,
+  type Recipient,
+  type SendResult,
+} from "./mockProviders.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -18,6 +31,7 @@ const corsHeaders = {
 
 interface RequestBody {
   schedule_id: string;
+  /** Se omitido, default é true (mock providers). false reservado pra Pilar 4. */
   dry_run?: boolean;
 }
 
@@ -27,6 +41,7 @@ interface AudienceFilters {
   status?: Array<"active" | "inactive" | "churn_risk">;
   origin?: "payt" | "db_app" | "both";
   opt_ins?: string[];
+  /** Marca semântica de broadcast (Telegram x1). */
   broadcast?: boolean;
 }
 
@@ -36,6 +51,8 @@ function json(body: unknown, status = 200) {
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
 }
+
+const CHUNK = 1000;
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
@@ -49,7 +66,7 @@ Deno.serve(async (req: Request) => {
   }
 
   const scheduleId = body.schedule_id;
-  const dryRun = body.dry_run ?? true;
+  const dryRun = body.dry_run ?? true; // default = mock providers em 1.6b
 
   if (!scheduleId) return json({ error: "missing_schedule_id" }, 400);
 
@@ -58,9 +75,12 @@ Deno.serve(async (req: Request) => {
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
   );
 
+  // ============================================================
+  // 1. Lê o schedule
+  // ============================================================
   const { data: schedule, error: schedErr } = await supabase
     .from("crm_schedules")
-    .select("*, audience:crm_audiences(id, name, filters)")
+    .select("*, audience:crm_audiences(id, name, kind, filters)")
     .eq("id", scheduleId)
     .single();
 
@@ -71,23 +91,65 @@ Deno.serve(async (req: Request) => {
   if (schedule.status === "sent") return json({ error: "already_sent" }, 400);
   if (schedule.status === "sending") return json({ error: "already_sending" }, 409);
 
+  const channel = schedule.channel as ChannelKey;
+
+  // ============================================================
+  // 2. Marca como "sending"
+  // ============================================================
   await supabase
     .from("crm_schedules")
     .update({ status: "sending" })
     .eq("id", scheduleId);
 
+  // ============================================================
+  // 3. Resolve audiência → lista de destinatários
+  // ============================================================
   const filters: AudienceFilters =
     schedule.audience?.filters ?? schedule.audience_filters ?? {};
-  const isBroadcast = filters.broadcast === true || schedule.channel === "telegram_x1";
+  const isBroadcast = filters.broadcast === true || channel === "telegram_x1";
 
-  let recipients: Array<{
-    id: string;
-    email: string | null;
-    phone: string | null;
-    nickname: string | null;
-  }> = [];
+  /**
+   * Listas estáticas (kind='static_list'): vêm de crm_audience_members.
+   * Quando a audiência salva é desse tipo, ignoramos os filtros dinâmicos e
+   * lemos diretamente da tabela de membros, juntando com `users` quando
+   * houver `user_id` pra enriquecer com dados disponíveis.
+   */
+  const isStaticList = schedule.audience?.kind === "static_list";
 
-  if (!isBroadcast) {
+  let recipients: Recipient[] = [];
+
+  if (!isBroadcast && isStaticList && schedule.audience?.id) {
+    const { data: members, error: memErr } = await supabase
+      .from("crm_audience_members")
+      .select(
+        `email, phone, user_id,
+         user:users ( id, email, phone, nickname )`
+      )
+      .eq("audience_id", schedule.audience.id)
+      .limit(50000);
+
+    if (memErr) {
+      await supabase
+        .from("crm_schedules")
+        .update({ status: "failed" })
+        .eq("id", scheduleId);
+      return json(
+        { error: "audience_resolution_failed", details: memErr.message },
+        500
+      );
+    }
+
+    // Normaliza members → Recipient. Quando há user_id, usa dados do user;
+    // senão monta com o que tem do member (mas sempre devolve um id sintético
+    // pra event log conseguir guardar referência).
+    recipients = ((members ?? []) as any[]).map((m) => ({
+      // ID sintético: prefere user.id; senão usa identifier como pseudo-id
+      id: m.user?.id ?? `audience_member:${m.email ?? m.phone}`,
+      email: m.user?.email ?? m.email ?? null,
+      phone: m.user?.phone ?? m.phone ?? null,
+      nickname: m.user?.nickname ?? null,
+    }));
+  } else if (!isBroadcast) {
     let q: any = supabase.from("users").select("id, email, phone, nickname");
 
     if (filters.plans && filters.plans.length > 0) {
@@ -143,47 +205,99 @@ Deno.serve(async (req: Request) => {
   const reachCount = recipients.length;
   let deliveredCount = 0;
   let failedCount = 0;
+  let openCount = 0;
+  let clickCount = 0;
 
+  // ============================================================
+  // 4. MOCK PROVIDERS — envia em chunks e persiste events
+  //    Em Pilar 4: trocar mockProviders por realProviders.
+  // ============================================================
   if (isBroadcast) {
+    const broadcastResult = await sendBroadcast(channel);
+
+    const event = {
+      schedule_id: scheduleId,
+      recipient_user_id: broadcastResult.recipient_user_id,
+      recipient_identifier: broadcastResult.recipient_identifier,
+      channel,
+      status: broadcastResult.status,
+      provider_message_id: broadcastResult.provider_message_id ?? null,
+      error_code: broadcastResult.error_code ?? null,
+      error_message: broadcastResult.error_message ?? null,
+      metadata: { ...broadcastResult.metadata, dry_run: dryRun },
+    };
+
+    const { error: insErr } = await supabase
+      .from("crm_schedule_events")
+      .insert([event]);
+
+    if (insErr) {
+      console.error("[CRM][MOCK] Erro inserindo event de broadcast:", insErr);
+      failedCount = 1;
+    } else if (broadcastResult.status === "failed") {
+      failedCount = 1;
+    } else {
+      deliveredCount = 1;
+    }
+
     console.log(
-      `[CRM][DRY-RUN] Broadcast schedule "${schedule.name}" via ${schedule.channel}.`
+      `[CRM][MOCK] Broadcast "${schedule.name}" via ${channel} → ${broadcastResult.status}`
     );
   } else if (reachCount > 0) {
-    const events = recipients.map((r) => ({
-      schedule_id: scheduleId,
-      recipient_user_id: r.id,
-      recipient_identifier:
-        schedule.channel === "email" ? r.email : (r.phone ?? r.email),
-      channel: schedule.channel,
-      status: dryRun ? "sent" : "pending",
-      metadata: dryRun
-        ? { dry_run: true, mode: "1.6a", channel: schedule.channel }
-        : {},
-    }));
+    const caps = getChannelCapabilities(channel);
 
-    const CHUNK = 1000;
-    for (let i = 0; i < events.length; i += CHUNK) {
-      const slice = events.slice(i, i + CHUNK);
+    for (let i = 0; i < recipients.length; i += CHUNK) {
+      const slice = recipients.slice(i, i + CHUNK);
+      const results: SendResult[] = await sendBatch(channel, slice);
+
+      const events = results.map((r) => ({
+        schedule_id: scheduleId,
+        recipient_user_id: r.recipient_user_id,
+        recipient_identifier: r.recipient_identifier,
+        channel,
+        status: r.status,
+        provider_message_id: r.provider_message_id ?? null,
+        error_code: r.error_code ?? null,
+        error_message: r.error_message ?? null,
+        metadata: { ...r.metadata, dry_run: dryRun },
+      }));
+
       const { error: insErr } = await supabase
         .from("crm_schedule_events")
-        .insert(slice);
+        .insert(events);
+
       if (insErr) {
-        console.error(`[CRM] Erro inserindo events ${i}-${i + slice.length}:`, insErr);
+        console.error(
+          `[CRM][MOCK] Erro inserindo events ${i}-${i + slice.length}:`,
+          insErr
+        );
+        // Insert falhou: lote inteiro conta como failed (não chegou ao banco)
         failedCount += slice.length;
-      } else {
-        deliveredCount += slice.length;
+        continue;
+      }
+
+      // Insert ok: contabiliza estados dos events
+      for (const r of results) {
+        if (r.status === "failed") failedCount++;
+        else {
+          deliveredCount++;
+          if (r.status === "opened" || r.status === "clicked") openCount++;
+          if (r.status === "clicked") clickCount++;
+        }
       }
     }
 
-    const sample = recipients
-      .slice(0, 3)
-      .map((r) => r.email || r.id)
-      .join(", ");
     console.log(
-      `[CRM][DRY-RUN] "${schedule.name}" via ${schedule.channel}: ${reachCount} destinatários. Sample: ${sample}${reachCount > 3 ? "…" : ""}`
+      `[CRM][MOCK] "${schedule.name}" via ${channel} ` +
+      `(${caps.providerLabel}, blocked=${caps.blocked}): ` +
+      `reach=${reachCount} delivered=${deliveredCount} failed=${failedCount} ` +
+      `open=${openCount} click=${clickCount}`
     );
   }
 
+  // ============================================================
+  // 5. Atualiza schedule final
+  // ============================================================
   const finalStatus =
     reachCount === 0 && !isBroadcast
       ? "sent"
@@ -199,18 +313,23 @@ Deno.serve(async (req: Request) => {
       reach_count: reachCount,
       delivered_count: deliveredCount,
       failed_count: failedCount,
+      open_count: openCount,
+      click_count: clickCount,
     })
     .eq("id", scheduleId);
 
   return json({
     success: true,
     dry_run: dryRun,
+    mock: true,
     schedule_id: scheduleId,
-    channel: schedule.channel,
+    channel,
     broadcast: isBroadcast,
     reach: reachCount,
     delivered: deliveredCount,
     failed: failedCount,
+    opened: openCount,
+    clicked: clickCount,
     final_status: finalStatus,
   });
 });

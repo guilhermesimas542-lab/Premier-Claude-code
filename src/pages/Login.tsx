@@ -6,7 +6,9 @@ import { mockLogin } from "@/mocks/user";
 import { storeToken, trackEvent } from "@/lib/events";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { CHECKOUT_LINKS } from "@/lib/checkoutLinks";
-import { Crown, Loader2, ShoppingCart } from "lucide-react";
+import { Crown, Loader2, ShoppingCart, Sparkles } from "lucide-react";
+import { isPreviewEnv } from "@/lib/previewEnv";
+import iaTipsterCartoon from "@/assets/ia-tipster-cartoon.png";
 import { usePayCardTrigger } from "@/hooks/usePayCardTrigger";
 import { useLinks } from "@/contexts/LinksContext";
 import { PayCardFunnelModal } from "@/components/PayCardFunnelModal";
@@ -121,13 +123,38 @@ const Login = () => {
   const { greens, greenLabel } = useLastGreens();
   const [currentIndex, setCurrentIndex] = useState(0);
 
+  // Carrossel alternado: IA Tipster → Green → IA → Green ... (só em preview enquanto a
+  // feature não tem launch oficial). Quando liberar em produção, remover esse gate.
+  const showIaCard = isPreviewEnv();
+
+  // Odds fake variadas — cada aparição do card IA exibe uma odd diferente,
+  // dando ideia da variedade que a IA pode gerar (de safe a alavancagem).
+  const IA_FAKE_ODDS = [35.40, 2.15, 12.50, 1.75, 8.30, 4.20, 1.55, 22.00];
+
+  // Monta array unificado de slides com alternância IA + green.
+  type Slide =
+    | { type: "ia"; iaIndex: number }
+    | { type: "green"; data: typeof greens[number] };
+  const slides: Slide[] = (() => {
+    if (!showIaCard) return greens.map((g) => ({ type: "green" as const, data: g }));
+    if (greens.length === 0) return [{ type: "ia" as const, iaIndex: 0 }];
+    const result: Slide[] = [];
+    let iaIdx = 0;
+    greens.forEach((g) => {
+      result.push({ type: "ia", iaIndex: iaIdx++ });
+      result.push({ type: "green", data: g });
+    });
+    return result;
+  })();
+  const totalSlides = slides.length;
+
   useEffect(() => {
-    if (greens.length <= 1) return;
+    if (totalSlides <= 1) return;
     const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % greens.length);
+      setCurrentIndex((prev) => (prev + 1) % totalSlides);
     }, 3000);
     return () => clearInterval(interval);
-  }, [greens.length]);
+  }, [totalSlides]);
 
   const validateEmail = (value: string) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
@@ -244,8 +271,8 @@ const Login = () => {
           />
         </div>
 
-        {/* Last Greens Carousel */}
-        {greens.length > 0 && (
+        {/* Last Greens Carousel + IA Tipster teaser */}
+        {totalSlides > 0 && (
           <div className="w-full mb-8">
             {/* Container with overflow hidden for slide animation */}
             <div className="overflow-hidden rounded-xl">
@@ -257,7 +284,147 @@ const Login = () => {
                   willChange: 'transform',
                 }}
               >
-                {greens.map((green, index) => {
+                {slides.map((slide, slideIndex) => {
+                  // Slide do tipo IA Tipster
+                  if (slide.type === "ia") {
+                    const iaOdd = IA_FAKE_ODDS[slide.iaIndex % IA_FAKE_ODDS.length];
+                    const iaReturn = Math.round(100 * iaOdd);
+                    return (
+                      <div key={`ia-${slideIndex}`} className="w-full shrink-0" style={{ minWidth: '100%' }}>
+                        <div
+                          style={{
+                            backgroundColor: '#112236',
+                            border: '1.5px solid rgba(0,255,127,0.45)',
+                            borderRadius: '12px',
+                            overflow: 'hidden',
+                            boxShadow: '0 0 24px rgba(0,255,127,0.10)',
+                          }}
+                        >
+                          {/* LINHA 1: badge IA esquerda | odd direita (mesma estrutura dos greens) */}
+                          <div
+                            style={{
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'center',
+                              padding: '14px 16px 10px 16px',
+                            }}
+                          >
+                            <span
+                              style={{
+                                fontFamily: 'Barlow Condensed, sans-serif',
+                                fontWeight: 900,
+                                fontSize: '15px',
+                                textTransform: 'uppercase',
+                                letterSpacing: '1.5px',
+                                padding: '6px 14px',
+                                borderRadius: '6px',
+                                backgroundColor: 'rgba(0,255,127,0.12)',
+                                border: '1.5px solid rgba(0,255,127,0.45)',
+                                color: '#00FF7F',
+                                lineHeight: 1,
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '5px',
+                              }}
+                            >
+                              <Sparkles size={13} />
+                              IA Tipster
+                            </span>
+                            <span
+                              style={{
+                                fontFamily: 'Barlow Condensed, sans-serif',
+                                fontWeight: 900,
+                                fontSize: '36px',
+                                color: '#00FF7F',
+                                lineHeight: 1,
+                              }}
+                            >
+                              {iaOdd.toFixed(2)}
+                            </span>
+                          </div>
+
+                          {/* LINHA 2: título+sub esquerda | retorno direita (igual greens) */}
+                          <div
+                            style={{
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'center',
+                              padding: '0 16px 14px 16px',
+                            }}
+                          >
+                            <div>
+                              <p
+                                style={{
+                                  fontFamily: 'Barlow Condensed, sans-serif',
+                                  fontWeight: 700,
+                                  fontSize: '18px',
+                                  color: '#ffffff',
+                                  lineHeight: 1.2,
+                                  margin: 0,
+                                }}
+                              >
+                                Crie suas próprias odds
+                              </p>
+                              <p
+                                style={{
+                                  fontFamily: 'DM Sans, sans-serif',
+                                  fontWeight: 400,
+                                  fontSize: '13px',
+                                  color: 'rgba(255,255,255,0.45)',
+                                  marginTop: '2px',
+                                  margin: 0,
+                                }}
+                              >
+                                Análise de IA em segundos
+                              </p>
+                            </div>
+                            <span
+                              style={{
+                                fontFamily: 'DM Sans, sans-serif',
+                                fontWeight: 400,
+                                fontSize: '13px',
+                                color: '#94A3B8',
+                                whiteSpace: 'nowrap',
+                                marginLeft: '12px',
+                                flexShrink: 0,
+                              }}
+                            >
+                              {`R$ 100 → R$ ${iaReturn.toLocaleString('pt-BR')}`}
+                            </span>
+                          </div>
+
+                          {/* FAIXA INFERIOR */}
+                          <div
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              padding: '10px 16px',
+                              backgroundColor: 'rgba(0,255,127,0.08)',
+                              borderTop: '1px solid rgba(0,255,127,0.15)',
+                            }}
+                          >
+                            <span
+                              style={{
+                                fontFamily: 'Barlow Condensed, sans-serif',
+                                fontWeight: 700,
+                                fontSize: '13px',
+                                color: '#00FF7F',
+                                letterSpacing: '0.06em',
+                                textTransform: 'uppercase',
+                              }}
+                            >
+                              ✨ Disponível dentro do app
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  // Slide do tipo green (bilhete batido)
+                  const green = slide.data;
+                  const index = slideIndex;
                   const color = getTierBadgeStyle(green.tier_required, green.addon_required);
                   return (
                     <div
@@ -392,10 +559,10 @@ const Login = () => {
               </div>
             </div>
             {/* Dots indicator */}
-            {greens.length > 1 && (
+            {totalSlides > 1 && (
               <div className="flex justify-center gap-1.5 mt-3">
-                {greens.map((_, index) => (
-                    <button
+                {Array.from({ length: totalSlides }).map((_, index) => (
+                  <button
                     key={index}
                     onClick={() => setCurrentIndex(index)}
                     className="rounded-full transition-all duration-300"

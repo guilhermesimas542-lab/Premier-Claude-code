@@ -26,3 +26,13 @@ dist-ssr
 # Variáveis de ambiente (Supabase keys)
 .env
 .env.local
+vite.config.local.ts
+
+# Arquivos temporários gerados pelo Vite
+vite.config.ts.timestamp-*.mjs
+
+# Duplicatas " 2" que o macOS cria em conflitos de sync
+* 2.ts
+* 2.tsx
+* 2.js
+* 2.jsx

@@ -59,6 +59,40 @@ function SectionCard({
         <div className="prose prose-sm dark:prose-invert max-w-none">
           <ReactMarkdown
             components={{
+              // Espaçamento consistente entre blocos. Cada parágrafo / lista /
+              // subtítulo (negrito sozinho) ganha mb-3 pra criar 1 linha em
+              // branco visual entre os tópicos.
+              p: ({ children }) => (
+                <p className="mb-3 last:mb-0 leading-relaxed">{children}</p>
+              ),
+              ul: ({ children }) => (
+                <ul className="mb-3 last:mb-0 space-y-1 list-disc pl-5">
+                  {children}
+                </ul>
+              ),
+              ol: ({ children }) => (
+                <ol className="mb-3 last:mb-0 space-y-1 list-decimal pl-5">
+                  {children}
+                </ol>
+              ),
+              li: ({ children }) => (
+                <li className="leading-relaxed">{children}</li>
+              ),
+              h1: ({ children }) => (
+                <h1 className="mb-3 mt-4 first:mt-0 text-base font-bold">
+                  {children}
+                </h1>
+              ),
+              h2: ({ children }) => (
+                <h2 className="mb-3 mt-4 first:mt-0 text-sm font-bold">
+                  {children}
+                </h2>
+              ),
+              h3: ({ children }) => (
+                <h3 className="mb-2 mt-4 first:mt-0 text-sm font-bold">
+                  {children}
+                </h3>
+              ),
               a: ({ children, href }) => (
                 <a
                   href={href}

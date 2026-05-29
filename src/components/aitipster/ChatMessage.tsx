@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ChatMessage as Msg } from "@/hooks/useChatTipster";
 import { DisambiguationCard } from "./DisambiguationCard";
 import { TipAnalysis } from "./TipAnalysis";
@@ -8,6 +8,7 @@ import { ThumbsUp, ThumbsDown, Bug, ExternalLink, AlertCircle, Loader2, Search, 
 import { supabase } from "@/integrations/supabase/client";
 import { invokeWithAuth } from "@/lib/invokeWithAuth";
 import { trackEvent } from "@/lib/events";
+import { trackEsportivaOpened, trackAnalysisOpened } from "@/lib/analysisTracking";
 
 function getTeamName(team: any): string {
   if (!team) return "";
@@ -34,6 +35,36 @@ interface Props {
 export function ChatMessage({ message, onConfirmFixture, onOpenEsportiva, onRejectMatch }: Props) {
   const [feedback, setFeedback] = useState<"up" | "down" | null>(null);
   const [bugOpen, setBugOpen] = useState(false);
+
+  /**
+   * Dispara analysis_opened uma única vez quando uma mensagem do tipo "tip"
+   * é renderizada pela primeira vez. Usa message.id como dep — cada análise
+   * tem id único, então só dispara uma vez por análise gerada.
+   */
+  useEffect(() => {
+    if (message.role !== "bot" || (message as any).type !== "tip") return;
+    const md = (message as any).markdown as string | undefined;
+    const src = (message as any).sourceData;
+    trackAnalysisOpened({
+      source: "chat",
+      fixture: {
+        fixture_id: src?.fixture?.fixture_id ?? src?.fixture_id ?? null,
+        home: getTeamName(src?.fixture?.home),
+        away: getTeamName(src?.fixture?.away),
+        league_id: src?.fixture?.league_id ?? src?.league_id ?? null,
+        league_name:
+          src?.fixture?.league_name ??
+          src?.fixture?.league ??
+          src?.league_name ??
+          null,
+        league_country: src?.fixture?.league_country ?? null,
+      },
+      markdown: md,
+      altenar_event_id: (src?.altenar_event_id as string | undefined) ?? null,
+      altenar_event_url: (src?.altenar_event_url as string | undefined) ?? null,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [message.id]);
 
   if (message.role === "user") {
     return (
@@ -214,10 +245,31 @@ export function ChatMessage({ message, onConfirmFixture, onOpenEsportiva, onReje
               const home = getTeamName(message.sourceData?.fixture?.home);
               const away = getTeamName(message.sourceData?.fixture?.away);
 
-              trackEvent("ia_tipster_open_esportiva", {
-                mode: altenarUrl ? "event_specific" : "fallback_home",
-                altenar_event_id: altenarId ?? null,
+              trackEsportivaOpened({
                 source: "chat",
+                fixture: {
+                  fixture_id:
+                    (message.sourceData?.fixture?.fixture_id as number | undefined) ??
+                    (message.sourceData?.fixture_id as number | undefined) ??
+                    null,
+                  home,
+                  away,
+                  league_id:
+                    (message.sourceData?.fixture?.league_id as number | undefined) ??
+                    (message.sourceData?.league_id as number | undefined) ??
+                    null,
+                  league_name:
+                    (message.sourceData?.fixture?.league_name as string | undefined) ??
+                    (message.sourceData?.fixture?.league as string | undefined) ??
+                    (message.sourceData?.league_name as string | undefined) ??
+                    null,
+                  league_country:
+                    (message.sourceData?.fixture?.league_country as string | undefined) ??
+                    null,
+                },
+                markdown: message.markdown,
+                altenar_event_id: altenarId ?? null,
+                altenar_event_url: altenarUrl ?? null,
               });
 
               onOpenEsportiva?.({
@@ -231,7 +283,7 @@ export function ChatMessage({ message, onConfirmFixture, onOpenEsportiva, onReje
             className="ml-auto text-black font-semibold"
           >
             <ExternalLink className="w-3 h-3 mr-1" />
-            Esportiva
+            Esportiva Bet
           </Button>
         </div>
 
