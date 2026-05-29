@@ -874,7 +874,7 @@ function ProductModal({
         }
 
         if (editing) {
-          const { error: updateError } = await supabase.from("products_catalog").update(row).eq("id", editing.id);
+          const { error: updateError } = await supabase.from("products_catalog").update(row as any).eq("id", editing.id);
           if (updateError) {
             console.error("Erro ao atualizar produto:", updateError);
             toast.error(`Erro ao salvar: ${updateError.message}`);
