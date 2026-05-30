@@ -20,10 +20,9 @@ import { isPreviewEnv } from "@/lib/previewEnv";
 const LS_HAD_CREDITS = "ia_tipster_had_credits_ever";
 const LS_RECOVERY_SHOWN = "ia_tipster_recovery_modal_shown";
 
-// localStorage keys para onboarding forçado em 4 etapas
+// localStorage keys para onboarding forçado
 const LS_ONBOARDING_SEEN = "ia_tipster_onboarding_seen";        // 1: modal de boas-vindas visto
 const LS_TUTORIAL_COMPLETED = "ia_tipster_tutorial_completed";  // 2+3: tutorial em 2 slides concluído (clicou "Testar")
-const LS_FIRST_ANALYSIS_DONE = "ia_tipster_first_analysis_done";// 4: primeira análise gerada (libera Chat)
 
 export default function IATipster() {
   // Gate de produção: IA Tipster habilitada APENAS em preview/local até liberação oficial.
