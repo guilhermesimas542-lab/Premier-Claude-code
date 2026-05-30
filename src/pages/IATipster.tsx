@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { Sparkles, MessageSquare, Radio, AlertTriangle, BookOpen, Lock } from "lucide-react";
 import { LiveMatchesSection } from "@/components/aitipster/LiveMatchesSection";
