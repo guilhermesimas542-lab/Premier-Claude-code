@@ -55,8 +55,8 @@ const datePresets = [
 export default function AdminFeedback() {
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<"active" | "resolved">("active");
   const [filterCategory, setFilterCategory] = useState("all");
-  const [filterStatus, setFilterStatus] = useState("all");
   const [sourceFilter, setSourceFilter] = useState<"todos" | "app" | "ia-tipster">("todos");
   const [datePreset, setDatePreset] = useState<string>("all");
   const [customFrom, setCustomFrom] = useState("");
@@ -75,7 +75,6 @@ export default function AdminFeedback() {
     let query = (supabase.from("user_feedback" as any).select("*") as any);
 
     if (filterCategory !== "all") query = query.eq("category", filterCategory);
-    if (filterStatus !== "all") query = query.eq("status", filterStatus);
     if (customFrom) query = query.gte("created_at", customFrom);
     if (customTo) query = query.lte("created_at", customTo + "T23:59:59");
 
@@ -85,13 +84,33 @@ export default function AdminFeedback() {
     if (error) { console.error(error); toast.error("Erro ao carregar feedbacks"); }
     setFeedbacks((data as Feedback[]) || []);
     setLoading(false);
-  }, [filterCategory, filterStatus, customFrom, customTo, sortField, sortDir]);
+  }, [filterCategory, customFrom, customTo, sortField, sortDir]);
 
   useEffect(() => { fetchFeedbacks(); }, [fetchFeedbacks]);
 
-  const filteredFeedbacks = useMemo(
+  // Pre-filter by category/source/date (everything except tab)
+  const scopedFeedbacks = useMemo(
     () => feedbacks.filter((f) => sourceFilter === "todos" || (f.source ?? "app") === sourceFilter),
     [feedbacks, sourceFilter],
+  );
+
+  const activeTabCount = useMemo(
+    () => scopedFeedbacks.filter((f) => f.status === "novo" || f.status === "lido").length,
+    [scopedFeedbacks],
+  );
+  const resolvedTabCount = useMemo(
+    () => scopedFeedbacks.filter((f) => f.status === "resolvido").length,
+    [scopedFeedbacks],
+  );
+
+  const filteredFeedbacks = useMemo(
+    () =>
+      scopedFeedbacks.filter((f) =>
+        activeTab === "active"
+          ? f.status === "novo" || f.status === "lido"
+          : f.status === "resolvido",
+      ),
+    [scopedFeedbacks, activeTab],
   );
 
   const totalCount = filteredFeedbacks.length;
@@ -149,6 +168,9 @@ export default function AdminFeedback() {
     if (target.closest("select") || target.closest("button")) return;
     setDetailFeedback(fb);
     setDetailDeleteConfirm(false);
+    if (fb.status === "novo") {
+      handleStatusChange(fb.id, "lido");
+    }
   };
 
   const copyEmail = (email: string) => {
@@ -202,6 +224,38 @@ export default function AdminFeedback() {
         </Card>
       </div>
 
+      {/* Tabs Ativos / Resolvidos */}
+      <div className="flex items-center gap-2 border-b border-white/10">
+        {([
+          { key: "active", label: "Ativos", count: activeTabCount },
+          { key: "resolved", label: "Resolvidos", count: resolvedTabCount },
+        ] as const).map((t) => {
+          const isActive = activeTab === t.key;
+          return (
+            <button
+              key={t.key}
+              onClick={() => setActiveTab(t.key)}
+              className="px-4 py-2 text-sm font-semibold transition-colors relative -mb-px"
+              style={{
+                color: isActive ? "#00FF7F" : "#94A3B8",
+                borderBottom: isActive ? "2px solid #00FF7F" : "2px solid transparent",
+              }}
+            >
+              {t.label}
+              <span
+                className="ml-2 px-2 py-0.5 rounded-full text-[10px] font-bold"
+                style={{
+                  background: isActive ? "rgba(0,255,127,0.15)" : "rgba(255,255,255,0.06)",
+                  color: isActive ? "#00FF7F" : "#94A3B8",
+                }}
+              >
+                {t.count}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
       {/* Filters */}
       <div className="space-y-3">
         <div>
@@ -215,19 +269,6 @@ export default function AdminFeedback() {
               { key: "sugestao", label: "Sugestão" },
               { key: "duvida", label: "Dúvida" },
               { key: "outro", label: "Outro" },
-            ]}
-          />
-        </div>
-        <div>
-          <span className="text-xs text-gray-500 mr-2">Status:</span>
-          <FilterPills
-            value={filterStatus}
-            onChange={setFilterStatus}
-            options={[
-              { key: "all", label: "Todos" },
-              { key: "novo", label: "Novo" },
-              { key: "lido", label: "Lido" },
-              { key: "resolvido", label: "Resolvido" },
             ]}
           />
         </div>
@@ -309,11 +350,28 @@ export default function AdminFeedback() {
                 const cat = CATEGORY_COLORS[fb.category] || CATEGORY_COLORS.outro;
                 const st = STATUS_COLORS[fb.status] || STATUS_COLORS.novo;
                 const truncated = fb.message.length > 100 ? fb.message.slice(0, 100) + "…" : fb.message;
+                const isUnread = fb.status === "novo";
 
                 return (
-                  <tr key={fb.id} className="hover:bg-white/5 cursor-pointer" onClick={(e) => handleRowClick(fb, e)}>
+                  <tr
+                    key={fb.id}
+                    className="hover:bg-white/5 cursor-pointer"
+                    style={{
+                      borderLeft: isUnread ? "3px solid #00FF7F" : "3px solid transparent",
+                      background: isUnread ? "rgba(0,255,127,0.04)" : undefined,
+                      fontWeight: isUnread ? 600 : 400,
+                    }}
+                    onClick={(e) => handleRowClick(fb, e)}
+                  >
                     <td className="px-4 py-3 text-white text-xs">
                       <div className="flex items-center gap-1.5">
+                        {isUnread && (
+                          <span
+                            className="w-1.5 h-1.5 rounded-full shrink-0"
+                            style={{ background: "#00FF7F", boxShadow: "0 0 6px #00FF7F" }}
+                            aria-label="Não lido"
+                          />
+                        )}
                         <span>{fb.email}</span>
                         {fb.source === "ia-tipster" && (
                           <span
