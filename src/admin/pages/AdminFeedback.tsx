@@ -224,6 +224,38 @@ export default function AdminFeedback() {
         </Card>
       </div>
 
+      {/* Tabs Ativos / Resolvidos */}
+      <div className="flex items-center gap-2 border-b border-white/10">
+        {([
+          { key: "active", label: "Ativos", count: activeTabCount },
+          { key: "resolved", label: "Resolvidos", count: resolvedTabCount },
+        ] as const).map((t) => {
+          const isActive = activeTab === t.key;
+          return (
+            <button
+              key={t.key}
+              onClick={() => setActiveTab(t.key)}
+              className="px-4 py-2 text-sm font-semibold transition-colors relative -mb-px"
+              style={{
+                color: isActive ? "#00FF7F" : "#94A3B8",
+                borderBottom: isActive ? "2px solid #00FF7F" : "2px solid transparent",
+              }}
+            >
+              {t.label}
+              <span
+                className="ml-2 px-2 py-0.5 rounded-full text-[10px] font-bold"
+                style={{
+                  background: isActive ? "rgba(0,255,127,0.15)" : "rgba(255,255,255,0.06)",
+                  color: isActive ? "#00FF7F" : "#94A3B8",
+                }}
+              >
+                {t.count}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
       {/* Filters */}
       <div className="space-y-3">
         <div>
