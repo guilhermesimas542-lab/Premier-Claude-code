@@ -496,44 +496,7 @@ Deno.serve(async (req: Request) => {
 
 
 
-  // ─── CACHE LOOKUP (antes do débito — cache hit é grátis) ───
-  const cacheKey = `chat_prematch:${fixtureId}`;
-  const { data: cached } = await supabase
-    .from("ai_tip_cache")
-    .select("id, content, source_data, generated_at")
-    .eq("match_key", cacheKey)
-    .eq("match_type", "chat_prematch")
-    .gt("expires_at", new Date().toISOString())
-    .order("generated_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-
-  if (cached) {
-    // Log cache hit (grátis, sem débito)
-    await supabase.from("ai_credit_log").insert({
-      user_id: token.user_id,
-      event_type: "cache_hit_free",
-      amount: 0,
-      reason: "chat_prematch",
-      metadata: { cache_id: cached.id, match_key: cacheKey },
-    });
-    supabase
-      .rpc("increment_tip_hit", { p_tip_id: cached.id })
-      .then(({ error }: { error: any }) => {
-        if (error) console.error("increment_tip_hit error", error);
-      });
-    return jsonResp({
-      cached: true,
-      tip_cache_id: cached.id,
-      credit_source: "cache_hit_free",
-      credit_consumed: false,
-      content: cached.content,
-      source_data: cached.source_data,
-      generated_at: cached.generated_at,
-    });
-  }
-
-  // ─── CACHE MISS — agora sim debita ───
+  // ─── DÉBITO PRIMEIRO (cache hit também consome 1 crédito) ───
   const { data: creditResult, error: creditErr } = await supabase.rpc(
     "check_and_debit_credit",
     { p_user_id: token.user_id, p_source: "chat_prematch" }
@@ -546,6 +509,36 @@ Deno.serve(async (req: Request) => {
     return jsonResp(creditResult ?? { error: "insufficient_credits" }, 402);
   }
   const debitType: string = creditResult.debit_type;
+
+  // ─── CACHE LOOKUP (após débito — economiza só custo Anthropic) ───
+  const cacheKey = `chat_prematch:${fixtureId}`;
+  const { data: cached } = await supabase
+    .from("ai_tip_cache")
+    .select("id, content, source_data, generated_at")
+    .eq("match_key", cacheKey)
+    .eq("match_type", "chat_prematch")
+    .gt("expires_at", new Date().toISOString())
+    .order("generated_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (cached) {
+    supabase
+      .rpc("increment_tip_hit", { p_tip_id: cached.id })
+      .then(({ error }: { error: any }) => {
+        if (error) console.error("increment_tip_hit error", error);
+      });
+    return jsonResp({
+      cached: true,
+      tip_cache_id: cached.id,
+      credit_source: debitType,
+      credit_consumed: true,
+      content: cached.content,
+      source_data: cached.source_data,
+      generated_at: cached.generated_at,
+    });
+  }
+
 
   async function refundIfFailed(reasonTag: string) {
     try {
