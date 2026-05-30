@@ -241,19 +241,6 @@ export default function AdminFeedback() {
           />
         </div>
         <div>
-          <span className="text-xs text-gray-500 mr-2">Status:</span>
-          <FilterPills
-            value={filterStatus}
-            onChange={setFilterStatus}
-            options={[
-              { key: "all", label: "Todos" },
-              { key: "novo", label: "Novo" },
-              { key: "lido", label: "Lido" },
-              { key: "resolvido", label: "Resolvido" },
-            ]}
-          />
-        </div>
-        <div>
           <span className="text-xs text-gray-500 mr-2">Origem:</span>
           <FilterPills
             value={sourceFilter}
