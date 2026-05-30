@@ -397,8 +397,8 @@ function getPlanoLabel(t: any): { label: string; color: string } {
     }
     if (sortCol === "odd") return dir * ((a.odd ?? 0) - (b.odd ?? 0));
     if (sortCol === "tier_required") {
-      const aOrder = (a as any).addon_required ? (ADDON_ORDER[(a as any).addon_required] ?? 99) : (TIER_ORDER[a.tier_required] ?? 99);
-      const bOrder = (b as any).addon_required ? (ADDON_ORDER[(b as any).addon_required] ?? 99) : (TIER_ORDER[b.tier_required] ?? 99);
+      const aOrder = PLAN_ORDER[canonicalPlanKey(a)] ?? 99;
+      const bOrder = PLAN_ORDER[canonicalPlanKey(b)] ?? 99;
       return dir * (aOrder - bOrder);
     }
     if (sortCol === "result") {
