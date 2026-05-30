@@ -58,6 +58,32 @@ type SortDir = "asc" | "desc";
 const TIER_ORDER: Record<string, number> = { free: 0, basic: 1, pro: 2, ultra: 3 };
 const ADDON_ORDER: Record<string, number> = { alavancagem: 4, multiplas_bingo: 5 };
 
+// Canonical plan key derived from feature → addon → tier
+function canonicalPlanKey(row: any): string {
+  if (row?.addon_required === "alavancagem") return "alavancagem";
+  if (row?.addon_required === "multiplas_bingo") return "multiplas_bingo";
+  if (row?.feature_required === "mercados_secundarios") return "mercados_secundarios";
+  if (row?.feature_required === "esportes_americanos") return "esportes_americanos";
+  if (row?.feature_required === "odds_safes") return "odds_safes";
+  if (row?.feature_required === "odds_pro") return "odds_pro";
+  if (row?.feature_required === "odds_ultra") return "odds_ultra";
+  if (row?.tier_required === "basic") return "odds_safes";
+  if (row?.tier_required === "pro") return "odds_pro";
+  if (row?.tier_required === "ultra") return "odds_ultra";
+  return "free";
+}
+
+const PLAN_ORDER: Record<string, number> = {
+  odds_safes: 1,
+  odds_pro: 2,
+  odds_ultra: 3,
+  mercados_secundarios: 4,
+  esportes_americanos: 5,
+  alavancagem: 6,
+  multiplas_bingo: 7,
+  free: 8,
+};
+
 // House index → link column
 const HOUSE_LINK_COLS = ["link_house_1", "link_house_2", "link_house_3"] as const;
 
@@ -70,12 +96,15 @@ interface CategoryCount {
 
 const CATEGORY_STYLES: Record<string, { label: string; bg: string; text: string }> = {
   free: { label: "Free", bg: "bg-gray-600/30", text: "text-gray-300" },
-  basic: { label: "Basic", bg: "bg-blue-600/30", text: "text-blue-400" },
-  pro: { label: "Pro", bg: "bg-green-600/30", text: "text-green-400" },
-  ultra: { label: "Ultra", bg: "bg-purple-600/30", text: "text-purple-400" },
+  odds_safes: { label: "Odds Safes", bg: "bg-blue-600/30", text: "text-blue-400" },
+  odds_pro: { label: "Odds Pró", bg: "bg-green-600/30", text: "text-green-400" },
+  odds_ultra: { label: "Odds Ultra", bg: "bg-purple-600/30", text: "text-purple-400" },
+  mercados_secundarios: { label: "Merc. Secundários", bg: "bg-sky-500/15", text: "text-sky-400" },
+  esportes_americanos: { label: "Esp. Americanos", bg: "bg-orange-500/15", text: "text-orange-400" },
   alavancagem: { label: "Alavancagem", bg: "bg-yellow-600/30", text: "text-yellow-400" },
-  multiplas_bingo: { label: "Múltiplas / Bingo", bg: "bg-orange-600/30", text: "text-orange-400" },
+  multiplas_bingo: { label: "Múltiplas / Bingo", bg: "bg-pink-600/30", text: "text-pink-400" },
 };
+
 
 export default function AdminTipsList() {
   const { selectedHouseId, houses } = useBettingHouseAdmin();
