@@ -23,7 +23,17 @@ import { cn } from "@/lib/utils";
 const STAKE = 100;
 const WIN_THRESHOLD = 55;
 
-type CategoryFilter = "all" | "free" | "basic" | "pro" | "ultra" | "alavancagem" | "multiplas_bingo";
+type CategoryFilter =
+  | "core"
+  | "odds_safes"
+  | "odds_pro"
+  | "odds_ultra"
+  | "mercados_secundarios"
+  | "esportes_americanos"
+  | "alavancagem"
+  | "multiplas_bingo"
+  | "free"
+  | "all";
 
 interface Entry {
   id: string;
@@ -34,6 +44,7 @@ interface Entry {
   odd: number | null;
   tier_required: string;
   addon_required: string | null;
+  feature_required: string | null;
   active: boolean;
 }
 
@@ -52,14 +63,52 @@ interface DailyStat {
 type SortKey = keyof DailyStat;
 
 const CATEGORY_OPTIONS: { value: CategoryFilter; label: string }[] = [
-  { value: "all", label: "Todas as categorias" },
-  { value: "free", label: "Free" },
-  { value: "basic", label: "Básico" },
-  { value: "pro", label: "Pro" },
-  { value: "ultra", label: "Ultra" },
+  { value: "core", label: "Apenas Odds (core)" },
+  { value: "odds_safes", label: "Odds Safes" },
+  { value: "odds_pro", label: "Odds Pró" },
+  { value: "odds_ultra", label: "Odds Ultra" },
+  { value: "mercados_secundarios", label: "Merc. Secundários" },
+  { value: "esportes_americanos", label: "Esp. Americanos" },
   { value: "alavancagem", label: "Alavancagem" },
   { value: "multiplas_bingo", label: "Múltiplas / Bingo" },
+  { value: "free", label: "Free" },
+  { value: "all", label: "Todas (incluindo adicionais)" },
 ];
+
+const SPECIAL_FEATURES = new Set(["mercados_secundarios", "esportes_americanos"]);
+
+function matchesCategory(e: Entry, filter: CategoryFilter): boolean {
+  const tier = e.tier_required;
+  const addon = e.addon_required;
+  const feat = e.feature_required;
+  const isPureTier = !addon && !(feat && SPECIAL_FEATURES.has(feat));
+
+  switch (filter) {
+    case "all":
+      return true;
+    case "core":
+      return isPureTier && (tier === "basic" || tier === "pro" || tier === "ultra");
+    case "odds_safes":
+      return isPureTier && tier === "basic";
+    case "odds_pro":
+      return isPureTier && tier === "pro";
+    case "odds_ultra":
+      return isPureTier && tier === "ultra";
+    case "mercados_secundarios":
+      return !addon && feat === "mercados_secundarios";
+    case "esportes_americanos":
+      return !addon && feat === "esportes_americanos";
+    case "alavancagem":
+      return addon === "alavancagem";
+    case "multiplas_bingo":
+      return addon === "multiplas_bingo";
+    case "free":
+      return !addon && tier === "free";
+    default:
+      return true;
+  }
+}
+
 
 const SHORTCUTS = [
   { key: "today", label: "Hoje" },
