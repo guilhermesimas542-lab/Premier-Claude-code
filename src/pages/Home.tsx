@@ -33,7 +33,7 @@ import { IATipsterOnboardingModal } from "@/components/ia-tipster/IATipsterOnboa
 
 // Mesmo localStorage key usado em IATipster.tsx — mantém sincronizado o estado
 // "lead já viu o anúncio da feature" entre Home e a página interna.
-const LS_IA_ONBOARDING_SEEN = "ia_tipster_onboarding_seen";
+const LS_IA_ONBOARDING_SEEN = "ia_tipster_onboarding_seen_v2";
 
 const CARD_TO_FEATURE: Record<string, FeatureKey> = {
   odds_altas: "multiplas_bingo",
@@ -113,7 +113,7 @@ const Home = () => {
    *  da sidebar quando o lead chegar em /ia-tipster, e redireciona pra lá. */
   const handleIaOnboardingComplete = () => {
     localStorage.setItem(LS_IA_ONBOARDING_SEEN, "true");
-    localStorage.setItem("ia_tipster_tutorial_completed", "true");
+    localStorage.setItem("ia_tipster_tutorial_completed_v2", "true");
     setShowIaAnnouncement(false);
     navigate("/ia-tipster");
   };
