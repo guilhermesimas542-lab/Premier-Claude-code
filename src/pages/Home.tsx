@@ -33,7 +33,7 @@ import { IATipsterOnboardingModal } from "@/components/ia-tipster/IATipsterOnboa
 
 // Mesmo localStorage key usado em IATipster.tsx — mantém sincronizado o estado
 // "lead já viu o anúncio da feature" entre Home e a página interna.
-const LS_IA_ONBOARDING_SEEN = "ia_tipster_onboarding_seen";
+const LS_IA_ONBOARDING_SEEN = "ia_tipster_onboarding_seen_v2";
 
 const CARD_TO_FEATURE: Record<string, FeatureKey> = {
   odds_altas: "multiplas_bingo",
