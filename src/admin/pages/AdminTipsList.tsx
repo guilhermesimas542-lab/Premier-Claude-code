@@ -412,16 +412,16 @@ function getPlanoLabel(t: any): { label: string; color: string } {
     const map: Record<string, number> = {};
     let total = 0;
     for (const row of items) {
-      const key = (row as any).addon_required || row.tier_required || "free";
+      const key = canonicalPlanKey(row);
       map[key] = (map[key] || 0) + 1;
       total++;
     }
     const cats = Object.entries(map)
       .map(([key, count]) => {
         const style = CATEGORY_STYLES[key] || { label: key, bg: "bg-gray-600/30", text: "text-gray-300" };
-        return { label: style.label, count, bgClass: style.bg, textClass: style.text };
+        return { key, label: style.label, count, bgClass: style.bg, textClass: style.text };
       })
-      .sort((a, b) => b.count - a.count);
+      .sort((a, b) => (PLAN_ORDER[a.key] ?? 99) - (PLAN_ORDER[b.key] ?? 99));
     return { cats, total };
   }, [items]);
 
