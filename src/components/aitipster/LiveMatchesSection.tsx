@@ -55,7 +55,6 @@ export function LiveMatchesSection({ onOpenEsportiva }: Props = {}) {
       <div className="flex items-center justify-between">
         <p className="text-xs text-muted-foreground">
           {data.matches.length} jogo{data.matches.length > 1 ? "s" : ""} ao vivo
-          {data.cached && " · cached"}
         </p>
         <Button onClick={refetch} variant="ghost" size="sm" className="h-7 px-2">
           <RefreshCw className="w-3.5 h-3.5" />
