@@ -158,7 +158,7 @@ export default function AdminTipsAnalytics() {
   const [dateFrom, setDateFrom] = useState<Date>(new Date(2026, 0, 1));
   const [dateTo, setDateTo] = useState<Date>(now);
   const [activeShortcut, setActiveShortcut] = useState("all");
-  const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>("all");
+  const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>("core");
 
   const [entries, setEntries] = useState<Entry[]>([]);
   const [loading, setLoading] = useState(true);
