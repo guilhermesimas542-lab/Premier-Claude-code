@@ -205,12 +205,6 @@ export function ChatMessage({ message, onConfirmFixture, onOpenEsportiva, onReje
 
     return (
       <div className="w-full space-y-2">
-        {message.cached && (
-          <p className="text-[10px] italic text-muted-foreground px-2">
-            Análise gerada por outro usuário · cache compartilhado · 0 créditos
-          </p>
-        )}
-
         <TipAnalysis markdown={message.markdown} />
 
         <div className="flex items-center gap-2 flex-wrap px-1 pt-1">

@@ -168,11 +168,6 @@ export function LiveTipModal({ open, onOpenChange, match, onOpenEsportiva }: Pro
 
         {tip && (
           <div className="space-y-4">
-            {tip.cached && (
-              <div className="text-[11px] text-muted-foreground bg-muted/50 rounded p-2">
-                Análise gerada por outro usuário · cache compartilhado · 0 créditos
-              </div>
-            )}
             <TipAnalysis markdown={tip.content?.markdown ?? ""} />
 
             <div className="flex items-center gap-2">
