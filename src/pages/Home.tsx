@@ -113,7 +113,7 @@ const Home = () => {
    *  da sidebar quando o lead chegar em /ia-tipster, e redireciona pra lá. */
   const handleIaOnboardingComplete = () => {
     localStorage.setItem(LS_IA_ONBOARDING_SEEN, "true");
-    localStorage.setItem("ia_tipster_tutorial_completed", "true");
+    localStorage.setItem("ia_tipster_tutorial_completed_v2", "true");
     setShowIaAnnouncement(false);
     navigate("/ia-tipster");
   };
