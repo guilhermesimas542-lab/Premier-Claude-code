@@ -188,21 +188,15 @@ export default function IATipster() {
             <div className="flex border-b">
               <button
                 onClick={() => handleTabClick("chat")}
-                disabled={!tutorialCompleted || !firstAnalysisDone}
+                disabled={!tutorialCompleted}
                 className={`flex-1 py-3 flex items-center justify-center gap-2 text-sm font-medium transition-colors ${
                   activeTab === "chat"
                     ? "text-primary border-b-2 border-primary"
                     : "text-muted-foreground"
-                } ${(!tutorialCompleted || !firstAnalysisDone) ? "opacity-40 cursor-not-allowed" : ""}`}
-                title={
-                  !tutorialCompleted
-                    ? "Conclua o tutorial primeiro"
-                    : !firstAnalysisDone
-                      ? "Faça sua primeira análise no Ao Vivo pra desbloquear"
-                      : undefined
-                }
+                } ${!tutorialCompleted ? "opacity-40 cursor-not-allowed" : ""}`}
+                title={!tutorialCompleted ? "Conclua o tutorial primeiro" : undefined}
               >
-                {(!tutorialCompleted || !firstAnalysisDone) ? <Lock className="w-3.5 h-3.5" /> : <MessageSquare className="w-4 h-4" />}
+                {!tutorialCompleted ? <Lock className="w-3.5 h-3.5" /> : <MessageSquare className="w-4 h-4" />}
                 Chat
               </button>
               <button
@@ -217,13 +211,6 @@ export default function IATipster() {
               >
                 {!tutorialCompleted ? <Lock className="w-3.5 h-3.5" /> : <Radio className="w-4 h-4" />}
                 Ao Vivo
-                {/* Dot verde piscando quando é o próximo passo do onboarding */}
-                {tutorialCompleted && !firstAnalysisDone && (
-                  <span
-                    className="absolute top-2 right-3 w-1.5 h-1.5 rounded-full"
-                    style={{ background: "#00FF7F", boxShadow: "0 0 6px #00FF7F" }}
-                  />
-                )}
               </button>
               <button
                 onClick={() => handleTabClick("tutorial")}
