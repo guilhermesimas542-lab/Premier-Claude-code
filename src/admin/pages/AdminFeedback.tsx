@@ -55,8 +55,8 @@ const datePresets = [
 export default function AdminFeedback() {
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<"active" | "resolved">("active");
   const [filterCategory, setFilterCategory] = useState("all");
-  const [filterStatus, setFilterStatus] = useState("all");
   const [sourceFilter, setSourceFilter] = useState<"todos" | "app" | "ia-tipster">("todos");
   const [datePreset, setDatePreset] = useState<string>("all");
   const [customFrom, setCustomFrom] = useState("");
@@ -75,7 +75,6 @@ export default function AdminFeedback() {
     let query = (supabase.from("user_feedback" as any).select("*") as any);
 
     if (filterCategory !== "all") query = query.eq("category", filterCategory);
-    if (filterStatus !== "all") query = query.eq("status", filterStatus);
     if (customFrom) query = query.gte("created_at", customFrom);
     if (customTo) query = query.lte("created_at", customTo + "T23:59:59");
 
@@ -85,13 +84,33 @@ export default function AdminFeedback() {
     if (error) { console.error(error); toast.error("Erro ao carregar feedbacks"); }
     setFeedbacks((data as Feedback[]) || []);
     setLoading(false);
-  }, [filterCategory, filterStatus, customFrom, customTo, sortField, sortDir]);
+  }, [filterCategory, customFrom, customTo, sortField, sortDir]);
 
   useEffect(() => { fetchFeedbacks(); }, [fetchFeedbacks]);
 
-  const filteredFeedbacks = useMemo(
+  // Pre-filter by category/source/date (everything except tab)
+  const scopedFeedbacks = useMemo(
     () => feedbacks.filter((f) => sourceFilter === "todos" || (f.source ?? "app") === sourceFilter),
     [feedbacks, sourceFilter],
+  );
+
+  const activeTabCount = useMemo(
+    () => scopedFeedbacks.filter((f) => f.status === "novo" || f.status === "lido").length,
+    [scopedFeedbacks],
+  );
+  const resolvedTabCount = useMemo(
+    () => scopedFeedbacks.filter((f) => f.status === "resolvido").length,
+    [scopedFeedbacks],
+  );
+
+  const filteredFeedbacks = useMemo(
+    () =>
+      scopedFeedbacks.filter((f) =>
+        activeTab === "active"
+          ? f.status === "novo" || f.status === "lido"
+          : f.status === "resolvido",
+      ),
+    [scopedFeedbacks, activeTab],
   );
 
   const totalCount = filteredFeedbacks.length;
@@ -149,6 +168,9 @@ export default function AdminFeedback() {
     if (target.closest("select") || target.closest("button")) return;
     setDetailFeedback(fb);
     setDetailDeleteConfirm(false);
+    if (fb.status === "novo") {
+      handleStatusChange(fb.id, "lido");
+    }
   };
 
   const copyEmail = (email: string) => {
