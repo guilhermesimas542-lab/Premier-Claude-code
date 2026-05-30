@@ -23,7 +23,17 @@ import { cn } from "@/lib/utils";
 const STAKE = 100;
 const WIN_THRESHOLD = 55;
 
-type CategoryFilter = "all" | "free" | "basic" | "pro" | "ultra" | "alavancagem" | "multiplas_bingo";
+type CategoryFilter =
+  | "core"
+  | "odds_safes"
+  | "odds_pro"
+  | "odds_ultra"
+  | "mercados_secundarios"
+  | "esportes_americanos"
+  | "alavancagem"
+  | "multiplas_bingo"
+  | "free"
+  | "all";
 
 interface Entry {
   id: string;
@@ -34,6 +44,7 @@ interface Entry {
   odd: number | null;
   tier_required: string;
   addon_required: string | null;
+  feature_required: string | null;
   active: boolean;
 }
 
@@ -52,14 +63,52 @@ interface DailyStat {
 type SortKey = keyof DailyStat;
 
 const CATEGORY_OPTIONS: { value: CategoryFilter; label: string }[] = [
-  { value: "all", label: "Todas as categorias" },
-  { value: "free", label: "Free" },
-  { value: "basic", label: "Básico" },
-  { value: "pro", label: "Pro" },
-  { value: "ultra", label: "Ultra" },
+  { value: "core", label: "Apenas Odds (core)" },
+  { value: "odds_safes", label: "Odds Safes" },
+  { value: "odds_pro", label: "Odds Pró" },
+  { value: "odds_ultra", label: "Odds Ultra" },
+  { value: "mercados_secundarios", label: "Merc. Secundários" },
+  { value: "esportes_americanos", label: "Esp. Americanos" },
   { value: "alavancagem", label: "Alavancagem" },
   { value: "multiplas_bingo", label: "Múltiplas / Bingo" },
+  { value: "free", label: "Free" },
+  { value: "all", label: "Todas (incluindo adicionais)" },
 ];
+
+const SPECIAL_FEATURES = new Set(["mercados_secundarios", "esportes_americanos"]);
+
+function matchesCategory(e: Entry, filter: CategoryFilter): boolean {
+  const tier = e.tier_required;
+  const addon = e.addon_required;
+  const feat = e.feature_required;
+  const isPureTier = !addon && !(feat && SPECIAL_FEATURES.has(feat));
+
+  switch (filter) {
+    case "all":
+      return true;
+    case "core":
+      return isPureTier && (tier === "basic" || tier === "pro" || tier === "ultra");
+    case "odds_safes":
+      return isPureTier && tier === "basic";
+    case "odds_pro":
+      return isPureTier && tier === "pro";
+    case "odds_ultra":
+      return isPureTier && tier === "ultra";
+    case "mercados_secundarios":
+      return !addon && feat === "mercados_secundarios";
+    case "esportes_americanos":
+      return !addon && feat === "esportes_americanos";
+    case "alavancagem":
+      return addon === "alavancagem";
+    case "multiplas_bingo":
+      return addon === "multiplas_bingo";
+    case "free":
+      return !addon && tier === "free";
+    default:
+      return true;
+  }
+}
+
 
 const SHORTCUTS = [
   { key: "today", label: "Hoje" },
@@ -109,7 +158,7 @@ export default function AdminTipsAnalytics() {
   const [dateFrom, setDateFrom] = useState<Date>(new Date(2026, 0, 1));
   const [dateTo, setDateTo] = useState<Date>(now);
   const [activeShortcut, setActiveShortcut] = useState("all");
-  const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>("all");
+  const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>("core");
 
   const [entries, setEntries] = useState<Entry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -146,39 +195,24 @@ export default function AdminTipsAnalytics() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    let q = supabase
+    const { data, error } = await supabase
       .from("content_entries")
-      .select("id, date, title, market, result, odd, tier_required, addon_required, active")
+      .select("id, date, title, market, result, odd, tier_required, addon_required, feature_required, active")
       .gte("date", format(dateFrom, "yyyy-MM-dd"))
       .lte("date", format(dateTo, "yyyy-MM-dd"))
       .eq("active", true)
       .order("date", { ascending: true });
 
-    switch (categoryFilter) {
-      case "free":
-      case "basic":
-      case "pro":
-      case "ultra":
-        q = q.eq("tier_required", categoryFilter).is("addon_required", null);
-        break;
-      case "alavancagem":
-      case "multiplas_bingo":
-        q = q.eq("addon_required", categoryFilter);
-        break;
-      case "all":
-      default:
-        break;
-    }
-
-    const { data, error } = await q;
     if (error) {
       toast.error("Erro ao carregar entradas: " + error.message);
       setEntries([]);
     } else {
-      setEntries((data ?? []) as Entry[]);
+      const all = (data ?? []) as Entry[];
+      setEntries(all.filter((e) => matchesCategory(e, categoryFilter)));
     }
     setLoading(false);
   }, [dateFrom, dateTo, categoryFilter]);
+
 
   useEffect(() => { load(); }, [load]);
 
