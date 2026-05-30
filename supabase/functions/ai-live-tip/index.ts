@@ -652,7 +652,21 @@ Deno.serve(async (req: Request) => {
   const apiKey = Deno.env.get("API_FOOTBALL_KEY");
   if (!apiKey) return jsonResp({ error: "api_football_key_missing" }, 500);
 
-  // ─── CACHE LOOKUP (ANTES do débito — cache hit é grátis) ───
+  // ─── DÉBITO PRIMEIRO (cache hit também consome 1 crédito) ───
+  const { data: creditResult, error: creditErr } = await supabase.rpc(
+    "check_and_debit_credit",
+    { p_user_id: token.user_id, p_source: "live_tip" }
+  );
+  if (creditErr) {
+    console.error("[ai-live-tip] credit RPC error", creditErr);
+    return jsonResp({ error: "credit_check_failed" }, 500);
+  }
+  if (!creditResult?.success) {
+    return jsonResp(creditResult ?? { error: "insufficient_credits" }, 402);
+  }
+  const debitType: string = creditResult.debit_type;
+
+  // ─── CACHE LOOKUP (após débito — economiza só custo Anthropic) ───
   const cacheKey = `live_tip:fixture_${fixtureId}`;
   const { data: cached } = await supabase
     .from("ai_tip_cache")
@@ -675,15 +689,8 @@ Deno.serve(async (req: Request) => {
     }
   }
 
-  // ─── SE CACHE HIT, RETORNA (sem débito) ───
+  // ─── SE CACHE HIT, RETORNA (débito já feito; sem chamar Anthropic) ───
   if (isCacheHit && cached) {
-    await supabase.from("ai_credit_log").insert({
-      user_id: token.user_id,
-      event_type: "cache_hit_free",
-      amount: 0,
-      reason: "live_tip",
-      metadata: { cache_id: cached.id, match_key: cacheKey },
-    });
     supabase
       .rpc("increment_tip_hit", { p_tip_id: cached.id })
       .then(({ error }: { error: any }) => {
@@ -692,27 +699,14 @@ Deno.serve(async (req: Request) => {
     return jsonResp({
       cached: true,
       tip_cache_id: cached.id,
-      credit_source: "cache_hit_free",
-      credit_consumed: false,
+      credit_source: debitType,
+      credit_consumed: true,
       content: cached.content,
       source_data: cached.source_data,
       generated_at: cached.generated_at,
     });
   }
 
-  // ─── CACHE MISS — agora sim debita ───
-  const { data: creditResult, error: creditErr } = await supabase.rpc(
-    "check_and_debit_credit",
-    { p_user_id: token.user_id, p_source: "live_tip" }
-  );
-  if (creditErr) {
-    console.error("[ai-live-tip] credit RPC error", creditErr);
-    return jsonResp({ error: "credit_check_failed" }, 500);
-  }
-  if (!creditResult?.success) {
-    return jsonResp(creditResult ?? { error: "insufficient_credits" }, 402);
-  }
-  const debitType: string = creditResult.debit_type;
 
   async function refundIfFailed(reasonTag: string) {
     try {
