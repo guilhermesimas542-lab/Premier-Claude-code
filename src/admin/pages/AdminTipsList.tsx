@@ -657,7 +657,15 @@ function getPlanoLabel(t: any): { label: string; color: string } {
                   <td className="px-3 py-2">
                     <Checkbox checked={selectedIds.has(t.id)} onCheckedChange={() => toggleSelect(t.id)} />
                   </td>
-                  <td className="px-3 py-2 max-w-[150px] truncate">{t.title}</td>
+                  <td className="px-3 py-2 max-w-[150px] truncate">
+                    {(t as any).addon_required === "alavancagem" ? (
+                      <span style={{ color: "#F0B429", fontWeight: 600 }}>Alavancagem</span>
+                    ) : (t as any).addon_required === "multiplas_bingo" ? (
+                      <span style={{ color: "#EC4899", fontWeight: 600 }}>Múltipla</span>
+                    ) : (
+                      t.title
+                    )}
+                  </td>
                   <td className="px-3 py-2">{t.condition_to_win ?? "—"}</td>
                   <td className="px-3 py-2">{t.date}</td>
                   <td className="px-3 py-2">{t.starts_at ? new Date(t.starts_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : "—"}</td>
