@@ -30,23 +30,18 @@ export default function IATipster() {
     return <Navigate to="/home" replace />;
   }
 
-  // Onboarding em 4 etapas (padrão app convencional):
+  // Onboarding em 3 etapas:
   //   1. Modal de boas-vindas → clica "Continuar"
   //   2. Tutorial slide 1 (Como usar) → clica "Próximo"
-  //   3. Tutorial slide 2 (Créditos+Dicas) → clica "Testar agora!" (libera Ao Vivo)
-  //   4. Faz primeira análise → libera Chat também
-  // Estados inicializados direto do localStorage pra evitar flash visual.
+  //   3. Tutorial slide 2 (Créditos+Dicas) → clica "Testar agora!" (libera Ao Vivo e Chat)
   const [tutorialCompleted, setTutorialCompleted] = useState<boolean>(() =>
     typeof window !== "undefined" && localStorage.getItem(LS_TUTORIAL_COMPLETED) === "true"
-  );
-  const [firstAnalysisDone, setFirstAnalysisDone] = useState<boolean>(() =>
-    typeof window !== "undefined" && localStorage.getItem(LS_FIRST_ANALYSIS_DONE) === "true"
   );
   const [showOnboardingModal, setShowOnboardingModal] = useState<boolean>(() =>
     typeof window !== "undefined" && localStorage.getItem(LS_ONBOARDING_SEEN) !== "true"
   );
 
-  // Default tab depende do estágio: live se completou tudo, senão tutorial
+  // Default tab depende do estágio: live se completou tutorial, senão tutorial
   const [activeTab, setActiveTab] = useState<"chat" | "live" | "tutorial">(() =>
     typeof window !== "undefined" && localStorage.getItem(LS_TUTORIAL_COMPLETED) === "true"
       ? "live"
@@ -61,7 +56,7 @@ export default function IATipster() {
     localStorage.setItem(LS_TUTORIAL_COMPLETED, "true");
     setShowOnboardingModal(false);
     setTutorialCompleted(true);
-    setActiveTab("live"); // já libera pra fazer a primeira análise
+    setActiveTab("live");
   };
 
   /** Tutorial da sidebar (consulta posterior): "Testar agora!" volta pro Ao Vivo. */
@@ -73,42 +68,17 @@ export default function IATipster() {
 
   /** Click handler com gates progressivos. */
   const handleTabClick = (tab: "chat" | "live" | "tutorial") => {
-    // Tutorial sempre aberto (pra consulta)
     if (tab === "tutorial") {
       setActiveTab("tutorial");
       return;
     }
-    // Live: libera após o tutorial concluído (clicou "Testar agora!")
-    if (tab === "live" && !tutorialCompleted) return;
-    // Chat: libera após a primeira análise (etapa final)
-    if (tab === "chat" && (!tutorialCompleted || !firstAnalysisDone)) return;
+    // Live e Chat: liberam após o tutorial concluído
+    if ((tab === "live" || tab === "chat") && !tutorialCompleted) return;
     setActiveTab(tab);
   };
   const { balance } = useCreditBalance();
   const { status: aiStatus, loading: aiStatusLoading } = useAiTipsterStatus();
 
-  /**
-   * Etapa 4: detecta primeira análise via redução do saldo de créditos.
-   * Quando o user gera análise, weekly_used aumenta → total_available diminui.
-   * Compara com referência prévia pra detectar o evento e liberar a Chat.
-   */
-  const prevTotalRef = useRef<number | null>(null);
-  useEffect(() => {
-    if (balance == null) return;
-    if (firstAnalysisDone) return;
-    const current = balance.total_available;
-    // No primeiro fetch só guarda referência (não dispara)
-    if (prevTotalRef.current === null) {
-      prevTotalRef.current = current;
-      return;
-    }
-    // Se diminuiu, usuário gastou um crédito = gerou análise
-    if (current < prevTotalRef.current) {
-      localStorage.setItem(LS_FIRST_ANALYSIS_DONE, "true");
-      setFirstAnalysisDone(true);
-    }
-    prevTotalRef.current = current;
-  }, [balance, firstAnalysisDone]);
   const showNoCreditsBanner = balance != null && !balance.unlimited_active && balance.total_available === 0;
   const resetLabel = balance?.resets_at
     ? new Date(balance.resets_at).toLocaleDateString("pt-BR", {
