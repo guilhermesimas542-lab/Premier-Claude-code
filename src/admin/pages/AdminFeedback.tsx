@@ -350,11 +350,28 @@ export default function AdminFeedback() {
                 const cat = CATEGORY_COLORS[fb.category] || CATEGORY_COLORS.outro;
                 const st = STATUS_COLORS[fb.status] || STATUS_COLORS.novo;
                 const truncated = fb.message.length > 100 ? fb.message.slice(0, 100) + "…" : fb.message;
+                const isUnread = fb.status === "novo";
 
                 return (
-                  <tr key={fb.id} className="hover:bg-white/5 cursor-pointer" onClick={(e) => handleRowClick(fb, e)}>
+                  <tr
+                    key={fb.id}
+                    className="hover:bg-white/5 cursor-pointer"
+                    style={{
+                      borderLeft: isUnread ? "3px solid #00FF7F" : "3px solid transparent",
+                      background: isUnread ? "rgba(0,255,127,0.04)" : undefined,
+                      fontWeight: isUnread ? 600 : 400,
+                    }}
+                    onClick={(e) => handleRowClick(fb, e)}
+                  >
                     <td className="px-4 py-3 text-white text-xs">
                       <div className="flex items-center gap-1.5">
+                        {isUnread && (
+                          <span
+                            className="w-1.5 h-1.5 rounded-full shrink-0"
+                            style={{ background: "#00FF7F", boxShadow: "0 0 6px #00FF7F" }}
+                            aria-label="Não lido"
+                          />
+                        )}
                         <span>{fb.email}</span>
                         {fb.source === "ia-tipster" && (
                           <span
