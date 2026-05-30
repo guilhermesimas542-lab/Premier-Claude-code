@@ -195,39 +195,24 @@ export default function AdminTipsAnalytics() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    let q = supabase
+    const { data, error } = await supabase
       .from("content_entries")
-      .select("id, date, title, market, result, odd, tier_required, addon_required, active")
+      .select("id, date, title, market, result, odd, tier_required, addon_required, feature_required, active")
       .gte("date", format(dateFrom, "yyyy-MM-dd"))
       .lte("date", format(dateTo, "yyyy-MM-dd"))
       .eq("active", true)
       .order("date", { ascending: true });
 
-    switch (categoryFilter) {
-      case "free":
-      case "basic":
-      case "pro":
-      case "ultra":
-        q = q.eq("tier_required", categoryFilter).is("addon_required", null);
-        break;
-      case "alavancagem":
-      case "multiplas_bingo":
-        q = q.eq("addon_required", categoryFilter);
-        break;
-      case "all":
-      default:
-        break;
-    }
-
-    const { data, error } = await q;
     if (error) {
       toast.error("Erro ao carregar entradas: " + error.message);
       setEntries([]);
     } else {
-      setEntries((data ?? []) as Entry[]);
+      const all = (data ?? []) as Entry[];
+      setEntries(all.filter((e) => matchesCategory(e, categoryFilter)));
     }
     setLoading(false);
   }, [dateFrom, dateTo, categoryFilter]);
+
 
   useEffect(() => { load(); }, [load]);
 
