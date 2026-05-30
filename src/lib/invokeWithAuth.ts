@@ -104,8 +104,16 @@ export async function invokeWithAuth<T = any>(
     return firstAttempt;
   }
 
-  // Assume non-2xx pode ser token_expired — tenta refresh + retry uma vez
-  console.log("[invokeWithAuth] erro detectado, fazendo refresh + retry...");
+  // Só retenta em 401 (token expirado). Outros status (402, 429, 500, 503...)
+  // são erros legítimos e devem ser propagados pro caller tratar.
+  const status =
+    (firstAttempt.error as any)?.context?.status ??
+    (firstAttempt.error as any)?.status;
+  if (status && status !== 401) {
+    return firstAttempt;
+  }
+
+  console.log("[invokeWithAuth] 401 detectado, fazendo refresh + retry...");
   const newToken = await refreshToken();
   if (!newToken) {
     clearAuthAndRedirect("refresh_falhou");
