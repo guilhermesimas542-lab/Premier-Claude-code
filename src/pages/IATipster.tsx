@@ -21,8 +21,8 @@ const LS_HAD_CREDITS = "ia_tipster_had_credits_ever";
 const LS_RECOVERY_SHOWN = "ia_tipster_recovery_modal_shown";
 
 // localStorage keys para onboarding forçado
-const LS_ONBOARDING_SEEN = "ia_tipster_onboarding_seen";        // 1: modal de boas-vindas visto
-const LS_TUTORIAL_COMPLETED = "ia_tipster_tutorial_completed";  // 2+3: tutorial em 2 slides concluído (clicou "Testar")
+const LS_ONBOARDING_SEEN = "ia_tipster_onboarding_seen_v2";        // 1: modal de boas-vindas visto
+const LS_TUTORIAL_COMPLETED = "ia_tipster_tutorial_completed_v2";  // 2+3: tutorial em 2 slides concluído (clicou "Testar")
 
 export default function IATipster() {
   // Gate de produção: IA Tipster habilitada APENAS em preview/local até liberação oficial.
