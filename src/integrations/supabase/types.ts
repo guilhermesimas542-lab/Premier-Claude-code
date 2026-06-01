@@ -2827,6 +2827,7 @@ export type Database = {
         Args: { p_debit_type: string; p_source: string; p_user_id: string }
         Returns: Json
       }
+      seed_service_role_key: { Args: { p_value: string }; Returns: Json }
       update_user_access: {
         Args: { p_now: string; p_user_id: string }
         Returns: undefined
