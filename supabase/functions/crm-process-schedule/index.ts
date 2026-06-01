@@ -22,7 +22,7 @@ import {
   type Recipient,
   type SendResult,
 } from "./mockProviders.ts";
-import { sendBatchSmsReal } from "./realProviders.ts";
+import { sendBatchSmsReal, sendBatchPushReal } from "./realProviders.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
