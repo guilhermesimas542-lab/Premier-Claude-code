@@ -106,88 +106,102 @@ export function ClientProfileModal({ userId, onClose }: ClientProfileModalProps)
 
   return (
     <Dialog open={!!userId} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-sm">
+      <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-md">
         <DialogHeader>
           <DialogTitle className="text-base">Perfil do Cliente</DialogTitle>
         </DialogHeader>
 
-        {loading && (
-          <div className="flex items-center justify-center py-8">
-            <Loader2 className="w-5 h-5 animate-spin text-gray-400" />
-          </div>
-        )}
+        <Tabs value={tab} onValueChange={(v) => setTab(v as "perfil" | "comportamento")} className="w-full">
+          <TabsList className="grid w-full grid-cols-2 bg-gray-800/60">
+            <TabsTrigger value="perfil">Perfil</TabsTrigger>
+            <TabsTrigger value="comportamento">Comportamento</TabsTrigger>
+          </TabsList>
 
-        {!loading && data && (
-          <div className="space-y-4 text-sm">
-            {/* Email & Tier */}
-            <div className="space-y-2">
-              <Row label="Email" value={data.email} />
-              <Row label="Telefone" value={data.phone ?? "—"} />
-              <div className="flex items-center justify-between">
-                <span className="text-gray-500 text-xs">Plano</span>
-                <span className={`font-semibold capitalize ${TIER_COLORS[data.main_tier] ?? "text-gray-300"}`}>
-                  {TIER_LABELS[data.main_tier] ?? data.main_tier}
-                </span>
+          <TabsContent value="perfil" className="mt-4">
+            {loading && (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="w-5 h-5 animate-spin text-gray-400" />
               </div>
-            </div>
+            )}
 
-            {/* Upsells */}
-            <div>
-              <p className="text-xs text-gray-500 mb-1.5">Produtos (Upsell)</p>
-              <div className="flex gap-1.5 flex-wrap">
-                {UPSELL_BADGES.map(({ key, letter, activeColor, title }) => {
-                  const active = data.activeKeys.includes(key);
-                  const colorClass = active
-                    ? allActive ? "bg-green-500 text-white" : activeColor
-                    : "bg-gray-700 text-gray-500";
-                  return (
-                    <span
-                      key={key}
-                      title={title}
-                      className={`inline-flex items-center justify-center w-7 h-7 rounded text-xs font-bold select-none ${colorClass}`}
-                    >
-                      {letter}
+            {!loading && data && (
+              <div className="space-y-4 text-sm">
+                {/* Email & Tier */}
+                <div className="space-y-2">
+                  <Row label="Email" value={data.email} />
+                  <Row label="Telefone" value={data.phone ?? "—"} />
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-500 text-xs">Plano</span>
+                    <span className={`font-semibold capitalize ${TIER_COLORS[data.main_tier] ?? "text-gray-300"}`}>
+                      {TIER_LABELS[data.main_tier] ?? data.main_tier}
                     </span>
-                  );
-                })}
-                {data.activeKeys.length === 0 && (
-                  <span className="text-gray-600 text-xs">Nenhum produto ativo</span>
-                )}
-              </div>
-            </div>
-
-            {/* Dates */}
-            <div className="border-t border-white/10 pt-3 space-y-2">
-              <Row label="Primeiro Acesso" value={fmt(data.created_at)} />
-              <Row label="Último Acesso" value={fmt(data.last_seen_at)} />
-            </div>
-
-            {/* Last Event */}
-            <div className="border-t border-white/10 pt-3">
-              <p className="text-xs text-gray-500 mb-1">Último Evento</p>
-              {data.lastEvent ? (
-                <div className="flex items-center justify-between gap-2">
-                  <span className="font-mono text-xs bg-gray-800 px-2 py-0.5 rounded text-gray-300">
-                    {data.lastEvent.event_name}
-                  </span>
-                  <span className="text-xs text-gray-500 shrink-0">
-                    {fmtDatetime(data.lastEvent.created_at)}
-                  </span>
+                  </div>
                 </div>
-              ) : (
-                <span className="text-gray-600 text-xs">Nenhum evento registrado</span>
-              )}
-            </div>
-          </div>
-        )}
 
-        {!loading && !data && userId && (
-          <p className="text-gray-500 text-sm text-center py-4">Usuário não encontrado</p>
-        )}
+                {/* Upsells */}
+                <div>
+                  <p className="text-xs text-gray-500 mb-1.5">Produtos (Upsell)</p>
+                  <div className="flex gap-1.5 flex-wrap">
+                    {UPSELL_BADGES.map(({ key, letter, activeColor, title }) => {
+                      const active = data.activeKeys.includes(key);
+                      const colorClass = active
+                        ? allActive ? "bg-green-500 text-white" : activeColor
+                        : "bg-gray-700 text-gray-500";
+                      return (
+                        <span
+                          key={key}
+                          title={title}
+                          className={`inline-flex items-center justify-center w-7 h-7 rounded text-xs font-bold select-none ${colorClass}`}
+                        >
+                          {letter}
+                        </span>
+                      );
+                    })}
+                    {data.activeKeys.length === 0 && (
+                      <span className="text-gray-600 text-xs">Nenhum produto ativo</span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Dates */}
+                <div className="border-t border-white/10 pt-3 space-y-2">
+                  <Row label="Primeiro Acesso" value={fmt(data.created_at)} />
+                  <Row label="Último Acesso" value={fmt(data.last_seen_at)} />
+                </div>
+
+                {/* Last Event */}
+                <div className="border-t border-white/10 pt-3">
+                  <p className="text-xs text-gray-500 mb-1">Último Evento</p>
+                  {data.lastEvent ? (
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-mono text-xs bg-gray-800 px-2 py-0.5 rounded text-gray-300">
+                        {data.lastEvent.event_name}
+                      </span>
+                      <span className="text-xs text-gray-500 shrink-0">
+                        {fmtDatetime(data.lastEvent.created_at)}
+                      </span>
+                    </div>
+                  ) : (
+                    <span className="text-gray-600 text-xs">Nenhum evento registrado</span>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {!loading && !data && userId && (
+              <p className="text-gray-500 text-sm text-center py-4">Usuário não encontrado</p>
+            )}
+          </TabsContent>
+
+          <TabsContent value="comportamento" className="mt-4">
+            <UserBehaviorPanel userId={userId} enabled={tab === "comportamento"} />
+          </TabsContent>
+        </Tabs>
       </DialogContent>
     </Dialog>
   );
 }
+
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
