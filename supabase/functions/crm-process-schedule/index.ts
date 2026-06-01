@@ -241,7 +241,21 @@ Deno.serve(async (req: Request) => {
       nickname: m.user?.nickname ?? null,
     }));
   } else if (!isBroadcast) {
-    let q: any = supabase.from("users").select("id, email, phone, nickname");
+    let behaviorIds: string[] | null = null;
+    if (hasBehaviorFilter(filters.behavior)) {
+      const eligible = await resolveBehaviorUserIds(supabase, filters.behavior!);
+      behaviorIds = Array.from(eligible);
+    }
+
+    if (behaviorIds !== null && behaviorIds.length === 0) {
+      recipients = [];
+    } else {
+      let q: any = supabase.from("users").select("id, email, phone, nickname");
+
+      if (behaviorIds !== null) {
+        q = q.in("id", behaviorIds);
+      }
+
 
     if (filters.plans && filters.plans.length > 0) {
       q = q.in("main_tier", filters.plans);
