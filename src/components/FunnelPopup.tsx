@@ -30,9 +30,11 @@ export interface FunnelPopupData {
 interface FunnelPopupProps {
   popup: FunnelPopupData;
   onClose: () => void;
+  /** Opcional: chamado quando o usuário clica no CTA (antes de abrir o EmbeddedCheckout). */
+  onCtaClick?: (url: string) => void;
 }
 
-export function FunnelPopup({ popup, onClose }: FunnelPopupProps) {
+export function FunnelPopup({ popup, onClose, onCtaClick }: FunnelPopupProps) {
   const questions = [
     { text: popup.question_1_text, options: popup.question_1_options ?? [] },
     { text: popup.question_2_text, options: popup.question_2_options ?? [] },
