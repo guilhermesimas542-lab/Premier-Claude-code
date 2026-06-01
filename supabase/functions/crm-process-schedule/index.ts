@@ -354,9 +354,29 @@ Deno.serve(async (req: Request) => {
   } else if (reachCount > 0) {
     const caps = getChannelCapabilities(channel);
 
+    // SMS real (SMS Dev): só quando dry_run=false e chave configurada.
+    // Resto dos canais (e qualquer dry_run=true) continua no mock.
+    let smsRealKey: string | null = null;
+    if (channel === "sms" && !dryRun) {
+      const { data: keyData, error: keyErr } = await supabase.rpc(
+        "crm_get_channel_secret",
+        { p_channel: "sms", p_key: "api_key" }
+      );
+      if (keyErr) {
+        console.error("[CRM][SMS] erro lendo chave do Vault:", keyErr);
+      } else if (typeof keyData === "string" && keyData.length > 0) {
+        smsRealKey = keyData;
+      } else {
+        console.warn("[CRM][SMS] chave api_key não configurada — caindo no mock.");
+      }
+    }
+    const useRealSms = channel === "sms" && !dryRun && smsRealKey !== null;
+
     for (let i = 0; i < recipients.length; i += CHUNK) {
       const slice = recipients.slice(i, i + CHUNK);
-      const results: SendResult[] = await sendBatch(channel, slice);
+      const results: SendResult[] = useRealSms
+        ? await sendBatchSmsReal(slice, schedule.content ?? null, smsRealKey!)
+        : await sendBatch(channel, slice);
 
       const events = results.map((r) => ({
         schedule_id: scheduleId,
