@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, X } from "lucide-react";
 import type { AdminUser } from "../types";
+import { UserBehaviorPanel } from "./crm/UserBehaviorPanel";
 
 const UPSELL_BADGES = [
   { key: "alavancagem", letter: "A", activeColor: "bg-blue-500 text-white", title: "Alavancagem" },
