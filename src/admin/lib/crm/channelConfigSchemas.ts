@@ -63,21 +63,14 @@ export const CHANNEL_CONFIG_SCHEMAS: Record<ChannelKey, ChannelConfigSchema> = {
   },
   sms: {
     providerHint:
-      "SMS Funnel é o provider de SMS. Crie conta e gere uma API key no dashboard.",
+      "SMS Dev (smsdev.com.br) — pegue a Key em Minha Conta no painel.",
     fields: [
       {
         key: "api_key",
-        label: "SMS Funnel API Key",
+        label: "SMS Dev — Chave de API (Key)",
         type: "password",
-        placeholder: "sk_xxxxxxxxxxxxxxxx",
+        placeholder: "",
         required: true,
-      },
-      {
-        key: "sender_id",
-        label: "Sender ID",
-        type: "text",
-        placeholder: "PREMIER",
-        hint: "Curto identificador exibido como remetente do SMS.",
       },
     ],
   },
