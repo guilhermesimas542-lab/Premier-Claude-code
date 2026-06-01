@@ -321,7 +321,46 @@ Deno.serve(async (req: Request) => {
   //    Em Pilar 4: trocar mockProviders por realProviders.
   // ============================================================
   if (isBroadcast) {
-    const broadcastResult = await sendBroadcast(channel);
+    let broadcastResult: SendResult;
+
+    if (channel === "telegram_x1" && !dryRun) {
+      // Lê credenciais do Vault (api_id, api_secret) + bot_id de crm_channel_settings.
+      const [{ data: apiIdData }, { data: apiSecretData }, { data: settingsRow }] = await Promise.all([
+        supabase.rpc("crm_get_channel_secret", { p_channel: "telegram_x1", p_key: "api_id" }),
+        supabase.rpc("crm_get_channel_secret", { p_channel: "telegram_x1", p_key: "api_secret" }),
+        supabase
+          .from("crm_channel_settings")
+          .select("config")
+          .eq("channel", "telegram_x1")
+          .maybeSingle(),
+      ]);
+
+      const apiId = typeof apiIdData === "string" ? apiIdData : null;
+      const apiSecret = typeof apiSecretData === "string" ? apiSecretData : null;
+      const botId = (settingsRow as any)?.config?.channel_id ?? null;
+
+      if (!apiId || !apiSecret || !botId) {
+        broadcastResult = {
+          recipient_user_id: null,
+          recipient_identifier: "broadcast",
+          status: "failed",
+          error_code: "telegram_x1_not_configured",
+          error_message: "Configure api_id/api_secret no Vault e bot_id em channel_id.",
+          metadata: { provider: "sendpulse", broadcast: true, real: true },
+        };
+      } else {
+        const content = (schedule.content ?? {}) as { body?: string | null };
+        broadcastResult = await sendBroadcastTelegramX1Real(
+          content.body ?? "",
+          schedule.name,
+          botId,
+          apiId,
+          apiSecret,
+        );
+      }
+    } else {
+      broadcastResult = await sendBroadcast(channel);
+    }
 
     const event = {
       schedule_id: scheduleId,
