@@ -42,7 +42,8 @@ export default function AdminCrmSchedules() {
   const handleDispatch = async (s: Schedule) => {
     const isRealSms = s.channel === "sms";
     const isRealPush = s.channel === "push";
-    const isReal = isRealSms || isRealPush;
+    const isRealPopup = s.channel === "popup";
+    const isReal = isRealSms || isRealPush || isRealPopup;
     const channelInfo =
       s.channel === "telegram_x1"
         ? "Broadcast pra toda a base SendPulse"
@@ -50,7 +51,9 @@ export default function AdminCrmSchedules() {
           ? "Disparo REAL via SMS Dev — vai consumir créditos."
           : isRealPush
             ? "Disparo REAL de Web Push para todos os destinatários com subscription ativa."
-            : "Disparo pra audiência segmentada";
+            : isRealPopup
+              ? "Enfileira um popup in-app por usuário (exibido no próximo carregamento do app)."
+              : "Disparo pra audiência segmentada";
     const suffix = isReal ? "" : "\n\n(modo dry-run — sem envio real ainda)";
     if (!confirm(`Disparar "${s.name}" agora?\n\n${channelInfo}${suffix}`)) {
       return;

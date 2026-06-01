@@ -1374,6 +1374,47 @@ export type Database = {
           },
         ]
       }
+      crm_popup_deliveries: {
+        Row: {
+          acted_at: string | null
+          content: Json
+          created_at: string
+          id: string
+          schedule_id: string | null
+          shown_at: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          acted_at?: string | null
+          content?: Json
+          created_at?: string
+          id?: string
+          schedule_id?: string | null
+          shown_at?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          acted_at?: string | null
+          content?: Json
+          created_at?: string
+          id?: string
+          schedule_id?: string | null
+          shown_at?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_popup_deliveries_schedule_id_fkey"
+            columns: ["schedule_id"]
+            isOneToOne: false
+            referencedRelation: "crm_schedules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       crm_schedule_events: {
         Row: {
           channel: string
