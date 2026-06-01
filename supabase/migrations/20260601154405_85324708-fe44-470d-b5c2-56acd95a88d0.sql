@@ -1,0 +1,1 @@
+DROP FUNCTION IF EXISTS public.seed_service_role_key(text);
