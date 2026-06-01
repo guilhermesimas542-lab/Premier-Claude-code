@@ -2695,6 +2695,12 @@ export type Database = {
         Args: { p_channel: string; p_key: string }
         Returns: string
       }
+      crm_process_pending_schedules: {
+        Args: never
+        Returns: {
+          dispatched_id: string
+        }[]
+      }
       crm_save_channel_secret: {
         Args: { p_channel: string; p_key: string; p_value: string }
         Returns: Json
