@@ -305,7 +305,9 @@ Deno.serve(async (req: Request) => {
       );
     }
     recipients = users ?? [];
+    }
   }
+
 
   const reachCount = recipients.length;
   let deliveredCount = 0;
