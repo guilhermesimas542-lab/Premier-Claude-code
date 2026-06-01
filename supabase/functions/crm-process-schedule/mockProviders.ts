@@ -57,7 +57,7 @@ const CHANNEL_CAPABILITIES: Record<
   telegram_group: { blocked: false, supportsOpen: false, supportsClick: true,  providerLabel: "telegram_mock" },
   telegram_x1:    { blocked: false, supportsOpen: false, supportsClick: false, providerLabel: "sendpulse_mock" },
   whatsapp:       { blocked: false, supportsOpen: true,  supportsClick: true,  providerLabel: "whatsapp_mock" },
-  push:           { blocked: true,  supportsOpen: false, supportsClick: false, providerLabel: "push_pending" },
+  push:           { blocked: false, supportsOpen: false, supportsClick: false, providerLabel: "web_push" },
   popup:          { blocked: true,  supportsOpen: false, supportsClick: false, providerLabel: "popup_pending" },
 };
 

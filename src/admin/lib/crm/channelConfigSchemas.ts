@@ -146,20 +146,8 @@ export const CHANNEL_CONFIG_SCHEMAS: Record<ChannelKey, ChannelConfigSchema> = {
   },
   push: {
     providerHint:
-      "Push é via app mobile. Provider a definir — possíveis: Firebase Cloud Messaging, OneSignal.",
-    fields: [
-      {
-        key: "provider",
-        label: "Provider",
-        type: "text",
-        placeholder: "fcm | onesignal",
-      },
-      {
-        key: "api_key",
-        label: "API Key",
-        type: "password",
-      },
-    ],
+      "Web Push via VAPID (RFC 8291/8292). As chaves VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY e VAPID_SUBJECT já estão configuradas nas env secrets — nenhum campo adicional é necessário aqui.",
+    fields: [],
   },
   popup: {
     providerHint:
