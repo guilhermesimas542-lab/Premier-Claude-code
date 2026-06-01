@@ -40,14 +40,18 @@ export default function AdminCrmSchedules() {
   const [actionId, setActionId] = useState<string | null>(null);
 
   const handleDispatch = async (s: Schedule) => {
+    const isRealSms = s.channel === "sms";
     const channelInfo =
       s.channel === "telegram_x1"
         ? "Broadcast pra toda a base SendPulse"
-        : "Disparo pra audiência segmentada";
-    if (!confirm(`Disparar "${s.name}" agora?\n\n${channelInfo}\n\n(modo dry-run — sem envio real ainda)`)) {
+        : isRealSms
+          ? "Disparo REAL via SMS Dev — vai consumir créditos."
+          : "Disparo pra audiência segmentada";
+    const suffix = isRealSms ? "" : "\n\n(modo dry-run — sem envio real ainda)";
+    if (!confirm(`Disparar "${s.name}" agora?\n\n${channelInfo}${suffix}`)) {
       return;
     }
-    await dispatch(s.id, { dryRun: true });
+    await dispatch(s.id, { dryRun: !isRealSms });
     await refresh();
   };
 
