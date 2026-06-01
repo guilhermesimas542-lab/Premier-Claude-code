@@ -372,11 +372,27 @@ Deno.serve(async (req: Request) => {
     }
     const useRealSms = channel === "sms" && !dryRun && smsRealKey !== null;
 
+    // Push real (Web Push VAPID): só quando dry_run=false e chaves VAPID configuradas.
+    let pushVapid: { publicKey: string; privateKey: string; subject: string } | null = null;
+    if (channel === "push" && !dryRun) {
+      const pub = Deno.env.get("VAPID_PUBLIC_KEY");
+      const priv = Deno.env.get("VAPID_PRIVATE_KEY");
+      const subj = Deno.env.get("VAPID_SUBJECT");
+      if (pub && priv && subj) {
+        pushVapid = { publicKey: pub, privateKey: priv, subject: subj };
+      } else {
+        console.warn("[CRM][push] chaves VAPID não configuradas — caindo no mock.");
+      }
+    }
+    const useRealPush = channel === "push" && !dryRun && pushVapid !== null;
+
     for (let i = 0; i < recipients.length; i += CHUNK) {
       const slice = recipients.slice(i, i + CHUNK);
       const results: SendResult[] = useRealSms
         ? await sendBatchSmsReal(slice, schedule.content ?? null, smsRealKey!)
-        : await sendBatch(channel, slice);
+        : useRealPush
+          ? await sendBatchPushReal(slice, schedule.content ?? null, supabase, pushVapid!)
+          : await sendBatch(channel, slice);
 
       const events = results.map((r) => ({
         schedule_id: scheduleId,
