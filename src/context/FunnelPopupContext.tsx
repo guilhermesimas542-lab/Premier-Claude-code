@@ -94,11 +94,40 @@ export function FunnelPopupProvider({ children }: { children: ReactNode }) {
     await fetchPopup(type, houseId);
   }, [fetchPopup]);
 
+  // ============================================================
+  // CRM popup queue — peça nova, ao lado dos popups globais por tipo.
+  // Exibe no máximo 1 delivery pendente do crm_popup_deliveries por carregamento.
+  // Só mostra quando não há outro popup global ativo.
+  // ============================================================
+  const { delivery, markShown, markClicked, markDismissed, clear } = useCrmPopupQueue();
+  const [crmShown, setCrmShown] = useState(false);
+
+  useEffect(() => {
+    if (delivery && !crmShown && !activePopup) {
+      markShown(delivery.id);
+      setCrmShown(true);
+    }
+  }, [delivery, crmShown, activePopup, markShown]);
+
+  const crmPopupData = delivery ? crmDeliveryToFunnelPopupData(delivery) : null;
+
   return (
     <FunnelPopupContext.Provider value={{ openPopup, openPopupForHouse }}>
       {children}
       {activePopup && (
         <FunnelPopup popup={activePopup} onClose={() => setActivePopup(null)} />
+      )}
+      {crmPopupData && delivery && !activePopup && (
+        <FunnelPopup
+          popup={crmPopupData}
+          onClose={async () => {
+            await markDismissed(delivery.id);
+            clear();
+          }}
+          onCtaClick={async () => {
+            await markClicked(delivery.id);
+          }}
+        />
       )}
     </FunnelPopupContext.Provider>
   );
