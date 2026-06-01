@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { X, Upload, Loader2, CheckCircle2, Mail, Phone, AlertTriangle } from "lucide-react";
+import { useMemo, useRef, useState } from "react";
+import { X, Upload, Loader2, CheckCircle2, Mail, Phone, AlertTriangle, FileUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -38,6 +38,8 @@ export function AudienceImportModal({ open, onClose, onCreated }: Props) {
   const { create } = useAudiences();
   const { bulkInsert } = useAudienceMembers(null);
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [text, setText] = useState("");
@@ -47,6 +49,21 @@ export function AudienceImportModal({ open, onClose, onCreated }: Props) {
   const summary = summarizeParse(parse);
 
   const canSubmit = name.trim().length > 0 && parse.rows.length > 0 && !working;
+
+  const handleFile = async (file: File | null | undefined) => {
+    if (!file) return;
+    const maxBytes = 8 * 1024 * 1024; // 8MB
+    if (file.size > maxBytes) { toast.error("Arquivo muito grande (máx. 8MB)."); return; }
+    try {
+      const content = await file.text();
+      setText((prev) => (prev.trim() ? `${prev.trim()}\n${content}` : content));
+      if (!name.trim()) {
+        setName(file.name.replace(/\.(csv|txt)$/i, "").slice(0, 100));
+      }
+      toast.success(`"${file.name}" carregado.`);
+    } catch { toast.error("Não consegui ler o arquivo."); }
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
 
   const handleSubmit = async () => {
     if (!canSubmit) return;
@@ -150,7 +167,20 @@ export function AudienceImportModal({ open, onClose, onCreated }: Props) {
 
           {/* Textarea */}
           <div className="space-y-1.5">
-            <Label>Emails e/ou telefones</Label>
+            <div className="flex items-center justify-between gap-2">
+              <Label>Emails e/ou telefones</Label>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".csv,.txt,text/csv,text/plain"
+                className="hidden"
+                onChange={(e) => handleFile(e.target.files?.[0])}
+              />
+              <Button type="button" variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
+                <FileUp className="w-3.5 h-3.5 mr-1.5" />
+                Carregar CSV/TXT
+              </Button>
+            </div>
             <Textarea
               value={text}
               onChange={(e) => setText(e.target.value)}
