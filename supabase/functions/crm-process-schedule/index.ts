@@ -386,13 +386,19 @@ Deno.serve(async (req: Request) => {
     }
     const useRealPush = channel === "push" && !dryRun && pushVapid !== null;
 
+    // Popup interno: quando dry_run=false, enfileira em crm_popup_deliveries
+    // por usuário. App exibe via FunnelPopup no carregamento.
+    const useRealPopup = channel === "popup" && !dryRun;
+
     for (let i = 0; i < recipients.length; i += CHUNK) {
       const slice = recipients.slice(i, i + CHUNK);
       const results: SendResult[] = useRealSms
         ? await sendBatchSmsReal(slice, schedule.content ?? null, smsRealKey!)
         : useRealPush
           ? await sendBatchPushReal(slice, schedule.content ?? null, supabase, pushVapid!)
-          : await sendBatch(channel, slice);
+          : useRealPopup
+            ? await sendBatchPopupReal(slice, schedule.content ?? null, scheduleId, supabase)
+            : await sendBatch(channel, slice);
 
       const events = results.map((r) => ({
         schedule_id: scheduleId,
