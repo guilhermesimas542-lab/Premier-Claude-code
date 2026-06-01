@@ -84,7 +84,7 @@ export function AdminSidebar() {
     {
       label: "CRM",
       items: [
-        { to: "/admin/crm", icon: Megaphone, label: "Dashboard", end: true },
+        { to: "/admin/crm", icon: Megaphone, label: "Relatórios CRM", end: true },
         { to: "/admin/crm/schedules", icon: Send, label: "Schedules" },
         { to: "/admin/crm/journeys", icon: Workflow, label: "Jornadas" },
         { to: "/admin/crm/audiences", icon: Users, label: "Audiências" },
