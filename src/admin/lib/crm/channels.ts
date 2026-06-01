@@ -116,13 +116,12 @@ export const CHANNELS: Record<ChannelKey, ChannelConfig> = {
     key: "popup",
     label: "Popup in-app",
     shortLabel: "Popup",
-    provider: "A definir",
+    provider: "Popup interno (FunnelPopup)",
     icon: LayoutTemplate,
     color: "#F472B6",
     supportsFilter: true,
     supportsHtmlBuilder: true,
-    integrationStatus: "blocked",
-    warning: "Integração pendente. Configure o canal em Configurações para usar.",
+    integrationStatus: "active",
   },
 };
 
