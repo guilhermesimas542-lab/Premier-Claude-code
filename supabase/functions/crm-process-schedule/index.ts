@@ -35,6 +35,15 @@ interface RequestBody {
   dry_run?: boolean;
 }
 
+interface BehaviorFilter {
+  window_days?: number;
+  league_names?: string[];
+  markets?: string[];
+  source?: "chat" | "live" | "any";
+  min_analyses?: number;
+  last_analysis_age_days?: { gte?: number; lte?: number };
+}
+
 interface AudienceFilters {
   plans?: string[];
   days_since_login?: { gte?: number; lte?: number };
@@ -43,6 +52,88 @@ interface AudienceFilters {
   opt_ins?: string[];
   /** Marca semântica de broadcast (Telegram x1). */
   broadcast?: boolean;
+  behavior?: BehaviorFilter;
+}
+
+const DAY_MS = 86_400_000;
+const EVENT_ANALYSIS_OPENED = "ia_tipster_analysis_opened";
+
+function hasBehaviorFilter(b: BehaviorFilter | undefined | null): boolean {
+  if (!b) return false;
+  return !!(
+    (b.league_names && b.league_names.length > 0) ||
+    (b.markets && b.markets.length > 0) ||
+    (b.source && b.source !== "any") ||
+    (typeof b.min_analyses === "number" && b.min_analyses > 1) ||
+    b.last_analysis_age_days?.gte != null ||
+    b.last_analysis_age_days?.lte != null
+  );
+}
+
+async function resolveBehaviorUserIds(
+  supabase: any,
+  filter: BehaviorFilter
+): Promise<Set<string>> {
+  const windowDays = filter.window_days ?? 30;
+  const since = new Date(Date.now() - windowDays * DAY_MS).toISOString();
+  const { data: events, error } = await supabase
+    .from("events")
+    .select("user_id, properties, created_at")
+    .eq("event_name", EVENT_ANALYSIS_OPENED)
+    .gte("created_at", since)
+    .not("user_id", "is", null)
+    .limit(100000);
+  if (error) {
+    console.error("[CRM][behavior] erro:", error);
+    return new Set();
+  }
+  const wantedLeagues = new Set(
+    (filter.league_names ?? []).map((s) => s.trim().toLowerCase()).filter(Boolean)
+  );
+  const wantedMarkets = (filter.markets ?? [])
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
+  const eventMatches = (props: Record<string, any>): boolean => {
+    if (filter.source && filter.source !== "any") {
+      if ((props.source ?? null) !== filter.source) return false;
+    }
+    if (wantedLeagues.size > 0) {
+      const lg = String(props.league_name ?? "").trim().toLowerCase();
+      if (!wantedLeagues.has(lg)) return false;
+    }
+    if (wantedMarkets.length > 0) {
+      const markets = [props.main_market, props.alt_a_market, props.alt_b_market]
+        .filter((m) => typeof m === "string")
+        .map((m) => (m as string).toLowerCase());
+      if (!markets.some((m) => wantedMarkets.some((wm) => m.includes(wm)))) return false;
+    }
+    return true;
+  };
+  const byUser = new Map<string, { count: number; last_at: number }>();
+  for (const r of (events ?? []) as any[]) {
+    if (!eventMatches(r.properties ?? {})) continue;
+    const t = new Date(r.created_at).getTime();
+    const cur = byUser.get(r.user_id);
+    if (cur) {
+      cur.count++;
+      if (t > cur.last_at) cur.last_at = t;
+    } else {
+      byUser.set(r.user_id, { count: 1, last_at: t });
+    }
+  }
+  const minAnalyses = filter.min_analyses ?? 1;
+  const now = Date.now();
+  const ageGte = filter.last_analysis_age_days?.gte;
+  const ageLte = filter.last_analysis_age_days?.lte;
+  const eligible = new Set<string>();
+  for (const [uid, agg] of byUser.entries()) {
+    if (agg.count < minAnalyses) continue;
+    const ageDays = (now - agg.last_at) / DAY_MS;
+    if (ageGte != null && ageDays < ageGte) continue;
+    if (ageLte != null && ageDays > ageLte) continue;
+    eligible.add(uid);
+  }
+  return eligible;
 }
 
 function json(body: unknown, status = 200) {
@@ -150,7 +241,21 @@ Deno.serve(async (req: Request) => {
       nickname: m.user?.nickname ?? null,
     }));
   } else if (!isBroadcast) {
-    let q: any = supabase.from("users").select("id, email, phone, nickname");
+    let behaviorIds: string[] | null = null;
+    if (hasBehaviorFilter(filters.behavior)) {
+      const eligible = await resolveBehaviorUserIds(supabase, filters.behavior!);
+      behaviorIds = Array.from(eligible);
+    }
+
+    if (behaviorIds !== null && behaviorIds.length === 0) {
+      recipients = [];
+    } else {
+      let q: any = supabase.from("users").select("id, email, phone, nickname");
+
+      if (behaviorIds !== null) {
+        q = q.in("id", behaviorIds);
+      }
+
 
     if (filters.plans && filters.plans.length > 0) {
       q = q.in("main_tier", filters.plans);
@@ -200,7 +305,9 @@ Deno.serve(async (req: Request) => {
       );
     }
     recipients = users ?? [];
+    }
   }
+
 
   const reachCount = recipients.length;
   let deliveredCount = 0;
