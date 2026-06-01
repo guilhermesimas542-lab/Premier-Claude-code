@@ -43,10 +43,11 @@ export default function AdminCrmSchedules() {
     const isRealSms = s.channel === "sms";
     const isRealPush = s.channel === "push";
     const isRealPopup = s.channel === "popup";
-    const isReal = isRealSms || isRealPush || isRealPopup;
+    const isRealTgX1 = s.channel === "telegram_x1";
+    const isReal = isRealSms || isRealPush || isRealPopup || isRealTgX1;
     const channelInfo =
-      s.channel === "telegram_x1"
-        ? "Broadcast pra toda a base SendPulse"
+      isRealTgX1
+        ? "Broadcast REAL via SendPulse pra toda a base do bot Telegram."
         : isRealSms
           ? "Disparo REAL via SMS Dev — vai consumir créditos."
           : isRealPush

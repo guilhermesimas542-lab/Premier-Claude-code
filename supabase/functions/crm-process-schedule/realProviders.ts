@@ -299,6 +299,39 @@ export async function sendBatchPushReal(
 }
 
 // ============================================================
+// Telegram x1 (SendPulse) — broadcast pra todos assinantes do bot.
+// ============================================================
+
+export async function sendBroadcastTelegramX1Real(
+  text: string, title: string, botId: string, apiId: string, apiSecret: string,
+): Promise<SendResult> {
+  const fail = (code: string, msg: string): SendResult => ({
+    recipient_user_id: null, recipient_identifier: "broadcast", status: "failed",
+    error_code: code, error_message: msg,
+    metadata: { provider: "sendpulse", broadcast: true, real: true },
+  });
+  // 1. OAuth (token vale 1h)
+  const t = await fetch("https://api.sendpulse.com/oauth/access_token", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ grant_type: "client_credentials", client_id: apiId, client_secret: apiSecret }),
+  });
+  const tj = await t.json().catch(() => ({}));
+  if (!t.ok || !tj?.access_token) return fail("sendpulse_auth_error", tj?.error_description ?? "Falha no OAuth do SendPulse");
+  // 2. Broadcast pra todos os assinantes do bot
+  const c = await fetch("https://api.sendpulse.com/telegram/campaigns/send", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${tj.access_token}` },
+    body: JSON.stringify({ title: (title || "Premier FC").slice(0, 255), bot_id: botId, messages: [{ type: "text", message: { text } }] }),
+  });
+  const cj = await c.json().catch(() => ({}));
+  if (!c.ok || cj?.success === false) return fail("sendpulse_send_error", typeof cj?.message === "string" ? cj.message : JSON.stringify(cj).slice(0, 300));
+  const id = cj?.data?.id ?? cj?.id ?? null;
+  return { recipient_user_id: null, recipient_identifier: "broadcast", status: "delivered",
+    provider_message_id: id ? String(id) : undefined,
+    metadata: { provider: "sendpulse", broadcast: true, real: true } };
+}
+
+// ============================================================
 // Popup interno — enfileira uma delivery por usuário em
 // crm_popup_deliveries. A exibição é feita pelo app no carregamento.
 // ============================================================
