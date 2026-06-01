@@ -297,3 +297,117 @@ export async function sendBatchPushReal(
 
   return results;
 }
+
+// ============================================================
+// Popup interno — enfileira uma delivery por usuário em
+// crm_popup_deliveries. A exibição é feita pelo app no carregamento.
+// ============================================================
+
+interface PopupContent {
+  title?: string | null;
+  body?: string | null;
+  cta?: Record<string, unknown> | null;
+  [key: string]: unknown;
+}
+
+export async function sendBatchPopupReal(
+  recipients: Recipient[],
+  content: PopupContent | null | undefined,
+  scheduleId: string,
+  supabase: any
+): Promise<SendResult[]> {
+  const sentAt = new Date().toISOString();
+  const normalizedContent = {
+    title: (content?.title ?? "").toString().trim() || "Premier FC",
+    body: (content?.body ?? "").toString().trim() || "",
+    cta: content?.cta ?? null,
+  };
+
+  const results: SendResult[] = [];
+  const toInsert: Array<{
+    schedule_id: string;
+    user_id: string;
+    content: any;
+    status: string;
+    recipient_index: number;
+  }> = [];
+
+  recipients.forEach((r, idx) => {
+    const recipientUserId =
+      r.id && !r.id.startsWith("audience_member:") ? r.id : null;
+    const identifier = r.email ?? r.phone ?? r.id;
+
+    if (!recipientUserId) {
+      results.push({
+        recipient_user_id: null,
+        recipient_identifier: identifier,
+        status: "failed",
+        error_code: "no_user",
+        error_message: "Popup só pode ser enfileirado para usuários logados.",
+        metadata: { provider: "popup_internal", attempted_at: sentAt },
+      });
+      return;
+    }
+
+    toInsert.push({
+      schedule_id: scheduleId,
+      user_id: recipientUserId,
+      content: normalizedContent,
+      status: "pending",
+      recipient_index: idx,
+    });
+
+    // placeholder result preenchido após o insert
+    results.push({
+      recipient_user_id: recipientUserId,
+      recipient_identifier: identifier,
+      status: "failed",
+      error_code: "popup_pending_insert",
+      error_message: "Aguardando insert...",
+      metadata: { provider: "popup_internal", attempted_at: sentAt },
+    });
+  });
+
+  if (toInsert.length === 0) return results;
+
+  const payload = toInsert.map(({ recipient_index: _i, ...rest }) => rest);
+  const { data, error } = await supabase
+    .from("crm_popup_deliveries")
+    .insert(payload)
+    .select("id, user_id");
+
+  if (error) {
+    console.error("[CRM][popup] erro inserindo deliveries:", error);
+    toInsert.forEach((row) => {
+      const r = results[row.recipient_index];
+      r.status = "failed";
+      r.error_code = "popup_insert_failed";
+      r.error_message = error.message;
+      r.metadata = { ...r.metadata, db_error: error.message };
+    });
+    return results;
+  }
+
+  // Map user_id -> delivery_id (1:1 nesta janela; se houver duplicidade,
+  // pega o primeiro)
+  const idByUser = new Map<string, string>();
+  for (const row of (data ?? []) as any[]) {
+    if (!idByUser.has(row.user_id)) idByUser.set(row.user_id, row.id);
+  }
+
+  for (const row of toInsert) {
+    const r = results[row.recipient_index];
+    const deliveryId = idByUser.get(row.user_id);
+    r.status = "delivered";
+    r.error_code = undefined;
+    r.error_message = undefined;
+    r.provider_message_id = deliveryId;
+    r.metadata = {
+      provider: "popup_internal",
+      sent_at: sentAt,
+      delivery_id: deliveryId,
+    };
+  }
+
+  return results;
+}
