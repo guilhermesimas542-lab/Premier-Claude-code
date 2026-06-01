@@ -60,6 +60,10 @@ const fmtDatetime = (d: string | null | undefined) =>
 export function ClientProfileModal({ userId, onClose }: ClientProfileModalProps) {
   const [data, setData] = useState<ClientProfileData | null>(null);
   const [loading, setLoading] = useState(false);
+  const [tab, setTab] = useState<"perfil" | "comportamento">("perfil");
+
+  useEffect(() => { if (!userId) setTab("perfil"); }, [userId]);
+
 
   useEffect(() => {
     if (!userId) { setData(null); return; }
