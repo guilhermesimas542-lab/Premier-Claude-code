@@ -113,9 +113,9 @@ export const CHANNEL_CONFIG_SCHEMAS: Record<ChannelKey, ChannelConfigSchema> = {
       },
       {
         key: "channel_id",
-        label: "ID do canal SendPulse",
+        label: "Bot ID do SendPulse",
         type: "text",
-        hint: "Identificador do canal Telegram x1 dentro da SendPulse.",
+        hint: "ID do bot do Telegram conectado no SendPulse.",
       },
     ],
   },
