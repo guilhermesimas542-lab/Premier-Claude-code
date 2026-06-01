@@ -87,6 +87,7 @@ export function FunnelPopup({ popup, onClose, onCtaClick }: FunnelPopupProps) {
 
   const handleCheckout = (url: string) => {
     trackFunnel({ entityType: 'popup', entityId: popup.id, eventType: 'checkout_click', houseId });
+    onCtaClick?.(url);
     setCheckoutUrl(url);
   };
 
