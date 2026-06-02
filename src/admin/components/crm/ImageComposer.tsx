@@ -1,21 +1,17 @@
-import { useRef, useState, useMemo } from "react";
-import html2canvas from "html2canvas";
+import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, X, Upload, Sparkles } from "lucide-react";
+import { Loader2, X, Upload, Sparkles, Trash2, ImageIcon, FileText, Save } from "lucide-react";
 import {
-  BANNER_TEMPLATES,
-  getTemplate,
   getCanvasSize,
   isImageSupportedChannel,
-  type BannerValues,
   type BannerChannelKey,
 } from "../../lib/crm/bannerTemplates";
 import type { ChannelKey } from "../../lib/crm/channels";
+import { useImageTemplates } from "../../hooks/crm/useImageTemplates";
 
 interface Props {
   channel: ChannelKey;
