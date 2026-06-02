@@ -171,10 +171,15 @@ export default function AdminCrmAudiences() {
 
       <AudienceBuilder
         open={builderOpen}
-        onClose={() => setBuilderOpen(false)}
+        onClose={() => {
+          setBuilderOpen(false);
+          setInitialFilters(undefined);
+        }}
         onSave={handleSave}
         editing={editing}
+        initialFilters={initialFilters}
       />
+
 
       <AudienceImportModal
         open={importOpen}
