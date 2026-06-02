@@ -3,6 +3,7 @@ import { useCreditBalance } from "@/hooks/useCreditBalance";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Coins, Infinity as InfinityIcon, Plus } from "lucide-react";
 import { BuyCreditsModal } from "@/components/ia-tipster/BuyCreditsModal";
+import { isUnlimitedLifetime, formatUnlimitedUntil } from "@/lib/unlimitedAccess";
 
 function formatResetDate(iso: string | null): string {
   if (!iso) return "segunda-feira";
@@ -15,13 +16,6 @@ function formatResetDate(iso: string | null): string {
   } catch {
     return "segunda-feira";
   }
-}
-
-function formatUntil(iso: string | null): string {
-  if (!iso) return "";
-  try {
-    return new Date(iso).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit" });
-  } catch { return ""; }
 }
 
 export function CreditBalanceBadge() {
