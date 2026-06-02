@@ -248,6 +248,14 @@ function PushPreview({ content }: { content: Record<string, any> }) {
           <div className="text-[11px] text-slate-300 line-clamp-2 whitespace-pre-wrap">{body}</div>
         </div>
       </div>
+      {content.image_url && (
+        <img
+          src={content.image_url}
+          alt="Banner do push"
+          className="mt-2 w-full h-auto rounded-lg border border-slate-700"
+          style={{ maxHeight: 180, objectFit: "cover" }}
+        />
+      )}
     </div>
   );
 }
