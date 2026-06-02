@@ -208,6 +208,12 @@ export default function AdminClientsManage() {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
+  // IA Tipster credit ops state
+  const [creditBalance, setCreditBalance] = useState<any>(null);
+  const [loadingBalance, setLoadingBalance] = useState(false);
+  const [bonusAmount, setBonusAmount] = useState<string>("");
+  const [creditBusy, setCreditBusy] = useState(false);
+
   // Bulk selection state
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [showBulkDelete, setShowBulkDelete] = useState(false);
@@ -234,10 +240,112 @@ export default function AdminClientsManage() {
     else { setSortKey(col); setSortDir("asc"); }
   };
 
+  const fetchCreditBalanceFor = async (uid: string) => {
+    setLoadingBalance(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("admin-credit-ops", {
+        body: { action: "get_balance", user_id: uid },
+      });
+      if (error) throw error;
+      setCreditBalance((data as any)?.balance ?? null);
+    } catch (e: any) {
+      setCreditBalance(null);
+    } finally {
+      setLoadingBalance(false);
+    }
+  };
+
+  const refreshUserCreditRow = async (uid: string) => {
+    const [weeklyRes, extrasRes, debitsRes] = await Promise.all([
+      supabase.from("ai_credit_weekly").select("user_id, weekly_quota, weekly_used").eq("user_id", uid).maybeSingle(),
+      supabase.from("ai_credit_extras").select("user_id, balance_bonus, balance_purchased, unlimited_until").eq("user_id", uid).maybeSingle(),
+      supabase.from("ai_credit_log").select("user_id").eq("user_id", uid).eq("event_type", "debit"),
+    ]);
+    const weekly: any = weeklyRes.data;
+    const extras: any = extrasRes.data;
+    const allTime = (debitsRes.data ?? []).length;
+    const weeklySpent = weekly?.weekly_used ?? 0;
+    let info: CreditInfo;
+    if (extras?.unlimited_until && new Date(extras.unlimited_until) > new Date()) {
+      const isLifetime = new Date(extras.unlimited_until).getFullYear() > 9000;
+      info = {
+        display: "∞",
+        color: "purple",
+        tooltip: [
+          isLifetime ? "Vitalício" : `Ilimitado até ${new Date(extras.unlimited_until).toLocaleDateString("pt-BR")}`,
+          `Gastos esta semana: ${weeklySpent}`,
+          `Gastos all-time: ${allTime}`,
+        ],
+      };
+    } else {
+      const weeklyRemaining = Math.max((weekly?.weekly_quota ?? 0) - weeklySpent, 0);
+      const extrasTotal = (extras?.balance_bonus ?? 0) + (extras?.balance_purchased ?? 0);
+      const total = weeklyRemaining + extrasTotal;
+      info = {
+        display: String(total),
+        color: total > 0 ? "green" : "gray",
+        tooltip: [
+          `Disponível: ${total}`,
+          `Cota semanal: ${weeklyRemaining}/${weekly?.weekly_quota ?? 0}`,
+          `Bônus: ${extras?.balance_bonus ?? 0}`,
+          `Comprado: ${extras?.balance_purchased ?? 0}`,
+          `Gastos all-time: ${allTime}`,
+        ],
+      };
+    }
+    setCreditMap((prev) => ({ ...prev, [uid]: info }));
+  };
+
+  const handleGrantBonus = async () => {
+    if (!editUser) return;
+    const amt = parseInt(bonusAmount, 10);
+    if (!Number.isInteger(amt) || amt <= 0 || amt > 100) {
+      toast.error("Quantidade deve ser entre 1 e 100");
+      return;
+    }
+    setCreditBusy(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("admin-credit-ops", {
+        body: { action: "grant_bonus", user_id: editUser.id, amount: amt },
+      });
+      if (error || (data as any)?.error) throw new Error((data as any)?.error ?? error?.message);
+      setCreditBalance((data as any)?.balance ?? null);
+      setBonusAmount("");
+      toast.success(`+${amt} créditos bônus`);
+      await refreshUserCreditRow(editUser.id);
+    } catch (e: any) {
+      toast.error(e?.message ?? "Erro ao conceder bônus");
+    } finally {
+      setCreditBusy(false);
+    }
+  };
+
+  const handleGrantUnlimited = async (duration: "30d" | "90d" | "lifetime") => {
+    if (!editUser) return;
+    const label = duration === "30d" ? "30 dias" : duration === "90d" ? "90 dias" : "Vitalício";
+    if (!confirm(`Conceder ilimitado (${label}) para ${editUser.email}?`)) return;
+    setCreditBusy(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("admin-credit-ops", {
+        body: { action: "grant_unlimited", user_id: editUser.id, duration },
+      });
+      if (error || (data as any)?.error) throw new Error((data as any)?.error ?? error?.message);
+      setCreditBalance((data as any)?.balance ?? null);
+      toast.success(`Ilimitado ${label} concedido`);
+      await refreshUserCreditRow(editUser.id);
+    } catch (e: any) {
+      toast.error(e?.message ?? "Erro ao conceder ilimitado");
+    } finally {
+      setCreditBusy(false);
+    }
+  };
+
   const openEdit = async (u: AdminUser & { betting_house_id?: string | null }) => {
     setEditUser(u);
     setEditHouseId(u.betting_house_id ?? "");
     setLoadingAddons(true);
+    setCreditBalance(null);
+    setBonusAmount("");
     const { data } = await supabase
       .from("entitlements")
       .select("product_key")
@@ -248,6 +356,7 @@ export default function AdminClientsManage() {
     ADDON_TOGGLES.forEach(({ key }) => { addonState[key] = activeKeys.includes(key); });
     setEditAddons(addonState);
     setLoadingAddons(false);
+    fetchCreditBalanceFor(u.id);
   };
 
   const load = useCallback(async (overrides?: {
@@ -1142,9 +1251,11 @@ export default function AdminClientsManage() {
                   <SelectTrigger className="bg-gray-800 border-gray-700"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="free">Free</SelectItem>
-                    <SelectItem value="basic">Basic</SelectItem>
-                    <SelectItem value="pro">Pro</SelectItem>
-                    <SelectItem value="ultra">Ultra</SelectItem>
+                    <SelectItem value="basic">Basic (legado)</SelectItem>
+                    <SelectItem value="pro">Pro (legado)</SelectItem>
+                    <SelectItem value="ultra">Ultra (legado)</SelectItem>
+                    <SelectItem value="premium">Premium</SelectItem>
+                    <SelectItem value="diamante">Diamante</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -1180,6 +1291,66 @@ export default function AdminClientsManage() {
                   ))
                 )}
               </div>
+
+              {/* IA Tipster — créditos */}
+              <div className="border-t border-white/10 pt-3 space-y-3">
+                <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Créditos IA Tipster</p>
+                {loadingBalance ? (
+                  <div className="flex items-center gap-2 text-gray-500 text-xs">
+                    <Loader2 className="w-3 h-3 animate-spin" /> Carregando saldo…
+                  </div>
+                ) : creditBalance ? (
+                  <div className="text-xs text-gray-300 space-y-1 bg-gray-800/40 rounded p-2">
+                    <div>Semanal: <span className="text-white">{creditBalance.balance?.weekly_remaining ?? 0}/{creditBalance.balance?.weekly_quota ?? 0}</span></div>
+                    <div>Bônus: <span className="text-white">{creditBalance.balance?.extras_bonus ?? 0}</span></div>
+                    <div>Comprado: <span className="text-white">{creditBalance.balance?.extras_purchased ?? 0}</span></div>
+                    <div>
+                      Ilimitado: <span className="text-white">
+                        {creditBalance.unlimited_active
+                          ? (new Date(creditBalance.unlimited_until).getFullYear() > 9000
+                              ? "Vitalício"
+                              : `até ${new Date(creditBalance.unlimited_until).toLocaleDateString("pt-BR")}`)
+                          : "—"}
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-xs text-gray-500">Saldo indisponível</div>
+                )}
+
+                <div className="space-y-1.5">
+                  <label className="text-xs text-gray-500">Adicionar bônus (1–100)</label>
+                  <div className="flex gap-2">
+                    <Input
+                      type="number"
+                      min={1}
+                      max={100}
+                      value={bonusAmount}
+                      onChange={(e) => setBonusAmount(e.target.value)}
+                      placeholder="Qtd"
+                      className="bg-gray-800 border-gray-700 h-8"
+                    />
+                    <Button
+                      size="sm"
+                      onClick={handleGrantBonus}
+                      disabled={creditBusy || !bonusAmount}
+                    >
+                      {creditBusy ? <Loader2 className="w-3 h-3 animate-spin" /> : "Adicionar"}
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs text-gray-500">Conceder ilimitado</label>
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="outline" disabled={creditBusy} onClick={() => handleGrantUnlimited("30d")} className="flex-1 bg-gray-800 border-gray-700 hover:bg-gray-700">30 dias</Button>
+                    <Button size="sm" variant="outline" disabled={creditBusy} onClick={() => handleGrantUnlimited("90d")} className="flex-1 bg-gray-800 border-gray-700 hover:bg-gray-700">90 dias</Button>
+                    <Button size="sm" variant="outline" disabled={creditBusy} onClick={() => handleGrantUnlimited("lifetime")} className="flex-1 bg-purple-900/40 border-purple-700 hover:bg-purple-900/60 text-purple-200">Vitalício</Button>
+                  </div>
+                </div>
+              </div>
+
+
 
               <Button onClick={handleUpdate} disabled={saving} className="w-full">
                 {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Salvar"}

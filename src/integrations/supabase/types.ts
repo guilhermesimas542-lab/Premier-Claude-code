@@ -363,6 +363,24 @@ export type Database = {
           },
         ]
       }
+      ai_credit_weekly_backfill_log: {
+        Row: {
+          backfilled_at: string
+          main_tier: string | null
+          user_id: string
+        }
+        Insert: {
+          backfilled_at?: string
+          main_tier?: string | null
+          user_id: string
+        }
+        Update: {
+          backfilled_at?: string
+          main_tier?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       ai_featured_matches: {
         Row: {
           added_by: string | null
