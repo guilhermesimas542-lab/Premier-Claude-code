@@ -4,6 +4,7 @@ import { toPng } from "html-to-image";
 import { saveAs } from "file-saver";
 import JSZip from "jszip";
 import { GreenStoryExport } from "@/admin/components/GreenStoryExport";
+import { GreenHorizontalExport } from "@/admin/components/GreenHorizontalExport";
 
 export type TipForExport = {
   id: string;
@@ -33,8 +34,15 @@ async function waitForRender(): Promise<void> {
   await new Promise((r) => setTimeout(r, 400));
 }
 
-/** Render GreenStoryExport off-screen and capture as 1080x1920 PNG blob */
-export async function generateGreenStoryBlob(tip: TipForExport): Promise<Blob> {
+type ExportFormat = "story" | "horizontal";
+
+const FORMAT_DIMS: Record<ExportFormat, { width: number; height: number; component: any }> = {
+  story:      { width: 1080, height: 1920, component: GreenStoryExport },
+  horizontal: { width: 1080, height: 540,  component: GreenHorizontalExport },
+};
+
+async function generateBlob(tip: TipForExport, format: ExportFormat): Promise<Blob> {
+  const { width, height, component } = FORMAT_DIMS[format];
   const container = document.createElement("div");
   container.style.position = "fixed";
   container.style.left = "-99999px";
@@ -48,18 +56,17 @@ export async function generateGreenStoryBlob(tip: TipForExport): Promise<Blob> {
 
   try {
     await new Promise<void>((resolve) => {
-      root.render(React.createElement(GreenStoryExport, { tip, ref: targetRef }));
-      // Allow React to commit before measuring
+      root.render(React.createElement(component, { tip, ref: targetRef }));
       requestAnimationFrame(() => resolve());
     });
 
     await waitForRender();
 
-    if (!targetRef.current) throw new Error("GreenStoryExport ref not attached");
+    if (!targetRef.current) throw new Error("Export ref not attached");
 
     const dataUrl = await toPng(targetRef.current, {
-      width: 1080,
-      height: 1920,
+      width,
+      height,
       pixelRatio: 1,
       backgroundColor: "#060D1E",
       cacheBust: true,
@@ -73,30 +80,44 @@ export async function generateGreenStoryBlob(tip: TipForExport): Promise<Blob> {
   }
 }
 
+export async function downloadStoryPng(tip: TipForExport): Promise<Blob> {
+  return generateBlob(tip, "story");
+}
+
+export async function downloadHorizontalPng(tip: TipForExport): Promise<Blob> {
+  return generateBlob(tip, "horizontal");
+}
+
+// Legacy alias (kept in case anything still imports it)
+export async function generateGreenStoryBlob(tip: TipForExport): Promise<Blob> {
+  return downloadStoryPng(tip);
+}
+
 function safeFileName(s: string): string {
   return s.replace(/[^a-zA-Z0-9-_]/g, "_").slice(0, 50);
 }
 
-function tipFileName(tip: TipForExport): string {
+export function tipFileName(tip: TipForExport, format: ExportFormat = "story"): string {
   const t1 = safeFileName(tip.team1_name || "time1");
   const t2 = safeFileName(tip.team2_name || "time2");
   const date = (tip.match_date || "").replace(/[^0-9-]/g, "_") || "tip";
-  return `tip-${date}-${t1}-vs-${t2}.png`;
+  return `tip-${format}-${date}-${t1}-vs-${t2}.png`;
 }
 
-export async function downloadSingleTipPng(tip: TipForExport): Promise<void> {
-  const blob = await generateGreenStoryBlob(tip);
-  saveAs(blob, tipFileName(tip));
+export async function downloadSingleTipPng(tip: TipForExport, format: ExportFormat = "story"): Promise<void> {
+  const blob = await generateBlob(tip, format);
+  saveAs(blob, tipFileName(tip, format));
 }
 
+// ZIP batch — story only (per spec, to keep size/time reasonable)
 export async function exportGreensAsZip(tips: TipForExport[], dateLabel: string): Promise<void> {
   if (tips.length === 0) return;
   const zip = new JSZip();
   const folder = zip.folder("greens") ?? zip;
   for (const tip of tips) {
     try {
-      const blob = await generateGreenStoryBlob(tip);
-      folder.file(tipFileName(tip), blob);
+      const blob = await downloadStoryPng(tip);
+      folder.file(tipFileName(tip, "story"), blob);
     } catch (e) {
       console.error("[exportGreens] failed for tip", tip.id, e);
     }

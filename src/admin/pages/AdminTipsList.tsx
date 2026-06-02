@@ -11,8 +11,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Pencil, Trash2, ArrowUpDown, ArrowUp, ArrowDown, Snowflake, RefreshCw, ImageDown, Loader2 } from "lucide-react";
+import { Pencil, Trash2, ArrowUpDown, ArrowUp, ArrowDown, Snowflake, RefreshCw, ImageDown, Loader2, Smartphone, Monitor } from "lucide-react";
 import { downloadSingleTipPng, exportGreensAsZip, type TipForExport } from "@/admin/lib/exportTipPng";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { TeamAutocomplete } from "../components/TeamAutocomplete";
@@ -146,11 +147,11 @@ export default function AdminTipsList() {
     addon_required: t.addon_required,
   });
 
-  const handleExportSingle = async (t: any) => {
+  const handleExportSingle = async (t: any, format: "story" | "horizontal") => {
     if (t.result !== "green") { toast.error("Só tips GREEN podem ser exportadas"); return; }
     setExportingId(t.id);
     try {
-      await downloadSingleTipPng(tipToExport(t));
+      await downloadSingleTipPng(tipToExport(t), format);
       toast.success("Imagem gerada com sucesso");
     } catch (e: any) {
       console.error("[export single]", e);
@@ -159,6 +160,7 @@ export default function AdminTipsList() {
       setExportingId(null);
     }
   };
+
 
 
   const handleExportBatchGreens = async () => {
@@ -707,14 +709,27 @@ function getPlanoLabel(t: any): { label: string; color: string } {
                     <button onClick={() => handleFreeze(t)} className="text-cyan-400 hover:text-cyan-300 transition-colors" title="Freezar (duplicar como Free)"><Snowflake className="w-3.5 h-3.5" /></button>
                     <button onClick={() => openEditModal(t)} className="text-blue-400" title="Editar"><Pencil className="w-3.5 h-3.5" /></button>
                     {(t as any).result === "green" && (
-                      <button
-                        onClick={() => handleExportSingle(t)}
-                        disabled={exportingId === t.id}
-                        className="text-emerald-400 hover:text-emerald-300 disabled:opacity-50"
-                        title="Exportar PNG (story + recortado)"
-                      >
-                        {exportingId === t.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ImageDown className="w-3.5 h-3.5" />}
-                      </button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button
+                            disabled={exportingId === t.id}
+                            className="text-emerald-400 hover:text-emerald-300 disabled:opacity-50"
+                            title="Exportar PNG"
+                          >
+                            {exportingId === t.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ImageDown className="w-3.5 h-3.5" />}
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => handleExportSingle(t, "story")}>
+                            <Smartphone className="w-4 h-4 mr-2" />
+                            Baixar Story (1080×1920)
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleExportSingle(t, "horizontal")}>
+                            <Monitor className="w-4 h-4 mr-2" />
+                            Baixar Horizontal (1080×540)
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     )}
                     <button onClick={() => handleDelete(t.id)} className="text-red-400" title="Excluir"><Trash2 className="w-3.5 h-3.5" /></button>
                   </td>

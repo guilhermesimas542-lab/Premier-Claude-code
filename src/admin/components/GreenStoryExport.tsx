@@ -1,6 +1,5 @@
 import React from "react";
 import { PremiumBettingCard, type TeamWithShirt } from "@/components/PremiumBettingCard";
-import { BadgeCheck } from "lucide-react";
 import type { TipForExport } from "@/admin/lib/exportTipPng";
 
 interface Props {
@@ -126,27 +125,8 @@ export const GreenStoryExport = React.forwardRef<HTMLDivElement, Props>(({ tip }
             odds={tip.odds || 0}
             matchDate={tip.match_date || undefined}
             hideTimer
+            showVerifiedBadge
           />
-        </div>
-
-        {/* Verified seal — top right of the card footprint */}
-        <div
-          style={{
-            position: "absolute",
-            top: -28,
-            right: -28,
-            width: 104,
-            height: 104,
-            borderRadius: "50%",
-            background: BG,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            boxShadow: `0 0 30px ${GREEN}88`,
-            zIndex: 5,
-          }}
-        >
-          <BadgeCheck style={{ width: 96, height: 96, color: GREEN, fill: GREEN, stroke: BG, strokeWidth: 2 }} />
         </div>
       </div>
 
