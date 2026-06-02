@@ -5,9 +5,9 @@ import { toast } from "sonner";
 
 const CATEGORIES = [
   { key: "bug", label: "🐛 Bug" },
-  { key: "sugestao", label: "💡 Sugestão" },
-  { key: "duvida", label: "❓ Dúvida" },
-  { key: "outro", label: "📝 Outro" },
+  { key: "sugestao", label: "💡 Sugerencia" },
+  { key: "duvida", label: "❓ Duda" },
+  { key: "outro", label: "📝 Otro" },
 ] as const;
 
 interface FeedbackModalProps {

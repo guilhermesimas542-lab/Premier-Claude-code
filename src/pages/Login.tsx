@@ -363,7 +363,7 @@ const Login = () => {
                                   margin: 0,
                                 }}
                               >
-                                Crie suas próprias odds
+                                Crea tus propias cuotas
                               </p>
                               <p
                                 style={{
@@ -598,7 +598,7 @@ const Login = () => {
             <input
               id="email"
               type="email"
-              placeholder="seu@email.com"
+              placeholder="tu@email.com"
               value={email}
               onChange={(e) => {
                 setEmail(e.target.value);
