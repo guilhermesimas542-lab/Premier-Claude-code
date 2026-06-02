@@ -457,17 +457,23 @@ export async function sendBatchPopupReal(
 // ============================================================
 
 export async function sendTelegramGroupReal(
-  text: string, botToken: string, chatId: string,
+  text: string, botToken: string, chatId: string, imageUrl?: string | null,
 ): Promise<SendResult> {
   const base = {
     recipient_user_id: null as string | null,
     recipient_identifier: `telegram_group:${chatId}`,
-    metadata: { provider: "telegram", group: true, real: true },
+    metadata: { provider: "telegram", group: true, real: true, with_image: !!imageUrl },
   };
   try {
-    const resp = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+    const url = imageUrl
+      ? `https://api.telegram.org/bot${botToken}/sendPhoto`
+      : `https://api.telegram.org/bot${botToken}/sendMessage`;
+    const body = imageUrl
+      ? { chat_id: chatId, photo: imageUrl, caption: text }
+      : { chat_id: chatId, text };
+    const resp = await fetch(url, {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ chat_id: chatId, text }),
+      body: JSON.stringify(body),
     });
     const j = await resp.json().catch(() => ({}));
     if (!resp.ok || j?.ok !== true) {
