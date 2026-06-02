@@ -22,6 +22,7 @@ import type { AdminUser } from "../types";
 import { ClientProfileModal } from "../components/ClientProfileModal";
 import { useBettingHouseAdmin } from "../context/BettingHouseContext";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { isUnlimitedActive, isUnlimitedLifetime, formatUnlimitedUntil } from "@/lib/unlimitedAccess";
 
 interface CreditInfo {
   display: string;
