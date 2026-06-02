@@ -59,6 +59,11 @@ export async function resolveBehaviorUserIds(
   const wantedMarkets = (filter.markets ?? [])
     .map((s) => s.trim().toLowerCase())
     .filter(Boolean);
+  const wantedTeams = new Set(
+    (filter.team_names ?? [])
+      .map((s) => s.trim().toLowerCase())
+      .filter(Boolean)
+  );
 
   function eventMatches(p: Row): boolean {
     const props = p.properties ?? {};
@@ -84,6 +89,12 @@ export async function resolveBehaviorUserIds(
         wantedMarkets.some((wm) => m.includes(wm))
       );
       if (!anyMatch) return false;
+    }
+    // Times — match em home OU away
+    if (wantedTeams.size > 0) {
+      const home = String(props.home ?? "").trim().toLowerCase();
+      const away = String(props.away ?? "").trim().toLowerCase();
+      if (!wantedTeams.has(home) && !wantedTeams.has(away)) return false;
     }
     return true;
   }
@@ -133,6 +144,7 @@ export function hasBehaviorFilter(b: AudienceBehaviorFilter | undefined | null):
   return !!(
     (b.league_names && b.league_names.length > 0) ||
     (b.markets && b.markets.length > 0) ||
+    (b.team_names && b.team_names.length > 0) ||
     (b.source && b.source !== "any") ||
     (typeof b.min_analyses === "number" && b.min_analyses > 1) ||
     b.last_analysis_age_days?.gte != null ||

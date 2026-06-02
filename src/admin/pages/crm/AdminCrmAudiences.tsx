@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Plus, Users, Pencil, Trash2, Loader2, Upload, Filter as FilterIcon, ListChecks, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAudiences, type Audience, type AudienceFilters } from "../../hooks/crm/useAudiences";
@@ -11,13 +12,29 @@ import { AudienceImportModal } from "../../components/crm/AudienceImportModal";
  */
 export default function AdminCrmAudiences() {
   const { items, loading, create, update, remove, refresh } = useAudiences();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [builderOpen, setBuilderOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
   const [updateTarget, setUpdateTarget] = useState<Audience | null>(null);
   const [editing, setEditing] = useState<Audience | null>(null);
+  const [initialFilters, setInitialFilters] = useState<AudienceFilters | undefined>(undefined);
+
+  // Abre o builder pré-preenchido quando vem da aba Comportamento
+  useEffect(() => {
+    const st = location.state as { prefillBehavior?: any } | null;
+    if (st?.prefillBehavior) {
+      setEditing(null);
+      setInitialFilters({ behavior: st.prefillBehavior });
+      setBuilderOpen(true);
+      // limpa o state pra não reabrir ao navegar de volta
+      navigate(location.pathname, { replace: true, state: null });
+    }
+  }, [location, navigate]);
 
   const handleNew = () => {
     setEditing(null);
+    setInitialFilters(undefined);
     setBuilderOpen(true);
   };
 
@@ -154,10 +171,15 @@ export default function AdminCrmAudiences() {
 
       <AudienceBuilder
         open={builderOpen}
-        onClose={() => setBuilderOpen(false)}
+        onClose={() => {
+          setBuilderOpen(false);
+          setInitialFilters(undefined);
+        }}
         onSave={handleSave}
         editing={editing}
+        initialFilters={initialFilters}
       />
+
 
       <AudienceImportModal
         open={importOpen}

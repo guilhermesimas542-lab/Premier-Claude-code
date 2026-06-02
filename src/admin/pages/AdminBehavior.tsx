@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   BarChart3,
   Users,
@@ -16,11 +17,24 @@ import {
   type Bucket,
   type Window,
 } from "../hooks/useBehaviorReport";
+import type { AudienceBehaviorFilter } from "../hooks/crm/useAudiences";
 
 const DOW_LABELS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
+const WINDOW_DAYS: Record<Window, number> = { "7d": 7, "30d": 30, "90d": 90 };
+
 export default function AdminBehavior() {
   const { data, loading, window, setWindow, refresh } = useBehaviorReport("30d");
+  const navigate = useNavigate();
+  const windowDays = WINDOW_DAYS[window];
+
+  const goToAudience = (behavior: AudienceBehaviorFilter) => {
+    navigate("/admin/crm/audiences", {
+      state: { prefillBehavior: { window_days: windowDays, ...behavior } },
+    });
+  };
+
+
 
   return (
     <div className="p-4 md:p-6 space-y-6 max-w-6xl mx-auto">
@@ -87,15 +101,17 @@ export default function AdminBehavior() {
           <div className="grid lg:grid-cols-2 gap-3">
             <RankingCard
               title="Top campeonatos"
-              hint="Campeonatos mais analisados"
+              hint="Clique numa linha pra criar uma audiência"
               buckets={data.top_leagues}
               color="#A855F7"
+              onPick={(label) => goToAudience({ league_names: [label] })}
             />
             <RankingCard
               title="Top mercados"
-              hint="Mercados mais escolhidos pela IA"
+              hint="Clique numa linha pra criar uma audiência"
               buckets={data.top_markets}
               color="#22C55E"
+              onPick={(label) => goToAudience({ markets: [label] })}
             />
           </div>
 
@@ -103,10 +119,16 @@ export default function AdminBehavior() {
           <div className="grid lg:grid-cols-2 gap-3">
             <RankingCard
               title="Jogos mais analisados"
-              hint="Confronto Home × Away"
+              hint="Clique numa linha pra criar audiência com os 2 times"
               buckets={data.top_teams}
               color="#FACC15"
+              onPick={(label) => {
+                const parts = label.split(/\s+x\s+/i).map((s) => s.trim()).filter(Boolean);
+                if (parts.length === 0) return;
+                goToAudience({ team_names: parts });
+              }}
             />
+
             <div className="space-y-3">
               <RankingCard
                 title="Chat vs Ao Vivo"
@@ -198,12 +220,14 @@ function RankingCard({
   buckets,
   color,
   compact,
+  onPick,
 }: {
   title: string;
   hint?: string;
   buckets: Bucket[];
   color: string;
   compact?: boolean;
+  onPick?: (label: string) => void;
 }) {
   const max = Math.max(...buckets.map((b) => b.count), 1);
   return (
@@ -218,29 +242,49 @@ function RankingCard({
         <p className="text-xs text-muted-foreground italic">Sem dados nesse período.</p>
       ) : (
         <div className={compact ? "space-y-1.5" : "space-y-2"}>
-          {buckets.map((b, idx) => (
-            <div key={b.label + idx}>
-              <div className="flex items-center justify-between gap-2 mb-1 text-xs">
-                <span className="text-foreground truncate" title={b.label}>
-                  <span className="text-muted-foreground mr-2">{idx + 1}.</span>
-                  {b.label}
-                </span>
-                <span className="text-muted-foreground shrink-0">
-                  <strong className="text-foreground">{b.count.toLocaleString("pt-BR")}</strong>
-                  <span className="ml-1 text-[10px]">
-                    ({Math.round(b.share * 100)}%)
+          {buckets.map((b, idx) => {
+            const clickable = !!onPick;
+            const content = (
+              <>
+                <div className="flex items-center justify-between gap-2 mb-1 text-xs">
+                  <span className="text-foreground truncate flex items-center gap-1" title={clickable ? `Usar "${b.label}" em audiência` : b.label}>
+                    <span className="text-muted-foreground mr-2">{idx + 1}.</span>
+                    {b.label}
+                    {clickable && (
+                      <ChevronRight className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition" />
+                    )}
                   </span>
-                </span>
-              </div>
-              <div className="h-1.5 rounded-full bg-muted/30 overflow-hidden">
-                <div
-                  className="h-full rounded-full transition-all"
-                  style={{ width: `${(b.count / max) * 100}%`, background: color }}
-                />
-              </div>
-            </div>
-          ))}
+                  <span className="text-muted-foreground shrink-0">
+                    <strong className="text-foreground">{b.count.toLocaleString("pt-BR")}</strong>
+                    <span className="ml-1 text-[10px]">
+                      ({Math.round(b.share * 100)}%)
+                    </span>
+                  </span>
+                </div>
+                <div className="h-1.5 rounded-full bg-muted/30 overflow-hidden">
+                  <div
+                    className="h-full rounded-full transition-all"
+                    style={{ width: `${(b.count / max) * 100}%`, background: color }}
+                  />
+                </div>
+              </>
+            );
+            return clickable ? (
+              <button
+                key={b.label + idx}
+                type="button"
+                onClick={() => onPick!(b.label)}
+                className="group w-full text-left rounded-lg px-2 -mx-2 py-1 hover:bg-primary/10 transition"
+                title={`Usar "${b.label}" em audiência`}
+              >
+                {content}
+              </button>
+            ) : (
+              <div key={b.label + idx}>{content}</div>
+            );
+          })}
         </div>
+
       )}
     </div>
   );

@@ -34,6 +34,8 @@ export interface AudienceBehaviorFilter {
   league_names?: string[];
   /** Pelo menos uma análise consumindo qualquer destes mercados. */
   markets?: string[];
+  /** Pelo menos uma análise em jogo envolvendo qualquer destes times (home ou away). */
+  team_names?: string[];
   /** Origem da análise: chat, ao vivo ou qualquer. */
   source?: "chat" | "live" | "any";
   /** Mínimo de análises geradas na janela. */
