@@ -19,6 +19,8 @@ interface Props {
   onSave: (payload: NewAudiencePayload) => Promise<Audience | null>;
   /** Audiência sendo editada. Se null, modo criação. */
   editing?: Audience | null;
+  /** Filtros iniciais (modo criação). Útil pra abrir o builder pré-preenchido. */
+  initialFilters?: AudienceFilters;
 }
 
 const PLAN_OPTIONS = [
