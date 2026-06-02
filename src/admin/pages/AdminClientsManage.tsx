@@ -1142,9 +1142,11 @@ export default function AdminClientsManage() {
                   <SelectTrigger className="bg-gray-800 border-gray-700"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="free">Free</SelectItem>
-                    <SelectItem value="basic">Basic</SelectItem>
-                    <SelectItem value="pro">Pro</SelectItem>
-                    <SelectItem value="ultra">Ultra</SelectItem>
+                    <SelectItem value="basic">Basic (legado)</SelectItem>
+                    <SelectItem value="pro">Pro (legado)</SelectItem>
+                    <SelectItem value="ultra">Ultra (legado)</SelectItem>
+                    <SelectItem value="premium">Premium</SelectItem>
+                    <SelectItem value="diamante">Diamante</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
