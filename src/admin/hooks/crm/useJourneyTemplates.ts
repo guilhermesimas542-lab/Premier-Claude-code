@@ -18,6 +18,8 @@ export interface CustomJourneyTemplate {
   name: string;
   description: string | null;
   category: string;
+  /** Canal fixo da jornada de origem. null = template antigo (misto). */
+  channel: ChannelKey | null;
   trigger_type: TriggerKey;
   trigger_config: Record<string, any>;
   steps: CustomTemplateStep[];
@@ -54,7 +56,7 @@ export function useJourneyTemplates() {
     async (journeyId: string, overrideName?: string): Promise<CustomJourneyTemplate | null> => {
       const { data: journey, error: jErr } = await (supabase as any)
         .from("crm_journeys")
-        .select("name, description, trigger_type, trigger_config")
+        .select("name, description, trigger_type, trigger_config, channel")
         .eq("id", journeyId)
         .single();
       if (jErr || !journey) {
@@ -88,6 +90,7 @@ export function useJourneyTemplates() {
           name: finalName,
           description: journey.description,
           category: "custom",
+          channel: journey.channel ?? null,
           trigger_type: journey.trigger_type,
           trigger_config: journey.trigger_config ?? {},
           steps: stepsPayload,
