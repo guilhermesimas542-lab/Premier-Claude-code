@@ -31,6 +31,7 @@ import {
   type JourneyStatus,
   type TriggerKey,
 } from "../../lib/crm/triggers";
+import { CHANNELS, CHANNEL_LIST, type ChannelKey } from "../../lib/crm/channels";
 
 const STATUS_KEYS: JourneyStatus[] = ["draft", "active", "paused", "archived"];
 
