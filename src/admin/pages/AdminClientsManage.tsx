@@ -208,6 +208,12 @@ export default function AdminClientsManage() {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
+  // IA Tipster credit ops state
+  const [creditBalance, setCreditBalance] = useState<any>(null);
+  const [loadingBalance, setLoadingBalance] = useState(false);
+  const [bonusAmount, setBonusAmount] = useState<string>("");
+  const [creditBusy, setCreditBusy] = useState(false);
+
   // Bulk selection state
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [showBulkDelete, setShowBulkDelete] = useState(false);
@@ -234,10 +240,112 @@ export default function AdminClientsManage() {
     else { setSortKey(col); setSortDir("asc"); }
   };
 
+  const fetchCreditBalanceFor = async (uid: string) => {
+    setLoadingBalance(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("admin-credit-ops", {
+        body: { action: "get_balance", user_id: uid },
+      });
+      if (error) throw error;
+      setCreditBalance((data as any)?.balance ?? null);
+    } catch (e: any) {
+      setCreditBalance(null);
+    } finally {
+      setLoadingBalance(false);
+    }
+  };
+
+  const refreshUserCreditRow = async (uid: string) => {
+    const [weeklyRes, extrasRes, debitsRes] = await Promise.all([
+      supabase.from("ai_credit_weekly").select("user_id, weekly_quota, weekly_used").eq("user_id", uid).maybeSingle(),
+      supabase.from("ai_credit_extras").select("user_id, balance_bonus, balance_purchased, unlimited_until").eq("user_id", uid).maybeSingle(),
+      supabase.from("ai_credit_log").select("user_id").eq("user_id", uid).eq("event_type", "debit"),
+    ]);
+    const weekly: any = weeklyRes.data;
+    const extras: any = extrasRes.data;
+    const allTime = (debitsRes.data ?? []).length;
+    const weeklySpent = weekly?.weekly_used ?? 0;
+    let info: CreditInfo;
+    if (extras?.unlimited_until && new Date(extras.unlimited_until) > new Date()) {
+      const isLifetime = new Date(extras.unlimited_until).getFullYear() > 9000;
+      info = {
+        display: "∞",
+        color: "purple",
+        tooltip: [
+          isLifetime ? "Vitalício" : `Ilimitado até ${new Date(extras.unlimited_until).toLocaleDateString("pt-BR")}`,
+          `Gastos esta semana: ${weeklySpent}`,
+          `Gastos all-time: ${allTime}`,
+        ],
+      };
+    } else {
+      const weeklyRemaining = Math.max((weekly?.weekly_quota ?? 0) - weeklySpent, 0);
+      const extrasTotal = (extras?.balance_bonus ?? 0) + (extras?.balance_purchased ?? 0);
+      const total = weeklyRemaining + extrasTotal;
+      info = {
+        display: String(total),
+        color: total > 0 ? "green" : "gray",
+        tooltip: [
+          `Disponível: ${total}`,
+          `Cota semanal: ${weeklyRemaining}/${weekly?.weekly_quota ?? 0}`,
+          `Bônus: ${extras?.balance_bonus ?? 0}`,
+          `Comprado: ${extras?.balance_purchased ?? 0}`,
+          `Gastos all-time: ${allTime}`,
+        ],
+      };
+    }
+    setCreditMap((prev) => ({ ...prev, [uid]: info }));
+  };
+
+  const handleGrantBonus = async () => {
+    if (!editUser) return;
+    const amt = parseInt(bonusAmount, 10);
+    if (!Number.isInteger(amt) || amt <= 0 || amt > 100) {
+      toast.error("Quantidade deve ser entre 1 e 100");
+      return;
+    }
+    setCreditBusy(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("admin-credit-ops", {
+        body: { action: "grant_bonus", user_id: editUser.id, amount: amt },
+      });
+      if (error || (data as any)?.error) throw new Error((data as any)?.error ?? error?.message);
+      setCreditBalance((data as any)?.balance ?? null);
+      setBonusAmount("");
+      toast.success(`+${amt} créditos bônus`);
+      await refreshUserCreditRow(editUser.id);
+    } catch (e: any) {
+      toast.error(e?.message ?? "Erro ao conceder bônus");
+    } finally {
+      setCreditBusy(false);
+    }
+  };
+
+  const handleGrantUnlimited = async (duration: "30d" | "90d" | "lifetime") => {
+    if (!editUser) return;
+    const label = duration === "30d" ? "30 dias" : duration === "90d" ? "90 dias" : "Vitalício";
+    if (!confirm(`Conceder ilimitado (${label}) para ${editUser.email}?`)) return;
+    setCreditBusy(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("admin-credit-ops", {
+        body: { action: "grant_unlimited", user_id: editUser.id, duration },
+      });
+      if (error || (data as any)?.error) throw new Error((data as any)?.error ?? error?.message);
+      setCreditBalance((data as any)?.balance ?? null);
+      toast.success(`Ilimitado ${label} concedido`);
+      await refreshUserCreditRow(editUser.id);
+    } catch (e: any) {
+      toast.error(e?.message ?? "Erro ao conceder ilimitado");
+    } finally {
+      setCreditBusy(false);
+    }
+  };
+
   const openEdit = async (u: AdminUser & { betting_house_id?: string | null }) => {
     setEditUser(u);
     setEditHouseId(u.betting_house_id ?? "");
     setLoadingAddons(true);
+    setCreditBalance(null);
+    setBonusAmount("");
     const { data } = await supabase
       .from("entitlements")
       .select("product_key")
@@ -248,6 +356,7 @@ export default function AdminClientsManage() {
     ADDON_TOGGLES.forEach(({ key }) => { addonState[key] = activeKeys.includes(key); });
     setEditAddons(addonState);
     setLoadingAddons(false);
+    fetchCreditBalanceFor(u.id);
   };
 
   const load = useCallback(async (overrides?: {
