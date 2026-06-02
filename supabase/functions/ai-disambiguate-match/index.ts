@@ -42,6 +42,7 @@ const TOP_LEAGUES = [
   344,
   255,
   667,
+  10,
 ];
 const WINDOW_DAYS_FUTURE = 15;
 const WINDOW_DAYS_PAST = 7;
