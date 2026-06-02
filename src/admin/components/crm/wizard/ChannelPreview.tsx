@@ -278,6 +278,14 @@ function PopupPreview({ content }: { content: Record<string, any> }) {
           <X className="w-4 h-4" />
         </button>
         <div className="space-y-2 text-center">
+          {content.image_url && (
+            <img
+              src={content.image_url}
+              alt="Banner do popup"
+              className="w-full h-auto rounded-lg border border-emerald-500/20"
+              style={{ maxHeight: 220, objectFit: "cover" }}
+            />
+          )}
           <h3 className="text-base font-bold text-white">{title}</h3>
           <p className="text-xs text-slate-300 whitespace-pre-wrap">{body}</p>
           <button
