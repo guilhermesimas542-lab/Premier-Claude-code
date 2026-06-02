@@ -23,7 +23,7 @@ interface Props {
   onClose: () => void;
 }
 
-type Tab = "model" | "upload";
+type Tab = "model" | "upload" | "ai";
 
 export function ImageComposer({ channel, onGenerated, onClose }: Props) {
   if (!isImageSupportedChannel(channel)) {
