@@ -43,6 +43,7 @@ const TOP_LEAGUES = [
   344,
   255,
   667,
+  10,
 ];
 const PRIMARY_MODEL = "claude-sonnet-4-5";
 const FALLBACK_MODEL = "claude-opus-4-7";
