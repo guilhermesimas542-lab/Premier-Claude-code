@@ -206,6 +206,7 @@ function ImageComposerInner({
         {/* Tabs */}
         <div className="flex border-b border-border">
           <TabButton active={tab === "model"} onClick={() => setTab("model")}>Modelo</TabButton>
+          <TabButton active={tab === "ai"} onClick={() => setTab("ai")}>IA</TabButton>
           <TabButton active={tab === "upload"} onClick={() => setTab("upload")}>Upload</TabButton>
         </div>
 
