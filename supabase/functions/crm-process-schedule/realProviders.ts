@@ -156,8 +156,12 @@ export async function sendBatchPushReal(
 ): Promise<SendResult[]> {
   const title = (content?.title ?? "").toString().trim() || "Premier FC";
   const bodyText = (content?.body ?? "").toString().trim() || "";
+  const imageUrl = (content?.image_url ?? "").toString().trim() || null;
   const sentAt = new Date().toISOString();
   const results: SendResult[] = [];
+
+  const pushPayload: { title: string; body: string; image?: string } = { title, body: bodyText };
+  if (imageUrl) pushPayload.image = imageUrl;
 
   // Filtra ids reais (UUID, descarta audience_member sintéticos)
   const userIds = recipients
