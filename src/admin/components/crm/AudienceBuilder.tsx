@@ -12,6 +12,7 @@ import type {
   NewAudiencePayload,
 } from "../../hooks/crm/useAudiences";
 import { usePreviewAudience } from "../../hooks/crm/usePreviewAudience";
+import { useBehaviorOptions } from "../../hooks/crm/useBehaviorOptions";
 
 interface Props {
   open: boolean;
