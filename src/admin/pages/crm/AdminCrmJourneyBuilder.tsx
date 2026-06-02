@@ -64,7 +64,7 @@ export default function AdminCrmJourneyBuilder() {
         .from("crm_journeys")
         .select(
           `id, name, description, trigger_type, trigger_config,
-           audience_id, audience_filters, status, stats,
+           audience_id, audience_filters, status, stats, channel,
            created_by, created_at, updated_at,
            audience:crm_audiences ( id, name, kind, filters )`
         )
