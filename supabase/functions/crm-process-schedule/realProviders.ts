@@ -345,6 +345,7 @@ interface PopupContent {
   title?: string | null;
   body?: string | null;
   cta?: Record<string, unknown> | null;
+  image_url?: string | null;
   [key: string]: unknown;
 }
 
@@ -359,6 +360,7 @@ export async function sendBatchPopupReal(
     title: (content?.title ?? "").toString().trim() || "Premier FC",
     body: (content?.body ?? "").toString().trim() || "",
     cta: content?.cta ?? null,
+    image_url: (content?.image_url ?? "").toString().trim() || null,
   };
 
   const results: SendResult[] = [];
