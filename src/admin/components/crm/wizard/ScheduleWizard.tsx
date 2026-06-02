@@ -805,6 +805,12 @@ function StepContent({
           )}
         </>
       )}
+        </div>
+
+        <div className="lg:sticky lg:top-[200px] lg:self-start">
+          <ChannelPreview channel={channel} content={content} />
+        </div>
+      </div>
     </div>
   );
 }
