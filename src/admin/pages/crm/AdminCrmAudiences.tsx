@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Users, Pencil, Trash2, Loader2, Upload, Filter as FilterIcon, ListChecks } from "lucide-react";
+import { Plus, Users, Pencil, Trash2, Loader2, Upload, Filter as FilterIcon, ListChecks, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAudiences, type Audience, type AudienceFilters } from "../../hooks/crm/useAudiences";
 import { AudienceBuilder } from "../../components/crm/AudienceBuilder";
