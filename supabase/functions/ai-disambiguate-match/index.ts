@@ -38,6 +38,10 @@ const TOP_LEAGUES = [
   268,
   299,
   16,
+  15,
+  344,
+  255,
+  667,
 ];
 const WINDOW_DAYS_FUTURE = 15;
 const WINDOW_DAYS_PAST = 7;

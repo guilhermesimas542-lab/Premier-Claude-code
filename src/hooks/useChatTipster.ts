@@ -293,6 +293,17 @@ export function useChatTipster() {
           refreshCreditBalance();
           return;
         }
+        if (status === 400 && errorBody?.error === "fixture_too_far") {
+          append({
+            id: genId(),
+            role: "bot",
+            type: "text",
+            content: errorBody.message ?? "Esse jogo está muito distante. Volte mais perto da data para uma análise precisa.",
+            createdAt: Date.now(),
+          });
+          refreshCreditBalance();
+          return;
+        }
         if (
           error.message?.includes("non-2xx") ||
           error.message?.includes("FunctionsHttpError") ||
@@ -342,6 +353,16 @@ export function useChatTipster() {
           role: "bot",
           type: "error",
           message: d.message ?? "A IA está sobrecarregada. Tente em alguns segundos.",
+          createdAt: Date.now(),
+        });
+        return;
+      }
+      if (d?.error === "fixture_too_far") {
+        append({
+          id: genId(),
+          role: "bot",
+          type: "text",
+          content: d.message ?? "Esse jogo está muito distante. Volte mais perto da data para uma análise precisa.",
           createdAt: Date.now(),
         });
         return;
