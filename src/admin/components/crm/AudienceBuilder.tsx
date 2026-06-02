@@ -341,14 +341,15 @@ function BehaviorSection({
   const source = v.source ?? "any";
   const minAnalyses = v.min_analyses ?? 1;
 
+  const { leagues, markets, teams, loading } = useBehaviorOptions(windowDays);
+
   const [leagueDraft, setLeagueDraft] = useState("");
   const [marketDraft, setMarketDraft] = useState("");
+  const [teamDraft, setTeamDraft] = useState("");
 
-  const addToList = (
-    field: "league_names" | "markets",
-    val: string,
-    setDraft: (s: string) => void
-  ) => {
+  type ListField = "league_names" | "markets" | "team_names";
+
+  const addToList = (field: ListField, val: string, setDraft: (s: string) => void) => {
     const v2 = val.trim();
     if (!v2) return;
     const current = (value?.[field] ?? []) as string[];
@@ -360,7 +361,7 @@ function BehaviorSection({
     setDraft("");
   };
 
-  const removeFromList = (field: "league_names" | "markets", val: string) => {
+  const removeFromList = (field: ListField, val: string) => {
     const current = (value?.[field] ?? []) as string[];
     onChange({ [field]: current.filter((x) => x !== val) } as any);
   };
@@ -376,7 +377,7 @@ function BehaviorSection({
             </div>
           </div>
           <div className="text-[11px] text-muted-foreground">
-            Filtra leads que geraram análise — por campeonato, mercado, frequência ou recência.
+            Filtra leads que geraram análise — por campeonato, mercado, time, frequência ou recência.
           </div>
         </div>
         {value && (
@@ -439,76 +440,46 @@ function BehaviorSection({
       </div>
 
       {/* Campeonatos */}
-      <div>
-        <Label className="text-xs mb-1.5 block">
-          Campeonatos analisados (qualquer um conta)
-        </Label>
-        <div className="flex gap-2">
-          <Input
-            value={leagueDraft}
-            onChange={(e) => setLeagueDraft(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                addToList("league_names", leagueDraft, setLeagueDraft);
-              }
-            }}
-            placeholder="Ex: Brasileirão, Premier League..."
-            className="text-sm"
-          />
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => addToList("league_names", leagueDraft, setLeagueDraft)}
-            disabled={!leagueDraft.trim()}
-          >
-            Adicionar
-          </Button>
-        </div>
-        {(v.league_names ?? []).length > 0 && (
-          <div className="flex flex-wrap gap-1.5 mt-2">
-            {(v.league_names ?? []).map((l) => (
-              <Chip key={l} label={l} onRemove={() => removeFromList("league_names", l)} />
-            ))}
-          </div>
-        )}
-      </div>
+      <ListWithSuggestions
+        label="Campeonatos analisados (qualquer um conta)"
+        placeholder="Ex: Brasileirão, Premier League..."
+        draft={leagueDraft}
+        setDraft={setLeagueDraft}
+        selected={v.league_names ?? []}
+        suggestions={leagues}
+        loading={loading}
+        onAdd={() => addToList("league_names", leagueDraft, setLeagueDraft)}
+        onPick={(s) => addToList("league_names", s, setLeagueDraft)}
+        onRemove={(s) => removeFromList("league_names", s)}
+      />
+
+      {/* Times */}
+      <ListWithSuggestions
+        label="Times analisados (qualquer um conta — home ou away)"
+        placeholder="Ex: Flamengo, Real Madrid..."
+        draft={teamDraft}
+        setDraft={setTeamDraft}
+        selected={v.team_names ?? []}
+        suggestions={teams}
+        loading={loading}
+        onAdd={() => addToList("team_names", teamDraft, setTeamDraft)}
+        onPick={(s) => addToList("team_names", s, setTeamDraft)}
+        onRemove={(s) => removeFromList("team_names", s)}
+      />
 
       {/* Mercados */}
-      <div>
-        <Label className="text-xs mb-1.5 block">
-          Mercados consumidos (match parcial)
-        </Label>
-        <div className="flex gap-2">
-          <Input
-            value={marketDraft}
-            onChange={(e) => setMarketDraft(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                addToList("markets", marketDraft, setMarketDraft);
-              }
-            }}
-            placeholder="Ex: Over 2.5, BTTS Não, Handicap..."
-            className="text-sm"
-          />
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => addToList("markets", marketDraft, setMarketDraft)}
-            disabled={!marketDraft.trim()}
-          >
-            Adicionar
-          </Button>
-        </div>
-        {(v.markets ?? []).length > 0 && (
-          <div className="flex flex-wrap gap-1.5 mt-2">
-            {(v.markets ?? []).map((m) => (
-              <Chip key={m} label={m} onRemove={() => removeFromList("markets", m)} />
-            ))}
-          </div>
-        )}
-      </div>
+      <ListWithSuggestions
+        label="Mercados consumidos (match parcial)"
+        placeholder="Ex: Over 2.5, BTTS Não, Handicap..."
+        draft={marketDraft}
+        setDraft={setMarketDraft}
+        selected={v.markets ?? []}
+        suggestions={markets}
+        loading={loading}
+        onAdd={() => addToList("markets", marketDraft, setMarketDraft)}
+        onPick={(s) => addToList("markets", s, setMarketDraft)}
+        onRemove={(s) => removeFromList("markets", s)}
+      />
 
       {/* Frequência mínima */}
       <div>
@@ -572,6 +543,91 @@ function BehaviorSection({
     </div>
   );
 }
+
+function ListWithSuggestions({
+  label,
+  placeholder,
+  draft,
+  setDraft,
+  selected,
+  suggestions,
+  loading,
+  onAdd,
+  onPick,
+  onRemove,
+}: {
+  label: string;
+  placeholder: string;
+  draft: string;
+  setDraft: (s: string) => void;
+  selected: string[];
+  suggestions: string[];
+  loading: boolean;
+  onAdd: () => void;
+  onPick: (s: string) => void;
+  onRemove: (s: string) => void;
+}) {
+  const selectedLower = new Set(selected.map((s) => s.toLowerCase()));
+  const available = suggestions.filter((s) => !selectedLower.has(s.toLowerCase())).slice(0, 15);
+
+  return (
+    <div>
+      <Label className="text-xs mb-1.5 block">{label}</Label>
+      <div className="flex gap-2">
+        <Input
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              onAdd();
+            }
+          }}
+          placeholder={placeholder}
+          className="text-sm"
+        />
+        <Button type="button" variant="outline" onClick={onAdd} disabled={!draft.trim()}>
+          Adicionar
+        </Button>
+      </div>
+      {selected.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 mt-2">
+          {selected.map((l) => (
+            <Chip key={l} label={l} onRemove={() => onRemove(l)} />
+          ))}
+        </div>
+      )}
+      <div className="mt-2">
+        <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground font-bold">
+          Sugestões do comportamento real:
+          {loading && <Loader2 className="w-3 h-3 animate-spin" />}
+        </div>
+        {!loading && available.length === 0 ? (
+          <div className="text-[11px] text-muted-foreground italic mt-1">
+            {suggestions.length === 0
+              ? "Sem dados na janela."
+              : "Tudo já selecionado."}
+          </div>
+        ) : (
+          <div className="flex flex-wrap gap-1.5 mt-1.5">
+            {available.map((s) => (
+              <button
+                key={s}
+                type="button"
+                onClick={() => onPick(s)}
+                className="text-[11px] px-2 py-0.5 rounded-full border border-dashed border-primary/40 text-muted-foreground hover:text-foreground hover:bg-primary/10 hover:border-primary transition"
+              >
+                + {s}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+
 
 function Chip({ label, onRemove }: { label: string; onRemove: () => void }) {
   return (
