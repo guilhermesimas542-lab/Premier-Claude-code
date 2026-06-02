@@ -497,12 +497,13 @@ export default function AdminClientsManage() {
         const extras: any = extrasMap.get(uid);
         const allTime = allTimeMap.get(uid) || 0;
         const weeklySpent = weekly?.weekly_used ?? 0;
-        if (extras?.unlimited_until && new Date(extras.unlimited_until) > new Date()) {
+        if (isUnlimitedActive(extras?.unlimited_until)) {
+          const isLifetime = isUnlimitedLifetime(extras.unlimited_until);
           nextCredits[uid] = {
             display: "∞",
             color: "purple",
             tooltip: [
-              `Ilimitado até ${new Date(extras.unlimited_until).toLocaleDateString("pt-BR")}`,
+              isLifetime ? "Vitalício" : `Ilimitado até ${formatUnlimitedUntil(extras.unlimited_until)}`,
               `Gastos esta semana: ${weeklySpent}`,
               `Gastos all-time: ${allTime}`,
             ],
