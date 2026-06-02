@@ -709,14 +709,27 @@ function getPlanoLabel(t: any): { label: string; color: string } {
                     <button onClick={() => handleFreeze(t)} className="text-cyan-400 hover:text-cyan-300 transition-colors" title="Freezar (duplicar como Free)"><Snowflake className="w-3.5 h-3.5" /></button>
                     <button onClick={() => openEditModal(t)} className="text-blue-400" title="Editar"><Pencil className="w-3.5 h-3.5" /></button>
                     {(t as any).result === "green" && (
-                      <button
-                        onClick={() => handleExportSingle(t)}
-                        disabled={exportingId === t.id}
-                        className="text-emerald-400 hover:text-emerald-300 disabled:opacity-50"
-                        title="Exportar PNG (story + recortado)"
-                      >
-                        {exportingId === t.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ImageDown className="w-3.5 h-3.5" />}
-                      </button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button
+                            disabled={exportingId === t.id}
+                            className="text-emerald-400 hover:text-emerald-300 disabled:opacity-50"
+                            title="Exportar PNG"
+                          >
+                            {exportingId === t.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ImageDown className="w-3.5 h-3.5" />}
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => handleExportSingle(t, "story")}>
+                            <Smartphone className="w-4 h-4 mr-2" />
+                            Baixar Story (1080×1920)
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleExportSingle(t, "horizontal")}>
+                            <Monitor className="w-4 h-4 mr-2" />
+                            Baixar Horizontal (1080×540)
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     )}
                     <button onClick={() => handleDelete(t.id)} className="text-red-400" title="Excluir"><Trash2 className="w-3.5 h-3.5" /></button>
                   </td>
