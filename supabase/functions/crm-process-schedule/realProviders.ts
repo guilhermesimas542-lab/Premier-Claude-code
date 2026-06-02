@@ -498,6 +498,7 @@ export async function sendTelegramGroupReal(
 interface EmailContent {
   subject?: string | null;
   body?: string | null;
+  image_url?: string | null;
   [key: string]: unknown;
 }
 
