@@ -314,6 +314,47 @@ function ImageComposerInner({
               </>
             )}
 
+            {tab === "ai" && (
+              <div className="space-y-3">
+                <div className="space-y-1">
+                  <Label>Descreva a imagem</Label>
+                  <Textarea
+                    value={aiPrompt}
+                    onChange={(e) => setAiPrompt(e.target.value)}
+                    placeholder="banner de odds turbinadas pro jogo Flamengo x Palmeiras, com '2.50' em destaque e botão APOSTAR"
+                    rows={4}
+                  />
+                </div>
+                <div className="rounded-md border border-amber-500/30 bg-amber-500/5 p-2 text-[10px] text-amber-300/90 leading-relaxed">
+                  Gerar custa ~US$ 0,04 por imagem. Revise o texto da imagem antes de
+                  anexar — IA pode errar palavras.
+                </div>
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={handleGenerateAI}
+                  disabled={aiGenerating || !aiPrompt.trim()}
+                >
+                  {aiGenerating ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                      Gerando...
+                    </>
+                  ) : aiPreviewUrl ? (
+                    <>
+                      <Sparkles className="w-3.5 h-3.5 mr-1.5" />
+                      Gerar de novo
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-3.5 h-3.5 mr-1.5" />
+                      Gerar com IA
+                    </>
+                  )}
+                </Button>
+              </div>
+            )}
+
             {tab === "upload" && (
               <div className="space-y-3">
                 <div className="rounded-lg border border-dashed border-border bg-muted/10 p-6 text-center">
