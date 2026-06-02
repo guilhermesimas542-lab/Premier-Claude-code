@@ -13,6 +13,7 @@ export default function AdminCrmAudiences() {
   const { items, loading, create, update, remove, refresh } = useAudiences();
   const [builderOpen, setBuilderOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
+  const [updateTarget, setUpdateTarget] = useState<Audience | null>(null);
   const [editing, setEditing] = useState<Audience | null>(null);
 
   const handleNew = () => {
