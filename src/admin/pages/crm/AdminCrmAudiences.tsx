@@ -34,6 +34,7 @@ export default function AdminCrmAudiences() {
 
   const handleNew = () => {
     setEditing(null);
+    setInitialFilters(undefined);
     setBuilderOpen(true);
   };
 
