@@ -34,8 +34,16 @@ async function callGemini(
   apiKey: string,
   model: string,
   fullPrompt: string,
-  aspect: string
+  aspect: string,
+  includeImageConfig = true
 ): Promise<any> {
+  const generationConfig: any = {
+    responseModalities: ["IMAGE"],
+  };
+  if (includeImageConfig) {
+    generationConfig.imageConfig = { aspectRatio: aspect };
+  }
+
   const res = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
     {
@@ -43,11 +51,17 @@ async function callGemini(
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         contents: [{ parts: [{ text: fullPrompt }] }],
-        generationConfig: { imageConfig: { aspectRatio: aspect } },
+        generationConfig,
       }),
     }
   );
-  return { ok: res.ok, status: res.status, json: await res.json() };
+
+  if (!res.ok) {
+    const errText = await res.text();
+    return { ok: false, status: res.status, errorText: errText };
+  }
+
+  return { ok: true, status: res.status, json: await res.json() };
 }
 
 Deno.serve(async (req) => {
@@ -89,15 +103,31 @@ Deno.serve(async (req) => {
       `Proporção da imagem: ${aspect}. ` +
       `Pedido do operador: ${prompt}`;
 
-    // Tenta gemini-2.5-flash-image; fallback para gemini-2.5-flash-image-preview
-    let gemini = await callGemini(GEMINI_API_KEY, "gemini-2.5-flash-image", fullPrompt, aspect);
-    if (!gemini.ok && gemini.status === 404) {
-      gemini = await callGemini(GEMINI_API_KEY, "gemini-2.5-flash-image-preview", fullPrompt, aspect);
-    }
+    // Tenta gemini-2.5-flash-image; se reclamar de imageConfig, retenta sem imageConfig
+    let gemini = await callGemini(GEMINI_API_KEY, "gemini-2.5-flash-image", fullPrompt, aspect, true);
     if (!gemini.ok) {
+      const errLower = String(gemini.errorText).toLowerCase();
+      if (errLower.includes("imageconfig") || errLower.includes("aspectratio")) {
+        gemini = await callGemini(GEMINI_API_KEY, "gemini-2.5-flash-image", fullPrompt, aspect, false);
+      }
+    }
+
+    // Fallback para gemini-2.5-flash-image-preview
+    if (!gemini.ok && gemini.status === 404) {
+      gemini = await callGemini(GEMINI_API_KEY, "gemini-2.5-flash-image-preview", fullPrompt, aspect, true);
+      if (!gemini.ok) {
+        const errLower = String(gemini.errorText).toLowerCase();
+        if (errLower.includes("imageconfig") || errLower.includes("aspectratio")) {
+          gemini = await callGemini(GEMINI_API_KEY, "gemini-2.5-flash-image-preview", fullPrompt, aspect, false);
+        }
+      }
+    }
+
+    if (!gemini.ok) {
+      console.error("[crm-generate-image] Gemini error:", gemini.status, gemini.errorText);
       return json(
-        { error: "gemini_error", status: gemini.status, detail: gemini.json },
-        502
+        { error: "gemini_failed", status: gemini.status, detail: gemini.errorText },
+        500
       );
     }
 
