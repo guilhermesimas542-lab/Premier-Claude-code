@@ -807,6 +807,14 @@ function StepContent({
           )}
         </>
       )}
+      {/* Imagem anexada (canais que suportam) */}
+      {isImageSupportedChannel(channel) && (
+        <ImageAttachControl
+          channel={channel}
+          imageUrl={content.image_url ?? null}
+          onChange={(url) => update({ content: { ...content, image_url: url ?? undefined } })}
+        />
+      )}
         </div>
 
         <div className="lg:sticky lg:top-[200px] lg:self-start">
