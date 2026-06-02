@@ -444,3 +444,30 @@ export async function sendBatchPopupReal(
 
   return results;
 }
+
+// ============================================================
+// Telegram grupo — 1 mensagem direto pro grupo via Bot API.
+// ============================================================
+
+export async function sendTelegramGroupReal(
+  text: string, botToken: string, chatId: string,
+): Promise<SendResult> {
+  const base = {
+    recipient_user_id: null as string | null,
+    recipient_identifier: `telegram_group:${chatId}`,
+    metadata: { provider: "telegram", group: true, real: true },
+  };
+  try {
+    const resp = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chat_id: chatId, text }),
+    });
+    const j = await resp.json().catch(() => ({}));
+    if (!resp.ok || j?.ok !== true) {
+      return { ...base, status: "failed", error_code: "telegram_send_error", error_message: j?.description ?? `HTTP ${resp.status}` };
+    }
+    return { ...base, status: "delivered", provider_message_id: j?.result?.message_id ? String(j.result.message_id) : undefined };
+  } catch (e) {
+    return { ...base, status: "failed", error_code: "telegram_network_error", error_message: String(e) };
+  }
+}
