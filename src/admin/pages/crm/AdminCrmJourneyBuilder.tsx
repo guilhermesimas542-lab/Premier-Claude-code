@@ -368,14 +368,38 @@ export default function AdminCrmJourneyBuilder() {
               Criar jornada
             </Button>
           ) : (
-            <Button
-              onClick={handleSaveHeader}
-              disabled={!isHeaderDirty}
-              variant={isHeaderDirty ? "default" : "outline"}
-            >
-              <Save className="w-3.5 h-3.5 mr-1.5" />
-              Salvar cabeçalho
-            </Button>
+            <>
+              <Button
+                variant="outline"
+                onClick={async () => {
+                  if (!journey) return;
+                  const proposed = window.prompt(
+                    "Nome do template:",
+                    journey.name
+                  );
+                  if (proposed === null) return;
+                  setSavingTemplate(true);
+                  await saveFromJourney(journey.id, proposed);
+                  setSavingTemplate(false);
+                }}
+                disabled={!journey || savingTemplate}
+              >
+                {savingTemplate ? (
+                  <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                ) : (
+                  <BookmarkPlus className="w-3.5 h-3.5 mr-1.5" />
+                )}
+                Salvar como template
+              </Button>
+              <Button
+                onClick={handleSaveHeader}
+                disabled={!isHeaderDirty}
+                variant={isHeaderDirty ? "default" : "outline"}
+              >
+                <Save className="w-3.5 h-3.5 mr-1.5" />
+                Salvar cabeçalho
+              </Button>
+            </>
           )}
         </div>
       </div>
