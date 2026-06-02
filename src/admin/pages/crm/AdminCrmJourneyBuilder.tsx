@@ -289,6 +289,73 @@ export default function AdminCrmJourneyBuilder() {
           )}
         </div>
 
+        {/* Canal — obrigatório na criação, travado depois */}
+        <div className="pt-3 border-t border-border/50">
+          <Label className="text-xs text-muted-foreground uppercase tracking-wider">
+            Canal da jornada
+          </Label>
+          {isNew ? (
+            <>
+              <Select
+                value={headerDraft.channel ?? ""}
+                onValueChange={(v) =>
+                  setHeaderDraft((d) => ({ ...d, channel: v as ChannelKey }))
+                }
+              >
+                <SelectTrigger className="mt-1.5">
+                  <SelectValue placeholder="Escolha o canal (obrigatório)" />
+                </SelectTrigger>
+                <SelectContent>
+                  {CHANNEL_LIST.map((c) => {
+                    const Icon = c.icon;
+                    return (
+                      <SelectItem key={c.key} value={c.key}>
+                        <span className="inline-flex items-center gap-2">
+                          <Icon className="w-3.5 h-3.5" style={{ color: c.color }} />
+                          {c.label}
+                        </span>
+                      </SelectItem>
+                    );
+                  })}
+                </SelectContent>
+              </Select>
+              <p className="text-[11px] text-muted-foreground italic mt-1">
+                Cada jornada tem UM canal só, e ele fica travado depois que ela é criada.
+              </p>
+            </>
+          ) : (
+            (() => {
+              const ch = journey?.channel ? CHANNELS[journey.channel] : null;
+              const Icon = ch?.icon;
+              return (
+                <div className="mt-1.5">
+                  {ch && Icon ? (
+                    <span
+                      className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md text-xs font-bold uppercase tracking-wider"
+                      style={{
+                        background: `${ch.color}20`,
+                        border: `1px solid ${ch.color}50`,
+                        color: ch.color,
+                      }}
+                      title="Canal travado depois da criação"
+                    >
+                      <Icon className="w-3.5 h-3.5" />
+                      {ch.label}
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md text-xs font-bold uppercase tracking-wider border border-amber-500/40 bg-amber-500/10 text-amber-400">
+                      Misto / legado
+                    </span>
+                  )}
+                  <p className="text-[11px] text-muted-foreground italic mt-1">
+                    Canal travado — todos os passos já criados usam este canal.
+                  </p>
+                </div>
+              );
+            })()
+          )}
+        </div>
+
         {/* Trigger + audiência */}
         <div className="grid sm:grid-cols-2 gap-4 pt-3 border-t border-border/50">
           <div className="space-y-1.5">
