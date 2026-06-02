@@ -57,6 +57,14 @@ function ImageComposerInner({
   const [values, setValues] = useState<BannerValues>(template.defaults);
   const [uploadedDataUrl, setUploadedDataUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [aiPrompt, setAiPrompt] = useState<string>(() => {
+    const parts = [template.defaults.title, template.defaults.subtitle, template.defaults.cta]
+      .filter(Boolean)
+      .join(" — ");
+    return parts ? `banner com "${parts}"` : "";
+  });
+  const [aiGenerating, setAiGenerating] = useState(false);
+  const [aiPreviewUrl, setAiPreviewUrl] = useState<string | null>(null);
   const previewRef = useRef<HTMLDivElement | null>(null);
 
   // When user switches template, reset to template defaults
