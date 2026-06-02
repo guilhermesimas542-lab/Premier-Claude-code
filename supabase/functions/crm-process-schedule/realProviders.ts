@@ -138,6 +138,7 @@ import { sendPushToSubscription, type WebPushSubscription } from "../_shared/web
 interface PushContent {
   title?: string | null;
   body?: string | null;
+  image_url?: string | null;
   [key: string]: unknown;
 }
 
@@ -155,8 +156,12 @@ export async function sendBatchPushReal(
 ): Promise<SendResult[]> {
   const title = (content?.title ?? "").toString().trim() || "Premier FC";
   const bodyText = (content?.body ?? "").toString().trim() || "";
+  const imageUrl = (content?.image_url ?? "").toString().trim() || null;
   const sentAt = new Date().toISOString();
   const results: SendResult[] = [];
+
+  const pushPayload: { title: string; body: string; image?: string } = { title, body: bodyText };
+  if (imageUrl) pushPayload.image = imageUrl;
 
   // Filtra ids reais (UUID, descarta audience_member sintéticos)
   const userIds = recipients
@@ -232,7 +237,7 @@ export async function sendBatchPushReal(
       try {
         const resp = await sendPushToSubscription(
           sub,
-          { title, body: bodyText },
+          pushPayload as any,
           vapid.publicKey,
           vapid.privateKey,
           vapid.subject
@@ -303,12 +308,12 @@ export async function sendBatchPushReal(
 // ============================================================
 
 export async function sendBroadcastTelegramX1Real(
-  text: string, title: string, botId: string, apiId: string, apiSecret: string,
+  text: string, title: string, botId: string, apiId: string, apiSecret: string, imageUrl?: string | null,
 ): Promise<SendResult> {
   const fail = (code: string, msg: string): SendResult => ({
     recipient_user_id: null, recipient_identifier: "broadcast", status: "failed",
     error_code: code, error_message: msg,
-    metadata: { provider: "sendpulse", broadcast: true, real: true },
+    metadata: { provider: "sendpulse", broadcast: true, real: true, with_image: !!imageUrl },
   });
   // 1. OAuth (token vale 1h)
   const t = await fetch("https://api.sendpulse.com/oauth/access_token", {
@@ -318,17 +323,20 @@ export async function sendBroadcastTelegramX1Real(
   const tj = await t.json().catch(() => ({}));
   if (!t.ok || !tj?.access_token) return fail("sendpulse_auth_error", tj?.error_description ?? "Falha no OAuth do SendPulse");
   // 2. Broadcast pra todos os assinantes do bot
+  const messageBlock = imageUrl
+    ? { type: "image", message: { url: imageUrl, text } }
+    : { type: "text", message: { text } };
   const c = await fetch("https://api.sendpulse.com/telegram/campaigns/send", {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${tj.access_token}` },
-    body: JSON.stringify({ title: (title || "Premier FC").slice(0, 255), bot_id: botId, messages: [{ type: "text", message: { text } }] }),
+    body: JSON.stringify({ title: (title || "Premier FC").slice(0, 255), bot_id: botId, messages: [messageBlock] }),
   });
   const cj = await c.json().catch(() => ({}));
   if (!c.ok || cj?.success === false) return fail("sendpulse_send_error", typeof cj?.message === "string" ? cj.message : JSON.stringify(cj).slice(0, 300));
   const id = cj?.data?.id ?? cj?.id ?? null;
   return { recipient_user_id: null, recipient_identifier: "broadcast", status: "delivered",
     provider_message_id: id ? String(id) : undefined,
-    metadata: { provider: "sendpulse", broadcast: true, real: true } };
+    metadata: { provider: "sendpulse", broadcast: true, real: true, with_image: !!imageUrl } };
 }
 
 // ============================================================
@@ -340,6 +348,7 @@ interface PopupContent {
   title?: string | null;
   body?: string | null;
   cta?: Record<string, unknown> | null;
+  image_url?: string | null;
   [key: string]: unknown;
 }
 
@@ -354,6 +363,7 @@ export async function sendBatchPopupReal(
     title: (content?.title ?? "").toString().trim() || "Premier FC",
     body: (content?.body ?? "").toString().trim() || "",
     cta: content?.cta ?? null,
+    image_url: (content?.image_url ?? "").toString().trim() || null,
   };
 
   const results: SendResult[] = [];
@@ -450,17 +460,23 @@ export async function sendBatchPopupReal(
 // ============================================================
 
 export async function sendTelegramGroupReal(
-  text: string, botToken: string, chatId: string,
+  text: string, botToken: string, chatId: string, imageUrl?: string | null,
 ): Promise<SendResult> {
   const base = {
     recipient_user_id: null as string | null,
     recipient_identifier: `telegram_group:${chatId}`,
-    metadata: { provider: "telegram", group: true, real: true },
+    metadata: { provider: "telegram", group: true, real: true, with_image: !!imageUrl },
   };
   try {
-    const resp = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+    const url = imageUrl
+      ? `https://api.telegram.org/bot${botToken}/sendPhoto`
+      : `https://api.telegram.org/bot${botToken}/sendMessage`;
+    const body = imageUrl
+      ? { chat_id: chatId, photo: imageUrl, caption: text }
+      : { chat_id: chatId, text };
+    const resp = await fetch(url, {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ chat_id: chatId, text }),
+      body: JSON.stringify(body),
     });
     const j = await resp.json().catch(() => ({}));
     if (!resp.ok || j?.ok !== true) {
@@ -482,6 +498,7 @@ export async function sendTelegramGroupReal(
 interface EmailContent {
   subject?: string | null;
   body?: string | null;
+  image_url?: string | null;
   [key: string]: unknown;
 }
 
@@ -523,7 +540,11 @@ export async function sendBatchEmailReal(
   const sentAt = new Date().toISOString();
   const subject = (content?.subject ?? "").toString().trim() || "Premier FC";
   const bodyText = (content?.body ?? "").toString();
-  const html = bodyToHtml(bodyText);
+  const imageUrl = (content?.image_url ?? "").toString().trim() || null;
+  const imageHtml = imageUrl
+    ? `<img src="${imageUrl.replace(/"/g, "&quot;")}" alt="" style="max-width:600px;width:100%;display:block;border:0;outline:none;text-decoration:none;margin:0 0 12px 0;" />`
+    : "";
+  const html = imageHtml + bodyToHtml(bodyText);
   const from = buildFrom(sender);
   const replyTo = sender.replyTo?.trim() || null;
 

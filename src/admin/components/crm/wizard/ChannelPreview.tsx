@@ -53,7 +53,7 @@ export function ChannelPreview({ channel, content }: Props) {
       {channel === "push" && <PushPreview content={content} />}
       {channel === "popup" && <PopupPreview content={content} />}
 
-      <ImageHint channel={channel} />
+      {!content.image_url && <ImageHint channel={channel} />}
     </div>
   );
 }
@@ -96,6 +96,14 @@ function EmailPreview({ content }: { content: Record<string, any> }) {
           </div>
         </div>
         <div className="text-sm font-bold leading-tight">{subject}</div>
+        {content.image_url && (
+          <img
+            src={content.image_url}
+            alt="Banner do email"
+            className="w-full h-auto rounded border border-slate-200 mt-1"
+            style={{ maxHeight: 160, objectFit: "cover" }}
+          />
+        )}
         <div className="text-xs whitespace-pre-wrap text-slate-700 leading-relaxed border-t border-slate-100 pt-2">
           {body}
         </div>
@@ -196,6 +204,14 @@ function TelegramPreview({
           className="max-w-[90%] rounded-2xl rounded-tl-sm px-3 py-2 text-xs whitespace-pre-wrap break-words text-white shadow"
           style={{ background: "#2B5278" }}
         >
+          {content.image_url && (
+            <img
+              src={content.image_url}
+              alt="Foto"
+              className="w-full h-auto rounded mb-1.5 max-w-[260px]"
+              style={{ objectFit: "cover" }}
+            />
+          )}
           {text}
           <div className="text-[9px] text-sky-200/80 text-right mt-1">{nowHHmm()}</div>
         </div>
@@ -232,6 +248,14 @@ function PushPreview({ content }: { content: Record<string, any> }) {
           <div className="text-[11px] text-slate-300 line-clamp-2 whitespace-pre-wrap">{body}</div>
         </div>
       </div>
+      {content.image_url && (
+        <img
+          src={content.image_url}
+          alt="Banner do push"
+          className="mt-2 w-full h-auto rounded-lg border border-slate-700"
+          style={{ maxHeight: 180, objectFit: "cover" }}
+        />
+      )}
     </div>
   );
 }
@@ -254,6 +278,14 @@ function PopupPreview({ content }: { content: Record<string, any> }) {
           <X className="w-4 h-4" />
         </button>
         <div className="space-y-2 text-center">
+          {content.image_url && (
+            <img
+              src={content.image_url}
+              alt="Banner do popup"
+              className="w-full h-auto rounded-lg border border-emerald-500/20"
+              style={{ maxHeight: 220, objectFit: "cover" }}
+            />
+          )}
           <h3 className="text-base font-bold text-white">{title}</h3>
           <p className="text-xs text-slate-300 whitespace-pre-wrap">{body}</p>
           <button

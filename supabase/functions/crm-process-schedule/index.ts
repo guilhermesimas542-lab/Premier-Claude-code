@@ -349,13 +349,14 @@ Deno.serve(async (req: Request) => {
           metadata: { provider: "sendpulse", broadcast: true, real: true },
         };
       } else {
-        const content = (schedule.content ?? {}) as { body?: string | null };
+        const content = (schedule.content ?? {}) as { body?: string | null; image_url?: string | null };
         broadcastResult = await sendBroadcastTelegramX1Real(
           content.body ?? "",
           schedule.name,
           botId,
           apiId,
           apiSecret,
+          content.image_url ?? null,
         );
       }
     } else {
@@ -421,8 +422,8 @@ Deno.serve(async (req: Request) => {
       await supabase.from("crm_schedule_events").insert([event]);
       failedCount = 1;
     } else {
-      const content = (schedule.content ?? {}) as { body?: string | null };
-      const tgResult = await sendTelegramGroupReal(content.body ?? "", botToken, chatId);
+      const content = (schedule.content ?? {}) as { body?: string | null; image_url?: string | null };
+      const tgResult = await sendTelegramGroupReal(content.body ?? "", botToken, chatId, content.image_url ?? null);
       const event = {
         schedule_id: scheduleId,
         recipient_user_id: tgResult.recipient_user_id,
