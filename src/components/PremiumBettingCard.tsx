@@ -111,10 +111,12 @@ export const PremiumBettingCard = ({
   lockedLabel,
   isExpired: isExpiredProp = false,
   justificativa,
+  hideTimer = false,
   onAddTip,
   onOpenJustificativa,
   onLockedClick,
 }: PremiumBettingCardProps) => {
+
   const [showBetHelp, setShowBetHelp] = useState(false);
   const [countdown, setCountdown] = useState<string>("");
   const [isExpiredLocal, setIsExpiredLocal] = useState(false);
