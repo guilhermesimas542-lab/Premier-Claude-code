@@ -53,7 +53,7 @@ export function ChannelPreview({ channel, content }: Props) {
       {channel === "push" && <PushPreview content={content} />}
       {channel === "popup" && <PopupPreview content={content} />}
 
-      <ImageHint channel={channel} />
+      {!content.image_url && <ImageHint channel={channel} />}
     </div>
   );
 }
