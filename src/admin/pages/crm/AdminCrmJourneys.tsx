@@ -271,22 +271,52 @@ function JourneyCard({
       className="rounded-2xl border border-border bg-card p-5 flex flex-col gap-4 hover:border-border/80 transition cursor-pointer"
       onClick={onOpen}
     >
-      {/* Header: trigger + status */}
+      {/* Header: trigger + canal + status */}
       <div className="flex items-start justify-between gap-3">
-        <div
-          className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md"
-          style={{
-            background: `${trigger.color}20`,
-            border: `1px solid ${trigger.color}50`,
-          }}
-        >
-          <TIcon className="w-3.5 h-3.5" style={{ color: trigger.color }} />
-          <span
-            className="text-[11px] font-bold uppercase tracking-wider"
-            style={{ color: trigger.color }}
+        <div className="flex items-center gap-2 flex-wrap">
+          <div
+            className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md"
+            style={{
+              background: `${trigger.color}20`,
+              border: `1px solid ${trigger.color}50`,
+            }}
           >
-            {trigger.shortLabel}
-          </span>
+            <TIcon className="w-3.5 h-3.5" style={{ color: trigger.color }} />
+            <span
+              className="text-[11px] font-bold uppercase tracking-wider"
+              style={{ color: trigger.color }}
+            >
+              {trigger.shortLabel}
+            </span>
+          </div>
+          {(() => {
+            const ch = journey.channel ? CHANNELS[journey.channel] : null;
+            if (!ch) {
+              return (
+                <span
+                  className="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded border border-amber-500/40 bg-amber-500/10 text-amber-400"
+                  title="Jornada legada — passos podem usar canais diferentes"
+                >
+                  Misto / legado
+                </span>
+              );
+            }
+            const ChIcon = ch.icon;
+            return (
+              <span
+                className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded"
+                style={{
+                  background: `${ch.color}20`,
+                  border: `1px solid ${ch.color}50`,
+                  color: ch.color,
+                }}
+                title={`Canal fixo: ${ch.label}`}
+              >
+                <ChIcon className="w-3 h-3" />
+                {ch.shortLabel}
+              </span>
+            );
+          })()}
         </div>
         <span
           className="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded shrink-0"
