@@ -138,6 +138,7 @@ import { sendPushToSubscription, type WebPushSubscription } from "../_shared/web
 interface PushContent {
   title?: string | null;
   body?: string | null;
+  image_url?: string | null;
   [key: string]: unknown;
 }
 
