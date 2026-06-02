@@ -1,4 +1,13 @@
-# CLAUDE.md — CRM Premier FC (ultrateste111)
+# CLAUDE.md — CL Score
+
+## Sobre o projeto
+
+App do **CL Score** (Chile) — fork do template Premier FC adaptado pra mercado chileno (es-CL).
+
+- **Repo dev:** `Premier-Claude-code` (origin) — onde commitamos
+- **Repo template:** `ultrateste111` (upstream) — só leitura, sync periódico
+- **Hosting front:** Vercel (deploy automático no push pra `main`)
+- **Hosting back:** Supabase + Stape (GTM Server)
 
 ## Regras de comunicação
 
@@ -10,26 +19,54 @@
 - Cortar bullets/tabelas que não agregam. Quando 1 linha resolve, não fazer 3 seções.
 - Resumo final de ação: 1-2 frases. O que mudou + o que vem a seguir.
 
-## Contexto do projeto
+## Banco de dados — ✅ MCP funciona neste projeto
 
-- PRD canônico: [docs/CRM_PREMIER_FC_PRD.md](docs/CRM_PREMIER_FC_PRD.md) — ler antes de mexer em CRM
-- Estratégia ativa: **mock-first** (não plugar providers reais até o Pilar 4)
-- Convenções de pastas, hooks, edge functions: ver PRD seção 9
-- Deploy de edge functions: via Lovable (não temos Supabase CLI local)
-- SQL em produção: SEMPRE apresentar prompt de segurança antes de aplicar
+Diferente do template Premier FC, o CL Score **usa o mesmo banco que está configurado no MCP do Supabase**:
 
-## ⚠️ ACESSO AO BANCO — REGRA CRÍTICA
+- **Supabase project:** `snykhoctikatcpvlcoow.supabase.co`
+- **MCP `mcp__supabase__*`:** ✅ aponta pro projeto correto, pode usar normalmente
+- **Edge functions:** deploy via MCP (`mcp__supabase__deploy_edge_function`) — funciona
+- **SQL:** `execute_sql` via MCP funciona — sempre confirmar antes de DDL/DML destrutivo
 
-**O banco do app fica ISOLADO dentro do Lovable.** Eu (Claude) NÃO tenho acesso direto via MCP.
+**Credenciais sensíveis:** SUPABASE_ACCESS_TOKEN e service_role keys **NÃO devem ser coladas no chat**. Se vazar, revogar imediatamente em https://supabase.com/dashboard/account/tokens.
 
-- O MCP Supabase configurado aponta pra outro projeto (`snykhoctikatcpvlcoow.supabase.co`)
-- O app real usa `jdzndbkimjwtxpldmigi.supabase.co` — acesso só via Lovable
-- **NUNCA confiar nas respostas de `mcp__supabase__*` (list_tables, execute_sql, list_extensions, list_migrations, etc.) pra inferir o estado real do banco do CRM Premier FC** — esses dados são de outro projeto
-- Pra auditar/verificar/migrar o banco: **pedir pro usuário rodar no SQL Editor do Lovable e colar o resultado aqui**. Sempre.
-- Edge functions também: deploy só via Lovable; não tenho como inspecionar o que está rodando lá
+## Infra externa importante
 
-Se eu precisar conferir alguma coisa do banco do CRM:
-1. Escrevo a query SQL (apenas SELECT, nunca DDL/DML sem prompt de segurança)
-2. Peço pro usuário colar no SQL Editor do Lovable
-3. Espero o resultado retornar como texto
-4. Só depois disso decido qualquer próximo passo que dependa do estado real
+- **GTM Web:** `GTM-T886SRPV` (browser tags)
+- **GTM Server:** `GTM-P2VX7Q62` hospedado em **Stape** (`api.clscore.app`)
+- **Webhook PerfectPay:** `https://snykhoctikatcpvlcoow.supabase.co/functions/v1/perfectpay-webhook` — manda email via Resend (`acesso@clscore.app`)
+- **Funil de venda:** **inLead** (botão dispara Custom Event `FormSubmit` no dataLayer)
+- **Checkout:** **CenterPag** (rebrand do PerfectPay) — URLs `go.centerpag.com/*`
+- **Onboarding pós-compra:** **Telegram bot `@Clscore_bot`** (link `https://t.me/Clscore_bot?start=...`)
+- **Domínio:** `clscore.app` — DKIM/SPF OK no Resend, **DMARC pendente** (cai no spam)
+
+## Idioma e branding
+
+- **Idioma do app:** espanhol Chile (es-CL)
+- **Marca:** "CL Score" (NUNCA "Premier FC", "Premier", "CL FC", etc.)
+- **Moeda:** CLP (peso chileno) — formato `$10`, `$27` (sem decimais)
+- **Timezone:** `America/Santiago`
+
+## Convenções
+
+- **Commits:** mensagem em pt-BR (uso interno), código sempre em inglês
+- **PR/branch:** trabalhar em branch separada pra mudanças grandes (>5 arquivos), mergear via PR no GitHub
+- **Auto-commit:** só commitar quando o usuário pedir explicitamente
+- **Push pra main:** só com autorização explícita do usuário pra operações grandes (>50 arquivos)
+- **NUNCA pushar no upstream** (`ultrateste111`) — sempre `git push origin main`
+
+## Estrutura de tiers
+
+```
+free → basic → pro → ultra → premium → diamante
+```
+
+- **Diamante** = tier máximo, libera quase todas as features
+- **`live_telegram`** = única feature que NÃO vem auto no Diamante (precisa entitlement manual)
+- **Escada de upgrade:** free sempre vê popup "Premium" primeiro, depois Premium vê popup "Diamante" (feature exclusiva)
+
+## Admin
+
+- **Login admin:** rota `/admin/login` (verifica `admin_emails` table)
+- **Admin atual:** `ferramentas.batman@gmail.com`
+- **Criação de tips:** `/admin/tips/create` — autocomplete de palpites lê de `market_predictions` + histórico de `content_entries.condition_to_win`
