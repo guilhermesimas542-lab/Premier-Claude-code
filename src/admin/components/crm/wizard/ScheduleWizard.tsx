@@ -28,6 +28,7 @@ import {
 import { useSchedules, type NewSchedulePayload } from "../../../hooks/crm/useSchedules";
 import { useAudiences, type AudienceFilters } from "../../../hooks/crm/useAudiences";
 import { usePreviewAudience } from "../../../hooks/crm/usePreviewAudience";
+import { ChannelPreview } from "./ChannelPreview";
 
 // ============================================================
 // Tipos do state do wizard
