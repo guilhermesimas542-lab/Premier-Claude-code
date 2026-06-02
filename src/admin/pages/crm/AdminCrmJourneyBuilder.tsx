@@ -46,6 +46,8 @@ export default function AdminCrmJourneyBuilder() {
 
   const { create, update, setStatus, refresh } = useJourneys();
   const { items: audiences } = useAudiences();
+  const { saveFromJourney } = useJourneyTemplates();
+  const [savingTemplate, setSavingTemplate] = useState(false);
 
   const [journey, setJourney] = useState<Journey | null>(null);
   const [loadingJourney, setLoadingJourney] = useState(!isNew);
