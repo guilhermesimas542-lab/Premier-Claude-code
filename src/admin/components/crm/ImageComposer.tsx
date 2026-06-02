@@ -115,7 +115,16 @@ function ImageComposerInner({
       const { data, error } = await supabase.functions.invoke("crm-generate-image", {
         body: { prompt, channel },
       });
-      if (error) throw error;
+      if (error) {
+        let detail = error.message;
+        try {
+          // @ts-ignore — context pode conter a resposta da edge function
+          const body = await error.context?.json?.();
+          detail = body?.detail || body?.error || detail;
+        } catch {}
+        toast.error(`Falha ao gerar: ${detail}`);
+        return;
+      }
       if (!data?.url) throw new Error("Resposta sem URL");
       setAiPreviewUrl(data.url);
       toast.success("Imagem gerada! Revise antes de anexar.");
