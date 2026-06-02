@@ -153,7 +153,29 @@ export default function AdminCrmJourneys() {
             </SelectContent>
           </Select>
 
-          {(filter.status || filter.trigger_type) && (
+          <Select
+            value={filter.channel ?? "all"}
+            onValueChange={(v) =>
+              setFilter((f) => ({
+                ...f,
+                channel: v === "all" ? undefined : (v as ChannelKey),
+              }))
+            }
+          >
+            <SelectTrigger className="w-[180px] h-9">
+              <SelectValue placeholder="Canal" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os canais</SelectItem>
+              {CHANNEL_LIST.map((c) => (
+                <SelectItem key={c.key} value={c.key}>
+                  {c.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {(filter.status || filter.trigger_type || filter.channel) && (
             <Button
               variant="ghost"
               size="sm"
