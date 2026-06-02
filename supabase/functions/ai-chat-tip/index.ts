@@ -39,6 +39,10 @@ const TOP_LEAGUES = [
   268,
   299,
   16,
+  15,
+  344,
+  255,
+  667,
 ];
 const PRIMARY_MODEL = "claude-sonnet-4-5";
 const FALLBACK_MODEL = "claude-opus-4-7";
@@ -584,6 +588,18 @@ Deno.serve(async (req: Request) => {
       return jsonResp({
         error: "fixture_already_started_or_past",
         message: "Esse jogo ja comecou ou ja aconteceu. Use a aba Ao Vivo se ainda esta em andamento.",
+      }, 400);
+    }
+
+    const MAX_DAYS_AHEAD = 15;
+    const diffMs = kickoff.getTime() - Date.now();
+    const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+    if (diffDays > MAX_DAYS_AHEAD) {
+      await refundIfFailed("fixture_too_far");
+      return jsonResp({
+        error: "fixture_too_far",
+        message: `Esse jogo acontece em ${diffDays} dias. A IA Tipster analisa partidas com até 15 dias de antecedência — escalações, lesões e forma das equipes mudam bastante até lá. Volte mais perto da data do jogo para uma análise precisa.`,
+        days_until: diffDays,
       }, 400);
     }
 

@@ -346,6 +346,16 @@ export function useChatTipster() {
         });
         return;
       }
+      if (d?.error === "fixture_too_far") {
+        append({
+          id: genId(),
+          role: "bot",
+          type: "text",
+          content: d.message ?? "Esse jogo está muito distante. Volte mais perto da data para uma análise precisa.",
+          createdAt: Date.now(),
+        });
+        return;
+      }
       if (d?.error) {
         append({
           id: genId(),
