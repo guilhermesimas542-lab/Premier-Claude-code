@@ -487,10 +487,6 @@ export default function AdminCrmJourneyBuilder() {
           </p>
         </div>
       )}
-
-      {pickerOpen && (
-        <ChannelPicker onPick={handlePickChannel} onCancel={() => setPickerOpen(false)} />
-      )}
     </div>
   );
 }
