@@ -90,6 +90,12 @@ export async function resolveBehaviorUserIds(
       );
       if (!anyMatch) return false;
     }
+    // Times — match em home OU away
+    if (wantedTeams.size > 0) {
+      const home = String(props.home ?? "").trim().toLowerCase();
+      const away = String(props.away ?? "").trim().toLowerCase();
+      if (!wantedTeams.has(home) && !wantedTeams.has(away)) return false;
+    }
     return true;
   }
 
