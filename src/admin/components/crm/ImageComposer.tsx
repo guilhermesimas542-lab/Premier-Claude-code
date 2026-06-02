@@ -144,6 +144,13 @@ function ImageComposerInner({
         const resp = await fetch(uploadedDataUrl);
         const blob = await resp.blob();
         const url = await uploadBlob(blob);
+        toast.success("Imagem anexada!");
+        onGenerated(url);
+        onClose();
+        return;
+      }
+
+
 
       // Aba modelo: rasteriza o node
       const node = previewRef.current;
