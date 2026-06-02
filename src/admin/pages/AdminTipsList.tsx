@@ -147,11 +147,11 @@ export default function AdminTipsList() {
     addon_required: t.addon_required,
   });
 
-  const handleExportSingle = async (t: any) => {
+  const handleExportSingle = async (t: any, format: "story" | "horizontal") => {
     if (t.result !== "green") { toast.error("Só tips GREEN podem ser exportadas"); return; }
     setExportingId(t.id);
     try {
-      await downloadSingleTipPng(tipToExport(t));
+      await downloadSingleTipPng(tipToExport(t), format);
       toast.success("Imagem gerada com sucesso");
     } catch (e: any) {
       console.error("[export single]", e);
@@ -160,6 +160,7 @@ export default function AdminTipsList() {
       setExportingId(null);
     }
   };
+
 
 
   const handleExportBatchGreens = async () => {
