@@ -28,7 +28,6 @@ import { useJourneys, type Journey } from "../../hooks/crm/useJourneys";
 import { useJourneySteps } from "../../hooks/crm/useJourneySteps";
 import { useAudiences } from "../../hooks/crm/useAudiences";
 import { useJourneyTemplates } from "../../hooks/crm/useJourneyTemplates";
-import { ChannelPicker } from "../../components/crm/journey/ChannelPicker";
 import { StepCard } from "../../components/crm/journey/StepCard";
 import {
   TRIGGERS,
@@ -37,7 +36,7 @@ import {
   type JourneyStatus,
   type TriggerKey,
 } from "../../lib/crm/triggers";
-import type { ChannelKey } from "../../lib/crm/channels";
+import { CHANNELS, CHANNEL_LIST, type ChannelKey } from "../../lib/crm/channels";
 
 export default function AdminCrmJourneyBuilder() {
   const { id } = useParams<{ id?: string }>();
