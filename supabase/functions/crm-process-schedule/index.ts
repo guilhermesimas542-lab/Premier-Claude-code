@@ -349,13 +349,14 @@ Deno.serve(async (req: Request) => {
           metadata: { provider: "sendpulse", broadcast: true, real: true },
         };
       } else {
-        const content = (schedule.content ?? {}) as { body?: string | null };
+        const content = (schedule.content ?? {}) as { body?: string | null; image_url?: string | null };
         broadcastResult = await sendBroadcastTelegramX1Real(
           content.body ?? "",
           schedule.name,
           botId,
           apiId,
           apiSecret,
+          content.image_url ?? null,
         );
       }
     } else {
