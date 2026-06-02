@@ -1292,6 +1292,66 @@ export default function AdminClientsManage() {
                 )}
               </div>
 
+              {/* IA Tipster — créditos */}
+              <div className="border-t border-white/10 pt-3 space-y-3">
+                <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Créditos IA Tipster</p>
+                {loadingBalance ? (
+                  <div className="flex items-center gap-2 text-gray-500 text-xs">
+                    <Loader2 className="w-3 h-3 animate-spin" /> Carregando saldo…
+                  </div>
+                ) : creditBalance ? (
+                  <div className="text-xs text-gray-300 space-y-1 bg-gray-800/40 rounded p-2">
+                    <div>Semanal: <span className="text-white">{creditBalance.balance?.weekly_remaining ?? 0}/{creditBalance.balance?.weekly_quota ?? 0}</span></div>
+                    <div>Bônus: <span className="text-white">{creditBalance.balance?.extras_bonus ?? 0}</span></div>
+                    <div>Comprado: <span className="text-white">{creditBalance.balance?.extras_purchased ?? 0}</span></div>
+                    <div>
+                      Ilimitado: <span className="text-white">
+                        {creditBalance.unlimited_active
+                          ? (new Date(creditBalance.unlimited_until).getFullYear() > 9000
+                              ? "Vitalício"
+                              : `até ${new Date(creditBalance.unlimited_until).toLocaleDateString("pt-BR")}`)
+                          : "—"}
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-xs text-gray-500">Saldo indisponível</div>
+                )}
+
+                <div className="space-y-1.5">
+                  <label className="text-xs text-gray-500">Adicionar bônus (1–100)</label>
+                  <div className="flex gap-2">
+                    <Input
+                      type="number"
+                      min={1}
+                      max={100}
+                      value={bonusAmount}
+                      onChange={(e) => setBonusAmount(e.target.value)}
+                      placeholder="Qtd"
+                      className="bg-gray-800 border-gray-700 h-8"
+                    />
+                    <Button
+                      size="sm"
+                      onClick={handleGrantBonus}
+                      disabled={creditBusy || !bonusAmount}
+                    >
+                      {creditBusy ? <Loader2 className="w-3 h-3 animate-spin" /> : "Adicionar"}
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs text-gray-500">Conceder ilimitado</label>
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="outline" disabled={creditBusy} onClick={() => handleGrantUnlimited("30d")} className="flex-1 bg-gray-800 border-gray-700 hover:bg-gray-700">30 dias</Button>
+                    <Button size="sm" variant="outline" disabled={creditBusy} onClick={() => handleGrantUnlimited("90d")} className="flex-1 bg-gray-800 border-gray-700 hover:bg-gray-700">90 dias</Button>
+                    <Button size="sm" variant="outline" disabled={creditBusy} onClick={() => handleGrantUnlimited("lifetime")} className="flex-1 bg-purple-900/40 border-purple-700 hover:bg-purple-900/60 text-purple-200">Vitalício</Button>
+                  </div>
+                </div>
+              </div>
+
+
+
               <Button onClick={handleUpdate} disabled={saving} className="w-full">
                 {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Salvar"}
               </Button>
