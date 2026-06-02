@@ -144,6 +144,7 @@ export function hasBehaviorFilter(b: AudienceBehaviorFilter | undefined | null):
   return !!(
     (b.league_names && b.league_names.length > 0) ||
     (b.markets && b.markets.length > 0) ||
+    (b.team_names && b.team_names.length > 0) ||
     (b.source && b.source !== "any") ||
     (typeof b.min_analyses === "number" && b.min_analyses > 1) ||
     b.last_analysis_age_days?.gte != null ||
