@@ -99,9 +99,11 @@ function ImageComposerInner({
       .from("crm-creatives")
       .upload(path, blob, { contentType: "image/png", upsert: false });
     if (error) throw error;
-    const { data } = supabase.storage.from("crm-creatives").getPublicUrl(path);
-    if (!data?.publicUrl) throw new Error("Falha pegando URL pública");
-    return data.publicUrl;
+    const { data: signed, error: signErr } = await supabase.storage
+      .from("crm-creatives")
+      .createSignedUrl(path, 60 * 60 * 24 * 3650);
+    if (signErr || !signed?.signedUrl) throw new Error(signErr?.message || "Falha gerando URL assinada");
+    return signed.signedUrl;
   }
 
   const handleGenerateAI = async () => {
