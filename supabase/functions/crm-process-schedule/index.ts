@@ -22,7 +22,7 @@ import {
   type Recipient,
   type SendResult,
 } from "./mockProviders.ts";
-import { sendBatchSmsReal, sendBatchPushReal, sendBatchPopupReal, sendBroadcastTelegramX1Real, sendTelegramGroupReal } from "./realProviders.ts";
+import { sendBatchSmsReal, sendBatchPushReal, sendBatchPopupReal, sendBroadcastTelegramX1Real, sendTelegramGroupReal, sendBatchEmailReal, type EmailSenderConfig } from "./realProviders.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -486,6 +486,39 @@ Deno.serve(async (req: Request) => {
     // por usuário. App exibe via FunnelPopup no carregamento.
     const useRealPopup = channel === "popup" && !dryRun;
 
+    // Email real (Resend): só quando dry_run=false e API key + from_email configurados.
+    let emailRealKey: string | null = null;
+    let emailSender: EmailSenderConfig | null = null;
+    if (channel === "email" && !dryRun) {
+      const [{ data: keyData, error: keyErr }, { data: emailSettingsRow }] = await Promise.all([
+        supabase.rpc("crm_get_channel_secret", { p_channel: "email", p_key: "api_key" }),
+        supabase
+          .from("crm_channel_settings")
+          .select("config")
+          .eq("channel", "email")
+          .maybeSingle(),
+      ]);
+      if (keyErr) {
+        console.error("[CRM][email] erro lendo chave do Vault:", keyErr);
+      } else if (typeof keyData === "string" && keyData.length > 0) {
+        emailRealKey = keyData;
+      } else {
+        console.warn("[CRM][email] api_key (Resend) não configurada — caindo no mock.");
+      }
+      const cfg = (emailSettingsRow as any)?.config ?? {};
+      const fromEmail = typeof cfg.from_email === "string" ? cfg.from_email.trim() : "";
+      if (fromEmail) {
+        emailSender = {
+          fromEmail,
+          fromName: typeof cfg.from_name === "string" ? cfg.from_name : null,
+          replyTo: typeof cfg.reply_to === "string" ? cfg.reply_to : null,
+        };
+      } else {
+        console.warn("[CRM][email] from_email não configurado em crm_channel_settings — caindo no mock.");
+      }
+    }
+    const useRealEmail = channel === "email" && !dryRun && emailRealKey !== null && emailSender !== null;
+
     for (let i = 0; i < recipients.length; i += CHUNK) {
       const slice = recipients.slice(i, i + CHUNK);
       const results: SendResult[] = useRealSms
@@ -494,7 +527,9 @@ Deno.serve(async (req: Request) => {
           ? await sendBatchPushReal(slice, schedule.content ?? null, supabase, pushVapid!)
           : useRealPopup
             ? await sendBatchPopupReal(slice, schedule.content ?? null, scheduleId, supabase)
-            : await sendBatch(channel, slice);
+            : useRealEmail
+              ? await sendBatchEmailReal(slice, schedule.content ?? null, emailRealKey!, emailSender!)
+              : await sendBatch(channel, slice);
 
       const events = results.map((r) => ({
         schedule_id: scheduleId,

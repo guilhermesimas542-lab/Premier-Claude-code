@@ -45,7 +45,8 @@ export default function AdminCrmSchedules() {
     const isRealPopup = s.channel === "popup";
     const isRealTgX1 = s.channel === "telegram_x1";
     const isRealTgGroup = s.channel === "telegram_group";
-    const isReal = isRealSms || isRealPush || isRealPopup || isRealTgX1 || isRealTgGroup;
+    const isRealEmail = s.channel === "email";
+    const isReal = isRealSms || isRealPush || isRealPopup || isRealTgX1 || isRealTgGroup || isRealEmail;
     const channelInfo =
       isRealTgX1
         ? "Broadcast REAL via SendPulse pra toda a base do bot Telegram."
@@ -57,7 +58,9 @@ export default function AdminCrmSchedules() {
               ? "Disparo REAL de Web Push para todos os destinat\u00e1rios com subscription ativa."
               : isRealPopup
                 ? "Enfileira um popup in-app por usu\u00e1rio (exibido no pr\u00f3ximo carregamento do app)."
-                : "Disparo pra audi\u00eancia segmentada";
+                : isRealEmail
+                  ? "Disparo REAL de email via Resend para todos os destinat\u00e1rios com email."
+                  : "Disparo pra audi\u00eancia segmentada";
     const suffix = isReal ? "" : "\n\n(modo dry-run — sem envio real ainda)";
     if (!confirm(`Disparar "${s.name}" agora?\n\n${channelInfo}${suffix}`)) {
       return;
