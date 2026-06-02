@@ -1,6 +1,5 @@
 import React from "react";
 import { PremiumBettingCard, type TeamWithShirt } from "@/components/PremiumBettingCard";
-import { BadgeCheck } from "lucide-react";
 import type { TipForExport } from "@/admin/lib/exportTipPng";
 
 interface Props {
