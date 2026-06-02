@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { HelpCircle, Info, Link2, Clock, Layers, BarChart3, Lock } from "lucide-react";
+import { HelpCircle, Info, Link2, Clock, Layers, BarChart3, Lock, BadgeCheck } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { ShirtIcon } from "./ShirtIcon";
 
@@ -36,11 +36,14 @@ interface PremiumBettingCardProps {
   lockedLabel?: string;
   isExpired?: boolean;
   justificativa?: string;
+  hideTimer?: boolean;
+  showVerifiedBadge?: boolean;
   onAddTip?: () => void;
   onViewAnalysis?: () => void;
   onOpenJustificativa?: (texto: string) => void;
   onLockedClick?: () => void;
 }
+
 
 const TIER_COLORS: Record<string, string> = {
   "GRÁTIS": "#94A3B8",
@@ -109,10 +112,13 @@ export const PremiumBettingCard = ({
   lockedLabel,
   isExpired: isExpiredProp = false,
   justificativa,
+  hideTimer = false,
+  showVerifiedBadge = false,
   onAddTip,
   onOpenJustificativa,
   onLockedClick,
 }: PremiumBettingCardProps) => {
+
   const [showBetHelp, setShowBetHelp] = useState(false);
   const [countdown, setCountdown] = useState<string>("");
   const [isExpiredLocal, setIsExpiredLocal] = useState(false);
@@ -127,6 +133,7 @@ export const PremiumBettingCard = ({
   const displaySelectionsCount = selectionsCount || (tier === "ULTRA" ? 3 : 2);
 
   useEffect(() => {
+    if (hideTimer) { setCountdown(""); return; }
     if (!startsAt || isExpiredProp) { setCountdown(""); return; }
     const updateCountdown = () => {
       const now = new Date().getTime();
@@ -137,7 +144,8 @@ export const PremiumBettingCard = ({
     updateCountdown();
     const interval = setInterval(updateCountdown, 1000);
     return () => clearInterval(interval);
-  }, [startsAt, isExpiredProp]);
+  }, [startsAt, isExpiredProp, hideTimer]);
+
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -232,7 +240,9 @@ export const PremiumBettingCard = ({
         }}>
           {/* Timer */}
           <div style={{ display: "flex", alignItems: "center", gap: 4, width: 70, flexShrink: 0 }}>
-            {isLocked ? (
+            {hideTimer ? (
+              <span style={{ fontSize: 12, color: "transparent" }}>—</span>
+            ) : isLocked ? (
               <span style={{ fontSize: 12, color: "transparent" }}>—</span>
             ) : countdown === "EN VIVO" ? (
               <>
@@ -247,6 +257,7 @@ export const PremiumBettingCard = ({
             ) : (
               <span style={{ fontSize: 12, color: "transparent" }}>—</span>
             )}
+
           </div>
 
           {/* Badge — center */}
@@ -375,12 +386,21 @@ export const PremiumBettingCard = ({
               )}
             </div>
 
-            <button
-              onClick={() => onOpenJustificativa?.(justificativa || "Próximamente: datos y porcentajes del enfrentamiento.")}
-              style={{ width: 34, height: 34, borderRadius: 8, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
-            >
-              <BarChart3 className={`w-5 h-5 ${isExpired ? "text-gray-500" : "text-white/80"}`} />
-            </button>
+            {showVerifiedBadge ? (
+              <div
+                style={{ width: 34, height: 34, borderRadius: 8, background: "rgba(0,255,127,0.12)", border: "1px solid rgba(0,255,127,0.45)", display: "flex", alignItems: "center", justifyContent: "center" }}
+                aria-label="Verificado"
+              >
+                <BadgeCheck className="w-5 h-5" style={{ color: "#00FF7F" }} />
+              </div>
+            ) : (
+              <button
+                onClick={() => onOpenJustificativa?.(justificativa || "Em breve: dados e percentuais do confronto.")}
+                style={{ width: 34, height: 34, borderRadius: 8, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
+              >
+                <BarChart3 className={`w-5 h-5 ${isExpired ? "text-gray-500" : "text-white/80"}`} />
+              </button>
+            )}
           </div>
         ) : (
           <div style={{ height: 42 }} />

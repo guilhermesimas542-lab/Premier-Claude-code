@@ -417,14 +417,67 @@ Deno.serve(async (req) => {
     }
 
     // ── Map products via products_catalog ──────────────────────────────────
+    // Hardening B.2: normaliza productIds (trim + dedupe) ANTES do lookup.
+    // Mesmo com o DB limpo, defesa em profundidade evita 404 se PayT
+    // enviar code com espaço em algum payload futuro.
+    productIds = Array.from(
+      new Set(
+        (productIds || [])
+          .filter((c): c is string => typeof c === "string")
+          .map((c) => c.trim())
+          .filter((c) => c.length > 0)
+      )
+    );
+
+    // B.1: TIER_RANK promovido para escopo da função e com premium/diamante.
+    const TIER_RANK: Record<string, number> = {
+      free: 0,
+      basic: 1,
+      pro: 2,
+      premium: 3,
+      ultra: 4,
+      diamante: 5,
+    };
+
     let tierToSet: string | null = null;
-    const entitlementKeysToGrant: string[] = [];
+    let highestTierRank = -1;
+    const entitlementKeysSet = new Set<string>();
+    const creditPacks: Array<{ id: string; credits: number; price: number }> = [];
+    const unlimitedGrants: Array<{ id: string; days: number; price: number }> = [];
     const effectiveProvider = isPayt ? "payt" : provider;
+
+    // B.1: rank-aggregation — múltiplos product codes (bundle PayT) precisam
+    // resolver para o tier de maior rank, e a união (não substituição) dos
+    // entitlement_keys. Antes pegávamos sempre o último item, perdendo tiers
+    // quando o último era addon (tier=null).
+    const collectCatalog = (items: any[] | null | undefined) => {
+      if (!items) return;
+      for (const item of items) {
+        if (item.product_type === "ai_credit_pack") {
+          const credits = Number(item.pricing?.credits_amount ?? 0);
+          const price = Number(item.pricing?.price_brl ?? amount ?? 0);
+          if (credits > 0) creditPacks.push({ id: item.id, credits, price });
+        } else if (item.product_type === "ai_credit_unlimited") {
+          const days = Number(item.pricing?.unlimited_days ?? 0);
+          const price = Number(item.pricing?.price_brl ?? amount ?? 0);
+          if (days > 0) unlimitedGrants.push({ id: item.id, days, price });
+        } else {
+          if (item.tier) {
+            const r = TIER_RANK[item.tier] ?? -1;
+            if (r > highestTierRank) {
+              highestTierRank = r;
+              tierToSet = item.tier;
+            }
+          }
+          if (item.entitlement_key) entitlementKeysSet.add(item.entitlement_key);
+        }
+      }
+    };
 
     if (productIds.length > 0) {
       const { data: catalogItems, error: catalogError } = await supabase
         .from("products_catalog")
-        .select("provider_product_id, tier, entitlement_key")
+        .select("id, provider_product_id, tier, entitlement_key, product_type, pricing")
         .eq("provider", effectiveProvider)
         .in("provider_product_id", productIds)
         .eq("active", true);
@@ -432,31 +485,29 @@ Deno.serve(async (req) => {
       console.log("[webhook] catalog lookup by provider_product_id:", { productIds, provider: effectiveProvider, catalogItems, catalogError });
 
       if (catalogItems && catalogItems.length > 0) {
-        for (const item of catalogItems) {
-          if (item.tier) tierToSet = item.tier;
-          if (item.entitlement_key) entitlementKeysToGrant.push(item.entitlement_key);
-        }
+        collectCatalog(catalogItems);
       } else if (!isPayt) {
-        // Fallback por lastlink_product_uuid — SOMENTE para Lastlink
         const { data: uuidItems, error: uuidError } = await supabase
           .from("products_catalog")
-          .select("provider_product_id, tier, entitlement_key")
+          .select("id, provider_product_id, tier, entitlement_key, product_type, pricing")
           .eq("provider", provider)
           .in("lastlink_product_uuid", productIds)
           .eq("active", true);
 
         console.log("[webhook] catalog fallback by lastlink_product_uuid:", { uuidItems, uuidError });
-
-        if (uuidItems && uuidItems.length > 0) {
-          for (const item of uuidItems) {
-            if (item.tier) tierToSet = item.tier;
-            if (item.entitlement_key) entitlementKeysToGrant.push(item.entitlement_key);
-          }
-        }
+        collectCatalog(uuidItems);
       }
     }
 
-    console.log("[webhook] resolved:", { tierToSet, entitlementKeysToGrant, userId });
+
+    const entitlementKeysToGrant: string[] = Array.from(entitlementKeysSet);
+
+    console.log("[webhook] resolved multi-code:", {
+      tier: tierToSet,
+      entitlements: entitlementKeysToGrant,
+      n_matches: (entitlementKeysToGrant.length + (tierToSet ? 1 : 0) + creditPacks.length + unlimitedGrants.length),
+      productIds,
+    });
 
     // Fallback: legacy product_key
     if (!tierToSet && entitlementKeysToGrant.length === 0 && payload.product_key) {
@@ -469,7 +520,13 @@ Deno.serve(async (req) => {
     }
 
     // ── Fail explicitly if no product matched ─────────────────────────────
-    if (!tierToSet && entitlementKeysToGrant.length === 0 && productIds.length > 0) {
+    if (
+      !tierToSet &&
+      entitlementKeysToGrant.length === 0 &&
+      creditPacks.length === 0 &&
+      unlimitedGrants.length === 0 &&
+      productIds.length > 0
+    ) {
       const errMsg = `Produto não encontrado no catálogo para IDs: ${productIds.join(", ")} (provider: ${effectiveProvider})`;
       console.error("[webhook]", errMsg);
       await supabase
@@ -483,12 +540,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    const TIER_RANK: Record<string, number> = {
-      free: 0,
-      basic: 1,
-      pro: 2,
-      ultra: 3,
-    };
+
 
     if (isPurchaseApproved) {
       if (tierToSet && userId) {
@@ -534,8 +586,59 @@ Deno.serve(async (req) => {
           });
         }
       }
+      // AI credit packs — grant_purchased_credits
+      for (const pack of creditPacks) {
+        if (!userId) break;
+        const { data: purchase, error: purchaseErr } = await supabase
+          .from("ai_credit_purchase")
+          .insert({
+            user_id: userId,
+            credits_granted: pack.credits,
+            amount_paid: pack.price,
+            payment_provider: effectiveProvider === "payt" ? "payt" : (effectiveProvider === "lastlink" ? "lastlink" : "manual"),
+            payment_id: paymentId,
+            status: "paid",
+            paid_at: new Date().toISOString(),
+          })
+          .select("id")
+          .single();
+        if (purchaseErr) console.error("[webhook] ai_credit_purchase insert error:", purchaseErr);
+
+        const { data: grantRes, error: grantErr } = await supabase.rpc("grant_purchased_credits", {
+          p_user_id: userId,
+          p_amount: pack.credits,
+          p_purchase_id: purchase?.id ?? null,
+        });
+        console.log("[webhook] grant_purchased_credits:", { pack, grantRes, grantErr });
+      }
+
+      // AI unlimited grants — grant_unlimited_access
+      for (const u of unlimitedGrants) {
+        if (!userId) break;
+        const { data: purchase, error: purchaseErr } = await supabase
+          .from("ai_credit_purchase")
+          .insert({
+            user_id: userId,
+            credits_granted: 0,
+            amount_paid: u.price,
+            payment_provider: effectiveProvider === "payt" ? "payt" : (effectiveProvider === "lastlink" ? "lastlink" : "manual"),
+            payment_id: paymentId,
+            status: "paid",
+            paid_at: new Date().toISOString(),
+          })
+          .select("id")
+          .single();
+        if (purchaseErr) console.error("[webhook] ai_credit_purchase (unlimited) insert error:", purchaseErr);
+
+        const { data: grantRes, error: grantErr } = await supabase.rpc("grant_unlimited_access", {
+          p_user_id: userId,
+          p_days: u.days,
+          p_purchase_id: purchase?.id ?? null,
+        });
+        console.log("[webhook] grant_unlimited_access:", { u, grantRes, grantErr });
+      }
     } else if (isRefundOrCancel) {
-      // Refund recebido — tier mantido conforme política (acesso já concedido, não revertemos por reembolso).
+      // Refund recebido — tier/entitlements mantidos conforme política (acesso já concedido, não revertemos por reembolso).
       if (tierToSet && userId) {
         console.log(`[refund] User ${userId} refunded but tier kept (was mapped to ${tierToSet}). Acesso permanece.`);
       }
@@ -549,7 +652,31 @@ Deno.serve(async (req) => {
             .eq("status", "active");
         }
       }
+
+      // AI credits refund — política: NÃO reverter créditos/unlimited já concedidos.
+      if (userId && (creditPacks.length > 0 || unlimitedGrants.length > 0)) {
+        const { error: refundErr } = await supabase
+          .from("ai_credit_purchase")
+          .update({ status: "refunded" })
+          .eq("user_id", userId)
+          .eq("payment_id", paymentId);
+        if (refundErr) console.error("[webhook] ai_credit_purchase refund mark error:", refundErr);
+
+        await supabase.from("ai_credit_log").insert({
+          user_id: userId,
+          event_type: "refund_no_revert",
+          amount: 0,
+          reason: "refund recebido — créditos/unlimited mantidos por política",
+          metadata: {
+            payment_id: paymentId,
+            credit_packs: creditPacks,
+            unlimited_grants: unlimitedGrants,
+          },
+        });
+        console.log(`[refund] AI credits/unlimited NOT reverted for user=${userId} payment_id=${paymentId}`);
+      }
     }
+
 
     // ── Record in orders ───────────────────────────────────────────────────
     await supabase.from("orders").insert({

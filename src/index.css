@@ -370,3 +370,17 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   filter: invert(1);
   cursor: pointer;
 }
+
+/* IA Tipster — linha de entrada destacada (mercado + odd) */
+@layer components {
+  .prose strong em,
+  .prose em strong {
+    display: inline;
+    font-size: 1.1em;
+    font-weight: 700;
+    font-style: italic;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+  }
+}

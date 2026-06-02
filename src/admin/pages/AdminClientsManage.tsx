@@ -21,6 +21,14 @@ import { toast } from "sonner";
 import type { AdminUser } from "../types";
 import { ClientProfileModal } from "../components/ClientProfileModal";
 import { useBettingHouseAdmin } from "../context/BettingHouseContext";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { isUnlimitedActive, isUnlimitedLifetime, formatUnlimitedUntil } from "@/lib/unlimitedAccess";
+
+interface CreditInfo {
+  display: string;
+  color: "green" | "gray" | "purple";
+  tooltip: string[];
+}
 
 interface BettingHouseOption { id: string; name: string; }
 
@@ -39,7 +47,7 @@ const HOUSE_BADGE_COLORS = [
 ];
 
 
-type SortKey = "email" | "phone" | "main_tier" | "upsells" | "created_at" | "first_access_at" | "last_seen_at";
+type SortKey = "email" | "phone" | "main_tier" | "upsells" | "created_at" | "first_access_at" | "last_seen_at" | "credits";
 type SortDir = "asc" | "desc";
 
 const UPSELL_KEYS = ["alavancagem", "multiplas_bingo", "acesso_vitalicio", "live_telegram"];
@@ -51,6 +59,8 @@ const UPSELL_LABELS: Record<string, string> = {
   multiplas_bingo: "Múltiples / Bingo",
   acesso_vitalicio: "Vitalicio",
   live_telegram: "Live",
+  mercados_secundarios: "Merc. Secundário",
+  esportes_americanos: "Ligas Americanas",
 };
 
 const UPSELL_BADGES = [
@@ -58,6 +68,8 @@ const UPSELL_BADGES = [
   { key: "multiplas_bingo", letter: "M", activeColor: "bg-yellow-500 text-white", title: "Múltiples / Bingo" },
   { key: "acesso_vitalicio", letter: "V", activeColor: "bg-purple-500 text-white", title: "Vitalicio" },
   { key: "live_telegram", letter: "L", activeColor: "bg-green-500 text-white", title: "Live" },
+  { key: "mercados_secundarios", letter: "S", activeColor: "bg-orange-500 text-white", title: "Merc. Secundário" },
+  { key: "esportes_americanos", letter: "E", activeColor: "bg-red-500 text-white", title: "Ligas Americanas" },
 ];
 
 const TIER_COLORS: Record<string, string> = {
@@ -65,6 +77,8 @@ const TIER_COLORS: Record<string, string> = {
   basic: "text-[#60A5FA]",
   pro: "text-[#00FF7F]",
   ultra: "text-[#7C3AED]",
+  premium: "text-[#F59E0B]",
+  diamante: "text-[#22D3EE]",
 };
 
 function UpsellBadges({ upsells }: { upsells: string[] }) {
@@ -101,7 +115,19 @@ function SortIcon({ col, sortKey, sortDir }: { col: SortKey; sortKey: SortKey; s
 
 const TIER_ORDER: Record<string, number> = { free: 0, basic: 1, pro: 2, ultra: 3 };
 
-function sortUsers(users: UserWithUpsells[], key: SortKey, dir: SortDir): UserWithUpsells[] {
+function creditSortValue(ci?: { display: string; color: string }): number {
+  if (!ci) return -1;
+  if (ci.color === "purple") return Number.MAX_SAFE_INTEGER;
+  const n = parseInt(ci.display, 10);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function sortUsers(
+  users: UserWithUpsells[],
+  key: SortKey,
+  dir: SortDir,
+  creditMap: Record<string, { display: string; color: string }>,
+): UserWithUpsells[] {
   return [...users].sort((a, b) => {
     let av: string | number = "";
     let bv: string | number = "";
@@ -113,6 +139,7 @@ function sortUsers(users: UserWithUpsells[], key: SortKey, dir: SortDir): UserWi
     else if (key === "created_at") { av = a.created_at ?? ""; bv = b.created_at ?? ""; }
     else if (key === "first_access_at") { av = (a as any).first_access_at ?? ""; bv = (b as any).first_access_at ?? ""; }
     else if (key === "last_seen_at") { av = a.last_seen_at ?? ""; bv = b.last_seen_at ?? ""; }
+    else if (key === "credits") { av = creditSortValue(creditMap[a.id]); bv = creditSortValue(creditMap[b.id]); }
 
     if (av < bv) return dir === "asc" ? -1 : 1;
     if (av > bv) return dir === "asc" ? 1 : -1;
@@ -124,7 +151,9 @@ const ADDON_TOGGLES = [
   { key: "alavancagem", label: "Apalancamiento" },
   { key: "multiplas_bingo", label: "Múltiples / Bingo" },
   { key: "live_telegram", label: "Live Telegram" },
-  { key: "acesso_vitalicio", label: "Vitalicio" },
+  { key: "acesso_vitalicio", label: "Vitalício" },
+  { key: "mercados_secundarios", label: "Merc. Secundário" },
+  { key: "esportes_americanos", label: "Ligas Americanas" },
 ] as const;
 
 const TIER_PILLS = [
@@ -132,13 +161,17 @@ const TIER_PILLS = [
   { value: "basic", label: "Básico" },
   { value: "pro", label: "Pro" },
   { value: "ultra", label: "Ultra" },
+  { value: "premium", label: "Premium" },
+  { value: "diamante", label: "Diamante" },
 ] as const;
 
 const ADDON_PILLS = [
   { value: "alavancagem", label: "Apalancamiento" },
   { value: "multiplas_bingo", label: "Múltiples / Bingo" },
   { value: "live_telegram", label: "Live Telegram" },
-  { value: "acesso_vitalicio", label: "Acceso Vitalicio" },
+  { value: "acesso_vitalicio", label: "Acesso Vitalício" },
+  { value: "mercados_secundarios", label: "Merc. Secundário" },
+  { value: "esportes_americanos", label: "Ligas Americanas" },
 ] as const;
 
 export default function AdminClientsManage() {
@@ -148,6 +181,8 @@ export default function AdminClientsManage() {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
   const [search, setSearch] = useState("");
+  const [creditMap, setCreditMap] = useState<Record<string, CreditInfo>>({});
+
 
   const [liberacaoFrom, setLiberacaoFrom] = useState("");
   const [liberacaoTo, setLiberacaoTo] = useState("");
@@ -173,6 +208,12 @@ export default function AdminClientsManage() {
   const [houses, setHouses] = useState<BettingHouseOption[]>([]);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+
+  // IA Tipster credit ops state
+  const [creditBalance, setCreditBalance] = useState<any>(null);
+  const [loadingBalance, setLoadingBalance] = useState(false);
+  const [bonusAmount, setBonusAmount] = useState<string>("");
+  const [creditBusy, setCreditBusy] = useState(false);
 
   // Bulk selection state
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -200,10 +241,112 @@ export default function AdminClientsManage() {
     else { setSortKey(col); setSortDir("asc"); }
   };
 
+  const fetchCreditBalanceFor = async (uid: string) => {
+    setLoadingBalance(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("admin-credit-ops", {
+        body: { action: "get_balance", user_id: uid },
+      });
+      if (error) throw error;
+      setCreditBalance((data as any)?.balance ?? null);
+    } catch (e: any) {
+      setCreditBalance(null);
+    } finally {
+      setLoadingBalance(false);
+    }
+  };
+
+  const refreshUserCreditRow = async (uid: string) => {
+    const [weeklyRes, extrasRes, debitsRes] = await Promise.all([
+      supabase.from("ai_credit_weekly").select("user_id, weekly_quota, weekly_used").eq("user_id", uid).maybeSingle(),
+      supabase.from("ai_credit_extras").select("user_id, balance_bonus, balance_purchased, unlimited_until").eq("user_id", uid).maybeSingle(),
+      supabase.from("ai_credit_log").select("user_id").eq("user_id", uid).eq("event_type", "debit"),
+    ]);
+    const weekly: any = weeklyRes.data;
+    const extras: any = extrasRes.data;
+    const allTime = (debitsRes.data ?? []).length;
+    const weeklySpent = weekly?.weekly_used ?? 0;
+    let info: CreditInfo;
+    if (isUnlimitedActive(extras?.unlimited_until)) {
+      const isLifetime = isUnlimitedLifetime(extras.unlimited_until);
+      info = {
+        display: "∞",
+        color: "purple",
+        tooltip: [
+          isLifetime ? "Vitalício" : `Ilimitado até ${formatUnlimitedUntil(extras.unlimited_until)}`,
+          `Gastos esta semana: ${weeklySpent}`,
+          `Gastos all-time: ${allTime}`,
+        ],
+      };
+    } else {
+      const weeklyRemaining = Math.max((weekly?.weekly_quota ?? 0) - weeklySpent, 0);
+      const extrasTotal = (extras?.balance_bonus ?? 0) + (extras?.balance_purchased ?? 0);
+      const total = weeklyRemaining + extrasTotal;
+      info = {
+        display: String(total),
+        color: total > 0 ? "green" : "gray",
+        tooltip: [
+          `Disponível: ${total}`,
+          `Cota semanal: ${weeklyRemaining}/${weekly?.weekly_quota ?? 0}`,
+          `Bônus: ${extras?.balance_bonus ?? 0}`,
+          `Comprado: ${extras?.balance_purchased ?? 0}`,
+          `Gastos all-time: ${allTime}`,
+        ],
+      };
+    }
+    setCreditMap((prev) => ({ ...prev, [uid]: info }));
+  };
+
+  const handleGrantBonus = async () => {
+    if (!editUser) return;
+    const amt = parseInt(bonusAmount, 10);
+    if (!Number.isInteger(amt) || amt <= 0 || amt > 100) {
+      toast.error("Quantidade deve ser entre 1 e 100");
+      return;
+    }
+    setCreditBusy(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("admin-credit-ops", {
+        body: { action: "grant_bonus", user_id: editUser.id, amount: amt },
+      });
+      if (error || (data as any)?.error) throw new Error((data as any)?.error ?? error?.message);
+      setCreditBalance((data as any)?.balance ?? null);
+      setBonusAmount("");
+      toast.success(`+${amt} créditos bônus`);
+      await refreshUserCreditRow(editUser.id);
+    } catch (e: any) {
+      toast.error(e?.message ?? "Erro ao conceder bônus");
+    } finally {
+      setCreditBusy(false);
+    }
+  };
+
+  const handleGrantUnlimited = async (duration: "30d" | "90d" | "lifetime") => {
+    if (!editUser) return;
+    const label = duration === "30d" ? "30 dias" : duration === "90d" ? "90 dias" : "Vitalício";
+    if (!confirm(`Conceder ilimitado (${label}) para ${editUser.email}?`)) return;
+    setCreditBusy(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("admin-credit-ops", {
+        body: { action: "grant_unlimited", user_id: editUser.id, duration },
+      });
+      if (error || (data as any)?.error) throw new Error((data as any)?.error ?? error?.message);
+      setCreditBalance((data as any)?.balance ?? null);
+      toast.success(`Ilimitado ${label} concedido`);
+      await refreshUserCreditRow(editUser.id);
+    } catch (e: any) {
+      toast.error(e?.message ?? "Erro ao conceder ilimitado");
+    } finally {
+      setCreditBusy(false);
+    }
+  };
+
   const openEdit = async (u: AdminUser & { betting_house_id?: string | null }) => {
     setEditUser(u);
     setEditHouseId(u.betting_house_id ?? "");
     setLoadingAddons(true);
+    setCreditBalance(null);
+    setBonusAmount("");
     const { data } = await supabase
       .from("entitlements")
       .select("product_key")
@@ -214,6 +357,7 @@ export default function AdminClientsManage() {
     ADDON_TOGGLES.forEach(({ key }) => { addonState[key] = activeKeys.includes(key); });
     setEditAddons(addonState);
     setLoadingAddons(false);
+    fetchCreditBalanceFor(u.id);
   };
 
   const load = useCallback(async (overrides?: {
@@ -298,6 +442,24 @@ export default function AdminClientsManage() {
       }
     });
 
+    // Add-ons concedidos automaticamente por tier (sem entitlement)
+    const TIER_GRANTED_ADDONS: Record<string, string[]> = {
+      premium: ["multiplas_bingo"],
+      diamante: ["alavancagem", "multiplas_bingo", "mercados_secundarios", "esportes_americanos"],
+      ultra: ["alavancagem", "multiplas_bingo", "mercados_secundarios", "esportes_americanos"],
+    };
+    rawUsers.forEach((user: any) => {
+      const grantedByTier = TIER_GRANTED_ADDONS[user.main_tier] ?? [];
+      grantedByTier.forEach((key) => {
+        const label = UPSELL_LABELS[key];
+        if (!label) return;
+        if (!upsellMap[user.id]) upsellMap[user.id] = [];
+        if (!upsellMap[user.id].includes(label)) upsellMap[user.id].push(label);
+        if (!entKeyMap[user.id]) entKeyMap[user.id] = [];
+        if (!entKeyMap[user.id].includes(key)) entKeyMap[user.id].push(key);
+      });
+    });
+
     let filtered = rawUsers;
     // Filter by addons: user must have ALL selected addons
     if (addons.length > 0) {
@@ -314,6 +476,61 @@ export default function AdminClientsManage() {
         betting_house_id: u.betting_house_id ?? null,
       }))
     );
+
+    // Fetch credit info for visible users (batch)
+    const visibleIds = filtered.map((u: any) => u.id);
+    if (visibleIds.length > 0) {
+      const [weeklyRes, extrasRes, debitsRes] = await Promise.all([
+        supabase.from("ai_credit_weekly").select("user_id, weekly_quota, weekly_used").in("user_id", visibleIds),
+        supabase.from("ai_credit_extras").select("user_id, balance_bonus, balance_purchased, unlimited_until").in("user_id", visibleIds),
+        supabase.from("ai_credit_log").select("user_id").in("user_id", visibleIds).eq("event_type", "debit"),
+      ]);
+      const weeklyMap = new Map((weeklyRes.data || []).map((r: any) => [r.user_id, r]));
+      const extrasMap = new Map((extrasRes.data || []).map((r: any) => [r.user_id, r]));
+      const allTimeMap = new Map<string, number>();
+      (debitsRes.data || []).forEach((row: any) => {
+        allTimeMap.set(row.user_id, (allTimeMap.get(row.user_id) || 0) + 1);
+      });
+      const nextCredits: Record<string, CreditInfo> = {};
+      visibleIds.forEach((uid: string) => {
+        const weekly: any = weeklyMap.get(uid);
+        const extras: any = extrasMap.get(uid);
+        const allTime = allTimeMap.get(uid) || 0;
+        const weeklySpent = weekly?.weekly_used ?? 0;
+        if (isUnlimitedActive(extras?.unlimited_until)) {
+          const isLifetime = isUnlimitedLifetime(extras.unlimited_until);
+          nextCredits[uid] = {
+            display: "∞",
+            color: "purple",
+            tooltip: [
+              isLifetime ? "Vitalício" : `Ilimitado até ${formatUnlimitedUntil(extras.unlimited_until)}`,
+              `Gastos esta semana: ${weeklySpent}`,
+              `Gastos all-time: ${allTime}`,
+            ],
+          };
+          return;
+        }
+        const weeklyRemaining = Math.max((weekly?.weekly_quota ?? 0) - weeklySpent, 0);
+        const extrasTotal = (extras?.balance_bonus ?? 0) + (extras?.balance_purchased ?? 0);
+        const total = weeklyRemaining + extrasTotal;
+        nextCredits[uid] = {
+          display: String(total),
+          color: total > 0 ? "green" : "gray",
+          tooltip: [
+            `Disponível: ${total}`,
+            `Cota semanal: ${weeklyRemaining}/${weekly?.weekly_quota ?? 0}`,
+            `Bônus: ${extras?.balance_bonus ?? 0}`,
+            `Comprados: ${extras?.balance_purchased ?? 0}`,
+            `Gastos esta semana: ${weeklySpent}`,
+            `Gastos all-time: ${allTime}`,
+          ],
+        };
+      });
+      setCreditMap(nextCredits);
+    } else {
+      setCreditMap({});
+    }
+
     setLoading(false);
   }, [search, liberacaoFrom, liberacaoTo, firstAccessFrom, firstAccessTo, lastSeenFrom, lastSeenTo, selectedHouseId, selectedTier, selectedAddons, filterNotAccessed, currentPage]);
 
@@ -396,7 +613,7 @@ export default function AdminClientsManage() {
     load({ search: "", liberacaoFrom: "", liberacaoTo: "", firstAccessFrom: "", firstAccessTo: "", lastSeenFrom: "", lastSeenTo: "", selectedTier: null, selectedAddons: [], filterNotAccessed: false });
   };
 
-  const sortedUsers = sortUsers(users, sortKey, sortDir);
+  const sortedUsers = sortUsers(users, sortKey, sortDir, creditMap);
 
   // Bulk selection helpers
   const allVisibleSelected = sortedUsers.length > 0 && sortedUsers.every((u) => selectedIds.has(u.id));
@@ -434,7 +651,7 @@ export default function AdminClientsManage() {
       await supabase.from("user_gamification").delete().in("user_id", ids);
       await supabase.from("user_popup_views").delete().in("user_id", ids);
       await supabase.from("push_subscriptions").delete().in("user_id", ids);
-      await supabase.from("banner_analytics").delete().in("user_id", ids);
+      
 
       // Delete users
       const { error } = await supabase.from("users").delete().in("id", ids);
@@ -795,6 +1012,9 @@ export default function AdminClientsManage() {
                 <th className={thClass} onClick={() => handleSort("main_tier")}>
                   <span className="flex items-center">Plan <SortIcon col="main_tier" sortKey={sortKey} sortDir={sortDir} /></span>
                 </th>
+                <th className={thClass} onClick={() => handleSort("credits")}>
+                  <span className="flex items-center">Créditos <SortIcon col="credits" sortKey={sortKey} sortDir={sortDir} /></span>
+                </th>
                 <th className={thClass} onClick={() => handleSort("upsells")}>
                   <span className="flex items-center">Upsell <SortIcon col="upsells" sortKey={sortKey} sortDir={sortDir} /></span>
                 </th>
@@ -878,6 +1098,34 @@ export default function AdminClientsManage() {
                     </span>
                   </td>
                   <td className="px-3 py-2">
+                    {(() => {
+                      const ci = creditMap[u.id];
+                      if (!ci) return <span className="text-gray-600">—</span>;
+                      const colorClass =
+                        ci.color === "purple"
+                          ? "bg-purple-500/20 text-purple-300 border border-purple-400/30"
+                          : ci.color === "green"
+                            ? "bg-green-500/20 text-green-400 border border-green-400/30"
+                            : "bg-gray-700/40 text-gray-400 border border-gray-600/30";
+                      return (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className={`inline-flex items-center justify-center min-w-[28px] px-2 py-0.5 rounded-full text-xs font-bold cursor-help ${colorClass}`}>
+                              {ci.display}
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent side="top" className="bg-gray-900 border-gray-700">
+                            <div className="space-y-0.5 text-xs">
+                              {ci.tooltip.map((line, i) => (
+                                <div key={i}>{line}</div>
+                              ))}
+                            </div>
+                          </TooltipContent>
+                        </Tooltip>
+                      );
+                    })()}
+                  </td>
+                  <td className="px-3 py-2">
                     <UpsellBadges upsells={u.upsells} />
                   </td>
                   <td className="px-3 py-2 text-center">
@@ -923,8 +1171,8 @@ export default function AdminClientsManage() {
               ))}
               {sortedUsers.length === 0 && (
                 <tr>
-                  <td colSpan={10} className="px-3 py-8 text-center text-gray-600">
-                    Ningún cliente encontrado
+                  <td colSpan={11} className="px-3 py-8 text-center text-gray-600">
+                    Nenhum cliente encontrado
                   </td>
                 </tr>
               )}
@@ -1004,10 +1252,12 @@ export default function AdminClientsManage() {
                 <Select value={editUser.main_tier} onValueChange={(v) => setEditUser({ ...editUser, main_tier: v })}>
                   <SelectTrigger className="bg-gray-800 border-gray-700"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="free">Gratis</SelectItem>
-                    <SelectItem value="basic">Básico</SelectItem>
-                    <SelectItem value="pro">Pro</SelectItem>
-                    <SelectItem value="ultra">Ultra</SelectItem>
+                    <SelectItem value="free">Free</SelectItem>
+                    <SelectItem value="basic">Basic (legado)</SelectItem>
+                    <SelectItem value="pro">Pro (legado)</SelectItem>
+                    <SelectItem value="ultra">Ultra (legado)</SelectItem>
+                    <SelectItem value="premium">Premium</SelectItem>
+                    <SelectItem value="diamante">Diamante</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -1043,6 +1293,66 @@ export default function AdminClientsManage() {
                   ))
                 )}
               </div>
+
+              {/* IA Tipster — créditos */}
+              <div className="border-t border-white/10 pt-3 space-y-3">
+                <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Créditos IA Tipster</p>
+                {loadingBalance ? (
+                  <div className="flex items-center gap-2 text-gray-500 text-xs">
+                    <Loader2 className="w-3 h-3 animate-spin" /> Carregando saldo…
+                  </div>
+                ) : creditBalance ? (
+                  <div className="text-xs text-gray-300 space-y-1 bg-gray-800/40 rounded p-2">
+                    <div>Semanal: <span className="text-white">{creditBalance.balance?.weekly_remaining ?? 0}/{creditBalance.balance?.weekly_quota ?? 0}</span></div>
+                    <div>Bônus: <span className="text-white">{creditBalance.balance?.extras_bonus ?? 0}</span></div>
+                    <div>Comprado: <span className="text-white">{creditBalance.balance?.extras_purchased ?? 0}</span></div>
+                    <div>
+                      Ilimitado: <span className="text-white">
+                        {isUnlimitedActive(creditBalance.unlimited_until)
+                          ? (isUnlimitedLifetime(creditBalance.unlimited_until)
+                              ? "Vitalício"
+                              : `até ${formatUnlimitedUntil(creditBalance.unlimited_until)}`)
+                          : "—"}
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-xs text-gray-500">Saldo indisponível</div>
+                )}
+
+                <div className="space-y-1.5">
+                  <label className="text-xs text-gray-500">Adicionar bônus (1–100)</label>
+                  <div className="flex gap-2">
+                    <Input
+                      type="number"
+                      min={1}
+                      max={100}
+                      value={bonusAmount}
+                      onChange={(e) => setBonusAmount(e.target.value)}
+                      placeholder="Qtd"
+                      className="bg-gray-800 border-gray-700 h-8"
+                    />
+                    <Button
+                      size="sm"
+                      onClick={handleGrantBonus}
+                      disabled={creditBusy || !bonusAmount}
+                    >
+                      {creditBusy ? <Loader2 className="w-3 h-3 animate-spin" /> : "Adicionar"}
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs text-gray-500">Conceder ilimitado</label>
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="outline" disabled={creditBusy} onClick={() => handleGrantUnlimited("30d")} className="flex-1 bg-gray-800 border-gray-700 hover:bg-gray-700">30 dias</Button>
+                    <Button size="sm" variant="outline" disabled={creditBusy} onClick={() => handleGrantUnlimited("90d")} className="flex-1 bg-gray-800 border-gray-700 hover:bg-gray-700">90 dias</Button>
+                    <Button size="sm" variant="outline" disabled={creditBusy} onClick={() => handleGrantUnlimited("lifetime")} className="flex-1 bg-purple-900/40 border-purple-700 hover:bg-purple-900/60 text-purple-200">Vitalício</Button>
+                  </div>
+                </div>
+              </div>
+
+
 
               <Button onClick={handleUpdate} disabled={saving} className="w-full">
                 {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Guardar"}

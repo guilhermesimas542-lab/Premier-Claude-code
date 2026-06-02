@@ -13,10 +13,6 @@ export interface BettingHouse {
   slug: string;
   logo_url: string | null;
   iframe_url: string;
-  aviator_url: string | null;
-  roleta_url: string | null;
-  mines_url: string | null;
-  football_studio_url: string | null;
   is_active: boolean;
   is_default: boolean;
   open_in_new_tab: boolean;
@@ -29,10 +25,6 @@ const EMPTY_FORM = {
   slug: "",
   logo_url: "",
   iframe_url: "",
-  aviator_url: "",
-  roleta_url: "",
-  mines_url: "",
-  football_studio_url: "",
   is_active: true,
   is_default: false,
   open_in_new_tab: false,
@@ -81,10 +73,6 @@ export default function AdminBettingHouses() {
       slug: h.slug,
       logo_url: h.logo_url ?? "",
       iframe_url: h.iframe_url,
-      aviator_url: h.aviator_url ?? "",
-      roleta_url: h.roleta_url ?? "",
-      mines_url: h.mines_url ?? "",
-      football_studio_url: h.football_studio_url ?? "",
       is_active: h.is_active,
       is_default: h.is_default,
       open_in_new_tab: h.open_in_new_tab ?? false,
@@ -105,10 +93,6 @@ export default function AdminBettingHouses() {
       slug: form.slug,
       logo_url: form.logo_url || null,
       iframe_url: form.iframe_url,
-      aviator_url: form.aviator_url || null,
-      roleta_url: form.roleta_url || null,
-      mines_url: form.mines_url || null,
-      football_studio_url: form.football_studio_url || null,
       is_active: form.is_active,
       is_default: form.is_default,
       open_in_new_tab: form.open_in_new_tab,
@@ -206,12 +190,6 @@ export default function AdminBettingHouses() {
                   </span>
                 </div>
                 <p className="text-xs text-gray-500 truncate mt-0.5">{h.iframe_url}</p>
-                <div className="flex gap-3 mt-1 flex-wrap">
-                  {h.aviator_url && <span className="text-[10px] text-gray-400">✈ Aviator</span>}
-                  {h.roleta_url && <span className="text-[10px] text-gray-400">◉ Ruleta</span>}
-                  {h.mines_url && <span className="text-[10px] text-gray-400">💣 Mines</span>}
-                  {h.football_studio_url && <span className="text-[10px] text-gray-400">⚽ Football Studio</span>}
-                </div>
               </div>
 
               {/* Actions */}
@@ -275,10 +253,6 @@ export default function AdminBettingHouses() {
               <p className="text-xs text-gray-400 font-semibold uppercase tracking-wide mb-2">URLs de la Casa</p>
               <div className="space-y-2">
                 <FieldRow label="Iframe URL (página principal) *" fieldKey="iframe_url" placeholder="https://esportiva.bet" />
-                <FieldRow label="Aviator URL" fieldKey="aviator_url" placeholder="https://esportiva.bet/aviator" />
-                <FieldRow label="Ruleta URL" fieldKey="roleta_url" placeholder="https://esportiva.bet/roleta" />
-                <FieldRow label="Mines URL" fieldKey="mines_url" placeholder="https://esportiva.bet/mines" />
-                <FieldRow label="Football Studio URL" fieldKey="football_studio_url" placeholder="https://esportiva.bet/football-studio" />
               </div>
             </div>
 

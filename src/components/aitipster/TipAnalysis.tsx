@@ -1,0 +1,191 @@
+import { useState } from "react";
+import ReactMarkdown from "react-markdown";
+import { Target, Zap, ClipboardList, Search, ChevronDown } from "lucide-react";
+import { parseAnalysis } from "@/lib/parseAnalysis";
+
+interface SectionCardProps {
+  icon: React.ReactNode;
+  title: string;
+  iconColorClass: string;
+  borderColorClass?: string;
+  bgColorClass?: string;
+  collapsedMaxHeight?: string;
+  markdown: string;
+  gradientFromClass?: string;
+}
+
+function SectionCard({
+  icon,
+  title,
+  iconColorClass,
+  borderColorClass = "border-border",
+  bgColorClass = "bg-card",
+  collapsedMaxHeight = "5rem",
+  markdown,
+  gradientFromClass = "from-card",
+}: SectionCardProps) {
+  const [expanded, setExpanded] = useState(false);
+  const toggle = () => setExpanded((v) => !v);
+
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={toggle}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          toggle();
+        }
+      }}
+      aria-expanded={expanded}
+      className={`rounded-lg border ${borderColorClass} ${bgColorClass} overflow-hidden cursor-pointer hover:brightness-110 transition-all`}
+    >
+      <div className="w-full flex items-center justify-between px-4 pt-3 pb-2">
+        <div className="flex items-center gap-2">
+          <span className={iconColorClass}>{icon}</span>
+          <span className={`text-xs font-bold uppercase tracking-wider ${iconColorClass}`}>
+            {title}
+          </span>
+        </div>
+      </div>
+      <div
+        className="px-4 pb-3 relative"
+        style={{
+          maxHeight: expanded ? "none" : collapsedMaxHeight,
+          overflow: "hidden",
+        }}
+      >
+        <div className="prose prose-sm dark:prose-invert max-w-none">
+          <ReactMarkdown
+            components={{
+              // Espaçamento consistente entre blocos. Cada parágrafo / lista /
+              // subtítulo (negrito sozinho) ganha mb-3 pra criar 1 linha em
+              // branco visual entre os tópicos.
+              p: ({ children }) => (
+                <p className="mb-3 last:mb-0 leading-relaxed">{children}</p>
+              ),
+              ul: ({ children }) => (
+                <ul className="mb-3 last:mb-0 space-y-1 list-disc pl-5">
+                  {children}
+                </ul>
+              ),
+              ol: ({ children }) => (
+                <ol className="mb-3 last:mb-0 space-y-1 list-decimal pl-5">
+                  {children}
+                </ol>
+              ),
+              li: ({ children }) => (
+                <li className="leading-relaxed">{children}</li>
+              ),
+              h1: ({ children }) => (
+                <h1 className="mb-3 mt-4 first:mt-0 text-base font-bold">
+                  {children}
+                </h1>
+              ),
+              h2: ({ children }) => (
+                <h2 className="mb-3 mt-4 first:mt-0 text-sm font-bold">
+                  {children}
+                </h2>
+              ),
+              h3: ({ children }) => (
+                <h3 className="mb-2 mt-4 first:mt-0 text-sm font-bold">
+                  {children}
+                </h3>
+              ),
+              a: ({ children, href }) => (
+                <a
+                  href={href}
+                  onClick={(e) => e.stopPropagation()}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {children}
+                </a>
+              ),
+            }}
+          >
+            {markdown}
+          </ReactMarkdown>
+        </div>
+      </div>
+      <div className="flex justify-center pb-2">
+        <ChevronDown
+          aria-label={expanded ? "Recolher" : "Expandir"}
+          className={`w-4 h-4 ${iconColorClass} transition-transform ${
+            expanded ? "rotate-180" : "animate-bounce"
+          }`}
+        />
+      </div>
+    </div>
+  );
+}
+
+interface TipAnalysisProps {
+  markdown: string;
+}
+
+export function TipAnalysis({ markdown }: TipAnalysisProps) {
+  const sections = parseAnalysis(markdown);
+
+  return (
+    <div className="space-y-3 w-full">
+      {sections.entrada && (
+        <SectionCard
+          icon={<Target className="w-4 h-4" />}
+          title="Entrada Principal"
+          iconColorClass="text-primary"
+          borderColorClass="border-primary/30"
+          bgColorClass="bg-primary/5"
+          gradientFromClass="from-primary/5"
+          markdown={sections.entrada}
+        />
+      )}
+
+      {sections.alternativas && (
+        <SectionCard
+          icon={<Zap className="w-4 h-4" />}
+          title="Alternativas"
+          iconColorClass="text-amber-500"
+          borderColorClass="border-amber-500/30"
+          bgColorClass="bg-amber-500/5"
+          gradientFromClass="from-amber-500/5"
+          markdown={sections.alternativas}
+        />
+      )}
+
+      {sections.resumo && (
+        <SectionCard
+          icon={<ClipboardList className="w-4 h-4" />}
+          title="Resumo"
+          iconColorClass="text-muted-foreground"
+          markdown={sections.resumo}
+        />
+      )}
+
+      {sections.contexto && (
+        <SectionCard
+          icon={<Search className="w-4 h-4" />}
+          title="Contexto"
+          iconColorClass="text-muted-foreground"
+          bgColorClass="bg-muted/30"
+          gradientFromClass="from-muted/30"
+          markdown={sections.contexto}
+        />
+      )}
+
+      {sections.footer && (
+        <div className="text-xs text-muted-foreground text-center italic px-2 pt-1">
+          <ReactMarkdown
+            components={{
+              p: ({ children }) => <p className="m-0">{children}</p>,
+              em: ({ children }) => <em className="italic">{children}</em>,
+            }}
+          >
+            {sections.footer}
+          </ReactMarkdown>
+        </div>
+      )}
+    </div>
+  );
+}

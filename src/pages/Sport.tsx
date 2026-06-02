@@ -260,6 +260,8 @@ const Sport = () => {
   const activeCardRefs = useRef<(HTMLDivElement | null)[]>([]);
   
   const initialTabParam = searchParams.get("tab"); // e.g. "alavancagem"
+  const fallbackParam = searchParams.get("fallback"); // "auto" | null
+
 
   // Fetch tips directly from content_entries + user features
   const [userFeatures, setUserFeatures] = useState<Set<string>>(new Set());
@@ -448,11 +450,33 @@ const Sport = () => {
   useEffect(() => {
     if (isLoading || activeEntries.length === 0) return;
     const scrollTimeout = setTimeout(() => {
-      if (initialTabParam === "alavancagem") scrollToFeature("alavancagem");
-      else scrollToFeature(isPaidUser ? "odds_safes" : "free");
+      const isValidFeature = (k: string | null): k is FeatureKey =>
+        !!k && (TAB_ORDER as string[]).includes(k);
+
+      if (isValidFeature(initialTabParam)) {
+        const targetHasContent = getFirstIndexOfFeature(initialTabParam) !== -1;
+        if (targetHasContent) {
+          scrollToFeature(initialTabParam);
+          return;
+        }
+        if (fallbackParam === "auto") {
+          const firstNonEmpty = TAB_ORDER.find(
+            (f) => getFirstIndexOfFeature(f) !== -1,
+          );
+          if (firstNonEmpty) {
+            scrollToFeature(firstNonEmpty);
+            return;
+          }
+        }
+        // sem fallback: deixa highlight no alvo mesmo vazio
+        scrollToFeature(initialTabParam);
+        return;
+      }
+      scrollToFeature(isPaidUser ? "odds_safes" : "free");
     }, 500);
     return () => clearTimeout(scrollTimeout);
-  }, [isLoading, activeEntries.length, initialTabParam, isPaidUser]);
+  }, [isLoading, activeEntries.length, initialTabParam, fallbackParam, isPaidUser]);
+
 
   useEffect(() => {
     const container = activeCarouselRef.current;
@@ -506,13 +530,16 @@ const Sport = () => {
       console.log("=== WSDK DEBUG ===");
       console.log("SELECTIONS:", JSON.stringify(wsdkSelections, null, 2));
       console.log("=== END WSDK DEBUG ===");
-      const targetOrigin = "https://esportiva.bet.br";
+      // targetOrigin "*" é seguro: app controla iframe (URL do banco),
+      // mensagem não contém dado sensível, resiliente a redirects internos.
       const target = iframeRef.current?.contentWindow;
+      const currentIframeSrc = iframeRef.current?.src ?? "(none)";
       if (target) {
         const message = { type: "wsdk-toggle-selections", data: { selections: wsdkSelections } };
+        console.log("[WSDK SEND] iframe.src:", currentIframeSrc, "| sending", wsdkSelections.length, "selections");
         [0, 200, 500, 1000, 2000].forEach((delay) => {
           setTimeout(() => {
-            iframeRef.current?.contentWindow?.postMessage(message, targetOrigin);
+            iframeRef.current?.contentWindow?.postMessage(message, "*");
           }, delay);
         });
         toast.success("¡Tip añadido al ticket!", {

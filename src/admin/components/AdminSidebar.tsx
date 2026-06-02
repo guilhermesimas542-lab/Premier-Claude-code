@@ -3,10 +3,11 @@ import {
   LayoutDashboard, Image, PlusCircle, List,
   Users, Bell, BarChart3, ChevronLeft, ChevronRight,
   DollarSign, Activity, Home, Link, Layers, Shield, CreditCard, Bug, Zap,
-  ChevronDown, UserPlus, UserX, UserCheck, Trophy, MessageSquare,
+  ChevronDown, UserPlus, UserX, UserCheck, Trophy, MessageSquare, Sparkles,
+  Megaphone, Send, Settings, Workflow,
 } from "lucide-react";
 import { useState, useEffect } from "react";
-import { useAdminMode } from "../context/AdminModeContext";
+
 import { useAdmin } from "../hooks/useAdmin";
 import { useAdminBadges } from "../hooks/useAdminBadges";
 
@@ -27,7 +28,7 @@ interface Section {
 
 export function AdminSidebar() {
   const [collapsed, setCollapsed] = useState(false);
-  const { mode, setMode } = useAdminMode();
+  
   const location = useLocation();
   const [expandedMenus, setExpandedMenus] = useState<Set<string>>(new Set());
   const { user } = useAdmin();
@@ -46,8 +47,8 @@ export function AdminSidebar() {
     {
       label: "Gestión",
       items: [
-        { to: "/admin", icon: LayoutDashboard, label: "Dashboard", end: true },
-        { to: "/admin/banners", icon: Image, label: "Banners" },
+        { to: "/admin", icon: LayoutDashboard, label: "Relatórios", end: true },
+
         {
           to: "/admin/clients",
           icon: Users,
@@ -74,7 +75,24 @@ export function AdminSidebar() {
       ],
     },
     {
-      label: "Enlaces y Pop-ups",
+      label: "IA Tipster",
+      items: [
+        { to: "/admin/ia-tipster", icon: Sparkles, label: "IA Tipster" },
+      ],
+    },
+    {
+      label: "CRM",
+      items: [
+        { to: "/admin/crm", icon: Megaphone, label: "Relatórios CRM", end: true },
+        { to: "/admin/behavior", icon: BarChart3, label: "Comportamento" },
+        { to: "/admin/crm/schedules", icon: Send, label: "Schedules" },
+        { to: "/admin/crm/journeys", icon: Workflow, label: "Jornadas" },
+        { to: "/admin/crm/audiences", icon: Users, label: "Audiências" },
+        { to: "/admin/crm/settings", icon: Settings, label: "Configurações" },
+      ],
+    },
+    {
+      label: "Links e Pop-ups",
       items: [
         { to: "/admin/default-links", icon: Link, label: "Enlaces por Defecto" },
         { to: "/admin/popups", icon: Layers, label: "Pop-ups y Embudos" },
@@ -107,28 +125,7 @@ export function AdminSidebar() {
     },
   ];
 
-  const cassinoSections: Section[] = [
-    {
-      label: "Gestión",
-      items: [
-        { to: "/admin/cassino", icon: LayoutDashboard, label: "Dashboard", end: true },
-      ],
-    },
-    {
-      label: "Analytics",
-      items: [
-        { to: "/admin/cassino/analytics", icon: BarChart3, label: "Visión General" },
-      ],
-    },
-    {
-      label: "Finanzas",
-      items: [
-        { to: "/admin/cassino/revenue", icon: DollarSign, label: "Ingresos" },
-      ],
-    },
-  ];
-
-  const sections = mode === "futebol" ? futebolSections : cassinoSections;
+  const sections = futebolSections;
 
   const isChildActive = (item: MenuItem) =>
     item.children?.some((c) => c.end ? location.pathname === c.to : location.pathname.startsWith(c.to)) ?? false;
@@ -169,29 +166,6 @@ export function AdminSidebar() {
         </button>
       </div>
 
-      {/* Mode Toggle */}
-      {!collapsed && (
-        <div className="px-3 py-3 border-b border-white/10">
-          <div className="flex rounded-lg bg-gray-800 p-0.5">
-            <button
-              onClick={() => setMode("futebol")}
-              className={`flex-1 text-xs py-1.5 rounded-md font-medium transition-colors ${
-                mode === "futebol" ? "bg-blue-600 text-white" : "text-gray-400 hover:text-white"
-              }`}
-            >
-              ⚽ Fútbol
-            </button>
-            <button
-              onClick={() => setMode("cassino")}
-              className={`flex-1 text-xs py-1.5 rounded-md font-medium transition-colors ${
-                mode === "cassino" ? "bg-purple-600 text-white" : "text-gray-400 hover:text-white"
-              }`}
-            >
-              🎰 Casino
-            </button>
-          </div>
-        </div>
-      )}
 
       <nav className="flex-1 overflow-y-auto py-2 space-y-4">
         {sections.map((section) => (

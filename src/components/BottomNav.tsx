@@ -1,19 +1,22 @@
 import { useLocation, useNavigate } from "react-router-dom";
+import { isPreviewEnv } from "@/lib/previewEnv";
 
-const NAV_ITEMS = [
+const ALL_NAV_ITEMS = [
   {
     path: "/sport/1",
     label: "Tips",  // mantém — jargão do mercado de apostas (ver glossário)
     // Filled football/soccer ball SVG
     iconPath: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-.52.07-1.06.07-1.58.02l-1.4-2.44 1.39-2.2h3.18l1.39 2.2-1.4 2.44c-.51.05-1.05.05-1.58-.02zm3.72-1.28l-.78-1.36 1.74-1.08 1.7.45A7.97 7.97 0 0116.72 18.65zM7.28 18.65a7.97 7.97 0 01-1.66-1.99l1.7-.45 1.74 1.08-.78 1.36zM5 12c0-.94.16-1.84.46-2.68l1.68.47.5 2.04-1.35 2.13-1.6-.42C4.87 13.04 5 12.54 5 12zm14 0c0 .54-.13 1.04-.29 1.54l-1.6.42-1.35-2.13.5-2.04 1.68-.47c.3.84.46 1.74.46 2.68zm-.97-3.79l-1.53.43-.95-1.82.47-1.4A8.04 8.04 0 0118.03 8.21zM5.97 8.21a8.04 8.04 0 012.01-2.79l.47 1.4-.95 1.82-1.53-.43zM12 4c.93 0 1.82.16 2.64.45l-.87 1.28H10.23l-.87-1.28C10.18 4.16 11.07 4 12 4z",
     matchPaths: ["/sport", "/alavancagem", "/odds-altas"],
+    previewOnly: false,
   },
   {
     path: "/ia-tipster",
     label: "IA Tipster",
-    // Filled Sparkles SVG (4-point star + small star)
-    iconPath: "M12 1l2.39 6.95L21 9l-5.5 4 1.5 7-5-3.5-5 3.5 1.5-7L3 9l6.61-1.05L12 1zm7 13l.9 2.6L22 17l-2.1.4L19 20l-.9-2.6L16 17l2.1-.4L19 14z",
+    // Filled sparkles/star SVG (represents AI)
+    iconPath: "M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6L12 2z",
     matchPaths: ["/ia-tipster"],
+    previewOnly: true,
   },
   {
     path: "/support",
@@ -21,8 +24,11 @@ const NAV_ITEMS = [
     // Filled person SVG
     iconPath: "M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z",
     matchPaths: ["/support"],
+    previewOnly: false,
   },
 ];
+
+const NAV_ITEMS = ALL_NAV_ITEMS.filter((item) => !item.previewOnly || isPreviewEnv());
 
 export const BottomNav = () => {
   const navigate = useNavigate();

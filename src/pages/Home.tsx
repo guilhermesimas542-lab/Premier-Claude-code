@@ -11,7 +11,7 @@ import type { PayCardData } from "@/hooks/usePayCards";
 import { mockGetUser } from "@/mocks/user";
 import { trackEvent } from "@/lib/events";
 import BasicPlanModal from "@/components/BasicPlanModal";
-import { PromoCarousel } from "@/components/PromoCarousel";
+
 import { BottomNav } from "@/components/BottomNav";
 import { CHECKOUT_LINKS } from "@/lib/checkoutLinks";
 import logoImg from "@/assets/premier-logo-custom.png";
@@ -24,23 +24,42 @@ import CardType2Top from "@/components/cards/CardType2Top";
 import { CardFunnelModal } from "@/components/cards/CardFunnelModal";
 import { usePayCardTrigger } from "@/hooks/usePayCardTrigger";
 import { PayCardFunnelModal } from "@/components/PayCardFunnelModal";
+import { PaywallPopup } from "@/components/PaywallPopup";
+import { resolvePaywallVariant, type FeatureKey } from "@/lib/paywallRouting";
 import { useLinks } from "@/contexts/LinksContext";
+import { isPreviewEnv } from "@/lib/previewEnv";
+import iaTipsterCartoon from "@/assets/ia-tipster-cartoon.png";
+import { IATipsterOnboardingModal } from "@/components/ia-tipster/IATipsterOnboardingModal";
+
+// Mesmo localStorage key usado em IATipster.tsx — mantém sincronizado o estado
+// "lead já viu o anúncio da feature" entre Home e a página interna.
+const LS_IA_ONBOARDING_SEEN = "ia_tipster_onboarding_seen_v2";
+
+const CARD_TO_FEATURE: Record<string, FeatureKey> = {
+  odds_altas: "multiplas_bingo",
+  "odds-altas": "multiplas_bingo",
+  alavancagem: "alavancagem",
+};
 
 const Home = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [showBasicModal, setShowBasicModal] = useState(false);
   const [showPromotionsModal, setShowPromotionsModal] = useState(false);
+  // Anúncio da nova feature IA Tipster — aparece UMA VEZ pra todo lead
+  // que entrar no app pela primeira vez após a release.
+  const [showIaAnnouncement, setShowIaAnnouncement] = useState(false);
   const [showLifetimeModal, setShowLifetimeModal] = useState(false);
   const [showLifetimeInfoModal, setShowLifetimeInfoModal] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [funnelCard, setFunnelCard] = useState<CardData | null>(null);
   const [bannerPayCard, setBannerPayCard] = useState<PayCardData | null>(null);
+  const [paywallFeature, setPaywallFeature] = useState<FeatureKey | null>(null);
 
   const mockUser = mockGetUser();
   const config = getStoredConfig();
   const { house: userHouse } = useUserBettingHouse();
-  const { cards: availableEntries, loading: loadingEntries } = useCardsBySlugs(["futebol", "cassino"]);
+  const { cards: availableEntries, loading: loadingEntries } = useCardsBySlugs(["futebol"]);
   const { cards: quickCards } = useCards("quick_access");
   const { cards: ultimosGreensCards } = useCardsBySlugs(["ultimos-greens"]);
   const ultimosGreensCard = ultimosGreensCards?.[0] || null;
@@ -72,19 +91,6 @@ const Home = () => {
     trackEvent("app_open");
   }, []);
 
-  // Listen for pay_card banner events
-  useEffect(() => {
-    const handlePayCardFromBanner = async (e: Event) => {
-      const { payCardId } = (e as CustomEvent).detail;
-      if (!payCardId) return;
-      const { data } = await supabase.from("pay_cards" as any).select("*").eq("id", payCardId).maybeSingle();
-      if (data) {
-        setBannerPayCard(data as any as PayCardData);
-      }
-    };
-    window.addEventListener("open-paycard-from-banner", handlePayCardFromBanner);
-    return () => window.removeEventListener("open-paycard-from-banner", handlePayCardFromBanner);
-  }, []);
 
   useEffect(() => {
     console.log("DADOS BRUTOS RECEBIDOS DO BANCO:", JSON.stringify(availableEntries, null, 2));
@@ -96,9 +102,23 @@ const Home = () => {
     Object.keys(localStorage).forEach(key => {
       if (key.startsWith('popup_shown_') || key === 'welcome_popup_shown') localStorage.removeItem(key);
     });
+    // Anúncio IA Tipster: aparece 1x pra todo lead autenticado (só em preview).
+    if (isPreviewEnv() && localStorage.getItem(LS_IA_ONBOARDING_SEEN) !== "true") {
+      setShowIaAnnouncement(true);
+    }
   }, [navigate]);
 
-  const handleLogout = () => { clearAuth(); toast.success("Sesión cerrada exitosamente"); navigate("/login"); };
+  /** Conclusão do funil de onboarding (todos os 4 steps do modal vistos).
+   *  Marca onboarding+tutorial como concluídos pra não exibir mais o tutorial
+   *  da sidebar quando o lead chegar em /ia-tipster, e redireciona pra lá. */
+  const handleIaOnboardingComplete = () => {
+    localStorage.setItem(LS_IA_ONBOARDING_SEEN, "true");
+    localStorage.setItem("ia_tipster_tutorial_completed_v2", "true");
+    setShowIaAnnouncement(false);
+    navigate("/ia-tipster");
+  };
+
+  const handleLogout = () => { clearAuth(); toast.success("Logout realizado com sucesso"); navigate("/login"); };
   const handleSupport = () => { navigate("/support"); };
   const handlePromotions = () => { setShowPromotionsModal(true); };
   const handleBuyLifetime = () => { window.open(CHECKOUT_LINKS.inapp_premium, '_blank'); setShowLifetimeModal(false); };
@@ -121,12 +141,18 @@ const Home = () => {
   };
 
   const handleOpenPayCardById = async (payCardId: string) => {
-    const { data } = await supabase.from("pay_cards" as any).select("*").eq("id", payCardId).maybeSingle();
+    const { data } = await supabase.from("pay_cards" as any).select("*").eq("id", payCardId).eq("is_active", true).maybeSingle();
     if (data) setBannerPayCard(data as any as PayCardData);
   };
 
   const handleCardAction = (card: CardData) => {
     if (card.requires_access && !hasAccess(card)) {
+      const slug = (card.slug || "").toLowerCase();
+      const feature = CARD_TO_FEATURE[slug];
+      if (feature) {
+        setPaywallFeature(feature);
+        return;
+      }
       if (card.pay_card_id) {
         handleOpenPayCardById(card.pay_card_id);
         return;
@@ -138,17 +164,22 @@ const Home = () => {
     }
     const s = (card.slug || "").toLowerCase();
     if (s === "futebol") { navigate("/sport/1"); return; }
-    if (s === "cassino") { navigate("/cassino"); return; }
+    if (s === "odds_altas" || s === "odds-altas") {
+      navigate("/sport/1?tab=multiplas_bingo&fallback=auto"); return;
+    }
+    if (s === "alavancagem") {
+      navigate("/sport/1?tab=alavancagem&fallback=auto"); return;
+    }
     if (s === "multiplas_bingo") { navigate("/odds-altas"); return; }
-    if (s === "alavancagem") { navigate("/alavancagem"); return; }
   };
 
   const renderCard = (card: CardData) => {
+    const access = hasAccess(card);
     if (card.card_type === "type1_lateral") {
-      return <CardType1Lateral key={card.id} card={card} onAction={() => handleCardAction(card)} />;
+      return <CardType1Lateral key={card.id} card={card} hasAccess={access} onAction={() => handleCardAction(card)} />;
     }
     return (
-      <CardType2Top key={card.id} card={card} hasAccess={hasAccess(card)} onAction={() => handleCardAction(card)} />
+      <CardType2Top key={card.id} card={card} hasAccess={access} onAction={() => handleCardAction(card)} />
     );
   };
 
@@ -173,6 +204,7 @@ const Home = () => {
     border-radius: 15px;
     overflow: hidden;
       }
+
     `}</style>
     <div className="min-h-screen relative overflow-hidden pb-20 md:pb-0 bg-navy-dark">
       <div className="absolute top-0 left-1/4 w-96 h-96 rounded-full blur-[140px] pointer-events-none" style={{ background: "rgba(0,255,127,0.06)" }} />
@@ -180,7 +212,121 @@ const Home = () => {
       <AppHeader onShowLifetimeInfoModal={() => setShowLifetimeInfoModal(true)} />
 
       <main className="container max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6 relative z-10">
-        <PromoCarousel />
+
+        {/* IA Tipster — Hero (somente preview/local até liberação em produção) */}
+        {isPreviewEnv() && (
+          <section className="space-y-3">
+            <h2
+              style={{
+                fontFamily: "'Barlow Condensed', sans-serif",
+                fontWeight: 800,
+                fontSize: '20px',
+                color: '#FFFFFF',
+                textTransform: 'uppercase',
+                letterSpacing: '1px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+              }}
+            >
+              ✨ IA Tipster
+            </h2>
+            <button
+              onClick={() => navigate("/ia-tipster")}
+              className="relative w-full overflow-hidden rounded-xl border flex hover:-translate-y-0.5 transition-all duration-200 text-left group"
+              style={{
+                background: "#112236",
+                borderColor: 'rgba(0,255,127,0.45)',
+                minHeight: '140px',
+                boxShadow: '0 0 30px rgba(0,255,127,0.12)',
+              }}
+            >
+              {/* Badges NOVO + BETA no canto superior direito */}
+              <div className="absolute top-2 right-2 z-20 flex gap-1">
+                <span style={{
+                  background: 'rgba(240,180,41,0.15)',
+                  border: '1px solid rgba(240,180,41,0.3)',
+                  color: '#F0B429',
+                  fontFamily: "'Barlow Condensed', sans-serif",
+                  fontWeight: 700,
+                  fontSize: '11px',
+                  letterSpacing: '1px',
+                  padding: '2px 10px',
+                  borderRadius: '6px',
+                }}>
+                  NOVO
+                </span>
+                <span style={{
+                  background: 'rgba(148,163,184,0.15)',
+                  border: '1px solid rgba(148,163,184,0.3)',
+                  color: '#94A3B8',
+                  fontFamily: "'Barlow Condensed', sans-serif",
+                  fontWeight: 700,
+                  fontSize: '11px',
+                  letterSpacing: '1px',
+                  padding: '2px 10px',
+                  borderRadius: '6px',
+                }}>
+                  BETA
+                </span>
+              </div>
+
+              {/* Cartoon IA Tipster — padrão lateral idêntico ao CardType1Lateral */}
+              <div className="relative shrink-0" style={{ width: '120px', height: '140px' }}>
+                <img
+                  src={iaTipsterCartoon}
+                  alt="IA Tipster"
+                  className="w-full h-full object-cover rounded-l-xl"
+                />
+                {/* Gradient fade pro conteúdo do card */}
+                <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(to right, transparent 55%, #112236 100%)" }} />
+              </div>
+
+              {/* Conteúdo direito */}
+              <div className="flex-1 p-4 flex flex-col justify-center gap-2 pr-3">
+                <h3 style={{
+                  fontFamily: "'Barlow Condensed', sans-serif",
+                  fontWeight: 800,
+                  fontSize: '20px',
+                  color: '#FFFFFF',
+                  lineHeight: 1.1,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                  paddingRight: '90px',
+                }}>
+                  Análises de IA em tempo real
+                </h3>
+                <p style={{
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontWeight: 400,
+                  fontSize: '12px',
+                  color: '#94A3B8',
+                  lineHeight: 1.3,
+                }}>
+                  Pergunte sobre qualquer jogo ou escolha uma partida ao vivo.
+                </p>
+                <button
+                  onClick={(e) => { e.stopPropagation(); navigate("/ia-tipster"); }}
+                  style={{
+                    width: '100%',
+                    padding: '8px 0',
+                    background: '#24c660',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontFamily: "'Barlow Condensed', sans-serif",
+                    fontWeight: 800,
+                    fontSize: '13px',
+                    color: '#FFFFFF',
+                    letterSpacing: '0.5px',
+                    cursor: 'pointer',
+                  }}
+                >
+                  TESTAR A IA TIPSTER
+                </button>
+              </div>
+            </button>
+          </section>
+        )}
 
         {/* Main Entry Cards */}
         <section className="space-y-4 sm:space-y-6">
@@ -230,11 +376,7 @@ const Home = () => {
             >
               ⚡ Acceso Rápido
             </h2>
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: '10px',
-            }}>
+            <div className="flex flex-col gap-3">
               {quickCards.map(renderCard)}
             </div>
           </section>
@@ -390,6 +532,12 @@ const Home = () => {
 
       <BasicPlanModal open={showBasicModal} onClose={() => setShowBasicModal(false)} />
 
+      {/* Funil de onboarding IA Tipster — modal 4 steps, 1x por lead. */}
+      <IATipsterOnboardingModal
+        open={showIaAnnouncement}
+        onComplete={handleIaOnboardingComplete}
+      />
+
       {/* Modal Promoções */}
       {showPromotionsModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={() => setShowPromotionsModal(false)}>
@@ -493,6 +641,14 @@ const Home = () => {
       {/* PayCard modal now in AppHeader for header pills; keep for banner pay cards */}
       {bannerPayCard && (
         <PayCardFunnelModal payCard={bannerPayCard} open={!!bannerPayCard} onClose={() => setBannerPayCard(null)} />
+      )}
+      {paywallFeature && (
+        <PaywallPopup
+          open={paywallFeature !== null}
+          onClose={() => setPaywallFeature(null)}
+          variant={resolvePaywallVariant(paywallFeature, access.mainTier)}
+          feature={paywallFeature}
+        />
       )}
     </div>
     </>

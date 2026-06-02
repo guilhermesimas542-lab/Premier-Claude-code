@@ -72,9 +72,9 @@ const EMPTY_FORM = {
 };
 
 const CATEGORY_LABELS: Record<string, string> = {
-  sport: "Deporte",
-  casino: "Casino",
-  quick_access: "Acceso Rápido",
+  sport: "Esporte",
+  
+  quick_access: "Acesso Rápido",
   blocked: "Bloqueado",
 };
 
@@ -470,9 +470,9 @@ export default function AdminCards() {
                   <Select value={form.category} onValueChange={(v) => set("category", v)}>
                     <SelectTrigger className="bg-gray-900 border-gray-800"><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="sport">Deporte</SelectItem>
-                      <SelectItem value="casino">Casino</SelectItem>
-                      <SelectItem value="quick_access">Acceso Rápido</SelectItem>
+                      <SelectItem value="sport">Esporte</SelectItem>
+                      
+                      <SelectItem value="quick_access">Acesso Rápido</SelectItem>
                       <SelectItem value="blocked">Bloqueado</SelectItem>
                     </SelectContent>
                   </Select>

@@ -50,6 +50,8 @@ export function usePayCardTrigger() {
         .eq("associated_plan", plan)
         .eq("betting_house_id", house.id)
         .eq("is_active", true)
+        .order("updated_at", { ascending: false })
+        .order("created_at", { ascending: false })
         .limit(10);
       
       for (const card of (data ?? []) as any[]) {
@@ -68,6 +70,8 @@ export function usePayCardTrigger() {
       .eq("associated_plan", plan)
       .is("betting_house_id", null)
       .eq("is_active", true)
+      .order("updated_at", { ascending: false })
+      .order("created_at", { ascending: false })
       .limit(10);
 
     for (const card of (generic ?? []) as any[]) {

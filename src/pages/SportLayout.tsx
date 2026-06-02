@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState, type RefObject, type Dispatch, type SetStateAction } from "react";
+import { useEffect, useRef, useState, type RefObject, type Dispatch, type SetStateAction, type SyntheticEvent } from "react";
 import { Outlet, useOutletContext } from "react-router-dom";
 import { toast } from "sonner";
 import { useUserBettingHouse } from "@/hooks/useUserBettingHouse";
 import { BottomNav } from "@/components/BottomNav";
+import { ScrollToTopButton } from "@/components/ScrollToTopButton";
 import { usePendingTip } from "@/contexts/PendingTipContext";
 
 /**
@@ -21,7 +22,12 @@ export function useSportOutletContext(): SportOutletContext {
   return useOutletContext<SportOutletContext>();
 }
 
-const ESPORTIVA_ORIGIN = "https://esportiva.bet.br";
+// Origem aceita: derivada do iframe.src atual + sufixos esportiva.bet(.br)
+function getExpectedOrigin(iframeEl: HTMLIFrameElement | null): string | null {
+  const src = iframeEl?.src;
+  if (!src) return null;
+  try { return new URL(src).origin; } catch { return null; }
+}
 
 /**
  * Layout pai persistente para as rotas de tips esportivas.
@@ -35,7 +41,6 @@ const SportLayout = () => {
   const iframeLoadedRef = useRef(false);
   const { pendingTip, clearPendingTip } = usePendingTip();
 
-  // Inicializa a URL do iframe com a URL padrão da casa do usuário
   useEffect(() => {
     if (userHouse?.iframe_url) {
       setIframeUrl(userHouse.iframe_url);
@@ -51,8 +56,13 @@ const SportLayout = () => {
   // o protocolo (ex.: iframeReady, iframeLoading, etc.).
   useEffect(() => {
     const handleEsportivaMessage = (event: MessageEvent) => {
-      if (event.origin !== ESPORTIVA_ORIGIN) return;
-      console.log("[ESPORTIVA RESPONDEU]", event.data);
+      const expected = getExpectedOrigin(iframeRef.current);
+      const isFromEsportiva =
+        event.origin === expected ||
+        event.origin.endsWith("esportiva.bet.br") ||
+        event.origin.endsWith("esportiva.bet");
+      if (!isFromEsportiva) return;
+      console.log("[ESPORTIVA RESPONDEU]", { origin: event.origin, data: event.data });
     };
     window.addEventListener("message", handleEsportivaMessage);
     return () => window.removeEventListener("message", handleEsportivaMessage);
@@ -65,7 +75,7 @@ const SportLayout = () => {
     if (!target) return;
     target.postMessage(
       { type: "wsdk-toggle-selections", data: { selections: pendingTip.selections } },
-      ESPORTIVA_ORIGIN
+      "*"
     );
     toast.success("¡Tip añadido al ticket!");
     clearPendingTip();
@@ -79,8 +89,16 @@ const SportLayout = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pendingTip]);
 
-  const handleIframeLoad = () => {
+  const handleIframeLoad = (e: SyntheticEvent<HTMLIFrameElement>) => {
     iframeLoadedRef.current = true;
+    const iframe = e.currentTarget;
+    let effective_href: string;
+    try {
+      effective_href = iframe.contentWindow?.location.href ?? "(no contentWindow)";
+    } catch (err) {
+      effective_href = "(cross-origin: " + (err as Error).message + ")";
+    }
+    console.log("[IFRAME LOADED]", { src_attr: iframe.src, title: iframe.title, effective_href });
     if (pendingTip) setTimeout(flushPendingTip, 500);
   };
 
@@ -98,7 +116,7 @@ const SportLayout = () => {
       </div>
 
       {/* Iframe persistente — vive aqui no pai, sobrevive a trocas de rota */}
-      <section id="bet-iframe-section" className="w-full mt-2 max-w-7xl mx-auto px-4 md:flex-1 md:min-h-0 md:flex md:flex-col">
+      <section id="bet-iframe-section" className="w-full mt-2 max-w-7xl mx-auto px-4 md:flex-1 md:min-h-0 md:flex md:flex-col md:items-center">
         {userHouse?.open_in_new_tab ? (
           <a
             href={iframeUrl || userHouse.iframe_url}
@@ -109,7 +127,7 @@ const SportLayout = () => {
             Abrir sitio de apuestas ↗
           </a>
         ) : (
-          <div className="w-full mb-2 h-[600px] md:h-auto md:mb-0 md:flex-1 md:min-h-0 bg-gradient-to-br from-muted/40 to-muted/20 rounded-xl overflow-hidden border border-border/30 backdrop-blur-sm">
+          <div className="w-full mb-2 h-[600px] md:h-auto md:mb-0 md:flex-1 md:min-h-0 md:max-w-[480px] md:w-full bg-gradient-to-br from-muted/40 to-muted/20 rounded-xl overflow-hidden border border-border/30 backdrop-blur-sm">
             {iframeUrl ? (
               <iframe
                 ref={iframeRef}
@@ -129,6 +147,7 @@ const SportLayout = () => {
         )}
       </section>
 
+      <ScrollToTopButton />
       <BottomNav />
     </div>
   );

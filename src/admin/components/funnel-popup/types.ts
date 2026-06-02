@@ -40,23 +40,23 @@ export interface PopupRow {
 }
 
 export const POPUP_TYPES = [
-  { value: "welcome_free", label: "🎉 Bienvenida (Gratis)", desc: "Primera visita de usuario Gratis" },
-  { value: "welcome_paid", label: "🎉 Bienvenida (Pagado)", desc: "Primera visita de usuario pagante" },
-  { value: "casino_welcome", label: "🎰 Bienvenida (Casino)", desc: "Primera visita a la pestaña de Casino" },
-  { value: "upgrade_basic", label: "🔓 Mejorar a Básico", desc: "Para usuarios Gratis" },
-  { value: "upgrade_pro", label: "⭐ Mejorar a Pro", desc: "Para Gratis y Básico" },
-  { value: "upgrade_ultra", label: "👑 Mejorar a Ultra", desc: "Para todos debajo de Ultra" },
-  { value: "addon_alavancagem", label: "⚓ Add-on Apalancamiento", desc: "Sin add-on Apalancamiento" },
-  { value: "addon_odds", label: "🎯 Add-on Múltiples / Bingo", desc: "Sin add-on Múltiples / Bingo" },
-  { value: "addon_telegram", label: "📱 Add-on Live Telegram", desc: "Sin Live Telegram" },
-  { value: "promotional", label: "📣 Promocional", desc: "Pop-up suelto con objetivo configurable" },
+  { value: "welcome_free", label: "🎉 Boas-Vindas (Free)", desc: "Primeira visita de usuário Free" },
+  { value: "welcome_paid", label: "🎉 Boas-Vindas (Pago)", desc: "Primeira visita de usuário pagante" },
+  
+  { value: "upgrade_basic", label: "🔓 Upgrade Básico", desc: "Para usuários Free" },
+  { value: "upgrade_pro", label: "⭐ Upgrade Pro", desc: "Para Free e Básico" },
+  { value: "upgrade_ultra", label: "👑 Upgrade Ultra", desc: "Para todos abaixo de Ultra" },
+  { value: "addon_alavancagem", label: "⚓ Add-on Alavancagem", desc: "Sem add-on Alavancagem" },
+  { value: "addon_odds", label: "🎯 Add-on Múltiplas / Bingo", desc: "Sem add-on Múltiplas / Bingo" },
+  { value: "addon_telegram", label: "📱 Add-on Live Telegram", desc: "Sem Live Telegram" },
+  { value: "promotional", label: "📣 Promocional", desc: "Pop-up avulso com alvo configurável" },
 ] as const;
 
 /** Priority order for auto-display popups (lower index = higher priority) */
 export const POPUP_PRIORITY: string[] = [
   "welcome_paid",
   "welcome_free",
-  "casino_welcome",
+  
   "upgrade_ultra",
   "upgrade_pro",
   "upgrade_basic",
@@ -93,7 +93,7 @@ export const emptyForm: PopupFormState = {
 
 export function formToPayload(form: PopupFormState, selectedHouseId: string | null): Record<string, unknown> {
   const q = form.questions;
-  const triggerType = (form.type === "welcome_free" || form.type === "welcome_paid" || form.type === "casino_welcome") ? "on_load" : "manual";
+  const triggerType = (form.type === "welcome_free" || form.type === "welcome_paid") ? "on_load" : "manual";
   return {
     type: form.type,
     is_active: form.is_active,

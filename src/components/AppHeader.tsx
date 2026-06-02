@@ -1,10 +1,13 @@
-import { Sparkles } from "lucide-react";
+import { Sparkles, ArrowLeft, Coins } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { mockGetUser } from "@/mocks/user";
 import logoImg from "@/assets/premier-logo-custom.png";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { TelegramRedeemModal } from "@/components/TelegramRedeemModal";
 import { PlansModal } from "@/components/PlansModal";
+import { BuyCreditsModal } from "@/components/ia-tipster/BuyCreditsModal";
+import { isPreviewEnv } from "@/lib/previewEnv";
 
 interface AppHeaderProps {
   onShowLifetimeInfoModal?: () => void; // kept for backward compat (unused)
@@ -17,11 +20,16 @@ interface AppHeaderProps {
 
 const AppHeader = ({ leftContent, headerStyle, title }: AppHeaderProps) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const mockUser = mockGetUser();
+  const { house: userHouse } = useUserBettingHouse();
+  const isHome = location.pathname === "/" || location.pathname === "/tips";
 
   const [tier, setTier] = useState<string>("");
   const [tierLoaded, setTierLoaded] = useState(false);
   const [showPlansModal, setShowPlansModal] = useState(false);
+  const [showBuyCreditsModal, setShowBuyCreditsModal] = useState(false);
+  const isIATipsterRoute = location.pathname === "/ia-tipster";
 
   useEffect(() => {
     if (!mockUser) {
@@ -43,12 +51,21 @@ const AppHeader = ({ leftContent, headerStyle, title }: AppHeaderProps) => {
 
   return (
     <>
-      <header className="sticky top-0 z-50" style={{ background: 'transparent', borderBottom: '1px solid rgba(255,255,255,0.07)', ...headerStyle }}>
+      <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80" style={{ borderBottom: '1px solid rgba(255,255,255,0.07)', ...headerStyle }}>
         <div className="container max-w-7xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
           <div className="flex items-center justify-between gap-2 sm:gap-4">
             {leftContent ? leftContent : (
-              <div className="flex items-center gap-3 shrink-0">
-                <img src={logoImg} alt="CL Ultra" className="h-10 sm:h-12 w-auto" onClick={() => navigate("/")} style={{ cursor: "pointer", filter: "drop-shadow(0 0 10px rgba(0,255,0,0.5))" }} />
+              <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+                {!isHome && (
+                  <button
+                    onClick={() => navigate(-1)}
+                    className="p-1 hover:bg-white/10 rounded-md transition-colors text-white"
+                    aria-label="Voltar"
+                  >
+                    <ArrowLeft className="w-5 h-5" />
+                  </button>
+                )}
+                <img src={logoImg} alt="Premier Ultra" className="h-10 sm:h-12 w-auto" onClick={() => navigate("/")} style={{ cursor: "pointer", filter: "drop-shadow(0 0 10px rgba(0,255,0,0.5))" }} />
                 {title && (
                   <span className="font-bold text-white text-sm">{title}</span>
                 )}
@@ -56,6 +73,45 @@ const AppHeader = ({ leftContent, headerStyle, title }: AppHeaderProps) => {
             )}
 
             <div className="flex items-center gap-2 sm:gap-3">
+              {/* CTA IA Tipster — só na aba Tips (rotas /sport/*) e em preview */}
+              {isPreviewEnv() && location.pathname.startsWith("/sport") && (
+                <button
+                  onClick={() => navigate("/ia-tipster")}
+                  className="inline-flex items-center gap-1.5 rounded-full transition-all hover:scale-105"
+                  style={{
+                    padding: "7px 14px",
+                    background: "rgba(0,255,127,0.10)",
+                    border: "1px solid rgba(0,255,127,0.5)",
+                    fontFamily: "'Barlow Condensed', sans-serif",
+                    fontWeight: 700,
+                    fontSize: "13px",
+                    color: "#FFFFFF",
+                    letterSpacing: "0.5px",
+                  }}
+                >
+                  <Sparkles size={14} style={{ color: "#00FF7F" }} />
+                  Criar Odds
+                </button>
+              )}
+              {tierLoaded && isFree && (
+                <button
+                  onClick={() => setShowTelegramModal(true)}
+                  className="inline-flex items-center gap-1.5 rounded-full transition-all hover:scale-105"
+                  style={{
+                    padding: "7px 14px",
+                    background: "rgba(255,255,255,0.06)",
+                    border: "1px solid rgba(255,255,255,0.18)",
+                    fontFamily: "'Barlow Condensed', sans-serif",
+                    fontWeight: 700,
+                    fontSize: "13px",
+                    color: "#FFFFFF",
+                    letterSpacing: "0.5px",
+                  }}
+                >
+                  <Sparkles size={14} />
+                  Resgatar Odd Grátis
+                </button>
+              )}
               {tierLoaded && isPaid && (
                 <button
                   onClick={() => setShowPlansModal(true)}
@@ -75,6 +131,27 @@ const AppHeader = ({ leftContent, headerStyle, title }: AppHeaderProps) => {
                   Planos
                 </button>
               )}
+              {isIATipsterRoute && (
+                <button
+                  onClick={() => setShowBuyCreditsModal(true)}
+                  className="inline-flex items-center gap-1.5 rounded-full transition-all hover:scale-105"
+                  style={{
+                    padding: "7px 14px",
+                    background: "#24c660",
+                    border: "1px solid rgba(0,255,127,0.5)",
+                    fontFamily: "'Barlow Condensed', sans-serif",
+                    fontWeight: 700,
+                    fontSize: "13px",
+                    color: "#FFFFFF",
+                    letterSpacing: "0.5px",
+                    boxShadow: "0 0 14px rgba(0,255,127,0.3)",
+                  }}
+                  aria-label="Comprar créditos"
+                >
+                  <Coins size={14} />
+                  + Créditos
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -83,6 +160,10 @@ const AppHeader = ({ leftContent, headerStyle, title }: AppHeaderProps) => {
       <PlansModal
         open={showPlansModal}
         onClose={() => setShowPlansModal(false)}
+      />
+      <BuyCreditsModal
+        open={showBuyCreditsModal}
+        onClose={() => setShowBuyCreditsModal(false)}
       />
     </>
   );

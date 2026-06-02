@@ -29,10 +29,16 @@ dist-ssr
 *.sln
 *.sw?
 
-# SingleFile HTML dumps (página completa salva via extensão SingleFile)
-# Ficam grandes (>500KB) e são fonte temporária — não devem ser versionados
-/*.html
-!index.html
+# Variáveis de ambiente (Supabase keys)
+.env
+.env.local
+vite.config.local.ts
 
-# Supabase CLI runtime cache (project-ref, versões etc) — não versionar
-supabase/.temp/
+# Arquivos temporários gerados pelo Vite
+vite.config.ts.timestamp-*.mjs
+
+# Duplicatas " 2" que o macOS cria em conflitos de sync
+* 2.ts
+* 2.tsx
+* 2.js
+* 2.jsx

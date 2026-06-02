@@ -89,8 +89,10 @@ export const UPSELL_FILTERS = [
   // General
   { label: '── Todas las Oportunidades', tier: 'all', missingKey: '_any' },
   // Global
-  { label: 'Cualquier plan sin Vitalicio', tier: 'any_paid', missingKey: 'acesso_vitalicio', checkVitalicio: true },
-  { label: 'Cualquier plan sin Live Telegram', tier: 'any_paid', missingKey: 'live_telegram' },
+  { label: 'Qualquer plano sem Vitalício', tier: 'any_paid', missingKey: 'acesso_vitalicio', checkVitalicio: true },
+  { label: 'Qualquer plano sem Live Telegram', tier: 'any_paid', missingKey: 'live_telegram' },
+  { label: 'Qualquer plano sem Merc. Secundário', tier: 'any_paid', missingKey: 'mercados_secundarios' },
+  { label: 'Qualquer plano sem Ligas Americanas', tier: 'any_paid', missingKey: 'esportes_americanos' },
   // Free
   { label: 'Free sin Apalancamiento', tier: 'free', missingKey: 'alavancagem' },
   { label: 'Free sin Múltiples / Bingo', tier: 'free', missingKey: 'multiplas_bingo' },
@@ -114,11 +116,15 @@ export const TIER_DISPLAY: Record<string, string> = {
   basic: 'Básico',
   pro: 'Pro',
   ultra: 'Ultra',
+  premium: 'Premium',
+  diamante: 'Diamante',
 };
 
 export const ADDON_DISPLAY: Record<string, string> = {
   alavancagem: 'Apalancamiento',
   multiplas_bingo: 'Múltiples / Bingo',
   live_telegram: 'Live Telegram',
-  acesso_vitalicio: 'Acceso Vitalicio',
+  acesso_vitalicio: 'Acesso Vitalício',
+  mercados_secundarios: 'Merc. Secundário',
+  esportes_americanos: 'Ligas Americanas',
 };

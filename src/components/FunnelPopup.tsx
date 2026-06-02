@@ -30,9 +30,11 @@ export interface FunnelPopupData {
 interface FunnelPopupProps {
   popup: FunnelPopupData;
   onClose: () => void;
+  /** Opcional: chamado quando o usuário clica no CTA (antes de abrir o EmbeddedCheckout). */
+  onCtaClick?: (url: string) => void;
 }
 
-export function FunnelPopup({ popup, onClose }: FunnelPopupProps) {
+export function FunnelPopup({ popup, onClose, onCtaClick }: FunnelPopupProps) {
   const questions = [
     { text: popup.question_1_text, options: popup.question_1_options ?? [] },
     { text: popup.question_2_text, options: popup.question_2_options ?? [] },
@@ -72,7 +74,7 @@ export function FunnelPopup({ popup, onClose }: FunnelPopupProps) {
   };
 
   const handleImageClick = () => {
-    if (popup.type === "casino_welcome" || popup.type === "welcome_paid") {
+    if (popup.type === "welcome_paid") {
       handleClose();
       return;
     }
@@ -85,6 +87,7 @@ export function FunnelPopup({ popup, onClose }: FunnelPopupProps) {
 
   const handleCheckout = (url: string) => {
     trackFunnel({ entityType: 'popup', entityId: popup.id, eventType: 'checkout_click', houseId });
+    onCtaClick?.(url);
     setCheckoutUrl(url);
   };
 
@@ -109,9 +112,7 @@ export function FunnelPopup({ popup, onClose }: FunnelPopupProps) {
             background: "linear-gradient(180deg, hsl(0,0%,8%), hsl(0,0%,4%))",
             borderRadius: "20px",
             boxShadow: "0 24px 48px rgba(0,0,0,0.6)",
-            cursor: popup.type === "casino_welcome" ? "pointer" : undefined,
           }}
-          onClick={popup.type === "casino_welcome" ? handleClose : undefined}
         >
           <button
             onClick={handleClose}

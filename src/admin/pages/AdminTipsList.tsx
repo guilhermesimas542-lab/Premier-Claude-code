@@ -11,7 +11,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Pencil, Trash2, ArrowUpDown, ArrowUp, ArrowDown, Snowflake, RefreshCw } from "lucide-react";
+import { Pencil, Trash2, ArrowUpDown, ArrowUp, ArrowDown, Snowflake, RefreshCw, ImageDown, Loader2, Smartphone, Monitor } from "lucide-react";
+import { downloadSingleTipPng, exportGreensAsZip, type TipForExport } from "@/admin/lib/exportTipPng";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { TeamAutocomplete } from "../components/TeamAutocomplete";
@@ -19,20 +21,36 @@ import { PredictionAutocomplete } from "../components/PredictionAutocomplete";
 import type { AdminContentEntry } from "../types";
 import { useBettingHouseAdmin } from "../context/BettingHouseContext";
 
-const CATEGORIA_MAP: Record<string, { tier: string; addon: string | null }> = {
-  free: { tier: "free", addon: null },
-  basico: { tier: "basic", addon: null },
-  pro: { tier: "pro", addon: null },
-  ultra: { tier: "ultra", addon: null },
-  alavancagem: { tier: "pro", addon: "alavancagem" },
-  multiplas_bingo: { tier: "premium", addon: "multiplas_bingo" },
+const CATEGORIA_MAP: Record<string, { tier: string; addon: string | null; feature: string | null }> = {
+  free:                 { tier: "free",  addon: null,              feature: null },
+  basico:               { tier: "basic", addon: null,              feature: "odds_safes" },
+  pro:                  { tier: "pro",   addon: null,              feature: "odds_pro" },
+  ultra:                { tier: "ultra", addon: null,              feature: "odds_pro" },
+  alavancagem:          { tier: "ultra", addon: "alavancagem",     feature: "alavancagem" },
+  multiplas_bingo:      { tier: "ultra", addon: "multiplas_bingo", feature: "multiplas_bingo" },
+  mercados_secundarios: { tier: "ultra", addon: null,              feature: "mercados_secundarios" },
+  esportes_americanos:  { tier: "ultra", addon: null,              feature: "esportes_americanos" },
+  odds_ultra:           { tier: "ultra", addon: null,              feature: "odds_ultra" },
 };
 
-function tierToCategoria(tier: string, addon: string | null): string {
-  if (addon === "alavancagem") return "alavancagem";
+function tierToCategoria(tier: string | null, addon: string | null, feature: string | null): string {
+  // Prioridade 1: feature_required (modelo novo, granular)
+  if (feature === "odds_safes")           return "basico";
+  if (feature === "odds_pro")             return "pro";
+  if (feature === "odds_ultra")           return "odds_ultra";
+  if (feature === "alavancagem")          return "alavancagem";
+  if (feature === "multiplas_bingo")      return "multiplas_bingo";
+  if (feature === "mercados_secundarios") return "mercados_secundarios";
+  if (feature === "esportes_americanos")  return "esportes_americanos";
+  // Prioridade 2: addon_required (legacy)
+  if (addon === "alavancagem")     return "alavancagem";
   if (addon === "multiplas_bingo") return "multiplas_bingo";
+  // Prioridade 3: tier_required puro
+  if (tier === "free")  return "free";
   if (tier === "basic") return "basico";
-  return tier;
+  if (tier === "pro")   return "pro";
+  if (tier === "ultra") return "odds_ultra";
+  return "free";
 }
 
 type SortColumn = "title" | "palpite" | "date" | "starts_at" | "odd" | "tier_required" | "result";
@@ -40,6 +58,32 @@ type SortDir = "asc" | "desc";
 
 const TIER_ORDER: Record<string, number> = { free: 0, basic: 1, pro: 2, ultra: 3 };
 const ADDON_ORDER: Record<string, number> = { alavancagem: 4, multiplas_bingo: 5 };
+
+// Canonical plan key derived from feature → addon → tier
+function canonicalPlanKey(row: any): string {
+  if (row?.addon_required === "alavancagem") return "alavancagem";
+  if (row?.addon_required === "multiplas_bingo") return "multiplas_bingo";
+  if (row?.feature_required === "mercados_secundarios") return "mercados_secundarios";
+  if (row?.feature_required === "esportes_americanos") return "esportes_americanos";
+  if (row?.feature_required === "odds_safes") return "odds_safes";
+  if (row?.feature_required === "odds_pro") return "odds_pro";
+  if (row?.feature_required === "odds_ultra") return "odds_ultra";
+  if (row?.tier_required === "basic") return "odds_safes";
+  if (row?.tier_required === "pro") return "odds_pro";
+  if (row?.tier_required === "ultra") return "odds_ultra";
+  return "free";
+}
+
+const PLAN_ORDER: Record<string, number> = {
+  odds_safes: 1,
+  odds_pro: 2,
+  odds_ultra: 3,
+  mercados_secundarios: 4,
+  esportes_americanos: 5,
+  alavancagem: 6,
+  multiplas_bingo: 7,
+  free: 8,
+};
 
 // House index → link column
 const HOUSE_LINK_COLS = ["link_house_1", "link_house_2", "link_house_3"] as const;
@@ -52,13 +96,16 @@ interface CategoryCount {
 }
 
 const CATEGORY_STYLES: Record<string, { label: string; bg: string; text: string }> = {
-  free: { label: "Gratis", bg: "bg-gray-600/30", text: "text-gray-300" },
-  basic: { label: "Básico", bg: "bg-blue-600/30", text: "text-blue-400" },
-  pro: { label: "Pro", bg: "bg-green-600/30", text: "text-green-400" },
-  ultra: { label: "Ultra", bg: "bg-purple-600/30", text: "text-purple-400" },
-  alavancagem: { label: "Apalancamiento", bg: "bg-yellow-600/30", text: "text-yellow-400" },
-  multiplas_bingo: { label: "Múltiples / Bingo", bg: "bg-orange-600/30", text: "text-orange-400" },
+  free: { label: "Free", bg: "bg-gray-600/30", text: "text-gray-300" },
+  odds_safes: { label: "Odds Safes", bg: "bg-blue-600/30", text: "text-blue-400" },
+  odds_pro: { label: "Odds Pró", bg: "bg-green-600/30", text: "text-green-400" },
+  odds_ultra: { label: "Odds Ultra", bg: "bg-purple-600/30", text: "text-purple-400" },
+  mercados_secundarios: { label: "Merc. Secundários", bg: "bg-sky-500/15", text: "text-sky-400" },
+  esportes_americanos: { label: "Esp. Americanos", bg: "bg-orange-500/15", text: "text-orange-400" },
+  alavancagem: { label: "Alavancagem", bg: "bg-yellow-600/30", text: "text-yellow-400" },
+  multiplas_bingo: { label: "Múltiplas / Bingo", bg: "bg-pink-600/30", text: "text-pink-400" },
 };
+
 
 export default function AdminTipsList() {
   const { selectedHouseId, houses } = useBettingHouseAdmin();
@@ -74,7 +121,89 @@ export default function AdminTipsList() {
   const [bulkDeleting, setBulkDeleting] = useState(false);
   const [sortCol, setSortCol] = useState<SortColumn | null>(null);
   const [sortDir, setSortDir] = useState<SortDir>("asc");
+  const [exportingId, setExportingId] = useState<string | null>(null);
+  const [exportingBatch, setExportingBatch] = useState(false);
 
+  const tipToExport = (t: any): TipForExport => ({
+    id: t.id,
+    title: t.title ?? `${t.team1_name ?? ""} x ${t.team2_name ?? ""}`,
+    team1_name: t.team1_name,
+    team2_name: t.team2_name,
+    team1_logo_url: t.team1_logo_url,
+    team2_logo_url: t.team2_logo_url,
+    team1_shirt_variant: t.team1_shirt_variant,
+    team1_primary_color: t.team1_primary_color,
+    team1_secondary_color: t.team1_secondary_color,
+    team2_shirt_variant: t.team2_shirt_variant,
+    team2_primary_color: t.team2_primary_color,
+    team2_secondary_color: t.team2_secondary_color,
+    market: t.market,
+    bet_choice: t.condition_to_win,
+    odds: t.odd,
+    match_date: t.starts_at ? t.starts_at.substring(11, 16) : (t.date ?? null),
+    result: t.result ?? "pending",
+    tier_required: t.tier_required,
+    feature_required: t.feature_required,
+    addon_required: t.addon_required,
+  });
+
+  const handleExportSingle = async (t: any, format: "story" | "horizontal") => {
+    if (t.result !== "green") { toast.error("Só tips GREEN podem ser exportadas"); return; }
+    setExportingId(t.id);
+    try {
+      await downloadSingleTipPng(tipToExport(t), format);
+      toast.success("Imagem gerada com sucesso");
+    } catch (e: any) {
+      console.error("[export single]", e);
+      toast.error("Falha ao gerar PNG: " + (e?.message ?? "erro"));
+    } finally {
+      setExportingId(null);
+    }
+  };
+
+
+
+  const handleExportBatchGreens = async () => {
+    const greens = (items as any[]).filter((t) => t.result === "green");
+    if (greens.length === 0) { toast.error("Nenhuma tip GREEN no filtro atual"); return; }
+    setExportingBatch(true);
+    toast.info(`Exportando ${greens.length} tips green...`);
+    try {
+      const label = filters.dateFrom || new Date().toISOString().split("T")[0];
+      await exportGreensAsZip(greens.map(tipToExport), label);
+      toast.success(`ZIP com ${greens.length} tips baixado`);
+    } catch (e: any) {
+      console.error("[export batch]", e);
+      toast.error("Falha no batch: " + (e?.message ?? "erro"));
+    } finally {
+      setExportingBatch(false);
+    }
+  };
+
+function getPlanoLabel(t: any): { label: string; color: string } {
+  const feature = t.feature_required;
+  const addon = t.addon_required;
+  const tier = t.tier_required;
+  const SPECIAL = {
+    free:                 "#94A3B8",
+    alavancagem:          "#F0B429",
+    multiplas_bingo:      "#EC4899",
+    mercados_secundarios: "#38BDF8",
+    esportes_americanos:  "#FB923C",
+  };
+  const DEFAULT_COLOR = "inherit";
+  if (feature === "odds_safes")           return { label: "Odds Safes",        color: DEFAULT_COLOR };
+  if (feature === "odds_pro")             return { label: "Odds Pró",          color: DEFAULT_COLOR };
+  if (feature === "odds_ultra")           return { label: "Odds Ultra",        color: DEFAULT_COLOR };
+  if (feature === "alavancagem")          return { label: "Alavancagem",       color: SPECIAL.alavancagem };
+  if (feature === "multiplas_bingo")      return { label: "Múltiplas / Bingo", color: SPECIAL.multiplas_bingo };
+  if (feature === "mercados_secundarios") return { label: "Merc. Secundários", color: SPECIAL.mercados_secundarios };
+  if (feature === "esportes_americanos")  return { label: "Esp. Americanos",   color: SPECIAL.esportes_americanos };
+  if (addon === "alavancagem")     return { label: "Alavancagem",       color: SPECIAL.alavancagem };
+  if (addon === "multiplas_bingo") return { label: "Múltiplas / Bingo", color: SPECIAL.multiplas_bingo };
+  if (tier === "free") return { label: "Free", color: SPECIAL.free };
+  return { label: tier ?? "—", color: DEFAULT_COLOR };
+}
 
   const hourOptions = useMemo(() => Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, "0")), []);
   const minuteOptions = useMemo(() => Array.from({ length: 12 }, (_, i) => (i * 5).toString().padStart(2, "0")), []);
@@ -101,7 +230,7 @@ export default function AdminTipsList() {
       team1_logo_url: (t as any).team1_logo_url ?? "",
       team2_name: t.team2_name ?? "",
       team2_logo_url: (t as any).team2_logo_url ?? "",
-      categoria: tierToCategoria(t.tier_required, (t as any).addon_required),
+      categoria: tierToCategoria(t.tier_required, (t as any).addon_required, (t as any).feature_required),
       odd: t.odd?.toString() ?? "",
       palpite: t.condition_to_win ?? "",
       mercado: t.market ?? "",
@@ -176,6 +305,7 @@ export default function AdminTipsList() {
       odd: editForm.odd ? parseFloat(Number(editForm.odd).toFixed(2)) : null,
       tier_required: cat.tier,
       addon_required: cat.addon,
+      feature_required: cat.feature,
       team1_name: editForm.team1_name,
       team1_logo_url: editForm.team1_logo_url || null,
       team2_name: editForm.team2_name,
@@ -277,8 +407,8 @@ export default function AdminTipsList() {
     }
     if (sortCol === "odd") return dir * ((a.odd ?? 0) - (b.odd ?? 0));
     if (sortCol === "tier_required") {
-      const aOrder = (a as any).addon_required ? (ADDON_ORDER[(a as any).addon_required] ?? 99) : (TIER_ORDER[a.tier_required] ?? 99);
-      const bOrder = (b as any).addon_required ? (ADDON_ORDER[(b as any).addon_required] ?? 99) : (TIER_ORDER[b.tier_required] ?? 99);
+      const aOrder = PLAN_ORDER[canonicalPlanKey(a)] ?? 99;
+      const bOrder = PLAN_ORDER[canonicalPlanKey(b)] ?? 99;
       return dir * (aOrder - bOrder);
     }
     if (sortCol === "result") {
@@ -292,16 +422,16 @@ export default function AdminTipsList() {
     const map: Record<string, number> = {};
     let total = 0;
     for (const row of items) {
-      const key = (row as any).addon_required || row.tier_required || "free";
+      const key = canonicalPlanKey(row);
       map[key] = (map[key] || 0) + 1;
       total++;
     }
     const cats = Object.entries(map)
       .map(([key, count]) => {
         const style = CATEGORY_STYLES[key] || { label: key, bg: "bg-gray-600/30", text: "text-gray-300" };
-        return { label: style.label, count, bgClass: style.bg, textClass: style.text };
+        return { key, label: style.label, count, bgClass: style.bg, textClass: style.text };
       })
-      .sort((a, b) => b.count - a.count);
+      .sort((a, b) => (PLAN_ORDER[a.key] ?? 99) - (PLAN_ORDER[b.key] ?? 99));
     return { cats, total };
   }, [items]);
 
@@ -432,6 +562,14 @@ export default function AdminTipsList() {
         >
           Exportar CSV
         </button>
+        <button
+          onClick={handleExportBatchGreens}
+          disabled={exportingBatch}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 disabled:bg-gray-600 text-black text-sm font-bold transition-colors"
+          title="Exportar PNGs de todas as tips GREEN do filtro atual"
+        >
+          {exportingBatch ? (<><Loader2 className="w-4 h-4 animate-spin" />Processando...</>) : (<><ImageDown className="w-4 h-4" />Exportar Greens (ZIP)</>)}
+        </button>
       </div>
 
       {/* Date shortcut buttons */}
@@ -529,19 +667,28 @@ export default function AdminTipsList() {
                   <td className="px-3 py-2">
                     <Checkbox checked={selectedIds.has(t.id)} onCheckedChange={() => toggleSelect(t.id)} />
                   </td>
-                  <td className="px-3 py-2 max-w-[150px] truncate">{t.title}</td>
+                  <td className="px-3 py-2 max-w-[150px] truncate">
+                    {(t as any).addon_required === "alavancagem" ? (
+                      <span style={{ color: "#F0B429", fontWeight: 600 }}>Alavancagem</span>
+                    ) : (t as any).addon_required === "multiplas_bingo" ? (
+                      <span style={{ color: "#EC4899", fontWeight: 600 }}>Múltipla</span>
+                    ) : (
+                      t.title
+                    )}
+                  </td>
                   <td className="px-3 py-2">{t.condition_to_win ?? "—"}</td>
                   <td className="px-3 py-2">{t.date}</td>
                   <td className="px-3 py-2">{t.starts_at ? new Date(t.starts_at).toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit" }) : "—"}</td>
                   <td className="px-3 py-2">{t.odd != null ? t.odd.toFixed(2) : "—"}</td>
                   <td className="px-3 py-2">
-                    {(t as any).addon_required === "alavancagem" ? (
-                      <span className="text-blue-400 font-medium">Apalancamiento</span>
-                    ) : (t as any).addon_required === "multiplas_bingo" ? (
-                      <span className="text-yellow-400 font-medium">Múltiples / Bingo</span>
-                    ) : (
-                      <span className="capitalize">{t.tier_required}</span>
-                    )}
+                    {(() => {
+                      const { label, color } = getPlanoLabel(t);
+                      return (
+                        <span style={{ color, fontWeight: color === "inherit" ? 400 : 600 }}>
+                          {label}
+                        </span>
+                      );
+                    })()}
                   </td>
                   <td className="px-3 py-2"><Switch checked={t.active} onCheckedChange={(v) => toggleActive(t.id, v)} /></td>
                   <td className="px-3 py-2">
@@ -559,9 +706,32 @@ export default function AdminTipsList() {
                     )}
                   </td>
                   <td className="px-3 py-2 flex gap-1">
-                    <button onClick={() => handleFreeze(t)} className="text-cyan-400 hover:text-cyan-300 transition-colors" title="Congelar (duplicar como Gratis)"><Snowflake className="w-3.5 h-3.5" /></button>
-                    <button onClick={() => openEditModal(t)} className="text-blue-400"><Pencil className="w-3.5 h-3.5" /></button>
-                    <button onClick={() => handleDelete(t.id)} className="text-red-400"><Trash2 className="w-3.5 h-3.5" /></button>
+                    <button onClick={() => handleFreeze(t)} className="text-cyan-400 hover:text-cyan-300 transition-colors" title="Freezar (duplicar como Free)"><Snowflake className="w-3.5 h-3.5" /></button>
+                    <button onClick={() => openEditModal(t)} className="text-blue-400" title="Editar"><Pencil className="w-3.5 h-3.5" /></button>
+                    {(t as any).result === "green" && (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button
+                            disabled={exportingId === t.id}
+                            className="text-emerald-400 hover:text-emerald-300 disabled:opacity-50"
+                            title="Exportar PNG"
+                          >
+                            {exportingId === t.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ImageDown className="w-3.5 h-3.5" />}
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => handleExportSingle(t, "story")}>
+                            <Smartphone className="w-4 h-4 mr-2" />
+                            Baixar Story (1080×1920)
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleExportSingle(t, "horizontal")}>
+                            <Monitor className="w-4 h-4 mr-2" />
+                            Baixar Horizontal (1080×540)
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    )}
+                    <button onClick={() => handleDelete(t.id)} className="text-red-400" title="Excluir"><Trash2 className="w-3.5 h-3.5" /></button>
                   </td>
                 </tr>
               ))}
@@ -619,12 +789,14 @@ export default function AdminTipsList() {
                   <Select value={editForm.categoria} onValueChange={(v) => setEF("categoria", v)}>
                     <SelectTrigger className="bg-gray-800 border-gray-700"><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="free">Gratis</SelectItem>
-                      <SelectItem value="basico">Básico</SelectItem>
-                      <SelectItem value="pro">Pro</SelectItem>
-                      <SelectItem value="ultra">Ultra</SelectItem>
-                      <SelectItem value="alavancagem">Apalancamiento</SelectItem>
-                      <SelectItem value="multiplas_bingo">Múltiples / Bingo</SelectItem>
+                      <SelectItem value="free">Free</SelectItem>
+                      <SelectItem value="basico">Odds Safes (Básico)</SelectItem>
+                      <SelectItem value="pro">Odds Pró</SelectItem>
+                      <SelectItem value="alavancagem">Alavancagem</SelectItem>
+                      <SelectItem value="multiplas_bingo">Múltiplas / Bingo</SelectItem>
+                      <SelectItem value="mercados_secundarios">Mercados Secundários</SelectItem>
+                      <SelectItem value="esportes_americanos">Esportes Americanos</SelectItem>
+                      <SelectItem value="odds_ultra">Odds Ultra</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

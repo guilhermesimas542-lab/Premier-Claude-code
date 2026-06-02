@@ -1,14 +1,18 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, X } from "lucide-react";
 import type { AdminUser } from "../types";
+import { UserBehaviorPanel } from "./crm/UserBehaviorPanel";
 
 const UPSELL_BADGES = [
   { key: "alavancagem", letter: "A", activeColor: "bg-blue-500 text-white", title: "Apalancamiento" },
   { key: "multiplas_bingo", letter: "M", activeColor: "bg-yellow-500 text-white", title: "Múltiples / Bingo" },
   { key: "acesso_vitalicio", letter: "V", activeColor: "bg-purple-500 text-white", title: "Vitalicio" },
   { key: "live_telegram", letter: "L", activeColor: "bg-green-500 text-white", title: "Live" },
+  { key: "mercados_secundarios", letter: "S", activeColor: "bg-orange-500 text-white", title: "Merc. Secundário" },
+  { key: "esportes_americanos", letter: "E", activeColor: "bg-red-500 text-white", title: "Ligas Americanas" },
 ];
 
 const TIER_COLORS: Record<string, string> = {
@@ -16,6 +20,8 @@ const TIER_COLORS: Record<string, string> = {
   basic: "text-[#60A5FA]",
   pro: "text-[#00FF7F]",
   ultra: "text-[#7C3AED]",
+  premium: "text-[#F59E0B]",
+  diamante: "text-[#22D3EE]",
 };
 
 const TIER_LABELS: Record<string, string> = {
@@ -23,6 +29,8 @@ const TIER_LABELS: Record<string, string> = {
   basic: "Básico",
   pro: "Pro",
   ultra: "Ultra",
+  premium: "Premium",
+  diamante: "Diamante",
 };
 
 interface LastEvent {
@@ -52,6 +60,10 @@ const fmtDatetime = (d: string | null | undefined) =>
 export function ClientProfileModal({ userId, onClose }: ClientProfileModalProps) {
   const [data, setData] = useState<ClientProfileData | null>(null);
   const [loading, setLoading] = useState(false);
+  const [tab, setTab] = useState<"perfil" | "comportamento">("perfil");
+
+  useEffect(() => { if (!userId) setTab("perfil"); }, [userId]);
+
 
   useEffect(() => {
     if (!userId) { setData(null); return; }
@@ -71,6 +83,18 @@ export function ClientProfileModal({ userId, onClose }: ClientProfileModalProps)
       const activeKeys = (entRes.data ?? []).map((e) => e.product_key as string);
       const lastEvent = evRes.data?.[0] ?? null;
 
+      // Add-ons concedidos automaticamente por tier (sem entitlement)
+      const TIER_GRANTED_ADDONS: Record<string, string[]> = {
+        premium: ["multiplas_bingo"],
+        diamante: ["alavancagem", "multiplas_bingo", "mercados_secundarios", "esportes_americanos"],
+        ultra: ["alavancagem", "multiplas_bingo", "mercados_secundarios", "esportes_americanos"],
+      };
+      const userTier = (userRes.data as any).main_tier as string;
+      const grantedByTier = TIER_GRANTED_ADDONS[userTier] ?? [];
+      grantedByTier.forEach((key) => {
+        if (!activeKeys.includes(key)) activeKeys.push(key);
+      });
+
       setData({ ...(userRes.data as unknown as AdminUser), activeKeys, lastEvent });
       setLoading(false);
     };
@@ -82,88 +106,102 @@ export function ClientProfileModal({ userId, onClose }: ClientProfileModalProps)
 
   return (
     <Dialog open={!!userId} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-sm">
+      <DialogContent className="bg-gray-900 border-gray-800 text-white max-w-md">
         <DialogHeader>
           <DialogTitle className="text-base">Perfil del Cliente</DialogTitle>
         </DialogHeader>
 
-        {loading && (
-          <div className="flex items-center justify-center py-8">
-            <Loader2 className="w-5 h-5 animate-spin text-gray-400" />
-          </div>
-        )}
+        <Tabs value={tab} onValueChange={(v) => setTab(v as "perfil" | "comportamento")} className="w-full">
+          <TabsList className="grid w-full grid-cols-2 bg-gray-800/60">
+            <TabsTrigger value="perfil">Perfil</TabsTrigger>
+            <TabsTrigger value="comportamento">Comportamento</TabsTrigger>
+          </TabsList>
 
-        {!loading && data && (
-          <div className="space-y-4 text-sm">
-            {/* Email & Tier */}
-            <div className="space-y-2">
-              <Row label="Email" value={data.email} />
-              <Row label="Teléfono" value={data.phone ?? "—"} />
-              <div className="flex items-center justify-between">
-                <span className="text-gray-500 text-xs">Plan</span>
-                <span className={`font-semibold capitalize ${TIER_COLORS[data.main_tier] ?? "text-gray-300"}`}>
-                  {TIER_LABELS[data.main_tier] ?? data.main_tier}
-                </span>
+          <TabsContent value="perfil" className="mt-4">
+            {loading && (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="w-5 h-5 animate-spin text-gray-400" />
               </div>
-            </div>
+            )}
 
-            {/* Upsells */}
-            <div>
-              <p className="text-xs text-gray-500 mb-1.5">Productos (Upsell)</p>
-              <div className="flex gap-1.5 flex-wrap">
-                {UPSELL_BADGES.map(({ key, letter, activeColor, title }) => {
-                  const active = data.activeKeys.includes(key);
-                  const colorClass = active
-                    ? allActive ? "bg-green-500 text-white" : activeColor
-                    : "bg-gray-700 text-gray-500";
-                  return (
-                    <span
-                      key={key}
-                      title={title}
-                      className={`inline-flex items-center justify-center w-7 h-7 rounded text-xs font-bold select-none ${colorClass}`}
-                    >
-                      {letter}
+            {!loading && data && (
+              <div className="space-y-4 text-sm">
+                {/* Email & Tier */}
+                <div className="space-y-2">
+                  <Row label="Email" value={data.email} />
+                  <Row label="Telefone" value={data.phone ?? "—"} />
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-500 text-xs">Plano</span>
+                    <span className={`font-semibold capitalize ${TIER_COLORS[data.main_tier] ?? "text-gray-300"}`}>
+                      {TIER_LABELS[data.main_tier] ?? data.main_tier}
                     </span>
-                  );
-                })}
-                {data.activeKeys.length === 0 && (
-                  <span className="text-gray-600 text-xs">Ningún producto activo</span>
-                )}
-              </div>
-            </div>
-
-            {/* Dates */}
-            <div className="border-t border-white/10 pt-3 space-y-2">
-              <Row label="Primer Acceso" value={fmt(data.created_at)} />
-              <Row label="Último Acceso" value={fmt(data.last_seen_at)} />
-            </div>
-
-            {/* Last Event */}
-            <div className="border-t border-white/10 pt-3">
-              <p className="text-xs text-gray-500 mb-1">Último Evento</p>
-              {data.lastEvent ? (
-                <div className="flex items-center justify-between gap-2">
-                  <span className="font-mono text-xs bg-gray-800 px-2 py-0.5 rounded text-gray-300">
-                    {data.lastEvent.event_name}
-                  </span>
-                  <span className="text-xs text-gray-500 shrink-0">
-                    {fmtDatetime(data.lastEvent.created_at)}
-                  </span>
+                  </div>
                 </div>
-              ) : (
-                <span className="text-gray-600 text-xs">Ningún evento registrado</span>
-              )}
-            </div>
-          </div>
-        )}
 
-        {!loading && !data && userId && (
-          <p className="text-gray-500 text-sm text-center py-4">Usuario no encontrado</p>
-        )}
+                {/* Upsells */}
+                <div>
+                  <p className="text-xs text-gray-500 mb-1.5">Produtos (Upsell)</p>
+                  <div className="flex gap-1.5 flex-wrap">
+                    {UPSELL_BADGES.map(({ key, letter, activeColor, title }) => {
+                      const active = data.activeKeys.includes(key);
+                      const colorClass = active
+                        ? allActive ? "bg-green-500 text-white" : activeColor
+                        : "bg-gray-700 text-gray-500";
+                      return (
+                        <span
+                          key={key}
+                          title={title}
+                          className={`inline-flex items-center justify-center w-7 h-7 rounded text-xs font-bold select-none ${colorClass}`}
+                        >
+                          {letter}
+                        </span>
+                      );
+                    })}
+                    {data.activeKeys.length === 0 && (
+                      <span className="text-gray-600 text-xs">Nenhum produto ativo</span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Dates */}
+                <div className="border-t border-white/10 pt-3 space-y-2">
+                  <Row label="Primeiro Acesso" value={fmt(data.created_at)} />
+                  <Row label="Último Acesso" value={fmt(data.last_seen_at)} />
+                </div>
+
+                {/* Last Event */}
+                <div className="border-t border-white/10 pt-3">
+                  <p className="text-xs text-gray-500 mb-1">Último Evento</p>
+                  {data.lastEvent ? (
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-mono text-xs bg-gray-800 px-2 py-0.5 rounded text-gray-300">
+                        {data.lastEvent.event_name}
+                      </span>
+                      <span className="text-xs text-gray-500 shrink-0">
+                        {fmtDatetime(data.lastEvent.created_at)}
+                      </span>
+                    </div>
+                  ) : (
+                    <span className="text-gray-600 text-xs">Nenhum evento registrado</span>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {!loading && !data && userId && (
+              <p className="text-gray-500 text-sm text-center py-4">Usuário não encontrado</p>
+            )}
+          </TabsContent>
+
+          <TabsContent value="comportamento" className="mt-4">
+            <UserBehaviorPanel userId={userId} enabled={tab === "comportamento"} />
+          </TabsContent>
+        </Tabs>
       </DialogContent>
     </Dialog>
   );
 }
+
 
 function Row({ label, value }: { label: string; value: string }) {
   return (

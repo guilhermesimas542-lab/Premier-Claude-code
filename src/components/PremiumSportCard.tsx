@@ -1,6 +1,5 @@
 import { Sparkles, ArrowRight } from "lucide-react";
 import AnimatedFootballIcon from "@/components/AnimatedFootballIcon";
-import AnimatedSlotIcon from "@/components/AnimatedSlotIcon";
 
 
 interface SportColors {
@@ -22,8 +21,6 @@ interface PremiumSportCardProps {
   priceTo?: string;
   countdown?: { days?: number; hours: number; minutes: number; seconds: number };
   sportSubheadline?: string;
-  casinoTitle?: string;
-  casinoSubheadline?: string;
   onClick?: () => void;
 }
 
@@ -50,8 +47,6 @@ export const PremiumSportCard = ({
   priceTo,
   countdown,
   sportSubheadline,
-  casinoTitle,
-  casinoSubheadline,
   onClick
 }: PremiumSportCardProps) => {
   const textIndex = id % 3;
@@ -109,14 +104,11 @@ export const PremiumSportCard = ({
       );
     }
 
-    const isCasino = id === 11;
     const isFutebol = id === 1;
-    const displayTitle = isCasino && casinoTitle ? casinoTitle : premiumTexts.titles[textIndex];
-    const displaySubtitle = isCasino && casinoSubheadline
-      ? casinoSubheadline
-      : isFutebol && sportSubheadline
-        ? sportSubheadline
-        : premiumTexts.subtitles[textIndex];
+    const displayTitle = premiumTexts.titles[textIndex];
+    const displaySubtitle = isFutebol && sportSubheadline
+      ? sportSubheadline
+      : premiumTexts.subtitles[textIndex];
 
     return (
       <div className="flex flex-col space-y-0.5">
@@ -252,7 +244,7 @@ export const PremiumSportCard = ({
         }}
       />
 
-      {/* Badge LIVE / BETA */}
+      {/* Badge LIVE / IA */}
       {isPremium && !isLocked && !isDevelopment && !isPreSale && (
         <div className="absolute top-2 right-2 z-20">
           {id === 1 ? (
@@ -277,19 +269,6 @@ export const PremiumSportCard = ({
               />
               <span className="text-[8px] font-bold tracking-wider" style={{ color: '#00FF00' }}>LIVE</span>
             </div>
-          ) : id === 11 ? (
-            /* BETA badge — cassino */
-            <div
-              className="flex items-center gap-1 px-1.5 py-0.5 rounded-full backdrop-blur-sm"
-              style={{
-                background: 'rgba(0,0,0,0.65)',
-                border: '1px solid rgba(251,146,60,0.55)',
-                boxShadow: '0 0 8px rgba(251,146,60,0.3)',
-              }}
-            >
-              <Sparkles className="w-2 h-2" style={{ color: '#FB923C' }} />
-              <span className="text-[8px] font-bold tracking-wider" style={{ color: '#FB923C' }}>BETA</span>
-            </div>
           ) : (
             /* Padrão — outros cards premium */
             <div
@@ -311,7 +290,7 @@ export const PremiumSportCard = ({
         {/* Icon (left side) */}
         <div className="shrink-0">
           <div className="relative">
-            {!((id === 1 || id === 11) && isPremium) && (
+            {!(id === 1 && isPremium) && (
               <div
                 className="absolute inset-0 blur-xl opacity-40"
                 style={{ backgroundColor: isLocked ? '#FBBF24' : isDevelopment ? '#00D4FF' : colors.primary }}
@@ -320,17 +299,17 @@ export const PremiumSportCard = ({
             <div
               className="relative flex items-center justify-center"
               style={{
-                width: (id === 1 || id === 11) && isPremium ? 90 : 50,
-                height: (id === 1 || id === 11) && isPremium ? 90 : 50,
-                borderRadius: (id === 1 || id === 11) && isPremium ? 0 : '50%',
-                background: (id === 1 || id === 11) && isPremium
+                width: id === 1 && isPremium ? 90 : 50,
+                height: id === 1 && isPremium ? 90 : 50,
+                borderRadius: id === 1 && isPremium ? 0 : '50%',
+                background: id === 1 && isPremium
                   ? 'transparent'
                   : isLocked
                   ? 'rgba(251,191,36,0.12)'
                   : isDevelopment
                   ? 'rgba(0,212,255,0.12)'
                   : `${colors.primary}15`,
-                boxShadow: (id === 1 || id === 11) && isPremium
+                boxShadow: id === 1 && isPremium
                   ? 'none'
                   : isLocked
                   ? '0 0 14px rgba(251,191,36,0.25)'
@@ -341,8 +320,6 @@ export const PremiumSportCard = ({
             >
               {id === 1 && isPremium ? (
                 <AnimatedFootballIcon />
-              ) : id === 11 && isPremium ? (
-                <AnimatedSlotIcon />
               ) : (
                 <span
                   className="text-2xl"

@@ -20,27 +20,19 @@ function getUrlStatus(url: string) {
 }
 
 const FIELDS = [
-  { key: "iframe_url", label: "🏠 Iframe de Deportes", placeholder: "https://esportivabet.com", section: "sports" },
-  { key: "telegram_group_url", label: "📲 Enlace del Grupo Telegram", placeholder: "https://t.me/tugrupovip", section: "sports" },
-  { key: "aviator_url", label: "✈️ Aviator", placeholder: "https://esportivabet.com/casino/aviator", section: "casino" },
-  { key: "roleta_url", label: "🎰 Ruleta", placeholder: "https://esportivabet.com/casino/ruleta", section: "casino" },
-  { key: "mines_url", label: "💎 Mines", placeholder: "https://esportivabet.com/casino/mines", section: "casino" },
-  { key: "football_studio_url", label: "⚽ Football Studio", placeholder: "https://esportivabet.com/casino/football", section: "casino" },
-  { key: "support_whatsapp_url", label: "📞 URL Soporte WhatsApp", placeholder: "https://wa.me/56912345678", section: "buttons" },
-  { key: "acquire_access_url", label: "🛒 URL Adquirir Acceso", placeholder: "https://go.centerpag.com/...", section: "buttons" },
+  { key: "iframe_url", label: "🏠 Iframe de Esportes", placeholder: "https://esportivabet.com", section: "sports" },
+  { key: "telegram_group_url", label: "📲 Link do Grupo Telegram", placeholder: "https://t.me/seugrupovip", section: "sports" },
+  { key: "support_whatsapp_url", label: "📞 URL Suporte WhatsApp", placeholder: "https://wa.me/5511999999999", section: "buttons" },
+  { key: "acquire_access_url", label: "🛒 URL Adquirir Acesso", placeholder: "https://checkout.premierfc.app/...", section: "buttons" },
 ] as const;
 
-type FormKey = "iframe_url" | "telegram_group_url" | "aviator_url" | "roleta_url" | "mines_url" | "football_studio_url" | "support_whatsapp_url" | "acquire_access_url";
+type FormKey = "iframe_url" | "telegram_group_url" | "support_whatsapp_url" | "acquire_access_url";
 
 type Form = Record<FormKey, string>;
 
 const EMPTY_FORM: Form = {
   iframe_url: "",
   telegram_group_url: "",
-  aviator_url: "",
-  roleta_url: "",
-  mines_url: "",
-  football_studio_url: "",
   support_whatsapp_url: "",
   acquire_access_url: "",
 };
@@ -60,7 +52,7 @@ export default function AdminDefaultLinks() {
       setLoading(true);
       const { data, error } = await supabase
         .from("betting_houses")
-        .select("iframe_url, telegram_group_url, aviator_url, roleta_url, mines_url, football_studio_url, support_whatsapp_url, acquire_access_url, created_at")
+        .select("iframe_url, telegram_group_url, support_whatsapp_url, acquire_access_url, created_at")
         .eq("id", selectedHouse.id)
         .maybeSingle();
 
@@ -68,10 +60,6 @@ export default function AdminDefaultLinks() {
         setForm({
           iframe_url: data.iframe_url ?? "",
           telegram_group_url: (data as any).telegram_group_url ?? "",
-          aviator_url: (data as any).aviator_url ?? "",
-          roleta_url: (data as any).roleta_url ?? "",
-          mines_url: (data as any).mines_url ?? "",
-          football_studio_url: (data as any).football_studio_url ?? "",
           support_whatsapp_url: (data as any).support_whatsapp_url ?? "",
           acquire_access_url: (data as any).acquire_access_url ?? "",
         });
@@ -110,10 +98,6 @@ export default function AdminDefaultLinks() {
       .update({
         iframe_url: form.iframe_url,
         telegram_group_url: form.telegram_group_url || null,
-        aviator_url: form.aviator_url || null,
-        roleta_url: form.roleta_url || null,
-        mines_url: form.mines_url || null,
-        football_studio_url: form.football_studio_url || null,
         support_whatsapp_url: form.support_whatsapp_url || null,
         acquire_access_url: form.acquire_access_url || null,
       } as any)
@@ -148,7 +132,7 @@ export default function AdminDefaultLinks() {
   }
 
   const sportsFields = FIELDS.filter((f) => f.section === "sports");
-  const casinoFields = FIELDS.filter((f) => f.section === "casino");
+  
   const buttonFields = FIELDS.filter((f) => f.section === "buttons");
 
   const renderField = (field: (typeof FIELDS)[number]) => {
@@ -178,7 +162,7 @@ export default function AdminDefaultLinks() {
         <div className="flex items-center gap-3">
           <h2 className="text-xl font-bold">Enlaces Predeterminados</h2>
           <button
-            onClick={async () => { if (selectedHouse) { setLoading(true); const { data } = await supabase.from("betting_houses").select("iframe_url, telegram_group_url, aviator_url, roleta_url, mines_url, football_studio_url, support_whatsapp_url, acquire_access_url").eq("id", selectedHouse.id).maybeSingle(); if (data) { setForm({ iframe_url: data.iframe_url ?? "", telegram_group_url: (data as any).telegram_group_url ?? "", aviator_url: (data as any).aviator_url ?? "", roleta_url: (data as any).roleta_url ?? "", mines_url: (data as any).mines_url ?? "", football_studio_url: (data as any).football_studio_url ?? "", support_whatsapp_url: (data as any).support_whatsapp_url ?? "", acquire_access_url: (data as any).acquire_access_url ?? "" }); } setLoading(false); } }}
+            onClick={async () => { if (selectedHouse) { setLoading(true); const { data } = await supabase.from("betting_houses").select("iframe_url, telegram_group_url, support_whatsapp_url, acquire_access_url").eq("id", selectedHouse.id).maybeSingle(); if (data) { setForm({ iframe_url: (data as any).iframe_url ?? "", telegram_group_url: (data as any).telegram_group_url ?? "", support_whatsapp_url: (data as any).support_whatsapp_url ?? "", acquire_access_url: (data as any).acquire_access_url ?? "" }); } setLoading(false); } }}
             className="p-2 rounded-lg bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-white transition-colors"
             title="Actualizar"
           >
@@ -206,13 +190,6 @@ export default function AdminDefaultLinks() {
             {sportsFields.map(renderField)}
           </div>
 
-          {/* Casino section */}
-          <div className="bg-gray-900 border border-white/10 rounded-xl p-6 space-y-4">
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              🎰 Enlaces de Casino
-            </p>
-            {casinoFields.map(renderField)}
-          </div>
 
           {/* Buttons section */}
           <div className="bg-gray-900 border border-white/10 rounded-xl p-6 space-y-4">

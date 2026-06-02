@@ -469,9 +469,9 @@ export default function AdminPayCards() {
                     <option value="">Selecciona...</option>
                     <option value="header">Header</option>
                     <option value="sports_tips">Sports Tips</option>
-                    <option value="support">Soporte</option>
-                    <option value="home">Inicio</option>
-                    <option value="casino">Casino</option>
+                    <option value="support">Suporte</option>
+                    <option value="home">Home</option>
+                    
                   </select>
                 </div>
                 <div>

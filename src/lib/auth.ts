@@ -58,6 +58,5 @@ export function getStoredConfig(): AppConfig | null {
 export function getBackgroundImageUrl(backgroundId: string): string {
   if (!backgroundId) return "";
   if (backgroundId === "futsal-custom") return "/images/futsal-arena.jpg";
-  if (backgroundId === "casino-custom") return "/images/futsal-arena.jpg";
   return `https://imagedelivery.net/uGmh4EK74r0qnuu3lZf-oA/${backgroundId}/public`;
 }
