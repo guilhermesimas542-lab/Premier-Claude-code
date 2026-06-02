@@ -113,6 +113,7 @@ export const PremiumBettingCard = ({
   isExpired: isExpiredProp = false,
   justificativa,
   hideTimer = false,
+  showVerifiedBadge = false,
   onAddTip,
   onOpenJustificativa,
   onLockedClick,
