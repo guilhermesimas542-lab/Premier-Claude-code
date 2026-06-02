@@ -1335,6 +1335,7 @@ export type Database = {
       crm_journey_templates: {
         Row: {
           category: string
+          channel: string | null
           created_at: string
           created_by: string | null
           description: string | null
@@ -1347,6 +1348,7 @@ export type Database = {
         }
         Insert: {
           category?: string
+          channel?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
@@ -1359,6 +1361,7 @@ export type Database = {
         }
         Update: {
           category?: string
+          channel?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
@@ -1375,6 +1378,7 @@ export type Database = {
         Row: {
           audience_filters: Json | null
           audience_id: string | null
+          channel: string | null
           created_at: string
           created_by: string | null
           description: string | null
@@ -1389,6 +1393,7 @@ export type Database = {
         Insert: {
           audience_filters?: Json | null
           audience_id?: string | null
+          channel?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
@@ -1403,6 +1408,7 @@ export type Database = {
         Update: {
           audience_filters?: Json | null
           audience_id?: string | null
+          channel?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
