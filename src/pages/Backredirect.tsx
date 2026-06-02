@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import formasPagamento from "@/assets/formas-pagamento.png";
 import seloGarantia from "@/assets/selo-garantia-30.png";
 
-const CHECKOUT_URL = "https://checkout.payt.com.br/302d147f60a7fd78aee674bdea8f4240";
+const CHECKOUT_URL = "https://go.centerpag.com/PPU38CQBPB3";
 
 const OLIVE = "#4D7A1F";
 const RED_BG = "#FDECEC";
@@ -16,7 +16,7 @@ export default function Backredirect() {
   const [secondsLeft, setSecondsLeft] = useState(5 * 60);
 
   useEffect(() => {
-    document.title = "Última chance: R$10 OFF | Premier FC";
+    document.title = "Última oportunidad: $10 OFF | CL Score";
   }, []);
 
   useEffect(() => {
