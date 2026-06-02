@@ -308,12 +308,12 @@ export async function sendBatchPushReal(
 // ============================================================
 
 export async function sendBroadcastTelegramX1Real(
-  text: string, title: string, botId: string, apiId: string, apiSecret: string,
+  text: string, title: string, botId: string, apiId: string, apiSecret: string, imageUrl?: string | null,
 ): Promise<SendResult> {
   const fail = (code: string, msg: string): SendResult => ({
     recipient_user_id: null, recipient_identifier: "broadcast", status: "failed",
     error_code: code, error_message: msg,
-    metadata: { provider: "sendpulse", broadcast: true, real: true },
+    metadata: { provider: "sendpulse", broadcast: true, real: true, with_image: !!imageUrl },
   });
   // 1. OAuth (token vale 1h)
   const t = await fetch("https://api.sendpulse.com/oauth/access_token", {
@@ -323,17 +323,20 @@ export async function sendBroadcastTelegramX1Real(
   const tj = await t.json().catch(() => ({}));
   if (!t.ok || !tj?.access_token) return fail("sendpulse_auth_error", tj?.error_description ?? "Falha no OAuth do SendPulse");
   // 2. Broadcast pra todos os assinantes do bot
+  const messageBlock = imageUrl
+    ? { type: "image", message: { url: imageUrl, text } }
+    : { type: "text", message: { text } };
   const c = await fetch("https://api.sendpulse.com/telegram/campaigns/send", {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${tj.access_token}` },
-    body: JSON.stringify({ title: (title || "Premier FC").slice(0, 255), bot_id: botId, messages: [{ type: "text", message: { text } }] }),
+    body: JSON.stringify({ title: (title || "Premier FC").slice(0, 255), bot_id: botId, messages: [messageBlock] }),
   });
   const cj = await c.json().catch(() => ({}));
   if (!c.ok || cj?.success === false) return fail("sendpulse_send_error", typeof cj?.message === "string" ? cj.message : JSON.stringify(cj).slice(0, 300));
   const id = cj?.data?.id ?? cj?.id ?? null;
   return { recipient_user_id: null, recipient_identifier: "broadcast", status: "delivered",
     provider_message_id: id ? String(id) : undefined,
-    metadata: { provider: "sendpulse", broadcast: true, real: true } };
+    metadata: { provider: "sendpulse", broadcast: true, real: true, with_image: !!imageUrl } };
 }
 
 // ============================================================
