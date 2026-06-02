@@ -22,7 +22,7 @@ import {
   type Recipient,
   type SendResult,
 } from "./mockProviders.ts";
-import { sendBatchSmsReal, sendBatchPushReal, sendBatchPopupReal, sendBroadcastTelegramX1Real } from "./realProviders.ts";
+import { sendBatchSmsReal, sendBatchPushReal, sendBatchPopupReal, sendBroadcastTelegramX1Real, sendTelegramGroupReal } from "./realProviders.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -388,8 +388,65 @@ Deno.serve(async (req: Request) => {
     }
 
     console.log(
-      `[CRM][MOCK] Broadcast "${schedule.name}" via ${channel} → ${broadcastResult.status}`
+      `[CRM][MOCK] Broadcast "${schedule.name}" via ${channel} \u2192 ${broadcastResult.status}`
     );
+  } else if (channel === "telegram_group" && !dryRun) {
+    // ============================================================
+    // Telegram grupo real: 1 mensagem pro grupo, não entra no loop por destinatário.
+    // ============================================================
+    const [{ data: botTokenData }, { data: tgSettingsRow }] = await Promise.all([
+      supabase.rpc("crm_get_channel_secret", { p_channel: "telegram_group", p_key: "bot_token" }),
+      supabase
+        .from("crm_channel_settings")
+        .select("config")
+        .eq("channel", "telegram_group")
+        .maybeSingle(),
+    ]);
+
+    const botToken = typeof botTokenData === "string" ? botTokenData : null;
+    const chatId = (tgSettingsRow as any)?.config?.chat_id ?? null;
+
+    if (!botToken || !chatId) {
+      const event = {
+        schedule_id: scheduleId,
+        recipient_user_id: null,
+        recipient_identifier: "telegram_group",
+        channel,
+        status: "failed",
+        provider_message_id: null,
+        error_code: "telegram_group_not_configured",
+        error_message: "Configure bot_token no Vault e chat_id em Configura\u00e7\u00f5es do canal.",
+        metadata: { provider: "telegram", group: true, real: true, dry_run: dryRun },
+      };
+      await supabase.from("crm_schedule_events").insert([event]);
+      failedCount = 1;
+    } else {
+      const content = (schedule.content ?? {}) as { body?: string | null };
+      const tgResult = await sendTelegramGroupReal(content.body ?? "", botToken, chatId);
+      const event = {
+        schedule_id: scheduleId,
+        recipient_user_id: tgResult.recipient_user_id,
+        recipient_identifier: tgResult.recipient_identifier,
+        channel,
+        status: tgResult.status,
+        provider_message_id: tgResult.provider_message_id ?? null,
+        error_code: tgResult.error_code ?? null,
+        error_message: tgResult.error_message ?? null,
+        metadata: { ...tgResult.metadata, dry_run: dryRun },
+      };
+      const { error: insErr } = await supabase.from("crm_schedule_events").insert([event]);
+      if (insErr) {
+        console.error("[CRM][telegram_group] Erro inserindo event:", insErr);
+        failedCount = 1;
+      } else if (tgResult.status === "failed") {
+        failedCount = 1;
+      } else {
+        deliveredCount = 1;
+      }
+      console.log(
+        `[CRM][telegram_group] "${schedule.name}" \u2192 ${tgResult.status}`
+      );
+    }
   } else if (reachCount > 0) {
     const caps = getChannelCapabilities(channel);
 
