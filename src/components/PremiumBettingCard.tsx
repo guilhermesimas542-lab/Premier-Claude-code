@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { HelpCircle, Info, Link2, Clock, Layers, BarChart3, Lock } from "lucide-react";
+import { HelpCircle, Info, Link2, Clock, Layers, BarChart3, Lock, BadgeCheck } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { ShirtIcon } from "./ShirtIcon";
 
