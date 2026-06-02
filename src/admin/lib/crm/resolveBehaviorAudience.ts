@@ -59,6 +59,11 @@ export async function resolveBehaviorUserIds(
   const wantedMarkets = (filter.markets ?? [])
     .map((s) => s.trim().toLowerCase())
     .filter(Boolean);
+  const wantedTeams = new Set(
+    (filter.team_names ?? [])
+      .map((s) => s.trim().toLowerCase())
+      .filter(Boolean)
+  );
 
   function eventMatches(p: Row): boolean {
     const props = p.properties ?? {};
