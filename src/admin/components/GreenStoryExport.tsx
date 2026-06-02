@@ -11,7 +11,6 @@ const BG = "#060D1E";
 const GREEN = "#00FF7F";
 const FONT_HEADING = "'Barlow Condensed', sans-serif";
 
-/** Maps tip tier_required + addon_required → display tier expected by PremiumBettingCard */
 function resolveDisplayTier(tip: TipForExport): "BÁSICO" | "PRO" | "GRÁTIS" | "MÚLTIPLA" | "ULTRA" {
   const addon = tip.addon_required;
   if (addon === "multiplas_bingo") return "MÚLTIPLA";
@@ -59,6 +58,14 @@ export const GreenStoryExport = React.forwardRef<HTMLDivElement, Props>(({ tip }
 
   const oddLabel = tip.odds != null && !isNaN(tip.odds) ? tip.odds.toFixed(2) : "—";
 
+  // Card is rendered at mobile width (380px) and scaled 2.4x to feel pixel-perfect
+  // with what users see on /sport. Scale doesn't reserve layout space, so the
+  // wrapper hard-codes the post-scale footprint (912x ~ matches a tall card).
+  const CARD_BASE_W = 380;
+  const CARD_SCALE = 2.4;
+  const CARD_W = CARD_BASE_W * CARD_SCALE; // 912
+  const CARD_RESERVED_H = 900; // visual reserve for the scaled card
+
   return (
     <div
       ref={ref}
@@ -69,10 +76,8 @@ export const GreenStoryExport = React.forwardRef<HTMLDivElement, Props>(({ tip }
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        justifyContent: "center",
         padding: "80px 60px",
         boxSizing: "border-box",
-        gap: 56,
         fontFamily: FONT_HEADING,
         color: "#FFFFFF",
       }}
@@ -82,19 +87,35 @@ export const GreenStoryExport = React.forwardRef<HTMLDivElement, Props>(({ tip }
         style={{
           fontFamily: FONT_HEADING,
           fontWeight: 900,
-          fontSize: 64,
+          fontSize: 72,
           letterSpacing: 6,
           textTransform: "uppercase",
           color: GREEN,
           textShadow: `0 0 28px ${GREEN}55`,
+          textAlign: "center",
         }}
       >
         Mais um acerto
       </div>
 
-      {/* Card + verified seal */}
-      <div style={{ position: "relative", width: 760 }}>
-        <div style={{ transform: "scale(1.6)", transformOrigin: "top center" }}>
+      {/* Card area — reserves space for the scaled card */}
+      <div
+        style={{
+          marginTop: 60,
+          width: CARD_W,
+          height: CARD_RESERVED_H,
+          position: "relative",
+          display: "flex",
+          justifyContent: "center",
+        }}
+      >
+        <div
+          style={{
+            width: CARD_BASE_W,
+            transform: `scale(${CARD_SCALE})`,
+            transformOrigin: "top center",
+          }}
+        >
           <PremiumBettingCard
             tipId={0}
             tier={resolveDisplayTier(tip)}
@@ -108,14 +129,14 @@ export const GreenStoryExport = React.forwardRef<HTMLDivElement, Props>(({ tip }
           />
         </div>
 
-        {/* Verified seal — top right of card */}
+        {/* Verified seal — top right of the card footprint */}
         <div
           style={{
             position: "absolute",
-            top: -22,
-            right: -22,
-            width: 92,
-            height: 92,
+            top: -28,
+            right: -28,
+            width: 104,
+            height: 104,
             borderRadius: "50%",
             background: BG,
             display: "flex",
@@ -125,29 +146,29 @@ export const GreenStoryExport = React.forwardRef<HTMLDivElement, Props>(({ tip }
             zIndex: 5,
           }}
         >
-          <BadgeCheck style={{ width: 84, height: 84, color: GREEN, fill: GREEN, stroke: BG, strokeWidth: 2 }} />
+          <BadgeCheck style={{ width: 96, height: 96, color: GREEN, fill: GREEN, stroke: BG, strokeWidth: 2 }} />
         </div>
       </div>
 
-      {/* GREEN badge with odd */}
+      {/* GREEN badge */}
       <div
         style={{
-          marginTop: 220,
+          marginTop: 80,
           display: "inline-flex",
           alignItems: "center",
-          gap: 18,
+          gap: 20,
           background: GREEN,
           color: "#000000",
-          padding: "20px 44px",
+          padding: "24px 56px",
           borderRadius: 999,
           fontFamily: FONT_HEADING,
           fontWeight: 900,
           boxShadow: `0 0 48px ${GREEN}66`,
         }}
       >
-        <span style={{ fontSize: 44, lineHeight: 1 }}>✓</span>
-        <span style={{ fontSize: 52, letterSpacing: 3 }}>GREEN</span>
-        <span style={{ fontSize: 40, opacity: 0.85 }}>@{oddLabel}</span>
+        <span style={{ fontSize: 52, lineHeight: 1 }}>✓</span>
+        <span style={{ fontSize: 60, letterSpacing: 3 }}>GREEN</span>
+        <span style={{ fontSize: 46, opacity: 0.85 }}>@{oddLabel}</span>
       </div>
 
       {/* Footer */}
@@ -156,8 +177,8 @@ export const GreenStoryExport = React.forwardRef<HTMLDivElement, Props>(({ tip }
           marginTop: "auto",
           fontFamily: FONT_HEADING,
           fontWeight: 900,
-          fontSize: 44,
-          letterSpacing: 6,
+          fontSize: 48,
+          letterSpacing: 8,
           textTransform: "uppercase",
           color: GREEN,
         }}
