@@ -131,8 +131,6 @@ export default function AdminCrmJourneyBuilder() {
     move: moveStep,
   } = useJourneySteps(journey?.id ?? null);
 
-  const [pickerOpen, setPickerOpen] = useState(false);
-
   // ============================================================
   // Handlers
   // ============================================================
@@ -142,6 +140,10 @@ export default function AdminCrmJourneyBuilder() {
       toast.error("Dê um nome à jornada");
       return;
     }
+    if (!headerDraft.channel) {
+      toast.error("Escolha o canal da jornada antes de criar.");
+      return;
+    }
     setCreating(true);
     const created = await create({
       name: headerDraft.name.trim(),
@@ -149,6 +151,7 @@ export default function AdminCrmJourneyBuilder() {
       trigger_type: headerDraft.trigger_type,
       trigger_config: headerDraft.trigger_config,
       audience_id: headerDraft.audience_id,
+      channel: headerDraft.channel,
       status: "draft",
     });
     setCreating(false);
@@ -163,6 +166,7 @@ export default function AdminCrmJourneyBuilder() {
       toast.error("Dê um nome à jornada");
       return;
     }
+    // Canal NÃO entra no update — fica travado depois de criada.
     const ok = await update(journey.id, {
       name: headerDraft.name.trim(),
       description: headerDraft.description.trim() || undefined,
@@ -172,7 +176,6 @@ export default function AdminCrmJourneyBuilder() {
     });
     if (ok) {
       toast.success("Cabeçalho salvo");
-      // Re-fetch local
       setJourney((j) =>
         j
           ? {
@@ -202,19 +205,24 @@ export default function AdminCrmJourneyBuilder() {
     }
   };
 
-  const handlePickChannel = async (channel: ChannelKey) => {
+  /**
+   * Adiciona um novo step usando o canal fixo da jornada.
+   * Jornadas legadas (channel = null) caem num fallback de "email" — não deveria
+   * acontecer nas novas, mas evita travar a UI.
+   */
+  const handleAddStep = async () => {
     if (!journey) return;
-    setPickerOpen(false);
-    // Primeiro step entra com delay 0; demais entram com delay 1 dia
+    const ch: ChannelKey = (journey.channel as ChannelKey) ?? "email";
     const isFirstEver = steps.length === 0;
     await createStep({
       journey_id: journey.id,
-      channel,
+      channel: ch,
       content: {},
       delay_value: isFirstEver ? 0 : 1,
       delay_unit: "day",
     });
   };
+
 
   // ============================================================
   // Render
