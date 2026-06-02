@@ -1167,6 +1167,39 @@ export type Database = {
         }
         Relationships: []
       }
+      crm_image_templates: {
+        Row: {
+          channel: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          image_url: string | null
+          kind: string
+          name: string
+          prompt: string | null
+        }
+        Insert: {
+          channel?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          image_url?: string | null
+          kind: string
+          name: string
+          prompt?: string | null
+        }
+        Update: {
+          channel?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          image_url?: string | null
+          kind?: string
+          name?: string
+          prompt?: string | null
+        }
+        Relationships: []
+      }
       crm_journey_enrollments: {
         Row: {
           completed_at: string | null
