@@ -36,7 +36,7 @@ const STATUS_OPTIONS: Array<{ value: "active" | "inactive" | "churn_risk"; label
   { value: "churn_risk", label: "Churn risk", hint: "Sem login há 30+ dias ou nunca" },
 ];
 
-export function AudienceBuilder({ open, onClose, onSave, editing }: Props) {
+export function AudienceBuilder({ open, onClose, onSave, editing, initialFilters }: Props) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [filters, setFilters] = useState<AudienceFilters>({});
@@ -52,9 +52,9 @@ export function AudienceBuilder({ open, onClose, onSave, editing }: Props) {
     } else {
       setName("");
       setDescription("");
-      setFilters({});
+      setFilters(initialFilters ?? {});
     }
-  }, [open, editing]);
+  }, [open, editing, initialFilters]);
 
   // Preview em tempo real
   const { count, loading: previewLoading } = usePreviewAudience(filters, open);
