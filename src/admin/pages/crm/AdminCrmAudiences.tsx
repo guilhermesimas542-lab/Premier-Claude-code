@@ -164,6 +164,21 @@ export default function AdminCrmAudiences() {
         onClose={() => setImportOpen(false)}
         onCreated={() => refresh()}
       />
+
+      <AudienceImportModal
+        open={!!updateTarget}
+        mode="update"
+        audience={
+          updateTarget
+            ? { id: updateTarget.id, name: updateTarget.name, description: updateTarget.description }
+            : null
+        }
+        onClose={() => setUpdateTarget(null)}
+        onUpdated={() => {
+          setUpdateTarget(null);
+          refresh();
+        }}
+      />
     </div>
   );
 }
