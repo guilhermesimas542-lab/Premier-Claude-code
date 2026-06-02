@@ -36,7 +36,7 @@ export default function Backredirect() {
           className="w-full text-center py-3 px-4 font-bold text-sm sm:text-base"
           style={{ backgroundColor: RED_BG, color: RED_TEXT }}
         >
-          ESSA OFERTA EXPIRA EM: {pad(mm)}:{pad(ss)}
+          ESTA OFERTA EXPIRA EN: {pad(mm)}:{pad(ss)}
         </div>
       )}
 
@@ -53,7 +53,7 @@ export default function Backredirect() {
               padding: "6px 14px",
             }}
           >
-            🎯 DESCONTO EXCLUSIVO NESSA PÁGINA
+            🎯 DESCUENTO EXCLUSIVO EN ESTA PÁGINA
           </span>
         </div>
 
@@ -63,10 +63,10 @@ export default function Backredirect() {
           style={{ backgroundColor: OLIVE }}
         >
           <div className="font-extrabold text-2xl sm:text-3xl leading-tight">
-            🔥 DESCONTO DE R$10!
+            🔥 ¡DESCUENTO DE $10!
           </div>
           <div className="mt-2 text-base sm:text-lg text-white/85">
-            Economize R$10 e garanta seu acesso ao PremierFC agora.
+            Ahorra $10 y asegura tu acceso a CL Score ahora.
           </div>
         </div>
 
@@ -89,23 +89,23 @@ export default function Backredirect() {
               boxShadow: "0 2px 4px rgba(0,0,0,0.15)",
             }}
           >
-            -R$10
+            -$10
           </div>
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1">
               <h1 className="font-extrabold text-2xl text-neutral-900 leading-tight">
-                Premier FC
+                CL Score
               </h1>
               <p className="text-xs text-neutral-500 mt-1">
-                Acesso vitalício • Pagamento único
+                Acceso vitalicio • Pago único
               </p>
             </div>
             <div className="bg-neutral-100 rounded-xl px-3 py-2 text-right">
               <div className="text-xs text-neutral-500 line-through leading-tight">
-                De R$ 37,00 por
+                Antes $37 ahora
               </div>
               <div className="font-extrabold text-2xl text-neutral-900 leading-tight">
-                R$ 27,00
+                $27
               </div>
             </div>
           </div>
@@ -117,14 +117,14 @@ export default function Backredirect() {
           className="block w-full text-center rounded-xl py-4 font-extrabold uppercase tracking-wide text-white text-base sm:text-lg shadow-sm hover:opacity-95 transition"
           style={{ backgroundColor: OLIVE }}
         >
-          Garantir desconto de R$10
+          Asegurar descuento de $10
         </a>
 
         {/* 5) PAYMENT METHODS */}
         <div className="flex justify-center">
           <img
             src={formasPagamento}
-            alt="Formas de pagamento à vista: Mastercard, Elo, Visa, American Express, Boleto Bancário e Pix"
+            alt="Medios de pago: Mastercard, Visa, American Express, Webpay, Khipu y transferencia"
             className="w-full max-w-[262px] h-auto"
           />
         </div>
@@ -135,24 +135,24 @@ export default function Backredirect() {
         {/* 7) GUARANTEE BLOCK */}
         <div className="text-center space-y-2">
           <div className="font-bold text-base" style={{ color: RED_TEXT }}>
-            ⚠️ ATENÇÃO!
+            ⚠️ ¡ATENCIÓN!
           </div>
           <p className="font-bold text-neutral-900 text-sm sm:text-base leading-snug">
-            Se você entrar no Premier FC e não conseguir pelo menos triplicar sua banca…
+            Si entras a CL Score y no logras al menos triplicar tu banca…
           </p>
           <p className="text-neutral-900 text-sm sm:text-base leading-snug">
-            Vamos devolver <span className="font-bold">cada centavo</span> que você pagou. É 100% sem risco pra você! 💯
+            Te devolvemos <span className="font-bold">cada peso</span> que pagaste. ¡Es 100% sin riesgo para ti! 💯
           </p>
         </div>
 
         {/* 8) GUARANTEE SEAL */}
         <div className="flex flex-col items-center gap-3">
           <div className="font-bold text-base text-neutral-900">
-            🛡️ Garantia Total de 30 Dias
+            🛡️ Garantía Total de 30 Días
           </div>
           <img
             src={seloGarantia}
-            alt="Selo de Garantia 30 Dias"
+            alt="Sello de Garantía 30 Días"
             className="w-[200px] h-[200px] object-contain"
           />
 
@@ -163,7 +163,7 @@ export default function Backredirect() {
 
         {/* 9) FOOTER MICRO-COPY */}
         <p className="text-center text-xs text-neutral-500 pb-4">
-          Pagamento 100% seguro • Acesso liberado no WhatsApp em minutos
+          Pago 100% seguro • Acceso liberado en Telegram en minutos
         </p>
       </div>
     </div>
