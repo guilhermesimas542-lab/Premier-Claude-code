@@ -471,3 +471,198 @@ export async function sendTelegramGroupReal(
     return { ...base, status: "failed", error_code: "telegram_network_error", error_message: String(e) };
   }
 }
+
+// ============================================================
+// Email real (Resend) — envio em lote via endpoint /emails/batch.
+// Lê API key do Vault e from_email/from_name/reply_to de crm_channel_settings.config.
+// Mantém o caminho destinatário-a-destinatário (passa por sendBatch),
+// e dentro do "chunk" do index.ts faz UM POST /emails/batch (até 100 por vez).
+// ============================================================
+
+interface EmailContent {
+  subject?: string | null;
+  body?: string | null;
+  [key: string]: unknown;
+}
+
+export interface EmailSenderConfig {
+  fromEmail: string;
+  fromName?: string | null;
+  replyTo?: string | null;
+}
+
+const RESEND_BATCH_ENDPOINT = "https://api.resend.com/emails/batch";
+const RESEND_BATCH_MAX = 100;
+
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function bodyToHtml(body: string): string {
+  const safe = escapeHtml(body).replace(/\r?\n/g, "<br>");
+  return `<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.5;color:#111;">${safe}</div>`;
+}
+
+function buildFrom(cfg: EmailSenderConfig): string {
+  const name = (cfg.fromName ?? "").toString().trim();
+  const email = cfg.fromEmail.trim();
+  return name ? `${name} <${email}>` : email;
+}
+
+export async function sendBatchEmailReal(
+  recipients: Recipient[],
+  content: EmailContent | null | undefined,
+  apiKey: string,
+  sender: EmailSenderConfig,
+): Promise<SendResult[]> {
+  const sentAt = new Date().toISOString();
+  const subject = (content?.subject ?? "").toString().trim() || "Premier FC";
+  const bodyText = (content?.body ?? "").toString();
+  const html = bodyToHtml(bodyText);
+  const from = buildFrom(sender);
+  const replyTo = sender.replyTo?.trim() || null;
+
+  const results: SendResult[] = new Array(recipients.length);
+
+  // Pré-popula resultados e separa válidos (com email) dos sem email.
+  const sendable: Array<{ idx: number; email: string; userId: string | null; identifier: string | null | undefined }> = [];
+  recipients.forEach((r, idx) => {
+    const userId = r.id && !r.id.startsWith("audience_member:") ? r.id : null;
+    const email = (r.email ?? "").toString().trim();
+    const identifier = email || r.phone || r.id;
+    if (!email) {
+      results[idx] = {
+        recipient_user_id: userId,
+        recipient_identifier: identifier,
+        status: "failed",
+        error_code: "no_email",
+        error_message: "Destinatário sem email.",
+        metadata: { provider: "resend", attempted_at: sentAt },
+      };
+      return;
+    }
+    sendable.push({ idx, email, userId, identifier });
+  });
+
+  for (let i = 0; i < sendable.length; i += RESEND_BATCH_MAX) {
+    const slice = sendable.slice(i, i + RESEND_BATCH_MAX);
+    const payload = slice.map((s) => {
+      const obj: Record<string, unknown> = {
+        from,
+        to: [s.email],
+        subject,
+        html,
+      };
+      if (replyTo) obj.reply_to = replyTo;
+      return obj;
+    });
+
+    try {
+      const resp = await fetch(RESEND_BATCH_ENDPOINT, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const text = await resp.text();
+      let parsed: any = null;
+      try {
+        parsed = text ? JSON.parse(text) : null;
+      } catch {
+        // resposta não-JSON
+      }
+
+      if (!resp.ok) {
+        const errMsg =
+          (parsed && (parsed.message ?? parsed.error?.message)) ??
+          (text ? text.slice(0, 300) : `http_${resp.status}`);
+        for (const s of slice) {
+          results[s.idx] = {
+            recipient_user_id: s.userId,
+            recipient_identifier: s.identifier,
+            status: "failed",
+            error_code: "resend_error",
+            error_message: errMsg,
+            metadata: { provider: "resend", attempted_at: sentAt, http_status: resp.status },
+          };
+        }
+        continue;
+      }
+
+      // Sucesso HTTP: parseia array de { id } ou { data: [{id}] }.
+      const arr: any[] = Array.isArray(parsed?.data)
+        ? parsed.data
+        : Array.isArray(parsed)
+          ? parsed
+          : [];
+
+      slice.forEach((s, k) => {
+        const item = arr[k];
+        if (item && (item.id || item.email_id)) {
+          results[s.idx] = {
+            recipient_user_id: s.userId,
+            recipient_identifier: s.identifier,
+            status: "delivered",
+            provider_message_id: String(item.id ?? item.email_id),
+            metadata: { provider: "resend", sent_at: sentAt, http_status: resp.status },
+          };
+        } else if (item && (item.error || item.message)) {
+          results[s.idx] = {
+            recipient_user_id: s.userId,
+            recipient_identifier: s.identifier,
+            status: "failed",
+            error_code: "resend_error",
+            error_message:
+              (typeof item.error === "string" ? item.error : item.error?.message) ??
+              item.message ?? "Falha no envio.",
+            metadata: { provider: "resend", attempted_at: sentAt, http_status: resp.status },
+          };
+        } else {
+          // Sem id e sem erro explícito → trata como entregue (Resend devolve só ids no batch).
+          results[s.idx] = {
+            recipient_user_id: s.userId,
+            recipient_identifier: s.identifier,
+            status: "delivered",
+            metadata: { provider: "resend", sent_at: sentAt, http_status: resp.status },
+          };
+        }
+      });
+    } catch (e: any) {
+      for (const s of slice) {
+        results[s.idx] = {
+          recipient_user_id: s.userId,
+          recipient_identifier: s.identifier,
+          status: "failed",
+          error_code: "resend_exception",
+          error_message: e?.message ?? String(e),
+          metadata: { provider: "resend", attempted_at: sentAt },
+        };
+      }
+    }
+  }
+
+  // Garante que toda posição foi preenchida (caso algo escape).
+  for (let i = 0; i < results.length; i++) {
+    if (!results[i]) {
+      const r = recipients[i];
+      results[i] = {
+        recipient_user_id: r.id && !r.id.startsWith("audience_member:") ? r.id : null,
+        recipient_identifier: r.email ?? r.phone ?? r.id,
+        status: "failed",
+        error_code: "resend_unknown",
+        error_message: "Resultado ausente.",
+        metadata: { provider: "resend", attempted_at: sentAt },
+      };
+    }
+  }
+
+  return results;
+}
