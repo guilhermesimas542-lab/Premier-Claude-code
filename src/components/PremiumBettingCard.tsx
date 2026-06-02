@@ -238,7 +238,9 @@ export const PremiumBettingCard = ({
         }}>
           {/* Timer */}
           <div style={{ display: "flex", alignItems: "center", gap: 4, width: 70, flexShrink: 0 }}>
-            {isLocked ? (
+            {hideTimer ? (
+              <span style={{ fontSize: 12, color: "transparent" }}>—</span>
+            ) : isLocked ? (
               <span style={{ fontSize: 12, color: "transparent" }}>—</span>
             ) : countdown === "AO VIVO" ? (
               <>
@@ -253,6 +255,7 @@ export const PremiumBettingCard = ({
             ) : (
               <span style={{ fontSize: 12, color: "transparent" }}>—</span>
             )}
+
           </div>
 
           {/* Badge — center */}
