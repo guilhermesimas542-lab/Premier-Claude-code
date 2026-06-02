@@ -25,6 +25,14 @@ export function ChannelContentForm({ channel, content, onChange }: Props) {
 
   const setField = (k: string, v: any) => onChange({ ...content, [k]: v });
 
+  const imageControl = isImageSupportedChannel(channel) ? (
+    <ImageAttachControl
+      channel={channel}
+      imageUrl={content.image_url ?? null}
+      onChange={(url) => onChange({ ...content, image_url: url ?? undefined })}
+    />
+  ) : null;
+
   if (channel === "email") {
     return (
       <div className="space-y-3">
@@ -49,6 +57,7 @@ export function ChannelContentForm({ channel, content, onChange }: Props) {
             <code>{"{dias_sem_login}"}</code>, <code>{"{data_cadastro}"}</code>
           </p>
         </div>
+        {imageControl}
       </div>
     );
   }
@@ -60,27 +69,30 @@ export function ChannelContentForm({ channel, content, onChange }: Props) {
     channel === "whatsapp"
   ) {
     return (
-      <div className="space-y-1.5">
-        <Label>Mensagem</Label>
-        <Textarea
-          value={content.body ?? ""}
-          onChange={(e) => setField("body", e.target.value)}
-          placeholder={
-            channel === "sms"
-              ? "Premier: sua nova entrada está pronta. Acesse: {link}"
-              : channel === "whatsapp"
-                ? "Oi {nome}! Sua nova análise tá disponível 👇"
-                : channel === "telegram_x1"
-                  ? "[Mensagem para broadcast geral]"
-                  : "Mensagem do grupo"
-          }
-          rows={5}
-        />
-        <p className="text-[10px] text-muted-foreground">
-          {channel === "sms"
-            ? "Máximo recomendado: 160 caracteres."
-            : "Variáveis: {nome}, {plano}, etc."}
-        </p>
+      <div className="space-y-3">
+        <div className="space-y-1.5">
+          <Label>Mensagem</Label>
+          <Textarea
+            value={content.body ?? ""}
+            onChange={(e) => setField("body", e.target.value)}
+            placeholder={
+              channel === "sms"
+                ? "Premier: sua nova entrada está pronta. Acesse: {link}"
+                : channel === "whatsapp"
+                  ? "Oi {nome}! Sua nova análise tá disponível 👇"
+                  : channel === "telegram_x1"
+                    ? "[Mensagem para broadcast geral]"
+                    : "Mensagem do grupo"
+            }
+            rows={5}
+          />
+          <p className="text-[10px] text-muted-foreground">
+            {channel === "sms"
+              ? "Máximo recomendado: 160 caracteres."
+              : "Variáveis: {nome}, {plano}, etc."}
+          </p>
+        </div>
+        {imageControl}
       </div>
     );
   }
@@ -120,6 +132,7 @@ export function ChannelContentForm({ channel, content, onChange }: Props) {
           />
         </div>
       )}
+      {imageControl}
     </div>
   );
 }
