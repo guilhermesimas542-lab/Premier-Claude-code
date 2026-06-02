@@ -293,6 +293,17 @@ export function useChatTipster() {
           refreshCreditBalance();
           return;
         }
+        if (status === 400 && errorBody?.error === "fixture_too_far") {
+          append({
+            id: genId(),
+            role: "bot",
+            type: "text",
+            content: errorBody.message ?? "Esse jogo está muito distante. Volte mais perto da data para uma análise precisa.",
+            createdAt: Date.now(),
+          });
+          refreshCreditBalance();
+          return;
+        }
         if (
           error.message?.includes("non-2xx") ||
           error.message?.includes("FunctionsHttpError") ||
