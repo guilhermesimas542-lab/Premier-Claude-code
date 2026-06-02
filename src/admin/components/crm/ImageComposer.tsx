@@ -11,7 +11,7 @@ import {
   type BannerChannelKey,
 } from "../../lib/crm/bannerTemplates";
 import type { ChannelKey } from "../../lib/crm/channels";
-import { useImageTemplates } from "../../hooks/crm/useImageTemplates";
+import { useImageTemplates, type ImageTemplate } from "../../hooks/crm/useImageTemplates";
 
 interface Props {
   channel: ChannelKey;
@@ -48,43 +48,20 @@ function ImageComposerInner({
   onClose: () => void;
 }) {
   const [tab, setTab] = useState<Tab>("model");
-  const [templateKey, setTemplateKey] = useState<string>(BANNER_TEMPLATES[0].key);
-  const template = useMemo(() => getTemplate(templateKey), [templateKey]);
-  const [values, setValues] = useState<BannerValues>(template.defaults);
   const [uploadedDataUrl, setUploadedDataUrl] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [aiPrompt, setAiPrompt] = useState<string>(() => {
-    const parts = [template.defaults.title, template.defaults.subtitle, template.defaults.cta]
-      .filter(Boolean)
-      .join(" — ");
-    return parts ? `banner com "${parts}"` : "";
-  });
+  const [uploadingFromUpload, setUploadingFromUpload] = useState(false);
+  const [aiPrompt, setAiPrompt] = useState<string>("");
   const [aiGenerating, setAiGenerating] = useState(false);
   const [aiPreviewUrl, setAiPreviewUrl] = useState<string | null>(null);
-  const previewRef = useRef<HTMLDivElement | null>(null);
 
-  // When user switches template, reset to template defaults
-  const switchTemplate = (k: string) => {
-    setTemplateKey(k);
-    setValues({ ...getTemplate(k).defaults, bg_image_url: values.bg_image_url });
-  };
+  const { items: templates, loading: loadingTemplates, create: createTemplate, remove: removeTemplate } =
+    useImageTemplates();
 
   const size = getCanvasSize(channel);
-  // Preview is scaled down to fit the modal
-  const PREVIEW_MAX_W = 360;
-  const previewScale = Math.min(1, PREVIEW_MAX_W / size.w);
 
-  const handleFile = (file: File, mode: "bg" | "direct") => {
+  const handleFile = (file: File) => {
     const reader = new FileReader();
-    reader.onload = () => {
-      const url = String(reader.result ?? "");
-      if (mode === "bg") {
-        setValues((v) => ({ ...v, bg_image_url: url }));
-        toast.success("Imagem carregada como fundo do banner");
-      } else {
-        setUploadedDataUrl(url);
-      }
-    };
+    reader.onload = () => setUploadedDataUrl(String(reader.result ?? ""));
     reader.onerror = () => toast.error("Falha lendo o arquivo");
     reader.readAsDataURL(file);
   };
@@ -134,66 +111,80 @@ function ImageComposerInner({
     }
   };
 
-  const handleGenerate = async () => {
-    setLoading(true);
+  const handleAttachAi = () => {
+    if (!aiPreviewUrl) return;
+    onGenerated(aiPreviewUrl);
+    toast.success("Imagem anexada!");
+    onClose();
+  };
+
+  const handleAttachUpload = async () => {
+    if (!uploadedDataUrl) return;
+    setUploadingFromUpload(true);
     try {
-      // Aba IA: imagem já está hospedada no bucket — só passa a URL adiante
-      if (tab === "ai" && aiPreviewUrl) {
-        toast.success("Imagem anexada!");
-        onGenerated(aiPreviewUrl);
-        onClose();
-        return;
-      }
-
-      // Aba upload com imagem pronta = anexa direto, sem rasterizar
-      if (tab === "upload" && uploadedDataUrl) {
-        // Converte dataURL -> Blob
-        const resp = await fetch(uploadedDataUrl);
-        const blob = await resp.blob();
-        const url = await uploadBlob(blob);
-        toast.success("Imagem anexada!");
-        onGenerated(url);
-        onClose();
-        return;
-      }
-
-
-
-      // Aba modelo: rasteriza o node
-      const node = previewRef.current;
-      if (!node) {
-        toast.error("Preview não está pronto.");
-        return;
-      }
-      const canvas = await html2canvas(node, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: null,
-        width: size.w,
-        height: size.h,
-        windowWidth: size.w,
-        windowHeight: size.h,
-      });
-      const blob: Blob = await new Promise((resolve, reject) =>
-        canvas.toBlob(
-          (b) => (b ? resolve(b) : reject(new Error("toBlob retornou null"))),
-          "image/png",
-          0.95
-        )
-      );
+      const resp = await fetch(uploadedDataUrl);
+      const blob = await resp.blob();
       const url = await uploadBlob(blob);
-      toast.success("Banner gerado e anexado!");
       onGenerated(url);
+      toast.success("Imagem anexada!");
       onClose();
     } catch (e: any) {
-      console.error("[ImageComposer]", e);
-      toast.error(`Erro ao gerar imagem: ${e?.message ?? String(e)}`);
+      console.error("[ImageComposer/upload]", e);
+      toast.error(`Erro no upload: ${e?.message ?? String(e)}`);
     } finally {
-      setLoading(false);
+      setUploadingFromUpload(false);
     }
   };
 
-  const TemplateRender = template.render;
+  const handleSaveImageTemplate = async (image_url: string) => {
+    const name = window.prompt("Nome do modelo:");
+    if (!name?.trim()) return;
+    await createTemplate({ name, kind: "image", channel, image_url });
+  };
+
+  const handleSavePromptTemplate = async () => {
+    const prompt = aiPrompt.trim();
+    if (!prompt) {
+      toast.error("Escreva o prompt antes de salvar.");
+      return;
+    }
+    const name = window.prompt("Nome do modelo:");
+    if (!name?.trim()) return;
+    await createTemplate({ name, kind: "prompt", channel, prompt });
+  };
+
+  const handleSaveUploadedAsTemplate = async () => {
+    if (!uploadedDataUrl) return;
+    const name = window.prompt("Nome do modelo:");
+    if (!name?.trim()) return;
+    try {
+      const resp = await fetch(uploadedDataUrl);
+      const blob = await resp.blob();
+      const url = await uploadBlob(blob);
+      await createTemplate({ name, kind: "image", channel, image_url: url });
+    } catch (e: any) {
+      toast.error(`Erro salvando modelo: ${e?.message ?? String(e)}`);
+    }
+  };
+
+  const handleUseTemplate = (tpl: ImageTemplate) => {
+    if (tpl.kind === "image" && tpl.image_url) {
+      onGenerated(tpl.image_url);
+      toast.success(`Modelo "${tpl.name}" anexado!`);
+      onClose();
+      return;
+    }
+    if (tpl.kind === "prompt" && tpl.prompt) {
+      setAiPrompt(tpl.prompt);
+      setTab("ai");
+      toast.success(`Prompt "${tpl.name}" carregado na aba IA.`);
+    }
+  };
+
+  const handleRemoveTemplate = async (tpl: ImageTemplate) => {
+    if (!window.confirm(`Excluir modelo "${tpl.name}"?`)) return;
+    await removeTemplate(tpl.id);
+  };
 
   return (
     <Backdrop onClose={onClose}>
@@ -212,130 +203,37 @@ function ImageComposerInner({
 
         {/* Tabs */}
         <div className="flex border-b border-border">
-          <TabButton active={tab === "model"} onClick={() => setTab("model")}>Modelo</TabButton>
+          <TabButton active={tab === "model"} onClick={() => setTab("model")}>Modelos</TabButton>
           <TabButton active={tab === "ai"} onClick={() => setTab("ai")}>IA</TabButton>
           <TabButton active={tab === "upload"} onClick={() => setTab("upload")}>Upload</TabButton>
         </div>
 
-        <div className="flex-1 overflow-auto grid md:grid-cols-2 gap-4 p-4">
-          {/* Form */}
-          <div className="space-y-3">
-            {tab === "model" && (
-              <>
-                <div className="space-y-1.5">
-                  <Label>Modelo</Label>
-                  <div className="grid grid-cols-1 gap-1.5">
-                    {BANNER_TEMPLATES.map((t) => (
-                      <button
-                        type="button"
-                        key={t.key}
-                        onClick={() => switchTemplate(t.key)}
-                        className={`text-left rounded-md border px-3 py-2 transition ${
-                          templateKey === t.key
-                            ? "border-emerald-400 bg-emerald-400/5"
-                            : "border-border hover:border-muted-foreground"
-                        }`}
-                      >
-                        <div className="text-xs font-semibold">{t.name}</div>
-                        <div className="text-[10px] text-muted-foreground">{t.description}</div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
+        <div className="flex-1 overflow-auto p-4">
+          {tab === "model" && (
+            <ModelTab
+              templates={templates}
+              loading={loadingTemplates}
+              onUse={handleUseTemplate}
+              onRemove={handleRemoveTemplate}
+            />
+          )}
 
-                {template.fields.map((f) => {
-                  const val = values[f.key] ?? "";
-                  if (f.type === "textarea") {
-                    return (
-                      <div key={f.key} className="space-y-1">
-                        <Label>{f.label}</Label>
-                        <Textarea
-                          value={val}
-                          onChange={(e) => setValues({ ...values, [f.key]: e.target.value })}
-                          placeholder={f.placeholder}
-                          rows={2}
-                        />
-                      </div>
-                    );
-                  }
-                  if (f.type === "color") {
-                    return (
-                      <div key={f.key} className="space-y-1">
-                        <Label>{f.label}</Label>
-                        <div className="flex gap-2 items-center">
-                          <input
-                            type="color"
-                            value={val || "#00FF7F"}
-                            onChange={(e) => setValues({ ...values, [f.key]: e.target.value })}
-                            className="h-9 w-12 rounded border border-border bg-transparent"
-                          />
-                          <Input
-                            value={val}
-                            onChange={(e) => setValues({ ...values, [f.key]: e.target.value })}
-                            placeholder="#00FF7F"
-                          />
-                        </div>
-                      </div>
-                    );
-                  }
-                  if (f.type === "image") {
-                    return (
-                      <div key={f.key} className="space-y-1">
-                        <Label>{f.label}</Label>
-                        <div className="flex gap-2">
-                          <Input
-                            value={val}
-                            onChange={(e) => setValues({ ...values, [f.key]: e.target.value })}
-                            placeholder="https://..."
-                            className="flex-1"
-                          />
-                          <label className="inline-flex items-center gap-1 text-xs px-2 py-1.5 rounded border border-border cursor-pointer hover:bg-muted/30">
-                            <Upload className="w-3 h-3" />
-                            <span>Upload</span>
-                            <input
-                              type="file"
-                              accept="image/*"
-                              className="hidden"
-                              onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                if (file) handleFile(file, "bg");
-                                e.currentTarget.value = "";
-                              }}
-                            />
-                          </label>
-                        </div>
-                      </div>
-                    );
-                  }
-                  return (
-                    <div key={f.key} className="space-y-1">
-                      <Label>{f.label}</Label>
-                      <Input
-                        value={val}
-                        onChange={(e) => setValues({ ...values, [f.key]: e.target.value })}
-                        placeholder={f.placeholder}
-                      />
-                    </div>
-                  );
-                })}
-              </>
-            )}
-
-            {tab === "ai" && (
-              <div className="space-y-3">
-                <div className="space-y-1">
-                  <Label>Descreva a imagem</Label>
-                  <Textarea
-                    value={aiPrompt}
-                    onChange={(e) => setAiPrompt(e.target.value)}
-                    placeholder="banner de odds turbinadas pro jogo Flamengo x Palmeiras, com '2.50' em destaque e botão APOSTAR"
-                    rows={4}
-                  />
-                </div>
-                <div className="rounded-md border border-amber-500/30 bg-amber-500/5 p-2 text-[10px] text-amber-300/90 leading-relaxed">
-                  Gerar custa ~US$ 0,04 por imagem. Revise o texto da imagem antes de
-                  anexar — IA pode errar palavras.
-                </div>
+          {tab === "ai" && (
+            <div className="space-y-3 max-w-2xl mx-auto">
+              <div className="space-y-1">
+                <Label>Descreva a imagem</Label>
+                <Textarea
+                  value={aiPrompt}
+                  onChange={(e) => setAiPrompt(e.target.value)}
+                  placeholder="banner de odds turbinadas pro jogo Flamengo x Palmeiras, com '2.50' em destaque e botão APOSTAR"
+                  rows={4}
+                />
+              </div>
+              <div className="rounded-md border border-amber-500/30 bg-amber-500/5 p-2 text-[10px] text-amber-300/90 leading-relaxed">
+                Gerar custa ~US$ 0,04 por imagem. Revise o texto da imagem antes de
+                anexar — IA pode errar palavras.
+              </div>
+              <div className="flex flex-wrap gap-2">
                 <Button
                   type="button"
                   size="sm"
@@ -359,32 +257,65 @@ function ImageComposerInner({
                     </>
                   )}
                 </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={handleSavePromptTemplate}
+                  disabled={!aiPrompt.trim()}
+                >
+                  <Save className="w-3.5 h-3.5 mr-1.5" />
+                  Salvar texto como modelo
+                </Button>
               </div>
-            )}
 
-            {tab === "upload" && (
-              <div className="space-y-3">
-                <div className="rounded-lg border border-dashed border-border bg-muted/10 p-6 text-center">
-                  <Upload className="w-6 h-6 mx-auto text-muted-foreground" />
-                  <p className="text-xs text-muted-foreground mt-2">
-                    Suba uma imagem já pronta — vamos anexar direto, sem rasterizar.
-                  </p>
-                  <label className="mt-3 inline-flex items-center gap-1 text-xs px-3 py-2 rounded border border-border cursor-pointer hover:bg-muted/30">
-                    <Upload className="w-3 h-3" />
-                    <span>Escolher arquivo</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) handleFile(file, "direct");
-                        e.currentTarget.value = "";
-                      }}
-                    />
-                  </label>
+              {aiPreviewUrl && (
+                <div className="space-y-2">
+                  <img
+                    src={aiPreviewUrl}
+                    alt="Imagem gerada por IA"
+                    className="w-full h-auto block rounded border border-border"
+                  />
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleSaveImageTemplate(aiPreviewUrl)}
+                    >
+                      <Save className="w-3.5 h-3.5 mr-1.5" />
+                      Salvar imagem como modelo
+                    </Button>
+                  </div>
                 </div>
-                {uploadedDataUrl && (
+              )}
+            </div>
+          )}
+
+          {tab === "upload" && (
+            <div className="space-y-3 max-w-2xl mx-auto">
+              <div className="rounded-lg border border-dashed border-border bg-muted/10 p-6 text-center">
+                <Upload className="w-6 h-6 mx-auto text-muted-foreground" />
+                <p className="text-xs text-muted-foreground mt-2">
+                  Suba uma imagem já pronta — vamos anexar direto, sem rasterizar.
+                </p>
+                <label className="mt-3 inline-flex items-center gap-1 text-xs px-3 py-2 rounded border border-border cursor-pointer hover:bg-muted/30">
+                  <Upload className="w-3 h-3" />
+                  <span>Escolher arquivo</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleFile(file);
+                      e.currentTarget.value = "";
+                    }}
+                  />
+                </label>
+              </div>
+              {uploadedDataUrl && (
+                <>
                   <div className="rounded-lg border border-border overflow-hidden">
                     <img
                       src={uploadedDataUrl}
@@ -392,63 +323,21 @@ function ImageComposerInner({
                       className="w-full h-auto block"
                     />
                   </div>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Preview */}
-          <div className="space-y-2">
-            <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">
-              Preview {Math.round(previewScale * 100)}% · {size.w}×{size.h}
-            </div>
-            <div className="rounded-lg border border-border bg-black/30 p-3 overflow-auto">
-              {tab === "model" ? (
-                <div
-                  style={{
-                    width: size.w * previewScale,
-                    height: size.h * previewScale,
-                    position: "relative",
-                    overflow: "hidden",
-                  }}
-                >
-                  <div
-                    style={{
-                      transform: `scale(${previewScale})`,
-                      transformOrigin: "top left",
-                      width: size.w,
-                      height: size.h,
-                    }}
-                  >
-                    {/* O nó realmente capturado: tamanho real */}
-                    <div ref={previewRef}>
-                      <TemplateRender values={values} width={size.w} height={size.h} />
-                    </div>
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={handleSaveUploadedAsTemplate}
+                    >
+                      <Save className="w-3.5 h-3.5 mr-1.5" />
+                      Salvar como modelo
+                    </Button>
                   </div>
-                </div>
-              ) : tab === "ai" ? (
-                aiPreviewUrl ? (
-                  <img
-                    src={aiPreviewUrl}
-                    alt="Imagem gerada por IA"
-                    className="w-full h-auto block rounded border border-border"
-                  />
-                ) : (
-                  <div className="text-xs text-muted-foreground">
-                    {aiGenerating
-                      ? "Gerando imagem com IA..."
-                      : "Descreva a imagem e clique em \"Gerar com IA\"."}
-                  </div>
-                )
-              ) : (
-                <div className="text-xs text-muted-foreground">
-                  {uploadedDataUrl
-                    ? "Imagem pronta acima — será anexada como está."
-                    : "Selecione um arquivo pra anexar."}
-                </div>
+                </>
               )}
             </div>
-          </div>
+          )}
         </div>
 
         {/* Footer */}
@@ -457,33 +346,124 @@ function ImageComposerInner({
             Recomendado: {size.w}×{size.h}px · upload em <code>crm-creatives</code>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={onClose} disabled={loading}>
+            <Button variant="outline" size="sm" onClick={onClose}>
               Cancelar
             </Button>
-            <Button
-              size="sm"
-              onClick={handleGenerate}
-              disabled={
-                loading ||
-                (tab === "upload" && !uploadedDataUrl) ||
-                (tab === "ai" && !aiPreviewUrl)
-              }
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
-                  Gerando...
-                </>
-              ) : tab === "ai" ? (
-                "Anexar esta imagem"
-              ) : (
-                "Gerar e anexar"
-              )}
-            </Button>
+            {tab === "ai" && (
+              <Button
+                size="sm"
+                onClick={handleAttachAi}
+                disabled={!aiPreviewUrl}
+              >
+                Anexar esta imagem
+              </Button>
+            )}
+            {tab === "upload" && (
+              <Button
+                size="sm"
+                onClick={handleAttachUpload}
+                disabled={!uploadedDataUrl || uploadingFromUpload}
+              >
+                {uploadingFromUpload ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                    Enviando...
+                  </>
+                ) : (
+                  "Anexar imagem"
+                )}
+              </Button>
+            )}
           </div>
         </div>
       </div>
     </Backdrop>
+  );
+}
+
+function ModelTab({
+  templates,
+  loading,
+  onUse,
+  onRemove,
+}: {
+  templates: ImageTemplate[];
+  loading: boolean;
+  onUse: (tpl: ImageTemplate) => void;
+  onRemove: (tpl: ImageTemplate) => void;
+}) {
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-10 text-xs text-muted-foreground">
+        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+        Carregando modelos...
+      </div>
+    );
+  }
+
+  if (!templates.length) {
+    return (
+      <div className="text-center py-10 px-4">
+        <ImageIcon className="w-10 h-10 mx-auto text-muted-foreground/50" />
+        <p className="text-sm text-muted-foreground mt-3 max-w-md mx-auto">
+          Você ainda não tem modelos. Gere uma imagem (aba IA) ou faça upload e salve aqui pra reusar.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+      {templates.map((tpl) => (
+        <div
+          key={tpl.id}
+          className="rounded-lg border border-border bg-muted/10 overflow-hidden flex flex-col"
+        >
+          {tpl.kind === "image" && tpl.image_url ? (
+            <div className="aspect-video bg-black/30 overflow-hidden">
+              <img
+                src={tpl.image_url}
+                alt={tpl.name}
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+            </div>
+          ) : (
+            <div className="aspect-video bg-black/30 p-3 overflow-hidden flex">
+              <div className="flex-1 text-[11px] text-muted-foreground line-clamp-6 whitespace-pre-wrap leading-snug">
+                {tpl.prompt}
+              </div>
+            </div>
+          )}
+          <div className="p-2.5 flex items-center gap-2">
+            <div className="flex-1 min-w-0">
+              <div className="text-xs font-semibold truncate flex items-center gap-1">
+                {tpl.kind === "image" ? (
+                  <ImageIcon className="w-3 h-3 text-emerald-400 shrink-0" />
+                ) : (
+                  <FileText className="w-3 h-3 text-emerald-400 shrink-0" />
+                )}
+                <span className="truncate">{tpl.name}</span>
+              </div>
+              <div className="text-[10px] text-muted-foreground">
+                {tpl.kind === "image" ? "Imagem" : "Prompt IA"}
+              </div>
+            </div>
+            <Button size="sm" variant="outline" className="h-7 text-xs px-2" onClick={() => onUse(tpl)}>
+              Usar
+            </Button>
+            <button
+              type="button"
+              onClick={() => onRemove(tpl)}
+              className="text-muted-foreground hover:text-red-400 p-1"
+              title="Excluir modelo"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
+      ))}
+    </div>
   );
 }
 
