@@ -36,11 +36,13 @@ interface PremiumBettingCardProps {
   lockedLabel?: string;
   isExpired?: boolean;
   justificativa?: string;
+  hideTimer?: boolean;
   onAddTip?: () => void;
   onViewAnalysis?: () => void;
   onOpenJustificativa?: (texto: string) => void;
   onLockedClick?: () => void;
 }
+
 
 const TIER_COLORS: Record<string, string> = {
   "GRÁTIS": "#94A3B8",
@@ -109,10 +111,12 @@ export const PremiumBettingCard = ({
   lockedLabel,
   isExpired: isExpiredProp = false,
   justificativa,
+  hideTimer = false,
   onAddTip,
   onOpenJustificativa,
   onLockedClick,
 }: PremiumBettingCardProps) => {
+
   const [showBetHelp, setShowBetHelp] = useState(false);
   const [countdown, setCountdown] = useState<string>("");
   const [isExpiredLocal, setIsExpiredLocal] = useState(false);
@@ -127,6 +131,7 @@ export const PremiumBettingCard = ({
   const displaySelectionsCount = selectionsCount || (tier === "ULTRA" ? 3 : 2);
 
   useEffect(() => {
+    if (hideTimer) { setCountdown(""); return; }
     if (!startsAt || isExpiredProp) { setCountdown(""); return; }
     const updateCountdown = () => {
       const now = new Date().getTime();
@@ -137,7 +142,8 @@ export const PremiumBettingCard = ({
     updateCountdown();
     const interval = setInterval(updateCountdown, 1000);
     return () => clearInterval(interval);
-  }, [startsAt, isExpiredProp]);
+  }, [startsAt, isExpiredProp, hideTimer]);
+
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -232,7 +238,9 @@ export const PremiumBettingCard = ({
         }}>
           {/* Timer */}
           <div style={{ display: "flex", alignItems: "center", gap: 4, width: 70, flexShrink: 0 }}>
-            {isLocked ? (
+            {hideTimer ? (
+              <span style={{ fontSize: 12, color: "transparent" }}>—</span>
+            ) : isLocked ? (
               <span style={{ fontSize: 12, color: "transparent" }}>—</span>
             ) : countdown === "AO VIVO" ? (
               <>
@@ -247,6 +255,7 @@ export const PremiumBettingCard = ({
             ) : (
               <span style={{ fontSize: 12, color: "transparent" }}>—</span>
             )}
+
           </div>
 
           {/* Badge — center */}
