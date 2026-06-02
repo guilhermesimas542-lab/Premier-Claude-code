@@ -112,6 +112,16 @@ export default function AdminCrmAudiences() {
                   </Td>
                   <Td className="text-right pr-4">
                     <div className="flex justify-end gap-1">
+                      {a.kind === "static_list" && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setUpdateTarget(a)}
+                          title="Atualizar lista (nome e contatos)"
+                        >
+                          <RefreshCw className="w-3.5 h-3.5" />
+                        </Button>
+                      )}
                       <Button
                         variant="ghost"
                         size="sm"
@@ -119,7 +129,7 @@ export default function AdminCrmAudiences() {
                         disabled={a.kind === "static_list"}
                         title={
                           a.kind === "static_list"
-                            ? "Listas importadas: edição de membros vem em breve"
+                            ? "Use “Atualizar lista” pra editar nome e contatos"
                             : "Editar filtros"
                         }
                       >
