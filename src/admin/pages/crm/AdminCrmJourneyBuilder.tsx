@@ -28,7 +28,6 @@ import { useJourneys, type Journey } from "../../hooks/crm/useJourneys";
 import { useJourneySteps } from "../../hooks/crm/useJourneySteps";
 import { useAudiences } from "../../hooks/crm/useAudiences";
 import { useJourneyTemplates } from "../../hooks/crm/useJourneyTemplates";
-import { ChannelPicker } from "../../components/crm/journey/ChannelPicker";
 import { StepCard } from "../../components/crm/journey/StepCard";
 import {
   TRIGGERS,
@@ -37,7 +36,7 @@ import {
   type JourneyStatus,
   type TriggerKey,
 } from "../../lib/crm/triggers";
-import type { ChannelKey } from "../../lib/crm/channels";
+import { CHANNELS, CHANNEL_LIST, type ChannelKey } from "../../lib/crm/channels";
 
 export default function AdminCrmJourneyBuilder() {
   const { id } = useParams<{ id?: string }>();
@@ -65,7 +64,7 @@ export default function AdminCrmJourneyBuilder() {
         .from("crm_journeys")
         .select(
           `id, name, description, trigger_type, trigger_config,
-           audience_id, audience_filters, status, stats,
+           audience_id, audience_filters, status, stats, channel,
            created_by, created_at, updated_at,
            audience:crm_audiences ( id, name, kind, filters )`
         )
@@ -94,6 +93,7 @@ export default function AdminCrmJourneyBuilder() {
     trigger_type: "onboarding" as TriggerKey,
     trigger_config: {} as Record<string, any>,
     audience_id: null as string | null,
+    channel: null as ChannelKey | null,
   });
   const [headerInitialized, setHeaderInitialized] = useState(false);
 
@@ -105,6 +105,7 @@ export default function AdminCrmJourneyBuilder() {
       trigger_type: journey.trigger_type,
       trigger_config: journey.trigger_config ?? {},
       audience_id: journey.audience_id,
+      channel: journey.channel,
     });
     setHeaderInitialized(true);
   }, [journey, headerInitialized]);
@@ -130,8 +131,6 @@ export default function AdminCrmJourneyBuilder() {
     move: moveStep,
   } = useJourneySteps(journey?.id ?? null);
 
-  const [pickerOpen, setPickerOpen] = useState(false);
-
   // ============================================================
   // Handlers
   // ============================================================
@@ -141,6 +140,10 @@ export default function AdminCrmJourneyBuilder() {
       toast.error("Dê um nome à jornada");
       return;
     }
+    if (!headerDraft.channel) {
+      toast.error("Escolha o canal da jornada antes de criar.");
+      return;
+    }
     setCreating(true);
     const created = await create({
       name: headerDraft.name.trim(),
@@ -148,6 +151,7 @@ export default function AdminCrmJourneyBuilder() {
       trigger_type: headerDraft.trigger_type,
       trigger_config: headerDraft.trigger_config,
       audience_id: headerDraft.audience_id,
+      channel: headerDraft.channel,
       status: "draft",
     });
     setCreating(false);
@@ -162,6 +166,7 @@ export default function AdminCrmJourneyBuilder() {
       toast.error("Dê um nome à jornada");
       return;
     }
+    // Canal NÃO entra no update — fica travado depois de criada.
     const ok = await update(journey.id, {
       name: headerDraft.name.trim(),
       description: headerDraft.description.trim() || undefined,
@@ -171,7 +176,6 @@ export default function AdminCrmJourneyBuilder() {
     });
     if (ok) {
       toast.success("Cabeçalho salvo");
-      // Re-fetch local
       setJourney((j) =>
         j
           ? {
@@ -201,19 +205,24 @@ export default function AdminCrmJourneyBuilder() {
     }
   };
 
-  const handlePickChannel = async (channel: ChannelKey) => {
+  /**
+   * Adiciona um novo step usando o canal fixo da jornada.
+   * Jornadas legadas (channel = null) caem num fallback de "email" — não deveria
+   * acontecer nas novas, mas evita travar a UI.
+   */
+  const handleAddStep = async () => {
     if (!journey) return;
-    setPickerOpen(false);
-    // Primeiro step entra com delay 0; demais entram com delay 1 dia
+    const ch: ChannelKey = (journey.channel as ChannelKey) ?? "email";
     const isFirstEver = steps.length === 0;
     await createStep({
       journey_id: journey.id,
-      channel,
+      channel: ch,
       content: {},
       delay_value: isFirstEver ? 0 : 1,
       delay_unit: "day",
     });
   };
+
 
   // ============================================================
   // Render
@@ -277,6 +286,73 @@ export default function AdminCrmJourneyBuilder() {
                 </Button>
               )}
             </div>
+          )}
+        </div>
+
+        {/* Canal — obrigatório na criação, travado depois */}
+        <div className="pt-3 border-t border-border/50">
+          <Label className="text-xs text-muted-foreground uppercase tracking-wider">
+            Canal da jornada
+          </Label>
+          {isNew ? (
+            <>
+              <Select
+                value={headerDraft.channel ?? ""}
+                onValueChange={(v) =>
+                  setHeaderDraft((d) => ({ ...d, channel: v as ChannelKey }))
+                }
+              >
+                <SelectTrigger className="mt-1.5">
+                  <SelectValue placeholder="Escolha o canal (obrigatório)" />
+                </SelectTrigger>
+                <SelectContent>
+                  {CHANNEL_LIST.map((c) => {
+                    const Icon = c.icon;
+                    return (
+                      <SelectItem key={c.key} value={c.key}>
+                        <span className="inline-flex items-center gap-2">
+                          <Icon className="w-3.5 h-3.5" style={{ color: c.color }} />
+                          {c.label}
+                        </span>
+                      </SelectItem>
+                    );
+                  })}
+                </SelectContent>
+              </Select>
+              <p className="text-[11px] text-muted-foreground italic mt-1">
+                Cada jornada tem UM canal só, e ele fica travado depois que ela é criada.
+              </p>
+            </>
+          ) : (
+            (() => {
+              const ch = journey?.channel ? CHANNELS[journey.channel] : null;
+              const Icon = ch?.icon;
+              return (
+                <div className="mt-1.5">
+                  {ch && Icon ? (
+                    <span
+                      className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md text-xs font-bold uppercase tracking-wider"
+                      style={{
+                        background: `${ch.color}20`,
+                        border: `1px solid ${ch.color}50`,
+                        color: ch.color,
+                      }}
+                      title="Canal travado depois da criação"
+                    >
+                      <Icon className="w-3.5 h-3.5" />
+                      {ch.label}
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md text-xs font-bold uppercase tracking-wider border border-amber-500/40 bg-amber-500/10 text-amber-400">
+                      Misto / legado
+                    </span>
+                  )}
+                  <p className="text-[11px] text-muted-foreground italic mt-1">
+                    Canal travado — todos os passos já criados usam este canal.
+                  </p>
+                </div>
+              );
+            })()
           )}
         </div>
 
@@ -359,7 +435,10 @@ export default function AdminCrmJourneyBuilder() {
         {/* Ações */}
         <div className="flex justify-end gap-2 pt-3 border-t border-border/50">
           {isNew ? (
-            <Button onClick={handleCreateJourney} disabled={creating || !headerDraft.name.trim()}>
+            <Button
+              onClick={handleCreateJourney}
+              disabled={creating || !headerDraft.name.trim() || !headerDraft.channel}
+            >
               {creating ? (
                 <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
               ) : (
@@ -425,7 +504,7 @@ export default function AdminCrmJourneyBuilder() {
                   <p className="text-sm text-muted-foreground mb-3">
                     Esta jornada ainda não tem passos.
                   </p>
-                  <Button onClick={() => setPickerOpen(true)}>
+                  <Button onClick={handleAddStep}>
                     <Plus className="w-4 h-4 mr-2" />
                     Adicionar primeiro passo
                   </Button>
@@ -460,7 +539,7 @@ export default function AdminCrmJourneyBuilder() {
 
               {steps.length > 0 && (
                 <div className="flex justify-center pt-2">
-                  <Button variant="outline" onClick={() => setPickerOpen(true)}>
+                  <Button variant="outline" onClick={handleAddStep}>
                     <Plus className="w-4 h-4 mr-2" />
                     Adicionar passo
                   </Button>
@@ -477,10 +556,6 @@ export default function AdminCrmJourneyBuilder() {
             Crie a jornada primeiro pra começar a adicionar passos.
           </p>
         </div>
-      )}
-
-      {pickerOpen && (
-        <ChannelPicker onPick={handlePickChannel} onCancel={() => setPickerOpen(false)} />
       )}
     </div>
   );
