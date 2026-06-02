@@ -144,10 +144,14 @@ Deno.serve(async (req) => {
       .upload(path, bytes, { contentType: "image/png", upsert: false });
     if (upErr) return json({ error: "upload_failed", detail: upErr.message }, 500);
 
-    const { data: pub } = admin.storage.from("crm-creatives").getPublicUrl(path);
-    if (!pub?.publicUrl) return json({ error: "no_public_url" }, 500);
+    const { data: signed, error: signErr } = await admin.storage
+      .from("crm-creatives")
+      .createSignedUrl(path, 60 * 60 * 24 * 3650);
+    if (signErr || !signed?.signedUrl) {
+      return json({ error: "sign_failed", detail: signErr?.message ?? "no_signed_url" }, 500);
+    }
 
-    return json({ url: pub.publicUrl });
+    return json({ url: signed.signedUrl });
   } catch (e: any) {
     console.error("[crm-generate-image]", e);
     return json({ error: "internal_error", detail: String(e?.message ?? e) }, 500);
