@@ -434,7 +434,7 @@ export default function AdminCrmJourneyBuilder() {
                   <p className="text-sm text-muted-foreground mb-3">
                     Esta jornada ainda não tem passos.
                   </p>
-                  <Button onClick={() => setPickerOpen(true)}>
+                  <Button onClick={handleAddStep}>
                     <Plus className="w-4 h-4 mr-2" />
                     Adicionar primeiro passo
                   </Button>
