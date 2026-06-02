@@ -1,9 +1,10 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { X, Upload, Loader2, CheckCircle2, Mail, Phone, AlertTriangle, FileUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
 import {
   parseImportText,
@@ -14,11 +15,18 @@ import {
 import { useAudiences } from "../../hooks/crm/useAudiences";
 import { useAudienceMembers } from "../../hooks/crm/useAudienceMembers";
 
+type Mode = "create" | "update";
+type UpdateStrategy = "replace" | "append";
+
 interface Props {
   open: boolean;
   onClose: () => void;
+  mode?: Mode;
+  audience?: { id: string; name: string; description: string | null } | null;
   /** Chamado depois da audiência criada + membros inseridos. */
   onCreated?: (audienceId: string) => void;
+  /** Chamado depois da audiência atualizada. */
+  onUpdated?: (audienceId: string) => void;
 }
 
 const SAMPLE = `joao@exemplo.com.br
@@ -27,16 +35,24 @@ maria@exemplo.com.br, 11999998888
 contato@premier.app;5521988887766`;
 
 /**
- * Modal de importação de lista estática de emails/telefones.
+ * Modal de importação/atualização de lista estática de emails/telefones.
  *
- * Fluxo:
- *   1. Usuário cola texto (com cabeçalho da audiência: nome + descrição)
- *   2. Preview do parse mostra contagem + warnings
- *   3. Confirma → cria audiência (kind='static_list') + insere membros
+ * Modo "create": cria nova audiência kind='static_list' e insere membros.
+ * Modo "update": atualiza nome/descrição da audiência existente e:
+ *   - "replace" → apaga membros antigos e insere os novos
+ *   - "append" → só insere (dedup por unique constraint via onConflict)
  */
-export function AudienceImportModal({ open, onClose, onCreated }: Props) {
-  const { create } = useAudiences();
-  const { bulkInsert } = useAudienceMembers(null);
+export function AudienceImportModal({
+  open,
+  onClose,
+  mode = "create",
+  audience = null,
+  onCreated,
+  onUpdated,
+}: Props) {
+  const { create, update } = useAudiences();
+  // Em modo update, opera sobre a audience.id; em create, ainda não temos id.
+  const { bulkInsert, clearAll } = useAudienceMembers(mode === "update" ? audience?.id ?? null : null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -44,20 +60,37 @@ export function AudienceImportModal({ open, onClose, onCreated }: Props) {
   const [description, setDescription] = useState("");
   const [text, setText] = useState("");
   const [working, setWorking] = useState(false);
+  const [strategy, setStrategy] = useState<UpdateStrategy>("replace");
+
+  // Pré-preenche nome/descrição no modo update sempre que abrir
+  useEffect(() => {
+    if (!open) return;
+    if (mode === "update" && audience) {
+      setName(audience.name ?? "");
+      setDescription(audience.description ?? "");
+      setText("");
+      setStrategy("replace");
+    } else {
+      setName("");
+      setDescription("");
+      setText("");
+    }
+  }, [open, mode, audience]);
 
   const parse: ImportParseResult = useMemo(() => parseImportText(text), [text]);
   const summary = summarizeParse(parse);
 
+  const isUpdate = mode === "update" && !!audience;
   const canSubmit = name.trim().length > 0 && parse.rows.length > 0 && !working;
 
   const handleFile = async (file: File | null | undefined) => {
     if (!file) return;
-    const maxBytes = 8 * 1024 * 1024; // 8MB
+    const maxBytes = 8 * 1024 * 1024;
     if (file.size > maxBytes) { toast.error("Arquivo muito grande (máx. 8MB)."); return; }
     try {
       const content = await file.text();
       setText((prev) => (prev.trim() ? `${prev.trim()}\n${content}` : content));
-      if (!name.trim()) {
+      if (!isUpdate && !name.trim()) {
         setName(file.name.replace(/\.(csv|txt)$/i, "").slice(0, 100));
       }
       toast.success(`"${file.name}" carregado.`);
@@ -69,6 +102,43 @@ export function AudienceImportModal({ open, onClose, onCreated }: Props) {
     if (!canSubmit) return;
     setWorking(true);
 
+    if (isUpdate && audience) {
+      const ok = await update(audience.id, {
+        name: name.trim(),
+        description: description.trim() || null,
+      });
+      if (!ok) { setWorking(false); return; }
+
+      if (strategy === "replace") {
+        const cleared = await clearAll(audience.id);
+        if (!cleared) { setWorking(false); return; }
+      }
+
+      const r = await bulkInsert(audience.id, parse.rows);
+      setWorking(false);
+      if (!r) {
+        toast.error("Não foi possível inserir os membros.");
+        return;
+      }
+
+      const matchInfo =
+        r.matched_users > 0
+          ? ` · ${r.matched_users.toLocaleString("pt-BR")} já cadastrados`
+          : "";
+      const dupInfo =
+        r.duplicates_in_db > 0
+          ? ` · ${r.duplicates_in_db.toLocaleString("pt-BR")} duplicados ignorados`
+          : "";
+      toast.success(
+        `Lista "${name.trim()}" atualizada com ${r.inserted.toLocaleString("pt-BR")} novos contatos${matchInfo}${dupInfo}.`
+      );
+
+      onUpdated?.(audience.id);
+      onClose();
+      return;
+    }
+
+    // Create
     const created = await create({
       name: name.trim(),
       description: description.trim() || null,
@@ -109,6 +179,9 @@ export function AudienceImportModal({ open, onClose, onCreated }: Props) {
 
   if (!open) return null;
 
+  const headerTitle = isUpdate ? "Atualizar lista" : "Importar lista";
+  const submitLabel = isUpdate ? "Atualizar lista" : "Criar lista";
+
   return (
     <div
       className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"
@@ -125,7 +198,7 @@ export function AudienceImportModal({ open, onClose, onCreated }: Props) {
               <Upload className="w-5 h-5 text-primary" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-foreground">Importar lista</h3>
+              <h3 className="text-lg font-bold text-foreground">{headerTitle}</h3>
               <p className="text-xs text-muted-foreground mt-0.5">
                 Cole emails ou telefones — um por linha. Aceita até{" "}
                 {IMPORT_LIMIT_MAX.toLocaleString("pt-BR")} contatos por lista.
@@ -164,6 +237,39 @@ export function AudienceImportModal({ open, onClose, onCreated }: Props) {
               />
             </div>
           </div>
+
+          {/* Estratégia de update */}
+          {isUpdate && (
+            <div className="space-y-2 rounded-xl border border-border bg-muted/20 p-3">
+              <Label className="text-xs uppercase tracking-wider text-muted-foreground">
+                Como atualizar
+              </Label>
+              <RadioGroup
+                value={strategy}
+                onValueChange={(v) => setStrategy(v as UpdateStrategy)}
+                className="gap-2"
+              >
+                <label className="flex items-start gap-2 cursor-pointer">
+                  <RadioGroupItem value="replace" id="strategy-replace" className="mt-0.5" />
+                  <div className="text-xs">
+                    <div className="font-semibold text-foreground">Substituir tudo</div>
+                    <div className="text-muted-foreground">
+                      Apaga os contatos atuais e usa só os desta importação.
+                    </div>
+                  </div>
+                </label>
+                <label className="flex items-start gap-2 cursor-pointer">
+                  <RadioGroupItem value="append" id="strategy-append" className="mt-0.5" />
+                  <div className="text-xs">
+                    <div className="font-semibold text-foreground">Adicionar aos existentes</div>
+                    <div className="text-muted-foreground">
+                      Mantém os atuais e adiciona os novos (duplicados são ignorados).
+                    </div>
+                  </div>
+                </label>
+              </RadioGroup>
+            </div>
+          )}
 
           {/* Textarea */}
           <div className="space-y-1.5">
@@ -255,7 +361,7 @@ export function AudienceImportModal({ open, onClose, onCreated }: Props) {
             ) : (
               <Upload className="w-3.5 h-3.5 mr-1.5" />
             )}
-            Criar lista
+            {submitLabel}
           </Button>
         </div>
       </div>

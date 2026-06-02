@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Users, Pencil, Trash2, Loader2, Upload, Filter as FilterIcon, ListChecks } from "lucide-react";
+import { Plus, Users, Pencil, Trash2, Loader2, Upload, Filter as FilterIcon, ListChecks, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAudiences, type Audience, type AudienceFilters } from "../../hooks/crm/useAudiences";
 import { AudienceBuilder } from "../../components/crm/AudienceBuilder";
@@ -13,6 +13,7 @@ export default function AdminCrmAudiences() {
   const { items, loading, create, update, remove, refresh } = useAudiences();
   const [builderOpen, setBuilderOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
+  const [updateTarget, setUpdateTarget] = useState<Audience | null>(null);
   const [editing, setEditing] = useState<Audience | null>(null);
 
   const handleNew = () => {
@@ -111,6 +112,16 @@ export default function AdminCrmAudiences() {
                   </Td>
                   <Td className="text-right pr-4">
                     <div className="flex justify-end gap-1">
+                      {a.kind === "static_list" && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setUpdateTarget(a)}
+                          title="Atualizar lista (nome e contatos)"
+                        >
+                          <RefreshCw className="w-3.5 h-3.5" />
+                        </Button>
+                      )}
                       <Button
                         variant="ghost"
                         size="sm"
@@ -118,7 +129,7 @@ export default function AdminCrmAudiences() {
                         disabled={a.kind === "static_list"}
                         title={
                           a.kind === "static_list"
-                            ? "Listas importadas: edição de membros vem em breve"
+                            ? "Use “Atualizar lista” pra editar nome e contatos"
                             : "Editar filtros"
                         }
                       >
@@ -152,6 +163,21 @@ export default function AdminCrmAudiences() {
         open={importOpen}
         onClose={() => setImportOpen(false)}
         onCreated={() => refresh()}
+      />
+
+      <AudienceImportModal
+        open={!!updateTarget}
+        mode="update"
+        audience={
+          updateTarget
+            ? { id: updateTarget.id, name: updateTarget.name, description: updateTarget.description }
+            : null
+        }
+        onClose={() => setUpdateTarget(null)}
+        onUpdated={() => {
+          setUpdateTarget(null);
+          refresh();
+        }}
       />
     </div>
   );
