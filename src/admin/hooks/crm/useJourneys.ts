@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { JourneyStatus, TriggerKey } from "../../lib/crm/triggers";
+import type { ChannelKey } from "../../lib/crm/channels";
 import type { AudienceFilters } from "./useAudiences";
 
 export interface JourneyStats {
@@ -21,6 +22,8 @@ export interface Journey {
   audience_id: string | null;
   audience_filters: AudienceFilters | null;
   status: JourneyStatus;
+  /** Canal fixo da jornada. null = jornada legada (mista). */
+  channel: ChannelKey | null;
   stats: JourneyStats;
   created_by: string | null;
   created_at: string;
@@ -38,11 +41,13 @@ export interface NewJourneyPayload {
   audience_id?: string | null;
   audience_filters?: AudienceFilters | null;
   status?: JourneyStatus;
+  channel?: ChannelKey | null;
 }
 
 export interface JourneysFilter {
   status?: JourneyStatus;
   trigger_type?: TriggerKey;
+  channel?: ChannelKey;
 }
 
 /** Códigos de erro que indicam que a tabela ainda não existe.
@@ -79,7 +84,7 @@ export function useJourneys(initialFilter: JourneysFilter = {}) {
       .select(
         `
         id, name, description, trigger_type, trigger_config,
-        audience_id, audience_filters, status, stats,
+        audience_id, audience_filters, status, stats, channel,
         created_by, created_at, updated_at,
         audience:crm_audiences ( id, name, kind, filters ),
         step_count:crm_journey_steps ( count )
@@ -89,6 +94,7 @@ export function useJourneys(initialFilter: JourneysFilter = {}) {
 
     if (filter.status) q = q.eq("status", filter.status);
     if (filter.trigger_type) q = q.eq("trigger_type", filter.trigger_type);
+    if (filter.channel) q = q.eq("channel", filter.channel);
 
     const { data, error: err } = await q;
 
@@ -129,6 +135,7 @@ export function useJourneys(initialFilter: JourneysFilter = {}) {
           audience_id: payload.audience_id ?? null,
           audience_filters: payload.audience_filters ?? null,
           status: payload.status ?? "draft",
+          channel: payload.channel ?? null,
         })
         .select()
         .single();
@@ -178,6 +185,7 @@ export function useJourneys(initialFilter: JourneysFilter = {}) {
         audience_id: source.audience_id,
         audience_filters: source.audience_filters,
         status: "draft",
+        channel: source.channel,
       });
     },
     [items, create]
