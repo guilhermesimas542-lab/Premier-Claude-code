@@ -469,7 +469,7 @@ export default function AdminCrmJourneyBuilder() {
 
               {steps.length > 0 && (
                 <div className="flex justify-center pt-2">
-                  <Button variant="outline" onClick={() => setPickerOpen(true)}>
+                  <Button variant="outline" onClick={handleAddStep}>
                     <Plus className="w-4 h-4 mr-2" />
                     Adicionar passo
                   </Button>
