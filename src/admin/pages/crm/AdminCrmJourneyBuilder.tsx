@@ -93,6 +93,7 @@ export default function AdminCrmJourneyBuilder() {
     trigger_type: "onboarding" as TriggerKey,
     trigger_config: {} as Record<string, any>,
     audience_id: null as string | null,
+    channel: null as ChannelKey | null,
   });
   const [headerInitialized, setHeaderInitialized] = useState(false);
 
@@ -104,6 +105,7 @@ export default function AdminCrmJourneyBuilder() {
       trigger_type: journey.trigger_type,
       trigger_config: journey.trigger_config ?? {},
       audience_id: journey.audience_id,
+      channel: journey.channel,
     });
     setHeaderInitialized(true);
   }, [journey, headerInitialized]);
