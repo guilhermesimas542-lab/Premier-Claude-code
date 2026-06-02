@@ -25,6 +25,16 @@ const WINDOW_DAYS: Record<Window, number> = { "7d": 7, "30d": 30, "90d": 90 };
 
 export default function AdminBehavior() {
   const { data, loading, window, setWindow, refresh } = useBehaviorReport("30d");
+  const navigate = useNavigate();
+  const windowDays = WINDOW_DAYS[window];
+
+  const goToAudience = (behavior: AudienceBehaviorFilter) => {
+    navigate("/admin/crm/audiences", {
+      state: { prefillBehavior: { window_days: windowDays, ...behavior } },
+    });
+  };
+
+
 
   return (
     <div className="p-4 md:p-6 space-y-6 max-w-6xl mx-auto">
