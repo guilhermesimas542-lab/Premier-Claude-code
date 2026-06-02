@@ -104,20 +104,46 @@ function ImageComposerInner({
     return data.publicUrl;
   }
 
+  const handleGenerateAI = async () => {
+    const prompt = aiPrompt.trim();
+    if (!prompt) {
+      toast.error("Descreva a imagem antes de gerar.");
+      return;
+    }
+    setAiGenerating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("crm-generate-image", {
+        body: { prompt, channel },
+      });
+      if (error) throw error;
+      if (!data?.url) throw new Error("Resposta sem URL");
+      setAiPreviewUrl(data.url);
+      toast.success("Imagem gerada! Revise antes de anexar.");
+    } catch (e: any) {
+      console.error("[ImageComposer/AI]", e);
+      toast.error(`Falha ao gerar: ${e?.message ?? String(e)}`);
+    } finally {
+      setAiGenerating(false);
+    }
+  };
+
   const handleGenerate = async () => {
     setLoading(true);
     try {
+      // Aba IA: imagem já está hospedada no bucket — só passa a URL adiante
+      if (tab === "ai" && aiPreviewUrl) {
+        toast.success("Imagem anexada!");
+        onGenerated(aiPreviewUrl);
+        onClose();
+        return;
+      }
+
       // Aba upload com imagem pronta = anexa direto, sem rasterizar
       if (tab === "upload" && uploadedDataUrl) {
         // Converte dataURL -> Blob
         const resp = await fetch(uploadedDataUrl);
         const blob = await resp.blob();
         const url = await uploadBlob(blob);
-        toast.success("Imagem anexada!");
-        onGenerated(url);
-        onClose();
-        return;
-      }
 
       // Aba modelo: rasteriza o node
       const node = previewRef.current;
