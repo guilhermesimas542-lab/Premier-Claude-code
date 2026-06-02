@@ -540,7 +540,11 @@ export async function sendBatchEmailReal(
   const sentAt = new Date().toISOString();
   const subject = (content?.subject ?? "").toString().trim() || "Premier FC";
   const bodyText = (content?.body ?? "").toString();
-  const html = bodyToHtml(bodyText);
+  const imageUrl = (content?.image_url ?? "").toString().trim() || null;
+  const imageHtml = imageUrl
+    ? `<img src="${imageUrl.replace(/"/g, "&quot;")}" alt="" style="max-width:600px;width:100%;display:block;border:0;outline:none;text-decoration:none;margin:0 0 12px 0;" />`
+    : "";
+  const html = imageHtml + bodyToHtml(bodyText);
   const from = buildFrom(sender);
   const replyTo = sender.replyTo?.trim() || null;
 
