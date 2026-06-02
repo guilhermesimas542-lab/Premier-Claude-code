@@ -37,6 +37,7 @@ interface PremiumBettingCardProps {
   isExpired?: boolean;
   justificativa?: string;
   hideTimer?: boolean;
+  showVerifiedBadge?: boolean;
   onAddTip?: () => void;
   onViewAnalysis?: () => void;
   onOpenJustificativa?: (texto: string) => void;
