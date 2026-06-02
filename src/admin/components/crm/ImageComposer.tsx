@@ -23,7 +23,7 @@ interface Props {
   onClose: () => void;
 }
 
-type Tab = "model" | "upload";
+type Tab = "model" | "upload" | "ai";
 
 export function ImageComposer({ channel, onGenerated, onClose }: Props) {
   if (!isImageSupportedChannel(channel)) {
@@ -57,6 +57,14 @@ function ImageComposerInner({
   const [values, setValues] = useState<BannerValues>(template.defaults);
   const [uploadedDataUrl, setUploadedDataUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [aiPrompt, setAiPrompt] = useState<string>(() => {
+    const parts = [template.defaults.title, template.defaults.subtitle, template.defaults.cta]
+      .filter(Boolean)
+      .join(" — ");
+    return parts ? `banner com "${parts}"` : "";
+  });
+  const [aiGenerating, setAiGenerating] = useState(false);
+  const [aiPreviewUrl, setAiPreviewUrl] = useState<string | null>(null);
   const previewRef = useRef<HTMLDivElement | null>(null);
 
   // When user switches template, reset to template defaults
@@ -96,9 +104,40 @@ function ImageComposerInner({
     return data.publicUrl;
   }
 
+  const handleGenerateAI = async () => {
+    const prompt = aiPrompt.trim();
+    if (!prompt) {
+      toast.error("Descreva a imagem antes de gerar.");
+      return;
+    }
+    setAiGenerating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("crm-generate-image", {
+        body: { prompt, channel },
+      });
+      if (error) throw error;
+      if (!data?.url) throw new Error("Resposta sem URL");
+      setAiPreviewUrl(data.url);
+      toast.success("Imagem gerada! Revise antes de anexar.");
+    } catch (e: any) {
+      console.error("[ImageComposer/AI]", e);
+      toast.error(`Falha ao gerar: ${e?.message ?? String(e)}`);
+    } finally {
+      setAiGenerating(false);
+    }
+  };
+
   const handleGenerate = async () => {
     setLoading(true);
     try {
+      // Aba IA: imagem já está hospedada no bucket — só passa a URL adiante
+      if (tab === "ai" && aiPreviewUrl) {
+        toast.success("Imagem anexada!");
+        onGenerated(aiPreviewUrl);
+        onClose();
+        return;
+      }
+
       // Aba upload com imagem pronta = anexa direto, sem rasterizar
       if (tab === "upload" && uploadedDataUrl) {
         // Converte dataURL -> Blob
@@ -110,6 +149,8 @@ function ImageComposerInner({
         onClose();
         return;
       }
+
+
 
       // Aba modelo: rasteriza o node
       const node = previewRef.current;
@@ -165,6 +206,7 @@ function ImageComposerInner({
         {/* Tabs */}
         <div className="flex border-b border-border">
           <TabButton active={tab === "model"} onClick={() => setTab("model")}>Modelo</TabButton>
+          <TabButton active={tab === "ai"} onClick={() => setTab("ai")}>IA</TabButton>
           <TabButton active={tab === "upload"} onClick={() => setTab("upload")}>Upload</TabButton>
         </div>
 
@@ -272,6 +314,47 @@ function ImageComposerInner({
               </>
             )}
 
+            {tab === "ai" && (
+              <div className="space-y-3">
+                <div className="space-y-1">
+                  <Label>Descreva a imagem</Label>
+                  <Textarea
+                    value={aiPrompt}
+                    onChange={(e) => setAiPrompt(e.target.value)}
+                    placeholder="banner de odds turbinadas pro jogo Flamengo x Palmeiras, com '2.50' em destaque e botão APOSTAR"
+                    rows={4}
+                  />
+                </div>
+                <div className="rounded-md border border-amber-500/30 bg-amber-500/5 p-2 text-[10px] text-amber-300/90 leading-relaxed">
+                  Gerar custa ~US$ 0,04 por imagem. Revise o texto da imagem antes de
+                  anexar — IA pode errar palavras.
+                </div>
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={handleGenerateAI}
+                  disabled={aiGenerating || !aiPrompt.trim()}
+                >
+                  {aiGenerating ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                      Gerando...
+                    </>
+                  ) : aiPreviewUrl ? (
+                    <>
+                      <Sparkles className="w-3.5 h-3.5 mr-1.5" />
+                      Gerar de novo
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-3.5 h-3.5 mr-1.5" />
+                      Gerar com IA
+                    </>
+                  )}
+                </Button>
+              </div>
+            )}
+
             {tab === "upload" && (
               <div className="space-y-3">
                 <div className="rounded-lg border border-dashed border-border bg-muted/10 p-6 text-center">
@@ -336,6 +419,20 @@ function ImageComposerInner({
                     </div>
                   </div>
                 </div>
+              ) : tab === "ai" ? (
+                aiPreviewUrl ? (
+                  <img
+                    src={aiPreviewUrl}
+                    alt="Imagem gerada por IA"
+                    className="w-full h-auto block rounded border border-border"
+                  />
+                ) : (
+                  <div className="text-xs text-muted-foreground">
+                    {aiGenerating
+                      ? "Gerando imagem com IA..."
+                      : "Descreva a imagem e clique em \"Gerar com IA\"."}
+                  </div>
+                )
               ) : (
                 <div className="text-xs text-muted-foreground">
                   {uploadedDataUrl
@@ -359,13 +456,19 @@ function ImageComposerInner({
             <Button
               size="sm"
               onClick={handleGenerate}
-              disabled={loading || (tab === "upload" && !uploadedDataUrl)}
+              disabled={
+                loading ||
+                (tab === "upload" && !uploadedDataUrl) ||
+                (tab === "ai" && !aiPreviewUrl)
+              }
             >
               {loading ? (
                 <>
                   <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
                   Gerando...
                 </>
+              ) : tab === "ai" ? (
+                "Anexar esta imagem"
               ) : (
                 "Gerar e anexar"
               )}
