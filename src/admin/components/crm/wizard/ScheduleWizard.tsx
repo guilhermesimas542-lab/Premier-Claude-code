@@ -681,9 +681,12 @@ function StepContent({
       <div>
         <h2 className="text-xl font-bold text-foreground">Conteúdo</h2>
         <p className="text-sm text-muted-foreground">
-          Mensagem que será enviada por <strong>{c.label}</strong>.
+          Mensagem que será enviada por <strong>{c.label}</strong>. O preview à direita atualiza ao vivo.
         </p>
       </div>
+
+      <div className="grid lg:grid-cols-2 gap-5">
+        <div className="space-y-4">
 
       {c.warning && (
         <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/5 p-3 flex items-start gap-2">
