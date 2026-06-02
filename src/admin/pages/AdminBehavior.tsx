@@ -220,12 +220,14 @@ function RankingCard({
   buckets,
   color,
   compact,
+  onPick,
 }: {
   title: string;
   hint?: string;
   buckets: Bucket[];
   color: string;
   compact?: boolean;
+  onPick?: (label: string) => void;
 }) {
   const max = Math.max(...buckets.map((b) => b.count), 1);
   return (
@@ -240,29 +242,49 @@ function RankingCard({
         <p className="text-xs text-muted-foreground italic">Sem dados nesse período.</p>
       ) : (
         <div className={compact ? "space-y-1.5" : "space-y-2"}>
-          {buckets.map((b, idx) => (
-            <div key={b.label + idx}>
-              <div className="flex items-center justify-between gap-2 mb-1 text-xs">
-                <span className="text-foreground truncate" title={b.label}>
-                  <span className="text-muted-foreground mr-2">{idx + 1}.</span>
-                  {b.label}
-                </span>
-                <span className="text-muted-foreground shrink-0">
-                  <strong className="text-foreground">{b.count.toLocaleString("pt-BR")}</strong>
-                  <span className="ml-1 text-[10px]">
-                    ({Math.round(b.share * 100)}%)
+          {buckets.map((b, idx) => {
+            const clickable = !!onPick;
+            const content = (
+              <>
+                <div className="flex items-center justify-between gap-2 mb-1 text-xs">
+                  <span className="text-foreground truncate flex items-center gap-1" title={clickable ? `Usar "${b.label}" em audiência` : b.label}>
+                    <span className="text-muted-foreground mr-2">{idx + 1}.</span>
+                    {b.label}
+                    {clickable && (
+                      <ChevronRight className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition" />
+                    )}
                   </span>
-                </span>
-              </div>
-              <div className="h-1.5 rounded-full bg-muted/30 overflow-hidden">
-                <div
-                  className="h-full rounded-full transition-all"
-                  style={{ width: `${(b.count / max) * 100}%`, background: color }}
-                />
-              </div>
-            </div>
-          ))}
+                  <span className="text-muted-foreground shrink-0">
+                    <strong className="text-foreground">{b.count.toLocaleString("pt-BR")}</strong>
+                    <span className="ml-1 text-[10px]">
+                      ({Math.round(b.share * 100)}%)
+                    </span>
+                  </span>
+                </div>
+                <div className="h-1.5 rounded-full bg-muted/30 overflow-hidden">
+                  <div
+                    className="h-full rounded-full transition-all"
+                    style={{ width: `${(b.count / max) * 100}%`, background: color }}
+                  />
+                </div>
+              </>
+            );
+            return clickable ? (
+              <button
+                key={b.label + idx}
+                type="button"
+                onClick={() => onPick!(b.label)}
+                className="group w-full text-left rounded-lg px-2 -mx-2 py-1 hover:bg-primary/10 transition"
+                title={`Usar "${b.label}" em audiência`}
+              >
+                {content}
+              </button>
+            ) : (
+              <div key={b.label + idx}>{content}</div>
+            );
+          })}
         </div>
+
       )}
     </div>
   );
