@@ -131,6 +131,7 @@ export const PremiumBettingCard = ({
   const displaySelectionsCount = selectionsCount || (tier === "ULTRA" ? 3 : 2);
 
   useEffect(() => {
+    if (hideTimer) { setCountdown(""); return; }
     if (!startsAt || isExpiredProp) { setCountdown(""); return; }
     const updateCountdown = () => {
       const now = new Date().getTime();
@@ -141,7 +142,8 @@ export const PremiumBettingCard = ({
     updateCountdown();
     const interval = setInterval(updateCountdown, 1000);
     return () => clearInterval(interval);
-  }, [startsAt, isExpiredProp]);
+  }, [startsAt, isExpiredProp, hideTimer]);
+
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
