@@ -1,5 +1,5 @@
-// crm-generate-image — gera banner por IA via Lovable AI Gateway
-// (modelo google/gemini-2.5-flash-image) e sobe no bucket crm-creatives.
+// crm-generate-image — gera banner por IA via Google Gemini API
+// (modelo gemini-2.5-flash-image) e sobe no bucket crm-creatives.
 import { createClient } from "npm:@supabase/supabase-js@2";
 
 const corsHeaders = {
@@ -30,6 +30,26 @@ function b64ToBytes(b64: string): Uint8Array {
   return out;
 }
 
+async function callGemini(
+  apiKey: string,
+  model: string,
+  fullPrompt: string,
+  aspect: string
+): Promise<any> {
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: fullPrompt }] }],
+        generationConfig: { imageConfig: { aspectRatio: aspect } },
+      }),
+    }
+  );
+  return { ok: res.ok, status: res.status, json: await res.json() };
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (req.method !== "POST") return json({ error: "method_not_allowed" }, 405);
@@ -38,9 +58,9 @@ Deno.serve(async (req) => {
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
     const ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
     const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
 
-    if (!LOVABLE_API_KEY) return json({ error: "lovable_key_missing" }, 500);
+    if (!GEMINI_API_KEY) return json({ error: "gemini_key_missing" }, 500);
 
     // Auth + admin check
     const authHeader = req.headers.get("Authorization") ?? "";
@@ -69,29 +89,22 @@ Deno.serve(async (req) => {
       `Proporção da imagem: ${aspect}. ` +
       `Pedido do operador: ${prompt}`;
 
-    const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/images/generations", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash-image",
-        messages: [{ role: "user", content: fullPrompt }],
-        modalities: ["image", "text"],
-      }),
-    });
-
-    if (!aiRes.ok) {
-      const detail = await aiRes.text().catch(() => "");
-      if (aiRes.status === 429) return json({ error: "rate_limited", detail }, 429);
-      if (aiRes.status === 402) return json({ error: "payment_required", detail }, 402);
-      return json({ error: "ai_gateway_error", status: aiRes.status, detail }, 502);
+    // Tenta gemini-2.5-flash-image; fallback para gemini-2.5-flash-image-preview
+    let gemini = await callGemini(GEMINI_API_KEY, "gemini-2.5-flash-image", fullPrompt, aspect);
+    if (!gemini.ok && gemini.status === 404) {
+      gemini = await callGemini(GEMINI_API_KEY, "gemini-2.5-flash-image-preview", fullPrompt, aspect);
+    }
+    if (!gemini.ok) {
+      return json(
+        { error: "gemini_error", status: gemini.status, detail: gemini.json },
+        502
+      );
     }
 
-    const aiJson = await aiRes.json();
-    const b64 = aiJson?.data?.[0]?.b64_json;
-    if (!b64) return json({ error: "no_image", detail: aiJson }, 502);
+    const parts = gemini.json?.candidates?.[0]?.content?.parts ?? [];
+    const inline = parts.find((p: any) => p?.inlineData?.data);
+    const b64 = inline?.inlineData?.data;
+    if (!b64) return json({ error: "no_image", detail: gemini.json }, 502);
 
     const bytes = b64ToBytes(b64);
     const admin = createClient(SUPABASE_URL, SERVICE_KEY);
