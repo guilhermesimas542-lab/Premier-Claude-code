@@ -101,15 +101,17 @@ export default function AdminBehavior() {
           <div className="grid lg:grid-cols-2 gap-3">
             <RankingCard
               title="Top campeonatos"
-              hint="Campeonatos mais analisados"
+              hint="Clique numa linha pra criar uma audiência"
               buckets={data.top_leagues}
               color="#A855F7"
+              onPick={(label) => goToAudience({ league_names: [label] })}
             />
             <RankingCard
               title="Top mercados"
-              hint="Mercados mais escolhidos pela IA"
+              hint="Clique numa linha pra criar uma audiência"
               buckets={data.top_markets}
               color="#22C55E"
+              onPick={(label) => goToAudience({ markets: [label] })}
             />
           </div>
 
@@ -117,10 +119,16 @@ export default function AdminBehavior() {
           <div className="grid lg:grid-cols-2 gap-3">
             <RankingCard
               title="Jogos mais analisados"
-              hint="Confronto Home × Away"
+              hint="Clique numa linha pra criar audiência com os 2 times"
               buckets={data.top_teams}
               color="#FACC15"
+              onPick={(label) => {
+                const parts = label.split(/\s+x\s+/i).map((s) => s.trim()).filter(Boolean);
+                if (parts.length === 0) return;
+                goToAudience({ team_names: parts });
+              }}
             />
+
             <div className="space-y-3">
               <RankingCard
                 title="Chat vs Ao Vivo"
