@@ -237,7 +237,7 @@ export async function sendBatchPushReal(
       try {
         const resp = await sendPushToSubscription(
           sub,
-          { title, body: bodyText },
+          pushPayload as any,
           vapid.publicKey,
           vapid.privateKey,
           vapid.subject
