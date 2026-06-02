@@ -204,6 +204,14 @@ function TelegramPreview({
           className="max-w-[90%] rounded-2xl rounded-tl-sm px-3 py-2 text-xs whitespace-pre-wrap break-words text-white shadow"
           style={{ background: "#2B5278" }}
         >
+          {content.image_url && (
+            <img
+              src={content.image_url}
+              alt="Foto"
+              className="w-full h-auto rounded mb-1.5 max-w-[260px]"
+              style={{ objectFit: "cover" }}
+            />
+          )}
           {text}
           <div className="text-[9px] text-sky-200/80 text-right mt-1">{nowHHmm()}</div>
         </div>
