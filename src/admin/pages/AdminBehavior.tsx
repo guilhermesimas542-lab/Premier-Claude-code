@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   BarChart3,
   Users,
@@ -16,8 +17,11 @@ import {
   type Bucket,
   type Window,
 } from "../hooks/useBehaviorReport";
+import type { AudienceBehaviorFilter } from "../hooks/crm/useAudiences";
 
 const DOW_LABELS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+
+const WINDOW_DAYS: Record<Window, number> = { "7d": 7, "30d": 30, "90d": 90 };
 
 export default function AdminBehavior() {
   const { data, loading, window, setWindow, refresh } = useBehaviorReport("30d");
