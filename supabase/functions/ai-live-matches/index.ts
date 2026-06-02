@@ -42,6 +42,7 @@ const TOP_LEAGUES = [
   344,
   255,
   667,
+  10,
 ];
 
 const CACHE_TTL_SECONDS = 60;
