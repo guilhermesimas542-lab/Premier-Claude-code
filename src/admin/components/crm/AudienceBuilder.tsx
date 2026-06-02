@@ -93,6 +93,8 @@ export function AudienceBuilder({ open, onClose, onSave, editing, initialFilters
       if (next.league_names && next.league_names.length > 0)
         cleaned.league_names = next.league_names;
       if (next.markets && next.markets.length > 0) cleaned.markets = next.markets;
+      if (next.team_names && next.team_names.length > 0)
+        cleaned.team_names = next.team_names;
       if (next.source && next.source !== "any") cleaned.source = next.source;
       if (typeof next.min_analyses === "number" && next.min_analyses > 1)
         cleaned.min_analyses = next.min_analyses;
