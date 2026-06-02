@@ -456,13 +456,19 @@ function ImageComposerInner({
             <Button
               size="sm"
               onClick={handleGenerate}
-              disabled={loading || (tab === "upload" && !uploadedDataUrl)}
+              disabled={
+                loading ||
+                (tab === "upload" && !uploadedDataUrl) ||
+                (tab === "ai" && !aiPreviewUrl)
+              }
             >
               {loading ? (
                 <>
                   <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
                   Gerando...
                 </>
+              ) : tab === "ai" ? (
+                "Anexar esta imagem"
               ) : (
                 "Gerar e anexar"
               )}
