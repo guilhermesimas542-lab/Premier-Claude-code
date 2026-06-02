@@ -33,11 +33,12 @@ export function CreditBalanceBadge() {
 
   // Unlimited active state
   if (balance.unlimited_active) {
-    const untilLabel = formatUntil(balance.unlimited_until);
+    const lifetime = isUnlimitedLifetime(balance.unlimited_until);
+    const untilLabel = formatUnlimitedUntil(balance.unlimited_until);
     return (
       <span className="inline-flex items-center gap-1 text-xs font-semibold text-primary bg-primary/10 px-2 py-1 rounded">
         <InfinityIcon className="w-3 h-3" />
-        Ilimitado{untilLabel ? ` até ${untilLabel}` : ""}
+        {lifetime ? "Vitalício" : `Ilimitado${untilLabel ? ` até ${untilLabel}` : ""}`}
       </span>
     );
   }
