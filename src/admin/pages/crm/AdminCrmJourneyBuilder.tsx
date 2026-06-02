@@ -435,7 +435,10 @@ export default function AdminCrmJourneyBuilder() {
         {/* Ações */}
         <div className="flex justify-end gap-2 pt-3 border-t border-border/50">
           {isNew ? (
-            <Button onClick={handleCreateJourney} disabled={creating || !headerDraft.name.trim()}>
+            <Button
+              onClick={handleCreateJourney}
+              disabled={creating || !headerDraft.name.trim() || !headerDraft.channel}
+            >
               {creating ? (
                 <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
               ) : (
