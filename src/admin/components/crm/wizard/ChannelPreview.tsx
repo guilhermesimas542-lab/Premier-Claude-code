@@ -96,6 +96,14 @@ function EmailPreview({ content }: { content: Record<string, any> }) {
           </div>
         </div>
         <div className="text-sm font-bold leading-tight">{subject}</div>
+        {content.image_url && (
+          <img
+            src={content.image_url}
+            alt="Banner do email"
+            className="w-full h-auto rounded border border-slate-200 mt-1"
+            style={{ maxHeight: 160, objectFit: "cover" }}
+          />
+        )}
         <div className="text-xs whitespace-pre-wrap text-slate-700 leading-relaxed border-t border-slate-100 pt-2">
           {body}
         </div>
