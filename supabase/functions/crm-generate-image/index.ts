@@ -101,7 +101,8 @@ Deno.serve(async (req) => {
       `Texto em português brasileiro, legível, sem erros de ortografia, alto contraste, ` +
       `visual moderno e vibrante, estilo app de apostas esportivas. ` +
       `Proporção da imagem: ${aspect}. ` +
-      `Pedido do operador: ${prompt}`;
+      `Pedido do operador: ${prompt}. ` +
+      `A arte deve preencher 100% do quadro (full bleed), sem bordas brancas, sem moldura e sem margens — imagem sangrada até as extremidades.`;
 
     // Tenta gemini-2.5-flash-image; se reclamar de imageConfig, retenta sem imageConfig
     let gemini = await callGemini(GEMINI_API_KEY, "gemini-2.5-flash-image", fullPrompt, aspect, true);
