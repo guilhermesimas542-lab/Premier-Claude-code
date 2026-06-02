@@ -130,11 +130,18 @@ export default function AdminTipsList() {
     team2_name: t.team2_name,
     team1_logo_url: t.team1_logo_url,
     team2_logo_url: t.team2_logo_url,
+    team1_shirt_variant: t.team1_shirt_variant,
+    team1_primary_color: t.team1_primary_color,
+    team1_secondary_color: t.team1_secondary_color,
+    team2_shirt_variant: t.team2_shirt_variant,
+    team2_primary_color: t.team2_primary_color,
+    team2_secondary_color: t.team2_secondary_color,
     market: t.market,
     bet_choice: t.condition_to_win,
     odds: t.odd,
     match_date: t.starts_at ? t.starts_at.substring(11, 16) : (t.date ?? null),
     result: t.result ?? "pending",
+    tier_required: t.tier_required,
     feature_required: t.feature_required,
     addon_required: t.addon_required,
   });
@@ -143,8 +150,8 @@ export default function AdminTipsList() {
     if (t.result !== "green") { toast.error("Só tips GREEN podem ser exportadas"); return; }
     setExportingId(t.id);
     try {
-      await downloadSingleTipPngs(tipToExport(t));
-      toast.success("PNGs baixados (story + recortado)");
+      await downloadSingleTipPng(tipToExport(t));
+      toast.success("Imagem gerada com sucesso");
     } catch (e: any) {
       console.error("[export single]", e);
       toast.error("Falha ao gerar PNG: " + (e?.message ?? "erro"));
@@ -152,6 +159,7 @@ export default function AdminTipsList() {
       setExportingId(null);
     }
   };
+
 
   const handleExportBatchGreens = async () => {
     const greens = (items as any[]).filter((t) => t.result === "green");
