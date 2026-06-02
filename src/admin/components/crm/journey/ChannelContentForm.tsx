@@ -2,6 +2,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { type ChannelKey, CHANNELS } from "../../../lib/crm/channels";
+import { isImageSupportedChannel } from "../../../lib/crm/bannerTemplates";
+import { ImageAttachControl } from "../ImageAttachControl";
 
 interface Props {
   channel: ChannelKey;
