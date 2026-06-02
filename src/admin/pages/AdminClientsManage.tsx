@@ -22,6 +22,7 @@ import type { AdminUser } from "../types";
 import { ClientProfileModal } from "../components/ClientProfileModal";
 import { useBettingHouseAdmin } from "../context/BettingHouseContext";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { isUnlimitedActive, isUnlimitedLifetime, formatUnlimitedUntil } from "@/lib/unlimitedAccess";
 
 interface CreditInfo {
   display: string;
@@ -266,13 +267,13 @@ export default function AdminClientsManage() {
     const allTime = (debitsRes.data ?? []).length;
     const weeklySpent = weekly?.weekly_used ?? 0;
     let info: CreditInfo;
-    if (extras?.unlimited_until && new Date(extras.unlimited_until) > new Date()) {
-      const isLifetime = new Date(extras.unlimited_until).getFullYear() > 9000;
+    if (isUnlimitedActive(extras?.unlimited_until)) {
+      const isLifetime = isUnlimitedLifetime(extras.unlimited_until);
       info = {
         display: "∞",
         color: "purple",
         tooltip: [
-          isLifetime ? "Vitalício" : `Ilimitado até ${new Date(extras.unlimited_until).toLocaleDateString("pt-BR")}`,
+          isLifetime ? "Vitalício" : `Ilimitado até ${formatUnlimitedUntil(extras.unlimited_until)}`,
           `Gastos esta semana: ${weeklySpent}`,
           `Gastos all-time: ${allTime}`,
         ],
@@ -496,12 +497,13 @@ export default function AdminClientsManage() {
         const extras: any = extrasMap.get(uid);
         const allTime = allTimeMap.get(uid) || 0;
         const weeklySpent = weekly?.weekly_used ?? 0;
-        if (extras?.unlimited_until && new Date(extras.unlimited_until) > new Date()) {
+        if (isUnlimitedActive(extras?.unlimited_until)) {
+          const isLifetime = isUnlimitedLifetime(extras.unlimited_until);
           nextCredits[uid] = {
             display: "∞",
             color: "purple",
             tooltip: [
-              `Ilimitado até ${new Date(extras.unlimited_until).toLocaleDateString("pt-BR")}`,
+              isLifetime ? "Vitalício" : `Ilimitado até ${formatUnlimitedUntil(extras.unlimited_until)}`,
               `Gastos esta semana: ${weeklySpent}`,
               `Gastos all-time: ${allTime}`,
             ],
@@ -1306,10 +1308,10 @@ export default function AdminClientsManage() {
                     <div>Comprado: <span className="text-white">{creditBalance.balance?.extras_purchased ?? 0}</span></div>
                     <div>
                       Ilimitado: <span className="text-white">
-                        {creditBalance.unlimited_active
-                          ? (new Date(creditBalance.unlimited_until).getFullYear() > 9000
+                        {isUnlimitedActive(creditBalance.unlimited_until)
+                          ? (isUnlimitedLifetime(creditBalance.unlimited_until)
                               ? "Vitalício"
-                              : `até ${new Date(creditBalance.unlimited_until).toLocaleDateString("pt-BR")}`)
+                              : `até ${formatUnlimitedUntil(creditBalance.unlimited_until)}`)
                           : "—"}
                       </span>
                     </div>

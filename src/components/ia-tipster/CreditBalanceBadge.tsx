@@ -3,6 +3,7 @@ import { useCreditBalance } from "@/hooks/useCreditBalance";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Coins, Infinity as InfinityIcon, Plus } from "lucide-react";
 import { BuyCreditsModal } from "@/components/ia-tipster/BuyCreditsModal";
+import { isUnlimitedLifetime, formatUnlimitedUntil } from "@/lib/unlimitedAccess";
 
 function formatResetDate(iso: string | null): string {
   if (!iso) return "segunda-feira";
@@ -15,13 +16,6 @@ function formatResetDate(iso: string | null): string {
   } catch {
     return "segunda-feira";
   }
-}
-
-function formatUntil(iso: string | null): string {
-  if (!iso) return "";
-  try {
-    return new Date(iso).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit" });
-  } catch { return ""; }
 }
 
 export function CreditBalanceBadge() {
@@ -39,11 +33,12 @@ export function CreditBalanceBadge() {
 
   // Unlimited active state
   if (balance.unlimited_active) {
-    const untilLabel = formatUntil(balance.unlimited_until);
+    const lifetime = isUnlimitedLifetime(balance.unlimited_until);
+    const untilLabel = formatUnlimitedUntil(balance.unlimited_until);
     return (
       <span className="inline-flex items-center gap-1 text-xs font-semibold text-primary bg-primary/10 px-2 py-1 rounded">
         <InfinityIcon className="w-3 h-3" />
-        Ilimitado{untilLabel ? ` até ${untilLabel}` : ""}
+        {lifetime ? "Vitalício" : `Ilimitado${untilLabel ? ` até ${untilLabel}` : ""}`}
       </span>
     );
   }
