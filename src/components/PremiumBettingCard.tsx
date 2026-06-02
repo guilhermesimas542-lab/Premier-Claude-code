@@ -36,11 +36,13 @@ interface PremiumBettingCardProps {
   lockedLabel?: string;
   isExpired?: boolean;
   justificativa?: string;
+  hideTimer?: boolean;
   onAddTip?: () => void;
   onViewAnalysis?: () => void;
   onOpenJustificativa?: (texto: string) => void;
   onLockedClick?: () => void;
 }
+
 
 const TIER_COLORS: Record<string, string> = {
   "GRÁTIS": "#94A3B8",
