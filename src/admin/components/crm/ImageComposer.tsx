@@ -419,6 +419,20 @@ function ImageComposerInner({
                     </div>
                   </div>
                 </div>
+              ) : tab === "ai" ? (
+                aiPreviewUrl ? (
+                  <img
+                    src={aiPreviewUrl}
+                    alt="Imagem gerada por IA"
+                    className="w-full h-auto block rounded border border-border"
+                  />
+                ) : (
+                  <div className="text-xs text-muted-foreground">
+                    {aiGenerating
+                      ? "Gerando imagem com IA..."
+                      : "Descreva a imagem e clique em \"Gerar com IA\"."}
+                  </div>
+                )
               ) : (
                 <div className="text-xs text-muted-foreground">
                   {uploadedDataUrl
