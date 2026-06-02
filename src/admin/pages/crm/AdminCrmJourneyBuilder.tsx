@@ -8,6 +8,7 @@ import {
   Play,
   Pause,
   ChevronDown,
+  BookmarkPlus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,6 +27,7 @@ import { toast } from "sonner";
 import { useJourneys, type Journey } from "../../hooks/crm/useJourneys";
 import { useJourneySteps } from "../../hooks/crm/useJourneySteps";
 import { useAudiences } from "../../hooks/crm/useAudiences";
+import { useJourneyTemplates } from "../../hooks/crm/useJourneyTemplates";
 import { ChannelPicker } from "../../components/crm/journey/ChannelPicker";
 import { StepCard } from "../../components/crm/journey/StepCard";
 import {
@@ -44,6 +46,8 @@ export default function AdminCrmJourneyBuilder() {
 
   const { create, update, setStatus, refresh } = useJourneys();
   const { items: audiences } = useAudiences();
+  const { saveFromJourney } = useJourneyTemplates();
+  const [savingTemplate, setSavingTemplate] = useState(false);
 
   const [journey, setJourney] = useState<Journey | null>(null);
   const [loadingJourney, setLoadingJourney] = useState(!isNew);
@@ -364,14 +368,38 @@ export default function AdminCrmJourneyBuilder() {
               Criar jornada
             </Button>
           ) : (
-            <Button
-              onClick={handleSaveHeader}
-              disabled={!isHeaderDirty}
-              variant={isHeaderDirty ? "default" : "outline"}
-            >
-              <Save className="w-3.5 h-3.5 mr-1.5" />
-              Salvar cabeçalho
-            </Button>
+            <>
+              <Button
+                variant="outline"
+                onClick={async () => {
+                  if (!journey) return;
+                  const proposed = window.prompt(
+                    "Nome do template:",
+                    journey.name
+                  );
+                  if (proposed === null) return;
+                  setSavingTemplate(true);
+                  await saveFromJourney(journey.id, proposed);
+                  setSavingTemplate(false);
+                }}
+                disabled={!journey || savingTemplate}
+              >
+                {savingTemplate ? (
+                  <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                ) : (
+                  <BookmarkPlus className="w-3.5 h-3.5 mr-1.5" />
+                )}
+                Salvar como template
+              </Button>
+              <Button
+                onClick={handleSaveHeader}
+                disabled={!isHeaderDirty}
+                variant={isHeaderDirty ? "default" : "outline"}
+              >
+                <Save className="w-3.5 h-3.5 mr-1.5" />
+                Salvar cabeçalho
+              </Button>
+            </>
           )}
         </div>
       </div>
