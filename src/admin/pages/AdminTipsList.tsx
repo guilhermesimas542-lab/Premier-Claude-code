@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Pencil, Trash2, ArrowUpDown, ArrowUp, ArrowDown, Snowflake, RefreshCw, ImageDown, Loader2 } from "lucide-react";
-import { downloadSingleTipPngs, exportGreensAsZip, type TipForExport } from "@/admin/lib/exportTipPng";
+import { downloadSingleTipPng, exportGreensAsZip, type TipForExport } from "@/admin/lib/exportTipPng";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { TeamAutocomplete } from "../components/TeamAutocomplete";
