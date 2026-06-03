@@ -4,7 +4,7 @@ import {
   Users, Bell, BarChart3, ChevronLeft, ChevronRight,
   DollarSign, Activity, Home, Link, Layers, Shield, CreditCard, Bug, Zap,
   ChevronDown, UserPlus, UserX, UserCheck, Trophy, MessageSquare, Sparkles,
-  Megaphone, Send, Settings, Workflow,
+  Megaphone, Send, Settings, Workflow, TrendingUp,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 
@@ -103,8 +103,12 @@ export function AdminSidebar() {
     {
       label: "Analytics",
       items: [
+    {
+      label: "Analytics",
+      items: [
         { to: "/admin/analytics", icon: BarChart3, label: "Visão Geral" },
         { to: "/admin/analytics/events", icon: Activity, label: "Eventos" },
+        { to: "/admin/mrr-premier", icon: TrendingUp, label: "MRR Premier" },
         { to: "/admin/ranking", icon: Trophy, label: "Ranking" },
         { to: "/admin/errors", icon: Bug, label: "Erros", badge: counts.errors },
         { to: "/admin/feedback", icon: MessageSquare, label: "Feedback", badge: counts.feedback },
