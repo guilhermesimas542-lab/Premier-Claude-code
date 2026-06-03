@@ -71,13 +71,15 @@ export const REVENUE_EVENTS = [
 
 
 export const LOSS_EVENTS = [
-  'Purchase_Refunded', 'Subscription_Cancelled', 'Chargeback',
+  ...REFUND_EVENTS,
+  ...CHARGEBACK_EVENTS,
+  'Purchase_Refunded', 'Subscription_Cancelled',
   'refund', 'cancel',
-  'Pagamento_Estornado', 'Pagamento_Reembolsado', 'Assinatura_Cancelada',
   'Assinatura_Expirada', 'Pedido_de_Compra_Cancelado',
 ];
 
 export const RECOVERY_EVENTS = [
+  'Abandoned_Cart',
   'Carrinho_Abandonado', 'Assinatura_Pendente_de_Renovacao',
   'Pedido_de_Compra_Expirado',
 ];
