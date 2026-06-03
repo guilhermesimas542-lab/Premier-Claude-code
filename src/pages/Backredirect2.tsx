@@ -94,35 +94,32 @@ export default function Backredirect2() {
         </div>
 
         {/* 5) OFFER CARD */}
-        <div className="relative overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm p-5">
-          {/* Diagonal ribbon */}
+        <div className="relative overflow-hidden rounded-2xl shadow-sm" style={{ backgroundColor: OLIVE }}>
+          {/* Top red banner */}
           <div
-            className="absolute pointer-events-none"
-            style={{
-              top: "14px",
-              right: "-38px",
-              width: "120px",
-              transform: "rotate(45deg)",
-              backgroundColor: OLIVE,
-              color: "#fff",
-              textAlign: "center",
-              padding: "3px 0",
-              fontWeight: 700,
-              fontSize: "12px",
-              boxShadow: "0 2px 4px rgba(0,0,0,0.15)",
-            }}
+            className="w-full text-center py-1.5 font-bold text-[11px] sm:text-xs tracking-wide"
+            style={{ backgroundColor: RED_BG, color: RED_TEXT }}
           >
-            SÓ R$1
+            🔥 SOMENTE NO MÊS DA COPA
           </div>
-          <div className="flex items-center gap-4">
-            <div className="flex flex-col items-center flex-1">
-              <h1 className="font-extrabold text-2xl text-neutral-900 leading-tight text-center">
-                Premier FC
-              </h1>
+          <div className="flex items-center justify-between gap-3 px-5 py-4">
+            <div className="text-white">
+              <div className="font-extrabold text-xl sm:text-2xl leading-tight">
+                Premier - Mensal
+              </div>
+              <div className="text-xs sm:text-sm text-white/85 mt-0.5">
+                Apenas Cartão de Crédito
+              </div>
             </div>
-            <div className="bg-neutral-100 rounded-xl px-3 py-2 text-center">
-              <div className="font-extrabold text-2xl text-neutral-900 leading-tight">
-                R$ 1,00
+            <div
+              className="rounded-lg px-3 py-2 text-center text-white shrink-0"
+              style={{ backgroundColor: "rgba(0,0,0,0.25)" }}
+            >
+              <div className="font-extrabold text-2xl leading-none">
+                R$ <span className="text-3xl">0,99</span>
+              </div>
+              <div className="text-[10px] sm:text-xs mt-1 text-white/85">
+                No Primeiro Mês
               </div>
             </div>
           </div>
