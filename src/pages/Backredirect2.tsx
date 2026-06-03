@@ -151,7 +151,7 @@ export default function Backredirect2() {
         {/* 8) SUBSCRIPTION POLICY BOX */}
         <div className="rounded-xl border border-neutral-200 bg-white px-4 py-3 text-center text-xs sm:text-sm text-neutral-700 leading-relaxed shadow-sm">
           <p>
-            Aproveite sua oferta de introdução do Premier FC por R$1,00 hoje, depois R$38,95 por mês, a menos que você cancele. Cancele a qualquer momento.
+            Aproveite sua oferta de introdução do Premier FC por R$1,00 hoje, depois R$99 por mês, a menos que você cancele. Cancele a qualquer momento.
           </p>
           <div className="my-3 border-t border-neutral-200" />
           <p>
