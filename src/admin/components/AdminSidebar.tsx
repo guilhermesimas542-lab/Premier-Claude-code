@@ -103,9 +103,6 @@ export function AdminSidebar() {
     {
       label: "Analytics",
       items: [
-    {
-      label: "Analytics",
-      items: [
         { to: "/admin/analytics", icon: BarChart3, label: "Visão Geral" },
         { to: "/admin/analytics/events", icon: Activity, label: "Eventos" },
         { to: "/admin/mrr-premier", icon: TrendingUp, label: "MRR Premier" },
