@@ -130,7 +130,7 @@ export default function Backredirect2() {
           </p>
           <div className="border-t border-neutral-200 pt-3">
             Veja nossa{" "}
-            <a href="#" className="underline font-medium" style={{ color: OLIVE }}>
+            <a href="/politica-assinatura-reembolso" target="_blank" rel="noopener noreferrer" className="underline font-medium" style={{ color: OLIVE }}>
               Política de Assinatura &amp; Reembolso
             </a>
             .
