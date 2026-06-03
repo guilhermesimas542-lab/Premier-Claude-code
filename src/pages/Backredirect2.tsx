@@ -130,7 +130,7 @@ export default function Backredirect2() {
         </div>
 
         {/* 5b) SUBSCRIPTION DISCLAIMER */}
-        <div className="text-center text-xs sm:text-sm text-neutral-500 leading-relaxed space-y-3">
+        <div className="rounded-2xl border border-neutral-200 bg-white px-5 py-4 text-center text-xs sm:text-sm text-neutral-500 leading-relaxed space-y-3 shadow-sm">
           <p>
             Aproveite sua oferta de introdução do Premier FC por{" "}
             <span className="font-semibold">R$1</span> hoje, depois{" "}
@@ -145,6 +145,7 @@ export default function Backredirect2() {
             .
           </div>
         </div>
+
 
         {/* 6) DASHED DIVIDER */}
         <div className="border-t border-dashed border-neutral-300" />
