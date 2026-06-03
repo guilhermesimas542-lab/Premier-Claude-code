@@ -150,10 +150,6 @@ export default function Backredirect2() {
           />
         </div>
 
-        {/* 8) SCARCITY REINFORCEMENT */}
-        <div className="rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm text-neutral-700 text-center leading-snug">
-          Quando a Copa acabar, essa oferta some — e não volta. Quem entra agora sai na frente.
-        </div>
 
         {/* 9) DASHED DIVIDER */}
         <div className="border-t border-dashed border-neutral-300" />
