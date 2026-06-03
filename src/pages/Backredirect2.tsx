@@ -63,10 +63,10 @@ export default function Backredirect2() {
           style={{ backgroundColor: OLIVE }}
         >
           <div className="font-extrabold text-2xl sm:text-3xl leading-tight">
-            🔥 DESCONTO DE R$10!
+            🔥 Desconto de 99%!
           </div>
           <div className="mt-2 text-base sm:text-lg text-white/85">
-            Economize R$10 e garanta seu acesso ao PremierFC agora.
+            Pague apenas R$1,00 e garanta seu acesso ao PremierFC agora.
           </div>
         </div>
 
