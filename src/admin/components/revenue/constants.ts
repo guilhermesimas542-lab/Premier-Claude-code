@@ -1,8 +1,74 @@
-export const REVENUE_EVENTS = [
-  'Purchase_Order_Confirmed', 'Subscription_Renewed', 'Subscription_Reactivated',
-  'purchase', 'approved',
-  'Compra_Completa', 'Pagamento_de_Renovacao_Efetuado',
+export const PREMIER_PRODUCT_IDS: string[] = [
+  '037d5e50-ab28-47dd-a916-b4f9916dcd8a',
+  'LXGO9W',
+  '43b9295e-caed-41e0-b85c-7fca52df03a5',
+  'e95d935c-96ca-413d-b883-7d7b257b25d0',
+  '1f3839a7-535d-433f-900e-63cd81c7d01e',
+  'f1c30b6d-48eb-473d-b705-092b8566b2ed',
+  '0010b879-8df0-4376-a177-36b5b9d9ffed',
+  'd6813992-e1bd-41c6-8ceb-914eae410358',
+  '4ED9BZ',
+  'LGBG7O',
+  'LY7ON2',
+  '4ZJAZ3',
+  '4EDZYO',
+  'R36ONP',
+  'RAZ23D',
+  'RW2O9W',
+  'RDEVAP',
+  'LGAOMY',
+  'RVEMKE',
+  'LXMDYB',
+  'LQ8XWG',
+  '45WM3G',
+  '4NG28D',
 ];
+
+export const PREMIER_PRODUCT_NAMES: string[] = [
+  'Premier',
+  'Premier FC',
+  'Premier FC - Plano Premium',
+  'Acesso Vitalício',
+  'Premier FC [TK]',
+  'Premier FC — Odds Altas',
+  'Premier FC — Plano Pro',
+  'Premier FC — Plano Ultra',
+  'Premier FC — Alavancagem',
+  'Premier FC — Live Telegram',
+  'Premier FC — Odds Altas / Múltiplas',
+  'PLANO DIAMANTE',
+  'Premier FC - Plano Premium [Back Redirect]',
+  'PREMIER FC - MERCADOS SECUNDÁRIOS',
+  'Premier 6 Creditos IA',
+  'Premier Crédito IA ilimitado por 1 mês',
+  'Premier Crédito ilimitado por 3 meses',
+  'Alavancagem + Odds Altas',
+  'Premier 9 Creditos IA',
+  'PREMIER FC - LIGAS AMERICANAS',
+];
+
+export const PREMIER_NAME_FALLBACK = 'premier';
+
+export const SALE_EVENTS = [
+  'Purchase_Order_Confirmed',
+  'purchase',
+  'Product_Access_Started',
+  'Subscription_Product_Access',
+];
+
+export const REFUND_EVENTS = ['Payment_Refund', 'Refund_Requested'];
+
+export const CHARGEBACK_EVENTS = ['Payment_Chargeback'];
+
+export const REVENUE_EVENTS = [
+  ...SALE_EVENTS,
+  'Subscription_Renewed',
+  'Subscription_Reactivated',
+  'approved',
+  'Compra_Completa',
+  'Pagamento_de_Renovacao_Efetuado',
+];
+
 
 export const LOSS_EVENTS = [
   'Purchase_Refunded', 'Subscription_Cancelled', 'Chargeback',
