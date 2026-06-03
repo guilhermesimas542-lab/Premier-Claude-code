@@ -96,16 +96,13 @@ export default function Backredirect3() {
               <h1 className="font-extrabold text-2xl text-neutral-900 leading-tight">
                 Premier FC
               </h1>
-              <p className="text-xs text-neutral-500 mt-1">
-                Acesso vitalício • Pagamento único
-              </p>
             </div>
             <div className="bg-neutral-100 rounded-xl px-3 py-2 text-right">
               <div className="text-xs text-neutral-500 line-through leading-tight">
-                De R$ 37,00 por
+                De R$ 39,90 por
               </div>
               <div className="font-extrabold text-2xl text-neutral-900 leading-tight">
-                R$ 27,00
+                R$ 29,90
               </div>
             </div>
           </div>
