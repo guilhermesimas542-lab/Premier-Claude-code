@@ -135,7 +135,7 @@ export default function Backredirect2() {
           className="block w-full text-center rounded-xl py-4 font-extrabold uppercase tracking-wide text-white text-base sm:text-lg shadow-sm hover:opacity-95 transition"
           style={{ backgroundColor: OLIVE }}
         >
-          Garantir acesso por R$1
+          Garantir acesso por R$0,99
         </a>
 
         {/* 7) PAYMENT METHODS */}
