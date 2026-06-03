@@ -20,6 +20,8 @@ import UltimosGreens from "./pages/UltimosGreens";
 import Support from "./pages/Support";
 import Obrigado from "./pages/Obrigado";
 import Backredirect from "./pages/Backredirect";
+import Backredirect2 from "./pages/Backredirect2";
+import Backredirect3 from "./pages/Backredirect3";
 
 import NotFound from "./pages/NotFound";
 import { AdminGuard } from "./admin/components/AdminGuard";
@@ -109,6 +111,8 @@ const App = () => {
             <Route path="/support" element={<Support />} />
             <Route path="/obrigado" element={<Obrigado />} />
             <Route path="/bd" element={<Backredirect />} />
+            <Route path="/bd2" element={<Backredirect2 />} />
+            <Route path="/bd3" element={<Backredirect3 />} />
             {/* Admin routes */}
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin/verify" element={<AdminVerify />} />
