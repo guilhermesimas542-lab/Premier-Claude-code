@@ -70,8 +70,8 @@ export default function Backredirect2() {
           className="rounded-2xl px-5 py-5 text-center text-white shadow-sm"
           style={{ backgroundColor: OLIVE }}
         >
-          <div className="font-extrabold text-xl sm:text-2xl leading-tight">
-            SUA ÚLTIMA OPORTUNIDADE! ⏱️
+          <div className="font-extrabold text-lg sm:text-xl leading-tight whitespace-nowrap">
+            SUA ÚLTIMA OPORTUNIDADE ⏱️
           </div>
           <div className="mt-2 text-base sm:text-lg text-white/85">
             Se fechar essa página você perde todos os benefícios exclusivos da nossa promoção de Copa.
