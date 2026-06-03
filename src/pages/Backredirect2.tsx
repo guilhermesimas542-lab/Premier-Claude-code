@@ -94,33 +94,34 @@ export default function Backredirect2() {
         </div>
 
         {/* 5) OFFER CARD */}
-        <div className="relative overflow-hidden rounded-2xl shadow-sm" style={{ backgroundColor: OLIVE }}>
-          {/* Top red banner */}
+        <div className="relative overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm p-5">
+          {/* Diagonal ribbon */}
           <div
-            className="w-full text-center py-1.5 font-bold text-[11px] sm:text-xs tracking-wide"
-            style={{ backgroundColor: RED_BG, color: RED_TEXT }}
+            className="absolute pointer-events-none"
+            style={{
+              top: "14px",
+              right: "-38px",
+              width: "120px",
+              transform: "rotate(45deg)",
+              backgroundColor: OLIVE,
+              color: "#fff",
+              textAlign: "center",
+              padding: "3px 0",
+              fontWeight: 700,
+              fontSize: "12px",
+              boxShadow: "0 2px 4px rgba(0,0,0,0.15)",
+            }}
           >
-            🔥 SOMENTE NO MÊS DA COPA
+            SÓ R$0,99
           </div>
-          <div className="flex items-center justify-between gap-3 px-5 py-4">
-            <div className="text-white">
-              <div className="font-extrabold text-xl sm:text-2xl leading-tight">
+          <div className="flex items-center gap-4">
+            <div className="flex-1">
+              <h1 className="font-extrabold text-xl text-neutral-900 leading-tight">
                 Premier - Mensal
-              </div>
-              <div className="text-xs sm:text-sm text-white/85 mt-0.5">
-                Apenas Cartão de Crédito
-              </div>
-            </div>
-            <div
-              className="rounded-lg px-3 py-2 text-center text-white shrink-0"
-              style={{ backgroundColor: "rgba(0,0,0,0.25)" }}
-            >
-              <div className="font-extrabold text-2xl leading-none">
-                R$ <span className="text-3xl">0,99</span>
-              </div>
-              <div className="text-[10px] sm:text-xs mt-1 text-white/85">
-                No Primeiro Mês
-              </div>
+              </h1>
+              <p className="text-xs sm:text-sm text-neutral-600 mt-1">
+                Apenas Cartão de Crédito. R$ 0,99 no primeiro mês
+              </p>
             </div>
           </div>
         </div>
@@ -132,7 +133,7 @@ export default function Backredirect2() {
           className="block w-full text-center rounded-xl py-4 font-extrabold uppercase tracking-wide text-white text-base sm:text-lg shadow-sm hover:opacity-95 transition"
           style={{ backgroundColor: OLIVE }}
         >
-          Garantir acesso por R$1
+          Garantir acesso por R$ 0,99
         </a>
 
         {/* 7) PAYMENT METHODS */}
