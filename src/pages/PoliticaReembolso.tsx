@@ -83,18 +83,6 @@ export default function PoliticaReembolso() {
           </p>
         </section>
 
-        <section className="space-y-2">
-          <h2 className="font-bold text-lg" style={{ color: OLIVE }}>
-            6. Prazo para o dinheiro voltar
-          </h2>
-          <p className="text-sm sm:text-base leading-relaxed text-neutral-700">
-            Depois de aprovado, o reembolso segue o prazo da operadora de
-            pagamento: <strong>cartão em até 15 dias</strong>,{" "}
-            <strong>Pix em até 6 dias</strong> e{" "}
-            <strong>boleto em até 3 dias úteis</strong>.
-          </p>
-        </section>
-
         <footer className="border-t border-neutral-200 pt-5 text-xs text-neutral-400">
           Premier FC • Pagamentos processados pela Payt.
         </footer>
