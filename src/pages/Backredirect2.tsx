@@ -89,23 +89,17 @@ export default function Backredirect2() {
               boxShadow: "0 2px 4px rgba(0,0,0,0.15)",
             }}
           >
-            -R$10
+            -99%
           </div>
-          <div className="flex items-start justify-between gap-3">
+          <div className="flex items-center justify-between gap-3">
             <div className="flex-1">
-              <h1 className="font-extrabold text-2xl text-neutral-900 leading-tight">
+              <h1 className="font-extrabold text-2xl text-neutral-900 leading-tight text-center">
                 Premier FC
               </h1>
-              <p className="text-xs text-neutral-500 mt-1">
-                Acesso vitalício • Pagamento único
-              </p>
             </div>
-            <div className="bg-neutral-100 rounded-xl px-3 py-2 text-right">
-              <div className="text-xs text-neutral-500 line-through leading-tight">
-                De R$ 37,00 por
-              </div>
+            <div className="bg-neutral-100 rounded-xl px-3 py-2 text-center flex items-center justify-center">
               <div className="font-extrabold text-2xl text-neutral-900 leading-tight">
-                R$ 27,00
+                R$ 1,00
               </div>
             </div>
           </div>
