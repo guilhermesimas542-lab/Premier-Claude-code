@@ -12,7 +12,7 @@ const RED_TEXT = "#B91C1C";
 const BENEFITS = [
   "20 odds exclusivas todos os dias",
   "Acesso imediato ao IA Tipster para criar odds personalizadas",
-  "Liberação imediata do mercado de Odds Safe, Pró e Ultra",
+  "Acesso imediato as odds safes, Pró e Ultra. (95% de assertividade)",
   "Odds aumentadas em todos os jogos da Copa",
 ];
 
