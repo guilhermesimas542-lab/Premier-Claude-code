@@ -93,37 +93,36 @@ export default function Backredirect2() {
           </ul>
         </div>
 
-        {/* 5) OFFER CARD */}
-        <div className="relative overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm p-5">
-          {/* Diagonal ribbon */}
+        {/* 5) OFFER CARD (bundle) */}
+        <div className="relative rounded-2xl border border-neutral-200 bg-white shadow-sm overflow-hidden">
+          {/* faixa verde do topo */}
           <div
-            className="absolute pointer-events-none"
-            style={{
-              top: "14px",
-              right: "-38px",
-              width: "120px",
-              transform: "rotate(45deg)",
-              backgroundColor: OLIVE,
-              color: "#fff",
-              textAlign: "center",
-              padding: "3px 0",
-              fontWeight: 700,
-              fontSize: "12px",
-              boxShadow: "0 2px 4px rgba(0,0,0,0.15)",
-            }}
+            className="flex items-center gap-2 px-3 py-2 text-white font-bold text-xs sm:text-sm"
+            style={{ backgroundColor: OLIVE }}
           >
-            SÓ R$1
+            <span
+              className="rounded-md px-2 py-[2px] text-[11px] font-bold"
+              style={{ backgroundColor: "rgba(0,0,0,0.28)" }}
+            >
+              Preço
+            </span>
+            <span>🔥 SOMENTE NO MÊS DA COPA</span>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="flex flex-col items-center flex-1">
-              <h1 className="font-extrabold text-2xl text-neutral-900 leading-tight text-center">
-                Premier FC
-              </h1>
-            </div>
-            <div className="bg-neutral-100 rounded-xl px-3 py-2 text-center">
-              <div className="font-extrabold text-2xl text-neutral-900 leading-tight">
-                R$ 1,00
+          {/* corpo */}
+          <div className="flex items-center justify-between gap-3 px-5 py-4">
+            <div>
+              <div className="font-extrabold text-xl text-neutral-900 leading-tight">
+                Premier - Mensal
               </div>
+              <div className="text-xs text-neutral-500 mt-1">
+                Apenas Cartão de Crédito
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="font-extrabold text-2xl leading-tight" style={{ color: OLIVE }}>
+                R$ 0,99
+              </div>
+              <div className="text-xs text-neutral-500">No Primeiro Mês</div>
             </div>
           </div>
         </div>
