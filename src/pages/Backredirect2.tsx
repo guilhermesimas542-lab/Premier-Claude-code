@@ -78,6 +78,21 @@ export default function Backredirect2() {
           </div>
         </div>
 
+        {/* 4) BENEFITS BOX */}
+        <div className="rounded-2xl border border-neutral-200 bg-white px-5 py-4 space-y-3 shadow-sm">
+          <div className="font-bold text-sm text-neutral-900">
+            Benefícios exclusivos da promoção
+          </div>
+          <ul className="space-y-2 text-sm text-neutral-700">
+            {BENEFITS.map((b) => (
+              <li key={b} className="flex items-start gap-2">
+                <span className="text-[#4D7A1F] font-bold">✓</span>
+                {b}
+              </li>
+            ))}
+          </ul>
+        </div>
+
         {/* 5) OFFER CARD */}
         <div className="relative overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm p-5">
           {/* Diagonal ribbon */}
@@ -99,37 +114,18 @@ export default function Backredirect2() {
           >
             SÓ R$1
           </div>
-          <div className="flex items-start gap-4">
-            <div className="flex flex-col">
-              <h1 className="font-extrabold text-2xl text-neutral-900 leading-tight">
+          <div className="flex items-center gap-4">
+            <div className="flex flex-col items-center flex-1">
+              <h1 className="font-extrabold text-2xl text-neutral-900 leading-tight text-center">
                 Premier FC
               </h1>
-              <p className="text-sm text-neutral-500 mt-0.5">
-                Acesso completo durante toda a Copa
-              </p>
             </div>
-            <div className="bg-neutral-100 rounded-xl px-3 py-2 text-center ml-auto">
-              <div className="text-xs text-neutral-500 mb-0.5">hoje por</div>
+            <div className="bg-neutral-100 rounded-xl px-3 py-2 text-center">
               <div className="font-extrabold text-2xl text-neutral-900 leading-tight">
                 R$ 1,00
               </div>
             </div>
           </div>
-        </div>
-
-        {/* 4) BENEFITS BOX */}
-        <div className="rounded-2xl border border-neutral-200 bg-white px-5 py-4 space-y-3 shadow-sm">
-          <div className="font-bold text-sm text-neutral-900">
-            Benefícios exclusivos da promoção
-          </div>
-          <ul className="space-y-2 text-sm text-neutral-700">
-            {BENEFITS.map((b) => (
-              <li key={b} className="flex items-start gap-2">
-                <span className="text-[#4D7A1F] font-bold">✓</span>
-                {b}
-              </li>
-            ))}
-          </ul>
         </div>
 
 
