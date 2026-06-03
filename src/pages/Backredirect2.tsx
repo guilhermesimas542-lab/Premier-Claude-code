@@ -92,7 +92,7 @@ export default function Backredirect2() {
             -99%
           </div>
           <div className="flex items-center gap-3 pr-10">
-            <h1 className="font-extrabold text-2xl text-neutral-900 leading-tight">
+            <h1 className="font-extrabold text-2xl text-neutral-900 leading-tight ml-[10px]">
               Premier FC
             </h1>
             <div className="bg-neutral-100 rounded-xl px-3 py-2 text-center ml-auto">
