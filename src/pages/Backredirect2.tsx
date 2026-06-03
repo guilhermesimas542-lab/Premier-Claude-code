@@ -150,18 +150,6 @@ export default function Backredirect2() {
           <p>
             Aproveite sua oferta de introdução do Premier FC por R$1,00 hoje, depois R$99 por mês, a menos que você cancele. Cancele a qualquer momento.
           </p>
-          <div className="my-3 border-t border-neutral-200" />
-          <p>
-            Veja nossa{" "}
-            <a
-              href="/politica-reembolso"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-600 underline"
-            >
-              Política de Assinatura &amp; Reembolso.
-            </a>
-          </p>
         </div>
 
         {/* 9) DASHED DIVIDER */}
