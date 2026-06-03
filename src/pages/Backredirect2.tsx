@@ -2,11 +2,19 @@ import { useEffect, useState } from "react";
 import formasPagamento from "@/assets/formas-pagamento.png";
 import seloGarantia from "@/assets/selo-garantia-30.png";
 
+// TODO: confirmar o link de checkout do R$1
 const CHECKOUT_URL = "https://checkout.payt.com.br/302d147f60a7fd78aee674bdea8f4240";
 
 const OLIVE = "#4D7A1F";
 const RED_BG = "#FDECEC";
 const RED_TEXT = "#B91C1C";
+
+const BENEFITS = [
+  "Acesso antecipado às entradas — antes de todo mundo",
+  "Cada vez mais odds liberadas durante toda a Copa",
+  "Acompanhamento completo em todos os jogos do torneio",
+  "Grupo exclusivo de quem entrou na promoção da Copa",
+];
 
 function pad(n: number) {
   return n.toString().padStart(2, "0");
@@ -16,7 +24,7 @@ export default function Backredirect2() {
   const [secondsLeft, setSecondsLeft] = useState(5 * 60);
 
   useEffect(() => {
-    document.title = "Última chance: R$10 OFF | Premier FC";
+    document.title = "Promoção da Copa: acesso por R$1 | Premier FC";
   }, []);
 
   useEffect(() => {
@@ -36,7 +44,7 @@ export default function Backredirect2() {
           className="w-full text-center py-3 px-4 font-bold text-sm sm:text-base"
           style={{ backgroundColor: RED_BG, color: RED_TEXT }}
         >
-          ESSA OFERTA EXPIRA EM: {pad(mm)}:{pad(ss)}
+          PROMOÇÃO DA COPA EXPIRA EM: {pad(mm)}:{pad(ss)}
         </div>
       )}
 
@@ -53,7 +61,7 @@ export default function Backredirect2() {
               padding: "6px 14px",
             }}
           >
-            🎯 DESCONTO EXCLUSIVO NESSA PÁGINA
+            🏆 OFERTA EXCLUSIVA DA COPA
           </span>
         </div>
 
@@ -63,10 +71,10 @@ export default function Backredirect2() {
           style={{ backgroundColor: OLIVE }}
         >
           <div className="font-extrabold text-2xl sm:text-3xl leading-tight">
-            🔥 Desconto de 99%!
+            🔥 Só durante a Copa: entre por R$1,00
           </div>
           <div className="mt-2 text-base sm:text-lg text-white/85">
-            Pague apenas R$1,00 e garanta seu acesso ao PremierFC agora.
+            Essa condição acaba quando a Copa acabar — e não volta.
           </div>
         </div>
 
@@ -89,13 +97,19 @@ export default function Backredirect2() {
               boxShadow: "0 2px 4px rgba(0,0,0,0.15)",
             }}
           >
-            -99%
+            SÓ R$1
           </div>
-          <div className="flex items-center gap-3">
-            <h1 className="font-extrabold text-2xl text-neutral-900 leading-tight text-center ml-[8px]">
-              Premier FC
-            </h1>
+          <div className="flex items-start gap-4">
+            <div className="flex flex-col">
+              <h1 className="font-extrabold text-2xl text-neutral-900 leading-tight">
+                Premier FC
+              </h1>
+              <p className="text-sm text-neutral-500 mt-0.5">
+                Acesso completo durante toda a Copa
+              </p>
+            </div>
             <div className="bg-neutral-100 rounded-xl px-3 py-2 text-center ml-auto">
+              <div className="text-xs text-neutral-500 mb-0.5">hoje por</div>
               <div className="font-extrabold text-2xl text-neutral-900 leading-tight">
                 R$ 1,00
               </div>
@@ -109,7 +123,7 @@ export default function Backredirect2() {
           className="block w-full text-center rounded-xl py-4 font-extrabold uppercase tracking-wide text-white text-base sm:text-lg shadow-sm hover:opacity-95 transition"
           style={{ backgroundColor: OLIVE }}
         >
-          GARANTIR DESCONTO DE 99%
+          Quero entrar por R$1,00
         </a>
 
         {/* 5) PAYMENT METHODS */}
@@ -121,26 +135,29 @@ export default function Backredirect2() {
           />
         </div>
 
-        {/* 5b) SUBSCRIPTION DISCLAIMER */}
-        <div className="rounded-2xl border border-neutral-200 bg-white px-5 py-4 text-center text-xs sm:text-sm text-neutral-500 leading-relaxed space-y-3 shadow-sm">
-          <p>
-            Aproveite sua oferta de introdução do Premier FC por R$1 hoje, depois
-            R$99 por mês, a menos que você
-            cancele. Cancele a qualquer momento.
-          </p>
-          <div className="border-t border-neutral-200 pt-3">
-            Veja nossa{" "}
-            <a href="/politica-assinatura-reembolso" target="_blank" rel="noopener noreferrer" className="underline font-medium" style={{ color: OLIVE }}>
-              Política de Assinatura &amp; Reembolso
-            </a>
-            .
+        {/* 5b) BENEFITS STACK */}
+        <div className="rounded-2xl border border-neutral-200 bg-white px-5 py-4 space-y-3 shadow-sm">
+          <div className="font-bold text-sm text-neutral-900">
+            O que você garante entrando agora:
           </div>
+          <ul className="space-y-2 text-sm text-neutral-700">
+            {BENEFITS.map((b) => (
+              <li key={b} className="flex items-start gap-2">
+                <span className="text-[#4D7A1F] font-bold">✓</span>
+                {b}
+              </li>
+            ))}
+          </ul>
         </div>
 
+        {/* 5c) SCARCITY REINFORCEMENT */}
+        <div className="rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm text-neutral-700 text-center leading-snug">
+          ⏳ Essa é uma promoção única da Copa. Quando o torneio acabar, a entrada
+          por R$1 some — e não volta. Quem entra agora sai na frente.
+        </div>
 
         {/* 6) DASHED DIVIDER */}
         <div className="border-t border-dashed border-neutral-300" />
-
 
         {/* 7) GUARANTEE BLOCK */}
         <div className="text-center space-y-2">
@@ -165,10 +182,9 @@ export default function Backredirect2() {
             alt="Selo de Garantia 30 Dias"
             className="w-[200px] h-[200px] object-contain"
           />
-
         </div>
 
-        {/* 6b) DASHED DIVIDER */}
+        {/* 8b) DASHED DIVIDER */}
         <div className="border-t border-dashed border-neutral-300" />
 
         {/* 9) FOOTER MICRO-COPY */}
