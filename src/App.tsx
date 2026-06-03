@@ -111,6 +111,8 @@ const App = () => {
             <Route path="/support" element={<Support />} />
             <Route path="/obrigado" element={<Obrigado />} />
             <Route path="/bd" element={<Backredirect />} />
+            <Route path="/bd2" element={<Backredirect2 />} />
+            <Route path="/bd3" element={<Backredirect3 />} />
             {/* Admin routes */}
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin/verify" element={<AdminVerify />} />
