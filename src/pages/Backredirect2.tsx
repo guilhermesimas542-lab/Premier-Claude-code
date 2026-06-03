@@ -76,28 +76,26 @@ export default function Backredirect2() {
           <div
             className="absolute pointer-events-none"
             style={{
-              top: "18px",
-              right: "-34px",
-              width: "140px",
+              top: "14px",
+              right: "-38px",
+              width: "120px",
               transform: "rotate(45deg)",
               backgroundColor: OLIVE,
               color: "#fff",
               textAlign: "center",
-              padding: "4px 0",
+              padding: "3px 0",
               fontWeight: 700,
-              fontSize: "13px",
+              fontSize: "12px",
               boxShadow: "0 2px 4px rgba(0,0,0,0.15)",
             }}
           >
             -99%
           </div>
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex-1">
-              <h1 className="font-extrabold text-2xl text-neutral-900 leading-tight text-center">
-                Premier FC
-              </h1>
-            </div>
-            <div className="bg-neutral-100 rounded-xl px-3 py-2 text-center flex items-center justify-center">
+          <div className="flex items-center gap-3 pr-10">
+            <h1 className="font-extrabold text-2xl text-neutral-900 leading-tight">
+              Premier FC
+            </h1>
+            <div className="bg-neutral-100 rounded-xl px-3 py-2 text-center ml-auto">
               <div className="font-extrabold text-2xl text-neutral-900 leading-tight">
                 R$ 1,00
               </div>
