@@ -10,10 +10,10 @@ const RED_BG = "#FDECEC";
 const RED_TEXT = "#B91C1C";
 
 const BENEFITS = [
-  "Acesso antecipado às entradas — antes de todo mundo",
-  "Cada vez mais odds liberadas durante toda a Copa",
-  "Acompanhamento completo em todos os jogos do torneio",
-  "Grupo exclusivo de quem entrou na promoção da Copa",
+  "20 odds por dia nos jogos da Copa",
+  "Acesso imediato ao IA Tipster para criar odds personalizadas",
+  "Liberação imediata do mercado de Odds Safe, Pró e Ultra",
+  "Odds aumentadas em todos os jogos da Copa",
 ];
 
 function pad(n: number) {
@@ -24,7 +24,7 @@ export default function Backredirect2() {
   const [secondsLeft, setSecondsLeft] = useState(5 * 60);
 
   useEffect(() => {
-    document.title = "Promoção da Copa: acesso por R$1 | Premier FC";
+    document.title = "Última chance: acesso por R$1 | Premier FC";
   }, []);
 
   useEffect(() => {
@@ -49,7 +49,7 @@ export default function Backredirect2() {
       )}
 
       <div className="mx-auto w-full max-w-[420px] px-5 py-6 flex flex-col gap-6">
-        {/* 2a) CONTEXT CHIP */}
+        {/* 2) CONTEXT CHIP */}
         <div className="flex justify-center -mb-3">
           <span
             className="inline-block font-bold text-[12px] sm:text-[13px] rounded-full"
@@ -65,20 +65,35 @@ export default function Backredirect2() {
           </span>
         </div>
 
-        {/* 2) HEADLINE BANNER */}
+        {/* 3) HEADLINE BANNER */}
         <div
           className="rounded-2xl px-5 py-5 text-center text-white shadow-sm"
           style={{ backgroundColor: OLIVE }}
         >
           <div className="font-extrabold text-2xl sm:text-3xl leading-tight">
-            🔥 Só durante a Copa: entre por R$1,00
+            Vai mesmo deixar passar por R$1?
           </div>
           <div className="mt-2 text-base sm:text-lg text-white/85">
-            Essa condição acaba quando a Copa acabar — e não volta.
+            Essa é a sua última chance. Fechou essa página, a oferta não vale mais.
           </div>
         </div>
 
-        {/* 3) OFFER CARD */}
+        {/* 4) BENEFITS BOX (logo após a headline) */}
+        <div className="rounded-2xl border border-neutral-200 bg-white px-5 py-4 space-y-3 shadow-sm">
+          <div className="font-bold text-sm text-neutral-900">
+            Benefícios exclusivos da promoção
+          </div>
+          <ul className="space-y-2 text-sm text-neutral-700">
+            {BENEFITS.map((b) => (
+              <li key={b} className="flex items-start gap-2">
+                <span className="text-[#4D7A1F] font-bold">✓</span>
+                {b}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* 5) OFFER CARD */}
         <div className="relative overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm p-5">
           {/* Diagonal ribbon */}
           <div
@@ -117,16 +132,16 @@ export default function Backredirect2() {
           </div>
         </div>
 
-        {/* 4) CTA */}
+        {/* 6) CTA */}
         <a
           href={CHECKOUT_URL}
           className="block w-full text-center rounded-xl py-4 font-extrabold uppercase tracking-wide text-white text-base sm:text-lg shadow-sm hover:opacity-95 transition"
           style={{ backgroundColor: OLIVE }}
         >
-          Quero entrar por R$1,00
+          Garantir acesso por R$1
         </a>
 
-        {/* 5) PAYMENT METHODS */}
+        {/* 7) PAYMENT METHODS */}
         <div className="flex justify-center">
           <img
             src={formasPagamento}
@@ -135,31 +150,15 @@ export default function Backredirect2() {
           />
         </div>
 
-        {/* 5b) BENEFITS STACK */}
-        <div className="rounded-2xl border border-neutral-200 bg-white px-5 py-4 space-y-3 shadow-sm">
-          <div className="font-bold text-sm text-neutral-900">
-            O que você garante entrando agora:
-          </div>
-          <ul className="space-y-2 text-sm text-neutral-700">
-            {BENEFITS.map((b) => (
-              <li key={b} className="flex items-start gap-2">
-                <span className="text-[#4D7A1F] font-bold">✓</span>
-                {b}
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* 5c) SCARCITY REINFORCEMENT */}
+        {/* 8) SCARCITY REINFORCEMENT */}
         <div className="rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm text-neutral-700 text-center leading-snug">
-          ⏳ Essa é uma promoção única da Copa. Quando o torneio acabar, a entrada
-          por R$1 some — e não volta. Quem entra agora sai na frente.
+          Quando a Copa acabar, essa oferta some — e não volta. Quem entra agora sai na frente.
         </div>
 
-        {/* 6) DASHED DIVIDER */}
+        {/* 9) DASHED DIVIDER */}
         <div className="border-t border-dashed border-neutral-300" />
 
-        {/* 7) GUARANTEE BLOCK */}
+        {/* 10) GUARANTEE BLOCK */}
         <div className="text-center space-y-2">
           <div className="font-bold text-base" style={{ color: RED_TEXT }}>
             ⚠️ ATENÇÃO!
@@ -172,7 +171,7 @@ export default function Backredirect2() {
           </p>
         </div>
 
-        {/* 8) GUARANTEE SEAL */}
+        {/* 11) GUARANTEE SEAL */}
         <div className="flex flex-col items-center gap-3">
           <div className="font-bold text-base text-neutral-900">
             🛡️ Garantia Total de 30 Dias
@@ -184,10 +183,10 @@ export default function Backredirect2() {
           />
         </div>
 
-        {/* 8b) DASHED DIVIDER */}
+        {/* 12) DASHED DIVIDER */}
         <div className="border-t border-dashed border-neutral-300" />
 
-        {/* 9) FOOTER MICRO-COPY */}
+        {/* 13) FOOTER MICRO-COPY */}
         <p className="text-center text-xs text-neutral-500 pb-4">
           Pagamento 100% seguro • Acesso liberado no WhatsApp em minutos
         </p>
