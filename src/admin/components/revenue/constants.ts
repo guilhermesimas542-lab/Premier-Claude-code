@@ -95,11 +95,14 @@ export const ALL_EVENTS = [
 
 export const EVENT_DISPLAY: Record<string, string> = {
   'Purchase_Order_Confirmed': 'Compra Completa',
+  'Product_Access_Started': 'Acesso ao Produto Iniciado',
+  'Subscription_Product_Access': 'Acesso a Assinatura',
   'Subscription_Renewed': 'Renovação Efetuada',
   'Subscription_Reactivated': 'Assinatura Reativada',
   'Purchase_Refunded': 'Reembolso',
   'Subscription_Cancelled': 'Assinatura Cancelada',
   'Chargeback': 'Chargeback',
+  'Payment_Chargeback': 'Chargeback',
   'purchase': 'Compra',
   'approved': 'Aprovado',
   'refund': 'Reembolso',
@@ -108,10 +111,13 @@ export const EVENT_DISPLAY: Record<string, string> = {
   'Pagamento_de_Renovacao_Efetuado': 'Renovação Efetuada',
   'Pagamento_Estornado': 'Pagamento Estornado',
   'Pagamento_Reembolsado': 'Reembolso',
+  'Payment_Refund': 'Reembolso',
+  'Refund_Requested': 'Reembolso Solicitado',
   'Reembolso_Solicitado': 'Reembolso Solicitado',
   'Assinatura_Cancelada': 'Assinatura Cancelada',
   'Assinatura_Expirada': 'Assinatura Expirada',
   'Assinatura_Pendente_de_Renovacao': 'Pendente de Renovação',
+  'Abandoned_Cart': 'Carrinho Abandonado',
   'Carrinho_Abandonado': 'Carrinho Abandonado',
   'Pedido_de_Compra_Cancelado': 'Pedido Cancelado',
   'Pedido_de_Compra_Expirado': 'Pedido Expirado',
@@ -120,6 +126,7 @@ export const EVENT_DISPLAY: Record<string, string> = {
   'Inicio_liberacao_de_acesso': 'Início Acesso',
   'Fim_liberacao_de_acesso': 'Fim Acesso',
   'Notificar_Membro_Ativo': 'Notificação Membro',
+  'Refund_Period_Over': 'Período Reembolso Encerrado',
   'Periodo_de_Reembolso_Terminado': 'Período Reembolso Terminado',
 };
 
