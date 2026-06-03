@@ -86,6 +86,7 @@ export const RECOVERY_EVENTS = [
 
 export const ALL_EVENTS = [
   ...REVENUE_EVENTS, ...LOSS_EVENTS, ...RECOVERY_EVENTS,
+  'Refund_Period_Over',
   'Reembolso_Solicitado', 'Fatura_Criada',
   'Liberacao_e_remocao_de_acesso', 'Inicio_liberacao_de_acesso',
   'Fim_liberacao_de_acesso', 'Notificar_Membro_Ativo',
