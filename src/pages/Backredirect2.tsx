@@ -129,8 +129,26 @@ export default function Backredirect2() {
           />
         </div>
 
+        {/* 5b) SUBSCRIPTION DISCLAIMER */}
+        <div className="text-center text-xs sm:text-sm text-neutral-500 leading-relaxed space-y-3">
+          <p>
+            Aproveite sua oferta de introdução do Premier FC por{" "}
+            <span className="font-semibold">R$1</span> hoje, depois{" "}
+            <span className="font-semibold">R$99 por mês</span>, a menos que você
+            cancele. Cancele a qualquer momento.
+          </p>
+          <div className="border-t border-neutral-200 pt-3">
+            Veja nossa{" "}
+            <a href="#" className="underline font-medium" style={{ color: OLIVE }}>
+              Política de Assinatura &amp; Reembolso
+            </a>
+            .
+          </div>
+        </div>
+
         {/* 6) DASHED DIVIDER */}
         <div className="border-t border-dashed border-neutral-300" />
+
 
         {/* 7) GUARANTEE BLOCK */}
         <div className="text-center space-y-2">
