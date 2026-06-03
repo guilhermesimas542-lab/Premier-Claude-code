@@ -132,9 +132,8 @@ export default function Backredirect2() {
         {/* 5b) SUBSCRIPTION DISCLAIMER */}
         <div className="rounded-2xl border border-neutral-200 bg-white px-5 py-4 text-center text-xs sm:text-sm text-neutral-500 leading-relaxed space-y-3 shadow-sm">
           <p>
-            Aproveite sua oferta de introdução do Premier FC por{" "}
-            <span className="font-semibold">R$1</span> hoje, depois{" "}
-            <span className="font-semibold">R$99 por mês</span>, a menos que você
+            Aproveite sua oferta de introdução do Premier FC por R$1 hoje, depois
+            R$99 por mês, a menos que você
             cancele. Cancele a qualquer momento.
           </p>
           <div className="border-t border-neutral-200 pt-3">
