@@ -112,16 +112,18 @@ export default function Backredirect2() {
               boxShadow: "0 2px 4px rgba(0,0,0,0.15)",
             }}
           >
-            SÓ R$0,99
+            SÓ R$1
           </div>
           <div className="flex items-center gap-4">
-            <div className="flex-1">
-              <h1 className="font-extrabold text-xl text-neutral-900 leading-tight">
-                Premier - Mensal
+            <div className="flex flex-col items-center flex-1">
+              <h1 className="font-extrabold text-2xl text-neutral-900 leading-tight text-center">
+                Premier FC
               </h1>
-              <p className="text-xs sm:text-sm text-neutral-600 mt-1">
-                Apenas Cartão de Crédito. R$ 0,99 no primeiro mês
-              </p>
+            </div>
+            <div className="bg-neutral-100 rounded-xl px-3 py-2 text-center">
+              <div className="font-extrabold text-2xl text-neutral-900 leading-tight">
+                R$ 1,00
+              </div>
             </div>
           </div>
         </div>
@@ -133,7 +135,7 @@ export default function Backredirect2() {
           className="block w-full text-center rounded-xl py-4 font-extrabold uppercase tracking-wide text-white text-base sm:text-lg shadow-sm hover:opacity-95 transition"
           style={{ backgroundColor: OLIVE }}
         >
-          Garantir acesso por R$ 0,99
+          Garantir acesso por R$1
         </a>
 
         {/* 7) PAYMENT METHODS */}
@@ -150,6 +152,18 @@ export default function Backredirect2() {
         <div className="rounded-xl border border-neutral-200 bg-white px-4 py-3 text-center text-xs sm:text-sm text-neutral-700 leading-relaxed shadow-sm">
           <p>
             Aproveite sua oferta de introdução do Premier FC por R$1,00 hoje, depois R$99 por mês, a menos que você cancele. Cancele a qualquer momento.
+          </p>
+          <div className="my-3 border-t border-neutral-200" />
+          <p>
+            Veja nossa{" "}
+            <a
+              href="/politica-reembolso"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 underline"
+            >
+              Política de Assinatura &amp; Reembolso.
+            </a>
           </p>
         </div>
 
