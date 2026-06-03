@@ -91,7 +91,7 @@ export default function Backredirect3() {
           >
             -R$10
           </div>
-          <div className="flex items-start justify-between gap-3">
+          <div className="flex items-center justify-between gap-3">
             <div className="flex-1">
               <h1 className="font-extrabold text-2xl text-neutral-900 leading-tight">
                 Premier FC
