@@ -74,7 +74,7 @@ export default function Backredirect2() {
             SUA ÚLTIMA OPORTUNIDADE ⏱️
           </div>
           <div className="mt-2 text-base sm:text-lg text-white/85">
-            Se fechar essa página você perde todos os benefícios exclusivos da nossa promoção de Copa.
+            Se fechar essa página você perde todos os benefícios exclusivos da promoção.
           </div>
         </div>
 
