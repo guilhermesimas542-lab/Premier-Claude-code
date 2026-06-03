@@ -78,21 +78,6 @@ export default function Backredirect2() {
           </div>
         </div>
 
-        {/* 4) BENEFITS BOX (logo após a headline) */}
-        <div className="rounded-2xl border border-neutral-200 bg-white px-5 py-4 space-y-3 shadow-sm">
-          <div className="font-bold text-sm text-neutral-900">
-            Benefícios exclusivos da promoção
-          </div>
-          <ul className="space-y-2 text-sm text-neutral-700">
-            {BENEFITS.map((b) => (
-              <li key={b} className="flex items-start gap-2">
-                <span className="text-[#4D7A1F] font-bold">✓</span>
-                {b}
-              </li>
-            ))}
-          </ul>
-        </div>
-
         {/* 5) OFFER CARD */}
         <div className="relative overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm p-5">
           {/* Diagonal ribbon */}
@@ -131,6 +116,22 @@ export default function Backredirect2() {
             </div>
           </div>
         </div>
+
+        {/* 4) BENEFITS BOX */}
+        <div className="rounded-2xl border border-neutral-200 bg-white px-5 py-4 space-y-3 shadow-sm">
+          <div className="font-bold text-sm text-neutral-900">
+            Benefícios exclusivos da promoção
+          </div>
+          <ul className="space-y-2 text-sm text-neutral-700">
+            {BENEFITS.map((b) => (
+              <li key={b} className="flex items-start gap-2">
+                <span className="text-[#4D7A1F] font-bold">✓</span>
+                {b}
+              </li>
+            ))}
+          </ul>
+        </div>
+
 
         {/* 6) CTA */}
         <a
