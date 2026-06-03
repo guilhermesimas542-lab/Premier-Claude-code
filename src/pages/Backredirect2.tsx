@@ -80,7 +80,7 @@ export default function Backredirect2() {
 
         {/* 4) BENEFITS BOX */}
         <div className="rounded-2xl border border-neutral-200 bg-white px-5 py-4 space-y-3 shadow-sm">
-          <div className="font-bold text-sm text-neutral-900">
+          <div className="font-bold text-sm text-neutral-900 text-center">
             Benefícios exclusivos da promoção
           </div>
           <ul className="space-y-2 text-sm text-neutral-700">
