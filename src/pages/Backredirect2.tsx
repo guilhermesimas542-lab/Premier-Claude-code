@@ -70,7 +70,7 @@ export default function Backredirect2() {
           className="rounded-2xl px-5 py-5 text-center text-white shadow-sm"
           style={{ backgroundColor: OLIVE }}
         >
-          <div className="font-extrabold text-2xl sm:text-3xl leading-tight">
+          <div className="font-extrabold text-xl sm:text-2xl leading-tight">
             SUA ÚLTIMA OPORTUNIDADE! ⏱️
           </div>
           <div className="mt-2 text-base sm:text-lg text-white/85">
