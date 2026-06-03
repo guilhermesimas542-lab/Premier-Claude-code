@@ -70,7 +70,7 @@ export default function Backredirect2() {
           className="rounded-2xl px-5 py-5 text-center text-white shadow-sm"
           style={{ backgroundColor: OLIVE }}
         >
-          <div className="font-extrabold text-2xl sm:text-3xl leading-tight">
+          <div className="font-extrabold text-xl sm:text-2xl leading-tight">
             SUA ÚLTIMA OPORTUNIDADE! ⏱️
           </div>
           <div className="mt-2 text-base sm:text-lg text-white/85">
@@ -80,7 +80,7 @@ export default function Backredirect2() {
 
         {/* 4) BENEFITS BOX */}
         <div className="rounded-2xl border border-neutral-200 bg-white px-5 py-4 space-y-3 shadow-sm">
-          <div className="font-bold text-sm text-neutral-900">
+          <div className="font-bold text-sm text-neutral-900 text-center">
             Benefícios exclusivos da promoção
           </div>
           <ul className="space-y-2 text-sm text-neutral-700">
