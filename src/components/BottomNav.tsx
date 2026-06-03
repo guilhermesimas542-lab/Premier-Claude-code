@@ -13,10 +13,11 @@ const ALL_NAV_ITEMS = [
   {
     path: "/ia-tipster",
     label: "IA Tipster",
+    // previewOnly removido — feature liberada em produção
     // Filled sparkles/star SVG (represents AI)
     iconPath: "M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6L12 2z",
     matchPaths: ["/ia-tipster"],
-    previewOnly: true,
+    previewOnly: false,
   },
   {
     path: "/support",

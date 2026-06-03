@@ -25,10 +25,7 @@ const LS_ONBOARDING_SEEN = "ia_tipster_onboarding_seen_v2";        // 1: modal d
 const LS_TUTORIAL_COMPLETED = "ia_tipster_tutorial_completed_v2";  // 2+3: tutorial em 2 slides concluído (clicou "Testar")
 
 export default function IATipster() {
-  // Gate de produção: IA Tipster habilitada APENAS em preview/local até liberação oficial.
-  if (!isPreviewEnv()) {
-    return <Navigate to="/home" replace />;
-  }
+  // Gate removido — feature liberada em produção (modo MOCK até API keys serem configuradas).
 
   // Onboarding em 3 etapas:
   //   1. Modal de boas-vindas → clica "Continuar"
