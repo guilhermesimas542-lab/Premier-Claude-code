@@ -93,7 +93,7 @@ export default function Backredirect3() {
           </div>
           <div className="flex items-center justify-between gap-3">
             <div className="flex-1">
-              <h1 className="font-extrabold text-2xl text-neutral-900 leading-tight">
+              <h1 className="font-extrabold text-2xl text-neutral-900 leading-tight ml-[8px]">
                 Premier FC
               </h1>
             </div>
