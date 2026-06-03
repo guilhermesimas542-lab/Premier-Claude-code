@@ -20,6 +20,8 @@ import UltimosGreens from "./pages/UltimosGreens";
 import Support from "./pages/Support";
 import Obrigado from "./pages/Obrigado";
 import Backredirect from "./pages/Backredirect";
+import Backredirect2 from "./pages/Backredirect2";
+import Backredirect3 from "./pages/Backredirect3";
 
 import NotFound from "./pages/NotFound";
 import { AdminGuard } from "./admin/components/AdminGuard";
