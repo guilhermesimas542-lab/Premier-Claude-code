@@ -71,10 +71,10 @@ export default function Backredirect2() {
           style={{ backgroundColor: OLIVE }}
         >
           <div className="font-extrabold text-2xl sm:text-3xl leading-tight">
-            Vai mesmo deixar passar por R$1?
+            SUA ÚLTIMA OPORTUNIDADE! ⏱️
           </div>
           <div className="mt-2 text-base sm:text-lg text-white/85">
-            Essa é a sua última chance. Fechou essa página, a oferta não vale mais.
+            Se fechar essa página você perde todos os benefícios exclusivos da nossa promoção de Copa.
           </div>
         </div>
 
