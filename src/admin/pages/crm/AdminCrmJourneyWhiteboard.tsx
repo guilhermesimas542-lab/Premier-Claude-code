@@ -203,6 +203,14 @@ function Inner() {
               onNodeDragStop={(_e, node) =>
                 updateNodePosition(node.id, node.position)
               }
+              onNodeClick={(_e, node) => setSelectedNodeId(node.id)}
+              onEdgeDoubleClick={(_e, edge) => {
+                const src = graphNodes.find((n) => n.id === edge.source);
+                if (src?.type !== "condition") return;
+                const current = edge.label ?? "";
+                const next = current === "sim" ? "não" : current === "não" ? null : "sim";
+                updateEdgeBranch(edge.id, next);
+              }}
               nodeTypes={nodeTypes}
               fitView
               deleteKeyCode={["Delete", "Backspace"]}
@@ -214,6 +222,14 @@ function Inner() {
           )}
         </div>
       </div>
+
+      <NodeConfigDrawer
+        node={selectedNode}
+        messageNodes={messageNodes}
+        triggerType={triggerType}
+        onClose={() => setSelectedNodeId(null)}
+        onSave={updateNode}
+      />
     </div>
   );
 }
