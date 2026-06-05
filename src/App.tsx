@@ -22,6 +22,7 @@ import Obrigado from "./pages/Obrigado";
 import Backredirect from "./pages/Backredirect";
 import Backredirect2 from "./pages/Backredirect2";
 import Backredirect3 from "./pages/Backredirect3";
+import Backredirect4 from "./pages/Backredirect4";
 import PoliticaReembolso from "./pages/PoliticaReembolso";
 
 import NotFound from "./pages/NotFound";
@@ -115,6 +116,7 @@ const App = () => {
             <Route path="/bd" element={<Backredirect />} />
             <Route path="/bd2" element={<Backredirect2 />} />
             <Route path="/bd3" element={<Backredirect3 />} />
+            <Route path="/bd4" element={<Backredirect4 />} />
             <Route path="/politica-assinatura-reembolso" element={<PoliticaReembolso />} />
             {/* Admin routes */}
             <Route path="/admin/login" element={<AdminLogin />} />
