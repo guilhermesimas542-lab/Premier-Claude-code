@@ -1,13 +1,23 @@
 import { Handle, Position, type NodeProps } from "@xyflow/react";
 import { Play, Mail, Clock, GitBranch, Tag } from "lucide-react";
 import { CHANNELS, type ChannelKey } from "@/admin/lib/crm/channels";
+import type { DelayUnit } from "@/admin/hooks/crm/useJourneyGraph";
 
 interface NodeData {
   channel: ChannelKey | null;
   content: Record<string, any>;
   config: Record<string, any>;
+  delay_value: number | null;
+  delay_unit: DelayUnit | null;
   label: string;
 }
+
+const UNIT_LABEL: Record<DelayUnit, string> = {
+  minute: "min",
+  hour: "h",
+  day: "dia(s)",
+  week: "sem",
+};
 
 function Card({
   color,
