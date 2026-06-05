@@ -131,6 +131,8 @@ export function useJourneyGraph(journeyId: string | null) {
           channel: r.channel,
           content: r.content ?? {},
           config: r.config ?? {},
+          delay_value: r.delay_value,
+          delay_unit: r.delay_unit,
           label: labelFor(r),
         },
       };
