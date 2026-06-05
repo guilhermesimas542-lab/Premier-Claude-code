@@ -8,6 +8,7 @@ import { TelegramRedeemModal } from "@/components/TelegramRedeemModal";
 import { PlansModal } from "@/components/PlansModal";
 import { BuyCreditsModal } from "@/components/ia-tipster/BuyCreditsModal";
 import { isPreviewEnv } from "@/lib/previewEnv";
+import { useUserBettingHouse } from "@/hooks/useUserBettingHouse";
 
 interface AppHeaderProps {
   onShowLifetimeInfoModal?: () => void; // kept for backward compat (unused)
