@@ -1314,6 +1314,10 @@ export type Database = {
         Row: {
           channel: string
           content_snapshot: Json
+          conversion_order_id: string | null
+          conversion_value_cents: number | null
+          converted: boolean
+          converted_at: string | null
           created_at: string
           enrollment_id: string
           error_code: string | null
@@ -1328,6 +1332,10 @@ export type Database = {
         Insert: {
           channel: string
           content_snapshot?: Json
+          conversion_order_id?: string | null
+          conversion_value_cents?: number | null
+          converted?: boolean
+          converted_at?: string | null
           created_at?: string
           enrollment_id: string
           error_code?: string | null
@@ -1342,6 +1350,10 @@ export type Database = {
         Update: {
           channel?: string
           content_snapshot?: Json
+          conversion_order_id?: string | null
+          conversion_value_cents?: number | null
+          converted?: boolean
+          converted_at?: string | null
           created_at?: string
           enrollment_id?: string
           error_code?: string | null
