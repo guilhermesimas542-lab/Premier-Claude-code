@@ -178,7 +178,7 @@ export default function IATipster() {
             {showNoCreditsBanner && (
               <div className="flex items-center gap-2 px-4 py-2 bg-destructive/10 border-t border-destructive/20 text-xs text-destructive">
                 <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
-                <span>Você está sem créditos. Próximo reset: {resetLabel}.</span>
+                <span>Estás sin créditos. Próximo reinicio: {resetLabel}.</span>
               </div>
             )}
 
@@ -191,7 +191,7 @@ export default function IATipster() {
                     ? "text-primary border-b-2 border-primary"
                     : "text-muted-foreground"
                 } ${!tutorialCompleted ? "opacity-40 cursor-not-allowed" : ""}`}
-                title={!tutorialCompleted ? "Conclua o tutorial primeiro" : undefined}
+                title={!tutorialCompleted ? "Completa el tutorial primero" : undefined}
               >
                 {!tutorialCompleted ? <Lock className="w-3.5 h-3.5" /> : <MessageSquare className="w-4 h-4" />}
                 Chat
@@ -204,10 +204,10 @@ export default function IATipster() {
                     ? "text-primary border-b-2 border-primary"
                     : "text-muted-foreground"
                 } ${!tutorialCompleted ? "opacity-40 cursor-not-allowed" : ""}`}
-                title={!tutorialCompleted ? "Conclua o tutorial primeiro" : undefined}
+                title={!tutorialCompleted ? "Completa el tutorial primero" : undefined}
               >
                 {!tutorialCompleted ? <Lock className="w-3.5 h-3.5" /> : <Radio className="w-4 h-4" />}
-                Ao Vivo
+                En Vivo
               </button>
               <button
                 onClick={() => handleTabClick("tutorial")}

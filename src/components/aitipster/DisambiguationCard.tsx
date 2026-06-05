@@ -30,8 +30,8 @@ export function DisambiguationCard({ matches, confidence, onConfirm, onReject }:
     <div className="space-y-2">
       <p className="text-xs text-muted-foreground">
         {confidence === "high"
-          ? "Achei esse jogo. Confirma?"
-          : "Qual desses jogos você quis dizer?"}
+          ? "Encontré este partido. ¿Confirmas?"
+          : "¿Cuál de estos partidos quisiste decir?"}
       </p>
       {matches.map((m) => {
         const isChosen = chosen === m.fixture_id;
@@ -61,7 +61,7 @@ export function DisambiguationCard({ matches, confidence, onConfirm, onReject }:
               variant="default"
               className="w-full bg-primary text-black font-semibold hover:bg-primary/90"
             >
-              {isChosen ? "Selecionado" : "Sim, é esse jogo"}
+              {isChosen ? "Seleccionado" : "Sí, es este partido"}
             </Button>
           </div>
         );
@@ -74,7 +74,7 @@ export function DisambiguationCard({ matches, confidence, onConfirm, onReject }:
           variant="outline"
           className="w-full text-xs"
         >
-          Não é esse jogo
+          No es este partido
         </Button>
       )}
     </div>

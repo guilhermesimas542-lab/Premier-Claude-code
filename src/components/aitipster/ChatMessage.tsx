@@ -122,7 +122,7 @@ export function ChatMessage({ message, onConfirmFixture, onOpenEsportiva, onReje
   }
 
   if (message.type === "upcoming_list") {
-    const rejectLabel = message.listType === "team" ? "Não é esse time" : "Não é essa liga";
+    const rejectLabel = message.listType === "team" ? "No es este equipo" : "No es esta liga";
     const canReject =
       (message.listType === "team" && !!message.teamId) ||
       (message.listType === "league" && !!message.leagueIds && message.leagueIds.length > 0);

@@ -138,28 +138,28 @@ function StepWelcome() {
           className="text-2xl font-bold leading-tight mb-1"
           style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
         >
-          Conheça a <span style={{ color: "#00FF7F" }}>IA Tipster</span>
+          Conoce <span style={{ color: "#00FF7F" }}>IA Tipster</span>
         </h2>
         <p className="text-sm text-white/65 max-w-xs mx-auto">
-          Agora você cria suas próprias análises de IA pra qualquer jogo.
+          Ahora creas tus propios análisis de IA para cualquier partido.
         </p>
       </div>
 
       <div className="space-y-2.5 mt-3">
         <Bullet
           icon={<MessageSquare className="w-4 h-4 text-[#00FF7F]" />}
-          title="Chat com a IA"
-          text="Digite os times e receba análise completa em segundos."
+          title="Chat con la IA"
+          text="Escribe los equipos y recibe análisis completo en segundos."
         />
         <Bullet
           icon={<Radio className="w-4 h-4 text-[#00FF7F]" />}
-          title="Jogos ao vivo"
-          text="Escolha uma partida rolando e a IA analisa em tempo real."
+          title="Partidos en vivo"
+          text="Elige un partido en curso y la IA analiza en tiempo real."
         />
         <Bullet
           icon={<Coins className="w-4 h-4 text-[#00FF7F]" />}
           title="Sistema de créditos"
-          text="Você ganha créditos semanais e pode comprar mais quando precisar."
+          text="Recibes créditos semanales y puedes comprar más cuando necesites."
         />
       </div>
     </div>
@@ -175,28 +175,28 @@ function StepHowToUse() {
     <div className="px-6 pt-2 pb-2">
       <Header
         icon={<Zap className="w-6 h-6 text-[#00FF7F]" />}
-        title="Como usar em 3 passos"
-        subtitle="Fluxo simples — da escolha do jogo até apostar na Esportiva Bet."
+        title="Cómo usar en 3 pasos"
+        subtitle="Flujo simple — desde elegir el partido hasta apostar en la casa."
       />
 
       <div className="space-y-2.5 mt-1">
         <StepCard
           number={1}
           icon={<MessageSquare className="w-4 h-4" />}
-          title="Escolha o jogo"
-          text="No Chat, digite os times (ex: 'Flamengo x Palmeiras'). No Ao Vivo, escolha um jogo da lista."
+          title="Elige el partido"
+          text="En el Chat, escribe los equipos (ej: 'Colo-Colo x U. de Chile'). En Vivo, elige un partido de la lista."
         />
         <StepCard
           number={2}
           icon={<Sparkles className="w-4 h-4" />}
-          title="Gere a análise"
-          text="A IA estuda forma, histórico, lesões e estatísticas em segundos. Cada análise consome 1 crédito."
+          title="Genera el análisis"
+          text="La IA estudia forma, historial, lesiones y estadísticas en segundos. Cada análisis consume 1 crédito."
         />
         <StepCard
           number={3}
           icon={<ExternalLink className="w-4 h-4" />}
-          title="Aposte na Esportiva Bet"
-          text="Com a análise em mãos, abre direto o evento na Esportiva Bet pra montar sua aposta."
+          title="Apuesta en la casa"
+          text="Con el análisis en mano, abre directo el evento en la casa para armar tu apuesta."
         />
       </div>
     </div>
@@ -212,27 +212,27 @@ function StepCredits() {
     <div className="px-6 pt-2 pb-2">
       <Header
         icon={<Coins className="w-6 h-6 text-[#00FF7F]" />}
-        title="Como funcionam os créditos"
-        subtitle="Você sempre tem como gerar análise — grátis ou comprando mais quando precisar."
+        title="Cómo funcionan los créditos"
+        subtitle="Siempre puedes generar análisis — gratis o comprando más cuando necesites."
       />
 
       <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4 space-y-3">
         <CreditRow
-          label="Cota semanal"
-          text="Você recebe créditos toda semana de acordo com seu plano. Reset toda segunda."
-          valueLabel="Grátis"
+          label="Cuota semanal"
+          text="Recibes créditos cada semana según tu plan. Reinicia cada lunes."
+          valueLabel="Gratis"
           valueColor="#00FF7F"
         />
         <CreditRow
-          label="Pacotes extras"
-          text="Comprou? Vira saldo permanente. Usa quando quiser, não expira."
-          valueLabel="A partir de R$ 29,90"
+          label="Paquetes extra"
+          text="¿Compraste? Se vuelve saldo permanente. Úsalo cuando quieras, no caduca."
+          valueLabel="Desde $9.900"
           valueColor="#FACC15"
         />
         <CreditRow
-          label="Acesso ilimitado"
-          text="Análises sem contar créditos por 1 ou 3 meses. Pra quem usa muito."
-          valueLabel="A partir de R$ 99,00"
+          label="Acceso ilimitado"
+          text="Análisis sin contar créditos por 1 o 3 meses. Para quien usa mucho."
+          valueLabel="Desde $29.900"
           valueColor="#00FF7F"
         />
       </div>
@@ -268,11 +268,11 @@ function StepFinal() {
         className="text-2xl font-bold leading-tight mb-2"
         style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
       >
-        Vamos criar sua <span style={{ color: "#00FF7F" }}>primeira análise</span>
+        Vamos a crear tu <span style={{ color: "#00FF7F" }}>primer análisis</span>
       </h2>
       <p className="text-sm text-white/70 max-w-sm mx-auto mb-5 leading-relaxed">
-        No próximo passo, você vai pra tela do IA Tipster pra montar sua{" "}
-        <strong className="text-white">primeira odd com IA</strong>. É rápido — escolhe um jogo, gera a análise e tá pronto.
+        En el próximo paso, vas a la pantalla del IA Tipster para armar tu{" "}
+        <strong className="text-white">primera cuota con IA</strong>. Es rápido — eliges un partido, generas el análisis y listo.
       </p>
 
       <div
@@ -286,20 +286,20 @@ function StepFinal() {
           className="text-[10px] uppercase tracking-wider mb-1 font-bold"
           style={{ color: "#00FF7F", fontFamily: "'Barlow Condensed', sans-serif" }}
         >
-          O que vai acontecer
+          Qué va a pasar
         </p>
         <ul className="text-xs text-white/80 space-y-1.5 leading-snug">
           <li className="flex gap-2">
             <span className="text-[#00FF7F] font-bold">1.</span>
-            Vamos abrir a tela do IA Tipster
+            Vamos a abrir la pantalla del IA Tipster
           </li>
           <li className="flex gap-2">
             <span className="text-[#00FF7F] font-bold">2.</span>
-            Você escolhe um jogo (Ao Vivo ou Chat)
+            Eliges un partido (En Vivo o Chat)
           </li>
           <li className="flex gap-2">
             <span className="text-[#00FF7F] font-bold">3.</span>
-            A IA gera sua análise em segundos — 1 crédito é descontado
+            La IA genera tu análisis en segundos — 1 crédito es descontado
           </li>
         </ul>
       </div>
@@ -345,7 +345,7 @@ function NavBar({
           }}
         >
           <ArrowLeft className="w-4 h-4" />
-          Voltar
+          Volver
         </button>
       )}
 
@@ -367,11 +367,11 @@ function NavBar({
         {isLast ? (
           <>
             <Zap className="w-4 h-4" />
-            Começar agora
+            Empezar ahora
           </>
         ) : (
           <>
-            Próximo
+            Siguiente
             <ArrowRight className="w-4 h-4" />
           </>
         )}

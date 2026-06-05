@@ -82,13 +82,13 @@ export function TutorialSection({ onTestNow, completed }: TutorialSectionProps =
       <div className="flex-1">
         {page === 1 ? (
           <>
-            <HeroHeader title="Como usar" subtitle="Em 3 passos simples + quando usar cada aba." />
+            <HeroHeader title="Cómo usar" subtitle="En 3 pasos simples + cuándo usar cada pestaña." />
             <SectionHowToUse />
             <SectionWhichTab />
           </>
         ) : (
           <>
-            <HeroHeader title="Créditos & dicas" subtitle="Tudo que você precisa saber pra tirar o máximo da feature." />
+            <HeroHeader title="Créditos & tips" subtitle="Todo lo que necesitas saber para sacar el máximo de la herramienta." />
             <SectionCredits />
             <SectionTips />
             <Disclaimer compact />
@@ -154,7 +154,7 @@ export function TutorialSection({ onTestNow, completed }: TutorialSectionProps =
             }}
           >
             <Zap className="w-4 h-4" />
-            Testar agora!
+            ¡Probar ahora!
           </button>
         )}
       </div>
@@ -167,8 +167,8 @@ export function TutorialSection({ onTestNow, completed }: TutorialSectionProps =
 // ============================================================
 
 function HeroHeader({
-  title = "Como usar a IA Tipster",
-  subtitle = "Análises inteligentes de futebol em segundos, baseadas em dados reais. Aqui vai um guia rápido pra você tirar o máximo.",
+  title = "Cómo usar IA Tipster",
+  subtitle = "Análisis inteligente de fútbol en segundos, basado en datos reales. Aquí va una guía rápida para sacar el máximo.",
 }: {
   title?: string;
   subtitle?: string;
@@ -196,27 +196,27 @@ function SectionHowToUse() {
         style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
       >
         <Zap className="w-4 h-4 text-primary" />
-        Em 3 passos
+        En 3 pasos
       </h3>
 
       <div className="space-y-2.5">
         <StepCard
           number={1}
           icon={<MessageSquare className="w-4 h-4" />}
-          title="Escolha o jogo"
-          text="Na aba Chat, digite os times (ex: 'Flamengo x Palmeiras'). No Ao Vivo, escolha um jogo da lista."
+          title="Elige el partido"
+          text="En la pestaña Chat, escribe los equipos (ej: 'Colo-Colo x U. de Chile'). En Vivo, elige un partido de la lista."
         />
         <StepCard
           number={2}
           icon={<Sparkles className="w-4 h-4" />}
-          title="Gere a análise"
-          text="A IA estuda forma, histórico, lesões e estatísticas em segundos. Cada análise consome 1 crédito."
+          title="Genera el análisis"
+          text="La IA estudia forma, historial, lesiones y estadísticas en segundos. Cada análisis consume 1 crédito."
         />
         <StepCard
           number={3}
           icon={<ExternalLink className="w-4 h-4" />}
-          title="Aposte na Esportiva Bet"
-          text="Com a análise em mãos, abra direto o evento na Esportiva Bet pra montar sua aposta."
+          title="Apuesta en la casa"
+          text="Con el análisis en mano, abre directo el evento en la casa para armar tu apuesta."
         />
       </div>
     </div>
@@ -231,7 +231,7 @@ function SectionWhichTab() {
         style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
       >
         <Radio className="w-4 h-4 text-primary" />
-        Quando usar cada aba
+        Cuándo usar cada pestaña
       </h3>
 
       <div className="grid grid-cols-2 gap-2.5">
@@ -246,7 +246,7 @@ function SectionWhichTab() {
             </span>
           </div>
           <p className="text-[11px] text-muted-foreground leading-snug">
-            Pra qualquer jogo dos próximos 15 dias. Você escolhe o que analisar.
+            Para cualquier partido de los próximos 15 días. Tú eliges qué analizar.
           </p>
         </div>
 
@@ -257,11 +257,11 @@ function SectionWhichTab() {
               className="text-xs font-bold uppercase tracking-wide"
               style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
             >
-              Ao Vivo
+              En Vivo
             </span>
           </div>
           <p className="text-[11px] text-muted-foreground leading-snug">
-            Pra partidas rolando agora. Análise atualizada com o que tá acontecendo no jogo.
+            Para partidos en curso ahora. Análisis actualizado con lo que está pasando en el partido.
           </p>
         </div>
       </div>
@@ -277,29 +277,29 @@ function SectionCredits() {
         style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
       >
         <Coins className="w-4 h-4 text-primary" />
-        Como funcionam os créditos
+        Cómo funcionan los créditos
       </h3>
 
       <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4 space-y-3">
         <CreditRow
           icon={<RefreshCw className="w-3.5 h-3.5" />}
-          label="Cota semanal"
-          text="Você recebe créditos toda semana de acordo com seu plano. Reset toda segunda."
-          valueLabel="Grátis"
+          label="Cuota semanal"
+          text="Recibes créditos cada semana según tu plan. Reinicia cada lunes."
+          valueLabel="Gratis"
           valueColor="#00FF7F"
         />
         <CreditRow
           icon={<Coins className="w-3.5 h-3.5" />}
-          label="Pacotes extras"
-          text="Comprou? Vira saldo permanente. Usa quando quiser, não expira."
-          valueLabel="A partir de R$ 29,90"
+          label="Paquetes extra"
+          text="¿Compraste? Se vuelve saldo permanente. Úsalo cuando quieras, no caduca."
+          valueLabel="Desde $9.900"
           valueColor="#FACC15"
         />
         <CreditRow
           icon={<InfinityIcon className="w-3.5 h-3.5" />}
-          label="Acesso ilimitado"
-          text="Análises sem contar créditos por 1 ou 3 meses. Pra quem usa muito."
-          valueLabel="A partir de R$ 99,00"
+          label="Acceso ilimitado"
+          text="Análisis sin contar créditos por 1 o 3 meses. Para quien usa mucho."
+          valueLabel="Desde $29.900"
           valueColor="#00FF7F"
         />
       </div>
@@ -315,24 +315,24 @@ function SectionTips() {
         style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
       >
         <Sparkles className="w-4 h-4 text-primary" />
-        Dicas avançadas
+        Tips avanzados
       </h3>
 
       <div className="space-y-2.5">
         <TipCard
           icon={<ThumbsUp className="w-4 h-4 text-primary" />}
-          title="Use os feedbacks 👍👎"
-          text="Eles ajudam a IA a aprender o que funciona pra você. Análise ruim? Polegar pra baixo + reporte."
+          title="Usa los feedbacks 👍👎"
+          text="Ayudan a la IA a aprender qué funciona para ti. ¿Análisis malo? Pulgar abajo + reporte."
         />
         <TipCard
           icon={<RefreshCw className="w-4 h-4 text-primary" />}
-          title="Repita análises do mesmo jogo"
-          text="Próximo ao apito, dados mudam (escalações, lesões). Vale gerar de novo se mudou contexto."
+          title="Repite análisis del mismo partido"
+          text="Cerca del inicio, los datos cambian (alineaciones, lesiones). Vale generar de nuevo si cambió contexto."
         />
         <TipCard
           icon={<ExternalLink className="w-4 h-4 text-primary" />}
-          title="Abra direto na Esportiva Bet"
-          text="O botão 'Abrir Esportiva Bet' já te leva no evento certo do jogo analisado. Sem cliques extras."
+          title="Abre directo en la casa"
+          text="El botón 'Abrir en la casa' te lleva al evento correcto del partido analizado. Sin clics extra."
         />
       </div>
     </div>
@@ -345,8 +345,8 @@ function Disclaimer({ compact = false }: { compact?: boolean }) {
       <div className="flex items-start gap-2">
         <CheckCircle2 className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
         <p className="text-[11px] text-muted-foreground leading-relaxed">
-          A IA Tipster é uma <strong>ferramenta de orientação</strong> baseada em dados estatísticos.
-          Use como apoio à sua análise — nenhuma análise é garantia de resultado. Jogue com responsabilidade.
+          IA Tipster es una <strong>herramienta de orientación</strong> basada en datos estadísticos.
+          Úsala como apoyo a tu análisis — ningún análisis es garantía de resultado. Juega con responsabilidad.
         </p>
       </div>
     </div>

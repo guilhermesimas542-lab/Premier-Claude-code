@@ -37,9 +37,9 @@ export function BugReportDrawer({ open, onOpenChange, tipCacheId }: Props) {
         body: { tip_cache_id: tipCacheId, message: trimmed },
       });
       if (error || (data as any)?.error) {
-        const msg = error?.message || (data as any)?.error || "Falha ao enviar.";
+        const msg = error?.message || (data as any)?.error || "Error al enviar.";
         console.error("bug report error", msg);
-        setErrorMsg("Não conseguimos enviar agora. Tente de novo em instantes.");
+        setErrorMsg("No pudimos enviar ahora. Inténtalo de nuevo en unos instantes.");
         return;
       }
       setSubmitted(true);
@@ -50,7 +50,7 @@ export function BugReportDrawer({ open, onOpenChange, tipCacheId }: Props) {
       }, 2200);
     } catch (err: any) {
       console.error("bug report error", err);
-      setErrorMsg("Erro inesperado. Tente novamente.");
+      setErrorMsg("Error inesperado. Inténtalo de nuevo.");
     } finally {
       setSubmitting(false);
     }
@@ -72,10 +72,10 @@ export function BugReportDrawer({ open, onOpenChange, tipCacheId }: Props) {
         <DrawerHeader>
           <DrawerTitle className="flex items-center gap-2">
             <Bug className="w-4 h-4" />
-            Reportar um bug
+            Reportar un bug
           </DrawerTitle>
           <DrawerDescription>
-            Conta o que aconteceu nesta análise. A gente lê e ajusta o que estiver torto.
+            Cuéntanos qué pasó con este análisis. Leemos y ajustamos lo que esté torcido.
           </DrawerDescription>
         </DrawerHeader>
 
@@ -83,14 +83,14 @@ export function BugReportDrawer({ open, onOpenChange, tipCacheId }: Props) {
           {submitted ? (
             <div className="flex items-center gap-2 text-sm py-6 text-primary">
               <CheckCircle2 className="w-5 h-5" />
-              Recebemos seu relato. Vamos analisar.
+              Recibimos tu reporte. Vamos a analizarlo.
             </div>
           ) : (
             <>
               <Textarea
                 value={message}
                 onChange={(e) => setMessage(e.target.value.slice(0, MAX_LENGTH))}
-                placeholder="Ex: A entrada principal recomendou Over 2.5, mas o jogo já estava 3-0 quando gerei a análise."
+                placeholder="Ej: La entrada principal recomendó Over 2.5, pero el partido ya estaba 3-0 cuando generé el análisis."
                 rows={5}
                 disabled={submitting}
                 className="resize-none"
