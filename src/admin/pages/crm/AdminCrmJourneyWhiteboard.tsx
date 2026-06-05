@@ -57,15 +57,19 @@ function Inner() {
     edges: graphEdges,
     loading,
     addNode,
+    updateNode,
     updateNodePosition,
     removeNode,
     addEdge,
     removeEdge,
+    updateEdgeBranch,
   } = useJourneyGraph(journeyId);
 
   const [nodes, setNodes, onNodesChangeRF] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChangeRF] = useEdgesState<Edge>([]);
   const [journeyName, setJourneyName] = useState<string>("");
+  const [triggerType, setTriggerType] = useState<string | null>(null);
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
 
   useEffect(() => {
     setNodes(graphNodes as unknown as Node[]);
@@ -80,12 +84,17 @@ function Inner() {
     (async () => {
       const { data } = await (supabase as any)
         .from("crm_journeys")
-        .select("name")
+        .select("name, trigger_type")
         .eq("id", journeyId)
         .single();
       if (data?.name) setJourneyName(data.name);
+      if (data?.trigger_type) setTriggerType(data.trigger_type);
     })();
   }, [journeyId]);
+
+  const selectedNode =
+    (graphNodes.find((n) => n.id === selectedNodeId) as RFNode | undefined) ?? null;
+  const messageNodes = graphNodes.filter((n) => n.type === "message") as RFNode[];
 
   const onNodesChange = useCallback(
     (changes: NodeChange[]) => {
