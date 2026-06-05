@@ -157,8 +157,23 @@ function Inner() {
         <div className="font-bold text-foreground truncate">
           {journeyName || "Whiteboard"}
         </div>
-        <div className="ml-auto text-xs text-muted-foreground">
-          Whiteboard · arraste pra mover · Delete pra remover
+        <div className="ml-auto flex items-center gap-3">
+          <div className="text-xs text-muted-foreground hidden md:block">
+            Whiteboard · arraste pra mover · Delete pra remover
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => journeyId && recalc(journeyId)}
+            disabled={!journeyId || convBusy}
+          >
+            {convBusy ? (
+              <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+            ) : (
+              <Target className="w-3.5 h-3.5 mr-1.5" />
+            )}
+            Recalcular conversões
+          </Button>
         </div>
       </div>
 
