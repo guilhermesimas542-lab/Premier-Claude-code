@@ -72,15 +72,15 @@ export function CreditBalanceBadge() {
           </button>
         </PopoverTrigger>
         <PopoverContent align="end" className="w-64 text-xs space-y-2">
-          <div className="font-semibold text-sm">Seus créditos</div>
+          <div className="font-semibold text-sm">Tus créditos</div>
           <div className="flex justify-between">
-            <span className="text-muted-foreground">Cota semanal</span>
+            <span className="text-muted-foreground">Cuota semanal</span>
             <span className="font-medium">
               {balance.weekly_remaining}/{balance.weekly_quota}
             </span>
           </div>
           <div className="flex justify-between">
-            <span className="text-muted-foreground">Bônus</span>
+            <span className="text-muted-foreground">Bonus</span>
             <span className="font-medium">{balance.extras_bonus}</span>
           </div>
           <div className="flex justify-between">
@@ -88,7 +88,7 @@ export function CreditBalanceBadge() {
             <span className="font-medium">{balance.extras_purchased}</span>
           </div>
           <div className="border-t pt-2 flex justify-between">
-            <span className="text-muted-foreground">Próximo reset</span>
+            <span className="text-muted-foreground">Próximo reinicio</span>
             <span className="font-medium">{resetLabel}</span>
           </div>
           <button

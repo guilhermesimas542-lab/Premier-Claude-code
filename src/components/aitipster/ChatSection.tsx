@@ -115,9 +115,9 @@ export function ChatSection({ onOpenEsportiva }: ChatSectionProps = {}) {
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center text-center pt-10 px-3">
             <Sparkles className="w-10 h-10 text-primary mb-3" />
-            <p className="text-sm font-medium mb-2">Pergunte sobre qualquer jogo</p>
+            <p className="text-sm font-medium mb-2">Pregunta sobre cualquier partido</p>
             <p className="text-xs text-muted-foreground max-w-xs mb-4">
-              Diga o nome dos times. Eu busco nos próximos 15 dias e analiso com dados reais.
+              Dime el nombre de los equipos. Busco en los próximos 15 días y analizo con datos reales.
             </p>
             {renderSuggestions()}
           </div>

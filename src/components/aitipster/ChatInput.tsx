@@ -32,7 +32,7 @@ export function ChatInput({ onSend, disabled }: Props) {
           value={text}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={handleKey}
-          placeholder="Pergunte sobre um jogo"
+          placeholder="Pregunta sobre un partido"
           rows={1}
           className="min-h-[40px] max-h-[120px] resize-none"
           disabled={disabled}

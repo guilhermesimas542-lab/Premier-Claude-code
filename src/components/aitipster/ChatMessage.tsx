@@ -284,7 +284,7 @@ export function ChatMessage({ message, onConfirmFixture, onOpenEsportiva, onReje
         <Button
           onClick={() => {
             const input = document.querySelector<HTMLInputElement | HTMLTextAreaElement>(
-              'input[placeholder*="Pergunte sobre um jogo"], textarea[placeholder*="Pergunte sobre um jogo"]'
+              'input[placeholder*="Pregunta sobre un partido"], textarea[placeholder*="Pregunta sobre un partido"]'
             );
             if (input) {
               input.focus();

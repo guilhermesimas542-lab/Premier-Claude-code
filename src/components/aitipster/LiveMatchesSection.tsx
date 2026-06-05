@@ -38,13 +38,13 @@ export function LiveMatchesSection({ onOpenEsportiva }: Props = {}) {
     return (
       <div className="flex flex-col items-center justify-center py-12 gap-3 px-4">
         <Radio className="w-8 h-8 text-muted-foreground" />
-        <p className="text-sm font-medium">Nenhum jogo ao vivo</p>
+        <p className="text-sm font-medium">No hay partidos en vivo</p>
         <p className="text-xs text-muted-foreground text-center max-w-sm">
-          No momento não há jogos ao vivo nas ligas cobertas pelo Premier.
+          En este momento no hay partidos en vivo en las ligas cubiertas por CL Score.
         </p>
         <Button onClick={refetch} variant="outline" size="sm">
           <RefreshCw className="w-4 h-4 mr-2" />
-          Atualizar
+          Actualizar
         </Button>
       </div>
     );

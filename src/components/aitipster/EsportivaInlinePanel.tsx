@@ -121,7 +121,7 @@ export function EsportivaInlinePanel({
       {!hasMapping && (
         <div className="flex items-center gap-2 px-3 py-2 bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[11px] border-b border-amber-500/20">
           <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-          <span>Jogo não disponível na Esportiva Bet — mostrando home.</span>
+          <span>Partido no disponible en la casa — mostrando portada.</span>
         </div>
       )}
 

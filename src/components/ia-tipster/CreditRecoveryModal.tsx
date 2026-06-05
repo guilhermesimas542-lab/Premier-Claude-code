@@ -445,10 +445,10 @@ export function CreditRecoveryModal({ open, onClose }: Props) {
         <p className="text-sm text-white/70 mt-2 max-w-md mx-auto">
           {nextMatch ? (
             <>
-              Não perde o próximo jogo. Veja a análise da IA antes do apito.
+              No te pierdas el próximo partido. Ve el análisis de la IA antes del inicio.
             </>
           ) : (
-            "Recarregue para continuar acessando as análises da IA."
+            "Recarga para seguir accediendo a los análisis de la IA."
           )}
         </p>
       </div>
