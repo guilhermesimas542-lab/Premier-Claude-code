@@ -1,13 +1,23 @@
 import { Handle, Position, type NodeProps } from "@xyflow/react";
 import { Play, Mail, Clock, GitBranch, Tag } from "lucide-react";
 import { CHANNELS, type ChannelKey } from "@/admin/lib/crm/channels";
+import type { DelayUnit } from "@/admin/hooks/crm/useJourneyGraph";
 
 interface NodeData {
   channel: ChannelKey | null;
   content: Record<string, any>;
   config: Record<string, any>;
+  delay_value: number | null;
+  delay_unit: DelayUnit | null;
   label: string;
 }
+
+const UNIT_LABEL: Record<DelayUnit, string> = {
+  minute: "min",
+  hour: "h",
+  day: "dia(s)",
+  week: "sem",
+};
 
 function Card({
   color,
@@ -80,8 +90,8 @@ export function MessageNode({ data }: NodeProps) {
 
 export function WaitNode({ data }: NodeProps) {
   const d = data as unknown as NodeData;
-  const v = d.config?.delay_value;
-  const u = d.config?.delay_unit;
+  const v = d.delay_value;
+  const u = d.delay_unit;
   return (
     <>
       <Handle type="target" position={Position.Top} />
@@ -89,15 +99,24 @@ export function WaitNode({ data }: NodeProps) {
         color="#F59E0B"
         icon={<Clock className="w-3.5 h-3.5" />}
         title="Esperar"
-        subtitle={v && u ? `${v} ${u}` : "duração a definir"}
+        subtitle={v && u ? `${v} ${UNIT_LABEL[u]}` : "duração a definir"}
       />
       <Handle type="source" position={Position.Bottom} />
     </>
   );
 }
 
+const EVENT_LABEL: Record<string, string> = {
+  opened: "Abriu",
+  clicked: "Clicou",
+  converted: "Converteu",
+};
+
 export function ConditionNode({ data }: NodeProps) {
   const d = data as unknown as NodeData;
+  const ev = d.config?.event;
+  const w = d.config?.window_hours;
+  const subtitle = ev ? `${EVENT_LABEL[ev] ?? ev} em ${w ?? 72}h` : "ramificação";
   return (
     <>
       <Handle type="target" position={Position.Top} />
@@ -105,7 +124,7 @@ export function ConditionNode({ data }: NodeProps) {
         color="#A855F7"
         icon={<GitBranch className="w-3.5 h-3.5" />}
         title="Condição"
-        subtitle={d.config?.expression ?? "ramificação"}
+        subtitle={subtitle}
       />
       <Handle id="yes" type="source" position={Position.Bottom} style={{ left: "30%" }} />
       <Handle id="no" type="source" position={Position.Bottom} style={{ left: "70%" }} />
@@ -119,14 +138,16 @@ export function ConditionNode({ data }: NodeProps) {
 
 export function TagNode({ data }: NodeProps) {
   const d = data as unknown as NodeData;
+  const action = d.config?.action === "remove" ? "Remover" : "Marcar";
+  const tag = d.config?.tag;
   return (
     <>
       <Handle type="target" position={Position.Top} />
       <Card
         color="#EC4899"
         icon={<Tag className="w-3.5 h-3.5" />}
-        title="Marcar usuário"
-        subtitle={d.config?.tag ?? "tag a definir"}
+        title="Tag"
+        subtitle={tag ? `${action}: ${tag}` : "tag a definir"}
       />
       <Handle type="source" position={Position.Bottom} />
     </>

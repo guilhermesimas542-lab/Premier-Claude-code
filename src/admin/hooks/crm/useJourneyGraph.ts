@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import type { ChannelKey } from "../../lib/crm/channels";
 
 export type NodeType = "trigger" | "message" | "wait" | "condition" | "tag";
+export type DelayUnit = "minute" | "hour" | "day" | "week";
 
 export interface GraphNodeRow {
   id: string;
@@ -14,6 +15,8 @@ export interface GraphNodeRow {
   content: Record<string, any>;
   config: Record<string, any>;
   step_order: number | null;
+  delay_value: number | null;
+  delay_unit: DelayUnit | null;
 }
 
 export interface GraphEdgeRow {
@@ -33,6 +36,8 @@ export interface RFNode {
     channel: ChannelKey | null;
     content: Record<string, any>;
     config: Record<string, any>;
+    delay_value: number | null;
+    delay_unit: DelayUnit | null;
     label: string;
   };
 }
@@ -45,7 +50,15 @@ export interface RFEdge {
   data?: { condition: Record<string, any> | null };
 }
 
-function labelFor(row: GraphNodeRow): string {
+export interface UpdateNodeFields {
+  channel?: ChannelKey | null;
+  content?: Record<string, any>;
+  config?: Record<string, any>;
+  delay_value?: number | null;
+  delay_unit?: DelayUnit | null;
+}
+
+function labelFor(row: { node_type: NodeType; channel: ChannelKey | null }): string {
   switch (row.node_type) {
     case "trigger":
       return "Gatilho";
@@ -118,6 +131,8 @@ export function useJourneyGraph(journeyId: string | null) {
           channel: r.channel,
           content: r.content ?? {},
           config: r.config ?? {},
+          delay_value: r.delay_value,
+          delay_unit: r.delay_unit,
           label: labelFor(r),
         },
       };
@@ -176,7 +191,9 @@ export function useJourneyGraph(journeyId: string | null) {
             channel: null,
             content: {},
             config: {},
-            label: labelFor(row),
+            delay_value: null,
+            delay_unit: null,
+            label: labelFor({ node_type: nodeType, channel: null }),
           },
         },
       ]);
@@ -256,15 +273,66 @@ export function useJourneyGraph(journeyId: string | null) {
     setEdges((prev) => prev.filter((e) => e.id !== id));
   }, []);
 
+  const updateNode = useCallback(
+    async (id: string, fields: UpdateNodeFields) => {
+      const { error } = await (supabase as any)
+        .from("crm_journey_steps")
+        .update(fields)
+        .eq("id", id);
+      if (error) {
+        toast.error(`Erro ao salvar nó: ${error.message}`);
+        return;
+      }
+      setNodes((prev) =>
+        prev.map((n) => {
+          if (n.id !== id) return n;
+          const merged = {
+            ...n,
+            data: {
+              ...n.data,
+              ...(fields.channel !== undefined ? { channel: fields.channel } : {}),
+              ...(fields.content !== undefined ? { content: fields.content } : {}),
+              ...(fields.config !== undefined ? { config: fields.config } : {}),
+              ...(fields.delay_value !== undefined ? { delay_value: fields.delay_value } : {}),
+              ...(fields.delay_unit !== undefined ? { delay_unit: fields.delay_unit } : {}),
+            },
+          };
+          merged.data.label = labelFor({ node_type: n.type, channel: merged.data.channel });
+          return merged;
+        })
+      );
+    },
+    []
+  );
+
+  const updateEdgeBranch = useCallback(
+    async (id: string, branch: string | null) => {
+      const { error } = await (supabase as any)
+        .from("crm_journey_edges")
+        .update({ branch })
+        .eq("id", id);
+      if (error) {
+        toast.error(`Erro ao salvar ramo: ${error.message}`);
+        return;
+      }
+      setEdges((prev) =>
+        prev.map((e) => (e.id === id ? { ...e, label: branch ?? "" } : e))
+      );
+    },
+    []
+  );
+
   return {
     nodes,
     edges,
     loading,
     refresh: load,
     addNode,
+    updateNode,
     updateNodePosition,
     removeNode,
     addEdge,
     removeEdge,
+    updateEdgeBranch,
   };
 }
