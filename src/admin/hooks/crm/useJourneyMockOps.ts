@@ -10,6 +10,8 @@ import {
   hasBehaviorFilter,
   resolveBehaviorUserIds,
 } from "../../lib/crm/resolveBehaviorAudience";
+import { attributeConversions } from "./useJourneyConversions";
+
 
 /**
  * Hook com operações mock para jornadas.
