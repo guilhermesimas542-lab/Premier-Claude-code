@@ -745,5 +745,10 @@ async function processLinear(
     );
   }
 
+  await attributeConversions(journey.id).catch((e) =>
+    console.error("[processLinear] attributeConversions:", e)
+  );
+
   return { processed, events_created: eventsToInsert.length, completed };
 }
+
