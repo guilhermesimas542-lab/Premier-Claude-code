@@ -12,7 +12,7 @@ function pad(n: number) {
   return n.toString().padStart(2, "0");
 }
 
-export default function Backredirect() {
+export default function Backredirect4() {
   const [secondsLeft, setSecondsLeft] = useState(5 * 60);
 
   useEffect(() => {
