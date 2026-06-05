@@ -1200,6 +1200,58 @@ export type Database = {
         }
         Relationships: []
       }
+      crm_journey_edges: {
+        Row: {
+          branch: string | null
+          condition: Json
+          created_at: string
+          id: string
+          journey_id: string
+          source_step_id: string
+          target_step_id: string
+        }
+        Insert: {
+          branch?: string | null
+          condition?: Json
+          created_at?: string
+          id?: string
+          journey_id: string
+          source_step_id: string
+          target_step_id: string
+        }
+        Update: {
+          branch?: string | null
+          condition?: Json
+          created_at?: string
+          id?: string
+          journey_id?: string
+          source_step_id?: string
+          target_step_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_journey_edges_journey_id_fkey"
+            columns: ["journey_id"]
+            isOneToOne: false
+            referencedRelation: "crm_journeys"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_journey_edges_source_step_id_fkey"
+            columns: ["source_step_id"]
+            isOneToOne: false
+            referencedRelation: "crm_journey_steps"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_journey_edges_target_step_id_fkey"
+            columns: ["target_step_id"]
+            isOneToOne: false
+            referencedRelation: "crm_journey_steps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       crm_journey_enrollments: {
         Row: {
           completed_at: string | null
@@ -1322,37 +1374,46 @@ export type Database = {
         Row: {
           audience_filters: Json | null
           channel: string
+          config: Json
           content: Json
           created_at: string
           delay_unit: string
           delay_value: number
           id: string
           journey_id: string
-          step_order: number
+          node_type: string
+          position: Json
+          step_order: number | null
           updated_at: string
         }
         Insert: {
           audience_filters?: Json | null
           channel: string
+          config?: Json
           content?: Json
           created_at?: string
           delay_unit?: string
           delay_value?: number
           id?: string
           journey_id: string
-          step_order: number
+          node_type?: string
+          position?: Json
+          step_order?: number | null
           updated_at?: string
         }
         Update: {
           audience_filters?: Json | null
           channel?: string
+          config?: Json
           content?: Json
           created_at?: string
           delay_unit?: string
           delay_value?: number
           id?: string
           journey_id?: string
-          step_order?: number
+          node_type?: string
+          position?: Json
+          step_order?: number | null
           updated_at?: string
         }
         Relationships: [
