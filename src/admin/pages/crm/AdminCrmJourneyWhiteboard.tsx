@@ -20,6 +20,7 @@ import "@xyflow/react/dist/style.css";
 import { ArrowLeft, Loader2, Play, Mail, Clock, GitBranch, Tag, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useJourneyConversions } from "@/admin/hooks/crm/useJourneyConversions";
+import { useJourneyNodeMetrics } from "@/admin/hooks/crm/useJourneyNodeMetrics";
 
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -67,6 +68,13 @@ function Inner() {
     updateEdgeBranch,
   } = useJourneyGraph(journeyId);
   const { busy: convBusy, recalc } = useJourneyConversions();
+  const { metrics, refresh: refreshMetrics } = useJourneyNodeMetrics(journeyId);
+
+  const handleRecalc = useCallback(async () => {
+    if (!journeyId) return;
+    await recalc(journeyId);
+    await refreshMetrics();
+  }, [journeyId, recalc, refreshMetrics]);
 
 
   const [nodes, setNodes, onNodesChangeRF] = useNodesState<Node>([]);
