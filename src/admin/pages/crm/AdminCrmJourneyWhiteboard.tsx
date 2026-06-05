@@ -207,7 +207,7 @@ function Inner() {
               onEdgeDoubleClick={(_e, edge) => {
                 const src = graphNodes.find((n) => n.id === edge.source);
                 if (src?.type !== "condition") return;
-                const current = edge.label ?? "";
+                const current = (edge.label as string | undefined) ?? "";
                 const next = current === "sim" ? "não" : current === "não" ? null : "sim";
                 updateEdgeBranch(edge.id, next);
               }}
