@@ -605,10 +605,15 @@ export function useJourneyMockOps() {
           );
         }
 
+        await attributeConversions(journey.id).catch((e) =>
+          console.error("[useJourneyMockOps] attributeConversions:", e)
+        );
+
         return { processed, events_created: eventsToInsert.length, completed };
       } finally {
         setBusy(null);
       }
+
     },
     []
   );
