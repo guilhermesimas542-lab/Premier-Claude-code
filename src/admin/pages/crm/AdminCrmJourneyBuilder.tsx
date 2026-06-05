@@ -9,6 +9,7 @@ import {
   Pause,
   ChevronDown,
   BookmarkPlus,
+  LayoutGrid,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -448,6 +449,14 @@ export default function AdminCrmJourneyBuilder() {
             </Button>
           ) : (
             <>
+              <Button
+                variant="outline"
+                onClick={() => navigate(`/admin/crm/journeys/${journey!.id}/whiteboard`)}
+                disabled={!journey}
+              >
+                <LayoutGrid className="w-3.5 h-3.5 mr-1.5" />
+                Abrir no whiteboard
+              </Button>
               <Button
                 variant="outline"
                 onClick={async () => {

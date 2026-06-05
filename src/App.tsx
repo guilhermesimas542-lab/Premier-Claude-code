@@ -62,6 +62,7 @@ import AdminCrmAudiences from "./admin/pages/crm/AdminCrmAudiences";
 import AdminCrmJourneys from "./admin/pages/crm/AdminCrmJourneys";
 import AdminCrmJourneyBuilder from "./admin/pages/crm/AdminCrmJourneyBuilder";
 import AdminCrmJourneyDetail from "./admin/pages/crm/AdminCrmJourneyDetail";
+import AdminCrmJourneyWhiteboard from "./admin/pages/crm/AdminCrmJourneyWhiteboard";
 import AdminBehavior from "./admin/pages/AdminBehavior";
 import AdminCrmSettings from "./admin/pages/crm/AdminCrmSettings";
 import AdminWebhook from "./admin/pages/AdminWebhook";
@@ -157,6 +158,7 @@ const App = () => {
               <Route path="crm/journeys/new" element={<AdminCrmJourneyBuilder />} />
               <Route path="crm/journeys/:id" element={<AdminCrmJourneyDetail />} />
               <Route path="crm/journeys/:id/edit" element={<AdminCrmJourneyBuilder />} />
+              <Route path="crm/journeys/:id/whiteboard" element={<AdminCrmJourneyWhiteboard />} />
               <Route path="crm/settings" element={<AdminCrmSettings />} />
             </Route>
             <Route path="*" element={<NotFound />} />
