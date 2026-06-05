@@ -1,7 +1,15 @@
 import { Handle, Position, type NodeProps } from "@xyflow/react";
-import { Play, Mail, Clock, GitBranch, Tag } from "lucide-react";
+import { Play, Mail, Clock, GitBranch, Tag, Info } from "lucide-react";
 import { CHANNELS, type ChannelKey } from "@/admin/lib/crm/channels";
 import type { DelayUnit } from "@/admin/hooks/crm/useJourneyGraph";
+import type { NodeMetrics } from "@/admin/hooks/crm/useJourneyNodeMetrics";
+import { formatBRL } from "@/admin/components/revenue/constants";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface NodeData {
   channel: ChannelKey | null;
@@ -10,6 +18,7 @@ interface NodeData {
   delay_value: number | null;
   delay_unit: DelayUnit | null;
   label: string;
+  metrics?: NodeMetrics;
 }
 
 const UNIT_LABEL: Record<DelayUnit, string> = {
@@ -19,24 +28,59 @@ const UNIT_LABEL: Record<DelayUnit, string> = {
   week: "sem",
 };
 
+function MetricsFooter({ metrics }: { metrics?: NodeMetrics }) {
+  if (!metrics || metrics.sent === 0) return null;
+  const pct = Math.round(metrics.openRate * 100);
+  return (
+    <div className="mt-2 pt-2 border-t border-border text-[10px] text-muted-foreground flex flex-wrap items-center gap-x-2 gap-y-0.5">
+      <span>Enviados: <b className="text-foreground">{metrics.sent}</b></span>
+      <span className="flex items-center gap-0.5">
+        Abertura: <b className="text-foreground">{pct}%</b>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Info className="w-2.5 h-2.5 cursor-help" />
+            </TooltipTrigger>
+            <TooltipContent side="top" className="text-xs max-w-[220px]">
+              Estimativa (mock) até a integração de webhooks dos provedores.
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </span>
+      {metrics.converted > 0 && (
+        <span className="text-emerald-600 font-bold">
+          💰 {metrics.converted} · {formatBRL(metrics.conversionValueCents / 100)}
+        </span>
+      )}
+    </div>
+  );
+}
+
 function Card({
   color,
   icon,
   title,
   subtitle,
-  children,
+  metrics,
 }: {
   color: string;
   icon: React.ReactNode;
   title: string;
   subtitle?: string;
-  children?: React.ReactNode;
+  metrics?: NodeMetrics;
 }) {
+  const hasConv = (metrics?.converted ?? 0) > 0;
   return (
     <div
-      className="rounded-xl border-2 bg-card shadow-md min-w-[180px] px-3 py-2.5"
-      style={{ borderColor: color }}
+      className="rounded-xl border-2 bg-card shadow-md min-w-[200px] px-3 py-2.5 relative"
+      style={{
+        borderColor: hasConv ? "#10B981" : color,
+        boxShadow: hasConv ? "0 0 0 3px rgba(16,185,129,0.25)" : undefined,
+      }}
     >
+      {hasConv && (
+        <div className="absolute -top-2 -right-2 text-base">💰</div>
+      )}
       <div className="flex items-center gap-2">
         <div
           className="w-7 h-7 rounded-md flex items-center justify-center text-white shrink-0"
@@ -55,7 +99,7 @@ function Card({
           )}
         </div>
       </div>
-      {children}
+      <MetricsFooter metrics={metrics} />
     </div>
   );
 }
@@ -64,7 +108,7 @@ export function TriggerNode({ data }: NodeProps) {
   const d = data as unknown as NodeData;
   return (
     <>
-      <Card color="#10B981" icon={<Play className="w-3.5 h-3.5" />} title="Gatilho" subtitle={d.config?.trigger_type ?? "início"} />
+      <Card color="#10B981" icon={<Play className="w-3.5 h-3.5" />} title="Gatilho" subtitle={d.config?.trigger_type ?? "início"} metrics={d.metrics} />
       <Handle type="source" position={Position.Bottom} />
     </>
   );
@@ -82,6 +126,7 @@ export function MessageNode({ data }: NodeProps) {
         icon={<Mail className="w-3.5 h-3.5" />}
         title="Mensagem"
         subtitle={ch?.label ?? "canal não definido"}
+        metrics={d.metrics}
       />
       <Handle type="source" position={Position.Bottom} />
     </>
@@ -100,6 +145,7 @@ export function WaitNode({ data }: NodeProps) {
         icon={<Clock className="w-3.5 h-3.5" />}
         title="Esperar"
         subtitle={v && u ? `${v} ${UNIT_LABEL[u]}` : "duração a definir"}
+        metrics={d.metrics}
       />
       <Handle type="source" position={Position.Bottom} />
     </>
@@ -125,6 +171,7 @@ export function ConditionNode({ data }: NodeProps) {
         icon={<GitBranch className="w-3.5 h-3.5" />}
         title="Condição"
         subtitle={subtitle}
+        metrics={d.metrics}
       />
       <Handle id="yes" type="source" position={Position.Bottom} style={{ left: "30%" }} />
       <Handle id="no" type="source" position={Position.Bottom} style={{ left: "70%" }} />
@@ -148,6 +195,7 @@ export function TagNode({ data }: NodeProps) {
         icon={<Tag className="w-3.5 h-3.5" />}
         title="Tag"
         subtitle={tag ? `${action}: ${tag}` : "tag a definir"}
+        metrics={d.metrics}
       />
       <Handle type="source" position={Position.Bottom} />
     </>

@@ -20,6 +20,7 @@ import "@xyflow/react/dist/style.css";
 import { ArrowLeft, Loader2, Play, Mail, Clock, GitBranch, Tag, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useJourneyConversions } from "@/admin/hooks/crm/useJourneyConversions";
+import { useJourneyNodeMetrics } from "@/admin/hooks/crm/useJourneyNodeMetrics";
 
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -67,6 +68,13 @@ function Inner() {
     updateEdgeBranch,
   } = useJourneyGraph(journeyId);
   const { busy: convBusy, recalc } = useJourneyConversions();
+  const { metrics, refresh: refreshMetrics } = useJourneyNodeMetrics(journeyId);
+
+  const handleRecalc = useCallback(async () => {
+    if (!journeyId) return;
+    await recalc(journeyId);
+    await refreshMetrics();
+  }, [journeyId, recalc, refreshMetrics]);
 
 
   const [nodes, setNodes, onNodesChangeRF] = useNodesState<Node>([]);
@@ -76,8 +84,12 @@ function Inner() {
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
 
   useEffect(() => {
-    setNodes(graphNodes as unknown as Node[]);
-  }, [graphNodes, setNodes]);
+    const withMetrics = graphNodes.map((n) => ({
+      ...n,
+      data: { ...n.data, metrics: metrics[n.id] },
+    }));
+    setNodes(withMetrics as unknown as Node[]);
+  }, [graphNodes, metrics, setNodes]);
 
   useEffect(() => {
     setEdges(graphEdges as unknown as Edge[]);
@@ -166,7 +178,7 @@ function Inner() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => journeyId && recalc(journeyId)}
+            onClick={handleRecalc}
             disabled={!journeyId || convBusy}
           >
             {convBusy ? (
