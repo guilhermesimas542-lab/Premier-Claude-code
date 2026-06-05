@@ -3,7 +3,7 @@ import formasPagamento from "@/assets/formas-pagamento.png";
 import seloGarantia from "@/assets/selo-garantia-30.png";
 
 // TODO: confirmar o link de checkout do R$1
-const CHECKOUT_URL = "https://checkout.payt.com.br/302d147f60a7fd78aee674bdea8f4240";
+const CHECKOUT_URL = "https://checkout.payt.com.br/5f80827ba02b3e418e0b5817ea801c4b";
 
 const OLIVE = "#4D7A1F";
 const RED_BG = "#FDECEC";
