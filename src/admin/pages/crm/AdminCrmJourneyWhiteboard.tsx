@@ -178,7 +178,7 @@ function Inner() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => journeyId && recalc(journeyId)}
+            onClick={handleRecalc}
             disabled={!journeyId || convBusy}
           >
             {convBusy ? (
