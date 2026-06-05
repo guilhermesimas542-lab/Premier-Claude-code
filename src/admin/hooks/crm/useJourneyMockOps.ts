@@ -10,6 +10,8 @@ import {
   hasBehaviorFilter,
   resolveBehaviorUserIds,
 } from "../../lib/crm/resolveBehaviorAudience";
+import { attributeConversions } from "./useJourneyConversions";
+
 
 /**
  * Hook com operações mock para jornadas.
@@ -603,10 +605,15 @@ export function useJourneyMockOps() {
           );
         }
 
+        await attributeConversions(journey.id).catch((e) =>
+          console.error("[useJourneyMockOps] attributeConversions:", e)
+        );
+
         return { processed, events_created: eventsToInsert.length, completed };
       } finally {
         setBusy(null);
       }
+
     },
     []
   );
@@ -738,5 +745,10 @@ async function processLinear(
     );
   }
 
+  await attributeConversions(journey.id).catch((e) =>
+    console.error("[processLinear] attributeConversions:", e)
+  );
+
   return { processed, events_created: eventsToInsert.length, completed };
 }
+

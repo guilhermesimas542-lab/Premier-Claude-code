@@ -17,8 +17,10 @@ import {
   type Edge,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { ArrowLeft, Loader2, Play, Mail, Clock, GitBranch, Tag } from "lucide-react";
+import { ArrowLeft, Loader2, Play, Mail, Clock, GitBranch, Tag, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useJourneyConversions } from "@/admin/hooks/crm/useJourneyConversions";
+
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useJourneyGraph, type NodeType, type RFNode } from "@/admin/hooks/crm/useJourneyGraph";
@@ -64,6 +66,8 @@ function Inner() {
     removeEdge,
     updateEdgeBranch,
   } = useJourneyGraph(journeyId);
+  const { busy: convBusy, recalc } = useJourneyConversions();
+
 
   const [nodes, setNodes, onNodesChangeRF] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChangeRF] = useEdgesState<Edge>([]);
@@ -155,8 +159,23 @@ function Inner() {
         <div className="font-bold text-foreground truncate">
           {journeyName || "Whiteboard"}
         </div>
-        <div className="ml-auto text-xs text-muted-foreground">
-          Whiteboard · arraste pra mover · Delete pra remover
+        <div className="ml-auto flex items-center gap-3">
+          <div className="text-xs text-muted-foreground hidden md:block">
+            Whiteboard · arraste pra mover · Delete pra remover
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => journeyId && recalc(journeyId)}
+            disabled={!journeyId || convBusy}
+          >
+            {convBusy ? (
+              <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+            ) : (
+              <Target className="w-3.5 h-3.5 mr-1.5" />
+            )}
+            Recalcular conversões
+          </Button>
         </div>
       </div>
 
