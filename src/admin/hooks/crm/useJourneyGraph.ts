@@ -191,7 +191,9 @@ export function useJourneyGraph(journeyId: string | null) {
             channel: null,
             content: {},
             config: {},
-            label: labelFor(row),
+            delay_value: null,
+            delay_unit: null,
+            label: labelFor({ node_type: nodeType, channel: null }),
           },
         },
       ]);
