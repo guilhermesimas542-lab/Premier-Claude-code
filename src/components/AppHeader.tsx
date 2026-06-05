@@ -4,7 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { mockGetUser } from "@/mocks/user";
 import logoImg from "@/assets/premier-logo-custom.png";
 import { useNavigate, useLocation } from "react-router-dom";
-import { TelegramRedeemModal } from "@/components/TelegramRedeemModal";
 import { PlansModal } from "@/components/PlansModal";
 import { BuyCreditsModal } from "@/components/ia-tipster/BuyCreditsModal";
 import { isPreviewEnv } from "@/lib/previewEnv";
@@ -30,7 +29,6 @@ const AppHeader = ({ leftContent, headerStyle, title }: AppHeaderProps) => {
   const [tierLoaded, setTierLoaded] = useState(false);
   const [showPlansModal, setShowPlansModal] = useState(false);
   const [showBuyCreditsModal, setShowBuyCreditsModal] = useState(false);
-  const [showTelegramModal, setShowTelegramModal] = useState(false);
   const isIATipsterRoute = location.pathname === "/ia-tipster";
 
   useEffect(() => {
@@ -98,7 +96,7 @@ const AppHeader = ({ leftContent, headerStyle, title }: AppHeaderProps) => {
               )}
               {tierLoaded && isFree && (
                 <button
-                  onClick={() => setShowTelegramModal(true)}
+                  onClick={() => window.open("https://t.me/Clscore_bot", "_blank", "noopener,noreferrer")}
                   className="inline-flex items-center gap-1.5 rounded-full transition-all hover:scale-105"
                   style={{
                     padding: "7px 14px",
@@ -167,10 +165,6 @@ const AppHeader = ({ leftContent, headerStyle, title }: AppHeaderProps) => {
       <BuyCreditsModal
         open={showBuyCreditsModal}
         onClose={() => setShowBuyCreditsModal(false)}
-      />
-      <TelegramRedeemModal
-        open={showTelegramModal}
-        onClose={() => setShowTelegramModal(false)}
       />
     </>
   );
