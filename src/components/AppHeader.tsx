@@ -30,6 +30,7 @@ const AppHeader = ({ leftContent, headerStyle, title }: AppHeaderProps) => {
   const [tierLoaded, setTierLoaded] = useState(false);
   const [showPlansModal, setShowPlansModal] = useState(false);
   const [showBuyCreditsModal, setShowBuyCreditsModal] = useState(false);
+  const [showTelegramModal, setShowTelegramModal] = useState(false);
   const isIATipsterRoute = location.pathname === "/ia-tipster";
 
   useEffect(() => {
@@ -49,6 +50,7 @@ const AppHeader = ({ leftContent, headerStyle, title }: AppHeaderProps) => {
   }, [mockUser?.email]);
 
   const isPaid = tier === "premium" || tier === "diamante";
+  const isFree = tier === "free" || !tier;
 
   return (
     <>
@@ -165,6 +167,10 @@ const AppHeader = ({ leftContent, headerStyle, title }: AppHeaderProps) => {
       <BuyCreditsModal
         open={showBuyCreditsModal}
         onClose={() => setShowBuyCreditsModal(false)}
+      />
+      <TelegramRedeemModal
+        open={showTelegramModal}
+        onClose={() => setShowTelegramModal(false)}
       />
     </>
   );
