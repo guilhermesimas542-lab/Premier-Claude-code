@@ -17,8 +17,10 @@ import {
   type Edge,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { ArrowLeft, Loader2, Play, Mail, Clock, GitBranch, Tag } from "lucide-react";
+import { ArrowLeft, Loader2, Play, Mail, Clock, GitBranch, Tag, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useJourneyConversions } from "@/admin/hooks/crm/useJourneyConversions";
+
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useJourneyGraph, type NodeType, type RFNode } from "@/admin/hooks/crm/useJourneyGraph";
