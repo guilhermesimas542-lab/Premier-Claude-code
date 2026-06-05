@@ -21,7 +21,7 @@ import { ArrowLeft, Loader2, Play, Mail, Clock, GitBranch, Tag } from "lucide-re
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { useJourneyGraph, type NodeType } from "@/admin/hooks/crm/useJourneyGraph";
+import { useJourneyGraph, type NodeType, type RFNode } from "@/admin/hooks/crm/useJourneyGraph";
 import {
   TriggerNode,
   MessageNode,
@@ -29,6 +29,7 @@ import {
   ConditionNode,
   TagNode,
 } from "@/admin/components/crm/whiteboard/nodes";
+import { NodeConfigDrawer } from "@/admin/components/crm/whiteboard/NodeConfigDrawer";
 
 const NODE_TYPES = {
   trigger: TriggerNode,
