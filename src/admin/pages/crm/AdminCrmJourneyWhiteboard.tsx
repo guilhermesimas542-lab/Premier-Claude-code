@@ -84,8 +84,12 @@ function Inner() {
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
 
   useEffect(() => {
-    setNodes(graphNodes as unknown as Node[]);
-  }, [graphNodes, setNodes]);
+    const withMetrics = graphNodes.map((n) => ({
+      ...n,
+      data: { ...n.data, metrics: metrics[n.id] },
+    }));
+    setNodes(withMetrics as unknown as Node[]);
+  }, [graphNodes, metrics, setNodes]);
 
   useEffect(() => {
     setEdges(graphEdges as unknown as Edge[]);
