@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import type { ChannelKey } from "../../lib/crm/channels";
 
 export type NodeType = "trigger" | "message" | "wait" | "condition" | "tag";
+export type DelayUnit = "minute" | "hour" | "day" | "week";
 
 export interface GraphNodeRow {
   id: string;
@@ -14,6 +15,8 @@ export interface GraphNodeRow {
   content: Record<string, any>;
   config: Record<string, any>;
   step_order: number | null;
+  delay_value: number | null;
+  delay_unit: DelayUnit | null;
 }
 
 export interface GraphEdgeRow {
@@ -33,6 +36,8 @@ export interface RFNode {
     channel: ChannelKey | null;
     content: Record<string, any>;
     config: Record<string, any>;
+    delay_value: number | null;
+    delay_unit: DelayUnit | null;
     label: string;
   };
 }
@@ -45,7 +50,15 @@ export interface RFEdge {
   data?: { condition: Record<string, any> | null };
 }
 
-function labelFor(row: GraphNodeRow): string {
+export interface UpdateNodeFields {
+  channel?: ChannelKey | null;
+  content?: Record<string, any>;
+  config?: Record<string, any>;
+  delay_value?: number | null;
+  delay_unit?: DelayUnit | null;
+}
+
+function labelFor(row: { node_type: NodeType; channel: ChannelKey | null }): string {
   switch (row.node_type) {
     case "trigger":
       return "Gatilho";
