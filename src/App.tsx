@@ -158,6 +158,7 @@ const App = () => {
               <Route path="crm/journeys/new" element={<AdminCrmJourneyBuilder />} />
               <Route path="crm/journeys/:id" element={<AdminCrmJourneyDetail />} />
               <Route path="crm/journeys/:id/edit" element={<AdminCrmJourneyBuilder />} />
+              <Route path="crm/journeys/:id/whiteboard" element={<AdminCrmJourneyWhiteboard />} />
               <Route path="crm/settings" element={<AdminCrmSettings />} />
             </Route>
             <Route path="*" element={<NotFound />} />
