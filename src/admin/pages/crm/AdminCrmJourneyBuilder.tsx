@@ -451,6 +451,14 @@ export default function AdminCrmJourneyBuilder() {
             <>
               <Button
                 variant="outline"
+                onClick={() => navigate(`/admin/crm/journeys/${journey!.id}/whiteboard`)}
+                disabled={!journey}
+              >
+                <LayoutGrid className="w-3.5 h-3.5 mr-1.5" />
+                Abrir no whiteboard
+              </Button>
+              <Button
+                variant="outline"
                 onClick={async () => {
                   if (!journey) return;
                   const proposed = window.prompt(
