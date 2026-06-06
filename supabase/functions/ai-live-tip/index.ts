@@ -719,6 +719,7 @@ Deno.serve(async (req: Request) => {
         p_user_id: token.user_id,
         p_source: "live_tip",
         p_debit_type: debitType,
+        p_reason: reasonTag,
       });
       console.warn(`[ai-live-tip] credit refunded (${reasonTag})`);
     } catch (e) {
