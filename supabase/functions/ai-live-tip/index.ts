@@ -39,6 +39,11 @@ const TOP_LEAGUES = [
   268,
   299,
   16,
+  15,
+  344,
+  255,
+  667,
+  10,
 ];
 const LIVE_STATUS = ["1H", "HT", "2H", "ET", "BT", "P", "LIVE"];
 const PRIMARY_MODEL = "claude-sonnet-4-5";
@@ -714,6 +719,7 @@ Deno.serve(async (req: Request) => {
         p_user_id: token.user_id,
         p_source: "live_tip",
         p_debit_type: debitType,
+        p_reason: reasonTag,
       });
       console.warn(`[ai-live-tip] credit refunded (${reasonTag})`);
     } catch (e) {

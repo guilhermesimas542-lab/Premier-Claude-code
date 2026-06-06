@@ -551,6 +551,7 @@ Deno.serve(async (req: Request) => {
         p_user_id: token.user_id,
         p_source: "chat_prematch",
         p_debit_type: debitType,
+        p_reason: reasonTag,
       });
       console.warn(`[ai-chat-tip] credit refunded (${reasonTag})`);
     } catch (e) {

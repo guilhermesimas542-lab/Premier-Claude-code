@@ -3033,10 +3033,20 @@ export type Database = {
       }
       increment_tip_hit: { Args: { p_tip_id: string }; Returns: undefined }
       is_admin: { Args: never; Returns: boolean }
-      refund_credit: {
-        Args: { p_debit_type: string; p_source: string; p_user_id: string }
-        Returns: Json
-      }
+      refund_credit:
+        | {
+            Args: { p_debit_type: string; p_source: string; p_user_id: string }
+            Returns: Json
+          }
+        | {
+            Args: {
+              p_debit_type: string
+              p_reason?: string
+              p_source: string
+              p_user_id: string
+            }
+            Returns: Json
+          }
       update_user_access: {
         Args: { p_now: string; p_user_id: string }
         Returns: undefined
