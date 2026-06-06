@@ -39,6 +39,11 @@ const TOP_LEAGUES = [
   268,
   299,
   16,
+  15,
+  344,
+  255,
+  667,
+  10,
 ];
 const LIVE_STATUS = ["1H", "HT", "2H", "ET", "BT", "P", "LIVE"];
 const PRIMARY_MODEL = "claude-sonnet-4-5";
