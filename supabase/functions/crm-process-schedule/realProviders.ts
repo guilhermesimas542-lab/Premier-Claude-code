@@ -36,7 +36,8 @@ export async function sendBatchSmsReal(
   for (const r of recipients) {
     const recipientUserId =
       r.id && !r.id.startsWith("audience_member:") ? r.id : null;
-    const phone = normalizeBrPhone(r.phone);
+    const norm = normalizeBrazilMobile(r.phone);
+    const phone = norm.ok ? norm.phone : null;
     const identifier = phone ?? r.phone ?? r.email ?? r.id;
 
     if (!phone) {
@@ -44,12 +45,13 @@ export async function sendBatchSmsReal(
         recipient_user_id: recipientUserId,
         recipient_identifier: identifier,
         status: "failed",
-        error_code: "no_phone",
-        error_message: "Destinatário sem telefone válido.",
-        metadata: { provider: "smsdev", attempted_at: sentAt },
+        error_code: "invalid_phone",
+        error_message: `Telefone inválido: ${norm.reason ?? "formato desconhecido"}`,
+        metadata: { provider: "smsdev", attempted_at: sentAt, raw_phone: r.phone ?? null, reason: norm.reason ?? null },
       });
       continue;
     }
+
 
     try {
       const resp = await fetch(SMSDEV_ENDPOINT, {
