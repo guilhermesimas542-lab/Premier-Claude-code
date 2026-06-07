@@ -603,7 +603,8 @@ Deno.serve(async (req: Request) => {
   return json({
     success: true,
     dry_run: dryRun,
-    mock: true,
+    mock: !(useRealSms || useRealPush || useRealPopup || useRealEmail),
+    real_provider: useRealSms ? "smsdev" : useRealPush ? "web_push" : useRealPopup ? "popup_internal" : useRealEmail ? "resend" : null,
     schedule_id: scheduleId,
     channel,
     broadcast: isBroadcast,
