@@ -215,6 +215,7 @@ export default function AdminCrmJourneys() {
               actionInFlight={actionId === j.id}
               onOpen={() => navigate(`/admin/crm/journeys/${j.id}`)}
               onEdit={() => navigate(`/admin/crm/journeys/${j.id}/edit`)}
+              onWhiteboard={() => navigate(`/admin/crm/journeys/${j.id}/whiteboard`)}
               onDuplicate={() => handleDuplicate(j)}
               onDelete={() => handleDelete(j)}
               onStatusToggle={() => handleStatusToggle(j)}
