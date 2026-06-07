@@ -103,11 +103,6 @@ export function ScheduleWizard({ editingId }: ScheduleWizardProps = {}) {
         navigate("/admin/crm/schedules");
         return;
       }
-      if (data.status !== "draft") {
-        toast.error("Só é possível editar schedules em rascunho.");
-        navigate("/admin/crm/schedules");
-        return;
-      }
       const scheduledLocal =
         data.scheduled_at
           ? toLocalDateTimeInput(data.scheduled_at)
