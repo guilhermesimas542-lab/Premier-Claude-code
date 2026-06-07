@@ -473,7 +473,7 @@ Deno.serve(async (req: Request) => {
         console.warn("[CRM][SMS] chave api_key não configurada — caindo no mock.");
       }
     }
-    const useRealSms = channel === "sms" && !dryRun && smsRealKey !== null;
+    useRealSms = channel === "sms" && !dryRun && smsRealKey !== null;
 
     // Push real (Web Push VAPID): só quando dry_run=false e chaves VAPID configuradas.
     let pushVapid: { publicKey: string; privateKey: string; subject: string } | null = null;
