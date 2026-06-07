@@ -2,6 +2,8 @@
  * Helpers para importação de listas de email/telefone em audiências estáticas.
  * Puro client-side — sem dependência de Supabase aqui.
  */
+import { normalizeBrazilMobile } from "./normalizePhone";
+
 
 export interface ImportedRow {
   email: string | null;
@@ -41,23 +43,16 @@ export function normalizeEmail(s: string): string | null {
 }
 
 /**
- * Normaliza telefone brasileiro:
- * - mantém só dígitos
- * - se vier com 10 (DDD + 8) ou 11 (DDD + 9 + 8) dígitos, prefixa com 55
- * - se vier com 12-13 dígitos começando em 55, mantém
- * - rejeita o que não bater (retorna null)
+ * Normaliza telefone BR pro formato exigido pelo SMS Dev:
+ * 55 + DDD + 9 + 8 dígitos (13 dígitos). Insere o 9 se faltar,
+ * remove DDI duplicado, zero trunk e máscaras. Retorna null se inválido.
  */
 export function normalizePhone(s: string): string | null {
-  const digits = s.replace(/\D+/g, "");
-  if (digits.length === 0) return null;
-  if (digits.length === 10 || digits.length === 11) return `55${digits}`;
-  if ((digits.length === 12 || digits.length === 13) && digits.startsWith("55")) {
-    return digits;
-  }
-  // Aceita formatos internacionais com 7-15 dígitos (E.164-ish) sem mexer
-  if (digits.length >= 7 && digits.length <= 15) return digits;
-  return null;
+  const r = normalizeBrazilMobile(s);
+  return r.ok ? r.phone : null;
 }
+
+
 
 /**
  * Verifica se uma string é um cabeçalho (heurística): contém palavras-chave

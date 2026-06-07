@@ -6,6 +6,7 @@
 // ============================================================
 
 import type { Recipient, SendResult } from "./mockProviders.ts";
+import { normalizeBrazilMobile } from "./normalizePhone.ts";
 
 interface SmsContent {
   body?: string | null;
@@ -14,19 +15,6 @@ interface SmsContent {
 
 const SMSDEV_ENDPOINT = "https://api.smsdev.com.br/v1/send";
 
-/**
- * Normaliza pra formato E.164-ish que o SMS Dev aceita: só dígitos,
- * com DDI 55 na frente se ainda não estiver presente.
- *   "(71) 98137-9776" -> "5571981379776"
- *   "5571981379776"   -> "5571981379776"
- */
-function normalizeBrPhone(raw: string | null | undefined): string | null {
-  if (!raw) return null;
-  const digits = String(raw).replace(/\D+/g, "");
-  if (!digits) return null;
-  if (digits.startsWith("55")) return digits;
-  return "55" + digits;
-}
 
 function buildMessage(body: string | null | undefined): string {
   const txt = (body ?? "").trim();
@@ -48,7 +36,8 @@ export async function sendBatchSmsReal(
   for (const r of recipients) {
     const recipientUserId =
       r.id && !r.id.startsWith("audience_member:") ? r.id : null;
-    const phone = normalizeBrPhone(r.phone);
+    const norm = normalizeBrazilMobile(r.phone);
+    const phone = norm.ok ? norm.phone : null;
     const identifier = phone ?? r.phone ?? r.email ?? r.id;
 
     if (!phone) {
@@ -56,12 +45,13 @@ export async function sendBatchSmsReal(
         recipient_user_id: recipientUserId,
         recipient_identifier: identifier,
         status: "failed",
-        error_code: "no_phone",
-        error_message: "Destinatário sem telefone válido.",
-        metadata: { provider: "smsdev", attempted_at: sentAt },
+        error_code: "invalid_phone",
+        error_message: `Telefone inválido: ${norm.reason ?? "formato desconhecido"}`,
+        metadata: { provider: "smsdev", attempted_at: sentAt, raw_phone: r.phone ?? null, reason: norm.reason ?? null },
       });
       continue;
     }
+
 
     try {
       const resp = await fetch(SMSDEV_ENDPOINT, {
