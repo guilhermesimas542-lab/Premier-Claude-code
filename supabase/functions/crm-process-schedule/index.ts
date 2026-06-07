@@ -491,7 +491,7 @@ Deno.serve(async (req: Request) => {
 
     // Popup interno: quando dry_run=false, enfileira em crm_popup_deliveries
     // por usuário. App exibe via FunnelPopup no carregamento.
-    const useRealPopup = channel === "popup" && !dryRun;
+    useRealPopup = channel === "popup" && !dryRun;
 
     // Email real (Resend): só quando dry_run=false e API key + from_email configurados.
     let emailRealKey: string | null = null;
