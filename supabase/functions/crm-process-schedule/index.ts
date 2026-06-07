@@ -316,6 +316,12 @@ Deno.serve(async (req: Request) => {
   let openCount = 0;
   let clickCount = 0;
 
+  // Hoisted para serem visíveis no return final (são setados no branch else-if abaixo)
+  let useRealSms = false;
+  let useRealPush = false;
+  let useRealPopup = false;
+  let useRealEmail = false;
+
   // ============================================================
   // 4. MOCK PROVIDERS — envia em chunks e persiste events
   //    Em Pilar 4: trocar mockProviders por realProviders.
@@ -467,7 +473,7 @@ Deno.serve(async (req: Request) => {
         console.warn("[CRM][SMS] chave api_key não configurada — caindo no mock.");
       }
     }
-    const useRealSms = channel === "sms" && !dryRun && smsRealKey !== null;
+    useRealSms = channel === "sms" && !dryRun && smsRealKey !== null;
 
     // Push real (Web Push VAPID): só quando dry_run=false e chaves VAPID configuradas.
     let pushVapid: { publicKey: string; privateKey: string; subject: string } | null = null;
@@ -481,11 +487,11 @@ Deno.serve(async (req: Request) => {
         console.warn("[CRM][push] chaves VAPID não configuradas — caindo no mock.");
       }
     }
-    const useRealPush = channel === "push" && !dryRun && pushVapid !== null;
+    useRealPush = channel === "push" && !dryRun && pushVapid !== null;
 
     // Popup interno: quando dry_run=false, enfileira em crm_popup_deliveries
     // por usuário. App exibe via FunnelPopup no carregamento.
-    const useRealPopup = channel === "popup" && !dryRun;
+    useRealPopup = channel === "popup" && !dryRun;
 
     // Email real (Resend): só quando dry_run=false e API key + from_email configurados.
     let emailRealKey: string | null = null;
@@ -518,7 +524,7 @@ Deno.serve(async (req: Request) => {
         console.warn("[CRM][email] from_email não configurado em crm_channel_settings — caindo no mock.");
       }
     }
-    const useRealEmail = channel === "email" && !dryRun && emailRealKey !== null && emailSender !== null;
+    useRealEmail = channel === "email" && !dryRun && emailRealKey !== null && emailSender !== null;
 
     for (let i = 0; i < recipients.length; i += CHUNK) {
       const slice = recipients.slice(i, i + CHUNK);
