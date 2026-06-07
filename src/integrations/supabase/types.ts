@@ -1385,7 +1385,7 @@ export type Database = {
       crm_journey_steps: {
         Row: {
           audience_filters: Json | null
-          channel: string
+          channel: string | null
           config: Json
           content: Json
           created_at: string
@@ -1400,7 +1400,7 @@ export type Database = {
         }
         Insert: {
           audience_filters?: Json | null
-          channel: string
+          channel?: string | null
           config?: Json
           content?: Json
           created_at?: string
@@ -1415,7 +1415,7 @@ export type Database = {
         }
         Update: {
           audience_filters?: Json | null
-          channel?: string
+          channel?: string | null
           config?: Json
           content?: Json
           created_at?: string
