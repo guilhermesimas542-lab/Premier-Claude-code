@@ -247,6 +247,7 @@ function ScheduleRow({
 
   const canPause = schedule.status === "scheduled" || schedule.status === "sending";
   const canResume = schedule.status === "paused";
+  const canEdit = schedule.status !== "sent" && schedule.status !== "sending";
   // "Disparar agora" disponível pra rascunho ou agendado (não pra sent / sending / failed)
   const canDispatch =
     schedule.status === "draft" || schedule.status === "scheduled" || schedule.status === "paused";
