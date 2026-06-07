@@ -2,6 +2,8 @@
  * Helpers para importação de listas de email/telefone em audiências estáticas.
  * Puro client-side — sem dependência de Supabase aqui.
  */
+import { normalizeBrazilMobile } from "./normalizePhone";
+
 
 export interface ImportedRow {
   email: string | null;
