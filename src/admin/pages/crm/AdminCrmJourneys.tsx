@@ -381,6 +381,14 @@ function JourneyCard({
         <Button
           variant="ghost"
           size="sm"
+          onClick={onWhiteboard}
+          title="Abrir no whiteboard"
+        >
+          <Workflow className="w-3.5 h-3.5" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={onEdit}
           title="Editar"
         >
