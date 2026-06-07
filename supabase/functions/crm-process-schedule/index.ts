@@ -316,6 +316,12 @@ Deno.serve(async (req: Request) => {
   let openCount = 0;
   let clickCount = 0;
 
+  // Hoisted para serem visíveis no return final (são setados no branch else-if abaixo)
+  let useRealSms = false;
+  let useRealPush = false;
+  let useRealPopup = false;
+  let useRealEmail = false;
+
   // ============================================================
   // 4. MOCK PROVIDERS — envia em chunks e persiste events
   //    Em Pilar 4: trocar mockProviders por realProviders.
