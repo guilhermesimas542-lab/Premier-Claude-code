@@ -242,6 +242,7 @@ function JourneyCard({
   actionInFlight,
   onOpen,
   onEdit,
+  onWhiteboard,
   onDuplicate,
   onDelete,
   onStatusToggle,
@@ -250,6 +251,7 @@ function JourneyCard({
   actionInFlight: boolean;
   onOpen: () => void;
   onEdit: () => void;
+  onWhiteboard: () => void;
   onDuplicate: () => void;
   onDelete: () => void;
   onStatusToggle: () => void;
