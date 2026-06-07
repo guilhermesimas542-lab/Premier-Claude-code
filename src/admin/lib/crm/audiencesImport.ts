@@ -41,23 +41,15 @@ export function normalizeEmail(s: string): string | null {
 }
 
 /**
- * Normaliza telefone brasileiro:
- * - mantém só dígitos
- * - se vier com 10 (DDD + 8) ou 11 (DDD + 9 + 8) dígitos, prefixa com 55
- * - se vier com 12-13 dígitos começando em 55, mantém
- * - rejeita o que não bater (retorna null)
- */
-import { normalizeBrazilMobile } from "./normalizePhone";
-
-/**
  * Normaliza telefone BR pro formato exigido pelo SMS Dev:
  * 55 + DDD + 9 + 8 dígitos (13 dígitos). Insere o 9 se faltar,
- * remove DDI duplicado, zero trunk, máscaras. Retorna null se inválido.
+ * remove DDI duplicado, zero trunk e máscaras. Retorna null se inválido.
  */
 export function normalizePhone(s: string): string | null {
   const r = normalizeBrazilMobile(s);
   return r.ok ? r.phone : null;
 }
+
 
 
 /**
