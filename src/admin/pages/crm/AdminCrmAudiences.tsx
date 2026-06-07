@@ -142,11 +142,12 @@ export default function AdminCrmAudiences() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => handleEdit(a)}
-                        disabled={a.kind === "static_list"}
+                        onClick={() =>
+                          a.kind === "static_list" ? setUpdateTarget(a) : handleEdit(a)
+                        }
                         title={
                           a.kind === "static_list"
-                            ? "Use “Atualizar lista” pra editar nome e contatos"
+                            ? "Editar lista (nome e contatos)"
                             : "Editar filtros"
                         }
                       >
