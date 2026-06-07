@@ -177,12 +177,12 @@ export default function AdminCrmDashboard() {
 
 function ModeMockBanner() {
   return (
-    <div className="rounded-xl border border-yellow-500/30 bg-yellow-500/5 p-3 flex items-start gap-2.5">
-      <AlertTriangle className="w-4 h-4 text-yellow-500 shrink-0 mt-0.5" />
+    <div className="rounded-xl border border-primary/30 bg-primary/5 p-3 flex items-start gap-2.5">
+      <AlertTriangle className="w-4 h-4 text-primary shrink-0 mt-0.5" />
       <p className="text-xs text-foreground">
-        <strong>Modo mock-first ativo.</strong> Todos os disparos simulam latência, taxa de
-        entrega 95%, abertura 40% e cliques 8% — nenhum email/SMS/WhatsApp real é enviado.
-        Integrações reais entram no Pilar 4.
+        <strong>Modo híbrido.</strong> Canais com credencial configurada disparam de verdade
+        (SMS, Push, Popup, Email, Telegram). Canais sem credencial continuam em mock
+        (latência simulada, entrega 95%, abertura 40%, cliques 8%).
       </p>
     </div>
   );
