@@ -6,6 +6,7 @@
 // ============================================================
 
 import type { Recipient, SendResult } from "./mockProviders.ts";
+import { normalizeBrazilMobile } from "./normalizePhone.ts";
 
 interface SmsContent {
   body?: string | null;
@@ -14,19 +15,6 @@ interface SmsContent {
 
 const SMSDEV_ENDPOINT = "https://api.smsdev.com.br/v1/send";
 
-/**
- * Normaliza pra formato E.164-ish que o SMS Dev aceita: só dígitos,
- * com DDI 55 na frente se ainda não estiver presente.
- *   "(71) 98137-9776" -> "5571981379776"
- *   "5571981379776"   -> "5571981379776"
- */
-function normalizeBrPhone(raw: string | null | undefined): string | null {
-  if (!raw) return null;
-  const digits = String(raw).replace(/\D+/g, "");
-  if (!digits) return null;
-  if (digits.startsWith("55")) return digits;
-  return "55" + digits;
-}
 
 function buildMessage(body: string | null | undefined): string {
   const txt = (body ?? "").trim();
