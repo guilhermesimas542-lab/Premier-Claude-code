@@ -215,6 +215,7 @@ export default function AdminCrmJourneys() {
               actionInFlight={actionId === j.id}
               onOpen={() => navigate(`/admin/crm/journeys/${j.id}`)}
               onEdit={() => navigate(`/admin/crm/journeys/${j.id}/edit`)}
+              onWhiteboard={() => navigate(`/admin/crm/journeys/${j.id}/whiteboard`)}
               onDuplicate={() => handleDuplicate(j)}
               onDelete={() => handleDelete(j)}
               onStatusToggle={() => handleStatusToggle(j)}
@@ -241,6 +242,7 @@ function JourneyCard({
   actionInFlight,
   onOpen,
   onEdit,
+  onWhiteboard,
   onDuplicate,
   onDelete,
   onStatusToggle,
@@ -249,6 +251,7 @@ function JourneyCard({
   actionInFlight: boolean;
   onOpen: () => void;
   onEdit: () => void;
+  onWhiteboard: () => void;
   onDuplicate: () => void;
   onDelete: () => void;
   onStatusToggle: () => void;
@@ -375,6 +378,14 @@ function JourneyCard({
             )}
           </Button>
         )}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onWhiteboard}
+          title="Abrir no whiteboard"
+        >
+          <Workflow className="w-3.5 h-3.5" />
+        </Button>
         <Button
           variant="ghost"
           size="sm"
