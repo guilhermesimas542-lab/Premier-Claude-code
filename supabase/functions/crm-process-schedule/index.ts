@@ -487,7 +487,7 @@ Deno.serve(async (req: Request) => {
         console.warn("[CRM][push] chaves VAPID não configuradas — caindo no mock.");
       }
     }
-    const useRealPush = channel === "push" && !dryRun && pushVapid !== null;
+    useRealPush = channel === "push" && !dryRun && pushVapid !== null;
 
     // Popup interno: quando dry_run=false, enfileira em crm_popup_deliveries
     // por usuário. App exibe via FunnelPopup no carregamento.
