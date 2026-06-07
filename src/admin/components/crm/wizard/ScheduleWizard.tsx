@@ -244,7 +244,7 @@ export function ScheduleWizard({ editingId }: ScheduleWizardProps = {}) {
               Cancelar
             </Button>
             <h1 className="text-lg md:text-xl font-bold text-foreground">
-              {isEditing ? "Editar Schedule (rascunho)" : "Novo Schedule"}
+              {isEditing ? "Editar Schedule" : "Novo Schedule"}
             </h1>
           </div>
 
