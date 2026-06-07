@@ -327,12 +327,12 @@ function ScheduleRow({
               {canResume ? <Play className="w-3.5 h-3.5" /> : <Pause className="w-3.5 h-3.5" />}
             </Button>
           )}
-          {schedule.status === "draft" && (
+          {canEdit && (
             <Button
               variant="ghost"
               size="sm"
               onClick={() => navigate(`/admin/crm/schedules/${schedule.id}/edit`)}
-              title="Editar rascunho"
+              title="Editar schedule"
             >
               <Pencil className="w-3.5 h-3.5" />
             </Button>
