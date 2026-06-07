@@ -524,7 +524,7 @@ Deno.serve(async (req: Request) => {
         console.warn("[CRM][email] from_email não configurado em crm_channel_settings — caindo no mock.");
       }
     }
-    const useRealEmail = channel === "email" && !dryRun && emailRealKey !== null && emailSender !== null;
+    useRealEmail = channel === "email" && !dryRun && emailRealKey !== null && emailSender !== null;
 
     for (let i = 0; i < recipients.length; i += CHUNK) {
       const slice = recipients.slice(i, i + CHUNK);
