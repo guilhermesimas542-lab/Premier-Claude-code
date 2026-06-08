@@ -311,7 +311,9 @@ export default function AdminFunnelAnalytics() {
                             <div className="flex items-start gap-2">
                               <Donut pct={pct} />
                               <div className="flex flex-col">
-                                <span className="text-white text-[11px] leading-tight">{st.name}</span>
+                                <span className="text-white text-[11px] leading-tight">
+                                  {st.step_index != null ? `${st.step_index}. ` : ""}{st.name}
+                                </span>
                                 <span className="text-[10px] text-gray-500 mt-0.5">
                                   {reached} sessões
                                 </span>
