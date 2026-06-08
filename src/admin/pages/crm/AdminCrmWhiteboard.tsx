@@ -131,6 +131,11 @@ function Inner() {
   const [metrics, setMetrics] = useState<Record<string, any>>({});
   const [ctxMenu, setCtxMenu] = useState<{ x: number; y: number; nodeId: string } | null>(null);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
+  // refs pra evitar TDZ — preenchidos depois que os handlers de stage existem
+  const stageTitleRef = useRef<(id: string, title: string) => void>(() => {});
+  const stageColorRef = useRef<(id: string, color: string) => void>(() => {});
+  const stageResizeRef = useRef<(id: string, w: number, h: number) => void>(() => {});
+  const stageUngroupRef = useRef<(id: string) => void>(() => {});
   const { screenToFlowPosition, getNodes } = useReactFlow();
 
   const [nodes, setNodes, onNodesChangeRF] = useNodesState<Node>([]);
