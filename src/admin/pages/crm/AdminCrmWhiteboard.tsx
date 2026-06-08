@@ -777,7 +777,7 @@ function Inner() {
 
 
       <NodeConfigDrawer
-        node={selectedNode}
+        node={selectedNode?.type === "stage" ? null : selectedNode}
         messageNodes={messageNodesForSelected}
         triggerType={selectedJourneyTrigger}
         onClose={() => setSelectedNodeId(null)}
