@@ -47,10 +47,6 @@ export interface RFNode {
     color?: string;
   };
 }
-    delay_unit: DelayUnit | null;
-    label: string;
-  };
-}
 
 export interface RFEdge {
   id: string;
@@ -80,6 +76,8 @@ function labelFor(row: { node_type: NodeType; channel: ChannelKey | null }): str
       return "Condição";
     case "tag":
       return "Marcar usuário";
+    case "stage":
+      return "Etapa";
     default:
       return row.node_type;
   }
