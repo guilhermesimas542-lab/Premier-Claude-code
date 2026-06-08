@@ -41,7 +41,21 @@ import {
 import { NodeConfigDrawer } from "@/admin/components/crm/whiteboard/NodeConfigDrawer";
 import type { NodeType, RFNode } from "@/admin/hooks/crm/useJourneyGraph";
 import type { ChannelKey } from "@/admin/lib/crm/channels";
-import { Layers, Group, Ungroup } from "lucide-react";
+import { Layers, Group, Ungroup, TrendingDown } from "lucide-react";
+import {
+  computeNodeDepths,
+  computeNodeMetrics,
+  computeStageMetrics,
+  computeStageFunnel,
+  type StageFunnelRow,
+  type StageMetrics,
+  type MinimalStep,
+  type MinimalEdge,
+  type MinimalEvent,
+} from "@/admin/lib/crm/journeyMetrics";
+import { formatBRL } from "@/admin/components/revenue/constants";
+import { ATTRIBUTION_WINDOW_DAYS } from "@/admin/hooks/crm/useJourneyConversions";
+import { Input } from "@/components/ui/input";
 
 const NODE_TYPES = {
   trigger: TriggerNode,
