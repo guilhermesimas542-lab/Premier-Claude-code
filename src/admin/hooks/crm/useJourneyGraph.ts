@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { ChannelKey } from "../../lib/crm/channels";
 
-export type NodeType = "trigger" | "message" | "wait" | "condition" | "tag";
+export type NodeType = "trigger" | "message" | "wait" | "condition" | "tag" | "stage";
 export type DelayUnit = "minute" | "hour" | "day" | "week";
 
 export interface GraphNodeRow {
@@ -17,6 +17,7 @@ export interface GraphNodeRow {
   step_order: number | null;
   delay_value: number | null;
   delay_unit: DelayUnit | null;
+  parent_step_id: string | null;
 }
 
 export interface GraphEdgeRow {
@@ -32,11 +33,14 @@ export interface RFNode {
   id: string;
   type: NodeType;
   position: { x: number; y: number };
+  parentId?: string;
+  zIndex?: number;
+  style?: Record<string, any>;
   data: {
     channel: ChannelKey | null;
     content: Record<string, any>;
     config: Record<string, any>;
-    delay_value: number | null;
+    delay_value: DelayUnit extends never ? never : number | null;
     delay_unit: DelayUnit | null;
     label: string;
   };
