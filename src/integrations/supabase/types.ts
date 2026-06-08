@@ -1394,6 +1394,7 @@ export type Database = {
           id: string
           journey_id: string
           node_type: string
+          parent_step_id: string | null
           position: Json
           step_order: number | null
           updated_at: string
@@ -1409,6 +1410,7 @@ export type Database = {
           id?: string
           journey_id: string
           node_type?: string
+          parent_step_id?: string | null
           position?: Json
           step_order?: number | null
           updated_at?: string
@@ -1424,6 +1426,7 @@ export type Database = {
           id?: string
           journey_id?: string
           node_type?: string
+          parent_step_id?: string | null
           position?: Json
           step_order?: number | null
           updated_at?: string
@@ -1434,6 +1437,13 @@ export type Database = {
             columns: ["journey_id"]
             isOneToOne: false
             referencedRelation: "crm_journeys"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_journey_steps_parent_step_id_fkey"
+            columns: ["parent_step_id"]
+            isOneToOne: false
+            referencedRelation: "crm_journey_steps"
             referencedColumns: ["id"]
           },
         ]
