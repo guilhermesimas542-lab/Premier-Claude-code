@@ -353,18 +353,27 @@ export function useJourneyGraph(journeyId: string | null) {
       setNodes((prev) =>
         prev.map((n) => {
           if (n.id !== id) return n;
-          const merged = {
+          const nextConfig =
+            fields.config !== undefined ? fields.config : n.data.config;
+          const merged: RFNode = {
             ...n,
             data: {
               ...n.data,
               ...(fields.channel !== undefined ? { channel: fields.channel } : {}),
               ...(fields.content !== undefined ? { content: fields.content } : {}),
-              ...(fields.config !== undefined ? { config: fields.config } : {}),
+              ...(fields.config !== undefined ? { config: fields.config, title: fields.config?.title, color: fields.config?.color } : {}),
               ...(fields.delay_value !== undefined ? { delay_value: fields.delay_value } : {}),
               ...(fields.delay_unit !== undefined ? { delay_unit: fields.delay_unit } : {}),
             },
           };
           merged.data.label = labelFor({ node_type: n.type, channel: merged.data.channel });
+          if (n.type === "stage" && fields.config !== undefined) {
+            merged.style = {
+              ...(n.style ?? {}),
+              width: nextConfig?.width ?? n.style?.width ?? 360,
+              height: nextConfig?.height ?? n.style?.height ?? 220,
+            };
+          }
           return merged;
         })
       );
