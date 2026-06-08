@@ -228,7 +228,7 @@ function Inner() {
       };
     });
     setEdges(builtEdges);
-  }, [steps, edgeRows, journeys, filterJourney, journeyColor, journeyName, setNodes, setEdges]);
+  }, [steps, edgeRows, journeys, filterJourney, journeyColor, journeyName, metrics, setNodes, setEdges]);
 
   const onNodesChange = useCallback((changes: NodeChange[]) => {
     setNodes((nds) => applyNodeChanges(changes, nds));
