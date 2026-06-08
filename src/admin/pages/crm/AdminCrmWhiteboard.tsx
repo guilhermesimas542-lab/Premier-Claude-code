@@ -359,6 +359,20 @@ function Inner() {
   }, []);
   const onPaneClick = useCallback(() => setCtxMenu(null), []);
 
+  const [recalcBusy, setRecalcBusy] = useState(false);
+  const handleRecalcAll = useCallback(async () => {
+    if (journeys.length === 0) return;
+    setRecalcBusy(true);
+    let totalMatched = 0;
+    for (const j of journeys) {
+      const r = await attributeConversions(j.id);
+      if (r) totalMatched += r.matched;
+    }
+    setRecalcBusy(false);
+    toast.success(`Conversões recalculadas: ${totalMatched} atribuídas`);
+    await load();
+  }, [journeys, load]);
+
   const handleUpdateNode = useCallback(async (id: string, fields: any) => {
     const { error } = await (supabase as any).from("crm_journey_steps").update(fields).eq("id", id);
     if (error) { toast.error(`Erro ao salvar: ${error.message}`); return; }
