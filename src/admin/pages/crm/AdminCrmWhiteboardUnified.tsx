@@ -58,12 +58,25 @@ function Inner() {
   const {
     journeys, steps, nodes, edges, loading, setNodes, setEdges,
     createJourney, updateJourney, deleteJourney, assignNodeToJourney, createEdge, removeEdge,
-    organizeJourneys,
+    organizeJourneys, insertStep,
   } = useUnifiedWhiteboard();
-  const { screenToFlowPosition, fitView } = useReactFlow();
+  const { screenToFlowPosition, fitView, getViewport } = useReactFlow();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [focusedJourneyId, setFocusedJourneyId] = useState<string | null>(null);
   const [configJourneyId, setConfigJourneyId] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
+  const [selectedStickyJourneyId, setSelectedStickyJourneyId] = useState<string | null>(null);
+
+  // Aplica ?focus=<journeyId> uma vez quando os dados carregam
+  useEffect(() => {
+    if (loading) return;
+    const f = searchParams.get("focus");
+    if (f && journeys.some((j) => j.id === f)) {
+      setFocusedJourneyId(f);
+      setSearchParams((prev) => { const n = new URLSearchParams(prev); n.delete("focus"); return n; }, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading]);
 
   // step.id -> journey_id (rápido pra validar conexões)
   const stepJourney = useMemo(() => {
