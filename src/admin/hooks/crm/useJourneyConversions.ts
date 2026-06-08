@@ -86,7 +86,7 @@ export async function attributeConversions(
     .in("event_name", ["Purchase_Order_Confirmed", "Recurrent_Payment"])
     .eq("is_test", false);
 
-  const windowMs = ATTRIBUTION_WINDOW_DAYS * 86400000;
+  const windowMs = Math.max(1, windowDays) * 86400000;
   const updates: Array<{
     id: string;
     conversion_order_id: string;
