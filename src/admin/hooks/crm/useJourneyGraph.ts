@@ -410,5 +410,6 @@ export function useJourneyGraph(journeyId: string | null) {
     addEdge,
     removeEdge,
     updateEdgeBranch,
+    setNodeParent,
   };
 }
