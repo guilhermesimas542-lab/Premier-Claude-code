@@ -55,13 +55,18 @@ export function StageNode({ id, data, selected }: NodeProps) {
   const node = getNode(id);
   const width = (node?.width ?? node?.measured?.width ?? 320) as number;
 
+  const sm = d.stageMetrics;
+  const hasConv = !!sm && sm.convertedCount > 0;
+
   return (
     <div
       className="relative h-full w-full rounded-2xl border-2"
       style={{
         background: bg,
-        borderColor: color,
-        boxShadow: selected ? `0 0 0 2px ${color}55` : undefined,
+        borderColor: hasConv ? "#22C55E" : color,
+        boxShadow: hasConv
+          ? "0 0 0 2px rgba(34,197,94,0.35), 0 0 18px rgba(34,197,94,0.25)"
+          : selected ? `0 0 0 2px ${color}55` : undefined,
       }}
     >
       <NodeResizer
