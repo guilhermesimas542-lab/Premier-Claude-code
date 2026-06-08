@@ -175,36 +175,50 @@ function Inner() {
       (supabase as any).from("crm_journeys").select("id, name, trigger_type, status").order("created_at", { ascending: true }),
       (supabase as any).from("crm_journey_steps").select("*"),
       (supabase as any).from("crm_journey_edges").select("*"),
-      (supabase as any).from("crm_journey_step_events").select("step_id, status, metadata, converted, conversion_value_cents"),
+      (supabase as any).from("crm_journey_step_events").select("step_id, enrollment_id, status, metadata, converted, conversion_value_cents"),
     ]);
     if (jRes.error) { toast.error(`Jornadas: ${jRes.error.message}`); setLoading(false); return; }
     if (sRes.error) { toast.error(`Nós: ${sRes.error.message}`); setLoading(false); return; }
     if (eRes.error) { toast.error(`Ligações: ${eRes.error.message}`); setLoading(false); return; }
-    setJourneys(jRes.data ?? []);
-    setSteps(sRes.data ?? []);
-    setEdgeRows(eRes.data ?? []);
+    const journeysData = jRes.data ?? [];
+    const stepsData = sRes.data ?? [];
+    const edgesData = eRes.data ?? [];
+    const eventsData = (evRes.data ?? []) as MinimalEvent[];
+    setJourneys(journeysData);
+    setSteps(stepsData);
+    setEdgeRows(edgesData);
 
-    // agrega métricas por step_id (mesmo cálculo do useJourneyNodeMetrics)
-    const mmap: Record<string, any> = {};
-    for (const e of (evRes.data ?? []) as any[]) {
-      const m = mmap[e.step_id] ?? { sent: 0, opened: 0, clicked: 0, converted: 0, conversionValueCents: 0, openRate: 0 };
-      m.sent += 1;
-      const meta = e.metadata ?? {};
-      const opened = e.status === "opened" || e.status === "clicked" || !!meta.opened_at;
-      const clicked = e.status === "clicked" || !!meta.clicked_at;
-      if (opened) m.opened += 1;
-      if (clicked) m.clicked += 1;
-      if (e.converted) {
-        m.converted += 1;
-        m.conversionValueCents += Number(e.conversion_value_cents ?? 0);
-      }
-      mmap[e.step_id] = m;
+    // Compute por jornada usando o util compartilhado
+    const allNodeMetrics: Record<string, any> = {};
+    const stageMap: Record<string, StageMetrics> = {};
+    const funnelMap: Record<string, StageFunnelRow[]> = {};
+
+    for (const j of journeysData as Array<{ id: string }>) {
+      const jSteps = stepsData.filter((s: any) => s.journey_id === j.id) as MinimalStep[];
+      if (jSteps.length === 0) continue;
+      const jStepIds = jSteps.map((s) => s.id);
+      const jEdges = edgesData.filter((e: any) => e.journey_id === j.id) as MinimalEdge[];
+      const jEvents = eventsData.filter((e) => jStepIds.includes(e.step_id));
+      const depths = computeNodeDepths(jSteps, jEdges);
+      const { metrics: nm, leadsByStep } = computeNodeMetrics(jStepIds, jEvents);
+      Object.assign(allNodeMetrics, nm);
+      const sm = computeStageMetrics(jSteps, jEvents, leadsByStep, depths);
+      sm.forEach((s) => { stageMap[s.stageId] = s; });
+      const meta = new Map(
+        jSteps
+          .filter((s) => s.node_type === "stage")
+          .map((s) => [s.id, {
+            title: (s.config as any)?.title ?? "Etapa",
+            color: (s.config as any)?.color ?? "#4D7A1F",
+            journeyId: j.id,
+          }])
+      );
+      funnelMap[j.id] = computeStageFunnel(sm, meta);
     }
-    for (const k of Object.keys(mmap)) {
-      const m = mmap[k];
-      m.openRate = m.sent > 0 ? m.opened / m.sent : 0;
-    }
-    setMetrics(mmap);
+
+    setMetrics(allNodeMetrics);
+    setStageMetricsById(stageMap);
+    setFunnelByJourney(funnelMap);
     setLoading(false);
   }, []);
 
