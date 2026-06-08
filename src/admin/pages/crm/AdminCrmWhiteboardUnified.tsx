@@ -24,6 +24,7 @@ import {
   TriggerNode, MessageNode, WaitNode, ConditionNode, TagNode, StageNode,
 } from "@/admin/components/crm/whiteboard/nodes";
 import { StickNoteNode } from "@/admin/components/crm/whiteboard/nodes/StickNoteNode";
+import { JourneyConfigSheet } from "@/admin/components/crm/whiteboard/JourneyConfigSheet";
 
 const NODE_TYPES = {
   stickNote: StickNoteNode,
@@ -57,6 +58,7 @@ function Inner() {
   } = useUnifiedWhiteboard();
   const { screenToFlowPosition, fitView } = useReactFlow();
   const [focusedJourneyId, setFocusedJourneyId] = useState<string | null>(null);
+  const [configJourneyId, setConfigJourneyId] = useState<string | null>(null);
 
   // step.id -> journey_id (rápido pra validar conexões)
   const stepJourney = useMemo(() => {
@@ -159,6 +161,7 @@ function Inner() {
         onChangeColor: (jid: string, color: string) => updateJourney(jid, { color }),
         onResize: (jid: string, w: number, h: number) => updateJourney(jid, { canvas: { w, h } }),
         onFocus: (jid: string) => setFocusedJourneyId(jid),
+        onOpenConfig: (jid: string) => setConfigJourneyId(jid),
       },
     };
   }), [nodes, updateJourney, focusedJourneyId, stepJourney]);
