@@ -391,6 +391,40 @@ function Inner() {
           <div className="pt-2 mt-2 border-t border-border text-[10px] text-muted-foreground">
             Selecione um stage e use o menu acima de "Agrupar". Pra desfazer: clique direito → Desagrupar.
           </div>
+
+          <div className="pt-4 mt-2 border-t border-border">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">
+              Funil de etapas
+            </div>
+            {funnel.length === 0 ? (
+              <div className="text-[11px] text-muted-foreground">Nenhuma etapa criada.</div>
+            ) : (
+              <div className="space-y-1.5">
+                {funnel.map((r, i) => {
+                  const bigDrop = r.dropFromPrev >= 0.5 && i > 0;
+                  return (
+                    <div key={r.stageId} className="rounded-md border border-border bg-background/40 p-1.5 text-[11px] leading-tight">
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: r.color }} />
+                        <span className="truncate font-medium text-foreground">{r.title}</span>
+                      </div>
+                      <div className="flex flex-wrap gap-x-2 text-muted-foreground mt-0.5">
+                        <span>👥 {r.leadsEntered}</span>
+                        <span>💰 {r.convertedCount}{r.conversionValueCents > 0 ? ` · ${formatBRL(r.conversionValueCents / 100)}` : ""}</span>
+                        <span>📈 {(r.conversionRate * 100).toFixed(1)}%</span>
+                      </div>
+                      {i > 0 && (
+                        <div className={`flex items-center gap-1 mt-0.5 ${bigDrop ? "text-red-500 font-semibold" : "text-muted-foreground"}`}>
+                          <TrendingDown className="w-3 h-3" />
+                          <span>Queda: {(r.dropFromPrev * 100).toFixed(1)}%</span>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Canvas */}
