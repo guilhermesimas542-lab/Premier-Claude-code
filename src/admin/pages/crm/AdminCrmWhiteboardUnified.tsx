@@ -96,7 +96,13 @@ function Inner() {
   }, [steps]);
 
   const onNodesChange = useCallback((changes: NodeChange[]) => {
-    setNodes((nds) => applyNodeChanges(changes, nds));
+    setNodes((nds) => {
+      const next = applyNodeChanges(changes, nds);
+      // rastrear stickNote selecionado pro botão "Adicionar nó"
+      const sel = next.find((n) => n.type === "stickNote" && n.selected);
+      setSelectedStickyJourneyId(sel ? ((sel.data as any)?.journeyId ?? null) : null);
+      return next;
+    });
   }, [setNodes]);
   const onEdgesChange = useCallback((changes: EdgeChange[]) => {
     setEdges((eds) => applyEdgeChanges(changes, eds));
