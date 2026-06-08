@@ -276,9 +276,67 @@ export function useUnifiedWhiteboard() {
     setEdgeRows((prev) => prev.filter((e) => e.id !== edgeId));
   }, []);
 
+  // Organiza jornadas existentes que ainda não têm canvas.x persistido.
+  // Idempotente: pula quem já está posicionado.
+  const organizeJourneys = useCallback(async () => {
+    const PADDING = 80;
+    const TITLE = 48;
+    const GAP = 120;
+    const MAX_ROW_WIDTH = 4000;
+    const NODE_W = 220;
+    const NODE_H = 90;
+
+    const pending = journeys.filter((j) => {
+      const c = j.canvas ?? {};
+      return typeof c.x !== "number";
+    });
+    if (pending.length === 0) {
+      toast.info("Todas as jornadas já estão organizadas");
+      return;
+    }
+
+    const sizeFor = (j: JourneyRow) => {
+      const js = steps.filter((s) => s.journey_id === j.id);
+      if (js.length === 0) return { w: 600, h: 420 };
+      let maxR = 0, maxB = 0, hasNeg = false;
+      js.forEach((s) => {
+        const pos = s.position ?? { x: 0, y: 0 };
+        if (pos.x < 0 || pos.y < 0) hasNeg = true;
+        const isStage = s.node_type === "stage";
+        const w = isStage ? ((s.config as any)?.width ?? 360) : NODE_W;
+        const h = isStage ? ((s.config as any)?.height ?? 220) : NODE_H;
+        maxR = Math.max(maxR, pos.x + w);
+        maxB = Math.max(maxB, pos.y + h);
+      });
+      if (hasNeg) console.warn(`Jornada ${j.id} tem nós com posição negativa`);
+      return { w: maxR + PADDING, h: maxB + PADDING + TITLE };
+    };
+
+    let cx = 0, cy = 0, rowH = 0;
+    const updates: Array<{ id: string; canvas: { x:number;y:number;w:number;h:number }; color: string }> = [];
+    pending.forEach((j, i) => {
+      const { w, h } = sizeFor(j);
+      if (cx > 0 && cx + w > MAX_ROW_WIDTH) {
+        cx = 0; cy += rowH + GAP; rowH = 0;
+      }
+      const color = j.color ?? JOURNEY_PALETTE[i % JOURNEY_PALETTE.length];
+      updates.push({ id: j.id, canvas: { x: cx, y: cy, w, h }, color });
+      cx += w + GAP;
+      rowH = Math.max(rowH, h);
+    });
+
+    let ok = 0;
+    for (const u of updates) {
+      await updateJourney(u.id, { canvas: u.canvas, color: u.color });
+      ok++;
+    }
+    toast.success(`${ok} jornada(s) organizada(s)`);
+  }, [journeys, steps, updateJourney]);
+
   return {
     journeys, steps, edgeRows, nodes, edges, loading, refresh: load,
     setNodes, setEdges,
     createJourney, updateJourney, assignNodeToJourney, createEdge, removeEdge,
+    organizeJourneys,
   };
 }
