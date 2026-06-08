@@ -60,6 +60,18 @@ async function loadGraph(
   };
 }
 
+/** Carrega o grafo GLOBAL (todas as jornadas) — usado pelo motor cross-journey. */
+async function loadGlobalGraph(): Promise<{ nodes: GraphNode[]; edges: GraphEdge[] }> {
+  const [nRes, eRes] = await Promise.all([
+    (supabase as any).from("crm_journey_steps").select("*"),
+    (supabase as any).from("crm_journey_edges").select("*"),
+  ]);
+  return {
+    nodes: ((nRes.data ?? []) as GraphNode[]),
+    edges: ((eRes.data ?? []) as GraphEdge[]),
+  };
+}
+
 function pickStartNode(nodes: GraphNode[], edges: GraphEdge[]): GraphNode | null {
   if (nodes.length === 0) return null;
   const trigger = nodes.find((n) => n.node_type === "trigger");
@@ -340,24 +352,27 @@ export function useJourneyMockOps() {
           return null;
         }
 
-        const { nodes, edges } = await loadGraph(journey.id);
+        // ====== GRAFO GLOBAL (cross-journey) ======
+        const { nodes: globalNodes, edges: globalEdges } = await loadGlobalGraph();
 
-        // ====== FALLBACK LINEAR (jornadas antigas sem edges) ======
-        if (edges.length === 0) {
+        // Fallback linear continua se ESTA jornada não tiver edges próprias.
+        const localEdgesCount = globalEdges.filter((e) => e.journey_id === journey.id).length;
+        if (localEdgesCount === 0) {
           return await processLinear(journey, steps, opts);
         }
 
-        // ====== TRAVESSIA DE GRAFO ======
-        const nodesById = new Map(nodes.map((n) => [n.id, n]));
+        const nodesById = new Map(globalNodes.map((n) => [n.id, n]));
         const outgoing = new Map<string, GraphEdge[]>();
-        for (const e of edges) {
+        for (const e of globalEdges) {
           if (!outgoing.has(e.source_step_id)) outgoing.set(e.source_step_id, []);
           outgoing.get(e.source_step_id)!.push(e);
         }
+        // alias usado pela avaliação de condition (escopo global, acha upstream cross-journey também)
+        const edges = globalEdges;
 
         const { data: enrolls, error: enrErr } = await (supabase as any)
           .from("crm_journey_enrollments")
-          .select("id, user_id, current_step_id, current_step_at, metadata")
+          .select("id, user_id, current_step_id, current_step_at, metadata, journey_id")
           .eq("journey_id", journey.id)
           .eq("status", "active");
 
@@ -372,6 +387,7 @@ export function useJourneyMockOps() {
           current_step_id: string | null;
           current_step_at: string | null;
           metadata: Record<string, any> | null;
+          journey_id: string;
         }>;
 
         if (list.length === 0) {
@@ -387,9 +403,11 @@ export function useJourneyMockOps() {
         for (const en of list) {
           let curId = en.current_step_id;
           let curAt = en.current_step_at;
+          let curJourneyId = en.journey_id;
           let metadata: Record<string, any> = { ...(en.metadata ?? {}) };
           let didAdvance = false;
           let finalize: Record<string, any> | null = null;
+
 
           for (let hop = 0; hop < MAX_HOPS; hop++) {
             if (!curId) {
@@ -558,14 +576,18 @@ export function useJourneyMockOps() {
               patch: { ...finalize, metadata },
             });
           } else if (didAdvance) {
-            enrollUpdates.push({
-              id: en.id,
-              patch: {
-                current_step_id: curId,
-                current_step_at: curAt ?? new Date().toISOString(),
-                metadata,
-              },
-            });
+            // Se o nó atual pertence a outra jornada, migra o enrollment (cross-journey routing).
+            const finalNode = curId ? nodesById.get(curId) : null;
+            const targetJourneyId = finalNode?.journey_id ?? curJourneyId;
+            const patch: Record<string, any> = {
+              current_step_id: curId,
+              current_step_at: curAt ?? new Date().toISOString(),
+              metadata,
+            };
+            if (targetJourneyId && targetJourneyId !== en.journey_id) {
+              patch.journey_id = targetJourneyId;
+            }
+            enrollUpdates.push({ id: en.id, patch });
           }
         }
 
