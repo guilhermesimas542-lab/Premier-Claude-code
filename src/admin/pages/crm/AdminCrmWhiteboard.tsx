@@ -417,6 +417,113 @@ function Inner() {
     setSteps((prev) => prev.map((s) => (s.id === id ? { ...s, ...fields } : s)));
   }, []);
 
+  // ---- Stage / drag-stop handlers (precisam de insertStep, setStepParent, handleUpdateNode, handleDeleteNode)
+  const onNodeDragStop = useCallback(async (_e: any, node: Node) => {
+    if (node.type === "stage") {
+      const { error } = await (supabase as any)
+        .from("crm_journey_steps")
+        .update({ position: node.position })
+        .eq("id", node.id);
+      if (error) { toast.error(`Erro ao salvar posição: ${error.message}`); return; }
+      setSteps((prev) => prev.map((s) => (s.id === node.id ? { ...s, position: node.position } : s)));
+      return;
+    }
+    const all = getNodes();
+    const me = all.find((n) => n.id === node.id) ?? node;
+    const abs = (node as any).positionAbsolute ?? getAbsolutePosition(me, all);
+    const { w, h } = nodeSize(me);
+    const centerX = abs.x + w / 2;
+    const centerY = abs.y + h / 2;
+    const myJourney = steps.find((s) => s.id === node.id)?.journey_id;
+    const stages = all.filter((n) => n.type === "stage" && n.id !== node.id);
+    let containing: Node | null = null;
+    for (const s of stages) {
+      const sj = steps.find((x) => x.id === s.id)?.journey_id;
+      if (sj && myJourney && sj !== myJourney) continue;
+      const sAbs = getAbsolutePosition(s, all);
+      const { w: sw, h: sh } = nodeSize(s);
+      if (centerX >= sAbs.x && centerX <= sAbs.x + sw && centerY >= sAbs.y && centerY <= sAbs.y + sh) {
+        containing = s; break;
+      }
+    }
+    const currentParent = node.parentId ?? null;
+    const newParent = containing?.id ?? null;
+    if (newParent === currentParent) {
+      const { error } = await (supabase as any)
+        .from("crm_journey_steps")
+        .update({ position: node.position })
+        .eq("id", node.id);
+      if (error) { toast.error(`Erro ao salvar posição: ${error.message}`); return; }
+      setSteps((prev) => prev.map((s) => (s.id === node.id ? { ...s, position: node.position } : s)));
+      return;
+    }
+    let newPos = abs;
+    if (newParent) {
+      const parentAbs = getAbsolutePosition(containing!, all);
+      newPos = { x: abs.x - parentAbs.x, y: abs.y - parentAbs.y };
+    }
+    await setStepParent(node.id, newParent, newPos);
+    if (newParent) toast.success("Nó adicionado à etapa");
+  }, [getNodes, steps, setStepParent]);
+
+  const handleStageTitle = useCallback((id: string, title: string) => {
+    const s = steps.find((x) => x.id === id);
+    handleUpdateNode(id, { config: { ...(s?.config ?? {}), title } });
+  }, [steps, handleUpdateNode]);
+  const handleStageColor = useCallback((id: string, color: string) => {
+    const s = steps.find((x) => x.id === id);
+    handleUpdateNode(id, { config: { ...(s?.config ?? {}), color } });
+  }, [steps, handleUpdateNode]);
+  const handleStageResize = useCallback((id: string, width: number, height: number) => {
+    const s = steps.find((x) => x.id === id);
+    handleUpdateNode(id, { config: { ...(s?.config ?? {}), width, height } });
+  }, [steps, handleUpdateNode]);
+  const handleUngroup = useCallback(async (stageId: string) => {
+    const all = getNodes();
+    const stage = all.find((n) => n.id === stageId);
+    if (!stage) return;
+    const stageAbs = getAbsolutePosition(stage, all);
+    const children = all.filter((n) => n.parentId === stageId);
+    for (const c of children) {
+      await setStepParent(c.id, null, { x: stageAbs.x + c.position.x, y: stageAbs.y + c.position.y });
+    }
+    await handleDeleteNode(stageId);
+    toast.success("Etapa desfeita");
+  }, [getNodes, setStepParent, handleDeleteNode]);
+
+  const handleGroupSelection = useCallback(async () => {
+    if (!addToJourney) { toast.error("Escolha 'Adicionar em' antes de agrupar"); return; }
+    const all = getNodes();
+    const selected = all.filter((n) => {
+      if (!n.selected || n.type === "stage" || n.parentId) return false;
+      const s = steps.find((x) => x.id === n.id);
+      return s?.journey_id === addToJourney;
+    });
+    if (selected.length === 0) {
+      toast.error("Selecione nós soltos da jornada escolhida");
+      return;
+    }
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    for (const n of selected) {
+      const abs = getAbsolutePosition(n, all);
+      const { w, h } = nodeSize(n);
+      minX = Math.min(minX, abs.x); minY = Math.min(minY, abs.y);
+      maxX = Math.max(maxX, abs.x + w); maxY = Math.max(maxY, abs.y + h);
+    }
+    const stagePos = { x: minX - GROUP_PAD, y: minY - GROUP_PAD - 28 };
+    const width = (maxX - minX) + GROUP_PAD * 2;
+    const height = (maxY - minY) + GROUP_PAD * 2 + 28;
+    const stageId = await insertStep("stage", stagePos, addToJourney, {
+      config: { title: "Etapa", color: "#4D7A1F", width, height },
+    });
+    if (!stageId) return;
+    for (const n of selected) {
+      const abs = getAbsolutePosition(n, all);
+      await setStepParent(n.id, stageId, { x: abs.x - stagePos.x, y: abs.y - stagePos.y });
+    }
+    toast.success("Etapa criada");
+  }, [addToJourney, getNodes, steps, insertStep, setStepParent]);
+
   const selectedStep = steps.find((s) => s.id === selectedNodeId);
   const selectedNode: RFNode | null = selectedStep
     ? {
