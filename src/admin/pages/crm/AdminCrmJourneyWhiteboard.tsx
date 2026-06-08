@@ -157,13 +157,14 @@ function Inner() {
             onResize: handleStageResize,
             onUngroup: handleUngroup,
             metrics: metrics[n.id],
+            stageMetrics: stageById[n.id],
           },
         };
       }
       return { ...n, data: { ...n.data, metrics: metrics[n.id] } };
     });
     setNodes(withExtras as unknown as Node[]);
-  }, [graphNodes, metrics, setNodes, handleStageTitle, handleStageColor, handleStageResize, handleUngroup]);
+  }, [graphNodes, metrics, stageById, setNodes, handleStageTitle, handleStageColor, handleStageResize, handleUngroup]);
 
   useEffect(() => {
     setEdges(graphEdges as unknown as Edge[]);
