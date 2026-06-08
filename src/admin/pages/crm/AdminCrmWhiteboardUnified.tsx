@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   ReactFlow,
   Background,
@@ -16,7 +16,7 @@ import {
   type Connection,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { ArrowLeft, Loader2, Plus, LayoutGrid } from "lucide-react";
+import { ArrowLeft, Loader2, Plus, LayoutGrid, Layers, Play, Mail, Clock, GitBranch, Tag } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useUnifiedWhiteboard } from "@/admin/hooks/crm/useUnifiedWhiteboard";
@@ -40,6 +40,16 @@ const NODE_TYPES = {
   stage: StageNode,
 };
 
+type NodeKind = "stage" | "trigger" | "message" | "wait" | "condition" | "tag";
+const ADD_PALETTE: { type: NodeKind; label: string; icon: React.ElementType }[] = [
+  { type: "stage", label: "Etapa", icon: Layers },
+  { type: "trigger", label: "Gatilho", icon: Play },
+  { type: "message", label: "Mensagem", icon: Mail },
+  { type: "wait", label: "Esperar", icon: Clock },
+  { type: "condition", label: "Condição", icon: GitBranch },
+  { type: "tag", label: "Marcar usuário", icon: Tag },
+];
+
 function absolutePosition(node: Node, all: Node[]): { x: number; y: number } {
   if (!node.parentId) return node.position;
   const parent = all.find((n) => n.id === node.parentId);
@@ -58,12 +68,25 @@ function Inner() {
   const {
     journeys, steps, nodes, edges, loading, setNodes, setEdges,
     createJourney, updateJourney, deleteJourney, assignNodeToJourney, createEdge, removeEdge,
-    organizeJourneys,
+    organizeJourneys, insertStep,
   } = useUnifiedWhiteboard();
   const { screenToFlowPosition, fitView } = useReactFlow();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [focusedJourneyId, setFocusedJourneyId] = useState<string | null>(null);
   const [configJourneyId, setConfigJourneyId] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
+  const [selectedStickyJourneyId, setSelectedStickyJourneyId] = useState<string | null>(null);
+
+  // Aplica ?focus=<journeyId> uma vez quando os dados carregam
+  useEffect(() => {
+    if (loading) return;
+    const f = searchParams.get("focus");
+    if (f && journeys.some((j) => j.id === f)) {
+      setFocusedJourneyId(f);
+      setSearchParams((prev) => { const n = new URLSearchParams(prev); n.delete("focus"); return n; }, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading]);
 
   // step.id -> journey_id (rápido pra validar conexões)
   const stepJourney = useMemo(() => {
@@ -73,7 +96,13 @@ function Inner() {
   }, [steps]);
 
   const onNodesChange = useCallback((changes: NodeChange[]) => {
-    setNodes((nds) => applyNodeChanges(changes, nds));
+    setNodes((nds) => {
+      const next = applyNodeChanges(changes, nds);
+      // rastrear stickNote selecionado pro botão "Adicionar nó"
+      const sel = next.find((n) => n.type === "stickNote" && n.selected);
+      setSelectedStickyJourneyId(sel ? ((sel.data as any)?.journeyId ?? null) : null);
+      return next;
+    });
   }, [setNodes]);
   const onEdgesChange = useCallback((changes: EdgeChange[]) => {
     setEdges((eds) => applyEdgeChanges(changes, eds));
@@ -202,6 +231,57 @@ function Inner() {
     await createJourney({ x: Math.round(center.x), y: Math.round(center.y) });
   }, [createJourney, screenToFlowPosition]);
 
+  // journey-layout (pra resolver "qual região contém o centro")
+  const journeyLayouts = useMemo(() => {
+    return nodes
+      .filter((n) => n.type === "stickNote")
+      .map((n) => {
+        const w = (n.width ?? (n.style as any)?.width ?? 1000) as number;
+        const h = (n.height ?? (n.style as any)?.height ?? 700) as number;
+        return {
+          id: (n.data as any).journeyId as string,
+          x: n.position.x, y: n.position.y, w, h,
+          stickyId: n.id,
+        };
+      });
+  }, [nodes]);
+
+  const findContainingJourney = useCallback((px: number, py: number) => {
+    return journeyLayouts.find((l) => px >= l.x && px <= l.x + l.w && py >= l.y && py <= l.y + l.h) ?? null;
+  }, [journeyLayouts]);
+
+  const handleAddNode = useCallback(async (type: NodeKind) => {
+    // 1) jornada focada > 2) sticky selecionado > 3) jornada que contém o centro
+    let targetJourneyId: string | null = focusedJourneyId ?? selectedStickyJourneyId ?? null;
+    let center = screenToFlowPosition({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
+
+    if (!targetJourneyId) {
+      const hit = findContainingJourney(center.x, center.y);
+      if (!hit) {
+        toast.error("Foque ou selecione uma jornada antes de adicionar um nó.");
+        return;
+      }
+      targetJourneyId = hit.id;
+    }
+
+    const layout = journeyLayouts.find((l) => l.id === targetJourneyId);
+    if (!layout) { toast.error("Jornada não encontrada"); return; }
+
+    // Posição inicial: se o centro cai dentro da região, usa ele; senão centro da região
+    const inside = center.x >= layout.x && center.x <= layout.x + layout.w
+      && center.y >= layout.y && center.y <= layout.y + layout.h;
+    const absX = inside ? center.x : layout.x + layout.w / 2;
+    const absY = inside ? center.y : layout.y + layout.h / 2;
+    // Posição relativa ao stickNote (parent)
+    const position = {
+      x: Math.max(24, Math.round(absX - layout.x - 110)),
+      y: Math.max(48, Math.round(absY - layout.y - 40)),
+    };
+
+    await insertStep({ type, journeyId: targetJourneyId, parentStepId: null, position });
+  }, [focusedJourneyId, selectedStickyJourneyId, screenToFlowPosition, findContainingJourney, journeyLayouts, insertStep]);
+
+
   if (loading) {
     return (
       <div className="h-screen flex items-center justify-center">
@@ -227,6 +307,32 @@ function Inner() {
         </Button>
         <span className="ml-auto text-[11px] text-muted-foreground">
           {journeys.length} jornada(s) · arraste nós entre regiões pra reatribuir
+        </span>
+      </div>
+      <div className="h-11 flex items-center gap-1 px-3 border-b border-border bg-background/95 backdrop-blur z-10 overflow-x-auto">
+        <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mr-2">
+          Adicionar nó:
+        </span>
+        {ADD_PALETTE.map((p) => {
+          const Icon = p.icon;
+          return (
+            <Button
+              key={p.type}
+              size="sm"
+              variant="outline"
+              onClick={() => handleAddNode(p.type)}
+              className="h-7"
+            >
+              <Icon className="w-3.5 h-3.5 mr-1" /> {p.label}
+            </Button>
+          );
+        })}
+        <span className="ml-auto text-[11px] text-muted-foreground whitespace-nowrap">
+          {focusedJourneyId
+            ? `→ na jornada focada`
+            : selectedStickyJourneyId
+              ? `→ na jornada selecionada`
+              : `→ na região do centro do canvas`}
         </span>
       </div>
       <div className="flex-1 relative flex min-h-0">

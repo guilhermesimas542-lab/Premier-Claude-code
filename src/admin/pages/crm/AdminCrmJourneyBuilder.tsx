@@ -254,7 +254,7 @@ export default function AdminCrmJourneyBuilder() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => navigate(`/admin/crm/journeys/${journey.id}/whiteboard`)}
+            onClick={() => navigate(`/admin/crm/whiteboard?focus=${journey.id}`)}
           >
             <LayoutGrid className="w-3.5 h-3.5 mr-1.5" />
             Abrir no whiteboard
@@ -463,7 +463,7 @@ export default function AdminCrmJourneyBuilder() {
             <>
               <Button
                 variant="outline"
-                onClick={() => navigate(`/admin/crm/journeys/${journey!.id}/whiteboard`)}
+                onClick={() => navigate(`/admin/crm/whiteboard?focus=${journey!.id}`)}
                 disabled={!journey}
               >
                 <LayoutGrid className="w-3.5 h-3.5 mr-1.5" />

@@ -294,6 +294,38 @@ export function useUnifiedWhiteboard() {
     setEdgeRows((prev) => prev.filter((e) => e.id !== edgeId));
   }, []);
 
+  const insertStep = useCallback(async (opts: {
+    type: NodeType;
+    journeyId: string;
+    parentStepId?: string | null;
+    position: { x: number; y: number };
+    config?: Record<string, any>;
+  }): Promise<string | null> => {
+    const isStage = opts.type === "stage";
+    const defaultConfig = isStage
+      ? { title: "Etapa", color: "#4D7A1F", width: 360, height: 220 }
+      : {};
+    const config = { ...defaultConfig, ...(opts.config ?? {}) };
+    const { data, error } = await (supabase as any)
+      .from("crm_journey_steps")
+      .insert({
+        journey_id: opts.journeyId,
+        node_type: opts.type,
+        position: opts.position,
+        channel: null,
+        content: {},
+        config,
+        step_order: null,
+        parent_step_id: opts.parentStepId ?? null,
+      })
+      .select().single();
+    if (error) { toast.error(`Erro ao adicionar: ${error.message}`); return null; }
+    setSteps((prev) => [...prev, data as StepRow]);
+    toast.success("Nó adicionado");
+    return (data as StepRow).id;
+  }, []);
+
+
   const deleteJourney = useCallback(async (journeyId: string) => {
     // Apaga em cascata: edges -> steps -> enrollments -> jornada
     const c1 = await (supabase as any).from("crm_journey_edges").delete().eq("journey_id", journeyId);
@@ -370,7 +402,7 @@ export function useUnifiedWhiteboard() {
   return {
     journeys, steps, edgeRows, nodes, edges, loading, refresh: load,
     setNodes, setEdges,
-    createJourney, updateJourney, deleteJourney, assignNodeToJourney, createEdge, removeEdge,
+    createJourney, updateJourney, deleteJourney, assignNodeToJourney, createEdge, removeEdge, insertStep,
     organizeJourneys,
   };
 }
