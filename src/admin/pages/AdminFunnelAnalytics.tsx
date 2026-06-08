@@ -22,10 +22,53 @@ interface Step {
 interface StepEvent {
   session_id: string;
   step_id: string | null;
+  step_index: number | null;
   event_type: string;
   option_id: string | null;
   value: string | null;
   created_at: string;
+}
+interface Option {
+  id: string;
+  step_id: string;
+  letra: string | null;
+  indice: number | null;
+  rotulo: string | null;
+}
+
+function humanize(stepId: string): string {
+  return stepId
+    .replace(/^(q-|fb-|cta-)/, "")
+    .split("-")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+}
+
+function Donut({ pct }: { pct: number }) {
+  const r = 16;
+  const c = 2 * Math.PI * r;
+  const dash = (Math.min(100, Math.max(0, pct)) / 100) * c;
+  const color = pct >= 80 ? "#22c55e" : pct >= 50 ? "#eab308" : "#ef4444";
+  return (
+    <div className="relative w-10 h-10 shrink-0">
+      <svg viewBox="0 0 40 40" className="w-10 h-10 -rotate-90">
+        <circle cx="20" cy="20" r={r} fill="none" stroke="#1f2937" strokeWidth="4" />
+        <circle
+          cx="20"
+          cy="20"
+          r={r}
+          fill="none"
+          stroke={color}
+          strokeWidth="4"
+          strokeDasharray={`${dash} ${c - dash}`}
+          strokeLinecap="round"
+        />
+      </svg>
+      <div className="absolute inset-0 flex items-center justify-center text-[9px] font-bold text-white">
+        {pct.toFixed(0)}%
+      </div>
+    </div>
+  );
 }
 
 export default function AdminFunnelAnalytics() {
@@ -35,6 +78,7 @@ export default function AdminFunnelAnalytics() {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [steps, setSteps] = useState<Step[]>([]);
   const [events, setEvents] = useState<StepEvent[]>([]);
+  const [options, setOptions] = useState<Option[]>([]);
 
   useEffect(() => {
     const load = async () => {
@@ -53,23 +97,27 @@ export default function AdminFunnelAnalytics() {
         if (since) sessionsQ = sessionsQ.gte("created_at", since.toISOString());
 
         const stepsQ = (supabase.from("fa_steps" as any) as any)
-          .select("id, funnel_slug, ordem, nome, tipo")
-          .order("ordem", { ascending: true });
+          .select("id, funnel_slug, ordem, nome, tipo");
 
         let eventsQ = (supabase.from("fa_step_events" as any) as any)
-          .select("session_id, step_id, event_type, option_id, value, created_at")
+          .select("session_id, step_id, step_index, event_type, option_id, value, created_at")
           .order("created_at", { ascending: true })
           .limit(50000);
         if (since) eventsQ = eventsQ.gte("created_at", since.toISOString());
 
-        const [{ data: s }, { data: st }, { data: ev }] = await Promise.all([
+        const optionsQ = (supabase.from("fa_options" as any) as any)
+          .select("id, step_id, letra, indice, rotulo");
+
+        const [{ data: s }, { data: st }, { data: ev }, { data: op }] = await Promise.all([
           sessionsQ,
           stepsQ,
           eventsQ,
+          optionsQ,
         ]);
         setSessions((s as Session[]) ?? []);
         setSteps((st as Step[]) ?? []);
         setEvents((ev as StepEvent[]) ?? []);
+        setOptions((op as Option[]) ?? []);
       } finally {
         setLoading(false);
       }
@@ -93,10 +141,41 @@ export default function AdminFunnelAnalytics() {
     [events, sessionIds]
   );
 
-  const orderedSteps = useMemo(
-    () => [...steps].sort((a, b) => (a.ordem ?? 999) - (b.ordem ?? 999)),
-    [steps]
-  );
+  // Derive ordered steps from events (fa_steps catalog is incomplete)
+  const stepsByIdFromCatalog = useMemo(() => {
+    const m = new Map<string, Step>();
+    steps.forEach((s) => m.set(s.id, s));
+    return m;
+  }, [steps]);
+
+  const orderedSteps = useMemo(() => {
+    const seen = new Map<string, { step_id: string; step_index: number | null; name: string }>();
+    filteredEvents.forEach((e) => {
+      if (!e.step_id) return;
+      if (!seen.has(e.step_id)) {
+        const cat = stepsByIdFromCatalog.get(e.step_id);
+        seen.set(e.step_id, {
+          step_id: e.step_id,
+          step_index: e.step_index ?? cat?.ordem ?? null,
+          name: cat?.nome || humanize(e.step_id),
+        });
+      } else if (e.step_index != null && seen.get(e.step_id)!.step_index == null) {
+        seen.get(e.step_id)!.step_index = e.step_index;
+      }
+    });
+    return Array.from(seen.values()).sort((a, b) => {
+      const ai = a.step_index ?? Number.MAX_SAFE_INTEGER;
+      const bi = b.step_index ?? Number.MAX_SAFE_INTEGER;
+      return ai - bi;
+    });
+  }, [filteredEvents, stepsByIdFromCatalog]);
+
+  // option_id -> option
+  const optionsById = useMemo(() => {
+    const m = new Map<string, Option>();
+    options.forEach((o) => m.set(o.id, o));
+    return m;
+  }, [options]);
 
   // Per-session interaction map
   const sessionStepInteractions = useMemo(() => {
@@ -111,14 +190,27 @@ export default function AdminFunnelAnalytics() {
     return map;
   }, [filteredEvents]);
 
+  // Distinct sessions per step (from events directly — includes sessions outside the period window)
+  const stepReachCount = useMemo(() => {
+    const counts = new Map<string, Set<string>>();
+    filteredEvents.forEach((e) => {
+      if (!e.step_id) return;
+      if (!counts.has(e.step_id)) counts.set(e.step_id, new Set());
+      counts.get(e.step_id)!.add(e.session_id);
+    });
+    const out = new Map<string, number>();
+    counts.forEach((set, k) => out.set(k, set.size));
+    return out;
+  }, [filteredEvents]);
+
+  const baseReach = orderedSteps[0] ? stepReachCount.get(orderedSteps[0].step_id) || 0 : 0;
+
   const metrics = useMemo(() => {
     const totalVisits = filteredSessions.length;
-
-    // Leads: sessões com ≥1 clicked/answered
     let leads = 0;
     let qualified = 0;
     let completed = 0;
-    const lastStepId = orderedSteps[orderedSteps.length - 1]?.id;
+    const lastStepId = orderedSteps[orderedSteps.length - 1]?.step_id;
 
     filteredSessions.forEach((s) => {
       const sm = sessionStepInteractions.get(s.id);
@@ -131,34 +223,15 @@ export default function AdminFunnelAnalytics() {
           hasInteraction = true;
           stepsTouched++;
         }
-        if (lastStepId && stepId === lastStepId && evts.length > 0) {
-          completed++;
-        }
+        if (lastStepId && stepId === lastStepId && evts.length > 0) completed++;
       });
       if (hasInteraction) leads++;
       if (orderedSteps.length > 0 && stepsTouched / orderedSteps.length > 0.5) qualified++;
     });
 
     const interactionRate = totalVisits > 0 ? (leads / totalVisits) * 100 : 0;
-
     return { totalVisits, leads, interactionRate, qualified, completed };
   }, [filteredSessions, sessionStepInteractions, orderedSteps]);
-
-  // For column %: sessions that reached step / sessions that reached step 1
-  const stepReachCount = useMemo(() => {
-    const counts = new Map<string, number>();
-    orderedSteps.forEach((st) => {
-      let n = 0;
-      filteredSessions.forEach((s) => {
-        const sm = sessionStepInteractions.get(s.id);
-        if (sm?.has(st.id)) n++;
-      });
-      counts.set(st.id, n);
-    });
-    return counts;
-  }, [orderedSteps, filteredSessions, sessionStepInteractions]);
-
-  const baseReach = orderedSteps[0] ? stepReachCount.get(orderedSteps[0].id) || 0 : 0;
 
   return (
     <div className="p-6 space-y-6 text-white">
@@ -209,28 +282,40 @@ export default function AdminFunnelAnalytics() {
           {/* Tabela lead × etapa */}
           <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
             <div className="p-4 border-b border-gray-800">
-              <h2 className="text-sm font-semibold">Respostas por lead × etapa</h2>
+              <h2 className="text-sm font-semibold">Respostas</h2>
               <p className="text-xs text-gray-500 mt-1">
-                % no cabeçalho = sessões que chegaram na etapa ÷ sessões que chegaram na etapa 1.
+                % no topo de cada etapa = sessões que chegaram nela ÷ sessões da 1ª etapa.
               </p>
             </div>
             {orderedSteps.length === 0 ? (
               <p className="text-center text-gray-600 py-8 text-sm">Nenhuma etapa registrada ainda.</p>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="min-w-full text-xs">
-                  <thead className="bg-gray-800/60 text-gray-400">
-                    <tr>
-                      <th className="px-3 py-2 text-left font-medium">Sessão</th>
-                      <th className="px-3 py-2 text-left font-medium">UTM source</th>
+              <div className="overflow-x-auto relative">
+                <table className="text-xs border-separate border-spacing-0">
+                  <thead>
+                    <tr className="bg-gray-950">
+                      <th className="sticky left-0 z-20 bg-gray-950 border-b border-r border-gray-800 px-3 py-3 text-left font-medium text-gray-400 min-w-[100px]">
+                        [ID] Lead
+                      </th>
+                      <th className="sticky left-[100px] z-20 bg-gray-950 border-b border-r border-gray-800 px-3 py-3 text-left font-medium text-gray-400 min-w-[110px]">
+                        Data
+                      </th>
                       {orderedSteps.map((st) => {
-                        const reached = stepReachCount.get(st.id) || 0;
+                        const reached = stepReachCount.get(st.step_id) || 0;
                         const pct = baseReach > 0 ? (reached / baseReach) * 100 : 0;
                         return (
-                          <th key={st.id} className="px-3 py-2 text-left font-medium">
-                            <div className="text-white">{st.nome || st.id}</div>
-                            <div className="text-[10px] text-gray-500">
-                              {reached} · {pct.toFixed(0)}%
+                          <th
+                            key={st.step_id}
+                            className="border-b border-gray-800 px-3 py-3 text-left font-medium min-w-[180px] align-top"
+                          >
+                            <div className="flex items-start gap-2">
+                              <Donut pct={pct} />
+                              <div className="flex flex-col">
+                                <span className="text-white text-[11px] leading-tight">{st.name}</span>
+                                <span className="text-[10px] text-gray-500 mt-0.5">
+                                  {reached} sessões
+                                </span>
+                              </div>
                             </div>
                           </th>
                         );
@@ -238,32 +323,58 @@ export default function AdminFunnelAnalytics() {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredSessions.slice(0, 200).map((s) => {
+                    {filteredSessions.slice(0, 300).map((s, rowIdx) => {
                       const sm = sessionStepInteractions.get(s.id);
+                      const rowBg = rowIdx % 2 === 0 ? "bg-gray-900" : "bg-gray-900/50";
+                      const date = new Date(s.created_at);
+                      const dateStr = `${date.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })} ${date.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`;
                       return (
-                        <tr key={s.id} className="border-t border-gray-800">
-                          <td className="px-3 py-2 text-gray-400 font-mono text-[10px]">{s.id.slice(0, 8)}…</td>
-                          <td className="px-3 py-2 text-gray-500">{s.utm_source || "—"}</td>
+                        <tr key={s.id} className="group">
+                          <td className={`sticky left-0 z-10 ${rowBg} group-hover:bg-gray-800 border-b border-r border-gray-800 px-3 py-2 text-gray-300 font-mono text-[10px]`}>
+                            [{s.id.slice(0, 6)}]
+                          </td>
+                          <td className={`sticky left-[100px] z-10 ${rowBg} group-hover:bg-gray-800 border-b border-r border-gray-800 px-3 py-2 text-gray-400 text-[10px] whitespace-nowrap`}>
+                            {dateStr}
+                          </td>
                           {orderedSteps.map((st) => {
-                            const evts = sm?.get(st.id) || [];
+                            const evts = sm?.get(st.step_id) || [];
                             const answered = evts.find((e) => e.event_type === "answered");
                             const clicked = evts.find((e) => e.event_type === "clicked");
                             const loaded = evts.find((e) => e.event_type === "loaded");
-                            let cell: string = "—";
-                            let cls = "text-gray-700";
-                            if (answered) {
-                              cell = answered.value || answered.option_id || "✓";
-                              cls = "text-primary";
-                            } else if (clicked) {
-                              cell = "✓ click";
-                              cls = "text-blue-400";
-                            } else if (loaded) {
-                              cell = "·";
-                              cls = "text-gray-500";
-                            }
+                            const optId = answered?.option_id || clicked?.option_id;
+                            const opt = optId ? optionsById.get(optId) : undefined;
+
                             return (
-                              <td key={st.id} className={`px-3 py-2 ${cls}`}>
-                                {cell}
+                              <td key={st.step_id} className={`${rowBg} group-hover:bg-gray-800 border-b border-gray-800 px-3 py-2 align-middle`}>
+                                {opt ? (
+                                  <div className="flex items-center gap-1.5">
+                                    {opt.letra && (
+                                      <span className="inline-flex items-center justify-center w-5 h-5 rounded bg-primary/20 text-primary text-[10px] font-bold border border-primary/40">
+                                        {opt.letra}
+                                      </span>
+                                    )}
+                                    <span className="text-white text-[11px] truncate max-w-[120px]">
+                                      {opt.rotulo || optId}
+                                    </span>
+                                    {opt.indice != null && (
+                                      <span className="inline-flex items-center justify-center min-w-[18px] h-4 px-1 rounded bg-gray-700 text-gray-300 text-[9px] font-mono">
+                                        {opt.indice}
+                                      </span>
+                                    )}
+                                  </div>
+                                ) : answered ? (
+                                  <span className="text-primary text-[11px]">{answered.value || "✓"}</span>
+                                ) : clicked ? (
+                                  <span className="inline-flex items-center gap-1 text-blue-400 text-[10px]">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-blue-400" /> clicked
+                                  </span>
+                                ) : loaded ? (
+                                  <span className="inline-flex items-center gap-1 text-gray-500 text-[10px]">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-gray-600" /> loaded
+                                  </span>
+                                ) : (
+                                  <span className="text-gray-700">—</span>
+                                )}
                               </td>
                             );
                           })}
@@ -272,9 +383,9 @@ export default function AdminFunnelAnalytics() {
                     })}
                   </tbody>
                 </table>
-                {filteredSessions.length > 200 && (
+                {filteredSessions.length > 300 && (
                   <p className="text-center text-gray-600 text-xs py-3">
-                    Mostrando 200 de {filteredSessions.length} sessões
+                    Mostrando 300 de {filteredSessions.length} sessões
                   </p>
                 )}
               </div>
