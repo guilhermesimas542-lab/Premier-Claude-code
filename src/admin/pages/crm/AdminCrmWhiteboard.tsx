@@ -544,6 +544,12 @@ function Inner() {
     toast.success("Etapa criada");
   }, [addToJourney, getNodes, steps, insertStep, setStepParent]);
 
+  // sincroniza os refs usados pelos stages na construção dos nodes
+  useEffect(() => { stageTitleRef.current = handleStageTitle; }, [handleStageTitle]);
+  useEffect(() => { stageColorRef.current = handleStageColor; }, [handleStageColor]);
+  useEffect(() => { stageResizeRef.current = handleStageResize; }, [handleStageResize]);
+  useEffect(() => { stageUngroupRef.current = handleUngroup; }, [handleUngroup]);
+
   const selectedStep = steps.find((s) => s.id === selectedNodeId);
   const selectedNode: RFNode | null = selectedStep
     ? {
