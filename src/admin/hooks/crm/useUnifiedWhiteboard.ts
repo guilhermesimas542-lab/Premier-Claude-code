@@ -114,6 +114,7 @@ export function useUnifiedWhiteboard() {
         data: { journeyId: j.id, title: j.name, color: lay.color },
         draggable: true,
         selectable: true,
+        deletable: false,
         zIndex: 0,
       } as Node;
     });
