@@ -189,9 +189,15 @@ export function useJourneyGraph(journeyId: string | null) {
   const addNode = useCallback(
     async (
       nodeType: NodeType,
-      position: { x: number; y: number }
+      position: { x: number; y: number },
+      opts?: { config?: Record<string, any>; parent_step_id?: string | null }
     ): Promise<string | null> => {
       if (!journeyId) return null;
+      const isStage = nodeType === "stage";
+      const defaultConfig = isStage
+        ? { title: "Etapa", color: "#4D7A1F", width: 360, height: 220 }
+        : {};
+      const config = { ...defaultConfig, ...(opts?.config ?? {}) };
       const { data, error } = await (supabase as any)
         .from("crm_journey_steps")
         .insert({
@@ -200,8 +206,9 @@ export function useJourneyGraph(journeyId: string | null) {
           position,
           channel: null,
           content: {},
-          config: {},
+          config,
           step_order: null,
+          parent_step_id: opts?.parent_step_id ?? null,
         })
         .select()
         .single();
@@ -210,25 +217,56 @@ export function useJourneyGraph(journeyId: string | null) {
         return null;
       }
       const row = data as GraphNodeRow;
-      setNodes((prev) => [
-        ...prev,
-        {
+      setNodes((prev) => {
+        const next: RFNode = {
           id: row.id,
           type: nodeType,
           position,
           data: {
             channel: null,
             content: {},
-            config: {},
+            config,
             delay_value: null,
             delay_unit: null,
             label: labelFor({ node_type: nodeType, channel: null }),
+            title: config.title,
+            color: config.color,
           },
-        },
-      ]);
+          zIndex: isStage ? 0 : 1,
+          ...(isStage ? { style: { width: config.width, height: config.height } } : {}),
+          ...(opts?.parent_step_id ? { parentId: opts.parent_step_id } : {}),
+        };
+        // stages devem vir antes dos filhos
+        return isStage ? [next, ...prev] : [...prev, next];
+      });
       return row.id;
     },
     [journeyId]
+  );
+
+  const setNodeParent = useCallback(
+    async (
+      nodeId: string,
+      parentId: string | null,
+      position: { x: number; y: number }
+    ) => {
+      const { error } = await (supabase as any)
+        .from("crm_journey_steps")
+        .update({ parent_step_id: parentId, position })
+        .eq("id", nodeId);
+      if (error) {
+        toast.error(`Erro ao agrupar: ${error.message}`);
+        return;
+      }
+      setNodes((prev) =>
+        prev.map((n) =>
+          n.id === nodeId
+            ? { ...n, position, parentId: parentId ?? undefined }
+            : n
+        )
+      );
+    },
+    []
   );
 
   const updateNodePosition = useCallback(
