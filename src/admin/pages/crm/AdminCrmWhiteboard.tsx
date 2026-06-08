@@ -287,27 +287,76 @@ function Inner() {
     setSteps((prev) => prev.map((s) => (s.id === node.id ? { ...s, position: node.position } : s)));
   }, []);
 
+  const insertStep = useCallback(
+    async (type: NodeType, position: { x: number; y: number }, journeyId: string) => {
+      const { data, error } = await (supabase as any)
+        .from("crm_journey_steps")
+        .insert({
+          journey_id: journeyId,
+          node_type: type,
+          position,
+          channel: null,
+          content: {},
+          config: {},
+          step_order: null,
+        })
+        .select()
+        .single();
+      if (error) { toast.error(`Erro ao adicionar: ${error.message}`); return; }
+      setSteps((prev) => [...prev, data as StepRow]);
+      toast.success("Nó adicionado");
+    },
+    []
+  );
+
   const handleAdd = useCallback(async (type: NodeType) => {
     if (!addToJourney) { toast.error("Escolha a jornada onde adicionar"); return; }
     const idx = journeys.findIndex((j) => j.id === addToJourney);
     const pos = { x: (idx >= 0 ? idx * 600 : 0) + 250 + Math.random() * 100, y: 150 + Math.random() * 200 };
-    const { data, error } = await (supabase as any)
-      .from("crm_journey_steps")
-      .insert({
-        journey_id: addToJourney,
-        node_type: type,
-        position: pos,
-        channel: null,
-        content: {},
-        config: {},
-        step_order: null,
-      })
-      .select()
-      .single();
-    if (error) { toast.error(`Erro ao adicionar: ${error.message}`); return; }
-    setSteps((prev) => [...prev, data as StepRow]);
-    toast.success("Nó adicionado");
-  }, [addToJourney, journeys]);
+    await insertStep(type, pos, addToJourney);
+  }, [addToJourney, journeys, insertStep]);
+
+  const handleDeleteNode = useCallback(async (id: string) => {
+    const { error } = await (supabase as any).from("crm_journey_steps").delete().eq("id", id);
+    if (error) { toast.error(`Erro ao remover: ${error.message}`); return; }
+    setSteps((prev) => prev.filter((s) => s.id !== id));
+    setEdgeRows((prev) => prev.filter((e) => e.source_step_id !== id && e.target_step_id !== id));
+    setCtxMenu(null);
+    toast.success("Nó removido");
+  }, []);
+
+  // ---- Drag & drop da paleta pro canvas
+  const onPaletteDragStart = (e: React.DragEvent, type: NodeType) => {
+    e.dataTransfer.setData("application/crm-node-type", type);
+    e.dataTransfer.effectAllowed = "move";
+  };
+  const onCanvasDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+  }, []);
+  const onCanvasDrop = useCallback(
+    async (e: React.DragEvent) => {
+      e.preventDefault();
+      const type = e.dataTransfer.getData("application/crm-node-type") as NodeType;
+      if (!type) return;
+      if (!addToJourney) { toast.error("Escolha a jornada em 'Adicionar em' antes de arrastar"); return; }
+      const pos = screenToFlowPosition({ x: e.clientX, y: e.clientY });
+      await insertStep(type, pos, addToJourney);
+    },
+    [addToJourney, insertStep, screenToFlowPosition]
+  );
+
+  // ---- Context menu (botão direito)
+  const onNodeContextMenu = useCallback((e: React.MouseEvent, node: Node) => {
+    e.preventDefault();
+    const rect = wrapperRef.current?.getBoundingClientRect();
+    setCtxMenu({
+      x: e.clientX - (rect?.left ?? 0),
+      y: e.clientY - (rect?.top ?? 0),
+      nodeId: node.id,
+    });
+  }, []);
+  const onPaneClick = useCallback(() => setCtxMenu(null), []);
 
   const handleUpdateNode = useCallback(async (id: string, fields: any) => {
     const { error } = await (supabase as any).from("crm_journey_steps").update(fields).eq("id", id);
