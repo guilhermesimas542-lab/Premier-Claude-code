@@ -20,7 +20,8 @@ type SentEvent = {
 };
 
 export async function attributeConversions(
-  journeyId: string
+  journeyId: string,
+  windowDays: number = ATTRIBUTION_WINDOW_DAYS
 ): Promise<{ matched: number; skipped: number } | null> {
   // 1) enrollments da jornada
   const { data: enrolls, error: enrErr } = await (supabase as any)
