@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { NodeResizer, useReactFlow, type NodeProps } from "@xyflow/react";
-import { Palette, Pencil, Settings } from "lucide-react";
+import { Palette, Pencil, Settings, Trash2 } from "lucide-react";
 import { JOURNEY_PALETTE } from "@/admin/hooks/crm/useUnifiedWhiteboard";
 
 interface StickNoteData {
