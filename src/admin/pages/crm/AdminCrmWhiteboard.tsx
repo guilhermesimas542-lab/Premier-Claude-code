@@ -449,18 +449,19 @@ function Inner() {
   const onPaneClick = useCallback(() => setCtxMenu(null), []);
 
   const [recalcBusy, setRecalcBusy] = useState(false);
+  const [windowDays, setWindowDays] = useState<number>(ATTRIBUTION_WINDOW_DAYS);
   const handleRecalcAll = useCallback(async () => {
     if (journeys.length === 0) return;
     setRecalcBusy(true);
     let totalMatched = 0;
     for (const j of journeys) {
-      const r = await attributeConversions(j.id);
+      const r = await attributeConversions(j.id, windowDays);
       if (r) totalMatched += r.matched;
     }
     setRecalcBusy(false);
-    toast.success(`Conversões recalculadas: ${totalMatched} atribuídas`);
+    toast.success(`Conversões recalculadas (janela ${windowDays}d): ${totalMatched} atribuídas`);
     await load();
-  }, [journeys, load]);
+  }, [journeys, load, windowDays]);
 
   const handleUpdateNode = useCallback(async (id: string, fields: any) => {
     const { error } = await (supabase as any).from("crm_journey_steps").update(fields).eq("id", id);
