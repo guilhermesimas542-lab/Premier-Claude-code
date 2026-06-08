@@ -129,10 +129,11 @@ function Inner() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    const [jRes, sRes, eRes] = await Promise.all([
+    const [jRes, sRes, eRes, evRes] = await Promise.all([
       (supabase as any).from("crm_journeys").select("id, name, trigger_type, status").order("created_at", { ascending: true }),
       (supabase as any).from("crm_journey_steps").select("*"),
       (supabase as any).from("crm_journey_edges").select("*"),
+      (supabase as any).from("crm_journey_step_events").select("step_id, status, metadata, converted, conversion_value_cents"),
     ]);
     if (jRes.error) { toast.error(`Jornadas: ${jRes.error.message}`); setLoading(false); return; }
     if (sRes.error) { toast.error(`Nós: ${sRes.error.message}`); setLoading(false); return; }
@@ -140,6 +141,28 @@ function Inner() {
     setJourneys(jRes.data ?? []);
     setSteps(sRes.data ?? []);
     setEdgeRows(eRes.data ?? []);
+
+    // agrega métricas por step_id (mesmo cálculo do useJourneyNodeMetrics)
+    const mmap: Record<string, any> = {};
+    for (const e of (evRes.data ?? []) as any[]) {
+      const m = mmap[e.step_id] ?? { sent: 0, opened: 0, clicked: 0, converted: 0, conversionValueCents: 0, openRate: 0 };
+      m.sent += 1;
+      const meta = e.metadata ?? {};
+      const opened = e.status === "opened" || e.status === "clicked" || !!meta.opened_at;
+      const clicked = e.status === "clicked" || !!meta.clicked_at;
+      if (opened) m.opened += 1;
+      if (clicked) m.clicked += 1;
+      if (e.converted) {
+        m.converted += 1;
+        m.conversionValueCents += Number(e.conversion_value_cents ?? 0);
+      }
+      mmap[e.step_id] = m;
+    }
+    for (const k of Object.keys(mmap)) {
+      const m = mmap[k];
+      m.openRate = m.sent > 0 ? m.opened / m.sent : 0;
+    }
+    setMetrics(mmap);
     setLoading(false);
   }, []);
 
