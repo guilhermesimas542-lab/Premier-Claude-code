@@ -116,6 +116,13 @@ export function StickNoteNode({ id, data, selected }: NodeProps) {
         >
           <Settings className="w-3.5 h-3.5" style={{ color }} />
         </button>
+        <button
+          onClick={(e) => { e.stopPropagation(); d.onDelete?.(d.journeyId, title); }}
+          className="p-0.5 rounded hover:bg-background/40"
+          title="Excluir jornada"
+        >
+          <Trash2 className="w-3.5 h-3.5 text-destructive" />
+        </button>
           {showPalette && (
             <div
               className="absolute right-0 top-6 z-10 flex gap-1 p-1.5 rounded-md bg-popover border border-border shadow-lg"
