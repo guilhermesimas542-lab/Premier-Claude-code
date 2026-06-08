@@ -5,9 +5,9 @@ import { toast } from "sonner";
 import type { NodeType } from "./useJourneyGraph";
 import type { ChannelKey } from "@/admin/lib/crm/channels";
 
-const FALLBACK_COLORS = [
+export const JOURNEY_PALETTE = [
   "#00FF7F", "#60A5FA", "#F59E0B", "#A855F7", "#EC4899",
-  "#22D3EE", "#F472B6", "#FB923C", "#34D399", "#818CF8",
+  "#22D3EE", "#F472B6", "#FB923C",
 ];
 
 const FALLBACK_W = 1000;
@@ -59,6 +59,8 @@ function labelFor(node_type: NodeType, channel: ChannelKey | null) {
 
 export function useUnifiedWhiteboard() {
   const [journeys, setJourneys] = useState<JourneyRow[]>([]);
+  const [steps, setSteps] = useState<StepRow[]>([]);
+  const [edgeRows, setEdgeRows] = useState<EdgeRow[]>([]);
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
   const [loading, setLoading] = useState(true);
@@ -75,14 +77,18 @@ export function useUnifiedWhiteboard() {
     if (jRes.error) { toast.error(`Jornadas: ${jRes.error.message}`); setLoading(false); return; }
     if (sRes.error) { toast.error(`Nós: ${sRes.error.message}`); setLoading(false); return; }
     if (eRes.error) { toast.error(`Ligações: ${eRes.error.message}`); setLoading(false); return; }
+    setJourneys(jRes.data ?? []);
+    setSteps(sRes.data ?? []);
+    setEdgeRows(eRes.data ?? []);
+    setLoading(false);
+  }, []);
 
-    const js: JourneyRow[] = jRes.data ?? [];
-    const steps: StepRow[] = sRes.data ?? [];
-    const edgeRows: EdgeRow[] = eRes.data ?? [];
+  useEffect(() => { load(); }, [load]);
 
-    // Fallback layout pra jornadas sem canvas
+  // Recalcula nodes/edges sempre que dados-base mudam
+  useEffect(() => {
     const journeyLayout = new Map<string, { x: number; y: number; w: number; h: number; color: string }>();
-    js.forEach((j, i) => {
+    journeys.forEach((j, i) => {
       const c = j.canvas ?? {};
       const hasPos = typeof c.x === "number" && typeof c.y === "number";
       journeyLayout.set(j.id, {
@@ -90,12 +96,11 @@ export function useUnifiedWhiteboard() {
         y: hasPos ? (c.y as number) : 0,
         w: typeof c.w === "number" ? c.w : FALLBACK_W,
         h: typeof c.h === "number" ? c.h : FALLBACK_H,
-        color: j.color ?? FALLBACK_COLORS[i % FALLBACK_COLORS.length],
+        color: j.color ?? JOURNEY_PALETTE[i % JOURNEY_PALETTE.length],
       });
     });
 
-    // Sticky notes (1 por jornada)
-    const stickyNodes: Node[] = js.map((j) => {
+    const stickyNodes: Node[] = journeys.map((j) => {
       const lay = journeyLayout.get(j.id)!;
       return {
         id: `journey:${j.id}`,
@@ -109,31 +114,16 @@ export function useUnifiedWhiteboard() {
       } as Node;
     });
 
-    // Steps → nodes (parentId = stage se houver, senão sticky da jornada)
     const stageNodes: Node[] = [];
     const leafNodes: Node[] = [];
-
     steps.forEach((r) => {
       const isStage = r.node_type === "stage";
-      const lay = journeyLayout.get(r.journey_id);
       const cfg = r.config ?? {};
-      // Se o nó não está num stage, vira filho do sticky da jornada.
-      // Posição: se já é relativa (após 11.3) usa direto; senão converte
-      // de absoluta pra relativa subtraindo a posição da jornada.
-      const parentId = r.parent_step_id
-        ? r.parent_step_id
-        : `journey:${r.journey_id}`;
-      const rawPos = r.position ?? { x: 24, y: 48 };
-      const position = r.parent_step_id
-        ? rawPos
-        : lay
-        ? { x: rawPos.x - lay.x, y: rawPos.y - lay.y }
-        : rawPos;
-
+      const parentId = r.parent_step_id ? r.parent_step_id : `journey:${r.journey_id}`;
       const node: any = {
         id: r.id,
         type: r.node_type,
-        position,
+        position: r.position ?? { x: 24, y: 48 },
         parentId,
         extent: "parent",
         zIndex: isStage ? 1 : 2,
@@ -156,24 +146,139 @@ export function useUnifiedWhiteboard() {
       }
     });
 
-    // React Flow exige pai antes do filho: sticky → stage → leaf
-    const orderedNodes = [...stickyNodes, ...stageNodes, ...leafNodes];
-
-    const builtEdges: Edge[] = edgeRows.map((e) => ({
+    setNodes([...stickyNodes, ...stageNodes, ...leafNodes]);
+    setEdges(edgeRows.map((e) => ({
       id: e.id,
       source: e.source_step_id,
       target: e.target_step_id,
       label: e.branch ?? "",
       style: { stroke: journeyLayout.get(e.journey_id)?.color ?? "#888" },
-    }));
+    })));
+  }, [journeys, steps, edgeRows]);
 
-    setJourneys(js);
-    setNodes(orderedNodes);
-    setEdges(builtEdges);
-    setLoading(false);
+  // --- Mutations ----------------------------------------------------------
+
+  const createJourney = useCallback(async (canvasXY?: { x: number; y: number }) => {
+    const idx = journeys.length;
+    const color = JOURNEY_PALETTE[idx % JOURNEY_PALETTE.length];
+    // espaço livre simples: à direita da última
+    const x = canvasXY?.x ?? idx * (FALLBACK_W + FALLBACK_GAP);
+    const y = canvasXY?.y ?? 0;
+    const { data, error } = await (supabase as any)
+      .from("crm_journeys")
+      .insert({
+        name: "Nova jornada",
+        color,
+        canvas: { x, y, w: FALLBACK_W, h: FALLBACK_H },
+        trigger_type: "manual",
+        status: "draft",
+      })
+      .select()
+      .single();
+    if (error) { toast.error(`Erro ao criar jornada: ${error.message}`); return null; }
+    setJourneys((prev) => [...prev, data as JourneyRow]);
+    toast.success("Jornada criada");
+    return data.id as string;
+  }, [journeys.length]);
+
+  const updateJourney = useCallback(async (
+    journeyId: string,
+    fields: { name?: string; color?: string; canvas?: { x?: number; y?: number; w?: number; h?: number } }
+  ) => {
+    // Merge canvas em vez de sobrescrever
+    let payload: any = { ...fields };
+    if (fields.canvas) {
+      const existing = journeys.find((j) => j.id === journeyId)?.canvas ?? {};
+      payload.canvas = { ...existing, ...fields.canvas };
+    }
+    const { error } = await (supabase as any)
+      .from("crm_journeys").update(payload).eq("id", journeyId);
+    if (error) { toast.error(`Erro ao salvar jornada: ${error.message}`); return; }
+    setJourneys((prev) => prev.map((j) =>
+      j.id === journeyId
+        ? { ...j, ...fields, canvas: payload.canvas ?? j.canvas }
+        : j
+    ));
+  }, [journeys]);
+
+  // Limpa/religa edges quando o nó muda de jornada
+  const reconcileEdgesForNode = useCallback(async (stepId: string, newJourneyId: string) => {
+    const stepById = new Map(steps.map((s) => [s.id, s]));
+    const affected = edgeRows.filter((e) => e.source_step_id === stepId || e.target_step_id === stepId);
+    const toDelete: string[] = [];
+    const toRebrand: string[] = [];
+    affected.forEach((e) => {
+      const otherId = e.source_step_id === stepId ? e.target_step_id : e.source_step_id;
+      const other = stepById.get(otherId);
+      // se a outra ponta também está sendo movida (mesma jornada nova) ainda assim usa o newJourneyId
+      const otherJourney = other?.id === stepId ? newJourneyId : other?.journey_id;
+      if (!otherJourney || otherJourney !== newJourneyId) {
+        toDelete.push(e.id);
+      } else if (e.journey_id !== newJourneyId) {
+        toRebrand.push(e.id);
+      }
+    });
+    if (toDelete.length) {
+      const { error } = await (supabase as any).from("crm_journey_edges").delete().in("id", toDelete);
+      if (error) toast.error(`Erro limpando ligações: ${error.message}`);
+    }
+    if (toRebrand.length) {
+      const { error } = await (supabase as any).from("crm_journey_edges")
+        .update({ journey_id: newJourneyId }).in("id", toRebrand);
+      if (error) toast.error(`Erro religando ligações: ${error.message}`);
+    }
+    if (toDelete.length || toRebrand.length) {
+      setEdgeRows((prev) => prev
+        .filter((e) => !toDelete.includes(e.id))
+        .map((e) => toRebrand.includes(e.id) ? { ...e, journey_id: newJourneyId } : e));
+    }
+  }, [steps, edgeRows]);
+
+  const assignNodeToJourney = useCallback(async (
+    stepId: string,
+    opts: { journeyId: string; parentStepId: string | null; position: { x: number; y: number } }
+  ) => {
+    const current = steps.find((s) => s.id === stepId);
+    const journeyChanged = current && current.journey_id !== opts.journeyId;
+    const { error } = await (supabase as any)
+      .from("crm_journey_steps")
+      .update({
+        journey_id: opts.journeyId,
+        parent_step_id: opts.parentStepId,
+        position: opts.position,
+      })
+      .eq("id", stepId);
+    if (error) { toast.error(`Erro ao reatribuir nó: ${error.message}`); return; }
+    setSteps((prev) => prev.map((s) =>
+      s.id === stepId
+        ? { ...s, journey_id: opts.journeyId, parent_step_id: opts.parentStepId, position: opts.position }
+        : s
+    ));
+    if (journeyChanged) await reconcileEdgesForNode(stepId, opts.journeyId);
+  }, [steps, reconcileEdgesForNode]);
+
+  const createEdge = useCallback(async (
+    journeyId: string, sourceId: string, targetId: string, branch: string | null
+  ) => {
+    const { data, error } = await (supabase as any).from("crm_journey_edges").insert({
+      journey_id: journeyId,
+      source_step_id: sourceId,
+      target_step_id: targetId,
+      branch,
+    }).select().single();
+    if (error) { toast.error(`Erro ao ligar: ${error.message}`); return; }
+    setEdgeRows((prev) => [...prev, data as EdgeRow]);
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  const removeEdge = useCallback(async (edgeId: string) => {
+    const { error } = await (supabase as any).from("crm_journey_edges").delete().eq("id", edgeId);
+    if (error) { toast.error(`Erro ao remover ligação: ${error.message}`); return; }
+    setEdgeRows((prev) => prev.filter((e) => e.id !== edgeId));
+  }, []);
 
-  return { journeys, nodes, edges, loading, refresh: load, setNodes, setEdges };
+  return {
+    journeys, steps, edgeRows, nodes, edges, loading, refresh: load,
+    setNodes, setEdges,
+    createJourney, updateJourney, assignNodeToJourney, createEdge, removeEdge,
+  };
 }
