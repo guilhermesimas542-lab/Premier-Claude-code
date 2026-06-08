@@ -225,6 +225,57 @@ function Inner() {
     await createJourney({ x: Math.round(center.x), y: Math.round(center.y) });
   }, [createJourney, screenToFlowPosition]);
 
+  // journey-layout (pra resolver "qual região contém o centro")
+  const journeyLayouts = useMemo(() => {
+    return nodes
+      .filter((n) => n.type === "stickNote")
+      .map((n) => {
+        const w = (n.width ?? (n.style as any)?.width ?? 1000) as number;
+        const h = (n.height ?? (n.style as any)?.height ?? 700) as number;
+        return {
+          id: (n.data as any).journeyId as string,
+          x: n.position.x, y: n.position.y, w, h,
+          stickyId: n.id,
+        };
+      });
+  }, [nodes]);
+
+  const findContainingJourney = useCallback((px: number, py: number) => {
+    return journeyLayouts.find((l) => px >= l.x && px <= l.x + l.w && py >= l.y && py <= l.y + l.h) ?? null;
+  }, [journeyLayouts]);
+
+  const handleAddNode = useCallback(async (type: NodeKind) => {
+    // 1) jornada focada > 2) sticky selecionado > 3) jornada que contém o centro
+    let targetJourneyId: string | null = focusedJourneyId ?? selectedStickyJourneyId ?? null;
+    let center = screenToFlowPosition({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
+
+    if (!targetJourneyId) {
+      const hit = findContainingJourney(center.x, center.y);
+      if (!hit) {
+        toast.error("Foque ou selecione uma jornada antes de adicionar um nó.");
+        return;
+      }
+      targetJourneyId = hit.id;
+    }
+
+    const layout = journeyLayouts.find((l) => l.id === targetJourneyId);
+    if (!layout) { toast.error("Jornada não encontrada"); return; }
+
+    // Posição inicial: se o centro cai dentro da região, usa ele; senão centro da região
+    const inside = center.x >= layout.x && center.x <= layout.x + layout.w
+      && center.y >= layout.y && center.y <= layout.y + layout.h;
+    const absX = inside ? center.x : layout.x + layout.w / 2;
+    const absY = inside ? center.y : layout.y + layout.h / 2;
+    // Posição relativa ao stickNote (parent)
+    const position = {
+      x: Math.max(24, Math.round(absX - layout.x - 110)),
+      y: Math.max(48, Math.round(absY - layout.y - 40)),
+    };
+
+    await insertStep({ type, journeyId: targetJourneyId, parentStepId: null, position });
+  }, [focusedJourneyId, selectedStickyJourneyId, screenToFlowPosition, findContainingJourney, journeyLayouts, insertStep]);
+
+
   if (loading) {
     return (
       <div className="h-screen flex items-center justify-center">
