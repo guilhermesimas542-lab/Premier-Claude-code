@@ -600,6 +600,10 @@ function Inner() {
         <div className="font-bold text-foreground">Whiteboard do CRM</div>
 
         <div className="ml-auto flex items-center gap-2 flex-wrap">
+          <Button variant="outline" size="sm" onClick={handleGroupSelection} title="Agrupar nós selecionados em etapa">
+            <Group className="w-3.5 h-3.5 mr-1.5" />
+            Agrupar em etapa
+          </Button>
           <Button
             variant="outline"
             size="sm"
