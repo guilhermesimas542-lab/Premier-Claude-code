@@ -209,6 +209,7 @@ function Inner() {
             label: labelFor(r.node_type, r.channel),
             journeyName: journeyName.get(jid) ?? "",
             journeyColor: journeyColor.get(jid) ?? "#888",
+            metrics: metrics[r.id],
           } as any,
         });
       });
