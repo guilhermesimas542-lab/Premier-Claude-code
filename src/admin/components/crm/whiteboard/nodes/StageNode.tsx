@@ -140,6 +140,20 @@ export function StageNode({ id, data, selected }: NodeProps) {
           )}
         </div>
       </div>
+
+      {sm && (
+        <div
+          className="absolute bottom-0 left-0 right-0 px-2.5 py-1 rounded-b-2xl text-[10px] font-medium flex flex-wrap gap-x-2 gap-y-0.5"
+          style={{
+            background: hasConv ? "rgba(34,197,94,0.18)" : hexToRgba(color, 0.18),
+            color: hasConv ? "#16A34A" : color,
+          }}
+        >
+          <span>Entraram: <b>{sm.leadsEntered}</b></span>
+          <span>Conv: <b>{sm.convertedCount}</b>{sm.conversionValueCents > 0 ? ` (${formatBRL(sm.conversionValueCents / 100)})` : ""}</span>
+          <span>Taxa: <b>{(sm.conversionRate * 100).toFixed(1)}%</b></span>
+        </div>
+      )}
     </div>
   );
 }
