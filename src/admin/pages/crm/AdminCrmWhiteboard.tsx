@@ -269,7 +269,7 @@ function Inner() {
       };
     });
     setEdges(builtEdges);
-  }, [steps, edgeRows, journeys, filterJourney, journeyColor, journeyName, metrics, setNodes, setEdges, handleStageTitle, handleStageColor, handleStageResize, handleUngroup]);
+  }, [steps, edgeRows, journeys, filterJourney, journeyColor, journeyName, metrics, setNodes, setEdges]);
 
   const onNodesChange = useCallback((changes: NodeChange[]) => {
     setNodes((nds) => applyNodeChanges(changes, nds));
