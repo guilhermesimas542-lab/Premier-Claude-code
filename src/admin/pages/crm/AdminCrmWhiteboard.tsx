@@ -453,15 +453,21 @@ function Inner() {
       <div className="flex-1 flex min-h-0">
         <div className="w-48 border-r border-border bg-card p-3 space-y-2 shrink-0 overflow-y-auto">
           <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">
+          <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">
             Adicionar nó
+          </div>
+          <div className="text-[10px] text-muted-foreground mb-2">
+            Clique pra adicionar ou arraste pro canvas.
           </div>
           {PALETTE.map((p) => {
             const Icon = p.icon;
             return (
               <button
                 key={p.type}
+                draggable
+                onDragStart={(e) => onPaletteDragStart(e, p.type)}
                 onClick={() => handleAdd(p.type)}
-                className="w-full flex items-center gap-2 px-2.5 py-2 rounded-lg border border-border hover:bg-accent transition text-left"
+                className="w-full flex items-center gap-2 px-2.5 py-2 rounded-lg border border-border hover:bg-accent transition text-left cursor-grab active:cursor-grabbing"
               >
                 <div className="w-7 h-7 rounded-md flex items-center justify-center text-white shrink-0" style={{ backgroundColor: p.color }}>
                   <Icon className="w-3.5 h-3.5" />
@@ -495,7 +501,12 @@ function Inner() {
           </div>
         </div>
 
-        <div className="flex-1 relative">
+        <div
+          className="flex-1 relative"
+          ref={wrapperRef}
+          onDragOver={onCanvasDragOver}
+          onDrop={onCanvasDrop}
+        >
           {loading ? (
             <div className="absolute inset-0 flex items-center justify-center">
               <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
@@ -509,7 +520,9 @@ function Inner() {
               onConnect={onConnect}
               onNodesDelete={onNodesDelete}
               onNodeDragStop={onNodeDragStop}
-              onNodeClick={(_e, node) => setSelectedNodeId(node.id)}
+              onNodeClick={(_e, node) => { setSelectedNodeId(node.id); setCtxMenu(null); }}
+              onNodeContextMenu={onNodeContextMenu}
+              onPaneClick={onPaneClick}
               nodeTypes={nodeTypes}
               fitView
               deleteKeyCode={["Delete", "Backspace"]}
@@ -519,8 +532,32 @@ function Inner() {
               <MiniMap pannable zoomable />
             </ReactFlow>
           )}
+
+          {ctxMenu && (
+            <div
+              className="absolute z-50 min-w-[160px] rounded-md border border-border bg-popover shadow-lg py-1"
+              style={{ left: ctxMenu.x, top: ctxMenu.y }}
+              onContextMenu={(e) => e.preventDefault()}
+            >
+              <button
+                onClick={() => handleDeleteNode(ctxMenu.nodeId)}
+                className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-red-500 hover:bg-accent text-left"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                Excluir nó
+              </button>
+              <button
+                onClick={() => { setSelectedNodeId(ctxMenu.nodeId); setCtxMenu(null); }}
+                className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-foreground hover:bg-accent text-left"
+              >
+                <Pencil className="w-3.5 h-3.5" />
+                Editar
+              </button>
+            </div>
+          )}
         </div>
       </div>
+
 
       <NodeConfigDrawer
         node={selectedNode}
