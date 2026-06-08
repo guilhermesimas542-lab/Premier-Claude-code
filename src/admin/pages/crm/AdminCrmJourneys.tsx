@@ -360,59 +360,63 @@ function JourneyCard({
 
       {/* Ações */}
       <div
-        className="flex justify-end gap-1 -mb-1 -mr-1"
+        className="flex items-center justify-between gap-2 -mb-1 -mr-1"
         onClick={(e) => e.stopPropagation()}
       >
-        {canToggle && (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onWhiteboard}
+          className="h-8 gap-2 border-primary/40 bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary"
+          title="Abrir Whiteboard"
+        >
+          <Workflow className="w-3.5 h-3.5" />
+          Whiteboard
+        </Button>
+        <div className="flex justify-end gap-1">
+          {canToggle && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onStatusToggle}
+              disabled={actionInFlight}
+              title={journey.status === "active" ? "Pausar" : "Ativar"}
+            >
+              {journey.status === "active" ? (
+                <Pause className="w-3.5 h-3.5" />
+              ) : (
+                <Play className="w-3.5 h-3.5" />
+              )}
+            </Button>
+          )}
           <Button
             variant="ghost"
             size="sm"
-            onClick={onStatusToggle}
-            disabled={actionInFlight}
-            title={journey.status === "active" ? "Pausar" : "Ativar"}
+            onClick={onEdit}
+            title="Editar"
           >
-            {journey.status === "active" ? (
-              <Pause className="w-3.5 h-3.5" />
-            ) : (
-              <Play className="w-3.5 h-3.5" />
-            )}
+            <Pencil className="w-3.5 h-3.5" />
           </Button>
-        )}
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onWhiteboard}
-          title="Abrir no whiteboard"
-        >
-          <Workflow className="w-3.5 h-3.5" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onEdit}
-          title="Editar"
-        >
-          <Pencil className="w-3.5 h-3.5" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onDuplicate}
-          disabled={actionInFlight}
-          title="Duplicar"
-        >
-          <Copy className="w-3.5 h-3.5" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onDelete}
-          disabled={actionInFlight}
-          className="text-destructive hover:text-destructive"
-          title="Excluir"
-        >
-          <Trash2 className="w-3.5 h-3.5" />
-        </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onDuplicate}
+            disabled={actionInFlight}
+            title="Duplicar"
+          >
+            <Copy className="w-3.5 h-3.5" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onDelete}
+            disabled={actionInFlight}
+            className="text-destructive hover:text-destructive"
+            title="Excluir"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+          </Button>
+        </div>
       </div>
     </div>
   );
