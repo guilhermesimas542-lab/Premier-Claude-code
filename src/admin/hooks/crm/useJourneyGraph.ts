@@ -122,29 +122,50 @@ export function useJourneyGraph(journeyId: string | null) {
 
     const rows = (nodesRes.data ?? []) as GraphNodeRow[];
 
-    // Fallback: se TODOS os nós estão em (0,0) ou sem position, espalha vertical.
-    const allAtOrigin = rows.every(
+    // Fallback: se TODOS os nós (não-stage) estão em (0,0), espalha vertical.
+    const nonStage = rows.filter((r) => r.node_type !== "stage");
+    const allAtOrigin = nonStage.length > 0 && nonStage.every(
       (r) => !r.position || (r.position.x === 0 && r.position.y === 0)
     );
 
-    const rfNodes: RFNode[] = rows.map((r, i) => {
-      const pos = allAtOrigin
+    const mapped: RFNode[] = rows.map((r, i) => {
+      const isStage = r.node_type === "stage";
+      const pos = !isStage && allAtOrigin
         ? { x: 0, y: i * 140 }
         : r.position ?? { x: 0, y: 0 };
-      return {
+      const cfg = r.config ?? {};
+      const node: RFNode = {
         id: r.id,
         type: (r.node_type ?? "message") as NodeType,
         position: pos,
         data: {
           channel: r.channel,
           content: r.content ?? {},
-          config: r.config ?? {},
+          config: cfg,
           delay_value: r.delay_value,
           delay_unit: r.delay_unit,
           label: labelFor(r),
+          title: cfg.title,
+          color: cfg.color,
         },
       };
+      if (r.parent_step_id) node.parentId = r.parent_step_id;
+      if (isStage) {
+        node.zIndex = 0;
+        node.style = {
+          width: cfg.width ?? 360,
+          height: cfg.height ?? 220,
+        };
+      } else {
+        node.zIndex = 1;
+      }
+      return node;
     });
+
+    // React Flow exige pai ANTES do filho pra posição relativa funcionar.
+    const stages = mapped.filter((n) => n.type === "stage");
+    const rest = mapped.filter((n) => n.type !== "stage");
+    const rfNodes = [...stages, ...rest];
 
     const rfEdges: RFEdge[] = ((edgesRes.data ?? []) as GraphEdgeRow[]).map(
       (e) => ({
