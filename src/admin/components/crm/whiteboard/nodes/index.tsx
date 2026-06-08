@@ -201,3 +201,5 @@ export function TagNode({ data }: NodeProps) {
     </>
   );
 }
+
+export { StageNode, STAGE_COLORS } from "./StageNode";
