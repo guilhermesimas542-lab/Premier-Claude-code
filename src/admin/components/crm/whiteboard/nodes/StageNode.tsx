@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { NodeResizer, useReactFlow, type NodeProps } from "@xyflow/react";
 import { Layers, Palette, Pencil } from "lucide-react";
+import type { StageMetrics } from "@/admin/lib/crm/journeyMetrics";
+import { formatBRL } from "@/admin/components/revenue/constants";
 
 export const STAGE_COLORS = [
   "#4D7A1F",
@@ -16,6 +18,7 @@ export const STAGE_COLORS = [
 interface StageData {
   title?: string;
   color?: string;
+  stageMetrics?: StageMetrics;
   onChangeTitle?: (id: string, title: string) => void;
   onChangeColor?: (id: string, color: string) => void;
   onResize?: (id: string, width: number, height: number) => void;
@@ -52,13 +55,18 @@ export function StageNode({ id, data, selected }: NodeProps) {
   const node = getNode(id);
   const width = (node?.width ?? node?.measured?.width ?? 320) as number;
 
+  const sm = d.stageMetrics;
+  const hasConv = !!sm && sm.convertedCount > 0;
+
   return (
     <div
       className="relative h-full w-full rounded-2xl border-2"
       style={{
         background: bg,
-        borderColor: color,
-        boxShadow: selected ? `0 0 0 2px ${color}55` : undefined,
+        borderColor: hasConv ? "#22C55E" : color,
+        boxShadow: hasConv
+          ? "0 0 0 2px rgba(34,197,94,0.35), 0 0 18px rgba(34,197,94,0.25)"
+          : selected ? `0 0 0 2px ${color}55` : undefined,
       }}
     >
       <NodeResizer
@@ -132,6 +140,20 @@ export function StageNode({ id, data, selected }: NodeProps) {
           )}
         </div>
       </div>
+
+      {sm && (
+        <div
+          className="absolute bottom-0 left-0 right-0 px-2.5 py-1 rounded-b-2xl text-[10px] font-medium flex flex-wrap gap-x-2 gap-y-0.5"
+          style={{
+            background: hasConv ? "rgba(34,197,94,0.18)" : hexToRgba(color, 0.18),
+            color: hasConv ? "#16A34A" : color,
+          }}
+        >
+          <span>Entraram: <b>{sm.leadsEntered}</b></span>
+          <span>Conv: <b>{sm.convertedCount}</b>{sm.conversionValueCents > 0 ? ` (${formatBRL(sm.conversionValueCents / 100)})` : ""}</span>
+          <span>Taxa: <b>{(sm.conversionRate * 100).toFixed(1)}%</b></span>
+        </div>
+      )}
     </div>
   );
 }

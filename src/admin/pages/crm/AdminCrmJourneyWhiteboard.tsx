@@ -19,11 +19,13 @@ import {
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import {
-  ArrowLeft, Loader2, Play, Mail, Clock, GitBranch, Tag, Target, Layers, Group, Ungroup,
+  ArrowLeft, Loader2, Play, Mail, Clock, GitBranch, Tag, Target, Layers, Group, Ungroup, TrendingDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useJourneyConversions } from "@/admin/hooks/crm/useJourneyConversions";
+import { Input } from "@/components/ui/input";
+import { useJourneyConversions, ATTRIBUTION_WINDOW_DAYS } from "@/admin/hooks/crm/useJourneyConversions";
 import { useJourneyNodeMetrics } from "@/admin/hooks/crm/useJourneyNodeMetrics";
+import { formatBRL } from "@/admin/components/revenue/constants";
 
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -91,14 +93,15 @@ function Inner() {
     setNodeParent,
   } = useJourneyGraph(journeyId);
   const { busy: convBusy, recalc } = useJourneyConversions();
-  const { metrics, refresh: refreshMetrics } = useJourneyNodeMetrics(journeyId);
+  const { metrics, stageById, funnel, refresh: refreshMetrics } = useJourneyNodeMetrics(journeyId);
   const { getNodes } = useReactFlow();
+  const [windowDays, setWindowDays] = useState<number>(ATTRIBUTION_WINDOW_DAYS);
 
   const handleRecalc = useCallback(async () => {
     if (!journeyId) return;
-    await recalc(journeyId);
+    await recalc(journeyId, windowDays);
     await refreshMetrics();
-  }, [journeyId, recalc, refreshMetrics]);
+  }, [journeyId, recalc, refreshMetrics, windowDays]);
 
   const [nodes, setNodes, onNodesChangeRF] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChangeRF] = useEdgesState<Edge>([]);
@@ -154,13 +157,14 @@ function Inner() {
             onResize: handleStageResize,
             onUngroup: handleUngroup,
             metrics: metrics[n.id],
+            stageMetrics: stageById[n.id],
           },
         };
       }
       return { ...n, data: { ...n.data, metrics: metrics[n.id] } };
     });
     setNodes(withExtras as unknown as Node[]);
-  }, [graphNodes, metrics, setNodes, handleStageTitle, handleStageColor, handleStageResize, handleUngroup]);
+  }, [graphNodes, metrics, stageById, setNodes, handleStageTitle, handleStageColor, handleStageResize, handleUngroup]);
 
   useEffect(() => {
     setEdges(graphEdges as unknown as Edge[]);
@@ -331,19 +335,31 @@ function Inner() {
             <Group className="w-3.5 h-3.5 mr-1.5" />
             Agrupar em etapa
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleRecalc}
-            disabled={!journeyId || convBusy}
-          >
-            {convBusy ? (
-              <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
-            ) : (
-              <Target className="w-3.5 h-3.5 mr-1.5" />
-            )}
-            Recalcular conversões
-          </Button>
+          <div className="flex items-center gap-1.5">
+            <Input
+              type="number"
+              min={1}
+              max={90}
+              value={windowDays}
+              onChange={(e) => setWindowDays(Math.max(1, Math.min(90, Number(e.target.value) || ATTRIBUTION_WINDOW_DAYS)))}
+              className="h-8 w-16"
+              title="Janela de atribuição (dias)"
+            />
+            <span className="text-[10px] text-muted-foreground">dias</span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleRecalc}
+              disabled={!journeyId || convBusy}
+            >
+              {convBusy ? (
+                <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+              ) : (
+                <Target className="w-3.5 h-3.5 mr-1.5" />
+              )}
+              Recalcular conversões
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -374,6 +390,40 @@ function Inner() {
 
           <div className="pt-2 mt-2 border-t border-border text-[10px] text-muted-foreground">
             Selecione um stage e use o menu acima de "Agrupar". Pra desfazer: clique direito → Desagrupar.
+          </div>
+
+          <div className="pt-4 mt-2 border-t border-border">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">
+              Funil de etapas
+            </div>
+            {funnel.length === 0 ? (
+              <div className="text-[11px] text-muted-foreground">Nenhuma etapa criada.</div>
+            ) : (
+              <div className="space-y-1.5">
+                {funnel.map((r, i) => {
+                  const bigDrop = r.dropFromPrev >= 0.5 && i > 0;
+                  return (
+                    <div key={r.stageId} className="rounded-md border border-border bg-background/40 p-1.5 text-[11px] leading-tight">
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: r.color }} />
+                        <span className="truncate font-medium text-foreground">{r.title}</span>
+                      </div>
+                      <div className="flex flex-wrap gap-x-2 text-muted-foreground mt-0.5">
+                        <span>👥 {r.leadsEntered}</span>
+                        <span>💰 {r.convertedCount}{r.conversionValueCents > 0 ? ` · ${formatBRL(r.conversionValueCents / 100)}` : ""}</span>
+                        <span>📈 {(r.conversionRate * 100).toFixed(1)}%</span>
+                      </div>
+                      {i > 0 && (
+                        <div className={`flex items-center gap-1 mt-0.5 ${bigDrop ? "text-red-500 font-semibold" : "text-muted-foreground"}`}>
+                          <TrendingDown className="w-3 h-3" />
+                          <span>Queda: {(r.dropFromPrev * 100).toFixed(1)}%</span>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
 

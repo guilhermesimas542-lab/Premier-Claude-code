@@ -41,7 +41,21 @@ import {
 import { NodeConfigDrawer } from "@/admin/components/crm/whiteboard/NodeConfigDrawer";
 import type { NodeType, RFNode } from "@/admin/hooks/crm/useJourneyGraph";
 import type { ChannelKey } from "@/admin/lib/crm/channels";
-import { Layers, Group, Ungroup } from "lucide-react";
+import { Layers, Group, Ungroup, TrendingDown } from "lucide-react";
+import {
+  computeNodeDepths,
+  computeNodeMetrics,
+  computeStageMetrics,
+  computeStageFunnel,
+  type StageFunnelRow,
+  type StageMetrics,
+  type MinimalStep,
+  type MinimalEdge,
+  type MinimalEvent,
+} from "@/admin/lib/crm/journeyMetrics";
+import { formatBRL } from "@/admin/components/revenue/constants";
+import { ATTRIBUTION_WINDOW_DAYS } from "@/admin/hooks/crm/useJourneyConversions";
+import { Input } from "@/components/ui/input";
 
 const NODE_TYPES = {
   trigger: TriggerNode,
@@ -129,6 +143,8 @@ function Inner() {
   const [addToJourney, setAddToJourney] = useState<string>("");
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [metrics, setMetrics] = useState<Record<string, any>>({});
+  const [stageMetricsById, setStageMetricsById] = useState<Record<string, StageMetrics>>({});
+  const [funnelByJourney, setFunnelByJourney] = useState<Record<string, StageFunnelRow[]>>({});
   const [ctxMenu, setCtxMenu] = useState<{ x: number; y: number; nodeId: string } | null>(null);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   // refs pra evitar TDZ — preenchidos depois que os handlers de stage existem
@@ -159,36 +175,50 @@ function Inner() {
       (supabase as any).from("crm_journeys").select("id, name, trigger_type, status").order("created_at", { ascending: true }),
       (supabase as any).from("crm_journey_steps").select("*"),
       (supabase as any).from("crm_journey_edges").select("*"),
-      (supabase as any).from("crm_journey_step_events").select("step_id, status, metadata, converted, conversion_value_cents"),
+      (supabase as any).from("crm_journey_step_events").select("step_id, enrollment_id, status, metadata, converted, conversion_value_cents"),
     ]);
     if (jRes.error) { toast.error(`Jornadas: ${jRes.error.message}`); setLoading(false); return; }
     if (sRes.error) { toast.error(`Nós: ${sRes.error.message}`); setLoading(false); return; }
     if (eRes.error) { toast.error(`Ligações: ${eRes.error.message}`); setLoading(false); return; }
-    setJourneys(jRes.data ?? []);
-    setSteps(sRes.data ?? []);
-    setEdgeRows(eRes.data ?? []);
+    const journeysData = jRes.data ?? [];
+    const stepsData = sRes.data ?? [];
+    const edgesData = eRes.data ?? [];
+    const eventsData = (evRes.data ?? []) as MinimalEvent[];
+    setJourneys(journeysData);
+    setSteps(stepsData);
+    setEdgeRows(edgesData);
 
-    // agrega métricas por step_id (mesmo cálculo do useJourneyNodeMetrics)
-    const mmap: Record<string, any> = {};
-    for (const e of (evRes.data ?? []) as any[]) {
-      const m = mmap[e.step_id] ?? { sent: 0, opened: 0, clicked: 0, converted: 0, conversionValueCents: 0, openRate: 0 };
-      m.sent += 1;
-      const meta = e.metadata ?? {};
-      const opened = e.status === "opened" || e.status === "clicked" || !!meta.opened_at;
-      const clicked = e.status === "clicked" || !!meta.clicked_at;
-      if (opened) m.opened += 1;
-      if (clicked) m.clicked += 1;
-      if (e.converted) {
-        m.converted += 1;
-        m.conversionValueCents += Number(e.conversion_value_cents ?? 0);
-      }
-      mmap[e.step_id] = m;
+    // Compute por jornada usando o util compartilhado
+    const allNodeMetrics: Record<string, any> = {};
+    const stageMap: Record<string, StageMetrics> = {};
+    const funnelMap: Record<string, StageFunnelRow[]> = {};
+
+    for (const j of journeysData as Array<{ id: string }>) {
+      const jSteps = stepsData.filter((s: any) => s.journey_id === j.id) as MinimalStep[];
+      if (jSteps.length === 0) continue;
+      const jStepIds = jSteps.map((s) => s.id);
+      const jEdges = edgesData.filter((e: any) => e.journey_id === j.id) as MinimalEdge[];
+      const jEvents = eventsData.filter((e) => jStepIds.includes(e.step_id));
+      const depths = computeNodeDepths(jSteps, jEdges);
+      const { metrics: nm, leadsByStep } = computeNodeMetrics(jStepIds, jEvents);
+      Object.assign(allNodeMetrics, nm);
+      const sm = computeStageMetrics(jSteps, jEvents, leadsByStep, depths);
+      sm.forEach((s) => { stageMap[s.stageId] = s; });
+      const meta = new Map(
+        jSteps
+          .filter((s) => s.node_type === "stage")
+          .map((s) => [s.id, {
+            title: (s.config as any)?.title ?? "Etapa",
+            color: (s.config as any)?.color ?? "#4D7A1F",
+            journeyId: j.id,
+          }])
+      );
+      funnelMap[j.id] = computeStageFunnel(sm, meta);
     }
-    for (const k of Object.keys(mmap)) {
-      const m = mmap[k];
-      m.openRate = m.sent > 0 ? m.opened / m.sent : 0;
-    }
-    setMetrics(mmap);
+
+    setMetrics(allNodeMetrics);
+    setStageMetricsById(stageMap);
+    setFunnelByJourney(funnelMap);
     setLoading(false);
   }, []);
 
@@ -240,6 +270,7 @@ function Inner() {
             journeyName: journeyName.get(jid) ?? "",
             journeyColor: journeyColor.get(jid) ?? "#888",
             metrics: metrics[r.id],
+            stageMetrics: isStage ? stageMetricsById[r.id] : undefined,
             title: cfg.title,
             color: cfg.color,
             onChangeTitle: (id: string, t: string) => stageTitleRef.current(id, t),
@@ -269,7 +300,7 @@ function Inner() {
       };
     });
     setEdges(builtEdges);
-  }, [steps, edgeRows, journeys, filterJourney, journeyColor, journeyName, metrics, setNodes, setEdges]);
+  }, [steps, edgeRows, journeys, filterJourney, journeyColor, journeyName, metrics, stageMetricsById, setNodes, setEdges]);
 
   const onNodesChange = useCallback((changes: NodeChange[]) => {
     setNodes((nds) => applyNodeChanges(changes, nds));
@@ -418,18 +449,19 @@ function Inner() {
   const onPaneClick = useCallback(() => setCtxMenu(null), []);
 
   const [recalcBusy, setRecalcBusy] = useState(false);
+  const [windowDays, setWindowDays] = useState<number>(ATTRIBUTION_WINDOW_DAYS);
   const handleRecalcAll = useCallback(async () => {
     if (journeys.length === 0) return;
     setRecalcBusy(true);
     let totalMatched = 0;
     for (const j of journeys) {
-      const r = await attributeConversions(j.id);
+      const r = await attributeConversions(j.id, windowDays);
       if (r) totalMatched += r.matched;
     }
     setRecalcBusy(false);
-    toast.success(`Conversões recalculadas: ${totalMatched} atribuídas`);
+    toast.success(`Conversões recalculadas (janela ${windowDays}d): ${totalMatched} atribuídas`);
     await load();
-  }, [journeys, load]);
+  }, [journeys, load, windowDays]);
 
   const handleUpdateNode = useCallback(async (id: string, fields: any) => {
     const { error } = await (supabase as any).from("crm_journey_steps").update(fields).eq("id", id);
@@ -604,20 +636,32 @@ function Inner() {
             <Group className="w-3.5 h-3.5 mr-1.5" />
             Agrupar em etapa
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleRecalcAll}
-            disabled={recalcBusy || journeys.length === 0}
-            title="Roda a atribuição de conversões em todas as jornadas"
-          >
-            {recalcBusy ? (
-              <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
-            ) : (
-              <Target className="w-3.5 h-3.5 mr-1.5" />
-            )}
-            Recalcular conversões
-          </Button>
+          <div className="flex items-center gap-1.5">
+            <Input
+              type="number"
+              min={1}
+              max={90}
+              value={windowDays}
+              onChange={(e) => setWindowDays(Math.max(1, Math.min(90, Number(e.target.value) || ATTRIBUTION_WINDOW_DAYS)))}
+              className="h-8 w-16"
+              title="Janela de atribuição (dias)"
+            />
+            <span className="text-[10px] text-muted-foreground">dias</span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleRecalcAll}
+              disabled={recalcBusy || journeys.length === 0}
+              title="Roda a atribuição de conversões em todas as jornadas (janela em dias)"
+            >
+              {recalcBusy ? (
+                <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+              ) : (
+                <Target className="w-3.5 h-3.5 mr-1.5" />
+              )}
+              Recalcular conversões
+            </Button>
+          </div>
           <div className="flex items-center gap-1.5">
             <span className="text-xs text-muted-foreground">Ver:</span>
             <Select value={filterJourney} onValueChange={setFilterJourney}>
@@ -701,6 +745,60 @@ function Inner() {
                 <div className="text-xs text-muted-foreground">Nenhuma jornada criada.</div>
               )}
             </div>
+          </div>
+
+          <div className="pt-4 mt-2 border-t border-border">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">
+              Funil de etapas
+            </div>
+            {(() => {
+              const visibleJourneys = filterJourney === "all" ? journeys : journeys.filter((j) => j.id === filterJourney);
+              const blocks = visibleJourneys
+                .map((j) => ({ j, rows: funnelByJourney[j.id] ?? [] }))
+                .filter((b) => b.rows.length > 0);
+              if (blocks.length === 0) {
+                return <div className="text-[11px] text-muted-foreground">Nenhuma etapa criada.</div>;
+              }
+              return (
+                <div className="space-y-3">
+                  {blocks.map(({ j, rows }) => (
+                    <div key={j.id} className="space-y-1">
+                      {filterJourney === "all" && (
+                        <div className="flex items-center gap-1.5 text-[10px] font-semibold text-foreground/80 truncate">
+                          <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: journeyColor.get(j.id) }} />
+                          <span className="truncate">{j.name}</span>
+                        </div>
+                      )}
+                      {rows.map((r, i) => {
+                        const bigDrop = r.dropFromPrev >= 0.5 && i > 0;
+                        return (
+                          <div
+                            key={r.stageId}
+                            className="rounded-md border border-border bg-background/40 p-1.5 text-[11px] leading-tight"
+                          >
+                            <div className="flex items-center gap-1.5">
+                              <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: r.color }} />
+                              <span className="truncate font-medium text-foreground">{r.title}</span>
+                            </div>
+                            <div className="flex flex-wrap gap-x-2 text-muted-foreground mt-0.5">
+                              <span>👥 {r.leadsEntered}</span>
+                              <span>💰 {r.convertedCount}{r.conversionValueCents > 0 ? ` · ${formatBRL(r.conversionValueCents / 100)}` : ""}</span>
+                              <span>📈 {(r.conversionRate * 100).toFixed(1)}%</span>
+                            </div>
+                            {i > 0 && (
+                              <div className={`flex items-center gap-1 mt-0.5 ${bigDrop ? "text-red-500 font-semibold" : "text-muted-foreground"}`}>
+                                <TrendingDown className="w-3 h-3" />
+                                <span>Queda: {(r.dropFromPrev * 100).toFixed(1)}%</span>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ))}
+                </div>
+              );
+            })()}
           </div>
         </div>
 

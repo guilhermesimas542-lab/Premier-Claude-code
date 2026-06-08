@@ -20,7 +20,8 @@ type SentEvent = {
 };
 
 export async function attributeConversions(
-  journeyId: string
+  journeyId: string,
+  windowDays: number = ATTRIBUTION_WINDOW_DAYS
 ): Promise<{ matched: number; skipped: number } | null> {
   // 1) enrollments da jornada
   const { data: enrolls, error: enrErr } = await (supabase as any)
@@ -85,7 +86,7 @@ export async function attributeConversions(
     .in("event_name", ["Purchase_Order_Confirmed", "Recurrent_Payment"])
     .eq("is_test", false);
 
-  const windowMs = ATTRIBUTION_WINDOW_DAYS * 86400000;
+  const windowMs = Math.max(1, windowDays) * 86400000;
   const updates: Array<{
     id: string;
     conversion_order_id: string;
@@ -158,10 +159,10 @@ export async function attributeConversions(
 export function useJourneyConversions() {
   const [busy, setBusy] = useState(false);
 
-  const recalc = useCallback(async (journeyId: string) => {
+  const recalc = useCallback(async (journeyId: string, windowDays?: number) => {
     setBusy(true);
     try {
-      const r = await attributeConversions(journeyId);
+      const r = await attributeConversions(journeyId, windowDays);
       if (r) {
         toast.success(
           `${r.matched} conversão${r.matched === 1 ? "" : "ões"} atribuída${
