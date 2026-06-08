@@ -60,6 +60,18 @@ async function loadGraph(
   };
 }
 
+/** Carrega o grafo GLOBAL (todas as jornadas) — usado pelo motor cross-journey. */
+async function loadGlobalGraph(): Promise<{ nodes: GraphNode[]; edges: GraphEdge[] }> {
+  const [nRes, eRes] = await Promise.all([
+    (supabase as any).from("crm_journey_steps").select("*"),
+    (supabase as any).from("crm_journey_edges").select("*"),
+  ]);
+  return {
+    nodes: ((nRes.data ?? []) as GraphNode[]),
+    edges: ((eRes.data ?? []) as GraphEdge[]),
+  };
+}
+
 function pickStartNode(nodes: GraphNode[], edges: GraphEdge[]): GraphNode | null {
   if (nodes.length === 0) return null;
   const trigger = nodes.find((n) => n.node_type === "trigger");
