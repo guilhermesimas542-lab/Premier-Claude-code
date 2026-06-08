@@ -64,8 +64,6 @@ import AdminCrmAudiences from "./admin/pages/crm/AdminCrmAudiences";
 import AdminCrmJourneys from "./admin/pages/crm/AdminCrmJourneys";
 import AdminCrmJourneyBuilder from "./admin/pages/crm/AdminCrmJourneyBuilder";
 import AdminCrmJourneyDetail from "./admin/pages/crm/AdminCrmJourneyDetail";
-import AdminCrmJourneyWhiteboard from "./admin/pages/crm/AdminCrmJourneyWhiteboard";
-import AdminCrmWhiteboard from "./admin/pages/crm/AdminCrmWhiteboard";
 import AdminCrmWhiteboardUnified from "./admin/pages/crm/AdminCrmWhiteboardUnified";
 import AdminBehavior from "./admin/pages/AdminBehavior";
 import AdminCrmSettings from "./admin/pages/crm/AdminCrmSettings";
