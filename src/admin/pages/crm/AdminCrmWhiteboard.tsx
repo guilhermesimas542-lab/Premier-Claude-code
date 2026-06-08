@@ -18,7 +18,8 @@ import {
   type Edge,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { ArrowLeft, Loader2, Play, Mail, Clock, GitBranch, Tag, Pencil, Trash2 } from "lucide-react";
+import { ArrowLeft, Loader2, Play, Mail, Clock, GitBranch, Tag, Pencil, Trash2, Target } from "lucide-react";
+import { attributeConversions } from "@/admin/hooks/crm/useJourneyConversions";
 import { Button } from "@/components/ui/button";
 import {
   Select,
