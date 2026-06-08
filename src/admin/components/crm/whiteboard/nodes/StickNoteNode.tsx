@@ -67,7 +67,7 @@ export function StickNoteNode({ id, data, selected }: NodeProps) {
       />
       <div
         className="absolute top-0 left-0 right-0 flex items-center gap-2 px-3 py-2 rounded-t-2xl"
-        style={{ background: hexToRgba(color, 0.22) }}
+        style={{ background: hexToRgba(color, 0.22), pointerEvents: "all" }}
       >
         <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: color }} />
         {editing ? (
