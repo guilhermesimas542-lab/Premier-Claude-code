@@ -309,6 +309,32 @@ function Inner() {
           {journeys.length} jornada(s) · arraste nós entre regiões pra reatribuir
         </span>
       </div>
+      <div className="h-11 flex items-center gap-1 px-3 border-b border-border bg-background/95 backdrop-blur z-10 overflow-x-auto">
+        <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mr-2">
+          Adicionar nó:
+        </span>
+        {ADD_PALETTE.map((p) => {
+          const Icon = p.icon;
+          return (
+            <Button
+              key={p.type}
+              size="sm"
+              variant="outline"
+              onClick={() => handleAddNode(p.type)}
+              className="h-7"
+            >
+              <Icon className="w-3.5 h-3.5 mr-1" /> {p.label}
+            </Button>
+          );
+        })}
+        <span className="ml-auto text-[11px] text-muted-foreground whitespace-nowrap">
+          {focusedJourneyId
+            ? `→ na jornada focada`
+            : selectedStickyJourneyId
+              ? `→ na jornada selecionada`
+              : `→ na região do centro do canvas`}
+        </span>
+      </div>
       <div className="flex-1 relative flex min-h-0">
         {/* Legenda */}
         <aside className="w-56 border-r border-border bg-background/95 overflow-y-auto shrink-0">
