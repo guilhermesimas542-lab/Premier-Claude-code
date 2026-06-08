@@ -92,6 +92,7 @@ interface StepRow {
   config: Record<string, any>;
   delay_value: number | null;
   delay_unit: any;
+  parent_step_id: string | null;
 }
 interface EdgeRow {
   id: string;
