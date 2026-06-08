@@ -16,7 +16,7 @@ import {
   type Connection,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { ArrowLeft, Loader2, Plus, LayoutGrid } from "lucide-react";
+import { ArrowLeft, Loader2, Plus, LayoutGrid, Layers, Play, Mail, Clock, GitBranch, Tag } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useUnifiedWhiteboard } from "@/admin/hooks/crm/useUnifiedWhiteboard";
