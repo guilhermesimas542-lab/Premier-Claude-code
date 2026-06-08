@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   ReactFlow,
@@ -8,6 +8,7 @@ import {
   ReactFlowProvider,
   useNodesState,
   useEdgesState,
+  useReactFlow,
   applyNodeChanges,
   applyEdgeChanges,
   type Connection,
@@ -17,7 +18,7 @@ import {
   type Edge,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { ArrowLeft, Loader2, Play, Mail, Clock, GitBranch, Tag, Pencil } from "lucide-react";
+import { ArrowLeft, Loader2, Play, Mail, Clock, GitBranch, Tag, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Select,
