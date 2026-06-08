@@ -41,7 +41,7 @@ import {
 import { NodeConfigDrawer } from "@/admin/components/crm/whiteboard/NodeConfigDrawer";
 import type { NodeType, RFNode } from "@/admin/hooks/crm/useJourneyGraph";
 import type { ChannelKey } from "@/admin/lib/crm/channels";
-import { Layers, Group } from "lucide-react";
+import { Layers, Group, Ungroup } from "lucide-react";
 
 const NODE_TYPES = {
   trigger: TriggerNode,
