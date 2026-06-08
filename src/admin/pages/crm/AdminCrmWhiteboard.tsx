@@ -36,10 +36,12 @@ import {
   WaitNode,
   ConditionNode,
   TagNode,
+  StageNode,
 } from "@/admin/components/crm/whiteboard/nodes";
 import { NodeConfigDrawer } from "@/admin/components/crm/whiteboard/NodeConfigDrawer";
 import type { NodeType, RFNode } from "@/admin/hooks/crm/useJourneyGraph";
 import type { ChannelKey } from "@/admin/lib/crm/channels";
+import { Layers, Group, Ungroup } from "lucide-react";
 
 const NODE_TYPES = {
   trigger: TriggerNode,
@@ -47,15 +49,32 @@ const NODE_TYPES = {
   wait: WaitNode,
   condition: ConditionNode,
   tag: TagNode,
+  stage: StageNode,
 };
 
 const PALETTE: { type: NodeType; label: string; icon: React.ElementType; color: string }[] = [
+  { type: "stage", label: "Etapa", icon: Layers, color: "#4D7A1F" },
   { type: "trigger", label: "Gatilho", icon: Play, color: "#10B981" },
   { type: "message", label: "Mensagem", icon: Mail, color: "#60A5FA" },
   { type: "wait", label: "Esperar", icon: Clock, color: "#F59E0B" },
   { type: "condition", label: "Condição", icon: GitBranch, color: "#A855F7" },
   { type: "tag", label: "Marcar usuário", icon: Tag, color: "#EC4899" },
 ];
+
+const GROUP_PAD = 32;
+
+function getAbsolutePosition(node: Node, all: Node[]): { x: number; y: number } {
+  if (!node.parentId) return node.position;
+  const parent = all.find((n) => n.id === node.parentId);
+  if (!parent) return node.position;
+  const pAbs = getAbsolutePosition(parent, all);
+  return { x: pAbs.x + node.position.x, y: pAbs.y + node.position.y };
+}
+function nodeSize(n: Node): { w: number; h: number } {
+  const w = (n.width ?? (n as any).measured?.width ?? (n.style as any)?.width ?? 200) as number;
+  const h = (n.height ?? (n as any).measured?.height ?? (n.style as any)?.height ?? 80) as number;
+  return { w, h };
+}
 
 interface JourneyRow {
   id: string;
@@ -73,6 +92,7 @@ interface StepRow {
   config: Record<string, any>;
   delay_value: number | null;
   delay_unit: any;
+  parent_step_id: string | null;
 }
 interface EdgeRow {
   id: string;
@@ -111,7 +131,12 @@ function Inner() {
   const [metrics, setMetrics] = useState<Record<string, any>>({});
   const [ctxMenu, setCtxMenu] = useState<{ x: number; y: number; nodeId: string } | null>(null);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
-  const { screenToFlowPosition } = useReactFlow();
+  // refs pra evitar TDZ — preenchidos depois que os handlers de stage existem
+  const stageTitleRef = useRef<(id: string, title: string) => void>(() => {});
+  const stageColorRef = useRef<(id: string, color: string) => void>(() => {});
+  const stageResizeRef = useRef<(id: string, w: number, h: number) => void>(() => {});
+  const stageUngroupRef = useRef<(id: string) => void>(() => {});
+  const { screenToFlowPosition, getNodes } = useReactFlow();
 
   const [nodes, setNodes, onNodesChangeRF] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChangeRF] = useEdgesState<Edge>([]);
@@ -190,32 +215,47 @@ function Inner() {
     const built: Node[] = [];
     byJourney.forEach((rows, jid) => {
       const lane = (journeyIndex.get(jid) ?? 0) * 600;
-      const allOrigin = rows.every((r) => !r.position || (r.position.x === 0 && r.position.y === 0));
+      const nonStage = rows.filter((r) => r.node_type !== "stage");
+      const allOrigin = nonStage.length > 0 && nonStage.every((r) => !r.position || (r.position.x === 0 && r.position.y === 0));
       rows.forEach((r, i) => {
-        const pos = allOrigin
+        const isStage = r.node_type === "stage";
+        const cfg = r.config ?? {};
+        const pos = !isStage && allOrigin
           ? { x: lane, y: i * 140 }
           : r.position ?? { x: lane, y: i * 140 };
         const visible = filterJourney === "all" || filterJourney === jid;
-        built.push({
+        const node: any = {
           id: r.id,
           type: r.node_type,
           position: pos,
           hidden: !visible,
+          zIndex: isStage ? 0 : 1,
           data: {
             channel: r.channel,
             content: r.content ?? {},
-            config: r.config ?? {},
+            config: cfg,
             delay_value: r.delay_value,
             delay_unit: r.delay_unit,
             label: labelFor(r.node_type, r.channel),
             journeyName: journeyName.get(jid) ?? "",
             journeyColor: journeyColor.get(jid) ?? "#888",
             metrics: metrics[r.id],
-          } as any,
-        });
+            title: cfg.title,
+            color: cfg.color,
+            onChangeTitle: (id: string, t: string) => stageTitleRef.current(id, t),
+            onChangeColor: (id: string, c: string) => stageColorRef.current(id, c),
+            onResize: (id: string, w: number, h: number) => stageResizeRef.current(id, w, h),
+            onUngroup: (id: string) => stageUngroupRef.current(id),
+          },
+        };
+        if (r.parent_step_id) node.parentId = r.parent_step_id;
+        if (isStage) node.style = { width: cfg.width ?? 360, height: cfg.height ?? 220 };
+        built.push(node);
       });
     });
-    setNodes(built);
+    // Stages antes dos filhos (React Flow exige)
+    const stagesFirst = [...built.filter((n) => n.type === "stage"), ...built.filter((n) => n.type !== "stage")];
+    setNodes(stagesFirst);
 
     const builtEdges: Edge[] = edgeRows.map((e) => {
       const visible = filterJourney === "all" || filterJourney === e.journey_id;
@@ -279,17 +319,19 @@ function Inner() {
     setEdgeRows((prev) => [...prev, data as EdgeRow]);
   }, [steps]);
 
-  const onNodeDragStop = useCallback(async (_e: any, node: Node) => {
-    const { error } = await (supabase as any)
-      .from("crm_journey_steps")
-      .update({ position: node.position })
-      .eq("id", node.id);
-    if (error) { toast.error(`Erro ao salvar posição: ${error.message}`); return; }
-    setSteps((prev) => prev.map((s) => (s.id === node.id ? { ...s, position: node.position } : s)));
-  }, []);
 
   const insertStep = useCallback(
-    async (type: NodeType, position: { x: number; y: number }, journeyId: string) => {
+    async (
+      type: NodeType,
+      position: { x: number; y: number },
+      journeyId: string,
+      opts?: { config?: Record<string, any>; parent_step_id?: string | null }
+    ): Promise<string | null> => {
+      const isStage = type === "stage";
+      const defaultConfig = isStage
+        ? { title: "Etapa", color: "#4D7A1F", width: 360, height: 220 }
+        : {};
+      const config = { ...defaultConfig, ...(opts?.config ?? {}) };
       const { data, error } = await (supabase as any)
         .from("crm_journey_steps")
         .insert({
@@ -298,14 +340,30 @@ function Inner() {
           position,
           channel: null,
           content: {},
-          config: {},
+          config,
           step_order: null,
+          parent_step_id: opts?.parent_step_id ?? null,
         })
         .select()
         .single();
-      if (error) { toast.error(`Erro ao adicionar: ${error.message}`); return; }
+      if (error) { toast.error(`Erro ao adicionar: ${error.message}`); return null; }
       setSteps((prev) => [...prev, data as StepRow]);
       toast.success("Nó adicionado");
+      return (data as StepRow).id;
+    },
+    []
+  );
+
+  const setStepParent = useCallback(
+    async (id: string, parentId: string | null, position: { x: number; y: number }) => {
+      const { error } = await (supabase as any)
+        .from("crm_journey_steps")
+        .update({ parent_step_id: parentId, position })
+        .eq("id", id);
+      if (error) { toast.error(`Erro ao agrupar: ${error.message}`); return; }
+      setSteps((prev) =>
+        prev.map((s) => (s.id === id ? { ...s, parent_step_id: parentId, position } : s))
+      );
     },
     []
   );
@@ -379,6 +437,119 @@ function Inner() {
     setSteps((prev) => prev.map((s) => (s.id === id ? { ...s, ...fields } : s)));
   }, []);
 
+  // ---- Stage / drag-stop handlers (precisam de insertStep, setStepParent, handleUpdateNode, handleDeleteNode)
+  const onNodeDragStop = useCallback(async (_e: any, node: Node) => {
+    if (node.type === "stage") {
+      const { error } = await (supabase as any)
+        .from("crm_journey_steps")
+        .update({ position: node.position })
+        .eq("id", node.id);
+      if (error) { toast.error(`Erro ao salvar posição: ${error.message}`); return; }
+      setSteps((prev) => prev.map((s) => (s.id === node.id ? { ...s, position: node.position } : s)));
+      return;
+    }
+    const all = getNodes();
+    const me = all.find((n) => n.id === node.id) ?? node;
+    const abs = (node as any).positionAbsolute ?? getAbsolutePosition(me, all);
+    const { w, h } = nodeSize(me);
+    const centerX = abs.x + w / 2;
+    const centerY = abs.y + h / 2;
+    const myJourney = steps.find((s) => s.id === node.id)?.journey_id;
+    const stages = all.filter((n) => n.type === "stage" && n.id !== node.id);
+    let containing: Node | null = null;
+    for (const s of stages) {
+      const sj = steps.find((x) => x.id === s.id)?.journey_id;
+      if (sj && myJourney && sj !== myJourney) continue;
+      const sAbs = getAbsolutePosition(s, all);
+      const { w: sw, h: sh } = nodeSize(s);
+      if (centerX >= sAbs.x && centerX <= sAbs.x + sw && centerY >= sAbs.y && centerY <= sAbs.y + sh) {
+        containing = s; break;
+      }
+    }
+    const currentParent = node.parentId ?? null;
+    const newParent = containing?.id ?? null;
+    if (newParent === currentParent) {
+      const { error } = await (supabase as any)
+        .from("crm_journey_steps")
+        .update({ position: node.position })
+        .eq("id", node.id);
+      if (error) { toast.error(`Erro ao salvar posição: ${error.message}`); return; }
+      setSteps((prev) => prev.map((s) => (s.id === node.id ? { ...s, position: node.position } : s)));
+      return;
+    }
+    let newPos = abs;
+    if (newParent) {
+      const parentAbs = getAbsolutePosition(containing!, all);
+      newPos = { x: abs.x - parentAbs.x, y: abs.y - parentAbs.y };
+    }
+    await setStepParent(node.id, newParent, newPos);
+    if (newParent) toast.success("Nó adicionado à etapa");
+  }, [getNodes, steps, setStepParent]);
+
+  const handleStageTitle = useCallback((id: string, title: string) => {
+    const s = steps.find((x) => x.id === id);
+    handleUpdateNode(id, { config: { ...(s?.config ?? {}), title } });
+  }, [steps, handleUpdateNode]);
+  const handleStageColor = useCallback((id: string, color: string) => {
+    const s = steps.find((x) => x.id === id);
+    handleUpdateNode(id, { config: { ...(s?.config ?? {}), color } });
+  }, [steps, handleUpdateNode]);
+  const handleStageResize = useCallback((id: string, width: number, height: number) => {
+    const s = steps.find((x) => x.id === id);
+    handleUpdateNode(id, { config: { ...(s?.config ?? {}), width, height } });
+  }, [steps, handleUpdateNode]);
+  const handleUngroup = useCallback(async (stageId: string) => {
+    const all = getNodes();
+    const stage = all.find((n) => n.id === stageId);
+    if (!stage) return;
+    const stageAbs = getAbsolutePosition(stage, all);
+    const children = all.filter((n) => n.parentId === stageId);
+    for (const c of children) {
+      await setStepParent(c.id, null, { x: stageAbs.x + c.position.x, y: stageAbs.y + c.position.y });
+    }
+    await handleDeleteNode(stageId);
+    toast.success("Etapa desfeita");
+  }, [getNodes, setStepParent, handleDeleteNode]);
+
+  const handleGroupSelection = useCallback(async () => {
+    if (!addToJourney) { toast.error("Escolha 'Adicionar em' antes de agrupar"); return; }
+    const all = getNodes();
+    const selected = all.filter((n) => {
+      if (!n.selected || n.type === "stage" || n.parentId) return false;
+      const s = steps.find((x) => x.id === n.id);
+      return s?.journey_id === addToJourney;
+    });
+    if (selected.length === 0) {
+      toast.error("Selecione nós soltos da jornada escolhida");
+      return;
+    }
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    for (const n of selected) {
+      const abs = getAbsolutePosition(n, all);
+      const { w, h } = nodeSize(n);
+      minX = Math.min(minX, abs.x); minY = Math.min(minY, abs.y);
+      maxX = Math.max(maxX, abs.x + w); maxY = Math.max(maxY, abs.y + h);
+    }
+    const stagePos = { x: minX - GROUP_PAD, y: minY - GROUP_PAD - 28 };
+    const width = (maxX - minX) + GROUP_PAD * 2;
+    const height = (maxY - minY) + GROUP_PAD * 2 + 28;
+    const stageId = await insertStep("stage", stagePos, addToJourney, {
+      config: { title: "Etapa", color: "#4D7A1F", width, height },
+    });
+    if (!stageId) return;
+    for (const n of selected) {
+      const abs = getAbsolutePosition(n, all);
+      await setStepParent(n.id, stageId, { x: abs.x - stagePos.x, y: abs.y - stagePos.y });
+    }
+    toast.success("Etapa criada");
+  }, [addToJourney, getNodes, steps, insertStep, setStepParent]);
+
+  // sincroniza os refs usados pelos stages na construção dos nodes
+  useEffect(() => { stageTitleRef.current = handleStageTitle; }, [handleStageTitle]);
+  useEffect(() => { stageColorRef.current = handleStageColor; }, [handleStageColor]);
+  useEffect(() => { stageResizeRef.current = handleStageResize; }, [handleStageResize]);
+  useEffect(() => { stageUngroupRef.current = handleUngroup; }, [handleUngroup]);
+
   const selectedStep = steps.find((s) => s.id === selectedNodeId);
   const selectedNode: RFNode | null = selectedStep
     ? {
@@ -429,6 +600,10 @@ function Inner() {
         <div className="font-bold text-foreground">Whiteboard do CRM</div>
 
         <div className="ml-auto flex items-center gap-2 flex-wrap">
+          <Button variant="outline" size="sm" onClick={handleGroupSelection} title="Agrupar nós selecionados em etapa">
+            <Group className="w-3.5 h-3.5 mr-1.5" />
+            Agrupar em etapa
+          </Button>
           <Button
             variant="outline"
             size="sm"
@@ -561,34 +736,48 @@ function Inner() {
             </ReactFlow>
           )}
 
-          {ctxMenu && (
-            <div
-              className="absolute z-50 min-w-[160px] rounded-md border border-border bg-popover shadow-lg py-1"
-              style={{ left: ctxMenu.x, top: ctxMenu.y }}
-              onContextMenu={(e) => e.preventDefault()}
-            >
-              <button
-                onClick={() => handleDeleteNode(ctxMenu.nodeId)}
-                className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-red-500 hover:bg-accent text-left"
+          {ctxMenu && (() => {
+            const isStage = steps.find((s) => s.id === ctxMenu.nodeId)?.node_type === "stage";
+            return (
+              <div
+                className="absolute z-50 min-w-[160px] rounded-md border border-border bg-popover shadow-lg py-1"
+                style={{ left: ctxMenu.x, top: ctxMenu.y }}
+                onContextMenu={(e) => e.preventDefault()}
               >
-                <Trash2 className="w-3.5 h-3.5" />
-                Excluir nó
-              </button>
-              <button
-                onClick={() => { setSelectedNodeId(ctxMenu.nodeId); setCtxMenu(null); }}
-                className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-foreground hover:bg-accent text-left"
-              >
-                <Pencil className="w-3.5 h-3.5" />
-                Editar
-              </button>
-            </div>
-          )}
+                <button
+                  onClick={() => handleDeleteNode(ctxMenu.nodeId)}
+                  className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-red-500 hover:bg-accent text-left"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  Excluir nó
+                </button>
+                {isStage && (
+                  <button
+                    onClick={() => { handleUngroup(ctxMenu.nodeId); setCtxMenu(null); }}
+                    className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-foreground hover:bg-accent text-left"
+                  >
+                    <Ungroup className="w-3.5 h-3.5" />
+                    Desagrupar
+                  </button>
+                )}
+                {!isStage && (
+                  <button
+                    onClick={() => { setSelectedNodeId(ctxMenu.nodeId); setCtxMenu(null); }}
+                    className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-foreground hover:bg-accent text-left"
+                  >
+                    <Pencil className="w-3.5 h-3.5" />
+                    Editar
+                  </button>
+                )}
+              </div>
+            );
+          })()}
         </div>
       </div>
 
 
       <NodeConfigDrawer
-        node={selectedNode}
+        node={selectedNode?.type === "stage" ? null : selectedNode}
         messageNodes={messageNodesForSelected}
         triggerType={selectedJourneyTrigger}
         onClose={() => setSelectedNodeId(null)}

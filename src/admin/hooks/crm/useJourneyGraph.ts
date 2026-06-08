@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import type { ChannelKey } from "../../lib/crm/channels";
 
-export type NodeType = "trigger" | "message" | "wait" | "condition" | "tag";
+export type NodeType = "trigger" | "message" | "wait" | "condition" | "tag" | "stage";
 export type DelayUnit = "minute" | "hour" | "day" | "week";
 
 export interface GraphNodeRow {
@@ -17,6 +17,7 @@ export interface GraphNodeRow {
   step_order: number | null;
   delay_value: number | null;
   delay_unit: DelayUnit | null;
+  parent_step_id: string | null;
 }
 
 export interface GraphEdgeRow {
@@ -32,6 +33,9 @@ export interface RFNode {
   id: string;
   type: NodeType;
   position: { x: number; y: number };
+  parentId?: string;
+  zIndex?: number;
+  style?: Record<string, any>;
   data: {
     channel: ChannelKey | null;
     content: Record<string, any>;
@@ -39,6 +43,8 @@ export interface RFNode {
     delay_value: number | null;
     delay_unit: DelayUnit | null;
     label: string;
+    title?: string;
+    color?: string;
   };
 }
 
@@ -70,6 +76,8 @@ function labelFor(row: { node_type: NodeType; channel: ChannelKey | null }): str
       return "Condição";
     case "tag":
       return "Marcar usuário";
+    case "stage":
+      return "Etapa";
     default:
       return row.node_type;
   }
@@ -114,29 +122,50 @@ export function useJourneyGraph(journeyId: string | null) {
 
     const rows = (nodesRes.data ?? []) as GraphNodeRow[];
 
-    // Fallback: se TODOS os nós estão em (0,0) ou sem position, espalha vertical.
-    const allAtOrigin = rows.every(
+    // Fallback: se TODOS os nós (não-stage) estão em (0,0), espalha vertical.
+    const nonStage = rows.filter((r) => r.node_type !== "stage");
+    const allAtOrigin = nonStage.length > 0 && nonStage.every(
       (r) => !r.position || (r.position.x === 0 && r.position.y === 0)
     );
 
-    const rfNodes: RFNode[] = rows.map((r, i) => {
-      const pos = allAtOrigin
+    const mapped: RFNode[] = rows.map((r, i) => {
+      const isStage = r.node_type === "stage";
+      const pos = !isStage && allAtOrigin
         ? { x: 0, y: i * 140 }
         : r.position ?? { x: 0, y: 0 };
-      return {
+      const cfg = r.config ?? {};
+      const node: RFNode = {
         id: r.id,
         type: (r.node_type ?? "message") as NodeType,
         position: pos,
         data: {
           channel: r.channel,
           content: r.content ?? {},
-          config: r.config ?? {},
+          config: cfg,
           delay_value: r.delay_value,
           delay_unit: r.delay_unit,
           label: labelFor(r),
+          title: cfg.title,
+          color: cfg.color,
         },
       };
+      if (r.parent_step_id) node.parentId = r.parent_step_id;
+      if (isStage) {
+        node.zIndex = 0;
+        node.style = {
+          width: cfg.width ?? 360,
+          height: cfg.height ?? 220,
+        };
+      } else {
+        node.zIndex = 1;
+      }
+      return node;
     });
+
+    // React Flow exige pai ANTES do filho pra posição relativa funcionar.
+    const stages = mapped.filter((n) => n.type === "stage");
+    const rest = mapped.filter((n) => n.type !== "stage");
+    const rfNodes = [...stages, ...rest];
 
     const rfEdges: RFEdge[] = ((edgesRes.data ?? []) as GraphEdgeRow[]).map(
       (e) => ({
@@ -160,9 +189,15 @@ export function useJourneyGraph(journeyId: string | null) {
   const addNode = useCallback(
     async (
       nodeType: NodeType,
-      position: { x: number; y: number }
+      position: { x: number; y: number },
+      opts?: { config?: Record<string, any>; parent_step_id?: string | null }
     ): Promise<string | null> => {
       if (!journeyId) return null;
+      const isStage = nodeType === "stage";
+      const defaultConfig = isStage
+        ? { title: "Etapa", color: "#4D7A1F", width: 360, height: 220 }
+        : {};
+      const config = { ...defaultConfig, ...(opts?.config ?? {}) };
       const { data, error } = await (supabase as any)
         .from("crm_journey_steps")
         .insert({
@@ -171,8 +206,9 @@ export function useJourneyGraph(journeyId: string | null) {
           position,
           channel: null,
           content: {},
-          config: {},
+          config,
           step_order: null,
+          parent_step_id: opts?.parent_step_id ?? null,
         })
         .select()
         .single();
@@ -181,25 +217,56 @@ export function useJourneyGraph(journeyId: string | null) {
         return null;
       }
       const row = data as GraphNodeRow;
-      setNodes((prev) => [
-        ...prev,
-        {
+      setNodes((prev) => {
+        const next: RFNode = {
           id: row.id,
           type: nodeType,
           position,
           data: {
             channel: null,
             content: {},
-            config: {},
+            config,
             delay_value: null,
             delay_unit: null,
             label: labelFor({ node_type: nodeType, channel: null }),
+            title: config.title,
+            color: config.color,
           },
-        },
-      ]);
+          zIndex: isStage ? 0 : 1,
+          ...(isStage ? { style: { width: config.width, height: config.height } } : {}),
+          ...(opts?.parent_step_id ? { parentId: opts.parent_step_id } : {}),
+        };
+        // stages devem vir antes dos filhos
+        return isStage ? [next, ...prev] : [...prev, next];
+      });
       return row.id;
     },
     [journeyId]
+  );
+
+  const setNodeParent = useCallback(
+    async (
+      nodeId: string,
+      parentId: string | null,
+      position: { x: number; y: number }
+    ) => {
+      const { error } = await (supabase as any)
+        .from("crm_journey_steps")
+        .update({ parent_step_id: parentId, position })
+        .eq("id", nodeId);
+      if (error) {
+        toast.error(`Erro ao agrupar: ${error.message}`);
+        return;
+      }
+      setNodes((prev) =>
+        prev.map((n) =>
+          n.id === nodeId
+            ? { ...n, position, parentId: parentId ?? undefined }
+            : n
+        )
+      );
+    },
+    []
   );
 
   const updateNodePosition = useCallback(
@@ -286,18 +353,27 @@ export function useJourneyGraph(journeyId: string | null) {
       setNodes((prev) =>
         prev.map((n) => {
           if (n.id !== id) return n;
-          const merged = {
+          const nextConfig =
+            fields.config !== undefined ? fields.config : n.data.config;
+          const merged: RFNode = {
             ...n,
             data: {
               ...n.data,
               ...(fields.channel !== undefined ? { channel: fields.channel } : {}),
               ...(fields.content !== undefined ? { content: fields.content } : {}),
-              ...(fields.config !== undefined ? { config: fields.config } : {}),
+              ...(fields.config !== undefined ? { config: fields.config, title: fields.config?.title, color: fields.config?.color } : {}),
               ...(fields.delay_value !== undefined ? { delay_value: fields.delay_value } : {}),
               ...(fields.delay_unit !== undefined ? { delay_unit: fields.delay_unit } : {}),
             },
           };
           merged.data.label = labelFor({ node_type: n.type, channel: merged.data.channel });
+          if (n.type === "stage" && fields.config !== undefined) {
+            merged.style = {
+              ...(n.style ?? {}),
+              width: nextConfig?.width ?? n.style?.width ?? 360,
+              height: nextConfig?.height ?? n.style?.height ?? 220,
+            };
+          }
           return merged;
         })
       );
@@ -334,5 +410,6 @@ export function useJourneyGraph(journeyId: string | null) {
     addEdge,
     removeEdge,
     updateEdgeBranch,
+    setNodeParent,
   };
 }
