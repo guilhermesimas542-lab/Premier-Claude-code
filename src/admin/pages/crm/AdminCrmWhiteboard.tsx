@@ -36,10 +36,12 @@ import {
   WaitNode,
   ConditionNode,
   TagNode,
+  StageNode,
 } from "@/admin/components/crm/whiteboard/nodes";
 import { NodeConfigDrawer } from "@/admin/components/crm/whiteboard/NodeConfigDrawer";
 import type { NodeType, RFNode } from "@/admin/hooks/crm/useJourneyGraph";
 import type { ChannelKey } from "@/admin/lib/crm/channels";
+import { Layers, Group } from "lucide-react";
 
 const NODE_TYPES = {
   trigger: TriggerNode,
@@ -47,15 +49,32 @@ const NODE_TYPES = {
   wait: WaitNode,
   condition: ConditionNode,
   tag: TagNode,
+  stage: StageNode,
 };
 
 const PALETTE: { type: NodeType; label: string; icon: React.ElementType; color: string }[] = [
+  { type: "stage", label: "Etapa", icon: Layers, color: "#4D7A1F" },
   { type: "trigger", label: "Gatilho", icon: Play, color: "#10B981" },
   { type: "message", label: "Mensagem", icon: Mail, color: "#60A5FA" },
   { type: "wait", label: "Esperar", icon: Clock, color: "#F59E0B" },
   { type: "condition", label: "Condição", icon: GitBranch, color: "#A855F7" },
   { type: "tag", label: "Marcar usuário", icon: Tag, color: "#EC4899" },
 ];
+
+const GROUP_PAD = 32;
+
+function getAbsolutePosition(node: Node, all: Node[]): { x: number; y: number } {
+  if (!node.parentId) return node.position;
+  const parent = all.find((n) => n.id === node.parentId);
+  if (!parent) return node.position;
+  const pAbs = getAbsolutePosition(parent, all);
+  return { x: pAbs.x + node.position.x, y: pAbs.y + node.position.y };
+}
+function nodeSize(n: Node): { w: number; h: number } {
+  const w = (n.width ?? (n as any).measured?.width ?? (n.style as any)?.width ?? 200) as number;
+  const h = (n.height ?? (n as any).measured?.height ?? (n.style as any)?.height ?? 80) as number;
+  return { w, h };
+}
 
 interface JourneyRow {
   id: string;
