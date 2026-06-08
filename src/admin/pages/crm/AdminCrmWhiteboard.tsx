@@ -736,28 +736,42 @@ function Inner() {
             </ReactFlow>
           )}
 
-          {ctxMenu && (
-            <div
-              className="absolute z-50 min-w-[160px] rounded-md border border-border bg-popover shadow-lg py-1"
-              style={{ left: ctxMenu.x, top: ctxMenu.y }}
-              onContextMenu={(e) => e.preventDefault()}
-            >
-              <button
-                onClick={() => handleDeleteNode(ctxMenu.nodeId)}
-                className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-red-500 hover:bg-accent text-left"
+          {ctxMenu && (() => {
+            const isStage = steps.find((s) => s.id === ctxMenu.nodeId)?.node_type === "stage";
+            return (
+              <div
+                className="absolute z-50 min-w-[160px] rounded-md border border-border bg-popover shadow-lg py-1"
+                style={{ left: ctxMenu.x, top: ctxMenu.y }}
+                onContextMenu={(e) => e.preventDefault()}
               >
-                <Trash2 className="w-3.5 h-3.5" />
-                Excluir nó
-              </button>
-              <button
-                onClick={() => { setSelectedNodeId(ctxMenu.nodeId); setCtxMenu(null); }}
-                className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-foreground hover:bg-accent text-left"
-              >
-                <Pencil className="w-3.5 h-3.5" />
-                Editar
-              </button>
-            </div>
-          )}
+                <button
+                  onClick={() => handleDeleteNode(ctxMenu.nodeId)}
+                  className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-red-500 hover:bg-accent text-left"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  Excluir nó
+                </button>
+                {isStage && (
+                  <button
+                    onClick={() => { handleUngroup(ctxMenu.nodeId); setCtxMenu(null); }}
+                    className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-foreground hover:bg-accent text-left"
+                  >
+                    <Ungroup className="w-3.5 h-3.5" />
+                    Desagrupar
+                  </button>
+                )}
+                {!isStage && (
+                  <button
+                    onClick={() => { setSelectedNodeId(ctxMenu.nodeId); setCtxMenu(null); }}
+                    className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-foreground hover:bg-accent text-left"
+                  >
+                    <Pencil className="w-3.5 h-3.5" />
+                    Editar
+                  </button>
+                )}
+              </div>
+            );
+          })()}
         </div>
       </div>
 
