@@ -352,13 +352,6 @@ export function useJourneyMockOps() {
           return null;
         }
 
-        const { nodes, edges } = await loadGraph(journey.id);
-
-        // ====== FALLBACK LINEAR (jornadas antigas sem edges) ======
-        if (edges.length === 0) {
-          return await processLinear(journey, steps, opts);
-        }
-
         // ====== GRAFO GLOBAL (cross-journey) ======
         const { nodes: globalNodes, edges: globalEdges } = await loadGlobalGraph();
 
@@ -374,7 +367,7 @@ export function useJourneyMockOps() {
           if (!outgoing.has(e.source_step_id)) outgoing.set(e.source_step_id, []);
           outgoing.get(e.source_step_id)!.push(e);
         }
-        // edges usadas pela avaliação de condition (escopo global pra achar upstream message)
+        // alias usado pela avaliação de condition (escopo global, acha upstream cross-journey também)
         const edges = globalEdges;
 
         const { data: enrolls, error: enrErr } = await (supabase as any)
