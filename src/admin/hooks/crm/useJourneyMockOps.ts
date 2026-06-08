@@ -359,17 +359,27 @@ export function useJourneyMockOps() {
           return await processLinear(journey, steps, opts);
         }
 
-        // ====== TRAVESSIA DE GRAFO ======
-        const nodesById = new Map(nodes.map((n) => [n.id, n]));
+        // ====== GRAFO GLOBAL (cross-journey) ======
+        const { nodes: globalNodes, edges: globalEdges } = await loadGlobalGraph();
+
+        // Fallback linear continua se ESTA jornada não tiver edges próprias.
+        const localEdgesCount = globalEdges.filter((e) => e.journey_id === journey.id).length;
+        if (localEdgesCount === 0) {
+          return await processLinear(journey, steps, opts);
+        }
+
+        const nodesById = new Map(globalNodes.map((n) => [n.id, n]));
         const outgoing = new Map<string, GraphEdge[]>();
-        for (const e of edges) {
+        for (const e of globalEdges) {
           if (!outgoing.has(e.source_step_id)) outgoing.set(e.source_step_id, []);
           outgoing.get(e.source_step_id)!.push(e);
         }
+        // edges usadas pela avaliação de condition (escopo global pra achar upstream message)
+        const edges = globalEdges;
 
         const { data: enrolls, error: enrErr } = await (supabase as any)
           .from("crm_journey_enrollments")
-          .select("id, user_id, current_step_id, current_step_at, metadata")
+          .select("id, user_id, current_step_id, current_step_at, metadata, journey_id")
           .eq("journey_id", journey.id)
           .eq("status", "active");
 
@@ -384,6 +394,7 @@ export function useJourneyMockOps() {
           current_step_id: string | null;
           current_step_at: string | null;
           metadata: Record<string, any> | null;
+          journey_id: string;
         }>;
 
         if (list.length === 0) {
@@ -399,9 +410,11 @@ export function useJourneyMockOps() {
         for (const en of list) {
           let curId = en.current_step_id;
           let curAt = en.current_step_at;
+          let curJourneyId = en.journey_id;
           let metadata: Record<string, any> = { ...(en.metadata ?? {}) };
           let didAdvance = false;
           let finalize: Record<string, any> | null = null;
+
 
           for (let hop = 0; hop < MAX_HOPS; hop++) {
             if (!curId) {
