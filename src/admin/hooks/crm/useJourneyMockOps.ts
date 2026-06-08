@@ -576,14 +576,18 @@ export function useJourneyMockOps() {
               patch: { ...finalize, metadata },
             });
           } else if (didAdvance) {
-            enrollUpdates.push({
-              id: en.id,
-              patch: {
-                current_step_id: curId,
-                current_step_at: curAt ?? new Date().toISOString(),
-                metadata,
-              },
-            });
+            // Se o nó atual pertence a outra jornada, migra o enrollment (cross-journey routing).
+            const finalNode = curId ? nodesById.get(curId) : null;
+            const targetJourneyId = finalNode?.journey_id ?? curJourneyId;
+            const patch: Record<string, any> = {
+              current_step_id: curId,
+              current_step_at: curAt ?? new Date().toISOString(),
+              metadata,
+            };
+            if (targetJourneyId && targetJourneyId !== en.journey_id) {
+              patch.journey_id = targetJourneyId;
+            }
+            enrollUpdates.push({ id: en.id, patch });
           }
         }
 
