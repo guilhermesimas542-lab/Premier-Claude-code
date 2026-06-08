@@ -242,10 +242,10 @@ function Inner() {
             metrics: metrics[r.id],
             title: cfg.title,
             color: cfg.color,
-            onChangeTitle: handleStageTitle,
-            onChangeColor: handleStageColor,
-            onResize: handleStageResize,
-            onUngroup: handleUngroup,
+            onChangeTitle: (id: string, t: string) => stageTitleRef.current(id, t),
+            onChangeColor: (id: string, c: string) => stageColorRef.current(id, c),
+            onResize: (id: string, w: number, h: number) => stageResizeRef.current(id, w, h),
+            onUngroup: (id: string) => stageUngroupRef.current(id),
           },
         };
         if (r.parent_step_id) node.parentId = r.parent_step_id;
