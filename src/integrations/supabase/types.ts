@@ -1833,6 +1833,173 @@ export type Database = {
           },
         ]
       }
+      fa_options: {
+        Row: {
+          created_at: string
+          id: string
+          indice: number | null
+          letra: string | null
+          rotulo: string | null
+          step_id: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          indice?: number | null
+          letra?: string | null
+          rotulo?: string | null
+          step_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          indice?: number | null
+          letra?: string | null
+          rotulo?: string | null
+          step_id?: string
+        }
+        Relationships: []
+      }
+      fa_sessions: {
+        Row: {
+          created_at: string
+          email: string | null
+          fbclid: string | null
+          funnel_slug: string
+          id: string
+          ip: string | null
+          language: string | null
+          last_seen_at: string
+          phone: string | null
+          platform: string | null
+          screen: string | null
+          src: string | null
+          user_agent: string | null
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_id: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          utm_term: string | null
+          variant: string | null
+          viewport: string | null
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          fbclid?: string | null
+          funnel_slug?: string
+          id: string
+          ip?: string | null
+          language?: string | null
+          last_seen_at?: string
+          phone?: string | null
+          platform?: string | null
+          screen?: string | null
+          src?: string | null
+          user_agent?: string | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_id?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+          variant?: string | null
+          viewport?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          fbclid?: string | null
+          funnel_slug?: string
+          id?: string
+          ip?: string | null
+          language?: string | null
+          last_seen_at?: string
+          phone?: string | null
+          platform?: string | null
+          screen?: string | null
+          src?: string | null
+          user_agent?: string | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_id?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+          variant?: string | null
+          viewport?: string | null
+        }
+        Relationships: []
+      }
+      fa_step_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: number
+          option_id: string | null
+          session_id: string
+          step_id: string | null
+          step_index: number | null
+          value: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: never
+          option_id?: string | null
+          session_id: string
+          step_id?: string | null
+          step_index?: number | null
+          value?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: never
+          option_id?: string | null
+          session_id?: string
+          step_id?: string | null
+          step_index?: number | null
+          value?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fa_step_events_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "fa_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fa_steps: {
+        Row: {
+          created_at: string
+          funnel_slug: string
+          id: string
+          nome: string | null
+          ordem: number | null
+          tipo: string | null
+        }
+        Insert: {
+          created_at?: string
+          funnel_slug?: string
+          id: string
+          nome?: string | null
+          ordem?: number | null
+          tipo?: string | null
+        }
+        Update: {
+          created_at?: string
+          funnel_slug?: string
+          id?: string
+          nome?: string | null
+          ordem?: number | null
+          tipo?: string | null
+        }
+        Relationships: []
+      }
       features: {
         Row: {
           created_at: string
