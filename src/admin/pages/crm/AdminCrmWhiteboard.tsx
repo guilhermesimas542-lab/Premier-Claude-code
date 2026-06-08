@@ -270,6 +270,7 @@ function Inner() {
             journeyName: journeyName.get(jid) ?? "",
             journeyColor: journeyColor.get(jid) ?? "#888",
             metrics: metrics[r.id],
+            stageMetrics: isStage ? stageMetricsById[r.id] : undefined,
             title: cfg.title,
             color: cfg.color,
             onChangeTitle: (id: string, t: string) => stageTitleRef.current(id, t),
