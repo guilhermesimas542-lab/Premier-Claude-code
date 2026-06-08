@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { NodeResizer, useReactFlow, type NodeProps } from "@xyflow/react";
 import { Layers, Palette, Pencil } from "lucide-react";
+import type { StageMetrics } from "@/admin/lib/crm/journeyMetrics";
+import { formatBRL } from "@/admin/components/revenue/constants";
 
 export const STAGE_COLORS = [
   "#4D7A1F",
@@ -16,6 +18,7 @@ export const STAGE_COLORS = [
 interface StageData {
   title?: string;
   color?: string;
+  stageMetrics?: StageMetrics;
   onChangeTitle?: (id: string, title: string) => void;
   onChangeColor?: (id: string, color: string) => void;
   onResize?: (id: string, width: number, height: number) => void;
