@@ -70,7 +70,7 @@ function Inner() {
     createJourney, updateJourney, deleteJourney, assignNodeToJourney, createEdge, removeEdge,
     organizeJourneys, insertStep,
   } = useUnifiedWhiteboard();
-  const { screenToFlowPosition, fitView, getViewport } = useReactFlow();
+  const { screenToFlowPosition, fitView } = useReactFlow();
   const [searchParams, setSearchParams] = useSearchParams();
   const [focusedJourneyId, setFocusedJourneyId] = useState<string | null>(null);
   const [configJourneyId, setConfigJourneyId] = useState<string | null>(null);
