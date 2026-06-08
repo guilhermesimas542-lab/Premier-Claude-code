@@ -21,7 +21,11 @@ export interface JourneyRow {
   canvas: { x?: number; y?: number; w?: number; h?: number } | null;
   status: string | null;
   trigger_type: string | null;
+  trigger_config: Record<string, any> | null;
+  audience_id: string | null;
+  audience_filters: Record<string, any> | null;
 }
+
 
 interface StepRow {
   id: string;
@@ -69,7 +73,7 @@ export function useUnifiedWhiteboard() {
     setLoading(true);
     const [jRes, sRes, eRes] = await Promise.all([
       (supabase as any).from("crm_journeys")
-        .select("id, name, color, canvas, status, trigger_type")
+        .select("id, name, color, canvas, status, trigger_type, trigger_config, audience_id, audience_filters")
         .order("created_at", { ascending: true }),
       (supabase as any).from("crm_journey_steps").select("*"),
       (supabase as any).from("crm_journey_edges").select("*"),
@@ -183,7 +187,16 @@ export function useUnifiedWhiteboard() {
 
   const updateJourney = useCallback(async (
     journeyId: string,
-    fields: { name?: string; color?: string; canvas?: { x?: number; y?: number; w?: number; h?: number } }
+    fields: {
+      name?: string;
+      color?: string;
+      canvas?: { x?: number; y?: number; w?: number; h?: number };
+      trigger_type?: string;
+      trigger_config?: Record<string, any>;
+      audience_id?: string | null;
+      audience_filters?: Record<string, any> | null;
+      status?: string;
+    }
   ) => {
     // Merge canvas em vez de sobrescrever
     let payload: any = { ...fields };
