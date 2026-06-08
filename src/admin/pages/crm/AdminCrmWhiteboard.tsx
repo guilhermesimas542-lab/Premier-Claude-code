@@ -210,32 +210,47 @@ function Inner() {
     const built: Node[] = [];
     byJourney.forEach((rows, jid) => {
       const lane = (journeyIndex.get(jid) ?? 0) * 600;
-      const allOrigin = rows.every((r) => !r.position || (r.position.x === 0 && r.position.y === 0));
+      const nonStage = rows.filter((r) => r.node_type !== "stage");
+      const allOrigin = nonStage.length > 0 && nonStage.every((r) => !r.position || (r.position.x === 0 && r.position.y === 0));
       rows.forEach((r, i) => {
-        const pos = allOrigin
+        const isStage = r.node_type === "stage";
+        const cfg = r.config ?? {};
+        const pos = !isStage && allOrigin
           ? { x: lane, y: i * 140 }
           : r.position ?? { x: lane, y: i * 140 };
         const visible = filterJourney === "all" || filterJourney === jid;
-        built.push({
+        const node: any = {
           id: r.id,
           type: r.node_type,
           position: pos,
           hidden: !visible,
+          zIndex: isStage ? 0 : 1,
           data: {
             channel: r.channel,
             content: r.content ?? {},
-            config: r.config ?? {},
+            config: cfg,
             delay_value: r.delay_value,
             delay_unit: r.delay_unit,
             label: labelFor(r.node_type, r.channel),
             journeyName: journeyName.get(jid) ?? "",
             journeyColor: journeyColor.get(jid) ?? "#888",
             metrics: metrics[r.id],
-          } as any,
-        });
+            title: cfg.title,
+            color: cfg.color,
+            onChangeTitle: handleStageTitle,
+            onChangeColor: handleStageColor,
+            onResize: handleStageResize,
+            onUngroup: handleUngroup,
+          },
+        };
+        if (r.parent_step_id) node.parentId = r.parent_step_id;
+        if (isStage) node.style = { width: cfg.width ?? 360, height: cfg.height ?? 220 };
+        built.push(node);
       });
     });
-    setNodes(built);
+    // Stages antes dos filhos (React Flow exige)
+    const stagesFirst = [...built.filter((n) => n.type === "stage"), ...built.filter((n) => n.type !== "stage")];
+    setNodes(stagesFirst);
 
     const builtEdges: Edge[] = edgeRows.map((e) => {
       const visible = filterJourney === "all" || filterJourney === e.journey_id;
@@ -249,7 +264,7 @@ function Inner() {
       };
     });
     setEdges(builtEdges);
-  }, [steps, edgeRows, journeys, filterJourney, journeyColor, journeyName, metrics, setNodes, setEdges]);
+  }, [steps, edgeRows, journeys, filterJourney, journeyColor, journeyName, metrics, setNodes, setEdges, handleStageTitle, handleStageColor, handleStageResize, handleUngroup]);
 
   const onNodesChange = useCallback((changes: NodeChange[]) => {
     setNodes((nds) => applyNodeChanges(changes, nds));
