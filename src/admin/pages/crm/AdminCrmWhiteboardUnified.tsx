@@ -309,35 +309,41 @@ function Inner() {
           {journeys.length} jornada(s) · arraste nós entre regiões pra reatribuir
         </span>
       </div>
-      <div className="h-11 flex items-center gap-1 px-3 border-b border-border bg-background/95 backdrop-blur z-10 overflow-x-auto">
-        <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mr-2">
-          Adicionar nó:
-        </span>
-        {ADD_PALETTE.map((p) => {
-          const Icon = p.icon;
-          return (
-            <Button
-              key={p.type}
-              size="sm"
-              variant="outline"
-              onClick={() => handleAddNode(p.type)}
-              className="h-7"
-            >
-              <Icon className="w-3.5 h-3.5 mr-1" /> {p.label}
-            </Button>
-          );
-        })}
-        <span className="ml-auto text-[11px] text-muted-foreground whitespace-nowrap">
-          {focusedJourneyId
-            ? `→ na jornada focada`
-            : selectedStickyJourneyId
-              ? `→ na jornada selecionada`
-              : `→ na região do centro do canvas`}
-        </span>
-      </div>
       <div className="flex-1 relative flex min-h-0">
-        {/* Legenda */}
+        {/* Palette + Legenda */}
         <aside className="w-56 border-r border-border bg-background/95 overflow-y-auto shrink-0">
+          <div className="px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+            Adicionar nó
+          </div>
+          <div className="px-2 pb-2 grid grid-cols-2 gap-1.5">
+            {ADD_PALETTE.map((p) => {
+              const Icon = p.icon;
+              return (
+                <div
+                  key={p.type}
+                  draggable
+                  onDragStart={(e) => {
+                    e.dataTransfer.setData("application/x-crm-node", p.type);
+                    e.dataTransfer.effectAllowed = "move";
+                  }}
+                  onClick={() => handleAddNode(p.type)}
+                  className="cursor-grab active:cursor-grabbing border border-border rounded-md px-2 py-2 flex flex-col items-center gap-1 text-[11px] hover:bg-muted/50 hover:border-primary/40 select-none"
+                  title={`Arraste pro canvas ou clique pra adicionar ${p.label}`}
+                >
+                  <Icon className="w-4 h-4" />
+                  <span className="text-center leading-tight">{p.label}</span>
+                </div>
+              );
+            })}
+          </div>
+          <div className="px-3 pt-1 pb-1 text-[10px] text-muted-foreground">
+            {focusedJourneyId
+              ? "→ na jornada focada"
+              : selectedStickyJourneyId
+                ? "→ na jornada selecionada"
+                : "→ solte sobre uma jornada"}
+          </div>
+          <div className="border-t border-border my-1" />
           <div className="px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
             Legenda (jornadas)
           </div>
@@ -368,7 +374,34 @@ function Inner() {
           })}
         </aside>
 
-        <div className="flex-1 relative">
+        <div
+          className="flex-1 relative"
+          onDragOver={(e) => {
+            if (e.dataTransfer.types.includes("application/x-crm-node")) {
+              e.preventDefault();
+              e.dataTransfer.dropEffect = "move";
+            }
+          }}
+          onDrop={async (e) => {
+            const type = e.dataTransfer.getData("application/x-crm-node") as NodeKind;
+            if (!type) return;
+            e.preventDefault();
+            const pos = screenToFlowPosition({ x: e.clientX, y: e.clientY });
+            const hit = findContainingJourney(pos.x, pos.y);
+            const targetJourneyId = hit?.id ?? focusedJourneyId ?? selectedStickyJourneyId ?? null;
+            if (!targetJourneyId) {
+              toast.error("Solte sobre uma jornada");
+              return;
+            }
+            const layout = journeyLayouts.find((l) => l.id === targetJourneyId);
+            if (!layout) return;
+            const position = {
+              x: Math.max(24, Math.round(pos.x - layout.x - 110)),
+              y: Math.max(48, Math.round(pos.y - layout.y - 40)),
+            };
+            await insertStep({ type, journeyId: targetJourneyId, parentStepId: null, position });
+          }}
+        >
           <ReactFlow
             nodes={enhancedNodes}
             edges={visibleEdges}
