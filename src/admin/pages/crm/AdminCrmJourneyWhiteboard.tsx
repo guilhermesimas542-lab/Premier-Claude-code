@@ -19,11 +19,13 @@ import {
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import {
-  ArrowLeft, Loader2, Play, Mail, Clock, GitBranch, Tag, Target, Layers, Group, Ungroup,
+  ArrowLeft, Loader2, Play, Mail, Clock, GitBranch, Tag, Target, Layers, Group, Ungroup, TrendingDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useJourneyConversions } from "@/admin/hooks/crm/useJourneyConversions";
+import { Input } from "@/components/ui/input";
+import { useJourneyConversions, ATTRIBUTION_WINDOW_DAYS } from "@/admin/hooks/crm/useJourneyConversions";
 import { useJourneyNodeMetrics } from "@/admin/hooks/crm/useJourneyNodeMetrics";
+import { formatBRL } from "@/admin/components/revenue/constants";
 
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
