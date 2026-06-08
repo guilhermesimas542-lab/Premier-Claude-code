@@ -78,10 +78,10 @@ function Inner() {
   const onConnect = useCallback(async (c: Connection) => {
     if (!c.source || !c.target) return;
     const sj = stepJourney.get(c.source);
-    const tj = stepJourney.get(c.target);
-    if (!sj || !tj) return;
-    if (sj !== tj) { toast.error("Não dá pra ligar nós de jornadas diferentes"); return; }
+    if (!sj) return;
     const branch = c.sourceHandle === "yes" ? "sim" : c.sourceHandle === "no" ? "não" : null;
+    // Liberdade total: permite ligar nós de jornadas diferentes.
+    // A edge é persistida com journey_id da jornada do nó de origem.
     await createEdge(sj, c.source, c.target, branch);
   }, [stepJourney, createEdge]);
 

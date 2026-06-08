@@ -54,6 +54,7 @@ export function StickNoteNode({ id, data, selected }: NodeProps) {
         background: hexToRgba(color, 0.08),
         borderColor: color,
         boxShadow: selected ? `0 0 0 2px ${color}55` : undefined,
+        pointerEvents: "none",
       }}
     >
       <NodeResizer
@@ -62,11 +63,11 @@ export function StickNoteNode({ id, data, selected }: NodeProps) {
         color={color}
         isVisible={selected}
         onResizeEnd={handleResizeEnd}
-        handleStyle={{ width: 10, height: 10, borderRadius: 3 }}
+        handleStyle={{ width: 10, height: 10, borderRadius: 3, pointerEvents: "all" }}
       />
       <div
         className="absolute top-0 left-0 right-0 flex items-center gap-2 px-3 py-2 rounded-t-2xl"
-        style={{ background: hexToRgba(color, 0.22) }}
+        style={{ background: hexToRgba(color, 0.22), pointerEvents: "all" }}
       >
         <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: color }} />
         {editing ? (

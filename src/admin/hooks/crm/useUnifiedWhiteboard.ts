@@ -151,13 +151,25 @@ export function useUnifiedWhiteboard() {
     });
 
     setNodes([...stickyNodes, ...stageNodes, ...leafNodes]);
-    setEdges(edgeRows.map((e) => ({
-      id: e.id,
-      source: e.source_step_id,
-      target: e.target_step_id,
-      label: e.branch ?? "",
-      style: { stroke: journeyLayout.get(e.journey_id)?.color ?? "#888" },
-    })));
+    const stepJourneyMap = new Map<string, string>();
+    steps.forEach((s) => stepJourneyMap.set(s.id, s.journey_id));
+    setEdges(edgeRows.map((e) => {
+      const sJ = stepJourneyMap.get(e.source_step_id);
+      const tJ = stepJourneyMap.get(e.target_step_id);
+      const cross = sJ && tJ && sJ !== tJ;
+      return {
+        id: e.id,
+        source: e.source_step_id,
+        target: e.target_step_id,
+        label: e.branch ?? "",
+        animated: !!cross,
+        style: {
+          stroke: journeyLayout.get(e.journey_id)?.color ?? "#888",
+          strokeWidth: cross ? 2 : 1,
+          strokeDasharray: cross ? "6 4" : undefined,
+        },
+      };
+    }));
   }, [journeys, steps, edgeRows]);
 
   // --- Mutations ----------------------------------------------------------
@@ -214,36 +226,28 @@ export function useUnifiedWhiteboard() {
     ));
   }, [journeys]);
 
-  // Limpa/religa edges quando o nó muda de jornada
+  // Religa edges quando o nó muda de jornada: edge.journey_id segue a jornada do nó de ORIGEM.
+  // Cross-journey é permitido (não apaga mais).
   const reconcileEdgesForNode = useCallback(async (stepId: string, newJourneyId: string) => {
     const stepById = new Map(steps.map((s) => [s.id, s]));
     const affected = edgeRows.filter((e) => e.source_step_id === stepId || e.target_step_id === stepId);
-    const toDelete: string[] = [];
-    const toRebrand: string[] = [];
+    const rebrand: Array<{ id: string; journey_id: string }> = [];
     affected.forEach((e) => {
-      const otherId = e.source_step_id === stepId ? e.target_step_id : e.source_step_id;
-      const other = stepById.get(otherId);
-      // se a outra ponta também está sendo movida (mesma jornada nova) ainda assim usa o newJourneyId
-      const otherJourney = other?.id === stepId ? newJourneyId : other?.journey_id;
-      if (!otherJourney || otherJourney !== newJourneyId) {
-        toDelete.push(e.id);
-      } else if (e.journey_id !== newJourneyId) {
-        toRebrand.push(e.id);
+      const sourceJourney = e.source_step_id === stepId
+        ? newJourneyId
+        : stepById.get(e.source_step_id)?.journey_id;
+      if (sourceJourney && e.journey_id !== sourceJourney) {
+        rebrand.push({ id: e.id, journey_id: sourceJourney });
       }
     });
-    if (toDelete.length) {
-      const { error } = await (supabase as any).from("crm_journey_edges").delete().in("id", toDelete);
-      if (error) toast.error(`Erro limpando ligações: ${error.message}`);
-    }
-    if (toRebrand.length) {
+    for (const r of rebrand) {
       const { error } = await (supabase as any).from("crm_journey_edges")
-        .update({ journey_id: newJourneyId }).in("id", toRebrand);
+        .update({ journey_id: r.journey_id }).eq("id", r.id);
       if (error) toast.error(`Erro religando ligações: ${error.message}`);
     }
-    if (toDelete.length || toRebrand.length) {
-      setEdgeRows((prev) => prev
-        .filter((e) => !toDelete.includes(e.id))
-        .map((e) => toRebrand.includes(e.id) ? { ...e, journey_id: newJourneyId } : e));
+    if (rebrand.length) {
+      const map = new Map(rebrand.map((r) => [r.id, r.journey_id]));
+      setEdgeRows((prev) => prev.map((e) => map.has(e.id) ? { ...e, journey_id: map.get(e.id)! } : e));
     }
   }, [steps, edgeRows]);
 
