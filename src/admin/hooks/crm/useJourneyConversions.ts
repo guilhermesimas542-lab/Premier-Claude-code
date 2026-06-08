@@ -159,10 +159,10 @@ export async function attributeConversions(
 export function useJourneyConversions() {
   const [busy, setBusy] = useState(false);
 
-  const recalc = useCallback(async (journeyId: string) => {
+  const recalc = useCallback(async (journeyId: string, windowDays?: number) => {
     setBusy(true);
     try {
-      const r = await attributeConversions(journeyId);
+      const r = await attributeConversions(journeyId, windowDays);
       if (r) {
         toast.success(
           `${r.matched} conversão${r.matched === 1 ? "" : "ões"} atribuída${
