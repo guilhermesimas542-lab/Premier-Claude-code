@@ -131,7 +131,7 @@ function Inner() {
   const [metrics, setMetrics] = useState<Record<string, any>>({});
   const [ctxMenu, setCtxMenu] = useState<{ x: number; y: number; nodeId: string } | null>(null);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
-  const { screenToFlowPosition } = useReactFlow();
+  const { screenToFlowPosition, getNodes } = useReactFlow();
 
   const [nodes, setNodes, onNodesChangeRF] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChangeRF] = useEdgesState<Edge>([]);
