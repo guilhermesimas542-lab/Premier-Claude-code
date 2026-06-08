@@ -453,7 +453,6 @@ function Inner() {
       <div className="flex-1 flex min-h-0">
         <div className="w-48 border-r border-border bg-card p-3 space-y-2 shrink-0 overflow-y-auto">
           <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">
-          <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">
             Adicionar nó
           </div>
           <div className="text-[10px] text-muted-foreground mb-2">
