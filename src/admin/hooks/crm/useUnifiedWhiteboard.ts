@@ -402,7 +402,7 @@ export function useUnifiedWhiteboard() {
   return {
     journeys, steps, edgeRows, nodes, edges, loading, refresh: load,
     setNodes, setEdges,
-    createJourney, updateJourney, deleteJourney, assignNodeToJourney, createEdge, removeEdge,
+    createJourney, updateJourney, deleteJourney, assignNodeToJourney, createEdge, removeEdge, insertStep,
     organizeJourneys,
   };
 }
