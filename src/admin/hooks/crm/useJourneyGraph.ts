@@ -40,7 +40,13 @@ export interface RFNode {
     channel: ChannelKey | null;
     content: Record<string, any>;
     config: Record<string, any>;
-    delay_value: DelayUnit extends never ? never : number | null;
+    delay_value: number | null;
+    delay_unit: DelayUnit | null;
+    label: string;
+    title?: string;
+    color?: string;
+  };
+}
     delay_unit: DelayUnit | null;
     label: string;
   };
