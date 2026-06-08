@@ -11,6 +11,7 @@ interface StickNoteData {
   onChangeColor?: (journeyId: string, color: string) => void;
   onResize?: (journeyId: string, w: number, h: number) => void;
   onOpenConfig?: (journeyId: string) => void;
+  onDelete?: (journeyId: string, name: string) => void;
 }
 
 function hexToRgba(hex: string, alpha: number) {
