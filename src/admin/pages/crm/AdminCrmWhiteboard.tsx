@@ -309,7 +309,17 @@ function Inner() {
   }, []);
 
   const insertStep = useCallback(
-    async (type: NodeType, position: { x: number; y: number }, journeyId: string) => {
+    async (
+      type: NodeType,
+      position: { x: number; y: number },
+      journeyId: string,
+      opts?: { config?: Record<string, any>; parent_step_id?: string | null }
+    ): Promise<string | null> => {
+      const isStage = type === "stage";
+      const defaultConfig = isStage
+        ? { title: "Etapa", color: "#4D7A1F", width: 360, height: 220 }
+        : {};
+      const config = { ...defaultConfig, ...(opts?.config ?? {}) };
       const { data, error } = await (supabase as any)
         .from("crm_journey_steps")
         .insert({
@@ -318,14 +328,30 @@ function Inner() {
           position,
           channel: null,
           content: {},
-          config: {},
+          config,
           step_order: null,
+          parent_step_id: opts?.parent_step_id ?? null,
         })
         .select()
         .single();
-      if (error) { toast.error(`Erro ao adicionar: ${error.message}`); return; }
+      if (error) { toast.error(`Erro ao adicionar: ${error.message}`); return null; }
       setSteps((prev) => [...prev, data as StepRow]);
       toast.success("Nó adicionado");
+      return (data as StepRow).id;
+    },
+    []
+  );
+
+  const setStepParent = useCallback(
+    async (id: string, parentId: string | null, position: { x: number; y: number }) => {
+      const { error } = await (supabase as any)
+        .from("crm_journey_steps")
+        .update({ parent_step_id: parentId, position })
+        .eq("id", id);
+      if (error) { toast.error(`Erro ao agrupar: ${error.message}`); return; }
+      setSteps((prev) =>
+        prev.map((s) => (s.id === id ? { ...s, parent_step_id: parentId, position } : s))
+      );
     },
     []
   );
