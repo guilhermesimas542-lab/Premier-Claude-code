@@ -44,6 +44,7 @@ import AdminEventsPage from "./admin/pages/AdminEventsPage";
 import AdminOverview from "./admin/pages/AdminOverview";
 import AdminRevenue from "./admin/pages/AdminRevenue";
 import AdminMrrPremier from "./admin/pages/AdminMrrPremier";
+import AdminFunnelAnalytics from "./admin/pages/AdminFunnelAnalytics";
 
 import AdminBettingHouses from "./admin/pages/AdminBettingHouses";
 import AdminDefaultLinks from "./admin/pages/AdminDefaultLinks";
@@ -138,6 +139,7 @@ const App = () => {
               <Route path="notifications" element={<AdminNotifications />} />
               <Route path="analytics" element={<AdminAnalytics />} />
               <Route path="analytics/events" element={<AdminEventsPage />} />
+              <Route path="funnel-analytics" element={<AdminFunnelAnalytics />} />
               <Route path="behavior" element={<AdminBehavior />} />
               <Route path="ranking" element={<AdminRanking />} />
               <Route path="revenue" element={<AdminRevenue />} />
