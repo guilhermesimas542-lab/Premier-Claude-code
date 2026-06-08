@@ -18,7 +18,8 @@ import {
   type Edge,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { ArrowLeft, Loader2, Play, Mail, Clock, GitBranch, Tag, Pencil, Trash2 } from "lucide-react";
+import { ArrowLeft, Loader2, Play, Mail, Clock, GitBranch, Tag, Pencil, Trash2, Target } from "lucide-react";
+import { attributeConversions } from "@/admin/hooks/crm/useJourneyConversions";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -358,6 +359,20 @@ function Inner() {
   }, []);
   const onPaneClick = useCallback(() => setCtxMenu(null), []);
 
+  const [recalcBusy, setRecalcBusy] = useState(false);
+  const handleRecalcAll = useCallback(async () => {
+    if (journeys.length === 0) return;
+    setRecalcBusy(true);
+    let totalMatched = 0;
+    for (const j of journeys) {
+      const r = await attributeConversions(j.id);
+      if (r) totalMatched += r.matched;
+    }
+    setRecalcBusy(false);
+    toast.success(`Conversões recalculadas: ${totalMatched} atribuídas`);
+    await load();
+  }, [journeys, load]);
+
   const handleUpdateNode = useCallback(async (id: string, fields: any) => {
     const { error } = await (supabase as any).from("crm_journey_steps").update(fields).eq("id", id);
     if (error) { toast.error(`Erro ao salvar: ${error.message}`); return; }
@@ -414,6 +429,20 @@ function Inner() {
         <div className="font-bold text-foreground">Whiteboard do CRM</div>
 
         <div className="ml-auto flex items-center gap-2 flex-wrap">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleRecalcAll}
+            disabled={recalcBusy || journeys.length === 0}
+            title="Roda a atribuição de conversões em todas as jornadas"
+          >
+            {recalcBusy ? (
+              <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+            ) : (
+              <Target className="w-3.5 h-3.5 mr-1.5" />
+            )}
+            Recalcular conversões
+          </Button>
           <div className="flex items-center gap-1.5">
             <span className="text-xs text-muted-foreground">Ver:</span>
             <Select value={filterJourney} onValueChange={setFilterJourney}>
