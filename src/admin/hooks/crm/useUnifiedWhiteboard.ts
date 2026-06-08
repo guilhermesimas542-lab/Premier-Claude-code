@@ -114,6 +114,7 @@ export function useUnifiedWhiteboard() {
         data: { journeyId: j.id, title: j.name, color: lay.color },
         draggable: true,
         selectable: true,
+        deletable: false,
         zIndex: 0,
       } as Node;
     });
@@ -293,6 +294,22 @@ export function useUnifiedWhiteboard() {
     setEdgeRows((prev) => prev.filter((e) => e.id !== edgeId));
   }, []);
 
+  const deleteJourney = useCallback(async (journeyId: string) => {
+    // Apaga em cascata: edges -> steps -> enrollments -> jornada
+    const c1 = await (supabase as any).from("crm_journey_edges").delete().eq("journey_id", journeyId);
+    if (c1.error) { toast.error(`Erro apagando ligações: ${c1.error.message}`); return; }
+    const c2 = await (supabase as any).from("crm_journey_steps").delete().eq("journey_id", journeyId);
+    if (c2.error) { toast.error(`Erro apagando nós: ${c2.error.message}`); return; }
+    await (supabase as any).from("crm_journey_enrollments").delete().eq("journey_id", journeyId);
+    const c4 = await (supabase as any).from("crm_journeys").delete().eq("id", journeyId);
+    if (c4.error) { toast.error(`Erro apagando jornada: ${c4.error.message}`); return; }
+    setEdgeRows((prev) => prev.filter((e) => e.journey_id !== journeyId));
+    setSteps((prev) => prev.filter((s) => s.journey_id !== journeyId));
+    setJourneys((prev) => prev.filter((j) => j.id !== journeyId));
+    toast.success("Jornada excluída");
+  }, []);
+
+
   // Organiza jornadas existentes que ainda não têm canvas.x persistido.
   // Idempotente: pula quem já está posicionado.
   const organizeJourneys = useCallback(async () => {
@@ -353,7 +370,7 @@ export function useUnifiedWhiteboard() {
   return {
     journeys, steps, edgeRows, nodes, edges, loading, refresh: load,
     setNodes, setEdges,
-    createJourney, updateJourney, assignNodeToJourney, createEdge, removeEdge,
+    createJourney, updateJourney, deleteJourney, assignNodeToJourney, createEdge, removeEdge,
     organizeJourneys,
   };
 }

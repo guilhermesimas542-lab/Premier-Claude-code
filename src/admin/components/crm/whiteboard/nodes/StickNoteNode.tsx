@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { NodeResizer, useReactFlow, type NodeProps } from "@xyflow/react";
-import { Palette, Pencil, Settings } from "lucide-react";
+import { Palette, Pencil, Settings, Trash2 } from "lucide-react";
 import { JOURNEY_PALETTE } from "@/admin/hooks/crm/useUnifiedWhiteboard";
 
 interface StickNoteData {
@@ -11,6 +11,7 @@ interface StickNoteData {
   onChangeColor?: (journeyId: string, color: string) => void;
   onResize?: (journeyId: string, w: number, h: number) => void;
   onOpenConfig?: (journeyId: string) => void;
+  onDelete?: (journeyId: string, name: string) => void;
 }
 
 function hexToRgba(hex: string, alpha: number) {
@@ -114,6 +115,13 @@ export function StickNoteNode({ id, data, selected }: NodeProps) {
           title="Configurar jornada"
         >
           <Settings className="w-3.5 h-3.5" style={{ color }} />
+        </button>
+        <button
+          onClick={(e) => { e.stopPropagation(); d.onDelete?.(d.journeyId, title); }}
+          className="p-0.5 rounded hover:bg-background/40"
+          title="Excluir jornada"
+        >
+          <Trash2 className="w-3.5 h-3.5 text-destructive" />
         </button>
           {showPalette && (
             <div

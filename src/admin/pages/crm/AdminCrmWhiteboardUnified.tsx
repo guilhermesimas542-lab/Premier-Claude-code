@@ -25,6 +25,10 @@ import {
 } from "@/admin/components/crm/whiteboard/nodes";
 import { StickNoteNode } from "@/admin/components/crm/whiteboard/nodes/StickNoteNode";
 import { JourneyConfigSheet } from "@/admin/components/crm/whiteboard/JourneyConfigSheet";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const NODE_TYPES = {
   stickNote: StickNoteNode,
@@ -53,12 +57,13 @@ function Inner() {
   const navigate = useNavigate();
   const {
     journeys, steps, nodes, edges, loading, setNodes, setEdges,
-    createJourney, updateJourney, assignNodeToJourney, createEdge, removeEdge,
+    createJourney, updateJourney, deleteJourney, assignNodeToJourney, createEdge, removeEdge,
     organizeJourneys,
   } = useUnifiedWhiteboard();
   const { screenToFlowPosition, fitView } = useReactFlow();
   const [focusedJourneyId, setFocusedJourneyId] = useState<string | null>(null);
   const [configJourneyId, setConfigJourneyId] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
 
   // step.id -> journey_id (rápido pra validar conexões)
   const stepJourney = useMemo(() => {
@@ -162,6 +167,7 @@ function Inner() {
         onResize: (jid: string, w: number, h: number) => updateJourney(jid, { canvas: { w, h } }),
         onFocus: (jid: string) => setFocusedJourneyId(jid),
         onOpenConfig: (jid: string) => setConfigJourneyId(jid),
+        onDelete: (jid: string, name: string) => setDeleteTarget({ id: jid, name }),
       },
     };
   }), [nodes, updateJourney, focusedJourneyId, stepJourney]);
@@ -292,6 +298,32 @@ function Inner() {
         onOpenChange={(v) => { if (!v) setConfigJourneyId(null); }}
         onSave={async (jid, fields) => { await updateJourney(jid, fields); }}
       />
+
+      <AlertDialog open={deleteTarget != null} onOpenChange={(v) => { if (!v) setDeleteTarget(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir a jornada "{deleteTarget?.name}"?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Isso apaga a jornada e TODOS os nós, conexões e inscrições dela. Não dá pra desfazer.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={async () => {
+                if (!deleteTarget) return;
+                const id = deleteTarget.id;
+                setDeleteTarget(null);
+                if (focusedJourneyId === id) setFocusedJourneyId(null);
+                await deleteJourney(id);
+              }}
+            >
+              Excluir jornada
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
