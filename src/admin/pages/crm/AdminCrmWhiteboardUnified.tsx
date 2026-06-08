@@ -167,6 +167,7 @@ function Inner() {
         onResize: (jid: string, w: number, h: number) => updateJourney(jid, { canvas: { w, h } }),
         onFocus: (jid: string) => setFocusedJourneyId(jid),
         onOpenConfig: (jid: string) => setConfigJourneyId(jid),
+        onDelete: (jid: string, name: string) => setDeleteTarget({ id: jid, name }),
       },
     };
   }), [nodes, updateJourney, focusedJourneyId, stepJourney]);
