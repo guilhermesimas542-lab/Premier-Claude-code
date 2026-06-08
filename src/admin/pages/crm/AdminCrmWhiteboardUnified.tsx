@@ -40,6 +40,16 @@ const NODE_TYPES = {
   stage: StageNode,
 };
 
+type NodeKind = "stage" | "trigger" | "message" | "wait" | "condition" | "tag";
+const ADD_PALETTE: { type: NodeKind; label: string; icon: React.ElementType }[] = [
+  { type: "stage", label: "Etapa", icon: Layers },
+  { type: "trigger", label: "Gatilho", icon: Play },
+  { type: "message", label: "Mensagem", icon: Mail },
+  { type: "wait", label: "Esperar", icon: Clock },
+  { type: "condition", label: "Condição", icon: GitBranch },
+  { type: "tag", label: "Marcar usuário", icon: Tag },
+];
+
 function absolutePosition(node: Node, all: Node[]): { x: number; y: number } {
   if (!node.parentId) return node.position;
   const parent = all.find((n) => n.id === node.parentId);
