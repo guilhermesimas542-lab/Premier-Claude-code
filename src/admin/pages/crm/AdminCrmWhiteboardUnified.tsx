@@ -16,7 +16,7 @@ import {
   type Connection,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { ArrowLeft, Loader2, Plus } from "lucide-react";
+import { ArrowLeft, Loader2, Plus, LayoutGrid } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useUnifiedWhiteboard } from "@/admin/hooks/crm/useUnifiedWhiteboard";
@@ -53,6 +53,7 @@ function Inner() {
   const {
     journeys, steps, nodes, edges, loading, setNodes, setEdges,
     createJourney, updateJourney, assignNodeToJourney, createEdge, removeEdge,
+    organizeJourneys,
   } = useUnifiedWhiteboard();
   const { screenToFlowPosition } = useReactFlow();
 
@@ -180,6 +181,9 @@ function Inner() {
         </span>
         <Button size="sm" className="ml-3" onClick={handleNew}>
           <Plus className="w-4 h-4 mr-1" /> Nova jornada
+        </Button>
+        <Button size="sm" variant="outline" onClick={organizeJourneys}>
+          <LayoutGrid className="w-4 h-4 mr-1" /> Organizar jornadas
         </Button>
         <span className="ml-auto text-[11px] text-muted-foreground">
           {journeys.length} jornada(s) · arraste nós entre regiões pra reatribuir
