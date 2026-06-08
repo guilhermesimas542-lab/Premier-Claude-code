@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   ReactFlow,
@@ -55,7 +55,8 @@ function Inner() {
     createJourney, updateJourney, assignNodeToJourney, createEdge, removeEdge,
     organizeJourneys,
   } = useUnifiedWhiteboard();
-  const { screenToFlowPosition } = useReactFlow();
+  const { screenToFlowPosition, fitView } = useReactFlow();
+  const [focusedJourneyId, setFocusedJourneyId] = useState<string | null>(null);
 
   // step.id -> journey_id (rápido pra validar conexões)
   const stepJourney = useMemo(() => {
@@ -142,19 +143,49 @@ function Inner() {
     (async () => {})();
   }, [nodes, stepJourney, assignNodeToJourney, updateJourney, setNodes]);
 
-  // Injetar handlers nos sticky notes via data
+  // Injetar handlers nos sticky notes via data + aplicar isolamento por foco
   const enhancedNodes = useMemo(() => nodes.map((n) => {
-    if (n.type !== "stickNote") return n;
+    const journeyOfNode = n.type === "stickNote"
+      ? (n.data as any)?.journeyId
+      : stepJourney.get(n.id);
+    const hidden = focusedJourneyId != null && journeyOfNode !== focusedJourneyId;
+    if (n.type !== "stickNote") return { ...n, hidden };
     return {
       ...n,
+      hidden,
       data: {
         ...n.data,
         onChangeTitle: (jid: string, name: string) => updateJourney(jid, { name }),
         onChangeColor: (jid: string, color: string) => updateJourney(jid, { color }),
         onResize: (jid: string, w: number, h: number) => updateJourney(jid, { canvas: { w, h } }),
+        onFocus: (jid: string) => setFocusedJourneyId(jid),
       },
     };
-  }), [nodes, updateJourney]);
+  }), [nodes, updateJourney, focusedJourneyId, stepJourney]);
+
+  // Edges: esconder as que tocam um nó escondido
+  const visibleEdges = useMemo(() => {
+    if (focusedJourneyId == null) return edges;
+    const visibleIds = new Set(enhancedNodes.filter((n) => !n.hidden).map((n) => n.id));
+    return edges.map((e) => ({
+      ...e,
+      hidden: !(visibleIds.has(e.source) && visibleIds.has(e.target)),
+    }));
+  }, [edges, enhancedNodes, focusedJourneyId]);
+
+  // fitView quando o foco muda
+  useEffect(() => {
+    const t = setTimeout(() => {
+      if (focusedJourneyId == null) {
+        fitView({ duration: 400, padding: 0.1 });
+      } else {
+        const ids = enhancedNodes.filter((n) => !n.hidden).map((n) => ({ id: n.id }));
+        if (ids.length) fitView({ nodes: ids, duration: 400, padding: 0.2 });
+      }
+    }, 50);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focusedJourneyId]);
 
   const handleNew = useCallback(async () => {
     // posiciona no centro atual da viewport
@@ -189,27 +220,67 @@ function Inner() {
           {journeys.length} jornada(s) · arraste nós entre regiões pra reatribuir
         </span>
       </div>
-      <div className="flex-1 relative">
-        <ReactFlow
-          nodes={enhancedNodes}
-          edges={edges}
-          nodeTypes={NODE_TYPES}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-          onNodeDragStop={onNodeDragStop}
-          nodesDraggable
-          nodesConnectable
-          elementsSelectable
-          panOnScroll
-          minZoom={0.1}
-          maxZoom={2}
-          fitView
-        >
-          <Background />
-          <Controls />
-          <MiniMap pannable zoomable />
-        </ReactFlow>
+      <div className="flex-1 relative flex min-h-0">
+        {/* Legenda */}
+        <aside className="w-56 border-r border-border bg-background/95 overflow-y-auto shrink-0">
+          <div className="px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+            Legenda (jornadas)
+          </div>
+          <button
+            onClick={() => setFocusedJourneyId(null)}
+            className={`w-full text-left px-3 py-2 text-sm border-l-2 hover:bg-muted/40 ${
+              focusedJourneyId == null ? "border-primary bg-muted/30 font-semibold" : "border-transparent"
+            }`}
+          >
+            Ver todas
+          </button>
+          <div className="border-t border-border my-1" />
+          {journeys.map((j, i) => {
+            const color = j.color ?? "#888";
+            const active = focusedJourneyId === j.id;
+            return (
+              <button
+                key={j.id}
+                onClick={() => setFocusedJourneyId(j.id)}
+                className={`w-full text-left px-3 py-2 text-sm flex items-center gap-2 border-l-2 hover:bg-muted/40 ${
+                  active ? "border-primary bg-muted/30 font-semibold" : "border-transparent"
+                }`}
+              >
+                <span className="w-3 h-3 rounded-full shrink-0" style={{ background: color }} />
+                <span className="truncate">{j.name || "Sem nome"}</span>
+              </button>
+            );
+          })}
+        </aside>
+
+        <div className="flex-1 relative">
+          <ReactFlow
+            nodes={enhancedNodes}
+            edges={visibleEdges}
+            nodeTypes={NODE_TYPES}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
+            onConnect={onConnect}
+            onNodeDragStop={onNodeDragStop}
+            onNodeDoubleClick={(_e, n) => {
+              if (n.type === "stickNote") {
+                const jid = (n.data as any)?.journeyId;
+                if (jid) setFocusedJourneyId(jid);
+              }
+            }}
+            nodesDraggable
+            nodesConnectable
+            elementsSelectable
+            panOnScroll
+            minZoom={0.1}
+            maxZoom={2}
+            fitView
+          >
+            <Background />
+            <Controls />
+            <MiniMap pannable zoomable />
+          </ReactFlow>
+        </div>
       </div>
     </div>
   );
