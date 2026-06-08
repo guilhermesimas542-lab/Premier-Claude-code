@@ -93,14 +93,15 @@ function Inner() {
     setNodeParent,
   } = useJourneyGraph(journeyId);
   const { busy: convBusy, recalc } = useJourneyConversions();
-  const { metrics, refresh: refreshMetrics } = useJourneyNodeMetrics(journeyId);
+  const { metrics, stageById, funnel, refresh: refreshMetrics } = useJourneyNodeMetrics(journeyId);
   const { getNodes } = useReactFlow();
+  const [windowDays, setWindowDays] = useState<number>(ATTRIBUTION_WINDOW_DAYS);
 
   const handleRecalc = useCallback(async () => {
     if (!journeyId) return;
-    await recalc(journeyId);
+    await recalc(journeyId, windowDays);
     await refreshMetrics();
-  }, [journeyId, recalc, refreshMetrics]);
+  }, [journeyId, recalc, refreshMetrics, windowDays]);
 
   const [nodes, setNodes, onNodesChangeRF] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChangeRF] = useEdgesState<Edge>([]);
