@@ -636,20 +636,32 @@ function Inner() {
             <Group className="w-3.5 h-3.5 mr-1.5" />
             Agrupar em etapa
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleRecalcAll}
-            disabled={recalcBusy || journeys.length === 0}
-            title="Roda a atribuição de conversões em todas as jornadas"
-          >
-            {recalcBusy ? (
-              <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
-            ) : (
-              <Target className="w-3.5 h-3.5 mr-1.5" />
-            )}
-            Recalcular conversões
-          </Button>
+          <div className="flex items-center gap-1.5">
+            <Input
+              type="number"
+              min={1}
+              max={90}
+              value={windowDays}
+              onChange={(e) => setWindowDays(Math.max(1, Math.min(90, Number(e.target.value) || ATTRIBUTION_WINDOW_DAYS)))}
+              className="h-8 w-16"
+              title="Janela de atribuição (dias)"
+            />
+            <span className="text-[10px] text-muted-foreground">dias</span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleRecalcAll}
+              disabled={recalcBusy || journeys.length === 0}
+              title="Roda a atribuição de conversões em todas as jornadas (janela em dias)"
+            >
+              {recalcBusy ? (
+                <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+              ) : (
+                <Target className="w-3.5 h-3.5 mr-1.5" />
+              )}
+              Recalcular conversões
+            </Button>
+          </div>
           <div className="flex items-center gap-1.5">
             <span className="text-xs text-muted-foreground">Ver:</span>
             <Select value={filterJourney} onValueChange={setFilterJourney}>
