@@ -285,6 +285,13 @@ function Inner() {
           </ReactFlow>
         </div>
       </div>
+
+      <JourneyConfigSheet
+        journey={journeys.find((j) => j.id === configJourneyId) ?? null}
+        open={configJourneyId != null}
+        onOpenChange={(v) => { if (!v) setConfigJourneyId(null); }}
+        onSave={async (jid, fields) => { await updateJourney(jid, fields); }}
+      />
     </div>
   );
 }
