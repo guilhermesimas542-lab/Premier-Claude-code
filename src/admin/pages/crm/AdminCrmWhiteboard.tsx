@@ -143,6 +143,8 @@ function Inner() {
   const [addToJourney, setAddToJourney] = useState<string>("");
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [metrics, setMetrics] = useState<Record<string, any>>({});
+  const [stageMetricsById, setStageMetricsById] = useState<Record<string, StageMetrics>>({});
+  const [funnelByJourney, setFunnelByJourney] = useState<Record<string, StageFunnelRow[]>>({});
   const [ctxMenu, setCtxMenu] = useState<{ x: number; y: number; nodeId: string } | null>(null);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   // refs pra evitar TDZ — preenchidos depois que os handlers de stage existem
