@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   ReactFlow,
@@ -55,7 +55,8 @@ function Inner() {
     createJourney, updateJourney, assignNodeToJourney, createEdge, removeEdge,
     organizeJourneys,
   } = useUnifiedWhiteboard();
-  const { screenToFlowPosition } = useReactFlow();
+  const { screenToFlowPosition, fitView } = useReactFlow();
+  const [focusedJourneyId, setFocusedJourneyId] = useState<string | null>(null);
 
   // step.id -> journey_id (rápido pra validar conexões)
   const stepJourney = useMemo(() => {
