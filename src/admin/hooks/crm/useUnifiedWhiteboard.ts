@@ -151,13 +151,25 @@ export function useUnifiedWhiteboard() {
     });
 
     setNodes([...stickyNodes, ...stageNodes, ...leafNodes]);
-    setEdges(edgeRows.map((e) => ({
-      id: e.id,
-      source: e.source_step_id,
-      target: e.target_step_id,
-      label: e.branch ?? "",
-      style: { stroke: journeyLayout.get(e.journey_id)?.color ?? "#888" },
-    })));
+    const stepJourneyMap = new Map<string, string>();
+    steps.forEach((s) => stepJourneyMap.set(s.id, s.journey_id));
+    setEdges(edgeRows.map((e) => {
+      const sJ = stepJourneyMap.get(e.source_step_id);
+      const tJ = stepJourneyMap.get(e.target_step_id);
+      const cross = sJ && tJ && sJ !== tJ;
+      return {
+        id: e.id,
+        source: e.source_step_id,
+        target: e.target_step_id,
+        label: e.branch ?? "",
+        animated: !!cross,
+        style: {
+          stroke: journeyLayout.get(e.journey_id)?.color ?? "#888",
+          strokeWidth: cross ? 2 : 1,
+          strokeDasharray: cross ? "6 4" : undefined,
+        },
+      };
+    }));
   }, [journeys, steps, edgeRows]);
 
   // --- Mutations ----------------------------------------------------------
