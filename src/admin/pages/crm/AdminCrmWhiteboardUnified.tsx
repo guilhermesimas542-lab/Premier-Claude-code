@@ -298,6 +298,32 @@ function Inner() {
         onOpenChange={(v) => { if (!v) setConfigJourneyId(null); }}
         onSave={async (jid, fields) => { await updateJourney(jid, fields); }}
       />
+
+      <AlertDialog open={deleteTarget != null} onOpenChange={(v) => { if (!v) setDeleteTarget(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir a jornada "{deleteTarget?.name}"?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Isso apaga a jornada e TODOS os nós, conexões e inscrições dela. Não dá pra desfazer.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={async () => {
+                if (!deleteTarget) return;
+                const id = deleteTarget.id;
+                setDeleteTarget(null);
+                if (focusedJourneyId === id) setFocusedJourneyId(null);
+                await deleteJourney(id);
+              }}
+            >
+              Excluir jornada
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
