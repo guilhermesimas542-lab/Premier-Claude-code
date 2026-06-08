@@ -57,12 +57,13 @@ function Inner() {
   const navigate = useNavigate();
   const {
     journeys, steps, nodes, edges, loading, setNodes, setEdges,
-    createJourney, updateJourney, assignNodeToJourney, createEdge, removeEdge,
+    createJourney, updateJourney, deleteJourney, assignNodeToJourney, createEdge, removeEdge,
     organizeJourneys,
   } = useUnifiedWhiteboard();
   const { screenToFlowPosition, fitView } = useReactFlow();
   const [focusedJourneyId, setFocusedJourneyId] = useState<string | null>(null);
   const [configJourneyId, setConfigJourneyId] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
 
   // step.id -> journey_id (rápido pra validar conexões)
   const stepJourney = useMemo(() => {
