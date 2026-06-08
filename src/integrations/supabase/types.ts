@@ -1494,7 +1494,9 @@ export type Database = {
         Row: {
           audience_filters: Json | null
           audience_id: string | null
+          canvas: Json
           channel: string | null
+          color: string | null
           created_at: string
           created_by: string | null
           description: string | null
@@ -1509,7 +1511,9 @@ export type Database = {
         Insert: {
           audience_filters?: Json | null
           audience_id?: string | null
+          canvas?: Json
           channel?: string | null
+          color?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
@@ -1524,7 +1528,9 @@ export type Database = {
         Update: {
           audience_filters?: Json | null
           audience_id?: string | null
+          canvas?: Json
           channel?: string | null
+          color?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
