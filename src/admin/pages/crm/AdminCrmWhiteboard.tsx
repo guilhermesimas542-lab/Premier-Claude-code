@@ -107,6 +107,10 @@ function Inner() {
   const [filterJourney, setFilterJourney] = useState<string>("all");
   const [addToJourney, setAddToJourney] = useState<string>("");
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  const [metrics, setMetrics] = useState<Record<string, any>>({});
+  const [ctxMenu, setCtxMenu] = useState<{ x: number; y: number; nodeId: string } | null>(null);
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
+  const { screenToFlowPosition } = useReactFlow();
 
   const [nodes, setNodes, onNodesChangeRF] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChangeRF] = useEdgesState<Edge>([]);
