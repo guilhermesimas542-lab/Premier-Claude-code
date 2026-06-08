@@ -2,7 +2,7 @@ import { Handle, Position, type NodeProps } from "@xyflow/react";
 import { Play, Mail, Clock, GitBranch, Tag, Info } from "lucide-react";
 import { CHANNELS, type ChannelKey } from "@/admin/lib/crm/channels";
 import type { DelayUnit } from "@/admin/hooks/crm/useJourneyGraph";
-import type { NodeMetrics } from "@/admin/hooks/crm/useJourneyNodeMetrics";
+import type { NodeMetrics } from "@/admin/lib/crm/journeyMetrics";
 import { formatBRL } from "@/admin/components/revenue/constants";
 import {
   Tooltip,
