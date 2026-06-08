@@ -187,7 +187,16 @@ export function useUnifiedWhiteboard() {
 
   const updateJourney = useCallback(async (
     journeyId: string,
-    fields: { name?: string; color?: string; canvas?: { x?: number; y?: number; w?: number; h?: number } }
+    fields: {
+      name?: string;
+      color?: string;
+      canvas?: { x?: number; y?: number; w?: number; h?: number };
+      trigger_type?: string;
+      trigger_config?: Record<string, any>;
+      audience_id?: string | null;
+      audience_filters?: Record<string, any> | null;
+      status?: string;
+    }
   ) => {
     // Merge canvas em vez de sobrescrever
     let payload: any = { ...fields };
