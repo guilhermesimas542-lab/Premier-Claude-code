@@ -415,6 +415,20 @@ function Inner() {
         <div className="font-bold text-foreground">Whiteboard do CRM</div>
 
         <div className="ml-auto flex items-center gap-2 flex-wrap">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleRecalcAll}
+            disabled={recalcBusy || journeys.length === 0}
+            title="Roda a atribuição de conversões em todas as jornadas"
+          >
+            {recalcBusy ? (
+              <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+            ) : (
+              <Target className="w-3.5 h-3.5 mr-1.5" />
+            )}
+            Recalcular conversões
+          </Button>
           <div className="flex items-center gap-1.5">
             <span className="text-xs text-muted-foreground">Ver:</span>
             <Select value={filterJourney} onValueChange={setFilterJourney}>
