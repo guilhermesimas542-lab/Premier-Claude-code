@@ -180,7 +180,7 @@ export function useUnifiedWhiteboard() {
 
   // --- Mutations ----------------------------------------------------------
 
-  const createJourney = useCallback(async (canvasXY?: { x: number; y: number }) => {
+  const createJourney = useCallback(async (canvasXY?: { x: number; y: number; showSticky?: boolean }) => {
     const idx = journeys.length;
     const color = JOURNEY_PALETTE[idx % JOURNEY_PALETTE.length];
     // espaço livre simples: à direita da última
@@ -191,7 +191,7 @@ export function useUnifiedWhiteboard() {
       .insert({
         name: "Nova jornada",
         color,
-        canvas: { x, y, w: FALLBACK_W, h: FALLBACK_H },
+        canvas: { x, y, w: FALLBACK_W, h: FALLBACK_H, showSticky: canvasXY?.showSticky ?? true },
         trigger_type: "manual",
         status: "draft",
       })
