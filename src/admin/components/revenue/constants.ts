@@ -1,23 +1,45 @@
+// O produto novo de assinatura ainda não existe. Quando existir, preencha aqui (ID e/ou nome exato).
+// Enquanto estiver vazio, o painel mostra zero de propósito (não usa fallback por nome,
+// pra não confundir com os produtos "Premier" de compra única que já existem).
+export const PREMIER_PRODUCT_IDS: string[] = [];
+export const PREMIER_PRODUCT_NAMES: string[] = [];
+
+export const PREMIER_NAME_FALLBACK = '';
+
+// Nomes de evento REAIS do financial_events (auditados em 2026-06-03):
+export const SALE_EVENTS = ['Purchase_Order_Confirmed', 'Recurrent_Payment']; // venda + renovação
+
+export const REFUND_EVENTS = ['Payment_Refund'];
+
+export const CHARGEBACK_EVENTS: string[] = []; // não existe evento de chargeback ainda; preencher quando surgir
+
 export const REVENUE_EVENTS = [
-  'Purchase_Order_Confirmed', 'Subscription_Renewed', 'Subscription_Reactivated',
-  'purchase', 'approved',
-  'Compra_Completa', 'Pagamento_de_Renovacao_Efetuado',
+  ...SALE_EVENTS,
+  'Subscription_Renewed',
+  'Subscription_Reactivated',
+  'approved',
+  'Compra_Completa',
+  'Pagamento_de_Renovacao_Efetuado',
 ];
 
+
 export const LOSS_EVENTS = [
-  'Purchase_Refunded', 'Subscription_Cancelled', 'Chargeback',
+  ...REFUND_EVENTS,
+  ...CHARGEBACK_EVENTS,
+  'Purchase_Refunded', 'Subscription_Cancelled',
   'refund', 'cancel',
-  'Pagamento_Estornado', 'Pagamento_Reembolsado', 'Assinatura_Cancelada',
   'Assinatura_Expirada', 'Pedido_de_Compra_Cancelado',
 ];
 
 export const RECOVERY_EVENTS = [
+  'Abandoned_Cart',
   'Carrinho_Abandonado', 'Assinatura_Pendente_de_Renovacao',
   'Pedido_de_Compra_Expirado',
 ];
 
 export const ALL_EVENTS = [
   ...REVENUE_EVENTS, ...LOSS_EVENTS, ...RECOVERY_EVENTS,
+  'Refund_Period_Over',
   'Reembolso_Solicitado', 'Fatura_Criada',
   'Liberacao_e_remocao_de_acesso', 'Inicio_liberacao_de_acesso',
   'Fim_liberacao_de_acesso', 'Notificar_Membro_Ativo',
@@ -26,11 +48,14 @@ export const ALL_EVENTS = [
 
 export const EVENT_DISPLAY: Record<string, string> = {
   'Purchase_Order_Confirmed': 'Compra Completa',
-  'Subscription_Renewed': 'Renovación Efectuada',
-  'Subscription_Reactivated': 'Suscripción Reactivada',
+  'Product_Access_Started': 'Acesso ao Produto Iniciado',
+  'Subscription_Product_Access': 'Acesso a Assinatura',
+  'Subscription_Renewed': 'Renovação Efetuada',
+  'Subscription_Reactivated': 'Assinatura Reativada',
   'Purchase_Refunded': 'Reembolso',
   'Subscription_Cancelled': 'Suscripción Cancelada',
   'Chargeback': 'Chargeback',
+  'Payment_Chargeback': 'Chargeback',
   'purchase': 'Compra',
   'approved': 'Aprobado',
   'refund': 'Reembolso',
@@ -39,18 +64,22 @@ export const EVENT_DISPLAY: Record<string, string> = {
   'Pagamento_de_Renovacao_Efetuado': 'Renovación Efectuada',
   'Pagamento_Estornado': 'Pago Revertido',
   'Pagamento_Reembolsado': 'Reembolso',
+  'Payment_Refund': 'Reembolso',
+  'Refund_Requested': 'Reembolso Solicitado',
   'Reembolso_Solicitado': 'Reembolso Solicitado',
-  'Assinatura_Cancelada': 'Suscripción Cancelada',
-  'Assinatura_Expirada': 'Suscripción Expirada',
-  'Assinatura_Pendente_de_Renovacao': 'Pendiente de Renovación',
-  'Carrinho_Abandonado': 'Carrito Abandonado',
+  'Assinatura_Cancelada': 'Assinatura Cancelada',
+  'Assinatura_Expirada': 'Assinatura Expirada',
+  'Assinatura_Pendente_de_Renovacao': 'Pendente de Renovação',
+  'Abandoned_Cart': 'Carrinho Abandonado',
+  'Carrinho_Abandonado': 'Carrinho Abandonado',
   'Pedido_de_Compra_Cancelado': 'Pedido Cancelado',
   'Pedido_de_Compra_Expirado': 'Pedido Expirado',
-  'Fatura_Criada': 'Factura Creada',
-  'Liberacao_e_remocao_de_acesso': 'Liberación de Acceso',
-  'Inicio_liberacao_de_acesso': 'Inicio Acceso',
-  'Fim_liberacao_de_acesso': 'Fin Acceso',
-  'Notificar_Membro_Ativo': 'Notificación Miembro',
+  'Fatura_Criada': 'Fatura Criada',
+  'Liberacao_e_remocao_de_acesso': 'Liberação de Acesso',
+  'Inicio_liberacao_de_acesso': 'Início Acesso',
+  'Fim_liberacao_de_acesso': 'Fim Acesso',
+  'Notificar_Membro_Ativo': 'Notificação Membro',
+  'Refund_Period_Over': 'Período Reembolso Encerrado',
   'Periodo_de_Reembolso_Terminado': 'Período Reembolso Terminado',
 };
 

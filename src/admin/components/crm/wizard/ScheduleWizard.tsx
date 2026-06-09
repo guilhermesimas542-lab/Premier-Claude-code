@@ -103,11 +103,6 @@ export function ScheduleWizard({ editingId }: ScheduleWizardProps = {}) {
         navigate("/admin/crm/schedules");
         return;
       }
-      if (data.status !== "draft") {
-        toast.error("Só é possível editar schedules em rascunho.");
-        navigate("/admin/crm/schedules");
-        return;
-      }
       const scheduledLocal =
         data.scheduled_at
           ? toLocalDateTimeInput(data.scheduled_at)
@@ -249,7 +244,7 @@ export function ScheduleWizard({ editingId }: ScheduleWizardProps = {}) {
               Cancelar
             </Button>
             <h1 className="text-lg md:text-xl font-bold text-foreground">
-              {isEditing ? "Editar Schedule (rascunho)" : "Novo Schedule"}
+              {isEditing ? "Editar Schedule" : "Novo Schedule"}
             </h1>
           </div>
 

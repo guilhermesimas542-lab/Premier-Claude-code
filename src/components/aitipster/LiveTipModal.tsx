@@ -155,11 +155,7 @@ export function LiveTipModal({ open, onOpenChange, match, onOpenEsportiva }: Pro
 
         {error && (
           <div className="space-y-3 py-2">
-            <p className="text-sm text-destructive">
-              {error === "insufficient_credits"
-                ? "No tienes créditos suficientes. Compra créditos o espera el reinicio diario."
-                : `Error: ${error}`}
-            </p>
+            <p className="text-sm text-destructive">{error}</p>
             <Button onClick={handleGenerate} variant="outline" className="w-full">
               Intentar de nuevo
             </Button>

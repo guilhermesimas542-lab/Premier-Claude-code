@@ -2,7 +2,7 @@ import { NavLink, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, Image, PlusCircle, List,
   Users, Bell, BarChart3, ChevronLeft, ChevronRight,
-  DollarSign, Activity, Home, Link, Layers, Shield, CreditCard, Bug, Zap,
+  Activity, Home, Link, Layers, Shield, CreditCard, Bug, Zap,
   ChevronDown, UserPlus, UserX, UserCheck, Trophy, MessageSquare, Sparkles,
   Megaphone, Send, Settings, Workflow,
 } from "lucide-react";
@@ -87,6 +87,7 @@ export function AdminSidebar() {
         { to: "/admin/behavior", icon: BarChart3, label: "Comportamento" },
         { to: "/admin/crm/schedules", icon: Send, label: "Schedules" },
         { to: "/admin/crm/journeys", icon: Workflow, label: "Jornadas" },
+        { to: "/admin/crm/whiteboard", icon: Workflow, label: "Whiteboard" },
         { to: "/admin/crm/audiences", icon: Users, label: "Audiências" },
         { to: "/admin/crm/settings", icon: Settings, label: "Configurações" },
       ],
@@ -105,19 +106,14 @@ export function AdminSidebar() {
       items: [
         { to: "/admin/analytics", icon: BarChart3, label: "Visión General" },
         { to: "/admin/analytics/events", icon: Activity, label: "Eventos" },
+        { to: "/admin/funnel-analytics", icon: BarChart3, label: "Funnel Analytics" },
         { to: "/admin/ranking", icon: Trophy, label: "Ranking" },
         { to: "/admin/errors", icon: Bug, label: "Errores", badge: counts.errors },
         { to: "/admin/feedback", icon: MessageSquare, label: "Feedback", badge: counts.feedback },
       ],
     },
     {
-      label: "Finanzas",
-      items: [
-        { to: "/admin/revenue", icon: DollarSign, label: "Ingresos" },
-      ],
-    },
-    {
-      label: "Integraciones",
+      label: "Integrações",
       items: [
         { to: "/admin/betting-houses", icon: Home, label: "Casas Asociadas" },
         { to: "/admin/webhook", icon: Zap, label: "Webhook" },

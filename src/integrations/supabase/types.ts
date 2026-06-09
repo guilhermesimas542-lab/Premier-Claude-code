@@ -1200,6 +1200,58 @@ export type Database = {
         }
         Relationships: []
       }
+      crm_journey_edges: {
+        Row: {
+          branch: string | null
+          condition: Json
+          created_at: string
+          id: string
+          journey_id: string
+          source_step_id: string
+          target_step_id: string
+        }
+        Insert: {
+          branch?: string | null
+          condition?: Json
+          created_at?: string
+          id?: string
+          journey_id: string
+          source_step_id: string
+          target_step_id: string
+        }
+        Update: {
+          branch?: string | null
+          condition?: Json
+          created_at?: string
+          id?: string
+          journey_id?: string
+          source_step_id?: string
+          target_step_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_journey_edges_journey_id_fkey"
+            columns: ["journey_id"]
+            isOneToOne: false
+            referencedRelation: "crm_journeys"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_journey_edges_source_step_id_fkey"
+            columns: ["source_step_id"]
+            isOneToOne: false
+            referencedRelation: "crm_journey_steps"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_journey_edges_target_step_id_fkey"
+            columns: ["target_step_id"]
+            isOneToOne: false
+            referencedRelation: "crm_journey_steps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       crm_journey_enrollments: {
         Row: {
           completed_at: string | null
@@ -1262,6 +1314,10 @@ export type Database = {
         Row: {
           channel: string
           content_snapshot: Json
+          conversion_order_id: string | null
+          conversion_value_cents: number | null
+          converted: boolean
+          converted_at: string | null
           created_at: string
           enrollment_id: string
           error_code: string | null
@@ -1276,6 +1332,10 @@ export type Database = {
         Insert: {
           channel: string
           content_snapshot?: Json
+          conversion_order_id?: string | null
+          conversion_value_cents?: number | null
+          converted?: boolean
+          converted_at?: string | null
           created_at?: string
           enrollment_id: string
           error_code?: string | null
@@ -1290,6 +1350,10 @@ export type Database = {
         Update: {
           channel?: string
           content_snapshot?: Json
+          conversion_order_id?: string | null
+          conversion_value_cents?: number | null
+          converted?: boolean
+          converted_at?: string | null
           created_at?: string
           enrollment_id?: string
           error_code?: string | null
@@ -1321,38 +1385,50 @@ export type Database = {
       crm_journey_steps: {
         Row: {
           audience_filters: Json | null
-          channel: string
+          channel: string | null
+          config: Json
           content: Json
           created_at: string
           delay_unit: string
           delay_value: number
           id: string
           journey_id: string
-          step_order: number
+          node_type: string
+          parent_step_id: string | null
+          position: Json
+          step_order: number | null
           updated_at: string
         }
         Insert: {
           audience_filters?: Json | null
-          channel: string
+          channel?: string | null
+          config?: Json
           content?: Json
           created_at?: string
           delay_unit?: string
           delay_value?: number
           id?: string
           journey_id: string
-          step_order: number
+          node_type?: string
+          parent_step_id?: string | null
+          position?: Json
+          step_order?: number | null
           updated_at?: string
         }
         Update: {
           audience_filters?: Json | null
-          channel?: string
+          channel?: string | null
+          config?: Json
           content?: Json
           created_at?: string
           delay_unit?: string
           delay_value?: number
           id?: string
           journey_id?: string
-          step_order?: number
+          node_type?: string
+          parent_step_id?: string | null
+          position?: Json
+          step_order?: number | null
           updated_at?: string
         }
         Relationships: [
@@ -1361,6 +1437,13 @@ export type Database = {
             columns: ["journey_id"]
             isOneToOne: false
             referencedRelation: "crm_journeys"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_journey_steps_parent_step_id_fkey"
+            columns: ["parent_step_id"]
+            isOneToOne: false
+            referencedRelation: "crm_journey_steps"
             referencedColumns: ["id"]
           },
         ]
@@ -1411,7 +1494,9 @@ export type Database = {
         Row: {
           audience_filters: Json | null
           audience_id: string | null
+          canvas: Json
           channel: string | null
+          color: string | null
           created_at: string
           created_by: string | null
           description: string | null
@@ -1426,7 +1511,9 @@ export type Database = {
         Insert: {
           audience_filters?: Json | null
           audience_id?: string | null
+          canvas?: Json
           channel?: string | null
+          color?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
@@ -1441,7 +1528,9 @@ export type Database = {
         Update: {
           audience_filters?: Json | null
           audience_id?: string | null
+          canvas?: Json
           channel?: string | null
+          color?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
@@ -1749,6 +1838,173 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      fa_options: {
+        Row: {
+          created_at: string
+          id: string
+          indice: number | null
+          letra: string | null
+          rotulo: string | null
+          step_id: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          indice?: number | null
+          letra?: string | null
+          rotulo?: string | null
+          step_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          indice?: number | null
+          letra?: string | null
+          rotulo?: string | null
+          step_id?: string
+        }
+        Relationships: []
+      }
+      fa_sessions: {
+        Row: {
+          created_at: string
+          email: string | null
+          fbclid: string | null
+          funnel_slug: string
+          id: string
+          ip: string | null
+          language: string | null
+          last_seen_at: string
+          phone: string | null
+          platform: string | null
+          screen: string | null
+          src: string | null
+          user_agent: string | null
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_id: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          utm_term: string | null
+          variant: string | null
+          viewport: string | null
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          fbclid?: string | null
+          funnel_slug?: string
+          id: string
+          ip?: string | null
+          language?: string | null
+          last_seen_at?: string
+          phone?: string | null
+          platform?: string | null
+          screen?: string | null
+          src?: string | null
+          user_agent?: string | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_id?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+          variant?: string | null
+          viewport?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          fbclid?: string | null
+          funnel_slug?: string
+          id?: string
+          ip?: string | null
+          language?: string | null
+          last_seen_at?: string
+          phone?: string | null
+          platform?: string | null
+          screen?: string | null
+          src?: string | null
+          user_agent?: string | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_id?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+          variant?: string | null
+          viewport?: string | null
+        }
+        Relationships: []
+      }
+      fa_step_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: number
+          option_id: string | null
+          session_id: string
+          step_id: string | null
+          step_index: number | null
+          value: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: never
+          option_id?: string | null
+          session_id: string
+          step_id?: string | null
+          step_index?: number | null
+          value?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: never
+          option_id?: string | null
+          session_id?: string
+          step_id?: string | null
+          step_index?: number | null
+          value?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fa_step_events_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "fa_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fa_steps: {
+        Row: {
+          created_at: string
+          funnel_slug: string
+          id: string
+          nome: string | null
+          ordem: number | null
+          tipo: string | null
+        }
+        Insert: {
+          created_at?: string
+          funnel_slug?: string
+          id: string
+          nome?: string | null
+          ordem?: number | null
+          tipo?: string | null
+        }
+        Update: {
+          created_at?: string
+          funnel_slug?: string
+          id?: string
+          nome?: string | null
+          ordem?: number | null
+          tipo?: string | null
+        }
+        Relationships: []
       }
       features: {
         Row: {
@@ -2824,6 +3080,7 @@ export type Database = {
         Returns: Json
       }
       check_is_admin_email: { Args: { p_email: string }; Returns: boolean }
+      cleanup_retention_policies: { Args: never; Returns: Json }
       crm_clear_channel_secret: {
         Args: { p_channel: string; p_key: string }
         Returns: Json
@@ -2960,10 +3217,20 @@ export type Database = {
       }
       increment_tip_hit: { Args: { p_tip_id: string }; Returns: undefined }
       is_admin: { Args: never; Returns: boolean }
-      refund_credit: {
-        Args: { p_debit_type: string; p_source: string; p_user_id: string }
-        Returns: Json
-      }
+      refund_credit:
+        | {
+            Args: { p_debit_type: string; p_source: string; p_user_id: string }
+            Returns: Json
+          }
+        | {
+            Args: {
+              p_debit_type: string
+              p_reason?: string
+              p_source: string
+              p_user_id: string
+            }
+            Returns: Json
+          }
       update_user_access: {
         Args: { p_now: string; p_user_id: string }
         Returns: undefined

@@ -9,7 +9,7 @@ interface BadgeCounts {
   feedback: number;
 }
 
-const POLL_INTERVAL = 30_000;
+const POLL_INTERVAL = 120_000; // 2min — reduces DB load (was 30s)
 
 export function useAdminBadges(adminEmail: string | null) {
   const [counts, setCounts] = useState<BadgeCounts>({ clients: 0, tips: 0, errors: 0, feedback: 0 });

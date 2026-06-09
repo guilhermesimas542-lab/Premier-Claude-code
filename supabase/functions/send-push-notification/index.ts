@@ -13,10 +13,31 @@ serve(async (req) => {
   }
 
   try {
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL')!,
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-    );
+    const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
+    const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY')!;
+
+    // AuthN/AuthZ: must be service-role (cron) OR an admin Supabase session
+    const authHeader = req.headers.get('Authorization') ?? '';
+    if (!authHeader.startsWith('Bearer ')) {
+      return new Response(JSON.stringify({ success: false, message: 'unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+    const bearer = authHeader.replace('Bearer ', '');
+    let authorized = bearer === SERVICE_KEY;
+    if (!authorized) {
+      const userClient = createClient(SUPABASE_URL, ANON_KEY, {
+        global: { headers: { Authorization: authHeader } },
+      });
+      const { data: isAdm } = await userClient.rpc('is_admin');
+      authorized = isAdm === true;
+    }
+    if (!authorized) {
+      return new Response(JSON.stringify({ success: false, message: 'forbidden' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
+    const supabase = createClient(SUPABASE_URL, SERVICE_KEY);
 
     const vapidPublicKey = Deno.env.get('VAPID_PUBLIC_KEY')!;
     const vapidPrivateKey = Deno.env.get('VAPID_PRIVATE_KEY')!;

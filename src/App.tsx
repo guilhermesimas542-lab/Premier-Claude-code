@@ -20,6 +20,10 @@ import UltimosGreens from "./pages/UltimosGreens";
 import Support from "./pages/Support";
 import Obrigado from "./pages/Obrigado";
 import Backredirect from "./pages/Backredirect";
+import Backredirect2 from "./pages/Backredirect2";
+import Backredirect3 from "./pages/Backredirect3";
+import Backredirect4 from "./pages/Backredirect4";
+import PoliticaReembolso from "./pages/PoliticaReembolso";
 
 import NotFound from "./pages/NotFound";
 import { AdminGuard } from "./admin/components/AdminGuard";
@@ -38,7 +42,7 @@ import AdminAnalytics from "./admin/pages/AdminAnalytics";
 import AdminRanking from "./admin/pages/AdminRanking";
 import AdminEventsPage from "./admin/pages/AdminEventsPage";
 import AdminOverview from "./admin/pages/AdminOverview";
-import AdminRevenue from "./admin/pages/AdminRevenue";
+import AdminFunnelAnalytics from "./admin/pages/AdminFunnelAnalytics";
 
 import AdminBettingHouses from "./admin/pages/AdminBettingHouses";
 import AdminDefaultLinks from "./admin/pages/AdminDefaultLinks";
@@ -58,6 +62,7 @@ import AdminCrmAudiences from "./admin/pages/crm/AdminCrmAudiences";
 import AdminCrmJourneys from "./admin/pages/crm/AdminCrmJourneys";
 import AdminCrmJourneyBuilder from "./admin/pages/crm/AdminCrmJourneyBuilder";
 import AdminCrmJourneyDetail from "./admin/pages/crm/AdminCrmJourneyDetail";
+import AdminCrmWhiteboardUnified from "./admin/pages/crm/AdminCrmWhiteboardUnified";
 import AdminBehavior from "./admin/pages/AdminBehavior";
 import AdminCrmSettings from "./admin/pages/crm/AdminCrmSettings";
 import AdminWebhook from "./admin/pages/AdminWebhook";
@@ -108,6 +113,10 @@ const App = () => {
             <Route path="/support" element={<Support />} />
             <Route path="/obrigado" element={<Obrigado />} />
             <Route path="/bd" element={<Backredirect />} />
+            <Route path="/bd2" element={<Backredirect2 />} />
+            <Route path="/bd3" element={<Backredirect3 />} />
+            <Route path="/bd4" element={<Backredirect4 />} />
+            <Route path="/politica-assinatura-reembolso" element={<PoliticaReembolso />} />
             {/* Admin routes */}
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin/verify" element={<AdminVerify />} />
@@ -127,9 +136,9 @@ const App = () => {
               <Route path="notifications" element={<AdminNotifications />} />
               <Route path="analytics" element={<AdminAnalytics />} />
               <Route path="analytics/events" element={<AdminEventsPage />} />
+              <Route path="funnel-analytics" element={<AdminFunnelAnalytics />} />
               <Route path="behavior" element={<AdminBehavior />} />
               <Route path="ranking" element={<AdminRanking />} />
-              <Route path="revenue" element={<AdminRevenue />} />
               <Route path="default-links" element={<AdminDefaultLinks />} />
               <Route path="popups" element={<AdminPopups />} />
               <Route path="funis" element={<Navigate to="/admin/popups" replace />} />
@@ -149,6 +158,9 @@ const App = () => {
               <Route path="crm/journeys/new" element={<AdminCrmJourneyBuilder />} />
               <Route path="crm/journeys/:id" element={<AdminCrmJourneyDetail />} />
               <Route path="crm/journeys/:id/edit" element={<AdminCrmJourneyBuilder />} />
+              <Route path="crm/journeys/:id/whiteboard" element={<Navigate to="/admin/crm/whiteboard" replace />} />
+              <Route path="crm/whiteboard" element={<AdminCrmWhiteboardUnified />} />
+              <Route path="crm/whiteboard-legacy" element={<Navigate to="/admin/crm/whiteboard" replace />} />
               <Route path="crm/settings" element={<AdminCrmSettings />} />
             </Route>
             <Route path="*" element={<NotFound />} />

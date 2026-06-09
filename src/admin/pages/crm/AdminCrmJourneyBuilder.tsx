@@ -9,6 +9,7 @@ import {
   Pause,
   ChevronDown,
   BookmarkPlus,
+  LayoutGrid,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -239,15 +240,27 @@ export default function AdminCrmJourneyBuilder() {
   return (
     <div className="p-4 md:p-6 space-y-6 max-w-4xl mx-auto">
       {/* Voltar */}
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => navigate("/admin/crm/journeys")}
-        className="text-muted-foreground"
-      >
-        <ArrowLeft className="w-3.5 h-3.5 mr-1.5" />
-        Voltar para jornadas
-      </Button>
+      <div className="flex items-center justify-between gap-2">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate("/admin/crm/journeys")}
+          className="text-muted-foreground"
+        >
+          <ArrowLeft className="w-3.5 h-3.5 mr-1.5" />
+          Voltar para jornadas
+        </Button>
+        {journey && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigate(`/admin/crm/whiteboard?focus=${journey.id}`)}
+          >
+            <LayoutGrid className="w-3.5 h-3.5 mr-1.5" />
+            Abrir no whiteboard
+          </Button>
+        )}
+      </div>
 
       {/* Top Bar — Header da jornada */}
       <div className="rounded-2xl border border-border bg-card p-5 space-y-4">
@@ -448,6 +461,14 @@ export default function AdminCrmJourneyBuilder() {
             </Button>
           ) : (
             <>
+              <Button
+                variant="outline"
+                onClick={() => navigate(`/admin/crm/whiteboard?focus=${journey!.id}`)}
+                disabled={!journey}
+              >
+                <LayoutGrid className="w-3.5 h-3.5 mr-1.5" />
+                Abrir no whiteboard
+              </Button>
               <Button
                 variant="outline"
                 onClick={async () => {

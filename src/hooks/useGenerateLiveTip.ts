@@ -13,6 +13,34 @@ export interface LiveTipResponse {
   generated_at: string;
 }
 
+const ERROR_MESSAGES: Record<string, string> = {
+  league_not_supported:
+    "Análise IA ainda não disponível para esta competição. Seu crédito foi devolvido.",
+  generation_failed:
+    "Não conseguimos gerar análise no momento. Crédito devolvido. Tente novamente em alguns minutos.",
+  fixture_too_far:
+    "Esse jogo ainda não está próximo o suficiente para análise.",
+  fixture_already_started_or_past:
+    "Esse jogo já começou ou terminou. Análise pré-jogo não disponível.",
+  not_live: "O jogo não está mais ao vivo.",
+  no_credits:
+    "Você não tem créditos disponíveis. Considere adquirir mais ou aguardar a renovação semanal.",
+  insufficient_credits:
+    "Você não tem créditos suficientes. Compre créditos ou aguarde reset semanal.",
+  ai_overloaded:
+    "Sistema temporariamente sobrecarregado. Tente novamente em alguns instantes.",
+  system_disabled:
+    "Análise IA temporariamente indisponível.",
+  fixture_not_found: "Jogo não encontrado.",
+  fixture_fetch_failed:
+    "Não conseguimos buscar os dados do jogo agora. Tente novamente.",
+};
+
+export function getFriendlyTipError(errorCode: string | undefined | null): string {
+  if (!errorCode) return "Erro desconhecido. Tente novamente.";
+  return ERROR_MESSAGES[errorCode] ?? `Erro inesperado: ${errorCode}. Tente novamente.`;
+}
+
 export function useGenerateLiveTip() {
   const [tip, setTip] = useState<LiveTipResponse | null>(null);
   const [loading, setLoading] = useState(false);
@@ -38,7 +66,7 @@ export function useGenerateLiveTip() {
 
         if (status === 503) {
           toast.error("IA Tipster indisponível", { description: errorBody?.message || "Sistema temporariamente indisponível." });
-          setError("system_disabled");
+          setError(getFriendlyTipError("system_disabled"));
           refreshAiTipsterStatus();
           return;
         }
@@ -48,13 +76,19 @@ export function useGenerateLiveTip() {
             resetsLabel = new Date(errorBody.resets_at).toLocaleDateString("pt-BR", { weekday: "short", day: "2-digit", month: "short" });
           }
           toast.error("Sem créditos", { description: `Você usou todos os créditos da semana. Renova em ${resetsLabel}.` });
-          setError("insufficient_credits");
+          setError(getFriendlyTipError("insufficient_credits"));
+          refreshCreditBalance();
+          return;
+        }
+        // 400 com error code conhecido (league_not_supported, not_live, etc)
+        if (status === 400 && errorBody?.error) {
+          setError(getFriendlyTipError(errorBody.error));
           refreshCreditBalance();
           return;
         }
         if (status === 500 || errorBody?.error === "generation_failed") {
-          toast.error("Falha temporária", { description: errorBody?.message || "Não conseguimos gerar a análise agora. Tente novamente em alguns segundos. Seu crédito foi preservado." });
-          setError("generation_failed");
+          toast.error("Falha temporária", { description: getFriendlyTipError("generation_failed") });
+          setError(getFriendlyTipError(errorBody?.error || "generation_failed"));
           refreshCreditBalance();
           return;
         }
@@ -64,8 +98,8 @@ export function useGenerateLiveTip() {
           return;
         }
         if (invokeErr.message?.includes("non-2xx") || invokeErr.message?.includes("FunctionsHttpError")) {
-          toast.error("Falha temporária", { description: "Não conseguimos gerar a análise agora. Tente novamente em alguns segundos." });
-          setError("generation_failed");
+          toast.error("Falha temporária", { description: getFriendlyTipError("generation_failed") });
+          setError(getFriendlyTipError("generation_failed"));
           return;
         }
         throw new Error(invokeErr.message || "tip_failed");
@@ -76,13 +110,13 @@ export function useGenerateLiveTip() {
         return;
       }
       if (d?.error) {
-        setError(d.message || d.error);
+        setError(getFriendlyTipError(d.error));
         return;
       }
       setTip(data as LiveTipResponse);
       refreshCreditBalance();
     } catch (err: any) {
-      setError(err.message || "unknown_error");
+      setError(getFriendlyTipError(err?.message));
     } finally {
       setLoading(false);
     }

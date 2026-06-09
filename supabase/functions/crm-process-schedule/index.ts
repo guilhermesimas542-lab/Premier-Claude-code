@@ -150,6 +150,24 @@ Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
   if (req.method !== "POST") return json({ error: "method_not_allowed" }, 405);
 
+  const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+  const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+  const ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
+
+  // AuthN/AuthZ: service-role (pg_cron) OR admin Supabase session
+  const authHeader = req.headers.get("Authorization") ?? "";
+  if (!authHeader.startsWith("Bearer ")) return json({ error: "unauthorized" }, 401);
+  const bearer = authHeader.replace("Bearer ", "");
+  let authorized = bearer === SERVICE_KEY;
+  if (!authorized) {
+    const userClient = createClient(SUPABASE_URL, ANON_KEY, {
+      global: { headers: { Authorization: authHeader } },
+    });
+    const { data: isAdm } = await userClient.rpc("is_admin");
+    authorized = isAdm === true;
+  }
+  if (!authorized) return json({ error: "forbidden" }, 403);
+
   let body: RequestBody;
   try {
     body = await req.json();
@@ -162,10 +180,7 @@ Deno.serve(async (req: Request) => {
 
   if (!scheduleId) return json({ error: "missing_schedule_id" }, 400);
 
-  const supabase = createClient(
-    Deno.env.get("SUPABASE_URL")!,
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-  );
+  const supabase = createClient(SUPABASE_URL, SERVICE_KEY);
 
   // ============================================================
   // 1. Lê o schedule
@@ -315,6 +330,12 @@ Deno.serve(async (req: Request) => {
   let failedCount = 0;
   let openCount = 0;
   let clickCount = 0;
+
+  // Hoisted para serem visíveis no return final (são setados no branch else-if abaixo)
+  let useRealSms = false;
+  let useRealPush = false;
+  let useRealPopup = false;
+  let useRealEmail = false;
 
   // ============================================================
   // 4. MOCK PROVIDERS — envia em chunks e persiste events
@@ -467,7 +488,7 @@ Deno.serve(async (req: Request) => {
         console.warn("[CRM][SMS] chave api_key não configurada — caindo no mock.");
       }
     }
-    const useRealSms = channel === "sms" && !dryRun && smsRealKey !== null;
+    useRealSms = channel === "sms" && !dryRun && smsRealKey !== null;
 
     // Push real (Web Push VAPID): só quando dry_run=false e chaves VAPID configuradas.
     let pushVapid: { publicKey: string; privateKey: string; subject: string } | null = null;
@@ -481,11 +502,11 @@ Deno.serve(async (req: Request) => {
         console.warn("[CRM][push] chaves VAPID não configuradas — caindo no mock.");
       }
     }
-    const useRealPush = channel === "push" && !dryRun && pushVapid !== null;
+    useRealPush = channel === "push" && !dryRun && pushVapid !== null;
 
     // Popup interno: quando dry_run=false, enfileira em crm_popup_deliveries
     // por usuário. App exibe via FunnelPopup no carregamento.
-    const useRealPopup = channel === "popup" && !dryRun;
+    useRealPopup = channel === "popup" && !dryRun;
 
     // Email real (Resend): só quando dry_run=false e API key + from_email configurados.
     let emailRealKey: string | null = null;
@@ -518,7 +539,7 @@ Deno.serve(async (req: Request) => {
         console.warn("[CRM][email] from_email não configurado em crm_channel_settings — caindo no mock.");
       }
     }
-    const useRealEmail = channel === "email" && !dryRun && emailRealKey !== null && emailSender !== null;
+    useRealEmail = channel === "email" && !dryRun && emailRealKey !== null && emailSender !== null;
 
     for (let i = 0; i < recipients.length; i += CHUNK) {
       const slice = recipients.slice(i, i + CHUNK);
@@ -603,7 +624,8 @@ Deno.serve(async (req: Request) => {
   return json({
     success: true,
     dry_run: dryRun,
-    mock: true,
+    mock: !(useRealSms || useRealPush || useRealPopup || useRealEmail),
+    real_provider: useRealSms ? "smsdev" : useRealPush ? "web_push" : useRealPopup ? "popup_internal" : useRealEmail ? "resend" : null,
     schedule_id: scheduleId,
     channel,
     broadcast: isBroadcast,

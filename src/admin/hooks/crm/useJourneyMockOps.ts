@@ -5,25 +5,181 @@ import type { Journey } from "./useJourneys";
 import type { JourneyStep } from "./useJourneySteps";
 import type { AudienceFilters } from "./useAudiences";
 import { simulateMockSend, delayToMs } from "../../lib/crm/mockEngagement";
+import type { ChannelKey } from "../../lib/crm/channels";
 import {
   hasBehaviorFilter,
   resolveBehaviorUserIds,
 } from "../../lib/crm/resolveBehaviorAudience";
+import { attributeConversions } from "./useJourneyConversions";
+
 
 /**
- * Hook com operações mock para jornadas (Sub-fase 2.5):
- *   - enrollLeads:  seleciona N leads pela audiência da jornada e cria enrollments
- *   - processSteps: avança enrollments ativos cujo delay venceu (ou todos, se forçado)
+ * Hook com operações mock para jornadas.
+ *
+ * 9.4 — agora suporta travessia de grafo (crm_journey_edges) com avaliação
+ * de condição (opened/clicked/converted). Mantém fallback linear (step_order+1)
+ * para jornadas antigas sem edges.
  *
  * Em Pilar 4 essas operações migram pra edge function + pg_cron.
  */
+
+type NodeType = "trigger" | "message" | "wait" | "condition" | "tag";
+type DelayUnit = "minute" | "hour" | "day" | "week";
+
+interface GraphNode {
+  id: string;
+  journey_id: string;
+  node_type: NodeType;
+  channel: ChannelKey | null;
+  content: Record<string, any> | null;
+  config: Record<string, any> | null;
+  delay_value: number | null;
+  delay_unit: DelayUnit | null;
+  step_order: number | null;
+}
+
+interface GraphEdge {
+  id: string;
+  journey_id: string;
+  source_step_id: string;
+  target_step_id: string;
+  branch: string | null;
+  condition: Record<string, any> | null;
+}
+
+async function loadGraph(
+  journeyId: string
+): Promise<{ nodes: GraphNode[]; edges: GraphEdge[] }> {
+  const [nRes, eRes] = await Promise.all([
+    (supabase as any).from("crm_journey_steps").select("*").eq("journey_id", journeyId),
+    (supabase as any).from("crm_journey_edges").select("*").eq("journey_id", journeyId),
+  ]);
+  return {
+    nodes: ((nRes.data ?? []) as GraphNode[]),
+    edges: ((eRes.data ?? []) as GraphEdge[]),
+  };
+}
+
+/** Carrega o grafo GLOBAL (todas as jornadas) — usado pelo motor cross-journey. */
+async function loadGlobalGraph(): Promise<{ nodes: GraphNode[]; edges: GraphEdge[] }> {
+  const [nRes, eRes] = await Promise.all([
+    (supabase as any).from("crm_journey_steps").select("*"),
+    (supabase as any).from("crm_journey_edges").select("*"),
+  ]);
+  return {
+    nodes: ((nRes.data ?? []) as GraphNode[]),
+    edges: ((eRes.data ?? []) as GraphEdge[]),
+  };
+}
+
+function pickStartNode(nodes: GraphNode[], edges: GraphEdge[]): GraphNode | null {
+  if (nodes.length === 0) return null;
+  const trigger = nodes.find((n) => n.node_type === "trigger");
+  if (trigger) return trigger;
+  const targets = new Set(edges.map((e) => e.target_step_id));
+  const noIncoming = nodes.find((n) => !targets.has(n.id));
+  if (noIncoming) return noIncoming;
+  return [...nodes].sort(
+    (a, b) => (a.step_order ?? 0) - (b.step_order ?? 0)
+  )[0];
+}
+
+/** Encontra o nó message mais próximo a montante (BFS pelas edges de entrada). */
+function nearestUpstreamMessage(
+  startId: string,
+  nodesById: Map<string, GraphNode>,
+  edges: GraphEdge[]
+): string | null {
+  const incoming = new Map<string, GraphEdge[]>();
+  for (const e of edges) {
+    if (!incoming.has(e.target_step_id)) incoming.set(e.target_step_id, []);
+    incoming.get(e.target_step_id)!.push(e);
+  }
+  const visited = new Set<string>([startId]);
+  let frontier = (incoming.get(startId) ?? []).map((e) => e.source_step_id);
+  while (frontier.length > 0) {
+    const next: string[] = [];
+    for (const id of frontier) {
+      if (visited.has(id)) continue;
+      visited.add(id);
+      const n = nodesById.get(id);
+      if (n?.node_type === "message") return id;
+      for (const e of incoming.get(id) ?? []) next.push(e.source_step_id);
+    }
+    frontier = next;
+  }
+  return null;
+}
+
+/** Avalia uma condição. Retorna 'yes' ou 'no'. */
+async function evaluateCondition(
+  conditionNode: GraphNode,
+  enrollment: { id: string; user_id: string; current_step_at: string | null },
+  nodesById: Map<string, GraphNode>,
+  edges: GraphEdge[]
+): Promise<"yes" | "no"> {
+  const cfg = conditionNode.config ?? {};
+  const event = (cfg.event ?? "opened") as "opened" | "clicked" | "converted";
+  const windowHours = Number(cfg.window_hours ?? 24);
+  const sourceId: string | null =
+    cfg.source_node_id ??
+    nearestUpstreamMessage(conditionNode.id, nodesById, edges);
+
+  if (!sourceId) return "no";
+
+  // Pega o envio mais recente desse enrollment no source node
+  const { data: sends } = await (supabase as any)
+    .from("crm_journey_step_events")
+    .select("id, status, created_at, metadata")
+    .eq("enrollment_id", enrollment.id)
+    .eq("step_id", sourceId)
+    .order("created_at", { ascending: false })
+    .limit(1);
+
+  const send = (sends ?? [])[0];
+  if (!send) return "no";
+
+  const sentAtMs = send.metadata?.sent_at
+    ? Date.parse(send.metadata.sent_at)
+    : Date.parse(send.created_at);
+  const cutoffMs = sentAtMs + windowHours * 3_600_000;
+  const cutoffIso = new Date(cutoffMs).toISOString();
+  const sentIso = new Date(sentAtMs).toISOString();
+
+  if (event === "opened" || event === "clicked") {
+    const targetStatuses = event === "opened" ? ["opened", "clicked"] : ["clicked"];
+    const { data: hits } = await (supabase as any)
+      .from("crm_journey_step_events")
+      .select("id")
+      .eq("enrollment_id", enrollment.id)
+      .eq("step_id", sourceId)
+      .in("status", targetStatuses)
+      .gte("created_at", sentIso)
+      .lte("created_at", cutoffIso)
+      .limit(1);
+    return (hits ?? []).length > 0 ? "yes" : "no";
+  }
+
+  // converted: financial_events do user dentro da janela
+  if (event === "converted") {
+    const revenueEvents = ["Purchase_Order_Confirmed", "Recurrent_Payment"];
+    const { data: fin } = await (supabase as any)
+      .from("financial_events")
+      .select("id")
+      .eq("user_id", enrollment.user_id)
+      .in("event_name", revenueEvents)
+      .gte("created_at", sentIso)
+      .lte("created_at", cutoffIso)
+      .limit(1);
+    return (fin ?? []).length > 0 ? "yes" : "no";
+  }
+
+  return "no";
+}
+
 export function useJourneyMockOps() {
   const [busy, setBusy] = useState<string | null>(null);
 
-  /**
-   * Resolve a audiência (mesmas regras do edge function de schedules) e
-   * cria enrollments active. Respeita o UNIQUE parcial (mesmo lead 2x).
-   */
   const enrollLeads = useCallback(
     async (
       journey: Journey,
@@ -40,8 +196,6 @@ export function useJourneyMockOps() {
         let pool: Array<{ id: string }> = [];
 
         if (isStaticList && audience?.id) {
-          // Listas estáticas: só membros com user_id linkado podem virar enrollment
-          // (crm_journey_enrollments.user_id é NOT NULL com FK em users).
           const { data: members, error: memErr } = await (supabase as any)
             .from("crm_audience_members")
             .select("user_id")
@@ -64,10 +218,8 @@ export function useJourneyMockOps() {
             return { enrolled: 0, skipped: 0 };
           }
         } else {
-          // Audiência dinâmica: filtra users por filters
           let q: any = supabase.from("users").select("id");
 
-          // Behavior: intersecciona com user_ids elegíveis primeiro
           if (hasBehaviorFilter(filters?.behavior)) {
             const r = await resolveBehaviorUserIds(filters!.behavior!);
             if (r.user_ids.length === 0) {
@@ -120,7 +272,6 @@ export function useJourneyMockOps() {
           }
         }
 
-        // 2) Tira quem já tem enrollment active nesta jornada
         const { data: existing } = await (supabase as any)
           .from("crm_journey_enrollments")
           .select("user_id")
@@ -131,7 +282,6 @@ export function useJourneyMockOps() {
           ((existing ?? []) as Array<{ user_id: string }>).map((e) => e.user_id)
         );
 
-        // 3) Amostragem aleatória
         const available = pool.filter((u) => !blockedIds.has(u.id));
         const shuffled = [...available].sort(() => Math.random() - 0.5);
         const toEnroll = shuffled.slice(0, requestedCount);
@@ -144,15 +294,23 @@ export function useJourneyMockOps() {
           return { enrolled: 0, skipped };
         }
 
-        // 4) Cria enrollments
-        const firstStep = steps[0] ?? null;
+        // Determina nó inicial via grafo (trigger / sem entrada / fallback)
+        const { nodes, edges } = await loadGraph(journey.id);
+        let startId: string | null = null;
+        if (nodes.length > 0) {
+          startId = pickStartNode(nodes, edges)?.id ?? null;
+        }
+        if (!startId) {
+          startId = steps[0]?.id ?? null;
+        }
+
         const enrollments = toEnroll.map((u) => ({
           journey_id: journey.id,
           user_id: u.id,
-          current_step_id: firstStep?.id ?? null,
+          current_step_id: startId,
           current_step_at: new Date().toISOString(),
           status: "active",
-          metadata: { mock: true, mode: "2.5_client", source: "manual_trigger" },
+          metadata: { mock: true, mode: "9.4_graph", source: "manual_trigger", tags: [] },
         }));
 
         const { error: insErr } = await (supabase as any)
@@ -177,14 +335,6 @@ export function useJourneyMockOps() {
     []
   );
 
-  /**
-   * Avança enrollments active da jornada:
-   *   - Para cada enrollment com delay vencido (ou se forceNow=true):
-   *     - Gera step_event mock (delivered/opened/clicked/failed)
-   *     - Move enrollment pro próximo step OU completa
-   *
-   * Retorna contadores agregados.
-   */
   const processSteps = useCallback(
     async (
       journey: Journey,
@@ -202,20 +352,27 @@ export function useJourneyMockOps() {
           return null;
         }
 
-        // Mapa pra navegação rápida
-        const stepsById = new Map(steps.map((s) => [s.id, s]));
-        const stepsByOrder = [...steps].sort((a, b) => a.step_order - b.step_order);
-        const nextStepOf = (id: string): JourneyStep | null => {
-          const cur = stepsById.get(id);
-          if (!cur) return null;
-          const idx = stepsByOrder.findIndex((s) => s.id === id);
-          return idx >= 0 && idx + 1 < stepsByOrder.length ? stepsByOrder[idx + 1] : null;
-        };
+        // ====== GRAFO GLOBAL (cross-journey) ======
+        const { nodes: globalNodes, edges: globalEdges } = await loadGlobalGraph();
 
-        // 1) Busca enrollments active
+        // Fallback linear continua se ESTA jornada não tiver edges próprias.
+        const localEdgesCount = globalEdges.filter((e) => e.journey_id === journey.id).length;
+        if (localEdgesCount === 0) {
+          return await processLinear(journey, steps, opts);
+        }
+
+        const nodesById = new Map(globalNodes.map((n) => [n.id, n]));
+        const outgoing = new Map<string, GraphEdge[]>();
+        for (const e of globalEdges) {
+          if (!outgoing.has(e.source_step_id)) outgoing.set(e.source_step_id, []);
+          outgoing.get(e.source_step_id)!.push(e);
+        }
+        // alias usado pela avaliação de condition (escopo global, acha upstream cross-journey também)
+        const edges = globalEdges;
+
         const { data: enrolls, error: enrErr } = await (supabase as any)
           .from("crm_journey_enrollments")
-          .select("id, user_id, current_step_id, current_step_at")
+          .select("id, user_id, current_step_id, current_step_at, metadata, journey_id")
           .eq("journey_id", journey.id)
           .eq("status", "active");
 
@@ -229,6 +386,8 @@ export function useJourneyMockOps() {
           user_id: string;
           current_step_id: string | null;
           current_step_at: string | null;
+          metadata: Record<string, any> | null;
+          journey_id: string;
         }>;
 
         if (list.length === 0) {
@@ -236,72 +395,203 @@ export function useJourneyMockOps() {
           return { processed: 0, events_created: 0, completed: 0 };
         }
 
-        const now = Date.now();
         const eventsToInsert: any[] = [];
-        const enrollUpdates: Array<{
-          id: string;
-          patch: Record<string, any>;
-        }> = [];
+        const enrollUpdates: Array<{ id: string; patch: Record<string, any> }> = [];
         let completed = 0;
+        const MAX_HOPS = 20;
 
         for (const en of list) {
-          // Sem step atual → completar diretamente
-          if (!en.current_step_id) {
-            enrollUpdates.push({
-              id: en.id,
-              patch: { status: "completed", completed_at: new Date().toISOString() },
-            });
-            completed++;
-            continue;
-          }
+          let curId = en.current_step_id;
+          let curAt = en.current_step_at;
+          let curJourneyId = en.journey_id;
+          let metadata: Record<string, any> = { ...(en.metadata ?? {}) };
+          let didAdvance = false;
+          let finalize: Record<string, any> | null = null;
 
-          const step = stepsById.get(en.current_step_id);
-          if (!step) continue; // step removido — ignora
 
-          const baseMs = en.current_step_at ? Date.parse(en.current_step_at) : now;
-          const dueAt = baseMs + delayToMs(step.delay_value, step.delay_unit);
-
-          // Se delay não venceu e não é force → pula
-          if (!opts.forceNow && now < dueAt) continue;
-
-          // Gera event mock
-          const sim = simulateMockSend(step.channel);
-          eventsToInsert.push({
-            enrollment_id: en.id,
-            step_id: step.id,
-            channel: step.channel,
-            content_snapshot: step.content ?? {},
-            status: sim.status,
-            provider_message_id: sim.provider_message_id ?? null,
-            error_code: sim.error_code ?? null,
-            error_message: sim.error_message ?? null,
-            metadata: sim.metadata,
-          });
-
-          // Avança enrollment
-          const next = nextStepOf(step.id);
-          if (next) {
-            enrollUpdates.push({
-              id: en.id,
-              patch: {
-                current_step_id: next.id,
-                current_step_at: new Date().toISOString(),
-              },
-            });
-          } else {
-            enrollUpdates.push({
-              id: en.id,
-              patch: {
+          for (let hop = 0; hop < MAX_HOPS; hop++) {
+            if (!curId) {
+              finalize = {
                 current_step_id: null,
                 status: "completed",
                 completed_at: new Date().toISOString(),
-              },
-            });
+              };
+              completed++;
+              break;
+            }
+            const node = nodesById.get(curId);
+            if (!node) {
+              // nó sumiu — completa
+              finalize = {
+                current_step_id: null,
+                status: "completed",
+                completed_at: new Date().toISOString(),
+              };
+              completed++;
+              break;
+            }
+
+            const outs = outgoing.get(curId) ?? [];
+
+            if (node.node_type === "trigger") {
+              const next = outs[0];
+              if (!next) {
+                finalize = {
+                  current_step_id: null,
+                  status: "completed",
+                  completed_at: new Date().toISOString(),
+                };
+                completed++;
+                break;
+              }
+              curId = next.target_step_id;
+              didAdvance = true;
+              continue;
+            }
+
+            if (node.node_type === "message") {
+              const ch = (node.channel ?? "email") as ChannelKey;
+              const sim = simulateMockSend(ch);
+              eventsToInsert.push({
+                enrollment_id: en.id,
+                step_id: node.id,
+                channel: ch,
+                content_snapshot: node.content ?? {},
+                status: sim.status,
+                provider_message_id: sim.provider_message_id ?? null,
+                error_code: sim.error_code ?? null,
+                error_message: sim.error_message ?? null,
+                metadata: sim.metadata,
+              });
+              const next = outs[0];
+              if (!next) {
+                finalize = {
+                  current_step_id: null,
+                  status: "completed",
+                  completed_at: new Date().toISOString(),
+                };
+                completed++;
+                break;
+              }
+              curId = next.target_step_id;
+              didAdvance = true;
+              continue;
+            }
+
+            if (node.node_type === "wait") {
+              const baseMs = curAt ? Date.parse(curAt) : Date.now();
+              const dueAt =
+                baseMs +
+                delayToMs(
+                  node.delay_value ?? 0,
+                  (node.delay_unit ?? "minute") as DelayUnit
+                );
+              if (!opts.forceNow && Date.now() < dueAt) {
+                // ainda esperando — para o loop sem mexer
+                break;
+              }
+              const next = outs[0];
+              if (!next) {
+                finalize = {
+                  current_step_id: null,
+                  status: "completed",
+                  completed_at: new Date().toISOString(),
+                };
+                completed++;
+                break;
+              }
+              curId = next.target_step_id;
+              curAt = new Date().toISOString(); // zera ao entrar no próximo
+              didAdvance = true;
+              continue;
+            }
+
+            if (node.node_type === "tag") {
+              const cfg = node.config ?? {};
+              const action = (cfg.action ?? "add") as "add" | "remove";
+              const tag = String(cfg.tag ?? "").trim();
+              if (tag) {
+                const current: string[] = Array.isArray(metadata.tags)
+                  ? [...metadata.tags]
+                  : [];
+                if (action === "add" && !current.includes(tag)) current.push(tag);
+                if (action === "remove") {
+                  const idx = current.indexOf(tag);
+                  if (idx >= 0) current.splice(idx, 1);
+                }
+                metadata = { ...metadata, tags: current };
+              }
+              const next = outs[0];
+              if (!next) {
+                finalize = {
+                  current_step_id: null,
+                  status: "completed",
+                  completed_at: new Date().toISOString(),
+                };
+                completed++;
+                break;
+              }
+              curId = next.target_step_id;
+              didAdvance = true;
+              continue;
+            }
+
+            if (node.node_type === "condition") {
+              const result = await evaluateCondition(
+                node,
+                { id: en.id, user_id: en.user_id, current_step_at: curAt },
+                nodesById,
+                edges
+              );
+              const branchEdge =
+                outs.find((e) => (e.branch ?? "") === result) ?? null;
+              if (!branchEdge) {
+                // sem edge para esse lado — encerra esse caminho
+                finalize = {
+                  current_step_id: null,
+                  status: "completed",
+                  completed_at: new Date().toISOString(),
+                };
+                completed++;
+                break;
+              }
+              curId = branchEdge.target_step_id;
+              didAdvance = true;
+              continue;
+            }
+
+            // node_type desconhecido — completa por segurança
+            finalize = {
+              current_step_id: null,
+              status: "completed",
+              completed_at: new Date().toISOString(),
+            };
             completed++;
+            break;
+          }
+
+          if (finalize) {
+            enrollUpdates.push({
+              id: en.id,
+              patch: { ...finalize, metadata },
+            });
+          } else if (didAdvance) {
+            // Se o nó atual pertence a outra jornada, migra o enrollment (cross-journey routing).
+            const finalNode = curId ? nodesById.get(curId) : null;
+            const targetJourneyId = finalNode?.journey_id ?? curJourneyId;
+            const patch: Record<string, any> = {
+              current_step_id: curId,
+              current_step_at: curAt ?? new Date().toISOString(),
+              metadata,
+            };
+            if (targetJourneyId && targetJourneyId !== en.journey_id) {
+              patch.journey_id = targetJourneyId;
+            }
+            enrollUpdates.push({ id: en.id, patch });
           }
         }
 
-        // 2) Insere events em chunks
+        // Insere events em chunks
         const CHUNK = 500;
         for (let i = 0; i < eventsToInsert.length; i += CHUNK) {
           const slice = eventsToInsert.slice(i, i + CHUNK);
@@ -314,7 +604,6 @@ export function useJourneyMockOps() {
           }
         }
 
-        // 3) Atualiza enrollments (1 update por linha — volumes pequenos em mock)
         for (const u of enrollUpdates) {
           const { error: upErr } = await (supabase as any)
             .from("crm_journey_enrollments")
@@ -338,13 +627,150 @@ export function useJourneyMockOps() {
           );
         }
 
+        await attributeConversions(journey.id).catch((e) =>
+          console.error("[useJourneyMockOps] attributeConversions:", e)
+        );
+
         return { processed, events_created: eventsToInsert.length, completed };
       } finally {
         setBusy(null);
       }
+
     },
     []
   );
 
   return { busy, enrollLeads, processSteps };
 }
+
+/** Comportamento linear original (fallback para jornadas sem edges). */
+async function processLinear(
+  journey: Journey,
+  steps: JourneyStep[],
+  opts: { forceNow?: boolean }
+): Promise<{ processed: number; events_created: number; completed: number } | null> {
+  const stepsById = new Map(steps.map((s) => [s.id, s]));
+  const stepsByOrder = [...steps].sort((a, b) => a.step_order - b.step_order);
+  const nextStepOf = (id: string): JourneyStep | null => {
+    const idx = stepsByOrder.findIndex((s) => s.id === id);
+    return idx >= 0 && idx + 1 < stepsByOrder.length ? stepsByOrder[idx + 1] : null;
+  };
+
+  const { data: enrolls, error: enrErr } = await (supabase as any)
+    .from("crm_journey_enrollments")
+    .select("id, user_id, current_step_id, current_step_at")
+    .eq("journey_id", journey.id)
+    .eq("status", "active");
+
+  if (enrErr) {
+    toast.error(`Erro ao buscar enrollments: ${enrErr.message}`);
+    return null;
+  }
+
+  const list = (enrolls ?? []) as Array<{
+    id: string;
+    user_id: string;
+    current_step_id: string | null;
+    current_step_at: string | null;
+  }>;
+
+  if (list.length === 0) {
+    toast.message("Nenhum lead ativo nesta jornada.");
+    return { processed: 0, events_created: 0, completed: 0 };
+  }
+
+  const now = Date.now();
+  const eventsToInsert: any[] = [];
+  const enrollUpdates: Array<{ id: string; patch: Record<string, any> }> = [];
+  let completed = 0;
+
+  for (const en of list) {
+    if (!en.current_step_id) {
+      enrollUpdates.push({
+        id: en.id,
+        patch: { status: "completed", completed_at: new Date().toISOString() },
+      });
+      completed++;
+      continue;
+    }
+    const step = stepsById.get(en.current_step_id);
+    if (!step) continue;
+    const baseMs = en.current_step_at ? Date.parse(en.current_step_at) : now;
+    const dueAt = baseMs + delayToMs(step.delay_value, step.delay_unit);
+    if (!opts.forceNow && now < dueAt) continue;
+
+    const sim = simulateMockSend(step.channel);
+    eventsToInsert.push({
+      enrollment_id: en.id,
+      step_id: step.id,
+      channel: step.channel,
+      content_snapshot: step.content ?? {},
+      status: sim.status,
+      provider_message_id: sim.provider_message_id ?? null,
+      error_code: sim.error_code ?? null,
+      error_message: sim.error_message ?? null,
+      metadata: sim.metadata,
+    });
+
+    const next = nextStepOf(step.id);
+    if (next) {
+      enrollUpdates.push({
+        id: en.id,
+        patch: {
+          current_step_id: next.id,
+          current_step_at: new Date().toISOString(),
+        },
+      });
+    } else {
+      enrollUpdates.push({
+        id: en.id,
+        patch: {
+          current_step_id: null,
+          status: "completed",
+          completed_at: new Date().toISOString(),
+        },
+      });
+      completed++;
+    }
+  }
+
+  const CHUNK = 500;
+  for (let i = 0; i < eventsToInsert.length; i += CHUNK) {
+    const slice = eventsToInsert.slice(i, i + CHUNK);
+    const { error: evErr } = await (supabase as any)
+      .from("crm_journey_step_events")
+      .insert(slice);
+    if (evErr) {
+      console.error("[useJourneyMockOps] erro events:", evErr);
+      toast.error(`Erro ao gravar eventos: ${evErr.message}`);
+    }
+  }
+
+  for (const u of enrollUpdates) {
+    const { error: upErr } = await (supabase as any)
+      .from("crm_journey_enrollments")
+      .update(u.patch)
+      .eq("id", u.id);
+    if (upErr) console.error("[useJourneyMockOps] erro update enrollment:", upErr);
+  }
+
+  const processed = enrollUpdates.length;
+  if (processed === 0) {
+    toast.message(
+      opts.forceNow
+        ? "Nada pra processar — nenhum enrollment elegível."
+        : "Ainda não venceu o delay de nenhum passo. Use 'forçar agora' pra testar."
+    );
+  } else {
+    toast.success(
+      `${processed} avançados · ${eventsToInsert.length} eventos · ${completed} concluídos`
+    );
+  }
+
+  await attributeConversions(journey.id).catch((e) =>
+    console.error("[processLinear] attributeConversions:", e)
+  );
+
+  return { processed, events_created: eventsToInsert.length, completed };
+}
+

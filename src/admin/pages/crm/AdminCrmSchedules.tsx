@@ -247,6 +247,7 @@ function ScheduleRow({
 
   const canPause = schedule.status === "scheduled" || schedule.status === "sending";
   const canResume = schedule.status === "paused";
+  const canEdit = schedule.status !== "sent" && schedule.status !== "sending";
   // "Disparar agora" disponível pra rascunho ou agendado (não pra sent / sending / failed)
   const canDispatch =
     schedule.status === "draft" || schedule.status === "scheduled" || schedule.status === "paused";
@@ -326,12 +327,12 @@ function ScheduleRow({
               {canResume ? <Play className="w-3.5 h-3.5" /> : <Pause className="w-3.5 h-3.5" />}
             </Button>
           )}
-          {schedule.status === "draft" && (
+          {canEdit && (
             <Button
               variant="ghost"
               size="sm"
               onClick={() => navigate(`/admin/crm/schedules/${schedule.id}/edit`)}
-              title="Editar rascunho"
+              title="Editar schedule"
             >
               <Pencil className="w-3.5 h-3.5" />
             </Button>
