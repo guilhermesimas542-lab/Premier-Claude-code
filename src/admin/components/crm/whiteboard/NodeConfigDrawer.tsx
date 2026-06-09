@@ -32,9 +32,10 @@ interface Props {
   triggerType?: string | null;
   onClose: () => void;
   onSave: (id: string, fields: UpdateNodeFields) => Promise<void> | void;
+  onDelete?: (id: string) => Promise<void> | void;
 }
 
-export function NodeConfigDrawer({ node, messageNodes, triggerType, onClose, onSave }: Props) {
+export function NodeConfigDrawer({ node, messageNodes, triggerType, onClose, onSave, onDelete }: Props) {
   const open = !!node;
   const [channel, setChannel] = useState<ChannelKey | null>(null);
   const [content, setContent] = useState<Record<string, any>>({});
