@@ -26,6 +26,29 @@ serve(async (req) => {
       );
     }
 
+    // Verify caller owns the user_id via premier_token
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return new Response(
+        JSON.stringify({ success: false, message: 'unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    try {
+      const tokenData = JSON.parse(atob(authHeader.replace('Bearer ', '')));
+      if (!tokenData?.exp || tokenData.exp < Date.now() || tokenData.user_id !== user_id) {
+        return new Response(
+          JSON.stringify({ success: false, message: 'forbidden' }),
+          { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+    } catch {
+      return new Response(
+        JSON.stringify({ success: false, message: 'invalid_token' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     // Upsert subscription (one per user)
     const { error } = await supabase
       .from('push_subscriptions')
