@@ -213,6 +213,22 @@ function Inner() {
       ? (n.data as any)?.journeyId
       : stepJourney.get(n.id);
     const hidden = focusedJourneyId != null && journeyOfNode !== focusedJourneyId;
+    if (n.type === "stage") {
+      const currentCfg = (n.data as any)?.config ?? {};
+      return {
+        ...n,
+        hidden,
+        data: {
+          ...n.data,
+          onChangeTitle: (id: string, title: string) =>
+            updateStep(id, { config: { ...currentCfg, title } } as any),
+          onChangeColor: (id: string, color: string) =>
+            updateStep(id, { config: { ...currentCfg, color } } as any),
+          onResize: (id: string, w: number, h: number) =>
+            updateStep(id, { config: { ...currentCfg, width: w, height: h } } as any),
+        },
+      };
+    }
     if (n.type !== "stickNote") return { ...n, hidden };
     return {
       ...n,
@@ -227,7 +243,7 @@ function Inner() {
         onDelete: (jid: string, name: string) => setDeleteTarget({ id: jid, name }),
       },
     };
-  }), [nodes, updateJourney, focusedJourneyId, stepJourney]);
+  }), [nodes, updateJourney, updateStep, focusedJourneyId, stepJourney]);
 
   // Edges: esconder as que tocam um nó escondido
   const visibleEdges = useMemo(() => {
