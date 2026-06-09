@@ -139,8 +139,6 @@ const App = () => {
               <Route path="funnel-analytics" element={<AdminFunnelAnalytics />} />
               <Route path="behavior" element={<AdminBehavior />} />
               <Route path="ranking" element={<AdminRanking />} />
-              <Route path="revenue" element={<AdminRevenue />} />
-              <Route path="mrr-premier" element={<AdminMrrPremier />} />
               <Route path="default-links" element={<AdminDefaultLinks />} />
               <Route path="popups" element={<AdminPopups />} />
               <Route path="funis" element={<Navigate to="/admin/popups" replace />} />
