@@ -346,6 +346,23 @@ export function useUnifiedWhiteboard() {
     setSteps((prev) => prev.map((s) => s.id === stepId ? { ...s, ...fields } as StepRow : s));
   }, []);
 
+  const deleteStep = useCallback(async (stepId: string) => {
+    // Remove edges que referenciam o nó
+    const e1 = await (supabase as any)
+      .from("crm_journey_edges").delete()
+      .or(`source_step_id.eq.${stepId},target_step_id.eq.${stepId}`);
+    if (e1.error) { toast.error(`Erro removendo ligações: ${e1.error.message}`); return; }
+    // Filhos com parent_step_id = stepId perdem o pai (não apaga em cascata)
+    await (supabase as any)
+      .from("crm_journey_steps").update({ parent_step_id: null }).eq("parent_step_id", stepId);
+    const { error } = await (supabase as any)
+      .from("crm_journey_steps").delete().eq("id", stepId);
+    if (error) { toast.error(`Erro excluindo nó: ${error.message}`); return; }
+    setEdgeRows((prev) => prev.filter((e) => e.source_step_id !== stepId && e.target_step_id !== stepId));
+    setSteps((prev) => prev.map((s) => s.parent_step_id === stepId ? { ...s, parent_step_id: null } : s).filter((s) => s.id !== stepId));
+    toast.success("Nó excluído");
+  }, []);
+
 
   const deleteJourney = useCallback(async (journeyId: string) => {
     // Apaga em cascata: edges -> steps -> enrollments -> jornada
