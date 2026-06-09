@@ -268,6 +268,7 @@ function Inner() {
         targetJourneyId = await createJourney({
           x: Math.round(center.x - 500),
           y: Math.round(center.y - 350),
+          showSticky: false,
         });
         if (!targetJourneyId) return;
       }
@@ -404,6 +405,7 @@ function Inner() {
               targetJourneyId = await createJourney({
                 x: Math.round(pos.x - 500),
                 y: Math.round(pos.y - 350),
+                showSticky: false,
               });
               if (!targetJourneyId) return;
             }
