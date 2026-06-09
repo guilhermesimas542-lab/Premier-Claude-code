@@ -18,7 +18,7 @@ export interface JourneyRow {
   id: string;
   name: string;
   color: string | null;
-  canvas: { x?: number; y?: number; w?: number; h?: number } | null;
+  canvas: { x?: number; y?: number; w?: number; h?: number; showSticky?: boolean } | null;
   status: string | null;
   trigger_type: string | null;
   trigger_config: Record<string, any> | null;
@@ -104,7 +104,7 @@ export function useUnifiedWhiteboard() {
       });
     });
 
-    const stickyNodes: Node[] = journeys.map((j) => {
+    const stickyNodes: Node[] = journeys.filter((j) => (j.canvas as any)?.showSticky !== false).map((j) => {
       const lay = journeyLayout.get(j.id)!;
       return {
         id: `journey:${j.id}`,
@@ -124,13 +124,14 @@ export function useUnifiedWhiteboard() {
     steps.forEach((r) => {
       const isStage = r.node_type === "stage";
       const cfg = r.config ?? {};
-      const parentId = r.parent_step_id ? r.parent_step_id : `journey:${r.journey_id}`;
+      const lay = journeyLayout.get(r.journey_id) ?? { x: 0, y: 0 };
+      const savedPosition = r.position ?? { x: 24, y: 48 };
       const node: any = {
         id: r.id,
         type: r.node_type,
-        position: r.position ?? { x: 24, y: 48 },
-        parentId,
-        extent: "parent",
+        position: r.parent_step_id
+          ? savedPosition
+          : { x: lay.x + savedPosition.x, y: lay.y + savedPosition.y },
         zIndex: isStage ? 1 : 2,
         data: {
           channel: r.channel,
@@ -143,6 +144,10 @@ export function useUnifiedWhiteboard() {
           color: cfg.color,
         },
       };
+      if (r.parent_step_id) {
+        node.parentId = r.parent_step_id;
+        node.extent = "parent";
+      }
       if (isStage) {
         node.style = { width: cfg.width ?? 360, height: cfg.height ?? 220 };
         stageNodes.push(node);
