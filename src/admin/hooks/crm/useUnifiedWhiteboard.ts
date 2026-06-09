@@ -325,6 +325,22 @@ export function useUnifiedWhiteboard() {
     return (data as StepRow).id;
   }, []);
 
+  const updateStep = useCallback(async (
+    stepId: string,
+    fields: {
+      channel?: ChannelKey | null;
+      content?: Record<string, any>;
+      config?: Record<string, any>;
+      delay_value?: number | null;
+      delay_unit?: any;
+    }
+  ) => {
+    const { error } = await (supabase as any)
+      .from("crm_journey_steps").update(fields).eq("id", stepId);
+    if (error) { toast.error(`Erro ao salvar nó: ${error.message}`); return; }
+    setSteps((prev) => prev.map((s) => s.id === stepId ? { ...s, ...fields } as StepRow : s));
+  }, []);
+
 
   const deleteJourney = useCallback(async (journeyId: string) => {
     // Apaga em cascata: edges -> steps -> enrollments -> jornada
@@ -402,7 +418,7 @@ export function useUnifiedWhiteboard() {
   return {
     journeys, steps, edgeRows, nodes, edges, loading, refresh: load,
     setNodes, setEdges,
-    createJourney, updateJourney, deleteJourney, assignNodeToJourney, createEdge, removeEdge, insertStep,
+    createJourney, updateJourney, deleteJourney, assignNodeToJourney, createEdge, removeEdge, insertStep, updateStep,
     organizeJourneys,
   };
 }
