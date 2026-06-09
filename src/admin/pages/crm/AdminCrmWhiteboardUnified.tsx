@@ -25,6 +25,7 @@ import {
 } from "@/admin/components/crm/whiteboard/nodes";
 import { StickNoteNode } from "@/admin/components/crm/whiteboard/nodes/StickNoteNode";
 import { JourneyConfigSheet } from "@/admin/components/crm/whiteboard/JourneyConfigSheet";
+import { NodeConfigDrawer } from "@/admin/components/crm/whiteboard/NodeConfigDrawer";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -68,8 +69,9 @@ function Inner() {
   const {
     journeys, steps, nodes, edges, loading, setNodes, setEdges,
     createJourney, updateJourney, deleteJourney, assignNodeToJourney, createEdge, removeEdge,
-    organizeJourneys, insertStep,
+    organizeJourneys, insertStep, updateStep,
   } = useUnifiedWhiteboard();
+  const [editingNodeId, setEditingNodeId] = useState<string | null>(null);
   const { screenToFlowPosition, fitView } = useReactFlow();
   const [searchParams, setSearchParams] = useSearchParams();
   const [focusedJourneyId, setFocusedJourneyId] = useState<string | null>(null);
@@ -410,6 +412,10 @@ function Inner() {
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
             onNodeDragStop={onNodeDragStop}
+            onNodeClick={(_e, n) => {
+              if (n.type === "stickNote" || n.type === "stage") return;
+              setEditingNodeId(n.id);
+            }}
             onNodeDoubleClick={(_e, n) => {
               if (n.type === "stickNote") {
                 const jid = (n.data as any)?.journeyId;
@@ -437,6 +443,20 @@ function Inner() {
         onOpenChange={(v) => { if (!v) setConfigJourneyId(null); }}
         onSave={async (jid, fields) => { await updateJourney(jid, fields); }}
       />
+
+      <NodeConfigDrawer
+        node={editingNodeId ? (enhancedNodes.find((n) => n.id === editingNodeId) as any ?? null) : null}
+        messageNodes={enhancedNodes.filter((n) => n.type === "message") as any}
+        triggerType={(() => {
+          const n = enhancedNodes.find((x) => x.id === editingNodeId);
+          if (!n) return null;
+          const jid = stepJourney.get(n.id);
+          return journeys.find((j) => j.id === jid)?.trigger_type ?? null;
+        })()}
+        onClose={() => setEditingNodeId(null)}
+        onSave={async (id, fields) => { await updateStep(id, fields as any); }}
+      />
+
 
       <AlertDialog open={deleteTarget != null} onOpenChange={(v) => { if (!v) setDeleteTarget(null); }}>
         <AlertDialogContent>
