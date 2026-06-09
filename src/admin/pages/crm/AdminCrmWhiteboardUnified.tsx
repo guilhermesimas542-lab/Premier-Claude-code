@@ -16,7 +16,7 @@ import {
   type Connection,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { ArrowLeft, Loader2, Plus, LayoutGrid, Layers, Play, Mail, Clock, GitBranch, Tag } from "lucide-react";
+import { ArrowLeft, Loader2, Plus, LayoutGrid, Layers, Play, Mail, Clock, GitBranch, Tag, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useUnifiedWhiteboard } from "@/admin/hooks/crm/useUnifiedWhiteboard";
 import {
@@ -213,6 +213,22 @@ function Inner() {
       ? (n.data as any)?.journeyId
       : stepJourney.get(n.id);
     const hidden = focusedJourneyId != null && journeyOfNode !== focusedJourneyId;
+    if (n.type === "stage") {
+      const currentCfg = (n.data as any)?.config ?? {};
+      return {
+        ...n,
+        hidden,
+        data: {
+          ...n.data,
+          onChangeTitle: (id: string, title: string) =>
+            updateStep(id, { config: { ...currentCfg, title } } as any),
+          onChangeColor: (id: string, color: string) =>
+            updateStep(id, { config: { ...currentCfg, color } } as any),
+          onResize: (id: string, w: number, h: number) =>
+            updateStep(id, { config: { ...currentCfg, width: w, height: h } } as any),
+        },
+      };
+    }
     if (n.type !== "stickNote") return { ...n, hidden };
     return {
       ...n,
@@ -227,7 +243,7 @@ function Inner() {
         onDelete: (jid: string, name: string) => setDeleteTarget({ id: jid, name }),
       },
     };
-  }), [nodes, updateJourney, focusedJourneyId, stepJourney]);
+  }), [nodes, updateJourney, updateStep, focusedJourneyId, stepJourney]);
 
   // Edges: esconder as que tocam um nó escondido
   const visibleEdges = useMemo(() => {
@@ -321,6 +337,9 @@ function Inner() {
         </span>
         <Button size="sm" className="ml-3" onClick={handleNew}>
           <Plus className="w-4 h-4 mr-1" /> Nova jornada
+        </Button>
+        <Button size="sm" variant="outline" onClick={() => navigate("/admin/crm/schedules/new")}>
+          <Send className="w-4 h-4 mr-1" /> Novo schedule
         </Button>
         <Button size="sm" variant="outline" onClick={organizeJourneys}>
           <LayoutGrid className="w-4 h-4 mr-1" /> Organizar jornadas
