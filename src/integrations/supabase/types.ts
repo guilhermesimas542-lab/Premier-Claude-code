@@ -3080,6 +3080,7 @@ export type Database = {
         Returns: Json
       }
       check_is_admin_email: { Args: { p_email: string }; Returns: boolean }
+      cleanup_retention_policies: { Args: never; Returns: Json }
       crm_clear_channel_secret: {
         Args: { p_channel: string; p_key: string }
         Returns: Json
