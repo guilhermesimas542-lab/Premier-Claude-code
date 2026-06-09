@@ -271,6 +271,7 @@ function Inner() {
           showSticky: false,
         });
         if (!targetJourneyId) return;
+        setSelectedStickyJourneyId(targetJourneyId);
       }
     }
 
@@ -408,6 +409,7 @@ function Inner() {
                 showSticky: false,
               });
               if (!targetJourneyId) return;
+              setSelectedStickyJourneyId(targetJourneyId);
             }
             const layout = journeyLayouts.find((l) => l.id === targetJourneyId);
             const baseX = layout?.x ?? pos.x - 500;
