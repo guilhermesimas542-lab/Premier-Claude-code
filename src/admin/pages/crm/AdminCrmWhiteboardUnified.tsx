@@ -338,6 +338,9 @@ function Inner() {
         <Button size="sm" className="ml-3" onClick={handleNew}>
           <Plus className="w-4 h-4 mr-1" /> Nova jornada
         </Button>
+        <Button size="sm" variant="outline" onClick={() => navigate("/admin/crm/schedules/new")}>
+          <Send className="w-4 h-4 mr-1" /> Novo schedule
+        </Button>
         <Button size="sm" variant="outline" onClick={organizeJourneys}>
           <LayoutGrid className="w-4 h-4 mr-1" /> Organizar jornadas
         </Button>
