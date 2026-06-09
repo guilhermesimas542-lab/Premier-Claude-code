@@ -17,7 +17,6 @@ import {
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { ArrowLeft, Loader2, Plus, LayoutGrid, Layers, Play, Mail, Clock, GitBranch, Tag } from "lucide-react";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useUnifiedWhiteboard } from "@/admin/hooks/crm/useUnifiedWhiteboard";
 import {
@@ -97,6 +96,21 @@ function Inner() {
     return m;
   }, [steps]);
 
+  // Layout real de cada jornada, mesmo quando o sticky note está oculto.
+  const journeyLayouts = useMemo(() => {
+    return journeys.map((j, i) => {
+      const c = j.canvas ?? {};
+      return {
+        id: j.id,
+        x: typeof c.x === "number" ? c.x : i * 1200,
+        y: typeof c.y === "number" ? c.y : 0,
+        w: typeof c.w === "number" ? c.w : 1000,
+        h: typeof c.h === "number" ? c.h : 700,
+        showSticky: (c as any).showSticky !== false,
+      };
+    });
+  }, [journeys]);
+
   const onNodesChange = useCallback((changes: NodeChange[]) => {
     setNodes((nds) => {
       const next = applyNodeChanges(changes, nds);
@@ -121,7 +135,7 @@ function Inner() {
     await createEdge(sj, c.source, c.target, branch);
   }, [stepJourney, createEdge]);
 
-  // Drop detection: stage primeiro, depois stickNote da jornada
+  // Drop detection: stage primeiro; fora de tudo fica livre no canvas
   const onNodeDragStop = useCallback(async (_e: any, dragged: Node) => {
     const all = nodes;
 
@@ -159,7 +173,7 @@ function Inner() {
       return;
     }
 
-    // 2) Dentro de alguma região de jornada?
+    // 2) Dentro de alguma região visual de jornada?
     const sticky = all.find((n) => n.type === "stickNote" && isInside(n));
     if (sticky) {
       const journeyId = (sticky.data as any)?.journeyId as string;
@@ -172,14 +186,19 @@ function Inner() {
       return;
     }
 
-    // 3) Fora de tudo — reverter (force refresh local)
-    toast.error("Solte o nó dentro de uma jornada");
-    setNodes((prev) => prev.map((n) => n.id === dragged.id ? { ...n } : n));
-    // recarrega do banco pra restaurar posição original
-    // (alternativa simples: refresh)
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    (async () => {})();
-  }, [nodes, stepJourney, assignNodeToJourney, updateJourney, setNodes]);
+    // 3) Fora de tudo — mantém livre no canvas, sem exigir sticky note/jornada visual.
+    const currentJourneyId = stepJourney.get(dragged.id);
+    if (!currentJourneyId) return;
+    const layout = journeyLayouts.find((l) => l.id === currentJourneyId);
+    await assignNodeToJourney(dragged.id, {
+      journeyId: currentJourneyId,
+      parentStepId: null,
+      position: {
+        x: Math.round(abs.x - (layout?.x ?? 0)),
+        y: Math.round(abs.y - (layout?.y ?? 0)),
+      },
+    });
+  }, [nodes, stepJourney, assignNodeToJourney, updateJourney, journeyLayouts]);
 
   // Injetar handlers nos sticky notes via data + aplicar isolamento por foco
   const enhancedNodes = useMemo(() => nodes.map((n) => {
@@ -233,23 +252,8 @@ function Inner() {
     await createJourney({ x: Math.round(center.x), y: Math.round(center.y) });
   }, [createJourney, screenToFlowPosition]);
 
-  // journey-layout (pra resolver "qual região contém o centro")
-  const journeyLayouts = useMemo(() => {
-    return nodes
-      .filter((n) => n.type === "stickNote")
-      .map((n) => {
-        const w = (n.width ?? (n.style as any)?.width ?? 1000) as number;
-        const h = (n.height ?? (n.style as any)?.height ?? 700) as number;
-        return {
-          id: (n.data as any).journeyId as string,
-          x: n.position.x, y: n.position.y, w, h,
-          stickyId: n.id,
-        };
-      });
-  }, [nodes]);
-
   const findContainingJourney = useCallback((px: number, py: number) => {
-    return journeyLayouts.find((l) => px >= l.x && px <= l.x + l.w && py >= l.y && py <= l.y + l.h) ?? null;
+    return journeyLayouts.find((l) => l.showSticky && px >= l.x && px <= l.x + l.w && py >= l.y && py <= l.y + l.h) ?? null;
   }, [journeyLayouts]);
 
   const handleAddNode = useCallback(async (type: NodeKind) => {
@@ -264,8 +268,10 @@ function Inner() {
         targetJourneyId = await createJourney({
           x: Math.round(center.x - 500),
           y: Math.round(center.y - 350),
+          showSticky: false,
         });
         if (!targetJourneyId) return;
+        setSelectedStickyJourneyId(targetJourneyId);
       }
     }
 
@@ -348,7 +354,7 @@ function Inner() {
               ? "→ na jornada focada"
               : selectedStickyJourneyId
                 ? "→ na jornada selecionada"
-                : "→ solte sobre uma jornada"}
+                : "→ livre no canvas"}
           </div>
           <div className="border-t border-border my-1" />
           <div className="px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
@@ -400,8 +406,10 @@ function Inner() {
               targetJourneyId = await createJourney({
                 x: Math.round(pos.x - 500),
                 y: Math.round(pos.y - 350),
+                showSticky: false,
               });
               if (!targetJourneyId) return;
+              setSelectedStickyJourneyId(targetJourneyId);
             }
             const layout = journeyLayouts.find((l) => l.id === targetJourneyId);
             const baseX = layout?.x ?? pos.x - 500;
