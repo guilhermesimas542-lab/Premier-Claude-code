@@ -121,7 +121,7 @@ function Inner() {
     await createEdge(sj, c.source, c.target, branch);
   }, [stepJourney, createEdge]);
 
-  // Drop detection: stage primeiro, depois stickNote da jornada
+  // Drop detection: stage primeiro; fora de tudo fica livre no canvas
   const onNodeDragStop = useCallback(async (_e: any, dragged: Node) => {
     const all = nodes;
 
@@ -159,7 +159,7 @@ function Inner() {
       return;
     }
 
-    // 2) Dentro de alguma região de jornada?
+    // 2) Dentro de alguma região visual de jornada?
     const sticky = all.find((n) => n.type === "stickNote" && isInside(n));
     if (sticky) {
       const journeyId = (sticky.data as any)?.journeyId as string;
@@ -172,14 +172,19 @@ function Inner() {
       return;
     }
 
-    // 3) Fora de tudo — reverter (force refresh local)
-    toast.error("Solte o nó dentro de uma jornada");
-    setNodes((prev) => prev.map((n) => n.id === dragged.id ? { ...n } : n));
-    // recarrega do banco pra restaurar posição original
-    // (alternativa simples: refresh)
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    (async () => {})();
-  }, [nodes, stepJourney, assignNodeToJourney, updateJourney, setNodes]);
+    // 3) Fora de tudo — mantém livre no canvas, sem exigir sticky note/jornada visual.
+    const currentJourneyId = stepJourney.get(dragged.id);
+    if (!currentJourneyId) return;
+    const layout = journeyLayouts.find((l) => l.id === currentJourneyId);
+    await assignNodeToJourney(dragged.id, {
+      journeyId: currentJourneyId,
+      parentStepId: null,
+      position: {
+        x: Math.round(abs.x - (layout?.x ?? 0)),
+        y: Math.round(abs.y - (layout?.y ?? 0)),
+      },
+    });
+  }, [nodes, stepJourney, assignNodeToJourney, updateJourney, journeyLayouts]);
 
   // Injetar handlers nos sticky notes via data + aplicar isolamento por foco
   const enhancedNodes = useMemo(() => nodes.map((n) => {
@@ -348,7 +353,7 @@ function Inner() {
               ? "→ na jornada focada"
               : selectedStickyJourneyId
                 ? "→ na jornada selecionada"
-                : "→ solte sobre uma jornada"}
+                : "→ livre no canvas"}
           </div>
           <div className="border-t border-border my-1" />
           <div className="px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
