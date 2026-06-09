@@ -68,7 +68,7 @@ function Inner() {
   const {
     journeys, steps, nodes, edges, loading, setNodes, setEdges,
     createJourney, updateJourney, deleteJourney, assignNodeToJourney, createEdge, removeEdge,
-    organizeJourneys, insertStep, updateStep,
+    organizeJourneys, insertStep, updateStep, deleteStep,
   } = useUnifiedWhiteboard();
   const [editingNodeId, setEditingNodeId] = useState<string | null>(null);
   const { screenToFlowPosition, fitView } = useReactFlow();
