@@ -49,8 +49,8 @@ serve(async (req) => {
       );
     }
 
-    // Inserir evento com novos campos
-    const { data: event, error } = await supabase
+    // Inserir evento sem .select() para não esperar retorno do PostgREST
+    const { error } = await supabase
       .from('events')
       .insert({
         user_id: userId,
@@ -64,9 +64,7 @@ serve(async (req) => {
         session_id: body.session_id ?? null,
         event_id: body.event_id ?? null,
         house_id: body.house_id ?? null,
-      })
-      .select()
-      .single();
+      });
 
     if (error) {
       console.error('Erro ao inserir evento:', error);
@@ -76,24 +74,23 @@ serve(async (req) => {
       );
     }
 
-    // Atualizar timestamps do usuário
+    // Atualizar timestamps do usuário em background (não bloqueia a resposta)
     if (userId) {
       const updateData: Record<string, string> = {
         last_event_at: new Date().toISOString()
       };
-      
       if (body.event_name === 'app_open') {
         updateData.last_seen_at = new Date().toISOString();
       }
-      
-      await supabase
-        .from('users')
-        .update(updateData)
-        .eq('id', userId);
+      // EdgeRuntime.waitUntil mantém a promise viva após o response retornar
+      // @ts-ignore — disponível no runtime Supabase Edge
+      const waitUntil = globalThis.EdgeRuntime?.waitUntil?.bind(globalThis.EdgeRuntime);
+      const p = supabase.from('users').update(updateData).eq('id', userId).then(() => {});
+      if (waitUntil) waitUntil(p);
     }
 
     return new Response(
-      JSON.stringify({ success: true, event_id: event.id }),
+      JSON.stringify({ success: true }),
       { status: 201, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
