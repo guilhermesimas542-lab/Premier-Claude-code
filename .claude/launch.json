@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "Vite (local — sem lovable-tagger)",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["vite", "--config", "vite.config.local.ts"],
+      "port": 8080
+    },
+    {
+      "name": "Vite (dev padrão / Lovable)",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "port": 8080
+    }
+  ]
+}

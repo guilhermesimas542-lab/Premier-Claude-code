@@ -6,14 +6,13 @@ import { mockLogin } from "@/mocks/user";
 import { storeToken, trackEvent } from "@/lib/events";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { CHECKOUT_LINKS } from "@/lib/checkoutLinks";
-import { Crown, Loader2, ShoppingCart, Sparkles } from "lucide-react";
+import { Crown, Loader2, ShoppingCart, Sparkles, Users, Ticket } from "lucide-react";
 import { isPreviewEnv } from "@/lib/previewEnv";
 import iaTipsterCartoon from "@/assets/ia-tipster-cartoon.png";
 import { usePayCardTrigger } from "@/hooks/usePayCardTrigger";
 import { useLinks } from "@/contexts/LinksContext";
 import { PayCardFunnelModal } from "@/components/PayCardFunnelModal";
 import { getTierBadgeStyle } from "@/lib/tierColors";
-import logo from "@/assets/premier-logo-new.png";
 import {
   Dialog,
   DialogContent,
@@ -131,6 +130,9 @@ const Login = () => {
   // dando ideia da variedade que a IA pode gerar (de safe a alavancagem).
   const IA_FAKE_ODDS = [35.40, 2.15, 12.50, 1.75, 8.30, 4.20, 1.55, 22.00];
 
+  // Dourado da Copa (acentos visuais)
+  const COPA_GOLD = "#E0B341";
+
   // Monta array unificado de slides com alternância IA + green.
   type Slide =
     | { type: "ia"; iaIndex: number }
@@ -235,7 +237,47 @@ const Login = () => {
   const isDisabled = !email.trim() || isLoading;
 
   return (
-    <div className="relative min-h-screen overflow-hidden">
+    <div className="relative min-h-screen overflow-hidden" style={{ backgroundColor: "#0a1420" }}>
+      {/* Shine dourado girando na borda das boxes de odd */}
+      <style>{`
+        @property --copa-angle { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
+        @keyframes copa-rotate { to { --copa-angle: 360deg; } }
+        .copa-shine::before {
+          content: "";
+          position: absolute;
+          inset: 0;
+          border-radius: inherit;
+          padding: 1.5px;
+          background: conic-gradient(
+            from var(--copa-angle),
+            rgba(224,179,65,0) 0deg,
+            rgba(224,179,65,0) 230deg,
+            rgba(245,215,122,0.9) 300deg,
+            #FFF3C9 330deg,
+            rgba(224,179,65,0) 360deg
+          );
+          -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+          -webkit-mask-composite: xor;
+                  mask-composite: exclude;
+          animation: copa-rotate 3.5s linear infinite;
+          pointer-events: none;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .copa-shine::before { animation: none; }
+        }
+      `}</style>
+      {/* Copa background (visual) */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          zIndex: 0,
+          backgroundImage:
+            "url('/images/Copa/Login/BACKGORUND%20LOGIN%20PREMIER%20COPA.png')",
+          backgroundSize: "cover",
+          backgroundPosition: "top center",
+          backgroundRepeat: "no-repeat",
+        }}
+      />
       {/* Light trail decorations */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 0 }}>
         <div
@@ -262,12 +304,12 @@ const Login = () => {
 
       {/* Content */}
       <main className="relative flex flex-col items-center justify-center min-h-screen px-6 py-12 w-full max-w-md mx-auto" style={{ zIndex: 2 }}>
-        {/* Logo — hero element */}
-        <div className="mb-4 pointer-events-none">
+        {/* Logo — hero element (Copa) */}
+        <div className="mb-6 pointer-events-none w-full">
           <img
-            src={logo}
-            alt="Premier Ultra"
-            className="h-16 w-auto mx-auto object-contain scale-[9.0]"
+            src="/images/Copa/Login/LOGO_PREMIERE_COPAA-removebg-preview.png"
+            alt="Premier FC — Rumo ao Hexa"
+            className="w-full max-w-[300px] h-auto mx-auto object-contain"
           />
         </div>
 
@@ -292,12 +334,14 @@ const Login = () => {
                     return (
                       <div key={`ia-${slideIndex}`} className="w-full shrink-0" style={{ minWidth: '100%' }}>
                         <div
+                          className="copa-shine"
                           style={{
+                            position: 'relative',
                             backgroundColor: '#112236',
-                            border: '1.5px solid rgba(0,255,127,0.45)',
+                            border: '1.5px solid rgba(224,179,65,0.85)',
                             borderRadius: '12px',
                             overflow: 'hidden',
-                            boxShadow: '0 0 24px rgba(0,255,127,0.10)',
+                            boxShadow: '0 0 24px rgba(224,179,65,0.22)',
                           }}
                         >
                           {/* LINHA 1: badge IA esquerda | odd direita (mesma estrutura dos greens) */}
@@ -318,9 +362,9 @@ const Login = () => {
                                 letterSpacing: '1.5px',
                                 padding: '6px 14px',
                                 borderRadius: '6px',
-                                backgroundColor: 'rgba(0,255,127,0.12)',
-                                border: '1.5px solid rgba(0,255,127,0.45)',
-                                color: '#00FF7F',
+                                backgroundColor: 'rgba(224,179,65,0.14)',
+                                border: '1.5px solid rgba(224,179,65,0.55)',
+                                color: '#E0B341',
                                 lineHeight: 1,
                                 display: 'inline-flex',
                                 alignItems: 'center',
@@ -335,7 +379,7 @@ const Login = () => {
                                 fontFamily: 'Barlow Condensed, sans-serif',
                                 fontWeight: 900,
                                 fontSize: '36px',
-                                color: '#00FF7F',
+                                color: '#F2C84B',
                                 lineHeight: 1,
                               }}
                             >
@@ -400,8 +444,8 @@ const Login = () => {
                               alignItems: 'center',
                               justifyContent: 'center',
                               padding: '10px 16px',
-                              backgroundColor: 'rgba(0,255,127,0.08)',
-                              borderTop: '1px solid rgba(0,255,127,0.15)',
+                              backgroundColor: 'rgba(224,179,65,0.10)',
+                              borderTop: '1px solid rgba(224,179,65,0.25)',
                             }}
                           >
                             <span
@@ -409,7 +453,7 @@ const Login = () => {
                                 fontFamily: 'Barlow Condensed, sans-serif',
                                 fontWeight: 700,
                                 fontSize: '13px',
-                                color: '#00FF7F',
+                                color: '#E0B341',
                                 letterSpacing: '0.06em',
                                 textTransform: 'uppercase',
                               }}
@@ -436,9 +480,10 @@ const Login = () => {
                       <div
                         style={{
                           backgroundColor: '#112236',
-                          border: '1.5px solid rgba(255,255,255,0.30)',
+                          border: '1.5px solid rgba(224,179,65,0.45)',
                           borderRadius: '12px',
                           overflow: 'hidden',
+                          boxShadow: '0 0 20px rgba(224,179,65,0.15)',
                         }}
                       >
                         {/* LINHA 1: badge esquerda | odd direita */}
@@ -589,7 +634,7 @@ const Login = () => {
                 fontWeight: 700,
                 fontSize: '11px',
                 letterSpacing: '1.5px',
-                color: '#94A3B8',
+                color: '#E0B341',
                 textTransform: 'uppercase',
               }}
             >
@@ -631,7 +676,8 @@ const Login = () => {
           <button
             type="submit"
             disabled={isDisabled}
-            className="w-full h-14 rounded-[10px] font-display font-extrabold text-base uppercase tracking-wide bg-primary text-background transition-opacity duration-200 disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.98] flex items-center justify-center"
+            style={{ backgroundColor: "#F2C84B" }}
+            className="w-full h-14 rounded-[10px] font-display font-extrabold text-base uppercase tracking-wide text-background transition-opacity duration-200 disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.98] flex items-center justify-center"
           >
             {isLoading ? (
               <Loader2 className="w-5 h-5 animate-spin" />
@@ -646,24 +692,18 @@ const Login = () => {
           onClick={handleAcquireAccess}
           className="w-full h-12 rounded-[10px] font-display font-bold text-sm uppercase flex items-center justify-center gap-2 transition-colors duration-200 active:scale-[0.98] text-white border-2 border-white/15 bg-transparent hover:border-white/30"
         >
-          <ShoppingCart className="w-4 h-4" />
+          <ShoppingCart className="w-4 h-4" style={{ color: COPA_GOLD }} />
           Adquirir acesso
         </button>
 
         {/* Social Proof Pills */}
-        <div className="flex gap-2 justify-center items-center flex-nowrap mt-8 mb-6">
-          <div className="flex items-center gap-1.5 bg-white/5 border border-white/10 rounded-full px-3 py-1.5">
-            <span className="relative flex h-1.5 w-1.5 shrink-0">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
-              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-primary" />
-            </span>
+        <div className="w-full flex gap-2 items-stretch flex-nowrap mt-8 mb-6">
+          <div className="flex-1 flex items-center justify-center gap-2 bg-white/5 border border-[#E0B341]/30 rounded-xl px-3 py-3.5">
+            <Users className="w-3.5 h-3.5 shrink-0" style={{ color: COPA_GOLD }} />
             <span className="text-white/70 whitespace-nowrap font-sans" style={{ fontSize: '12px', fontWeight: 500 }}>+50.000 apostadores</span>
           </div>
-          <div className="flex items-center gap-1.5 bg-white/5 border border-white/10 rounded-full px-3 py-1.5">
-            <span className="relative flex h-1.5 w-1.5 shrink-0">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
-              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-primary" />
-            </span>
+          <div className="flex-1 flex items-center justify-center gap-2 bg-white/5 border border-[#E0B341]/30 rounded-xl px-3 py-3.5">
+            <Ticket className="w-3.5 h-3.5 shrink-0" style={{ color: COPA_GOLD }} />
             <span className="text-white/70 whitespace-nowrap font-sans" style={{ fontSize: '12px', fontWeight: 500 }}>+10 entradas por dia</span>
           </div>
         </div>
@@ -674,7 +714,8 @@ const Login = () => {
             Ao continuar, você concorda com nossos{" "}
             <button
               onClick={() => setShowTermsModal(true)}
-              className="text-primary hover:underline underline-offset-2 transition-colors"
+              style={{ color: "#E0B341" }}
+              className="hover:underline underline-offset-2 transition-colors"
             >
               Termos e Privacidade
             </button>

@@ -188,10 +188,10 @@ const Home = () => {
     <style>{`
   @keyframes futebol-frame-pulse {
         0%, 100% {
-      background-color: rgba(0, 255, 127, 0.4);
+      background-color: rgba(224, 179, 65, 0.4);
         }
         50% {
-      background-color: rgba(0, 255, 127, 1);
+      background-color: rgba(242, 200, 75, 1);
         }
       }
       .futebol-glow-wrapper {
@@ -206,8 +206,20 @@ const Home = () => {
       }
 
     `}</style>
-    <div className="min-h-screen relative overflow-hidden pb-20 md:pb-0 bg-navy-dark">
-      <div className="absolute top-0 left-1/4 w-96 h-96 rounded-full blur-[140px] pointer-events-none" style={{ background: "rgba(0,255,127,0.06)" }} />
+    <div className="min-h-screen relative overflow-hidden pb-20 md:pb-0 bg-navy-dark" style={{ backgroundColor: "#0a0f08" }}>
+      {/* Copa background (visual) */}
+      <div
+        className="absolute top-0 left-0 right-0 pointer-events-none"
+        style={{
+          height: "100vh",
+          zIndex: 0,
+          backgroundImage: "url('/images/Copa/Menu/BRACKGROUND%20LIMPO%20V1.png')",
+          backgroundSize: "cover",
+          backgroundPosition: "top center",
+          backgroundRepeat: "no-repeat",
+        }}
+      />
+      <div className="absolute top-0 left-1/4 w-96 h-96 rounded-full blur-[140px] pointer-events-none" style={{ background: "rgba(224,179,65,0.06)" }} />
 
       <AppHeader onShowLifetimeInfoModal={() => setShowLifetimeInfoModal(true)} />
 
@@ -236,9 +248,9 @@ const Home = () => {
               className="relative w-full overflow-hidden rounded-xl border flex hover:-translate-y-0.5 transition-all duration-200 text-left group"
               style={{
                 background: "#112236",
-                borderColor: 'rgba(0,255,127,0.45)',
+                borderColor: 'rgba(224,179,65,0.55)',
                 minHeight: '140px',
-                boxShadow: '0 0 30px rgba(0,255,127,0.12)',
+                boxShadow: '0 0 30px rgba(224,179,65,0.15)',
               }}
             >
               {/* Badges NOVO + BETA no canto superior direito */}
@@ -310,13 +322,13 @@ const Home = () => {
                   style={{
                     width: '100%',
                     padding: '8px 0',
-                    background: '#24c660',
+                    background: '#F2C84B',
                     border: 'none',
                     borderRadius: '8px',
                     fontFamily: "'Barlow Condensed', sans-serif",
                     fontWeight: 800,
                     fontSize: '13px',
-                    color: '#FFFFFF',
+                    color: '#0a0f08',
                     letterSpacing: '0.5px',
                     cursor: 'pointer',
                   }}
@@ -404,7 +416,7 @@ const Home = () => {
             onClick={() => navigate("/ultimos-greens")}
             style={{
               background: '#112236',
-              border: '1.5px solid rgba(255,255,255,0.22)',
+              border: '1.5px solid rgba(224,179,65,0.4)',
               borderRadius: '12px',
               overflow: 'hidden',
               display: 'flex',
@@ -490,13 +502,13 @@ const Home = () => {
                   marginTop: '10px',
                   width: '100%',
                   padding: '7px 0',
-                  background: '#00FF7F',
+                  background: '#F2C84B',
                   border: 'none',
                   borderRadius: '8px',
                   fontFamily: "'Barlow Condensed', sans-serif",
                   fontWeight: 800,
                   fontSize: '13px',
-                  color: '#000000',
+                  color: '#0a0f08',
                   letterSpacing: '0.5px',
                   cursor: 'pointer',
                 }}

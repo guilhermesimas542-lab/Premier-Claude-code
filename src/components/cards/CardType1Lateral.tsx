@@ -55,15 +55,14 @@ export function CardType1Lateral({ card, hasAccess = true, onAction }: Props) {
   const mobileImg = imgs?.mobile || imgs?.tablet || imgs?.desktop || null;
   const locked = !hasAccess;
 
-  const buttonBg = card.button_bg_color || '#00FF7F';
-  const buttonColor = card.button_font_color
-    ? card.button_font_color
-    : (isGreenColor(card.button_bg_color) ? '#000000' : '#FFFFFF');
+  // Copa: botões em dourado (sobrescreve a cor do banco pro tema da Copa)
+  const buttonBg = '#F2C84B';
+  const buttonColor = '#0a0f08';
 
   return (
     <button
       onClick={onAction}
-      className="relative w-full overflow-hidden rounded-xl border border-white/[0.30] flex hover:-translate-y-0.5 hover:border-primary/50 transition-all duration-200 text-left group"
+      className="relative w-full overflow-hidden rounded-xl border border-[#E0B341]/35 flex hover:-translate-y-0.5 hover:border-[#E0B341]/70 transition-all duration-200 text-left group"
       style={{ background: "#112236", minHeight: "120px" }}
     >
       {/* Badges */}
