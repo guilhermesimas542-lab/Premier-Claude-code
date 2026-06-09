@@ -114,12 +114,19 @@ function Inner() {
   const onNodesChange = useCallback((changes: NodeChange[]) => {
     setNodes((nds) => {
       const next = applyNodeChanges(changes, nds);
-      // rastrear stickNote selecionado pro botão "Adicionar nó"
       const sel = next.find((n) => n.type === "stickNote" && n.selected);
       setSelectedStickyJourneyId(sel ? ((sel.data as any)?.journeyId ?? null) : null);
       return next;
     });
-  }, [setNodes]);
+    // Persistir exclusões (tecla Delete/Backspace) — ignora stickNote/stage para evitar acidente
+    changes.forEach((c) => {
+      if (c.type !== "remove") return;
+      const n = nodes.find((x) => x.id === c.id);
+      if (!n) return;
+      if (n.type === "stickNote" || n.type === "stage" || n.type === "trigger") return;
+      deleteStep(c.id);
+    });
+  }, [setNodes, nodes, deleteStep]);
   const onEdgesChange = useCallback((changes: EdgeChange[]) => {
     setEdges((eds) => applyEdgeChanges(changes, eds));
     changes.forEach((c) => { if (c.type === "remove") removeEdge(c.id); });
