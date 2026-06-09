@@ -17,7 +17,6 @@ import {
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { ArrowLeft, Loader2, Plus, LayoutGrid, Layers, Play, Mail, Clock, GitBranch, Tag } from "lucide-react";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useUnifiedWhiteboard } from "@/admin/hooks/crm/useUnifiedWhiteboard";
 import {
@@ -96,6 +95,21 @@ function Inner() {
     steps.forEach((s) => m.set(s.id, s.journey_id));
     return m;
   }, [steps]);
+
+  // Layout real de cada jornada, mesmo quando o sticky note está oculto.
+  const journeyLayouts = useMemo(() => {
+    return journeys.map((j, i) => {
+      const c = j.canvas ?? {};
+      return {
+        id: j.id,
+        x: typeof c.x === "number" ? c.x : i * 1200,
+        y: typeof c.y === "number" ? c.y : 0,
+        w: typeof c.w === "number" ? c.w : 1000,
+        h: typeof c.h === "number" ? c.h : 700,
+        showSticky: (c as any).showSticky !== false,
+      };
+    });
+  }, [journeys]);
 
   const onNodesChange = useCallback((changes: NodeChange[]) => {
     setNodes((nds) => {
@@ -238,23 +252,8 @@ function Inner() {
     await createJourney({ x: Math.round(center.x), y: Math.round(center.y) });
   }, [createJourney, screenToFlowPosition]);
 
-  // journey-layout (pra resolver "qual região contém o centro")
-  const journeyLayouts = useMemo(() => {
-    return nodes
-      .filter((n) => n.type === "stickNote")
-      .map((n) => {
-        const w = (n.width ?? (n.style as any)?.width ?? 1000) as number;
-        const h = (n.height ?? (n.style as any)?.height ?? 700) as number;
-        return {
-          id: (n.data as any).journeyId as string,
-          x: n.position.x, y: n.position.y, w, h,
-          stickyId: n.id,
-        };
-      });
-  }, [nodes]);
-
   const findContainingJourney = useCallback((px: number, py: number) => {
-    return journeyLayouts.find((l) => px >= l.x && px <= l.x + l.w && py >= l.y && py <= l.y + l.h) ?? null;
+    return journeyLayouts.find((l) => l.showSticky && px >= l.x && px <= l.x + l.w && py >= l.y && py <= l.y + l.h) ?? null;
   }, [journeyLayouts]);
 
   const handleAddNode = useCallback(async (type: NodeKind) => {
