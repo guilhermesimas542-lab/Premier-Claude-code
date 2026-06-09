@@ -42,8 +42,6 @@ import AdminAnalytics from "./admin/pages/AdminAnalytics";
 import AdminRanking from "./admin/pages/AdminRanking";
 import AdminEventsPage from "./admin/pages/AdminEventsPage";
 import AdminOverview from "./admin/pages/AdminOverview";
-import AdminRevenue from "./admin/pages/AdminRevenue";
-import AdminMrrPremier from "./admin/pages/AdminMrrPremier";
 import AdminFunnelAnalytics from "./admin/pages/AdminFunnelAnalytics";
 
 import AdminBettingHouses from "./admin/pages/AdminBettingHouses";
@@ -141,8 +139,6 @@ const App = () => {
               <Route path="funnel-analytics" element={<AdminFunnelAnalytics />} />
               <Route path="behavior" element={<AdminBehavior />} />
               <Route path="ranking" element={<AdminRanking />} />
-              <Route path="revenue" element={<AdminRevenue />} />
-              <Route path="mrr-premier" element={<AdminMrrPremier />} />
               <Route path="default-links" element={<AdminDefaultLinks />} />
               <Route path="popups" element={<AdminPopups />} />
               <Route path="funis" element={<Navigate to="/admin/popups" replace />} />
