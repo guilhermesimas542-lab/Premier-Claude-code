@@ -1,0 +1,9 @@
+ANALYZE public.events;
+ANALYZE public.user_achievements;
+ANALYZE public.orders;
+ANALYZE public.webhook_logs;
+ANALYZE public.raw_webhook_logs;
+ANALYZE public.ai_tip_cache;
+ANALYZE public.fa_step_events;
+ANALYZE public.xp_events;
+ANALYZE public.ai_credit_log;
