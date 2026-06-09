@@ -395,16 +395,20 @@ function Inner() {
             e.preventDefault();
             const pos = screenToFlowPosition({ x: e.clientX, y: e.clientY });
             const hit = findContainingJourney(pos.x, pos.y);
-            const targetJourneyId = hit?.id ?? focusedJourneyId ?? selectedStickyJourneyId ?? null;
+            let targetJourneyId = hit?.id ?? focusedJourneyId ?? selectedStickyJourneyId ?? null;
             if (!targetJourneyId) {
-              toast.error("Solte sobre uma jornada");
-              return;
+              targetJourneyId = await createJourney({
+                x: Math.round(pos.x - 500),
+                y: Math.round(pos.y - 350),
+              });
+              if (!targetJourneyId) return;
             }
             const layout = journeyLayouts.find((l) => l.id === targetJourneyId);
-            if (!layout) return;
+            const baseX = layout?.x ?? pos.x - 500;
+            const baseY = layout?.y ?? pos.y - 350;
             const position = {
-              x: Math.max(24, Math.round(pos.x - layout.x - 110)),
-              y: Math.max(48, Math.round(pos.y - layout.y - 40)),
+              x: Math.max(24, Math.round(pos.x - baseX - 110)),
+              y: Math.max(48, Math.round(pos.y - baseY - 40)),
             };
             await insertStep({ type, journeyId: targetJourneyId, parentStepId: null, position });
           }}
