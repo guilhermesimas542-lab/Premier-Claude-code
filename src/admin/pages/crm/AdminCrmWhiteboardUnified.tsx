@@ -479,6 +479,7 @@ function Inner() {
         })()}
         onClose={() => setEditingNodeId(null)}
         onSave={async (id, fields) => { await updateStep(id, fields as any); }}
+        onDelete={async (id) => { await deleteStep(id); }}
       />
 
 
