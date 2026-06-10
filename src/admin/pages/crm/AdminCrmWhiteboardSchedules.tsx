@@ -180,21 +180,34 @@ function ScheduleCardNode({ data, selected }: any) {
 function StickyNoteNode({ data, selected }: any) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(data.title ?? "");
+  const color = data.color ?? "#FACC15";
   return (
     <div
       className="rounded-lg border-2 p-2 h-full w-full overflow-hidden relative"
       style={{
-        background: (data.color ?? "#FACC15") + "22",
-        borderColor: data.color ?? "#FACC15",
-        boxShadow: selected ? `0 0 0 2px ${data.color}55` : undefined,
+        background: color + "22",
+        borderColor: color,
+        boxShadow: selected ? `0 0 0 2px ${color}55` : undefined,
       }}
     >
       <NodeResizer
-        minWidth={140}
-        minHeight={80}
-        color={data.color ?? "#FACC15"}
-        isVisible={selected}
-        handleStyle={{ width: 10, height: 10, borderRadius: 3 }}
+        color={color}
+        isVisible={true}
+        handleStyle={{
+          width: 18,
+          height: 18,
+          borderRadius: 4,
+          background: color,
+          border: "2px solid white",
+          pointerEvents: "all",
+          opacity: selected ? 1 : 0.7,
+          zIndex: 20,
+        }}
+        lineStyle={{
+          borderWidth: 4,
+          borderColor: "transparent",
+          pointerEvents: "all",
+        }}
       />
       {editing ? (
         <input
@@ -207,13 +220,13 @@ function StickyNoteNode({ data, selected }: any) {
             if (e.key === "Escape") { setEditing(false); setDraft(data.title ?? ""); }
           }}
           className="w-full bg-transparent text-sm font-bold outline-none"
-          style={{ color: data.color }}
+          style={{ color }}
         />
       ) : (
         <button
           onDoubleClick={() => setEditing(true)}
           className="text-sm font-bold uppercase tracking-wider text-left w-full"
-          style={{ color: data.color }}
+          style={{ color }}
           title="Duplo-clique pra renomear"
         >
           {data.title || "Sem título"}
