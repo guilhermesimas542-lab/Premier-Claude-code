@@ -186,6 +186,24 @@ export function AudienceBuilder({ open, onClose, onSave, editing, initialFilters
             />
           </FilterGroup>
 
+          {/* Telefones específicos (SMS) */}
+          <FilterGroup
+            title="Telefones específicos (SMS)"
+            hint="Cole/digite números BR — normalizados no formato SMS Dev. Override pra disparos de SMS."
+          >
+            <PhonePicker
+              selected={filters.phones ?? []}
+              onChange={(phones) =>
+                setFilters((prev) => ({
+                  ...prev,
+                  phones: phones.length > 0 ? phones : undefined,
+                }))
+              }
+            />
+          </FilterGroup>
+
+
+
           {/* Plano */}
           <FilterGroup title="Plano" hint="Selecione um ou mais planos">
             <div className="flex flex-wrap gap-2">
