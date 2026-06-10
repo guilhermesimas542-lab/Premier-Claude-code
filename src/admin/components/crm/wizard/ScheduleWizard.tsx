@@ -32,6 +32,7 @@ import { useAudiences, type AudienceFilters } from "../../../hooks/crm/useAudien
 import { usePreviewAudience } from "../../../hooks/crm/usePreviewAudience";
 import { ChannelPreview } from "./ChannelPreview";
 import { ImageAttachControl } from "../ImageAttachControl";
+import { LinkAttachControl } from "../LinkAttachControl";
 import { isImageSupportedChannel } from "../../../lib/crm/bannerTemplates";
 import { PhonePicker } from "../PhonePicker";
 import { NewAudienceInlineButton } from "../NewAudienceInlineButton";
@@ -856,6 +857,13 @@ function StepContent({
           onChange={(url) => update({ content: { ...content, image_url: url ?? undefined } })}
         />
       )}
+
+      {/* Link clicável — disponível em todos os canais */}
+      <LinkAttachControl
+        value={content.link_url ?? null}
+        onChange={(url) => update({ content: { ...content, link_url: url ?? undefined } })}
+      />
+
         </div>
 
         <div className="lg:sticky lg:top-[200px] lg:self-start">

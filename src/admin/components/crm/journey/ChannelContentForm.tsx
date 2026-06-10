@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import { type ChannelKey, CHANNELS } from "../../../lib/crm/channels";
 import { isImageSupportedChannel } from "../../../lib/crm/bannerTemplates";
 import { ImageAttachControl } from "../ImageAttachControl";
+import { LinkAttachControl } from "../LinkAttachControl";
 
 interface Props {
   channel: ChannelKey;
@@ -33,6 +34,13 @@ export function ChannelContentForm({ channel, content, onChange }: Props) {
     />
   ) : null;
 
+  const linkControl = (
+    <LinkAttachControl
+      value={content.link_url ?? null}
+      onChange={(url) => onChange({ ...content, link_url: url ?? undefined })}
+    />
+  );
+
   if (channel === "email") {
     return (
       <div className="space-y-3">
@@ -58,6 +66,7 @@ export function ChannelContentForm({ channel, content, onChange }: Props) {
           </p>
         </div>
         {imageControl}
+        {linkControl}
       </div>
     );
   }
@@ -93,6 +102,7 @@ export function ChannelContentForm({ channel, content, onChange }: Props) {
           </p>
         </div>
         {imageControl}
+        {linkControl}
       </div>
     );
   }
@@ -133,6 +143,7 @@ export function ChannelContentForm({ channel, content, onChange }: Props) {
         </div>
       )}
       {imageControl}
+      {linkControl}
     </div>
   );
 }
