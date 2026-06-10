@@ -33,6 +33,7 @@ import { usePreviewAudience } from "../../../hooks/crm/usePreviewAudience";
 import { ChannelPreview } from "./ChannelPreview";
 import { ImageAttachControl } from "../ImageAttachControl";
 import { isImageSupportedChannel } from "../../../lib/crm/bannerTemplates";
+import { PhonePicker } from "../PhonePicker";
 
 // ============================================================
 // Tipos do state do wizard
