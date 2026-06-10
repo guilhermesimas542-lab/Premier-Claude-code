@@ -178,7 +178,7 @@ function ScheduleCardNode({ data, selected }: any) {
   );
 }
 
-const STICKY_PALETTE = ["#FACC15", "#22D3EE", "#F472B6", "#A855F7", "#34D399", "#FB923C", "#60A5FA", "#F87171"];
+const STICKY_PALETTE = ["#4D7A1F", "#2563EB", "#DC2626", "#D97706", "#7C3AED", "#0EA5E9", "#DB2777", "#475569"];
 
 function hexToRgba(hex: string, alpha: number) {
   const m = hex.replace("#", "");
@@ -190,12 +190,13 @@ function hexToRgba(hex: string, alpha: number) {
 }
 
 function StickyNoteNode({ id, data, selected }: any) {
-  const color = data.color ?? "#FACC15";
-  const title = data.title ?? "";
+  const color = data.color ?? STICKY_PALETTE[0];
+  const title = data.title ?? "Etapa";
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(title);
   const [showPalette, setShowPalette] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const { getNode } = useReactFlow();
 
   useEffect(() => setDraft(title), [title]);
   useEffect(() => { if (editing) inputRef.current?.focus(); }, [editing]);
@@ -205,42 +206,39 @@ function StickyNoteNode({ id, data, selected }: any) {
     if (draft !== title) data.onChangeTitle?.(id, draft.trim());
   };
 
+  const handleResizeEnd = (_e: any, params: { width: number; height: number }) => {
+    data.onResize?.(id, Math.round(params.width), Math.round(params.height));
+  };
+
+  const node = getNode(id);
+  const width = (node?.width ?? node?.measured?.width ?? 320) as number;
+
   return (
     <div
       className="relative h-full w-full rounded-2xl border-2"
       style={{
-        background: hexToRgba(color, 0.08),
+        background: hexToRgba(color, 0.12),
         borderColor: color,
         boxShadow: selected ? `0 0 0 2px ${color}55` : undefined,
-        pointerEvents: "none",
       }}
     >
       <NodeResizer
-        minWidth={220}
+        minWidth={180}
         minHeight={140}
         color={color}
-        isVisible={true}
+        isVisible={selected}
+        onResizeEnd={handleResizeEnd}
         handleStyle={{
-          width: 18,
-          height: 18,
-          borderRadius: 4,
-          background: color,
-          border: "2px solid white",
-          pointerEvents: "all",
-          opacity: selected ? 1 : 0.7,
-          zIndex: 20,
-        }}
-        lineStyle={{
-          borderWidth: 4,
-          borderColor: "transparent",
-          pointerEvents: "all",
+          width: 10,
+          height: 10,
+          borderRadius: 3,
         }}
       />
       <div
-        className="absolute top-0 left-0 right-0 flex items-center gap-2 px-3 py-2 rounded-t-2xl"
-        style={{ background: hexToRgba(color, 0.22), pointerEvents: "all" }}
+        className="absolute top-0 left-0 right-0 flex items-center gap-2 px-2.5 py-1.5 rounded-t-2xl"
+        style={{ background: hexToRgba(color, 0.25) }}
       >
-        <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: color }} />
+        <Layers className="w-3.5 h-3.5 shrink-0" style={{ color }} />
         {editing ? (
           <input
             ref={inputRef}
@@ -251,16 +249,17 @@ function StickyNoteNode({ id, data, selected }: any) {
               if (e.key === "Enter") commitTitle();
               if (e.key === "Escape") { setDraft(title); setEditing(false); }
             }}
-            className="flex-1 bg-background/60 px-1.5 py-0.5 rounded text-sm font-bold outline-none border border-border"
+            className="flex-1 bg-background/60 px-1.5 py-0.5 rounded text-xs font-bold outline-none border border-border"
+            style={{ width: Math.max(width - 90, 80) }}
           />
         ) : (
           <button
             onClick={(e) => { e.stopPropagation(); setEditing(true); }}
-            className="flex-1 text-left text-sm font-bold uppercase tracking-wider truncate"
+            className="flex-1 text-left text-xs font-bold uppercase tracking-wider truncate"
             style={{ color }}
             title="Clique pra renomear"
           >
-            {title || "Sem título"}
+            {title || "Etapa"}
           </button>
         )}
         <button
@@ -268,7 +267,7 @@ function StickyNoteNode({ id, data, selected }: any) {
           className="p-0.5 rounded hover:bg-background/40"
           title="Renomear"
         >
-          <Pencil className="w-3.5 h-3.5" style={{ color }} />
+          <Pencil className="w-3 h-3" style={{ color }} />
         </button>
         <div className="relative">
           <button
@@ -276,11 +275,11 @@ function StickyNoteNode({ id, data, selected }: any) {
             className="p-0.5 rounded hover:bg-background/40"
             title="Cor"
           >
-            <Palette className="w-3.5 h-3.5" style={{ color }} />
+            <Palette className="w-3 h-3" style={{ color }} />
           </button>
           {showPalette && (
             <div
-              className="absolute right-0 top-6 z-10 flex gap-1 p-1.5 rounded-md bg-popover border border-border shadow-lg"
+              className="absolute right-0 top-5 z-10 flex gap-1 p-1.5 rounded-md bg-popover border border-border shadow-lg"
               onClick={(e) => e.stopPropagation()}
             >
               {STICKY_PALETTE.map((c) => (
@@ -295,13 +294,6 @@ function StickyNoteNode({ id, data, selected }: any) {
             </div>
           )}
         </div>
-        <button
-          onClick={(e) => { e.stopPropagation(); data.onDelete?.(id); }}
-          className="p-0.5 rounded hover:bg-background/40"
-          title="Excluir sticky"
-        >
-          <Trash2 className="w-3.5 h-3.5 text-destructive" />
-        </button>
       </div>
     </div>
   );
