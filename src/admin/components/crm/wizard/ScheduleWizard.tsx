@@ -73,15 +73,21 @@ type StepKey = typeof STEPS[number]["key"];
 interface ScheduleWizardProps {
   /** ID do schedule a editar. Se omitido, o wizard cria um novo. */
   editingId?: string;
+  /** Callback após salvar. Se fornecido, substitui o navigate padrão. */
+  onDone?: () => void;
+  /** Callback ao cancelar. Se fornecido, substitui o navigate padrão. */
+  onCancel?: () => void;
 }
 
-export function ScheduleWizard({ editingId }: ScheduleWizardProps = {}) {
+export function ScheduleWizard({ editingId, onDone, onCancel }: ScheduleWizardProps = {}) {
   const navigate = useNavigate();
   const { create, update: updateSchedule } = useSchedules();
   const [state, setState] = useState<WizardState>(INITIAL_STATE);
   const [stepIdx, setStepIdx] = useState(0);
   const [saving, setSaving] = useState(false);
   const [loadingEdit, setLoadingEdit] = useState<boolean>(!!editingId);
+  const goBack = () => (onCancel ? onCancel() : navigate("/admin/crm/schedules"));
+  const goDone = () => (onDone ? onDone() : navigate("/admin/crm/schedules"));
 
   const isEditing = !!editingId;
 
