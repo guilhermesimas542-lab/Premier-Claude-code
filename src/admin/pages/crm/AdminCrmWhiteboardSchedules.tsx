@@ -640,6 +640,18 @@ function Inner() {
           )}
         </div>
       </div>
+
+      <Dialog open={wizardOpen} onOpenChange={(o) => { if (!o) closeWizardFn(true); }}>
+        <DialogContent className="max-w-none w-screen h-screen p-0 gap-0 rounded-none border-0 sm:rounded-none overflow-y-auto">
+          {wizardOpen && (
+            <ScheduleWizard
+              editingId={wizardEditingId}
+              onDone={() => closeWizardFn(true)}
+              onCancel={() => closeWizardFn(false)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
