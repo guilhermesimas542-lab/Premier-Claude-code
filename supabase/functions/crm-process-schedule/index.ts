@@ -52,6 +52,8 @@ interface AudienceFilters {
   origin?: "payt" | "db_app" | "both";
   opt_ins?: string[];
   user_ids?: string[];
+  /** Telefones já normalizados no formato SMS Dev (55DDDNNNNNNNNN). Override pra SMS. */
+  phones?: string[];
   /** Marca semântica de broadcast (Telegram x1). */
   broadcast?: boolean;
   behavior?: BehaviorFilter;
