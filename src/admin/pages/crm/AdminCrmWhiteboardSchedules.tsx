@@ -30,6 +30,7 @@ import {
 } from "@/admin/lib/crm/channels";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { ScheduleWizard } from "@/admin/components/crm/wizard/ScheduleWizard";
+import { useWhiteboardShortcuts } from "@/admin/hooks/crm/useWhiteboardShortcuts";
 
 interface AudienceLite { id: string; name: string }
 interface ScheduleRow {
