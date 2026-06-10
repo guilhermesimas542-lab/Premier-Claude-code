@@ -643,6 +643,7 @@ function AdHocFilters({
         />
       </div>
 
+      <div>
         <div className="text-[11px] font-bold uppercase tracking-wider mb-1.5">Plano</div>
         <div className="flex flex-wrap gap-1.5">
           {PLANS.map((p) => {
