@@ -395,9 +395,14 @@ Deno.serve(async (req: Request) => {
           metadata: { provider: "sendpulse", broadcast: true, real: true },
         };
       } else {
-        const content = (schedule.content ?? {}) as { body?: string | null; image_url?: string | null };
+        const content = (schedule.content ?? {}) as { body?: string | null; image_url?: string | null; link_url?: string | null };
+        const link = (content.link_url ?? "").toString().trim();
+        const baseBody = (content.body ?? "").toString();
+        const bodyWithLink = link && !baseBody.includes(link)
+          ? (baseBody.trim() ? `${baseBody}\n\n${link}` : link)
+          : baseBody;
         broadcastResult = await sendBroadcastTelegramX1Real(
-          content.body ?? "",
+          bodyWithLink,
           schedule.name,
           botId,
           apiId,
