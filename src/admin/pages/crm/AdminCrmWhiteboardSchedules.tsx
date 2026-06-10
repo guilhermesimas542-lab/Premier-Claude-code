@@ -27,6 +27,8 @@ import {
   CHANNELS, CHANNEL_LIST, SCHEDULE_STATUS_META,
   type ChannelKey, type ScheduleStatus,
 } from "@/admin/lib/crm/channels";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { ScheduleWizard } from "@/admin/components/crm/wizard/ScheduleWizard";
 
 interface AudienceLite { id: string; name: string }
 interface ScheduleRow {
