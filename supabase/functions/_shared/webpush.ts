@@ -53,10 +53,10 @@ export async function generateVapidToken(
 
   const signingInput = `${b64url(header)}.${b64url(payload)}`;
 
-  const rawPriv = Uint8Array.from(
-    atob(privateKeyB64.replace(/-/g, '+').replace(/_/g, '/')),
-    (c) => c.charCodeAt(0)
-  );
+  const rawPriv = b64urlDecode(privateKeyB64, "VAPID_PRIVATE_KEY");
+  if (rawPriv.length !== 32) {
+    throw new Error(`webpush:VAPID_PRIVATE_KEY: tamanho inválido ${rawPriv.length} (esperado 32)`);
+  }
 
   const pkcs8Header = new Uint8Array([
     0x30, 0x41,
