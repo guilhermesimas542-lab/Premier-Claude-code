@@ -333,13 +333,26 @@ function Inner() {
           <ArrowLeft className="w-4 h-4 mr-1" /> Voltar
         </Button>
         <span className="text-sm font-bold uppercase tracking-wider">
-          Whiteboard unificado · Jornadas
+          Whiteboard · Jornadas
         </span>
+
+        {/* Toggle entre os 2 whiteboards */}
+        <div className="ml-3 flex rounded-md border border-border overflow-hidden">
+          <Button size="sm" className="rounded-none h-8">
+            <GitBranch className="w-4 h-4 mr-1" /> Jornadas
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            className="rounded-none h-8"
+            onClick={() => navigate("/admin/crm/whiteboard/schedules")}
+          >
+            <Send className="w-4 h-4 mr-1" /> Schedules
+          </Button>
+        </div>
+
         <Button size="sm" className="ml-3" onClick={handleNew}>
           <Plus className="w-4 h-4 mr-1" /> Nova jornada
-        </Button>
-        <Button size="sm" variant="outline" onClick={() => navigate("/admin/crm/schedules/new")}>
-          <Send className="w-4 h-4 mr-1" /> Novo schedule
         </Button>
         <Button size="sm" variant="outline" onClick={organizeJourneys}>
           <LayoutGrid className="w-4 h-4 mr-1" /> Organizar jornadas
