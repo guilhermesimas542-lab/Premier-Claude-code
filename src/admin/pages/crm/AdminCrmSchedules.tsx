@@ -109,6 +109,19 @@ export default function AdminCrmSchedules() {
         <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground mr-1">
           Filtros:
         </span>
+
+        {/* Busca por nome */}
+        <div className="relative">
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+          <input
+            type="text"
+            placeholder="Nome do schedule..."
+            value={filter.name ?? ""}
+            onChange={(e) => setFilter((f) => ({ ...f, name: e.target.value || undefined }))}
+            className="h-9 w-[200px] rounded-md border border-input bg-background pl-8 pr-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+          />
+        </div>
+
         <Select
           value={filter.channel ?? "all"}
           onValueChange={(v) =>
@@ -150,7 +163,41 @@ export default function AdminCrmSchedules() {
           </SelectContent>
         </Select>
 
-        {(filter.channel || filter.status) && (
+        {/* Filtro de data */}
+        <Select
+          value={filter.dateField ?? "created_at"}
+          onValueChange={(v) =>
+            setFilter((f) => ({
+              ...f,
+              dateField: v as "created_at" | "scheduled_at",
+            }))
+          }
+        >
+          <SelectTrigger className="w-[150px] h-9">
+            <CalendarDays className="w-3.5 h-3.5 mr-2 text-muted-foreground" />
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="created_at">Data criação</SelectItem>
+            <SelectItem value="scheduled_at">Data agendada</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <input
+          type="date"
+          value={filter.from ?? ""}
+          onChange={(e) => setFilter((f) => ({ ...f, from: e.target.value || undefined }))}
+          className="h-9 w-[150px] rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+        />
+        <span className="text-xs text-muted-foreground">até</span>
+        <input
+          type="date"
+          value={filter.to ?? ""}
+          onChange={(e) => setFilter((f) => ({ ...f, to: e.target.value || undefined }))}
+          className="h-9 w-[150px] rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+        />
+
+        {hasActiveFilters(filter) && (
           <Button
             variant="ghost"
             size="sm"
