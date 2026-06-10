@@ -141,6 +141,7 @@ export function ChannelContentForm({ channel, content, onChange }: Props) {
         </div>
       )}
       {imageControl}
+      {linkControl}
     </div>
   );
 }
