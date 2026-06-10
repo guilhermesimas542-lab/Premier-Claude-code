@@ -243,7 +243,7 @@ export function ScheduleWizard({ editingId, onDone, onCancel }: ScheduleWizardPr
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => navigate("/admin/crm/schedules")}
+              onClick={goBack}
               className="text-muted-foreground"
             >
               <ArrowLeft className="w-4 h-4 mr-1" />
