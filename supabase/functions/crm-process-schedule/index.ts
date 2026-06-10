@@ -273,6 +273,10 @@ Deno.serve(async (req: Request) => {
         q = q.in("id", behaviorIds);
       }
 
+      // Lista explícita de user_ids (override) — leads escolhidos manualmente.
+      if (filters.user_ids && filters.user_ids.length > 0) {
+        q = q.in("id", filters.user_ids);
+      }
 
     if (filters.plans && filters.plans.length > 0) {
       q = q.in("main_tier", filters.plans);
