@@ -473,8 +473,13 @@ Deno.serve(async (req: Request) => {
       await supabase.from("crm_schedule_events").insert([event]);
       failedCount = 1;
     } else {
-      const content = (schedule.content ?? {}) as { body?: string | null; image_url?: string | null };
-      const tgResult = await sendTelegramGroupReal(content.body ?? "", botToken, chatId, content.image_url ?? null);
+      const content = (schedule.content ?? {}) as { body?: string | null; image_url?: string | null; link_url?: string | null };
+      const link = (content.link_url ?? "").toString().trim();
+      const baseBody = (content.body ?? "").toString();
+      const bodyWithLink = link && !baseBody.includes(link)
+        ? (baseBody.trim() ? `${baseBody}\n\n${link}` : link)
+        : baseBody;
+      const tgResult = await sendTelegramGroupReal(bodyWithLink, botToken, chatId, content.image_url ?? null);
       const event = {
         schedule_id: scheduleId,
         recipient_user_id: tgResult.recipient_user_id,
