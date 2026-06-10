@@ -40,6 +40,7 @@ interface ScheduleRow {
   scheduled_at: string | null;
   sent_at: string | null;
   audience_id: string | null;
+  audience_filters: Record<string, any> | null;
   reach_count: number;
   delivered_count: number;
   failed_count: number;
