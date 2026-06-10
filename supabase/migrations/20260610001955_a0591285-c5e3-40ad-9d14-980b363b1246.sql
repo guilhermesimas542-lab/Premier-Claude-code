@@ -1,0 +1,1 @@
+ALTER TABLE public.crm_schedules DROP CONSTRAINT IF EXISTS crm_schedules_audience_check;
