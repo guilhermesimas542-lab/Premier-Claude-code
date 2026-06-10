@@ -107,7 +107,7 @@ export async function sendPushToSubscription(
   const url = new URL(subscription.endpoint);
   const audience = `${url.protocol}//${url.host}`;
 
-  const token = await generateVapidToken(audience, vapidSubject, vapidPrivateKey);
+  const token = await generateVapidToken(audience, vapidSubject, vapidPrivateKey, vapidPublicKey);
   const authHeader = `vapid t=${token},k=${vapidPublicKey}`;
 
   const payloadStr = JSON.stringify(payload);
