@@ -40,8 +40,13 @@ export interface NewSchedulePayload {
 export interface SchedulesFilter {
   channel?: ChannelKey;
   status?: ScheduleStatus;
-  /** ISO date string */
+  /** Busca por nome (partial match) */
+  name?: string;
+  /** Qual campo de data usar: created_at ou scheduled_at */
+  dateField?: "created_at" | "scheduled_at";
+  /** ISO date string (início) */
   from?: string;
+  /** ISO date string (fim) */
   to?: string;
 }
 
