@@ -1095,7 +1095,7 @@ function ContentPreview({
 function validateContent(state: WizardState): boolean {
   const c = state.content;
   if (!state.channel) return false;
-  if (state.channel === "email") return !!(c.subject?.trim() && c.body?.trim());
+  if (state.channel === "email") return !!(c.subject?.trim() && (c.body?.trim() || c.image_url));
   if (state.channel === "push" || state.channel === "popup")
     return !!(c.title?.trim() && c.body?.trim());
   return !!c.body?.trim();
