@@ -5,6 +5,7 @@ import {
   Background,
   Controls,
   MiniMap,
+  NodeResizer,
   ReactFlowProvider,
   applyNodeChanges,
   applyEdgeChanges,
@@ -162,13 +163,20 @@ function StickyNoteNode({ data, selected }: any) {
   const [draft, setDraft] = useState(data.title ?? "");
   return (
     <div
-      className="rounded-lg border-2 p-2 h-full w-full overflow-hidden"
+      className="rounded-lg border-2 p-2 h-full w-full overflow-hidden relative"
       style={{
         background: (data.color ?? "#FACC15") + "22",
         borderColor: data.color ?? "#FACC15",
         boxShadow: selected ? `0 0 0 2px ${data.color}55` : undefined,
       }}
     >
+      <NodeResizer
+        minWidth={140}
+        minHeight={80}
+        color={data.color ?? "#FACC15"}
+        isVisible={selected}
+        handleStyle={{ width: 10, height: 10, borderRadius: 3 }}
+      />
       {editing ? (
         <input
           autoFocus
@@ -302,7 +310,7 @@ function Inner() {
           id: st.id,
           type: "sticky",
           position: existing?.position ?? { x: st.x, y: st.y },
-          style: existing?.style ?? { width: st.w, height: st.h },
+          style: { width: st.w, height: st.h },
           zIndex: 0,
           data: {
             id: st.id,
@@ -358,6 +366,11 @@ function Inner() {
         if (c.id?.startsWith("sticky-")) {
           persistStickies(stickies.filter((s) => s.id !== c.id));
         }
+      }
+      if (c.type === "dimensions" && c.id?.startsWith("sticky-") && c.dimensions && !c.resizing) {
+        const w = Math.round(c.dimensions.width);
+        const h = Math.round(c.dimensions.height);
+        persistStickies(stickies.map((s) => s.id === c.id ? { ...s, w, h } : s));
       }
     });
   }, [stickies, persistStickies]);
@@ -425,7 +438,7 @@ function Inner() {
     const color = STICKY_COLORS[stickies.length % STICKY_COLORS.length];
     persistStickies([
       ...stickies,
-      { id, x: Math.round(x), y: Math.round(y), w: 360, h: 220, color, title: "Nova nota" },
+      { id, x: Math.round(x), y: Math.round(y), w: 220, h: 120, color, title: "Nova nota" },
     ]);
   }, [stickies, persistStickies]);
 
