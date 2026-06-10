@@ -209,6 +209,54 @@ function Inner() {
     });
   }, [nodes, stepJourney, assignNodeToJourney, updateJourney, journeyLayouts]);
 
+  // ============== Histórico / Undo (Ctrl+Z) ==============
+  type NodeSnap = {
+    id: string;
+    type?: string;
+    position: { x: number; y: number };
+    parentId?: string | null;
+  };
+  const captureNodesSnapshot = useCallback((): NodeSnap[] => {
+    return nodes.map((n) => ({
+      id: n.id,
+      type: n.type,
+      position: { x: n.position.x, y: n.position.y },
+      parentId: (n as any).parentId ?? null,
+    }));
+  }, [nodes]);
+
+  const { isPanMode, pushHistory } = useWhiteboardShortcuts<NodeSnap[]>({
+    onUndo: async (snap) => {
+      // restaura visualmente
+      setNodes((nds) => nds.map((n) => {
+        const s = snap.find((x) => x.id === n.id);
+        if (!s) return n;
+        return { ...n, position: { ...s.position }, parentId: s.parentId ?? undefined } as Node;
+      }));
+      // persiste no banco
+      for (const s of snap) {
+        if (s.type === "stickNote") {
+          const jid = (nodes.find((n) => n.id === s.id)?.data as any)?.journeyId;
+          if (jid) await updateJourney(jid, { canvas: { x: s.position.x, y: s.position.y } });
+        } else if (s.type && s.type !== "stage") {
+          const jid = stepJourney.get(s.id);
+          if (jid) {
+            await assignNodeToJourney(s.id, {
+              journeyId: jid,
+              parentStepId: s.parentId ?? null,
+              position: s.position,
+            });
+          }
+        }
+      }
+      toast.success("Última ação desfeita");
+    },
+  });
+
+  const onNodeDragStart = useCallback(() => {
+    pushHistory(captureNodesSnapshot());
+  }, [pushHistory, captureNodesSnapshot]);
+
   // Injetar handlers nos sticky notes via data + aplicar isolamento por foco
   const enhancedNodes = useMemo(() => nodes.map((n) => {
     const journeyOfNode = n.type === "stickNote"
