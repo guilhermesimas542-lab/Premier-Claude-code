@@ -95,21 +95,21 @@ export function FunnelPopupProvider({ children }: { children: ReactNode }) {
   }, [fetchPopup]);
 
   // ============================================================
-  // CRM popup queue — peça nova, ao lado dos popups globais por tipo.
-  // Exibe no máximo 1 delivery pendente do crm_popup_deliveries por carregamento.
-  // Só mostra quando não há outro popup global ativo.
+  // CRM popup queue — empilhada: mostra uma de cada vez, em ordem cronológica.
+  // Só renderiza quando não há outro popup global ativo.
   // ============================================================
-  const { delivery, markShown, markClicked, markDismissed, clear } = useCrmPopupQueue();
-  const [crmShown, setCrmShown] = useState(false);
+  const { queue, markShown, markClicked, markDismissed, shift } = useCrmPopupQueue();
+  const current = queue[0] ?? null;
+  const shownRef = useState(() => new Set<string>())[0];
 
   useEffect(() => {
-    if (delivery && !crmShown && !activePopup) {
-      markShown(delivery.id);
-      setCrmShown(true);
+    if (current && !shownRef.has(current.id) && !activePopup) {
+      shownRef.add(current.id);
+      markShown(current);
     }
-  }, [delivery, crmShown, activePopup, markShown]);
+  }, [current, activePopup, markShown, shownRef]);
 
-  const crmPopupData = delivery ? crmDeliveryToFunnelPopupData(delivery) : null;
+  const crmPopupData = current ? crmDeliveryToFunnelPopupData(current) : null;
 
   return (
     <FunnelPopupContext.Provider value={{ openPopup, openPopupForHouse }}>
@@ -117,15 +117,15 @@ export function FunnelPopupProvider({ children }: { children: ReactNode }) {
       {activePopup && (
         <FunnelPopup popup={activePopup} onClose={() => setActivePopup(null)} />
       )}
-      {crmPopupData && delivery && !activePopup && (
+      {crmPopupData && current && !activePopup && (
         <FunnelPopup
           popup={crmPopupData}
           onClose={async () => {
-            await markDismissed(delivery.id);
-            clear();
+            await markDismissed(current.id);
+            shift();
           }}
           onCtaClick={async () => {
-            await markClicked(delivery.id);
+            await markClicked(current.id);
           }}
         />
       )}
