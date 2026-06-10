@@ -88,6 +88,7 @@ interface ScheduleWizardProps {
 export function ScheduleWizard({ editingId, onDone, onCancel }: ScheduleWizardProps = {}) {
   const navigate = useNavigate();
   const { create, update: updateSchedule } = useSchedules();
+  const { dispatch } = useDispatchSchedule();
   const [state, setState] = useState<WizardState>(INITIAL_STATE);
   const [stepIdx, setStepIdx] = useState(0);
   const [saving, setSaving] = useState(false);
