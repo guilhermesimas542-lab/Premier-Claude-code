@@ -235,7 +235,7 @@ function StickyNoteNode({ id, data, selected }: any) {
         }}
       />
       <div
-        className="absolute top-0 left-0 right-0 flex items-center gap-2 px-2.5 py-1.5 rounded-t-2xl"
+        className="sticky-drag-handle absolute top-0 left-0 right-0 flex items-center gap-2 px-2.5 py-1.5 rounded-t-2xl cursor-grab active:cursor-grabbing"
         style={{ background: hexToRgba(color, 0.25) }}
       >
         <Layers className="w-3.5 h-3.5 shrink-0" style={{ color }} />
@@ -409,6 +409,7 @@ function Inner() {
           type: "sticky",
           position: existing?.position ?? { x: st.x, y: st.y },
           style: { width: st.w, height: st.h },
+            dragHandle: ".sticky-drag-handle",
           zIndex: 0,
           data: {
             id: st.id,
@@ -419,6 +420,9 @@ function Inner() {
             },
             onChangeColor: (id: string, color: string) => {
               persistStickies(stickies.map((s) => s.id === id ? { ...s, color } : s));
+            },
+            onResize: (id: string, w: number, h: number) => {
+              persistStickies(stickies.map((s) => s.id === id ? { ...s, w, h } : s));
             },
             onDelete: (id: string) => {
               persistStickies(stickies.filter((s) => s.id !== id));
