@@ -84,17 +84,15 @@ export function FunnelPopupProvider({ children }: { children: ReactNode }) {
     }
   }, [current, activePopup, markShown, shownRef]);
 
-  const crmPopupData = current ? crmDeliveryToFunnelPopupData(current) : null;
-
   return (
     <FunnelPopupContext.Provider value={{ openPopup, openPopupForHouse }}>
       {children}
       {activePopup && (
         <FunnelPopup popup={activePopup} onClose={() => setActivePopup(null)} />
       )}
-      {crmPopupData && current && !activePopup && (
-        <FunnelPopup
-          popup={crmPopupData}
+      {current && !activePopup && (
+        <CrmPopupModal
+          content={current.content ?? {}}
           onClose={async () => {
             await markDismissed(current.id);
             shift();
