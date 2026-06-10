@@ -670,7 +670,10 @@ function Inner() {
         {/* Canvas */}
         <div
           className="flex-1 relative"
-          style={{ background: dark ? "#0b1220" : "#ffffff" }}
+          style={{
+            background: dark ? "#0b1220" : "#ffffff",
+            cursor: isPanMode ? "grab" : undefined,
+          }}
           onDragOver={(e) => {
             if (
               e.dataTransfer.types.includes("application/x-crm-channel") ||
@@ -698,14 +701,16 @@ function Inner() {
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
+            onNodeDragStart={onNodeDragStart}
             onNodeDragStop={onNodeDragStop}
-            onNodeClick={(_e, n) => { if (n.type === "schedule") setSelectedId(n.id); }}
+            onNodeClick={(_e, n) => { if (!isPanMode && n.type === "schedule") setSelectedId(n.id); }}
             onNodeDoubleClick={(_e, n) => {
-              if (n.type === "schedule") openWizard(n.id);
+              if (!isPanMode && n.type === "schedule") openWizard(n.id);
             }}
-            nodesDraggable
-            nodesConnectable
-            elementsSelectable
+            nodesDraggable={!isPanMode}
+            nodesConnectable={!isPanMode}
+            elementsSelectable={!isPanMode}
+            panOnDrag={isPanMode ? [0, 1, 2] : [1, 2]}
             panOnScroll
             minZoom={0.2}
             maxZoom={2}
