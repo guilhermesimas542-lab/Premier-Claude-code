@@ -275,7 +275,7 @@ function Inner() {
     const { data, error } = await (supabase as any)
       .from("crm_schedules")
       .select(`
-        id, name, channel, status, scheduled_at, sent_at, audience_id,
+        id, name, channel, status, scheduled_at, sent_at, audience_id, audience_filters,
         reach_count, delivered_count, failed_count, open_count, click_count, content,
         audience:crm_audiences ( id, name )
       `)
