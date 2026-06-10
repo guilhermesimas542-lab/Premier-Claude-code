@@ -434,6 +434,41 @@ function Inner() {
     toast.success("Ordem definida");
   }, [rows, persistContent]);
 
+  // ============== Histórico / Undo (Ctrl+Z) ==============
+
+  type Snapshot = {
+    stickies: StickyData[];
+    schedulePositions: Record<string, { x: number; y: number }>;
+  };
+  const captureSnapshot = useCallback((): Snapshot => {
+    const schedulePositions: Record<string, { x: number; y: number }> = {};
+    rows.forEach((r) => {
+      const c = (r.content as any)?.__canvas;
+      if (c && typeof c.x === "number") schedulePositions[r.id] = { x: c.x, y: c.y };
+    });
+    return {
+      stickies: stickies.map((s) => ({ ...s })),
+      schedulePositions,
+    };
+  }, [rows, stickies]);
+
+  const { isPanMode, pushHistory } = useWhiteboardShortcuts<Snapshot>({
+    onUndo: async (snap) => {
+      // restaura stickies
+      persistStickies(snap.stickies);
+      // restaura posições dos schedules
+      for (const id of Object.keys(snap.schedulePositions)) {
+        const pos = snap.schedulePositions[id];
+        await persistContent(id, { __canvas: { x: pos.x, y: pos.y } });
+      }
+      toast.success("Última ação desfeita");
+    },
+  });
+
+  const onNodeDragStart = useCallback(() => {
+    pushHistory(captureSnapshot());
+  }, [pushHistory, captureSnapshot]);
+
   const onNodeDragStop = useCallback(async (_e: any, n: Node) => {
     if (n.type === "sticky") {
       persistStickies(stickies.map((s) => s.id === n.id
