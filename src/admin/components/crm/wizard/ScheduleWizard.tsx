@@ -208,7 +208,7 @@ export function ScheduleWizard({ editingId, onDone, onCancel }: ScheduleWizardPr
     setSaving(false);
 
     if (success) {
-      navigate("/admin/crm/schedules");
+      goDone();
     }
   };
 
