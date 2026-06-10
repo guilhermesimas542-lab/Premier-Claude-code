@@ -438,7 +438,7 @@ function Inner() {
     const color = STICKY_COLORS[stickies.length % STICKY_COLORS.length];
     persistStickies([
       ...stickies,
-      { id, x: Math.round(x), y: Math.round(y), w: 360, h: 220, color, title: "Nova nota" },
+      { id, x: Math.round(x), y: Math.round(y), w: 220, h: 120, color, title: "Nova nota" },
     ]);
   }, [stickies, persistStickies]);
 
