@@ -13,6 +13,7 @@ import type {
 } from "../../hooks/crm/useAudiences";
 import { usePreviewAudience } from "../../hooks/crm/usePreviewAudience";
 import { useBehaviorOptions } from "../../hooks/crm/useBehaviorOptions";
+import { UserPicker } from "./UserPicker";
 
 interface Props {
   open: boolean;
