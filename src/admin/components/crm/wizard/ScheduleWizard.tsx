@@ -106,7 +106,7 @@ export function ScheduleWizard({ editingId, onDone, onCancel }: ScheduleWizardPr
       if (!mounted) return;
       if (error || !data) {
         toast.error(`Erro ao carregar schedule: ${error?.message ?? "desconhecido"}`);
-        navigate("/admin/crm/schedules");
+        goBack();
         return;
       }
       const scheduledLocal =
