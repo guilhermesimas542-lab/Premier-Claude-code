@@ -94,7 +94,7 @@ const Home = () => {
   }, []);
 
   useEffect(() => {
-    if (mockUser?.dbId && mockUser?.email) {
+    if (mockUser?.email) {
       subscribeToPush(mockUser.dbId, mockUser.email);
     }
   }, [mockUser?.dbId, mockUser?.email, subscribeToPush]);
