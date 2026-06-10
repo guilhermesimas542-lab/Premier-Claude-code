@@ -82,7 +82,7 @@ function ScheduleCardNode({ data, selected }: any) {
     : null;
   return (
     <div
-      className="rounded-xl border-2 bg-card text-card-foreground shadow-md p-3 flex flex-col gap-2"
+      className="rounded-xl border-2 bg-card text-card-foreground shadow-md p-3 flex flex-col gap-2 relative"
       style={{
         width: NODE_W,
         height: NODE_H,
@@ -90,8 +90,26 @@ function ScheduleCardNode({ data, selected }: any) {
         boxShadow: selected ? `0 0 0 2px ${ch?.color ?? "#888"}55` : undefined,
       }}
     >
+      {/* Ações no topo direito */}
+      <div className="absolute top-1.5 right-1.5 flex items-center gap-0.5 z-10">
+        <button
+          title="Duplicar"
+          onClick={(e) => { e.stopPropagation(); data.onDuplicate?.(data.id); }}
+          className="w-5 h-5 rounded flex items-center justify-center hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <Copy className="w-3 h-3" />
+        </button>
+        <button
+          title="Excluir"
+          onClick={(e) => { e.stopPropagation(); data.onDelete?.(data.id); }}
+          className="w-5 h-5 rounded flex items-center justify-center hover:bg-red-500/20 text-muted-foreground hover:text-red-500 transition-colors"
+        >
+          <Trash2 className="w-3 h-3" />
+        </button>
+      </div>
+
       {/* Header */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 pr-8">
         <div
           className="w-7 h-7 rounded-md flex items-center justify-center shrink-0"
           style={{ background: (ch?.color ?? "#888") + "22" }}
