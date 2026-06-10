@@ -46,14 +46,17 @@ export function CrmPopupModal({ content, onClose, onCtaClick }: CrmPopupModalPro
             <X className="w-3.5 h-3.5 text-white" />
           </button>
 
-          <div onClick={handleCta} className="cursor-pointer">
+          <button
+            onClick={ctaUrl ? handleCta : onClose}
+            className="w-full focus:outline-none cursor-pointer transition-transform active:scale-[0.99]"
+          >
             <img
               src={content.image_url!}
               alt=""
               onError={() => setImageOk(false)}
               className="w-full h-auto rounded-2xl"
             />
-          </div>
+          </button>
         </DialogContent>
       </Dialog>
     );
@@ -97,15 +100,20 @@ export function CrmPopupModal({ content, onClose, onCtaClick }: CrmPopupModalPro
           )}
 
           {hasImage && (
-            <img
-              src={content.image_url!}
-              alt=""
-              onError={() => setImageOk(false)}
-              className="w-full h-auto object-cover rounded-xl mt-4"
-            />
+            <button
+              onClick={ctaUrl ? handleCta : onClose}
+              className="w-full mt-4 focus:outline-none cursor-pointer transition-transform active:scale-[0.99]"
+            >
+              <img
+                src={content.image_url!}
+                alt=""
+                onError={() => setImageOk(false)}
+                className="w-full h-auto object-cover rounded-xl"
+              />
+            </button>
           )}
 
-          {ctaUrl && ctaText && (
+          {!hasImage && ctaUrl && ctaText && (
             <button
               onClick={handleCta}
               className="block w-full py-3.5 text-center font-bold rounded-xl text-sm tracking-wide transition-transform hover:scale-[1.02] active:scale-[0.98]"
