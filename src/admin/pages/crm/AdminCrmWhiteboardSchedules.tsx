@@ -629,7 +629,7 @@ function Inner() {
                 )}
               </div>
               <div className="flex gap-2 pt-1">
-                <Button size="sm" variant="outline" className="flex-1" onClick={() => navigate(`/admin/crm/schedules/${selected.id}/edit`)}>
+                <Button size="sm" variant="outline" className="flex-1" onClick={() => openWizard(selected.id)}>
                   <Pencil className="w-3.5 h-3.5 mr-1" /> Editar
                 </Button>
                 <Button size="sm" variant="destructive" onClick={() => handleDelete(selected.id)}>
