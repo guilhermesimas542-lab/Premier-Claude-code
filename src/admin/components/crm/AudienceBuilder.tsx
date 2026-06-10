@@ -13,6 +13,7 @@ import type {
 } from "../../hooks/crm/useAudiences";
 import { usePreviewAudience } from "../../hooks/crm/usePreviewAudience";
 import { useBehaviorOptions } from "../../hooks/crm/useBehaviorOptions";
+import { UserPicker } from "./UserPicker";
 
 interface Props {
   open: boolean;
@@ -168,6 +169,22 @@ export function AudienceBuilder({ open, onClose, onSave, editing, initialFilters
               rows={2}
             />
           </div>
+
+          {/* Leads específicos */}
+          <FilterGroup
+            title="Leads específicos"
+            hint="Busque por email e selecione exatamente quem entra. Se preencher aqui, os outros filtros funcionam como refinamento."
+          >
+            <UserPicker
+              selectedIds={filters.user_ids ?? []}
+              onChange={(ids) =>
+                setFilters((prev) => ({
+                  ...prev,
+                  user_ids: ids.length > 0 ? ids : undefined,
+                }))
+              }
+            />
+          </FilterGroup>
 
           {/* Plano */}
           <FilterGroup title="Plano" hint="Selecione um ou mais planos">
