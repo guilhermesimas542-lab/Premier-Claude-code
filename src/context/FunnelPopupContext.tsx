@@ -9,13 +9,14 @@ import { useCrmPopupQueue, type CrmPopupDelivery } from "@/hooks/useCrmPopupQueu
  * (sem imagem, sem quiz, template default com title + body como benefício + CTA).
  */
 function crmDeliveryToFunnelPopupData(d: CrmPopupDelivery): FunnelPopupData {
-  const ctaUrl = d.content?.cta?.url ?? null;
-  const ctaText = d.content?.cta?.text ?? null;
+  const linkUrl = d.content?.link_url ?? null;
+  const ctaUrl = d.content?.cta?.url ?? linkUrl;
+  const ctaText = d.content?.cta?.text ?? (linkUrl ? "Acessar" : null);
   return {
     id: `crm:${d.id}`,
     type: "crm_popup",
-    image_url: null,
-    button_url: null,
+    image_url: d.content?.image_url ?? null,
+    button_url: linkUrl,
     question_1_text: null,
     question_1_options: null,
     question_2_text: null,
