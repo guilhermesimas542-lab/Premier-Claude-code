@@ -18,7 +18,7 @@ import {
 import "@xyflow/react/dist/style.css";
 import {
   ArrowLeft, Loader2, Plus, GitBranch, CalendarClock, Send, Pencil, Trash2, Layers,
-  Users2, MailOpen, AlertTriangle, StickyNote,
+  Users2, MailOpen, AlertTriangle, StickyNote, Sun, Moon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -200,6 +200,8 @@ const NODE_TYPES = { schedule: ScheduleCardNode, sticky: StickyNoteNode };
 
 const STICKY_COLORS = ["#FACC15", "#22D3EE", "#F472B6", "#A855F7", "#34D399", "#FB923C"];
 
+const THEME_KEY = "crm-schedule-canvas-theme";
+
 function Inner() {
   const navigate = useNavigate();
   const { screenToFlowPosition, fitView } = useReactFlow();
@@ -209,6 +211,12 @@ function Inner() {
   const [edges, setEdges] = useState<Edge[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [dark, setDark] = useState<boolean>(() => {
+    try { return localStorage.getItem(THEME_KEY) !== "light"; } catch { return true; }
+  });
+  useEffect(() => {
+    try { localStorage.setItem(THEME_KEY, dark ? "dark" : "light"); } catch {}
+  }, [dark]);
 
   // Load stickies from localStorage
   useEffect(() => {
@@ -238,55 +246,64 @@ function Inner() {
   }, []);
   useEffect(() => { load(); }, [load]);
 
-  // Build schedule + sticky nodes
+  // Build schedule + sticky nodes — PRESERVE existing positions to avoid jump-back
   useEffect(() => {
     const PER_ROW = 4;
     const GAP_X = NODE_W + 40;
     const GAP_Y = NODE_H + 40;
 
-    const scheduleNodes: Node[] = rows.map((s, i) => {
-      const saved = (s.content as any)?.__canvas;
-      const pos = saved && typeof saved.x === "number"
-        ? { x: saved.x, y: saved.y }
-        : { x: 320 + (i % PER_ROW) * GAP_X, y: Math.floor(i / PER_ROW) * GAP_Y };
-      return {
-        id: s.id,
-        type: "schedule",
-        position: pos,
-        zIndex: 2,
-        data: {
-          name: s.name,
-          channel: s.channel,
-          status: s.status,
-          scheduled_at: s.scheduled_at,
-          sent_at: s.sent_at,
-          reach_count: s.reach_count,
-          delivered_count: s.delivered_count,
-          failed_count: s.failed_count,
-          open_count: s.open_count,
-          click_count: s.click_count,
-          audienceName: s.audience?.name ?? null,
-        },
-      } as Node;
+    setNodes((prev) => {
+      const prevById = new Map(prev.map((n) => [n.id, n]));
+
+      const scheduleNodes: Node[] = rows.map((s, i) => {
+        const existing = prevById.get(s.id);
+        const saved = (s.content as any)?.__canvas;
+        const fallback = saved && typeof saved.x === "number"
+          ? { x: saved.x, y: saved.y }
+          : { x: 320 + (i % PER_ROW) * GAP_X, y: Math.floor(i / PER_ROW) * GAP_Y };
+        const position = existing?.position ?? fallback;
+        return {
+          id: s.id,
+          type: "schedule",
+          position,
+          zIndex: 2,
+          data: {
+            name: s.name,
+            channel: s.channel,
+            status: s.status,
+            scheduled_at: s.scheduled_at,
+            sent_at: s.sent_at,
+            reach_count: s.reach_count,
+            delivered_count: s.delivered_count,
+            failed_count: s.failed_count,
+            open_count: s.open_count,
+            click_count: s.click_count,
+            audienceName: s.audience?.name ?? null,
+          },
+        } as Node;
+      });
+
+      const stickyNodes: Node[] = stickies.map((st) => {
+        const existing = prevById.get(st.id);
+        return {
+          id: st.id,
+          type: "sticky",
+          position: existing?.position ?? { x: st.x, y: st.y },
+          style: existing?.style ?? { width: st.w, height: st.h },
+          zIndex: 0,
+          data: {
+            id: st.id,
+            title: st.title,
+            color: st.color,
+            onChangeTitle: (id: string, title: string) => {
+              persistStickies(stickies.map((s) => s.id === id ? { ...s, title } : s));
+            },
+          },
+        } as Node;
+      });
+
+      return [...stickyNodes, ...scheduleNodes];
     });
-
-    const stickyNodes: Node[] = stickies.map((st) => ({
-      id: st.id,
-      type: "sticky",
-      position: { x: st.x, y: st.y },
-      style: { width: st.w, height: st.h },
-      zIndex: 0,
-      data: {
-        id: st.id,
-        title: st.title,
-        color: st.color,
-        onChangeTitle: (id: string, title: string) => {
-          persistStickies(stickies.map((s) => s.id === id ? { ...s, title } : s));
-        },
-      },
-    } as Node));
-
-    setNodes([...stickyNodes, ...scheduleNodes]);
 
     // Build edges from content.__next_ids
     const allEdges: Edge[] = [];
@@ -458,6 +475,9 @@ function Inner() {
         <Button size="sm" variant="outline" onClick={organize}>
           <Layers className="w-4 h-4 mr-1" /> Organizar
         </Button>
+        <Button size="sm" variant="outline" onClick={() => setDark((d) => !d)} title={dark ? "Tema claro" : "Tema escuro"}>
+          {dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+        </Button>
         <span className="ml-auto text-[11px] text-muted-foreground">
           {rows.length} schedule(s) · arraste canais à esquerda · conecte cards pra definir ordem
         </span>
@@ -529,6 +549,7 @@ function Inner() {
         {/* Canvas */}
         <div
           className="flex-1 relative"
+          style={{ background: dark ? "#0b1220" : "#ffffff" }}
           onDragOver={(e) => {
             if (
               e.dataTransfer.types.includes("application/x-crm-channel") ||
@@ -552,6 +573,7 @@ function Inner() {
             nodes={nodes}
             edges={edges}
             nodeTypes={NODE_TYPES}
+            colorMode={dark ? "dark" : "light"}
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
@@ -568,7 +590,7 @@ function Inner() {
             maxZoom={2}
             fitView
           >
-            <Background />
+            <Background color={dark ? "#1f2937" : "#d1d5db"} gap={20} />
             <Controls />
             <MiniMap pannable zoomable />
           </ReactFlow>
