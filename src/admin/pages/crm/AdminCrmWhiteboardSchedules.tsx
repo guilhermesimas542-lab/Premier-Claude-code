@@ -475,6 +475,9 @@ function Inner() {
         <Button size="sm" variant="outline" onClick={organize}>
           <Layers className="w-4 h-4 mr-1" /> Organizar
         </Button>
+        <Button size="sm" variant="outline" onClick={() => setDark((d) => !d)} title={dark ? "Tema claro" : "Tema escuro"}>
+          {dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+        </Button>
         <span className="ml-auto text-[11px] text-muted-foreground">
           {rows.length} schedule(s) · arraste canais à esquerda · conecte cards pra definir ordem
         </span>
