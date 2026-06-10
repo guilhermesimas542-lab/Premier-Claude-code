@@ -482,7 +482,7 @@ function Inner() {
             <Send className="w-4 h-4 mr-1" /> Schedules
           </Button>
         </div>
-        <Button size="sm" className="ml-3" onClick={() => navigate("/admin/crm/schedules/new")}>
+        <Button size="sm" className="ml-3" onClick={() => openWizard(undefined)}>
           <Plus className="w-4 h-4 mr-1" /> Novo via wizard
         </Button>
         <Button size="sm" variant="outline" onClick={organize}>
