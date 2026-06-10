@@ -129,6 +129,7 @@ interface PushContent {
   title?: string | null;
   body?: string | null;
   image_url?: string | null;
+  link_url?: string | null;
   [key: string]: unknown;
 }
 
@@ -147,11 +148,15 @@ export async function sendBatchPushReal(
   const title = (content?.title ?? "").toString().trim() || "Premier FC";
   const bodyText = (content?.body ?? "").toString().trim() || "";
   const imageUrl = (content?.image_url ?? "").toString().trim() || null;
+  const linkUrl = (content?.link_url ?? "").toString().trim() || null;
   const sentAt = new Date().toISOString();
   const results: SendResult[] = [];
 
-  const pushPayload: { title: string; body: string; image?: string } = { title, body: bodyText };
+  const pushPayload: { title: string; body: string; image?: string; url?: string } = { title, body: bodyText };
   if (imageUrl) pushPayload.image = imageUrl;
+  if (linkUrl) pushPayload.url = linkUrl;
+
+
 
   // Filtra ids reais (UUID, descarta audience_member sintéticos)
   const userIds = recipients
