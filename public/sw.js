@@ -32,7 +32,12 @@ self.addEventListener('push', (event) => {
   };
 
   event.waitUntil(
-    self.registration.showNotification(data.title, options)
+    Promise.all([
+      self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {
+        clients.forEach((client) => client.postMessage({ type: 'push-notification', payload: data }));
+      }),
+      self.registration.showNotification(data.title, options),
+    ])
   );
 });
 
