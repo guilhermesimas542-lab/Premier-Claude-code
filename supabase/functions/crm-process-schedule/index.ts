@@ -331,6 +331,24 @@ Deno.serve(async (req: Request) => {
     }
   }
 
+  // Override: telefones avulsos (SMS). Adiciona como recipients sintéticos.
+  if (!isBroadcast && filters.phones && filters.phones.length > 0) {
+    const existingPhones = new Set(
+      recipients.map((r) => (r.phone ?? "").replace(/\D/g, "")).filter(Boolean)
+    );
+    for (const p of filters.phones) {
+      const norm = p.replace(/\D/g, "");
+      if (!norm || existingPhones.has(norm)) continue;
+      recipients.push({
+        id: `phone:${norm}`,
+        email: null,
+        phone: norm,
+        nickname: null,
+      });
+      existingPhones.add(norm);
+    }
+  }
+
 
   const reachCount = recipients.length;
   let deliveredCount = 0;
