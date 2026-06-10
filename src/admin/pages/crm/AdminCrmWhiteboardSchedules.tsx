@@ -215,15 +215,15 @@ function Inner() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [wizardOpen, setWizardOpen] = useState(false);
   const [wizardEditingId, setWizardEditingId] = useState<string | undefined>(undefined);
-  const openWizard = useCallback((id?: string) => {
+  const openWizard = (id?: string) => {
     setWizardEditingId(id);
     setWizardOpen(true);
-  }, []);
-  const closeWizard = useCallback((reload: boolean) => {
+  };
+  const closeWizardFn = (reload: boolean) => {
     setWizardOpen(false);
     setWizardEditingId(undefined);
     if (reload) load();
-  }, []);
+  };
   const [dark, setDark] = useState<boolean>(() => {
     try { return localStorage.getItem(THEME_KEY) !== "light"; } catch { return true; }
   });
