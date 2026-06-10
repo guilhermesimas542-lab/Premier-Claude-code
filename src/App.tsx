@@ -63,6 +63,7 @@ import AdminCrmJourneys from "./admin/pages/crm/AdminCrmJourneys";
 import AdminCrmJourneyBuilder from "./admin/pages/crm/AdminCrmJourneyBuilder";
 import AdminCrmJourneyDetail from "./admin/pages/crm/AdminCrmJourneyDetail";
 import AdminCrmWhiteboardUnified from "./admin/pages/crm/AdminCrmWhiteboardUnified";
+import AdminCrmWhiteboardSchedules from "./admin/pages/crm/AdminCrmWhiteboardSchedules";
 import AdminBehavior from "./admin/pages/AdminBehavior";
 import AdminCrmSettings from "./admin/pages/crm/AdminCrmSettings";
 import AdminWebhook from "./admin/pages/AdminWebhook";
