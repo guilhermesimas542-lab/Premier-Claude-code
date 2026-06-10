@@ -307,6 +307,7 @@ function Inner() {
           position,
           zIndex: 2,
           data: {
+            id: s.id,
             name: s.name,
             channel: s.channel,
             status: s.status,
@@ -318,6 +319,8 @@ function Inner() {
             open_count: s.open_count,
             click_count: s.click_count,
             audienceName: s.audience?.name ?? null,
+            onDelete: (id: string) => handleDelete(id),
+            onDuplicate: (id: string) => handleDuplicate(id),
           },
         } as Node;
       });
