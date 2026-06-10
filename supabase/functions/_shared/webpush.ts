@@ -17,6 +17,28 @@ export interface WebPushPayload {
   body: string;
 }
 
+// Decodifica base64url (ou base64 padrão) com padding tolerante.
+// Lança erro descritivo (com label) se a entrada for inválida.
+function b64urlDecode(input: string, label: string): Uint8Array {
+  if (typeof input !== "string" || input.length === 0) {
+    throw new Error(`webpush:${label}: vazio ou não-string`);
+  }
+  const cleaned = input.trim().replace(/-/g, "+").replace(/_/g, "/").replace(/\s+/g, "");
+  const pad = cleaned.length % 4;
+  const padded = pad === 0 ? cleaned : cleaned + "=".repeat(4 - pad);
+  try {
+    return Uint8Array.from(atob(padded), (c) => c.charCodeAt(0));
+  } catch (e: any) {
+    throw new Error(`webpush:${label}: base64 inválido (${e?.message ?? e?.name ?? "erro"}) len=${input.length}`);
+  }
+}
+
+function b64urlEncode(bytes: Uint8Array): string {
+  let s = "";
+  for (let i = 0; i < bytes.length; i++) s += String.fromCharCode(bytes[i]);
+  return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
+}
+
 export async function generateVapidToken(
   audience: string,
   subject: string,
@@ -31,10 +53,10 @@ export async function generateVapidToken(
 
   const signingInput = `${b64url(header)}.${b64url(payload)}`;
 
-  const rawPriv = Uint8Array.from(
-    atob(privateKeyB64.replace(/-/g, '+').replace(/_/g, '/')),
-    (c) => c.charCodeAt(0)
-  );
+  const rawPriv = b64urlDecode(privateKeyB64, "VAPID_PRIVATE_KEY");
+  if (rawPriv.length !== 32) {
+    throw new Error(`webpush:VAPID_PRIVATE_KEY: tamanho inválido ${rawPriv.length} (esperado 32)`);
+  }
 
   const pkcs8Header = new Uint8Array([
     0x30, 0x41,
@@ -88,14 +110,14 @@ export async function sendPushToSubscription(
   const enc = new TextEncoder();
   const payloadBytes = enc.encode(payloadStr);
 
-  const p256dhBytes = Uint8Array.from(
-    atob(subscription.keys.p256dh.replace(/-/g, '+').replace(/_/g, '/')),
-    (c) => c.charCodeAt(0)
-  );
-  const authBytes = Uint8Array.from(
-    atob(subscription.keys.auth.replace(/-/g, '+').replace(/_/g, '/')),
-    (c) => c.charCodeAt(0)
-  );
+  const p256dhBytes = b64urlDecode(subscription.keys.p256dh, "p256dh");
+  if (p256dhBytes.length !== 65 || p256dhBytes[0] !== 0x04) {
+    throw new Error(`webpush:p256dh: chave inválida (len=${p256dhBytes.length}, prefix=0x${p256dhBytes[0]?.toString(16)})`);
+  }
+  const authBytes = b64urlDecode(subscription.keys.auth, "auth");
+  if (authBytes.length !== 16) {
+    throw new Error(`webpush:auth: tamanho inválido ${authBytes.length} (esperado 16)`);
+  }
 
   const ephemeral = await crypto.subtle.generateKey(
     { name: 'ECDH', namedCurve: 'P-256' },
