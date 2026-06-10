@@ -224,7 +224,7 @@ export default function AdminCrmSchedules() {
         </div>
       ) : items.length === 0 ? (
         <EmptyState
-          hasFilters={!!(filter.channel || filter.status)}
+          hasFilters={hasActiveFilters(filter)}
           onCreate={() => navigate("/admin/crm/schedules/new")}
         />
       ) : (
