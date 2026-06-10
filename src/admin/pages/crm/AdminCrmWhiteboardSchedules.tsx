@@ -474,6 +474,30 @@ function Inner() {
     setSelectedId(null);
   }, [rows]);
 
+  const handleDuplicate = useCallback(async (id: string) => {
+    const row = rows.find((r) => r.id === id);
+    if (!row) return;
+    const { data, error } = await (supabase as any)
+      .from("crm_schedules")
+      .insert({
+        name: `${row.name} (cópia)`,
+        channel: row.channel,
+        audience_id: row.audience_id,
+        audience_filters: row.audience_filters,
+        content: { ...(row.content ?? {}), __canvas: { x: (row.content?.__canvas?.x ?? 0) + 40, y: (row.content?.__canvas?.y ?? 0) + 40 } },
+        status: "draft",
+      })
+      .select(`
+        id, name, channel, status, scheduled_at, sent_at, audience_id,
+        reach_count, delivered_count, failed_count, open_count, click_count, content,
+        audience:crm_audiences ( id, name )
+      `)
+      .single();
+    if (error) { toast.error(`Erro ao duplicar: ${error.message}`); return; }
+    toast.success("Schedule duplicado");
+    setRows((prev) => [data as ScheduleRow, ...prev]);
+  }, [rows]);
+
   const organize = useCallback(async () => {
     const PER_ROW = 4;
     const GAP_X = NODE_W + 40;
