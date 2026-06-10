@@ -310,7 +310,7 @@ function Inner() {
           id: st.id,
           type: "sticky",
           position: existing?.position ?? { x: st.x, y: st.y },
-          style: existing?.style ?? { width: st.w, height: st.h },
+          style: { width: st.w, height: st.h },
           zIndex: 0,
           data: {
             id: st.id,
