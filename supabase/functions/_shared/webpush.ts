@@ -110,14 +110,14 @@ export async function sendPushToSubscription(
   const enc = new TextEncoder();
   const payloadBytes = enc.encode(payloadStr);
 
-  const p256dhBytes = Uint8Array.from(
-    atob(subscription.keys.p256dh.replace(/-/g, '+').replace(/_/g, '/')),
-    (c) => c.charCodeAt(0)
-  );
-  const authBytes = Uint8Array.from(
-    atob(subscription.keys.auth.replace(/-/g, '+').replace(/_/g, '/')),
-    (c) => c.charCodeAt(0)
-  );
+  const p256dhBytes = b64urlDecode(subscription.keys.p256dh, "p256dh");
+  if (p256dhBytes.length !== 65 || p256dhBytes[0] !== 0x04) {
+    throw new Error(`webpush:p256dh: chave inválida (len=${p256dhBytes.length}, prefix=0x${p256dhBytes[0]?.toString(16)})`);
+  }
+  const authBytes = b64urlDecode(subscription.keys.auth, "auth");
+  if (authBytes.length !== 16) {
+    throw new Error(`webpush:auth: tamanho inválido ${authBytes.length} (esperado 16)`);
+  }
 
   const ephemeral = await crypto.subtle.generateKey(
     { name: 'ECDH', namedCurve: 'P-256' },
