@@ -63,6 +63,7 @@ import AdminCrmJourneys from "./admin/pages/crm/AdminCrmJourneys";
 import AdminCrmJourneyBuilder from "./admin/pages/crm/AdminCrmJourneyBuilder";
 import AdminCrmJourneyDetail from "./admin/pages/crm/AdminCrmJourneyDetail";
 import AdminCrmWhiteboardUnified from "./admin/pages/crm/AdminCrmWhiteboardUnified";
+import AdminCrmWhiteboardSchedules from "./admin/pages/crm/AdminCrmWhiteboardSchedules";
 import AdminBehavior from "./admin/pages/AdminBehavior";
 import AdminCrmSettings from "./admin/pages/crm/AdminCrmSettings";
 import AdminWebhook from "./admin/pages/AdminWebhook";
@@ -160,6 +161,7 @@ const App = () => {
               <Route path="crm/journeys/:id/edit" element={<AdminCrmJourneyBuilder />} />
               <Route path="crm/journeys/:id/whiteboard" element={<Navigate to="/admin/crm/whiteboard" replace />} />
               <Route path="crm/whiteboard" element={<AdminCrmWhiteboardUnified />} />
+              <Route path="crm/whiteboard/schedules" element={<AdminCrmWhiteboardSchedules />} />
               <Route path="crm/whiteboard-legacy" element={<Navigate to="/admin/crm/whiteboard" replace />} />
               <Route path="crm/settings" element={<AdminCrmSettings />} />
             </Route>
