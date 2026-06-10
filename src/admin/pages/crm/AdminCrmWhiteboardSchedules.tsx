@@ -249,13 +249,13 @@ function StickyNoteNode({ id, data, selected }: any) {
               if (e.key === "Enter") commitTitle();
               if (e.key === "Escape") { setDraft(title); setEditing(false); }
             }}
-            className="flex-1 bg-background/60 px-1.5 py-0.5 rounded text-xs font-bold outline-none border border-border"
+            className="nodrag flex-1 bg-background/60 px-1.5 py-0.5 rounded text-xs font-bold outline-none border border-border"
             style={{ width: Math.max(width - 90, 80) }}
           />
         ) : (
           <button
             onClick={(e) => { e.stopPropagation(); setEditing(true); }}
-            className="flex-1 text-left text-xs font-bold uppercase tracking-wider truncate"
+            className="nodrag flex-1 text-left text-xs font-bold uppercase tracking-wider truncate"
             style={{ color }}
             title="Clique pra renomear"
           >
@@ -264,7 +264,7 @@ function StickyNoteNode({ id, data, selected }: any) {
         )}
         <button
           onClick={(e) => { e.stopPropagation(); setEditing((v) => !v); }}
-          className="p-0.5 rounded hover:bg-background/40"
+          className="nodrag p-0.5 rounded hover:bg-background/40"
           title="Renomear"
         >
           <Pencil className="w-3 h-3" style={{ color }} />
@@ -272,7 +272,7 @@ function StickyNoteNode({ id, data, selected }: any) {
         <div className="relative">
           <button
             onClick={(e) => { e.stopPropagation(); setShowPalette((v) => !v); }}
-            className="p-0.5 rounded hover:bg-background/40"
+            className="nodrag p-0.5 rounded hover:bg-background/40"
             title="Cor"
           >
             <Palette className="w-3 h-3" style={{ color }} />
