@@ -132,15 +132,37 @@ export function ChannelContentForm({ channel, content, onChange }: Props) {
         />
       </div>
       {channel === "popup" && (
-        <div className="space-y-1.5">
-          <Label>Texto do botão (CTA)</Label>
-          <Input
-            value={content.cta ?? ""}
-            onChange={(e) => setField("cta", e.target.value)}
-            placeholder="Ex: Quero ver agora"
-            disabled={isPending}
-          />
-        </div>
+        <>
+          <div className="space-y-1.5">
+            <Label>Texto do botão (CTA)</Label>
+            <Input
+              value={content.cta ?? ""}
+              onChange={(e) => setField("cta", e.target.value)}
+              placeholder="Ex: Quero ver agora"
+              disabled={isPending}
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label>Quantas vezes aparece</Label>
+              <Input
+                type="number"
+                min={1}
+                max={50}
+                value={content.max_views ?? 1}
+                onChange={(e) => setField("max_views", e.target.value)}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Expira em (opcional)</Label>
+              <Input
+                type="datetime-local"
+                value={content.expires_at ?? ""}
+                onChange={(e) => setField("expires_at", e.target.value)}
+              />
+            </div>
+          </div>
+        </>
       )}
       {imageControl}
       {linkControl}
