@@ -19,7 +19,7 @@ import {
 import "@xyflow/react/dist/style.css";
 import {
   ArrowLeft, Loader2, Plus, GitBranch, CalendarClock, Send, Pencil, Trash2, Layers,
-  Users2, MailOpen, AlertTriangle, StickyNote, Sun, Moon,
+  Users2, MailOpen, AlertTriangle, StickyNote, Sun, Moon, Copy,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
