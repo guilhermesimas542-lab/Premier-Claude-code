@@ -5,6 +5,7 @@ import {
   Background,
   Controls,
   MiniMap,
+  NodeResizer,
   ReactFlowProvider,
   applyNodeChanges,
   applyEdgeChanges,
