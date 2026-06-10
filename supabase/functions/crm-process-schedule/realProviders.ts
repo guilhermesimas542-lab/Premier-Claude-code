@@ -278,13 +278,22 @@ export async function sendBatchPushReal(
           });
         }
       } catch (e: any) {
+        const errName = e?.name ?? "Error";
+        const errMsg = e?.message ?? String(e);
+        console.error("[CRM][push] exceção ao enviar:", {
+          user_id: recipientUserId,
+          endpoint_host: (() => { try { return new URL(sub.endpoint).host; } catch { return null; } })(),
+          name: errName,
+          message: errMsg,
+          stack: e?.stack?.slice?.(0, 500),
+        });
         results.push({
           recipient_user_id: recipientUserId,
           recipient_identifier: identifier,
           status: "failed",
           error_code: "push_exception",
-          error_message: e?.message ?? String(e),
-          metadata: { provider: "web_push", attempted_at: sentAt },
+          error_message: `${errName}: ${errMsg}`,
+          metadata: { provider: "web_push", attempted_at: sentAt, error_name: errName },
         });
       }
     }
