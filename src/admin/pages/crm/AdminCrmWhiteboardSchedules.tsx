@@ -549,6 +549,7 @@ function Inner() {
         {/* Canvas */}
         <div
           className="flex-1 relative"
+          style={{ background: dark ? "#0b1220" : "#ffffff" }}
           onDragOver={(e) => {
             if (
               e.dataTransfer.types.includes("application/x-crm-channel") ||
@@ -572,6 +573,7 @@ function Inner() {
             nodes={nodes}
             edges={edges}
             nodeTypes={NODE_TYPES}
+            colorMode={dark ? "dark" : "light"}
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
@@ -588,7 +590,7 @@ function Inner() {
             maxZoom={2}
             fitView
           >
-            <Background />
+            <Background color={dark ? "#1f2937" : "#d1d5db"} gap={20} />
             <Controls />
             <MiniMap pannable zoomable />
           </ReactFlow>
