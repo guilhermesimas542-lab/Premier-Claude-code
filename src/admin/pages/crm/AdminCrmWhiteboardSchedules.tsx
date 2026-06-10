@@ -367,6 +367,11 @@ function Inner() {
           persistStickies(stickies.filter((s) => s.id !== c.id));
         }
       }
+      if (c.type === "dimensions" && c.id?.startsWith("sticky-") && c.dimensions && !c.resizing) {
+        const w = Math.round(c.dimensions.width);
+        const h = Math.round(c.dimensions.height);
+        persistStickies(stickies.map((s) => s.id === c.id ? { ...s, w, h } : s));
+      }
     });
   }, [stickies, persistStickies]);
 
