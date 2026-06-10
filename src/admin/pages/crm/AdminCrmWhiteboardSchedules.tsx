@@ -593,7 +593,7 @@ function Inner() {
             onNodeDragStop={onNodeDragStop}
             onNodeClick={(_e, n) => { if (n.type === "schedule") setSelectedId(n.id); }}
             onNodeDoubleClick={(_e, n) => {
-              if (n.type === "schedule") navigate(`/admin/crm/schedules/${n.id}/edit`);
+              if (n.type === "schedule") openWizard(n.id);
             }}
             nodesDraggable
             nodesConnectable
