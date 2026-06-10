@@ -25,6 +25,7 @@ import {
 import { StickNoteNode } from "@/admin/components/crm/whiteboard/nodes/StickNoteNode";
 import { JourneyConfigSheet } from "@/admin/components/crm/whiteboard/JourneyConfigSheet";
 import { NodeConfigDrawer } from "@/admin/components/crm/whiteboard/NodeConfigDrawer";
+import { useWhiteboardShortcuts } from "@/admin/hooks/crm/useWhiteboardShortcuts";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
