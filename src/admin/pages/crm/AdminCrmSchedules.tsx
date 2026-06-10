@@ -465,6 +465,10 @@ function EmptyState({
   );
 }
 
+function hasActiveFilters(filter: SchedulesFilter): boolean {
+  return !!(filter.channel || filter.status || filter.name || filter.from || filter.to || filter.dateField);
+}
+
 function Th({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
     <th
