@@ -1564,31 +1564,40 @@ export type Database = {
           acted_at: string | null
           content: Json
           created_at: string
+          expires_at: string | null
           id: string
+          max_views: number
           schedule_id: string | null
           shown_at: string | null
           status: string
           user_id: string
+          view_count: number
         }
         Insert: {
           acted_at?: string | null
           content?: Json
           created_at?: string
+          expires_at?: string | null
           id?: string
+          max_views?: number
           schedule_id?: string | null
           shown_at?: string | null
           status?: string
           user_id: string
+          view_count?: number
         }
         Update: {
           acted_at?: string | null
           content?: Json
           created_at?: string
+          expires_at?: string | null
           id?: string
+          max_views?: number
           schedule_id?: string | null
           shown_at?: string | null
           status?: string
           user_id?: string
+          view_count?: number
         }
         Relationships: [
           {
