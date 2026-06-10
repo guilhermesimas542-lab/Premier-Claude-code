@@ -42,7 +42,8 @@ function b64urlEncode(bytes: Uint8Array): string {
 export async function generateVapidToken(
   audience: string,
   subject: string,
-  privateKeyB64: string
+  privateKeyB64: string,
+  publicKeyB64: string
 ): Promise<string> {
   const header = { typ: "JWT", alg: "ES256" };
   const now = Math.floor(Date.now() / 1000);
@@ -53,29 +54,31 @@ export async function generateVapidToken(
 
   const signingInput = `${b64url(header)}.${b64url(payload)}`;
 
+  // Monta JWK a partir das chaves VAPID (pkcs8 manual quebra em algumas
+  // versões do Deno com "InvalidEncoding" no subtle.sign — JWK é estável).
   const rawPriv = b64urlDecode(privateKeyB64, "VAPID_PRIVATE_KEY");
   if (rawPriv.length !== 32) {
     throw new Error(`webpush:VAPID_PRIVATE_KEY: tamanho inválido ${rawPriv.length} (esperado 32)`);
   }
+  const rawPub = b64urlDecode(publicKeyB64, "VAPID_PUBLIC_KEY");
+  if (rawPub.length !== 65 || rawPub[0] !== 0x04) {
+    throw new Error(`webpush:VAPID_PUBLIC_KEY: formato inválido (len=${rawPub.length}, prefix=0x${rawPub[0]?.toString(16)})`);
+  }
+  const x = rawPub.slice(1, 33);
+  const y = rawPub.slice(33, 65);
 
-  const pkcs8Header = new Uint8Array([
-    0x30, 0x41,
-    0x02, 0x01, 0x00,
-    0x30, 0x13,
-      0x06, 0x07, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x02, 0x01,
-      0x06, 0x08, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x03, 0x01, 0x07,
-    0x04, 0x27,
-      0x30, 0x25,
-        0x02, 0x01, 0x01,
-        0x04, 0x20,
-  ]);
-  const pkcs8 = new Uint8Array(pkcs8Header.length + rawPriv.length);
-  pkcs8.set(pkcs8Header);
-  pkcs8.set(rawPriv, pkcs8Header.length);
+  const jwk: JsonWebKey = {
+    kty: "EC",
+    crv: "P-256",
+    d: b64urlEncode(rawPriv),
+    x: b64urlEncode(x),
+    y: b64urlEncode(y),
+    ext: true,
+  };
 
   const cryptoKey = await crypto.subtle.importKey(
-    'pkcs8',
-    pkcs8,
+    'jwk',
+    jwk,
     { name: 'ECDSA', namedCurve: 'P-256' },
     false,
     ['sign']
@@ -87,11 +90,12 @@ export async function generateVapidToken(
     cryptoKey,
     enc.encode(signingInput)
   );
-  const sigB64 = btoa(String.fromCharCode(...new Uint8Array(sig)))
-    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+  const sigB64 = b64urlEncode(new Uint8Array(sig));
 
   return `${signingInput}.${sigB64}`;
 }
+
+
 
 export async function sendPushToSubscription(
   subscription: WebPushSubscription,
