@@ -1,35 +1,9 @@
 import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { FunnelPopup, FunnelPopupData } from "@/components/FunnelPopup";
+import { CrmPopupModal } from "@/components/CrmPopupModal";
 import { mockGetUser } from "@/mocks/user";
-import { useCrmPopupQueue, type CrmPopupDelivery } from "@/hooks/useCrmPopupQueue";
-
-/**
- * Converte uma delivery do CRM no formato esperado pelo FunnelPopup
- * (sem imagem, sem quiz, template default com title + body como benefício + CTA).
- */
-function crmDeliveryToFunnelPopupData(d: CrmPopupDelivery): FunnelPopupData {
-  const linkUrl = d.content?.link_url ?? null;
-  const ctaUrl = d.content?.cta?.url ?? linkUrl;
-  const ctaText = d.content?.cta?.text ?? (linkUrl ? "Acessar" : null);
-  return {
-    id: `crm:${d.id}`,
-    type: "crm_popup",
-    image_url: d.content?.image_url ?? null,
-    button_url: linkUrl,
-    question_1_text: null,
-    question_1_options: null,
-    question_2_text: null,
-    question_2_options: null,
-    question_3_text: null,
-    question_3_options: null,
-    final_title: d.content?.title ?? "Premier FC",
-    final_benefits: d.content?.body ? [d.content.body] : [],
-    checkout_link: ctaUrl,
-    final_template: "default",
-    final_config: ctaText ? { button_text: ctaText } : {},
-  };
-}
+import { useCrmPopupQueue } from "@/hooks/useCrmPopupQueue";
 
 interface FunnelPopupContextValue {
   openPopup: (type: string) => Promise<void>;
