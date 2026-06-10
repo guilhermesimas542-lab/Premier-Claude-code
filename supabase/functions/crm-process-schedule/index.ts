@@ -51,6 +51,7 @@ interface AudienceFilters {
   status?: Array<"active" | "inactive" | "churn_risk">;
   origin?: "payt" | "db_app" | "both";
   opt_ins?: string[];
+  user_ids?: string[];
   /** Marca semântica de broadcast (Telegram x1). */
   broadcast?: boolean;
   behavior?: BehaviorFilter;
