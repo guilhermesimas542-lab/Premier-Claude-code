@@ -629,6 +629,20 @@ function AdHocFilters({
         />
       </div>
       <div>
+        <div className="text-[11px] font-bold uppercase tracking-wider mb-1.5">
+          Telefones específicos (SMS)
+        </div>
+        <p className="text-[10px] text-muted-foreground mb-2">
+          Cole/digite números BR — normalizados no formato SMS Dev (55DDDNNNNNNNNN). Override pra envios de SMS.
+        </p>
+        <PhonePicker
+          selected={filters.phones ?? []}
+          onChange={(phones) =>
+            onChange({ ...filters, phones: phones.length > 0 ? phones : undefined })
+          }
+        />
+      </div>
+
         <div className="text-[11px] font-bold uppercase tracking-wider mb-1.5">Plano</div>
         <div className="flex flex-wrap gap-1.5">
           {PLANS.map((p) => {
