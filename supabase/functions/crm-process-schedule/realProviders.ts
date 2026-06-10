@@ -592,10 +592,7 @@ export async function sendBatchEmailReal(
   const imageHtml = imgTag && safeLink
     ? `<a href="${safeLink}" target="_blank" rel="noopener" style="text-decoration:none;display:block;">${imgTag}</a>`
     : imgTag;
-  const ctaHtml = safeLink && bodyText.trim()
-    ? `<div style="margin:16px 0;"><a href="${safeLink}" target="_blank" rel="noopener" style="display:inline-block;padding:12px 22px;background:#00FF7F;color:#060D1E;font-family:Arial,Helvetica,sans-serif;font-weight:700;font-size:14px;text-decoration:none;border-radius:8px;">Acessar</a></div>`
-    : "";
-  const html = imageHtml + bodyToHtml(bodyText) + ctaHtml;
+  const html = imageHtml + bodyToHtml(bodyText);
 
   const from = buildFrom(sender);
   const replyTo = sender.replyTo?.trim() || null;
