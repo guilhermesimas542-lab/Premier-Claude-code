@@ -19,7 +19,7 @@ import {
 import "@xyflow/react/dist/style.css";
 import {
   ArrowLeft, Loader2, Plus, GitBranch, CalendarClock, Send, Pencil, Trash2, Layers,
-  Users2, MailOpen, AlertTriangle, StickyNote, Sun, Moon,
+  Users2, MailOpen, AlertTriangle, StickyNote, Sun, Moon, Copy,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -40,6 +40,7 @@ interface ScheduleRow {
   scheduled_at: string | null;
   sent_at: string | null;
   audience_id: string | null;
+  audience_filters: Record<string, any> | null;
   reach_count: number;
   delivered_count: number;
   failed_count: number;
@@ -82,7 +83,7 @@ function ScheduleCardNode({ data, selected }: any) {
     : null;
   return (
     <div
-      className="rounded-xl border-2 bg-card text-card-foreground shadow-md p-3 flex flex-col gap-2"
+      className="rounded-xl border-2 bg-card text-card-foreground shadow-md p-3 flex flex-col gap-2 relative"
       style={{
         width: NODE_W,
         height: NODE_H,
@@ -90,8 +91,26 @@ function ScheduleCardNode({ data, selected }: any) {
         boxShadow: selected ? `0 0 0 2px ${ch?.color ?? "#888"}55` : undefined,
       }}
     >
+      {/* Ações no topo direito */}
+      <div className="absolute top-1.5 right-1.5 flex items-center gap-0.5 z-10">
+        <button
+          title="Duplicar"
+          onClick={(e) => { e.stopPropagation(); data.onDuplicate?.(data.id); }}
+          className="w-5 h-5 rounded flex items-center justify-center hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <Copy className="w-3 h-3" />
+        </button>
+        <button
+          title="Excluir"
+          onClick={(e) => { e.stopPropagation(); data.onDelete?.(data.id); }}
+          className="w-5 h-5 rounded flex items-center justify-center hover:bg-red-500/20 text-muted-foreground hover:text-red-500 transition-colors"
+        >
+          <Trash2 className="w-3 h-3" />
+        </button>
+      </div>
+
       {/* Header */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 pr-8">
         <div
           className="w-7 h-7 rounded-md flex items-center justify-center shrink-0"
           style={{ background: (ch?.color ?? "#888") + "22" }}
@@ -256,7 +275,7 @@ function Inner() {
     const { data, error } = await (supabase as any)
       .from("crm_schedules")
       .select(`
-        id, name, channel, status, scheduled_at, sent_at, audience_id,
+        id, name, channel, status, scheduled_at, sent_at, audience_id, audience_filters,
         reach_count, delivered_count, failed_count, open_count, click_count, content,
         audience:crm_audiences ( id, name )
       `)
@@ -289,6 +308,7 @@ function Inner() {
           position,
           zIndex: 2,
           data: {
+            id: s.id,
             name: s.name,
             channel: s.channel,
             status: s.status,
@@ -300,6 +320,8 @@ function Inner() {
             open_count: s.open_count,
             click_count: s.click_count,
             audienceName: s.audience?.name ?? null,
+            onDelete: (id: string) => handleDelete(id),
+            onDuplicate: (id: string) => handleDuplicate(id),
           },
         } as Node;
       });
@@ -451,6 +473,30 @@ function Inner() {
     toast.success("Schedule excluído");
     setRows((prev) => prev.filter((r) => r.id !== id));
     setSelectedId(null);
+  }, [rows]);
+
+  const handleDuplicate = useCallback(async (id: string) => {
+    const row = rows.find((r) => r.id === id);
+    if (!row) return;
+    const { data, error } = await (supabase as any)
+      .from("crm_schedules")
+      .insert({
+        name: `${row.name} (cópia)`,
+        channel: row.channel,
+        audience_id: row.audience_id,
+        audience_filters: row.audience_filters,
+        content: { ...(row.content ?? {}), __canvas: { x: (row.content?.__canvas?.x ?? 0) + 40, y: (row.content?.__canvas?.y ?? 0) + 40 } },
+        status: "draft",
+      })
+      .select(`
+        id, name, channel, status, scheduled_at, sent_at, audience_id,
+        reach_count, delivered_count, failed_count, open_count, click_count, content,
+        audience:crm_audiences ( id, name )
+      `)
+      .single();
+    if (error) { toast.error(`Erro ao duplicar: ${error.message}`); return; }
+    toast.success("Schedule duplicado");
+    setRows((prev) => [data as ScheduleRow, ...prev]);
   }, [rows]);
 
   const organize = useCallback(async () => {
