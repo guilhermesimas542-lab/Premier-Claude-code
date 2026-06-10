@@ -10,14 +10,17 @@ import { normalizeBrazilMobile } from "./normalizePhone.ts";
 
 interface SmsContent {
   body?: string | null;
+  link_url?: string | null;
   [key: string]: unknown;
 }
 
 const SMSDEV_ENDPOINT = "https://api.smsdev.com.br/v1/send";
 
 
-function buildMessage(body: string | null | undefined): string {
-  const txt = (body ?? "").trim();
+function buildMessage(body: string | null | undefined, linkUrl?: string | null): string {
+  let txt = (body ?? "").trim();
+  const link = (linkUrl ?? "").trim();
+  if (link && !txt.includes(link)) txt = txt ? `${txt} ${link}` : link;
   if (!txt) return "Premier FC";
   if (/^premier\s*fc/i.test(txt)) return txt;
   return "Premier FC: " + txt;
@@ -28,7 +31,7 @@ export async function sendBatchSmsReal(
   content: SmsContent | null | undefined,
   apiKey: string
 ): Promise<SendResult[]> {
-  const msg = buildMessage(content?.body ?? null);
+  const msg = buildMessage(content?.body ?? null, content?.link_url ?? null);
   const sentAt = new Date().toISOString();
 
   const results: SendResult[] = [];
