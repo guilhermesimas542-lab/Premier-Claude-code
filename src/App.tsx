@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
+import { toast } from "sonner";
 import { installGlobalErrorTracker } from "@/lib/errorTracker";
 import { AnalyticsRouteTracker } from "@/components/AnalyticsRouteTracker";
 import { GlobalPopups } from "@/components/GlobalPopups";
@@ -85,6 +86,21 @@ const LEGACY_GAME_MAP: Record<string, string> = {
 const App = () => {
   useEffect(() => {
     installGlobalErrorTracker();
+  }, []);
+
+  useEffect(() => {
+    if (!("serviceWorker" in navigator)) return;
+
+    const onMessage = (event: MessageEvent) => {
+      if (event.data?.type !== "push-notification") return;
+      const payload = event.data.payload ?? {};
+      toast(payload.title || "Premier FC", {
+        description: payload.body || "Nova notificação",
+      });
+    };
+
+    navigator.serviceWorker.addEventListener("message", onMessage);
+    return () => navigator.serviceWorker.removeEventListener("message", onMessage);
   }, []);
 
   return (
