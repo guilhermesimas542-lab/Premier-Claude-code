@@ -200,6 +200,8 @@ const NODE_TYPES = { schedule: ScheduleCardNode, sticky: StickyNoteNode };
 
 const STICKY_COLORS = ["#FACC15", "#22D3EE", "#F472B6", "#A855F7", "#34D399", "#FB923C"];
 
+const THEME_KEY = "crm-schedule-canvas-theme";
+
 function Inner() {
   const navigate = useNavigate();
   const { screenToFlowPosition, fitView } = useReactFlow();
@@ -209,6 +211,12 @@ function Inner() {
   const [edges, setEdges] = useState<Edge[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [dark, setDark] = useState<boolean>(() => {
+    try { return localStorage.getItem(THEME_KEY) !== "light"; } catch { return true; }
+  });
+  useEffect(() => {
+    try { localStorage.setItem(THEME_KEY, dark ? "dark" : "light"); } catch {}
+  }, [dark]);
 
   // Load stickies from localStorage
   useEffect(() => {
