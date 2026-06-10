@@ -34,6 +34,13 @@ export function ChannelContentForm({ channel, content, onChange }: Props) {
     />
   ) : null;
 
+  const linkControl = (
+    <LinkAttachControl
+      value={content.link_url ?? null}
+      onChange={(url) => onChange({ ...content, link_url: url ?? undefined })}
+    />
+  );
+
   if (channel === "email") {
     return (
       <div className="space-y-3">
