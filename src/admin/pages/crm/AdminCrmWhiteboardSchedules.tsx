@@ -163,13 +163,20 @@ function StickyNoteNode({ data, selected }: any) {
   const [draft, setDraft] = useState(data.title ?? "");
   return (
     <div
-      className="rounded-lg border-2 p-2 h-full w-full overflow-hidden"
+      className="rounded-lg border-2 p-2 h-full w-full overflow-hidden relative"
       style={{
         background: (data.color ?? "#FACC15") + "22",
         borderColor: data.color ?? "#FACC15",
         boxShadow: selected ? `0 0 0 2px ${data.color}55` : undefined,
       }}
     >
+      <NodeResizer
+        minWidth={140}
+        minHeight={80}
+        color={data.color ?? "#FACC15"}
+        isVisible={selected}
+        handleStyle={{ width: 10, height: 10, borderRadius: 3 }}
+      />
       {editing ? (
         <input
           autoFocus
