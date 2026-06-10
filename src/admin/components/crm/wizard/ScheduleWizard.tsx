@@ -32,6 +32,7 @@ import { useAudiences, type AudienceFilters } from "../../../hooks/crm/useAudien
 import { usePreviewAudience } from "../../../hooks/crm/usePreviewAudience";
 import { ChannelPreview } from "./ChannelPreview";
 import { ImageAttachControl } from "../ImageAttachControl";
+import { LinkAttachControl } from "../LinkAttachControl";
 import { isImageSupportedChannel } from "../../../lib/crm/bannerTemplates";
 import { PhonePicker } from "../PhonePicker";
 import { NewAudienceInlineButton } from "../NewAudienceInlineButton";
