@@ -235,7 +235,7 @@ function StickyNoteNode({ id, data, selected }: any) {
         }}
       />
       <div
-        className="absolute top-0 left-0 right-0 flex items-center gap-2 px-2.5 py-1.5 rounded-t-2xl"
+        className="sticky-drag-handle absolute top-0 left-0 right-0 flex items-center gap-2 px-2.5 py-1.5 rounded-t-2xl cursor-grab active:cursor-grabbing"
         style={{ background: hexToRgba(color, 0.25) }}
       >
         <Layers className="w-3.5 h-3.5 shrink-0" style={{ color }} />
@@ -249,13 +249,13 @@ function StickyNoteNode({ id, data, selected }: any) {
               if (e.key === "Enter") commitTitle();
               if (e.key === "Escape") { setDraft(title); setEditing(false); }
             }}
-            className="flex-1 bg-background/60 px-1.5 py-0.5 rounded text-xs font-bold outline-none border border-border"
+            className="nodrag flex-1 bg-background/60 px-1.5 py-0.5 rounded text-xs font-bold outline-none border border-border"
             style={{ width: Math.max(width - 90, 80) }}
           />
         ) : (
           <button
             onClick={(e) => { e.stopPropagation(); setEditing(true); }}
-            className="flex-1 text-left text-xs font-bold uppercase tracking-wider truncate"
+            className="nodrag flex-1 text-left text-xs font-bold uppercase tracking-wider truncate"
             style={{ color }}
             title="Clique pra renomear"
           >
@@ -264,7 +264,7 @@ function StickyNoteNode({ id, data, selected }: any) {
         )}
         <button
           onClick={(e) => { e.stopPropagation(); setEditing((v) => !v); }}
-          className="p-0.5 rounded hover:bg-background/40"
+          className="nodrag p-0.5 rounded hover:bg-background/40"
           title="Renomear"
         >
           <Pencil className="w-3 h-3" style={{ color }} />
@@ -272,7 +272,7 @@ function StickyNoteNode({ id, data, selected }: any) {
         <div className="relative">
           <button
             onClick={(e) => { e.stopPropagation(); setShowPalette((v) => !v); }}
-            className="p-0.5 rounded hover:bg-background/40"
+            className="nodrag p-0.5 rounded hover:bg-background/40"
             title="Cor"
           >
             <Palette className="w-3 h-3" style={{ color }} />
@@ -409,6 +409,7 @@ function Inner() {
           type: "sticky",
           position: existing?.position ?? { x: st.x, y: st.y },
           style: { width: st.w, height: st.h },
+            dragHandle: ".sticky-drag-handle",
           zIndex: 0,
           data: {
             id: st.id,
@@ -419,6 +420,9 @@ function Inner() {
             },
             onChangeColor: (id: string, color: string) => {
               persistStickies(stickies.map((s) => s.id === id ? { ...s, color } : s));
+            },
+            onResize: (id: string, w: number, h: number) => {
+              persistStickies(stickies.map((s) => s.id === id ? { ...s, w, h } : s));
             },
             onDelete: (id: string) => {
               persistStickies(stickies.filter((s) => s.id !== id));
