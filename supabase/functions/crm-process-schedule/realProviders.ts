@@ -354,8 +354,9 @@ export async function sendBroadcastTelegramX1Real(
 interface PopupContent {
   title?: string | null;
   body?: string | null;
-  cta?: Record<string, unknown> | null;
+  cta?: Record<string, unknown> | string | null;
   image_url?: string | null;
+  link_url?: string | null;
   [key: string]: unknown;
 }
 
@@ -366,12 +367,26 @@ export async function sendBatchPopupReal(
   supabase: any
 ): Promise<SendResult[]> {
   const sentAt = new Date().toISOString();
+  const linkUrl = (content?.link_url ?? "").toString().trim() || null;
+  // Normaliza CTA: aceita string (texto do botão) ou objeto {text,url}.
+  // Se vier só link_url, monta CTA padrão "Acessar".
+  let cta: Record<string, unknown> | null = null;
+  if (content?.cta && typeof content.cta === "object") {
+    cta = { ...(content.cta as any) };
+    if (linkUrl && !(cta as any).url) (cta as any).url = linkUrl;
+  } else if (typeof content?.cta === "string" && content.cta.trim()) {
+    cta = { text: content.cta.trim(), url: linkUrl ?? null };
+  } else if (linkUrl) {
+    cta = { text: "Acessar", url: linkUrl };
+  }
   const normalizedContent = {
     title: (content?.title ?? "").toString().trim() || "Premier FC",
     body: (content?.body ?? "").toString().trim() || "",
-    cta: content?.cta ?? null,
+    cta,
     image_url: (content?.image_url ?? "").toString().trim() || null,
+    link_url: linkUrl,
   };
+
 
   const results: SendResult[] = [];
   const toInsert: Array<{
