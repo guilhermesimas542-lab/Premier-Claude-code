@@ -28,6 +28,7 @@ import {
   type ChannelKey,
 } from "../../../lib/crm/channels";
 import { useSchedules, type NewSchedulePayload } from "../../../hooks/crm/useSchedules";
+import { useDispatchSchedule } from "../../../hooks/crm/useDispatchSchedule";
 import { useAudiences, type AudienceFilters } from "../../../hooks/crm/useAudiences";
 import { usePreviewAudience } from "../../../hooks/crm/usePreviewAudience";
 import { ChannelPreview } from "./ChannelPreview";
