@@ -8,7 +8,6 @@ import {
   ReactFlowProvider,
   applyNodeChanges,
   applyEdgeChanges,
-  addEdge,
   useReactFlow,
   type NodeChange,
   type EdgeChange,
