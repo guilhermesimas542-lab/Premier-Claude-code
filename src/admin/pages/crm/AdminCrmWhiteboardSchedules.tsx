@@ -30,6 +30,7 @@ import {
 } from "@/admin/lib/crm/channels";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { ScheduleWizard } from "@/admin/components/crm/wizard/ScheduleWizard";
+import { useWhiteboardShortcuts } from "@/admin/hooks/crm/useWhiteboardShortcuts";
 
 interface AudienceLite { id: string; name: string }
 interface ScheduleRow {
@@ -180,21 +181,34 @@ function ScheduleCardNode({ data, selected }: any) {
 function StickyNoteNode({ data, selected }: any) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(data.title ?? "");
+  const color = data.color ?? "#FACC15";
   return (
     <div
       className="rounded-lg border-2 p-2 h-full w-full overflow-hidden relative"
       style={{
-        background: (data.color ?? "#FACC15") + "22",
-        borderColor: data.color ?? "#FACC15",
-        boxShadow: selected ? `0 0 0 2px ${data.color}55` : undefined,
+        background: color + "22",
+        borderColor: color,
+        boxShadow: selected ? `0 0 0 2px ${color}55` : undefined,
       }}
     >
       <NodeResizer
-        minWidth={140}
-        minHeight={80}
-        color={data.color ?? "#FACC15"}
-        isVisible={selected}
-        handleStyle={{ width: 10, height: 10, borderRadius: 3 }}
+        color={color}
+        isVisible={true}
+        handleStyle={{
+          width: 18,
+          height: 18,
+          borderRadius: 4,
+          background: color,
+          border: "2px solid white",
+          pointerEvents: "all",
+          opacity: selected ? 1 : 0.7,
+          zIndex: 20,
+        }}
+        lineStyle={{
+          borderWidth: 4,
+          borderColor: "transparent",
+          pointerEvents: "all",
+        }}
       />
       {editing ? (
         <input
@@ -207,13 +221,13 @@ function StickyNoteNode({ data, selected }: any) {
             if (e.key === "Escape") { setEditing(false); setDraft(data.title ?? ""); }
           }}
           className="w-full bg-transparent text-sm font-bold outline-none"
-          style={{ color: data.color }}
+          style={{ color }}
         />
       ) : (
         <button
           onDoubleClick={() => setEditing(true)}
           className="text-sm font-bold uppercase tracking-wider text-left w-full"
-          style={{ color: data.color }}
+          style={{ color }}
           title="Duplo-clique pra renomear"
         >
           {data.title || "Sem título"}
@@ -420,6 +434,41 @@ function Inner() {
     toast.success("Ordem definida");
   }, [rows, persistContent]);
 
+  // ============== Histórico / Undo (Ctrl+Z) ==============
+
+  type Snapshot = {
+    stickies: StickyData[];
+    schedulePositions: Record<string, { x: number; y: number }>;
+  };
+  const captureSnapshot = useCallback((): Snapshot => {
+    const schedulePositions: Record<string, { x: number; y: number }> = {};
+    rows.forEach((r) => {
+      const c = (r.content as any)?.__canvas;
+      if (c && typeof c.x === "number") schedulePositions[r.id] = { x: c.x, y: c.y };
+    });
+    return {
+      stickies: stickies.map((s) => ({ ...s })),
+      schedulePositions,
+    };
+  }, [rows, stickies]);
+
+  const { isPanMode, pushHistory } = useWhiteboardShortcuts<Snapshot>({
+    onUndo: async (snap) => {
+      // restaura stickies
+      persistStickies(snap.stickies);
+      // restaura posições dos schedules
+      for (const id of Object.keys(snap.schedulePositions)) {
+        const pos = snap.schedulePositions[id];
+        await persistContent(id, { __canvas: { x: pos.x, y: pos.y } });
+      }
+      toast.success("Última ação desfeita");
+    },
+  });
+
+  const onNodeDragStart = useCallback(() => {
+    pushHistory(captureSnapshot());
+  }, [pushHistory, captureSnapshot]);
+
   const onNodeDragStop = useCallback(async (_e: any, n: Node) => {
     if (n.type === "sticky") {
       persistStickies(stickies.map((s) => s.id === n.id
@@ -621,7 +670,10 @@ function Inner() {
         {/* Canvas */}
         <div
           className="flex-1 relative"
-          style={{ background: dark ? "#0b1220" : "#ffffff" }}
+          style={{
+            background: dark ? "#0b1220" : "#ffffff",
+            cursor: isPanMode ? "grab" : undefined,
+          }}
           onDragOver={(e) => {
             if (
               e.dataTransfer.types.includes("application/x-crm-channel") ||
@@ -649,14 +701,16 @@ function Inner() {
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
+            onNodeDragStart={onNodeDragStart}
             onNodeDragStop={onNodeDragStop}
-            onNodeClick={(_e, n) => { if (n.type === "schedule") setSelectedId(n.id); }}
+            onNodeClick={(_e, n) => { if (!isPanMode && n.type === "schedule") setSelectedId(n.id); }}
             onNodeDoubleClick={(_e, n) => {
-              if (n.type === "schedule") openWizard(n.id);
+              if (!isPanMode && n.type === "schedule") openWizard(n.id);
             }}
-            nodesDraggable
-            nodesConnectable
-            elementsSelectable
+            nodesDraggable={!isPanMode}
+            nodesConnectable={!isPanMode}
+            elementsSelectable={!isPanMode}
+            panOnDrag={isPanMode ? [0, 1, 2] : [1, 2]}
             panOnScroll
             minZoom={0.2}
             maxZoom={2}

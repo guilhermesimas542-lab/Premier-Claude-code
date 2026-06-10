@@ -18,6 +18,7 @@ import {
 import "@xyflow/react/dist/style.css";
 import { ArrowLeft, Loader2, Plus, LayoutGrid, Layers, Play, Mail, Clock, GitBranch, Tag, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import { useUnifiedWhiteboard } from "@/admin/hooks/crm/useUnifiedWhiteboard";
 import {
   TriggerNode, MessageNode, WaitNode, ConditionNode, TagNode, StageNode,
@@ -25,6 +26,7 @@ import {
 import { StickNoteNode } from "@/admin/components/crm/whiteboard/nodes/StickNoteNode";
 import { JourneyConfigSheet } from "@/admin/components/crm/whiteboard/JourneyConfigSheet";
 import { NodeConfigDrawer } from "@/admin/components/crm/whiteboard/NodeConfigDrawer";
+import { useWhiteboardShortcuts } from "@/admin/hooks/crm/useWhiteboardShortcuts";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -206,6 +208,54 @@ function Inner() {
       },
     });
   }, [nodes, stepJourney, assignNodeToJourney, updateJourney, journeyLayouts]);
+
+  // ============== Histórico / Undo (Ctrl+Z) ==============
+  type NodeSnap = {
+    id: string;
+    type?: string;
+    position: { x: number; y: number };
+    parentId?: string | null;
+  };
+  const captureNodesSnapshot = useCallback((): NodeSnap[] => {
+    return nodes.map((n) => ({
+      id: n.id,
+      type: n.type,
+      position: { x: n.position.x, y: n.position.y },
+      parentId: (n as any).parentId ?? null,
+    }));
+  }, [nodes]);
+
+  const { isPanMode, pushHistory } = useWhiteboardShortcuts<NodeSnap[]>({
+    onUndo: async (snap) => {
+      // restaura visualmente
+      setNodes((nds) => nds.map((n) => {
+        const s = snap.find((x) => x.id === n.id);
+        if (!s) return n;
+        return { ...n, position: { ...s.position }, parentId: s.parentId ?? undefined } as Node;
+      }));
+      // persiste no banco
+      for (const s of snap) {
+        if (s.type === "stickNote") {
+          const jid = (nodes.find((n) => n.id === s.id)?.data as any)?.journeyId;
+          if (jid) await updateJourney(jid, { canvas: { x: s.position.x, y: s.position.y } });
+        } else if (s.type && s.type !== "stage") {
+          const jid = stepJourney.get(s.id);
+          if (jid) {
+            await assignNodeToJourney(s.id, {
+              journeyId: jid,
+              parentStepId: s.parentId ?? null,
+              position: s.position,
+            });
+          }
+        }
+      }
+      toast.success("Última ação desfeita");
+    },
+  });
+
+  const onNodeDragStart = useCallback(() => {
+    pushHistory(captureNodesSnapshot());
+  }, [pushHistory, captureNodesSnapshot]);
 
   // Injetar handlers nos sticky notes via data + aplicar isolamento por foco
   const enhancedNodes = useMemo(() => nodes.map((n) => {
@@ -428,6 +478,7 @@ function Inner() {
 
         <div
           className="flex-1 relative"
+          style={{ cursor: isPanMode ? "grab" : undefined }}
           onDragOver={(e) => {
             if (e.dataTransfer.types.includes("application/x-crm-node")) {
               e.preventDefault();
@@ -467,20 +518,24 @@ function Inner() {
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
+            onNodeDragStart={onNodeDragStart}
             onNodeDragStop={onNodeDragStop}
             onNodeClick={(_e, n) => {
+              if (isPanMode) return;
               if (n.type === "stickNote" || n.type === "stage") return;
               setEditingNodeId(n.id);
             }}
             onNodeDoubleClick={(_e, n) => {
+              if (isPanMode) return;
               if (n.type === "stickNote") {
                 const jid = (n.data as any)?.journeyId;
                 if (jid) setFocusedJourneyId(jid);
               }
             }}
-            nodesDraggable
-            nodesConnectable
-            elementsSelectable
+            nodesDraggable={!isPanMode}
+            nodesConnectable={!isPanMode}
+            elementsSelectable={!isPanMode}
+            panOnDrag={isPanMode ? [0, 1, 2] : [1, 2]}
             panOnScroll
             minZoom={0.1}
             maxZoom={2}
