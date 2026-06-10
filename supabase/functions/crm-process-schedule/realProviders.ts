@@ -357,6 +357,8 @@ interface PopupContent {
   cta?: Record<string, unknown> | string | null;
   image_url?: string | null;
   link_url?: string | null;
+  max_views?: number | string | null;
+  expires_at?: string | null;
   [key: string]: unknown;
 }
 
@@ -379,6 +381,19 @@ export async function sendBatchPopupReal(
   } else if (linkUrl) {
     cta = { text: "Acessar", url: linkUrl };
   }
+  // max_views: quantas vezes esse popup pode aparecer pro lead (default 1).
+  const rawMax = content?.max_views;
+  let maxViews = 1;
+  if (rawMax != null && rawMax !== "") {
+    const n = typeof rawMax === "number" ? rawMax : parseInt(String(rawMax), 10);
+    if (Number.isFinite(n) && n > 0) maxViews = Math.min(n, 50);
+  }
+  // expires_at: instante em que o popup deixa de fazer sentido.
+  let expiresAt: string | null = null;
+  if (content?.expires_at) {
+    const d = new Date(content.expires_at);
+    if (!isNaN(d.getTime())) expiresAt = d.toISOString();
+  }
   const normalizedContent = {
     title: (content?.title ?? "").toString().trim() || "Premier FC",
     body: (content?.body ?? "").toString().trim() || "",
@@ -394,6 +409,8 @@ export async function sendBatchPopupReal(
     user_id: string;
     content: any;
     status: string;
+    max_views: number;
+    expires_at: string | null;
     recipient_index: number;
   }> = [];
 
@@ -419,6 +436,8 @@ export async function sendBatchPopupReal(
       user_id: recipientUserId,
       content: normalizedContent,
       status: "pending",
+      max_views: maxViews,
+      expires_at: expiresAt,
       recipient_index: idx,
     });
 
@@ -440,6 +459,7 @@ export async function sendBatchPopupReal(
     .from("crm_popup_deliveries")
     .insert(payload)
     .select("id, user_id");
+
 
   if (error) {
     console.error("[CRM][popup] erro inserindo deliveries:", error);
