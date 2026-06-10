@@ -2,25 +2,29 @@ import { useState } from "react";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AudienceBuilder } from "./AudienceBuilder";
-import { useAudiences, type Audience, type NewAudiencePayload } from "../../hooks/crm/useAudiences";
+import type { Audience, NewAudiencePayload } from "../../hooks/crm/useAudiences";
 
 interface Props {
-  /** Disparado depois que a audiência for criada. Use pra auto-selecionar no formulário pai. */
+  /** Função create vinda do useAudiences do componente pai (pra reusar a instância do hook). */
+  create: (payload: NewAudiencePayload) => Promise<Audience | null>;
+  /** Refresh da lista de audiências do pai, pra dropdown ficar em dia. */
+  refresh: () => Promise<void> | void;
+  /** Disparado depois de criar — use pra auto-selecionar a audiência nova. */
   onCreated: (audience: Audience) => void;
-  /** Texto do botão. Default "Nova audiência". */
   label?: string;
-  /** Variante visual do botão. */
   variant?: "outline" | "ghost" | "default" | "secondary";
   size?: "sm" | "default";
   className?: string;
 }
 
 /**
- * Botão "+ Nova audiência" reutilizável dentro de wizards (Schedule/Jornada).
+ * Botão "+ Nova audiência" reutilizável dentro de wizards/sheets (Schedule, Jornada).
  * Abre o AudienceBuilder em Dialog sobreposto SEM fechar o wizard pai,
- * pra não perder a configuração já feita.
+ * pra não perder a configuração já em andamento.
  */
 export function NewAudienceInlineButton({
+  create,
+  refresh,
   onCreated,
   label = "Nova audiência",
   variant = "outline",
@@ -28,7 +32,6 @@ export function NewAudienceInlineButton({
   className,
 }: Props) {
   const [open, setOpen] = useState(false);
-  const { create, refresh } = useAudiences();
 
   const handleSave = async (payload: NewAudiencePayload): Promise<Audience | null> => {
     const created = await create(payload);
