@@ -478,6 +478,7 @@ function Inner() {
 
         <div
           className="flex-1 relative"
+          style={{ cursor: isPanMode ? "grab" : undefined }}
           onDragOver={(e) => {
             if (e.dataTransfer.types.includes("application/x-crm-node")) {
               e.preventDefault();
@@ -517,20 +518,24 @@ function Inner() {
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
+            onNodeDragStart={onNodeDragStart}
             onNodeDragStop={onNodeDragStop}
             onNodeClick={(_e, n) => {
+              if (isPanMode) return;
               if (n.type === "stickNote" || n.type === "stage") return;
               setEditingNodeId(n.id);
             }}
             onNodeDoubleClick={(_e, n) => {
+              if (isPanMode) return;
               if (n.type === "stickNote") {
                 const jid = (n.data as any)?.journeyId;
                 if (jid) setFocusedJourneyId(jid);
               }
             }}
-            nodesDraggable
-            nodesConnectable
-            elementsSelectable
+            nodesDraggable={!isPanMode}
+            nodesConnectable={!isPanMode}
+            elementsSelectable={!isPanMode}
+            panOnDrag={isPanMode ? [0, 1, 2] : [1, 2]}
             panOnScroll
             minZoom={0.1}
             maxZoom={2}
