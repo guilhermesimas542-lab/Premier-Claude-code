@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { installGlobalErrorTracker } from "@/lib/errorTracker";
 import { AnalyticsRouteTracker } from "@/components/AnalyticsRouteTracker";
 import { GlobalPopups } from "@/components/GlobalPopups";
+import { PushNotificationToast, type PushNotificationPayload } from "@/components/PushNotificationToast";
 
 import Home from "./pages/Home";
 import Sport from "./pages/Sport";
@@ -93,9 +94,15 @@ const App = () => {
 
     const onMessage = (event: MessageEvent) => {
       if (event.data?.type !== "push-notification") return;
-      const payload = event.data.payload ?? {};
-      toast(payload.title || "Premier FC", {
-        description: payload.body || "Nova notificação",
+      const payload = (event.data.payload ?? {}) as PushNotificationPayload;
+      toast.custom((toastId) => (
+        <PushNotificationToast
+          payload={payload}
+          onClose={() => toast.dismiss(toastId)}
+        />
+      ), {
+        duration: 12000,
+        position: "top-center",
       });
     };
 
