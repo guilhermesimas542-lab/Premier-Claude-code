@@ -30,6 +30,7 @@ import { useJourneySteps } from "../../hooks/crm/useJourneySteps";
 import { useAudiences } from "../../hooks/crm/useAudiences";
 import { useJourneyTemplates } from "../../hooks/crm/useJourneyTemplates";
 import { StepCard } from "../../components/crm/journey/StepCard";
+import { NewAudienceInlineButton } from "../../components/crm/NewAudienceInlineButton";
 import {
   TRIGGERS,
   TRIGGER_LIST,
@@ -45,7 +46,7 @@ export default function AdminCrmJourneyBuilder() {
   const isNew = !id;
 
   const { create, update, setStatus, refresh } = useJourneys();
-  const { items: audiences } = useAudiences();
+  const { items: audiences, create: createAudience, refresh: refreshAudiences } = useAudiences();
   const { saveFromJourney } = useJourneyTemplates();
   const [savingTemplate, setSavingTemplate] = useState(false);
 
@@ -418,9 +419,16 @@ export default function AdminCrmJourneyBuilder() {
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-xs text-muted-foreground uppercase tracking-wider">
-              Audiência (opcional)
-            </Label>
+            <div className="flex items-center justify-between gap-2">
+              <Label className="text-xs text-muted-foreground uppercase tracking-wider">
+                Audiência (opcional)
+              </Label>
+              <NewAudienceInlineButton
+                create={createAudience}
+                refresh={refreshAudiences}
+                onCreated={(a) => setHeaderDraft((d) => ({ ...d, audience_id: a.id }))}
+              />
+            </div>
             <Select
               value={headerDraft.audience_id ?? "none"}
               onValueChange={(v) =>

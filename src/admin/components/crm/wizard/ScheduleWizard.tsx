@@ -34,6 +34,7 @@ import { ChannelPreview } from "./ChannelPreview";
 import { ImageAttachControl } from "../ImageAttachControl";
 import { isImageSupportedChannel } from "../../../lib/crm/bannerTemplates";
 import { PhonePicker } from "../PhonePicker";
+import { NewAudienceInlineButton } from "../NewAudienceInlineButton";
 
 // ============================================================
 // Tipos do state do wizard
@@ -471,7 +472,7 @@ function StepAudience({
   state: WizardState;
   update: (patch: Partial<WizardState>) => void;
 }) {
-  const { items: audiences, loading } = useAudiences();
+  const { items: audiences, loading, create: createAudience, refresh: refreshAudiences } = useAudiences();
   const { count } = usePreviewAudience(state.audience_filters ?? {}, !state.audience_id);
   const isTelegramX1 = state.channel === "telegram_x1";
 
@@ -508,9 +509,16 @@ function StepAudience({
 
       {/* Modo 1: audiência salva */}
       <div className="space-y-2">
-        <Label className="text-xs uppercase tracking-wider text-muted-foreground">
-          Audiência salva
-        </Label>
+        <div className="flex items-center justify-between gap-2">
+          <Label className="text-xs uppercase tracking-wider text-muted-foreground">
+            Audiência salva
+          </Label>
+          <NewAudienceInlineButton
+            create={createAudience}
+            refresh={refreshAudiences}
+            onCreated={(a) => update({ audience_id: a.id, audience_filters: null })}
+          />
+        </div>
         {loading ? (
           <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
         ) : audiences.length === 0 ? (
