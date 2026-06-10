@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import { type ChannelKey, CHANNELS } from "../../../lib/crm/channels";
 import { isImageSupportedChannel } from "../../../lib/crm/bannerTemplates";
 import { ImageAttachControl } from "../ImageAttachControl";
+import { LinkAttachControl } from "../LinkAttachControl";
 
 interface Props {
   channel: ChannelKey;
