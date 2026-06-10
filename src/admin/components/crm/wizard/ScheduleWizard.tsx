@@ -614,6 +614,20 @@ function AdHocFilters({
   return (
     <div className="rounded-lg border border-border p-3 space-y-3">
       <div>
+        <div className="text-[11px] font-bold uppercase tracking-wider mb-1.5">
+          Leads específicos
+        </div>
+        <p className="text-[10px] text-muted-foreground mb-2">
+          Busque por email e selecione exatamente quem vai receber. Se preencher aqui, os outros filtros funcionam como refinamento adicional.
+        </p>
+        <UserPicker
+          selectedIds={filters.user_ids ?? []}
+          onChange={(ids) =>
+            onChange({ ...filters, user_ids: ids.length > 0 ? ids : undefined })
+          }
+        />
+      </div>
+      <div>
         <div className="text-[11px] font-bold uppercase tracking-wider mb-1.5">Plano</div>
         <div className="flex flex-wrap gap-1.5">
           {PLANS.map((p) => {
