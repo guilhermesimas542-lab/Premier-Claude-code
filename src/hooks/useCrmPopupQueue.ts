@@ -42,52 +42,80 @@ async function resolveUserId(): Promise<string | null> {
  * e chama os marks correspondentes; quando view_count atinge max_views,
  * a delivery vira 'shown' e não volta a aparecer.
  *
- * Também marca como 'expired' qualquer delivery cujo expires_at já passou.
+ * - Faz polling a cada 25s (e ao voltar pra aba) para pegar novas deliveries
+ *   sem precisar recarregar.
+ * - Marca como 'expired' qualquer delivery cujo expires_at já passou.
  */
 export function useCrmPopupQueue() {
   const [queue, setQueue] = useState<CrmPopupDelivery[]>([]);
-  const fetchedOnceRef = useRef(false);
+  const userIdRef = useRef<string | null>(null);
   const actedRef = useRef<Set<string>>(new Set());
+  const seenIdsRef = useRef<Set<string>>(new Set());
+
+  const loadQueue = useCallback(async () => {
+    const userId = userIdRef.current ?? (await resolveUserId());
+    if (!userId) return;
+    userIdRef.current = userId;
+
+    const nowIso = new Date().toISOString();
+
+    // Marca como 'expired' qualquer pendente cujo expires_at já passou.
+    await supabase
+      .from("crm_popup_deliveries" as any)
+      .update({ status: "expired" })
+      .eq("user_id", userId)
+      .eq("status", "pending")
+      .not("expires_at", "is", null)
+      .lt("expires_at", nowIso);
+
+    const { data, error } = await supabase
+      .from("crm_popup_deliveries" as any)
+      .select(
+        "id, schedule_id, user_id, content, status, max_views, view_count, expires_at"
+      )
+      .eq("user_id", userId)
+      .eq("status", "pending")
+      .or(`expires_at.is.null,expires_at.gt.${nowIso}`)
+      .order("created_at", { ascending: true });
+
+    if (error || !data) return;
+
+    const incoming = data as unknown as CrmPopupDelivery[];
+    setQueue((prev) => {
+      const prevIds = new Set(prev.map((d) => d.id));
+      const merged = [...prev];
+      for (const d of incoming) {
+        if (!prevIds.has(d.id) && !seenIdsRef.current.has(d.id)) {
+          merged.push(d);
+        }
+      }
+      return merged;
+    });
+  }, []);
 
   useEffect(() => {
-    if (fetchedOnceRef.current) return;
-    fetchedOnceRef.current = true;
-
     let cancelled = false;
+    let interval: ReturnType<typeof setInterval> | null = null;
+
     (async () => {
-      const userId = await resolveUserId();
-      if (!userId || cancelled) return;
-
-      const nowIso = new Date().toISOString();
-
-      // Marca como 'expired' qualquer pendente cujo expires_at já passou.
-      // (Limpa a fila do lead antes de carregar.)
-      await supabase
-        .from("crm_popup_deliveries" as any)
-        .update({ status: "expired" })
-        .eq("user_id", userId)
-        .eq("status", "pending")
-        .not("expires_at", "is", null)
-        .lt("expires_at", nowIso);
-
-      const { data, error } = await supabase
-        .from("crm_popup_deliveries" as any)
-        .select(
-          "id, schedule_id, user_id, content, status, max_views, view_count, expires_at"
-        )
-        .eq("user_id", userId)
-        .eq("status", "pending")
-        .or(`expires_at.is.null,expires_at.gt.${nowIso}`)
-        .order("created_at", { ascending: true });
-
-      if (error || !data || cancelled) return;
-      setQueue(data as unknown as CrmPopupDelivery[]);
+      if (cancelled) return;
+      await loadQueue();
+      interval = setInterval(() => {
+        if (document.visibilityState === "visible") loadQueue();
+      }, 25_000);
     })();
+
+    const onVisible = () => {
+      if (document.visibilityState === "visible") loadQueue();
+    };
+    document.addEventListener("visibilitychange", onVisible);
 
     return () => {
       cancelled = true;
+      if (interval) clearInterval(interval);
+      document.removeEventListener("visibilitychange", onVisible);
     };
-  }, []);
+  }, [loadQueue]);
 
   /**
    * Incrementa view_count. Quando atinge max_views, marca status='shown'
@@ -115,9 +143,7 @@ export function useCrmPopupQueue() {
   }, []);
 
   const markDismissed = useCallback(async (id: string) => {
-    if (actedRef.current.has(id)) return; // já clicou: não sobrescreve
-    // Só mata definitivamente se já bateu o max_views (já está 'shown');
-    // caso contrário deixamos como 'pending' para aparecer da próxima vez.
+    if (actedRef.current.has(id)) return;
     const delivery = queue.find((d) => d.id === id);
     const reachedMax =
       delivery && (delivery.view_count ?? 0) + 1 >= (delivery.max_views ?? 1);
@@ -132,7 +158,10 @@ export function useCrmPopupQueue() {
 
   /** Remove a primeira delivery da fila local (após exibir). */
   const shift = useCallback(() => {
-    setQueue((q) => q.slice(1));
+    setQueue((q) => {
+      if (q[0]) seenIdsRef.current.add(q[0].id);
+      return q.slice(1);
+    });
   }, []);
 
   return { queue, markShown, markClicked, markDismissed, shift };
