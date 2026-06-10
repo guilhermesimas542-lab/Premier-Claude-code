@@ -498,6 +498,7 @@ interface EmailContent {
   subject?: string | null;
   body?: string | null;
   image_url?: string | null;
+  link_url?: string | null;
   [key: string]: unknown;
 }
 
@@ -540,10 +541,19 @@ export async function sendBatchEmailReal(
   const subject = (content?.subject ?? "").toString().trim() || "Premier FC";
   const bodyText = (content?.body ?? "").toString();
   const imageUrl = (content?.image_url ?? "").toString().trim() || null;
-  const imageHtml = imageUrl
+  const linkUrl = (content?.link_url ?? "").toString().trim() || null;
+  const safeLink = linkUrl ? escapeHtml(linkUrl) : null;
+  const imgTag = imageUrl
     ? `<img src="${imageUrl.replace(/"/g, "&quot;")}" alt="" style="max-width:600px;width:100%;display:block;border:0;outline:none;text-decoration:none;margin:0 0 12px 0;" />`
     : "";
-  const html = imageHtml + bodyToHtml(bodyText);
+  const imageHtml = imgTag && safeLink
+    ? `<a href="${safeLink}" target="_blank" rel="noopener" style="text-decoration:none;display:block;">${imgTag}</a>`
+    : imgTag;
+  const ctaHtml = safeLink && bodyText.trim()
+    ? `<div style="margin:16px 0;"><a href="${safeLink}" target="_blank" rel="noopener" style="display:inline-block;padding:12px 22px;background:#00FF7F;color:#060D1E;font-family:Arial,Helvetica,sans-serif;font-weight:700;font-size:14px;text-decoration:none;border-radius:8px;">Acessar</a></div>`
+    : "";
+  const html = imageHtml + bodyToHtml(bodyText) + ctaHtml;
+
   const from = buildFrom(sender);
   const replyTo = sender.replyTo?.trim() || null;
 
