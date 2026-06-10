@@ -17,6 +17,28 @@ export interface WebPushPayload {
   body: string;
 }
 
+// Decodifica base64url (ou base64 padrão) com padding tolerante.
+// Lança erro descritivo (com label) se a entrada for inválida.
+function b64urlDecode(input: string, label: string): Uint8Array {
+  if (typeof input !== "string" || input.length === 0) {
+    throw new Error(`webpush:${label}: vazio ou não-string`);
+  }
+  const cleaned = input.trim().replace(/-/g, "+").replace(/_/g, "/").replace(/\s+/g, "");
+  const pad = cleaned.length % 4;
+  const padded = pad === 0 ? cleaned : cleaned + "=".repeat(4 - pad);
+  try {
+    return Uint8Array.from(atob(padded), (c) => c.charCodeAt(0));
+  } catch (e: any) {
+    throw new Error(`webpush:${label}: base64 inválido (${e?.message ?? e?.name ?? "erro"}) len=${input.length}`);
+  }
+}
+
+function b64urlEncode(bytes: Uint8Array): string {
+  let s = "";
+  for (let i = 0; i < bytes.length; i++) s += String.fromCharCode(bytes[i]);
+  return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
+}
+
 export async function generateVapidToken(
   audience: string,
   subject: string,
