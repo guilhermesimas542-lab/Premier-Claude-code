@@ -246,55 +246,64 @@ function Inner() {
   }, []);
   useEffect(() => { load(); }, [load]);
 
-  // Build schedule + sticky nodes
+  // Build schedule + sticky nodes — PRESERVE existing positions to avoid jump-back
   useEffect(() => {
     const PER_ROW = 4;
     const GAP_X = NODE_W + 40;
     const GAP_Y = NODE_H + 40;
 
-    const scheduleNodes: Node[] = rows.map((s, i) => {
-      const saved = (s.content as any)?.__canvas;
-      const pos = saved && typeof saved.x === "number"
-        ? { x: saved.x, y: saved.y }
-        : { x: 320 + (i % PER_ROW) * GAP_X, y: Math.floor(i / PER_ROW) * GAP_Y };
-      return {
-        id: s.id,
-        type: "schedule",
-        position: pos,
-        zIndex: 2,
-        data: {
-          name: s.name,
-          channel: s.channel,
-          status: s.status,
-          scheduled_at: s.scheduled_at,
-          sent_at: s.sent_at,
-          reach_count: s.reach_count,
-          delivered_count: s.delivered_count,
-          failed_count: s.failed_count,
-          open_count: s.open_count,
-          click_count: s.click_count,
-          audienceName: s.audience?.name ?? null,
-        },
-      } as Node;
+    setNodes((prev) => {
+      const prevById = new Map(prev.map((n) => [n.id, n]));
+
+      const scheduleNodes: Node[] = rows.map((s, i) => {
+        const existing = prevById.get(s.id);
+        const saved = (s.content as any)?.__canvas;
+        const fallback = saved && typeof saved.x === "number"
+          ? { x: saved.x, y: saved.y }
+          : { x: 320 + (i % PER_ROW) * GAP_X, y: Math.floor(i / PER_ROW) * GAP_Y };
+        const position = existing?.position ?? fallback;
+        return {
+          id: s.id,
+          type: "schedule",
+          position,
+          zIndex: 2,
+          data: {
+            name: s.name,
+            channel: s.channel,
+            status: s.status,
+            scheduled_at: s.scheduled_at,
+            sent_at: s.sent_at,
+            reach_count: s.reach_count,
+            delivered_count: s.delivered_count,
+            failed_count: s.failed_count,
+            open_count: s.open_count,
+            click_count: s.click_count,
+            audienceName: s.audience?.name ?? null,
+          },
+        } as Node;
+      });
+
+      const stickyNodes: Node[] = stickies.map((st) => {
+        const existing = prevById.get(st.id);
+        return {
+          id: st.id,
+          type: "sticky",
+          position: existing?.position ?? { x: st.x, y: st.y },
+          style: existing?.style ?? { width: st.w, height: st.h },
+          zIndex: 0,
+          data: {
+            id: st.id,
+            title: st.title,
+            color: st.color,
+            onChangeTitle: (id: string, title: string) => {
+              persistStickies(stickies.map((s) => s.id === id ? { ...s, title } : s));
+            },
+          },
+        } as Node;
+      });
+
+      return [...stickyNodes, ...scheduleNodes];
     });
-
-    const stickyNodes: Node[] = stickies.map((st) => ({
-      id: st.id,
-      type: "sticky",
-      position: { x: st.x, y: st.y },
-      style: { width: st.w, height: st.h },
-      zIndex: 0,
-      data: {
-        id: st.id,
-        title: st.title,
-        color: st.color,
-        onChangeTitle: (id: string, title: string) => {
-          persistStickies(stickies.map((s) => s.id === id ? { ...s, title } : s));
-        },
-      },
-    } as Node));
-
-    setNodes([...stickyNodes, ...scheduleNodes]);
 
     // Build edges from content.__next_ids
     const allEdges: Edge[] = [];
