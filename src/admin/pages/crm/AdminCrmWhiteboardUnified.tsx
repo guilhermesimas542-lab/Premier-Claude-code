@@ -18,6 +18,7 @@ import {
 import "@xyflow/react/dist/style.css";
 import { ArrowLeft, Loader2, Plus, LayoutGrid, Layers, Play, Mail, Clock, GitBranch, Tag, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import { useUnifiedWhiteboard } from "@/admin/hooks/crm/useUnifiedWhiteboard";
 import {
   TriggerNode, MessageNode, WaitNode, ConditionNode, TagNode, StageNode,
