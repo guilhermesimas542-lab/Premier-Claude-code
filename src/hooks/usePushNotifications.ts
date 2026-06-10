@@ -14,11 +14,11 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
 export function usePushNotifications() {
   const [subscribing, setSubscribing] = useState(false);
 
-  const subscribe = useCallback(async (userId: string, email?: string) => {
+  const subscribe = useCallback(async (userId?: string, email?: string) => {
     let effectiveUserId = userId;
 
     // Already subscribed for this user
-    if (localStorage.getItem(STORAGE_KEY) === effectiveUserId) return;
+    if (effectiveUserId && localStorage.getItem(STORAGE_KEY) === effectiveUserId) return;
 
     if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
     if (Notification.permission === 'denied') return;
@@ -26,7 +26,7 @@ export function usePushNotifications() {
     setSubscribing(true);
     try {
       let token = getToken();
-      if (!token && email) {
+      if ((!token || !effectiveUserId) && email) {
         const { data: loginData, error: loginError } = await supabase.functions.invoke('auth-login', {
           body: { email: email.toLowerCase().trim() },
         });
@@ -39,6 +39,10 @@ export function usePushNotifications() {
 
       if (!token) {
         console.warn('Token de autenticação não disponível para salvar push');
+        return;
+      }
+      if (!effectiveUserId) {
+        console.warn('Usuário não disponível para salvar push');
         return;
       }
 
@@ -58,11 +62,13 @@ export function usePushNotifications() {
       const permission = await Notification.requestPermission();
       if (permission !== 'granted') return;
 
-      // Subscribe to push
-      const subscription = await (registration as any).pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
-      });
+      // Subscribe to push or reuse current browser subscription
+      const subscription =
+        (await (registration as any).pushManager.getSubscription()) ||
+        (await (registration as any).pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
+        }));
 
       const subJson = subscription.toJSON();
 
