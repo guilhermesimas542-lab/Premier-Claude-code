@@ -757,7 +757,7 @@ function StepContent({
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="email-body">Corpo da mensagem</Label>
+            <Label htmlFor="email-body">Corpo da mensagem <span className="text-muted-foreground font-normal">(opcional se enviar imagem)</span></Label>
             <Textarea
               id="email-body"
               value={content.body ?? ""}
@@ -1095,7 +1095,7 @@ function ContentPreview({
 function validateContent(state: WizardState): boolean {
   const c = state.content;
   if (!state.channel) return false;
-  if (state.channel === "email") return !!(c.subject?.trim() && c.body?.trim());
+  if (state.channel === "email") return !!(c.subject?.trim() && (c.body?.trim() || c.image_url));
   if (state.channel === "push" || state.channel === "popup")
     return !!(c.title?.trim() && c.body?.trim());
   return !!c.body?.trim();
