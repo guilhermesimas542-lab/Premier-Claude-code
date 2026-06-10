@@ -30,6 +30,7 @@ import { useLinks } from "@/contexts/LinksContext";
 import { isPreviewEnv } from "@/lib/previewEnv";
 import iaTipsterCartoon from "@/assets/ia-tipster-cartoon.png";
 import { IATipsterOnboardingModal } from "@/components/ia-tipster/IATipsterOnboardingModal";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
 
 // Mesmo localStorage key usado em IATipster.tsx — mantém sincronizado o estado
 // "lead já viu o anúncio da feature" entre Home e a página interna.
@@ -66,6 +67,7 @@ const Home = () => {
   const access = useUserAccess();
   const { triggerPayCard, payCard: pcData, open: pcOpen, closePayCard } = usePayCardTrigger();
   const { links } = useLinks();
+  const { subscribe: subscribeToPush } = usePushNotifications();
 
   // Derive lifetime for info modal only
   const [isLifetime, setIsLifetime] = useState(false);
@@ -90,6 +92,12 @@ const Home = () => {
   useEffect(() => {
     trackEvent("app_open");
   }, []);
+
+  useEffect(() => {
+    if (mockUser?.email) {
+      subscribeToPush(mockUser.dbId, mockUser.email);
+    }
+  }, [mockUser?.dbId, mockUser?.email, subscribeToPush]);
 
 
   useEffect(() => {
