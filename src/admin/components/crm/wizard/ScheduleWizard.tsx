@@ -857,6 +857,13 @@ function StepContent({
           onChange={(url) => update({ content: { ...content, image_url: url ?? undefined } })}
         />
       )}
+
+      {/* Link clicável — disponível em todos os canais */}
+      <LinkAttachControl
+        value={content.link_url ?? null}
+        onChange={(url) => update({ content: { ...content, link_url: url ?? undefined } })}
+      />
+
         </div>
 
         <div className="lg:sticky lg:top-[200px] lg:self-start">
