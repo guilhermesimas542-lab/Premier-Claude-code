@@ -16,6 +16,8 @@ export function CrmPopupModal({ content, onClose, onCtaClick }: CrmPopupModalPro
   const ctaText = content?.cta?.text ?? (ctaUrl ? "Acessar" : null);
   const title = (content?.title ?? "").toString().trim();
   const body = (content?.body ?? "").toString().trim();
+  const hasImage = !!content?.image_url && imageOk;
+  const imageOnly = hasImage && !title && !body;
 
   const handleCta = () => {
     if (!ctaUrl) return;
@@ -24,6 +26,40 @@ export function CrmPopupModal({ content, onClose, onCtaClick }: CrmPopupModalPro
     onClose();
   };
 
+  // Modo 1: só imagem — clicável, sem card por trás
+  if (imageOnly) {
+    return (
+      <Dialog open onOpenChange={(o) => !o && onClose()}>
+        <DialogContent
+          className="p-0 overflow-hidden border-0 bg-transparent shadow-none [&>button]:hidden"
+          style={{
+            maxWidth: "calc(100vw - 2rem)",
+            background: "transparent",
+            border: "none",
+            boxShadow: "none",
+          }}
+        >
+          <button
+            onClick={onClose}
+            className="absolute -top-3 -right-3 z-20 rounded-full p-1.5 transition-colors bg-black/70 border border-white/20 hover:bg-black/90"
+          >
+            <X className="w-3.5 h-3.5 text-white" />
+          </button>
+
+          <div onClick={handleCta} className="cursor-pointer">
+            <img
+              src={content.image_url!}
+              alt=""
+              onError={() => setImageOk(false)}
+              className="w-full h-auto rounded-2xl"
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  // Modo 2: card completo — HEADLINE → TEXTO → IMAGEM → BOTÃO
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
       <DialogContent
@@ -42,15 +78,6 @@ export function CrmPopupModal({ content, onClose, onCtaClick }: CrmPopupModalPro
           <X className="w-3.5 h-3.5 text-white/80" />
         </button>
 
-        {content?.image_url && imageOk && (
-          <img
-            src={content.image_url}
-            alt=""
-            onError={() => setImageOk(false)}
-            className="w-full h-auto object-cover"
-          />
-        )}
-
         <div className="p-5 space-y-3">
           {title && (
             <h2
@@ -67,6 +94,15 @@ export function CrmPopupModal({ content, onClose, onCtaClick }: CrmPopupModalPro
           )}
           {!title && !body && (
             <p className="text-sm text-white/80">Você tem uma novidade no Premier.</p>
+          )}
+
+          {hasImage && (
+            <img
+              src={content.image_url!}
+              alt=""
+              onError={() => setImageOk(false)}
+              className="w-full h-auto object-cover rounded-xl mt-4"
+            />
           )}
 
           {ctaUrl && ctaText && (
