@@ -53,6 +53,11 @@ export function usePreviewAudience(filters: AudienceFilters, enabled = true) {
         q = q.in("id", behaviorUserIds);
       }
 
+      // Lista explícita de user_ids (override)
+      if (filters.user_ids && filters.user_ids.length > 0) {
+        q = q.in("id", filters.user_ids);
+      }
+
       // Plans
       if (filters.plans && filters.plans.length > 0) {
         q = q.in("main_tier", filters.plans);

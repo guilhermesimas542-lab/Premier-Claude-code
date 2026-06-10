@@ -51,6 +51,7 @@ interface AudienceFilters {
   status?: Array<"active" | "inactive" | "churn_risk">;
   origin?: "payt" | "db_app" | "both";
   opt_ins?: string[];
+  user_ids?: string[];
   /** Marca semântica de broadcast (Telegram x1). */
   broadcast?: boolean;
   behavior?: BehaviorFilter;
@@ -272,6 +273,10 @@ Deno.serve(async (req: Request) => {
         q = q.in("id", behaviorIds);
       }
 
+      // Lista explícita de user_ids (override) — leads escolhidos manualmente.
+      if (filters.user_ids && filters.user_ids.length > 0) {
+        q = q.in("id", filters.user_ids);
+      }
 
     if (filters.plans && filters.plans.length > 0) {
       q = q.in("main_tier", filters.plans);
