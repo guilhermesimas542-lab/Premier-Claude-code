@@ -14,6 +14,7 @@ import type {
 import { usePreviewAudience } from "../../hooks/crm/usePreviewAudience";
 import { useBehaviorOptions } from "../../hooks/crm/useBehaviorOptions";
 import { UserPicker } from "./UserPicker";
+import { PhonePicker } from "./PhonePicker";
 
 interface Props {
   open: boolean;
