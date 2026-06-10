@@ -757,7 +757,7 @@ function StepContent({
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="email-body">Corpo da mensagem</Label>
+            <Label htmlFor="email-body">Corpo da mensagem <span className="text-muted-foreground font-normal">(opcional se enviar imagem)</span></Label>
             <Textarea
               id="email-body"
               value={content.body ?? ""}
