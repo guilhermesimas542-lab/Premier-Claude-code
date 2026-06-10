@@ -331,22 +331,23 @@ Deno.serve(async (req: Request) => {
     }
   }
 
-  // Override: telefones avulsos (SMS). Adiciona como recipients sintéticos.
+  // Override estrito: se informaram telefones avulsos (SMS), SUBSTITUI a lista
+  // de recipients pra disparar SOMENTE pra esses números. Não soma com a audiência.
   if (!isBroadcast && filters.phones && filters.phones.length > 0) {
-    const existingPhones = new Set(
-      recipients.map((r) => (r.phone ?? "").replace(/\D/g, "")).filter(Boolean)
-    );
+    const seen = new Set<string>();
+    const overrideRecipients: typeof recipients = [];
     for (const p of filters.phones) {
       const norm = p.replace(/\D/g, "");
-      if (!norm || existingPhones.has(norm)) continue;
-      recipients.push({
+      if (!norm || seen.has(norm)) continue;
+      seen.add(norm);
+      overrideRecipients.push({
         id: `phone:${norm}`,
         email: null,
         phone: norm,
         nickname: null,
       });
-      existingPhones.add(norm);
     }
+    recipients = overrideRecipients;
   }
 
 
