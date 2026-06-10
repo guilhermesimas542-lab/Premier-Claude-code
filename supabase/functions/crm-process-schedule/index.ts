@@ -52,6 +52,8 @@ interface AudienceFilters {
   origin?: "payt" | "db_app" | "both";
   opt_ins?: string[];
   user_ids?: string[];
+  /** Telefones já normalizados no formato SMS Dev (55DDDNNNNNNNNN). Override pra SMS. */
+  phones?: string[];
   /** Marca semântica de broadcast (Telegram x1). */
   broadcast?: boolean;
   behavior?: BehaviorFilter;
@@ -326,6 +328,24 @@ Deno.serve(async (req: Request) => {
       );
     }
     recipients = users ?? [];
+    }
+  }
+
+  // Override: telefones avulsos (SMS). Adiciona como recipients sintéticos.
+  if (!isBroadcast && filters.phones && filters.phones.length > 0) {
+    const existingPhones = new Set(
+      recipients.map((r) => (r.phone ?? "").replace(/\D/g, "")).filter(Boolean)
+    );
+    for (const p of filters.phones) {
+      const norm = p.replace(/\D/g, "");
+      if (!norm || existingPhones.has(norm)) continue;
+      recipients.push({
+        id: `phone:${norm}`,
+        email: null,
+        phone: norm,
+        nickname: null,
+      });
+      existingPhones.add(norm);
     }
   }
 

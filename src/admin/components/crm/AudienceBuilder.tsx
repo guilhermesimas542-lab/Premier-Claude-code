@@ -14,6 +14,7 @@ import type {
 import { usePreviewAudience } from "../../hooks/crm/usePreviewAudience";
 import { useBehaviorOptions } from "../../hooks/crm/useBehaviorOptions";
 import { UserPicker } from "./UserPicker";
+import { PhonePicker } from "./PhonePicker";
 
 interface Props {
   open: boolean;
@@ -185,6 +186,24 @@ export function AudienceBuilder({ open, onClose, onSave, editing, initialFilters
               }
             />
           </FilterGroup>
+
+          {/* Telefones específicos (SMS) */}
+          <FilterGroup
+            title="Telefones específicos (SMS)"
+            hint="Cole/digite números BR — normalizados no formato SMS Dev. Override pra disparos de SMS."
+          >
+            <PhonePicker
+              selected={filters.phones ?? []}
+              onChange={(phones) =>
+                setFilters((prev) => ({
+                  ...prev,
+                  phones: phones.length > 0 ? phones : undefined,
+                }))
+              }
+            />
+          </FilterGroup>
+
+
 
           {/* Plano */}
           <FilterGroup title="Plano" hint="Selecione um ou mais planos">

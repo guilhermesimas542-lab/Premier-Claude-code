@@ -26,6 +26,11 @@ export interface AudienceFilters {
    */
   user_ids?: string[];
   /**
+   * Lista explícita de telefones (já normalizados no formato SMS Dev: 55DDDNNNNNNNNN).
+   * Override pra envios de SMS — quando preenchido, ignora outros filtros pra SMS.
+   */
+  phones?: string[];
+  /**
    * Filtros baseados em comportamento na IA Tipster — exige cruzamento com
    * tabela `events`. Resolvido via helper `resolveBehaviorUserIds`.
    */
