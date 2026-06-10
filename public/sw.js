@@ -33,12 +33,16 @@ self.addEventListener('push', (event) => {
   };
 
   event.waitUntil(
-    Promise.all([
-      self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {
-        clients.forEach((client) => client.postMessage({ type: 'push-notification', payload: data }));
-      }),
-      self.registration.showNotification(data.title, options),
-    ])
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {
+      const visibleClients = clients.filter((client) => client.visibilityState === 'visible');
+
+      if (visibleClients.length > 0) {
+        visibleClients.forEach((client) => client.postMessage({ type: 'push-notification', payload: data }));
+        return;
+      }
+
+      return self.registration.showNotification(data.title, options);
+    })
   );
 });
 
