@@ -27,6 +27,8 @@ import {
   CHANNELS, CHANNEL_LIST, SCHEDULE_STATUS_META,
   type ChannelKey, type ScheduleStatus,
 } from "@/admin/lib/crm/channels";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { ScheduleWizard } from "@/admin/components/crm/wizard/ScheduleWizard";
 
 interface AudienceLite { id: string; name: string }
 interface ScheduleRow {
@@ -211,6 +213,17 @@ function Inner() {
   const [edges, setEdges] = useState<Edge[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [wizardOpen, setWizardOpen] = useState(false);
+  const [wizardEditingId, setWizardEditingId] = useState<string | undefined>(undefined);
+  const openWizard = (id?: string) => {
+    setWizardEditingId(id);
+    setWizardOpen(true);
+  };
+  const closeWizardFn = (reload: boolean) => {
+    setWizardOpen(false);
+    setWizardEditingId(undefined);
+    if (reload) load();
+  };
   const [dark, setDark] = useState<boolean>(() => {
     try { return localStorage.getItem(THEME_KEY) !== "light"; } catch { return true; }
   });
@@ -469,7 +482,7 @@ function Inner() {
             <Send className="w-4 h-4 mr-1" /> Schedules
           </Button>
         </div>
-        <Button size="sm" className="ml-3" onClick={() => navigate("/admin/crm/schedules/new")}>
+        <Button size="sm" className="ml-3" onClick={() => openWizard(undefined)}>
           <Plus className="w-4 h-4 mr-1" /> Novo via wizard
         </Button>
         <Button size="sm" variant="outline" onClick={organize}>
@@ -580,7 +593,7 @@ function Inner() {
             onNodeDragStop={onNodeDragStop}
             onNodeClick={(_e, n) => { if (n.type === "schedule") setSelectedId(n.id); }}
             onNodeDoubleClick={(_e, n) => {
-              if (n.type === "schedule") navigate(`/admin/crm/schedules/${n.id}/edit`);
+              if (n.type === "schedule") openWizard(n.id);
             }}
             nodesDraggable
             nodesConnectable
@@ -616,7 +629,7 @@ function Inner() {
                 )}
               </div>
               <div className="flex gap-2 pt-1">
-                <Button size="sm" variant="outline" className="flex-1" onClick={() => navigate(`/admin/crm/schedules/${selected.id}/edit`)}>
+                <Button size="sm" variant="outline" className="flex-1" onClick={() => openWizard(selected.id)}>
                   <Pencil className="w-3.5 h-3.5 mr-1" /> Editar
                 </Button>
                 <Button size="sm" variant="destructive" onClick={() => handleDelete(selected.id)}>
@@ -627,6 +640,18 @@ function Inner() {
           )}
         </div>
       </div>
+
+      <Dialog open={wizardOpen} onOpenChange={(o) => { if (!o) closeWizardFn(true); }}>
+        <DialogContent className="max-w-none w-screen h-screen p-0 gap-0 rounded-none border-0 sm:rounded-none overflow-y-auto">
+          {wizardOpen && (
+            <ScheduleWizard
+              editingId={wizardEditingId}
+              onDone={() => closeWizardFn(true)}
+              onCancel={() => closeWizardFn(false)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
