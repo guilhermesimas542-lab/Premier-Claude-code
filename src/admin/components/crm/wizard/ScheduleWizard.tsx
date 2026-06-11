@@ -478,23 +478,29 @@ function StepAudience({
   const { items: audiences, loading, create: createAudience, refresh: refreshAudiences } = useAudiences();
   const { count } = usePreviewAudience(state.audience_filters ?? {}, !state.audience_id);
   const isTelegramX1 = state.channel === "telegram_x1";
+  const isTelegramGroup = state.channel === "telegram_group";
+  const isBroadcast = isTelegramX1 || isTelegramGroup;
 
   const selectedAudience = audiences.find((a) => a.id === state.audience_id);
 
-  if (isTelegramX1) {
+  if (isBroadcast) {
     return (
       <div className="space-y-4">
         <div>
           <h2 className="text-xl font-bold text-foreground">Audiência</h2>
           <p className="text-sm text-muted-foreground">
-            Telegram x1 não suporta segmentação — vai pra toda a base SendPulse.
+            {isTelegramX1
+              ? "Telegram x1 não suporta segmentação — vai pra toda a base SendPulse."
+              : "Telegram grupo é broadcast — vai pra todos os membros do grupo."}
           </p>
         </div>
         <div className="rounded-xl border border-yellow-500/30 bg-yellow-500/5 p-4 flex items-start gap-3">
           <AlertTriangle className="w-5 h-5 text-yellow-500 shrink-0 mt-0.5" />
           <div className="text-sm text-foreground">
             <strong>Disparo em broadcast.</strong> Este canal não permite filtrar por cliente.
-            A mensagem será enviada pra toda a base SendPulse.
+            {isTelegramX1
+              ? " A mensagem será enviada pra toda a base SendPulse."
+              : " A mensagem será enviada pra todos os membros do grupo configurado."}
           </div>
         </div>
       </div>
