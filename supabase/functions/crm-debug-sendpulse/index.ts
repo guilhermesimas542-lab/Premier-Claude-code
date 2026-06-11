@@ -61,8 +61,7 @@ Deno.serve(async (req) => {
       hit(`/telegram/contacts/getContactsCountByBot?bot_id=${botId}`),
       hit(`/telegram/campaigns/list?bot_id=${botId}&limit=5`),
       hit(`/telegram/audience?bot_id=${botId}`),
-      // Probe what /telegram/campaigns/send actually returns now (no real send: malformed body to avoid resending)
-      post(`/telegram/campaigns/send`, { bot_id: botId, title: "debug-probe", messages: [{ type: "text", message: { text: "probe-do-not-send" } }] }),
+
     ]);
 
     let campaignProbe: any = null;
