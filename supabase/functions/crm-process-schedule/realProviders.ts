@@ -1,7 +1,7 @@
 // ============================================================
 // realProviders — providers REAIS (Pilar 4 parcial).
 //
-// Atualmente só o canal SMS está plugado (SMS Dev — smsdev.com.br).
+// Canal SMS plugado em Comtele (sms.comtele.com.br).
 // Os demais canais continuam usando mockProviders.ts.
 // ============================================================
 
@@ -14,7 +14,8 @@ interface SmsContent {
   [key: string]: unknown;
 }
 
-const SMSDEV_ENDPOINT = "https://api.smsdev.com.br/v1/send";
+const COMTELE_ENDPOINT = "https://sms.comtele.com.br/api/v2/send";
+const COMTELE_BATCH_SIZE = 100;
 
 
 function buildMessage(body: string | null | undefined, linkUrl?: string | null): string {
@@ -34,87 +35,122 @@ export async function sendBatchSmsReal(
   const msg = buildMessage(content?.body ?? null, content?.link_url ?? null);
   const sentAt = new Date().toISOString();
 
-  const results: SendResult[] = [];
+  // Preserva ordem: array de resultados por índice do recipient
+  const results: SendResult[] = new Array(recipients.length);
 
-  for (const r of recipients) {
+  // Indices válidos a enviar (já normalizados, sem prefixo 55)
+  const validIdx: number[] = [];
+  const validLocalPhone: string[] = []; // DDD+numero (sem 55)
+  const validFullPhone: string[] = [];  // 55+DDD+numero (pra identifier)
+
+  for (let i = 0; i < recipients.length; i++) {
+    const r = recipients[i];
     const recipientUserId =
       r.id && !r.id.startsWith("audience_member:") ? r.id : null;
     const norm = normalizeBrazilMobile(r.phone);
-    const phone = norm.ok ? norm.phone : null;
-    const identifier = phone ?? r.phone ?? r.email ?? r.id;
 
-    if (!phone) {
-      results.push({
+    if (!norm.ok) {
+      results[i] = {
         recipient_user_id: recipientUserId,
-        recipient_identifier: identifier,
+        recipient_identifier: r.phone ?? r.email ?? r.id,
         status: "failed",
         error_code: "invalid_phone",
         error_message: `Telefone inválido: ${norm.reason ?? "formato desconhecido"}`,
-        metadata: { provider: "smsdev", attempted_at: sentAt, raw_phone: r.phone ?? null, reason: norm.reason ?? null },
-      });
+        metadata: { provider: "comtele", attempted_at: sentAt, raw_phone: r.phone ?? null, reason: norm.reason ?? null },
+      };
       continue;
     }
 
+    const fullPhone = norm.phone; // 55DDDNNNNNNNNN
+    const localPhone = fullPhone.startsWith("55") ? fullPhone.slice(2) : fullPhone;
+    validIdx.push(i);
+    validLocalPhone.push(localPhone);
+    validFullPhone.push(fullPhone);
+  }
+
+  // Dispara em sub-lotes de até 100 números
+  for (let start = 0; start < validIdx.length; start += COMTELE_BATCH_SIZE) {
+    const sliceIdx = validIdx.slice(start, start + COMTELE_BATCH_SIZE);
+    const sliceLocal = validLocalPhone.slice(start, start + COMTELE_BATCH_SIZE);
+    const sliceFull = validFullPhone.slice(start, start + COMTELE_BATCH_SIZE);
+    const receivers = sliceLocal.join(",");
 
     try {
-      const resp = await fetch(SMSDEV_ENDPOINT, {
+      const resp = await fetch(COMTELE_ENDPOINT, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          key: apiKey,
-          type: 9,
-          number: phone,
-          msg,
-        }),
+        headers: {
+          "Content-Type": "application/json",
+          "auth-key": apiKey,
+        },
+        body: JSON.stringify({ Receivers: receivers, Content: msg }),
       });
 
       const text = await resp.text();
       let parsed: any = null;
-      try {
-        parsed = JSON.parse(text);
-      } catch {
-        // resposta não-JSON → trata como erro
-      }
-      const data = Array.isArray(parsed) ? parsed[0] : parsed;
+      try { parsed = JSON.parse(text); } catch { /* não-JSON */ }
 
-      if (data && String(data.situacao).toUpperCase() === "OK") {
-        results.push({
-          recipient_user_id: recipientUserId,
-          recipient_identifier: phone,
-          status: "delivered",
-          provider_message_id: data.id ? String(data.id) : undefined,
-          metadata: {
-            provider: "smsdev",
-            sent_at: sentAt,
-            http_status: resp.status,
-          },
-        });
+      const success = resp.status === 200 && parsed && parsed.Success === true;
+
+      if (success) {
+        const requestUniqueId = parsed?.Object?.requestUniqueId
+          ? String(parsed.Object.requestUniqueId)
+          : undefined;
+        for (let k = 0; k < sliceIdx.length; k++) {
+          const i = sliceIdx[k];
+          const r = recipients[i];
+          const recipientUserId =
+            r.id && !r.id.startsWith("audience_member:") ? r.id : null;
+          results[i] = {
+            recipient_user_id: recipientUserId,
+            recipient_identifier: sliceFull[k],
+            status: "sent",
+            provider_message_id: requestUniqueId,
+            metadata: {
+              provider: "comtele",
+              request_unique_id: requestUniqueId ?? null,
+              sent_at: sentAt,
+            },
+          };
+        }
       } else {
-        results.push({
-          recipient_user_id: recipientUserId,
-          recipient_identifier: phone,
-          status: "failed",
-          error_code: "smsdev_error",
-          error_message:
-            (data && (data.descricao ?? data.descricaoStatus ?? data.message)) ??
-            (text ? text.slice(0, 200) : `http_${resp.status}`),
-          metadata: {
-            provider: "smsdev",
-            attempted_at: sentAt,
-            http_status: resp.status,
-            raw: parsed ?? text?.slice(0, 500),
-          },
-        });
+        const errMsg =
+          (parsed && (parsed.Message ?? parsed.message)) ??
+          (text ? text.slice(0, 200) : `http_${resp.status}`);
+        for (let k = 0; k < sliceIdx.length; k++) {
+          const i = sliceIdx[k];
+          const r = recipients[i];
+          const recipientUserId =
+            r.id && !r.id.startsWith("audience_member:") ? r.id : null;
+          results[i] = {
+            recipient_user_id: recipientUserId,
+            recipient_identifier: sliceFull[k],
+            status: "failed",
+            error_code: "comtele_error",
+            error_message: errMsg,
+            metadata: {
+              provider: "comtele",
+              attempted_at: sentAt,
+              http_status: resp.status,
+              raw: parsed ?? text?.slice(0, 500),
+            },
+          };
+        }
       }
     } catch (e: any) {
-      results.push({
-        recipient_user_id: recipientUserId,
-        recipient_identifier: phone,
-        status: "failed",
-        error_code: "smsdev_exception",
-        error_message: e?.message ?? String(e),
-        metadata: { provider: "smsdev", attempted_at: sentAt },
-      });
+      for (let k = 0; k < sliceIdx.length; k++) {
+        const i = sliceIdx[k];
+        const r = recipients[i];
+        const recipientUserId =
+          r.id && !r.id.startsWith("audience_member:") ? r.id : null;
+        results[i] = {
+          recipient_user_id: recipientUserId,
+          recipient_identifier: sliceFull[k],
+          status: "failed",
+          error_code: "comtele_network",
+          error_message: e?.message ?? String(e),
+          metadata: { provider: "comtele", attempted_at: sentAt },
+        };
+      }
     }
   }
 
