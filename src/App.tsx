@@ -57,6 +57,7 @@ import AdminErrors from "./admin/pages/AdminErrors";
 import AdminFeedback from "./admin/pages/AdminFeedback";
 import AdminIATipster from "./admin/pages/AdminIATipster";
 import AdminCrmDashboard from "./admin/pages/crm/AdminCrmDashboard";
+import AdminCrmKpis from "./admin/pages/crm/AdminCrmKpis";
 import AdminCrmSchedules from "./admin/pages/crm/AdminCrmSchedules";
 import AdminCrmScheduleNew from "./admin/pages/crm/AdminCrmScheduleNew";
 import AdminCrmScheduleEdit from "./admin/pages/crm/AdminCrmScheduleEdit";
@@ -175,6 +176,7 @@ const App = () => {
               <Route path="webhook" element={<AdminWebhook />} />
               {/* CRM — orquestrador multicanal */}
               <Route path="crm" element={<AdminCrmDashboard />} />
+              <Route path="crm/kpis" element={<AdminCrmKpis />} />
               <Route path="crm/schedules" element={<AdminCrmSchedules />} />
               <Route path="crm/schedules/new" element={<AdminCrmScheduleNew />} />
               <Route path="crm/schedules/:id/edit" element={<AdminCrmScheduleEdit />} />
