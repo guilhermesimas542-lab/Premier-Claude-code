@@ -149,8 +149,8 @@ export function ScheduleWizard({ editingId, onDone, onCancel }: ScheduleWizardPr
   const canAdvance = (() => {
     if (currentStep === "channel") return state.channel !== null;
     if (currentStep === "audience") {
-      // Telegram x1 não precisa de audiência (broadcast)
-      if (state.channel === "telegram_x1") return true;
+      // Telegram x1 e Telegram grupo não precisam de audiência (broadcast)
+      if (state.channel === "telegram_x1" || state.channel === "telegram_group") return true;
       return state.audience_id !== null || hasFilters(state.audience_filters);
     }
     if (currentStep === "content") return validateContent(state);
