@@ -73,9 +73,11 @@ export const CHANNELS: Record<ChannelKey, ChannelConfig> = {
     provider: "Telegram Direto",
     icon: Users2,
     color: "#0EA5E9",
-    supportsFilter: true,
+    supportsFilter: false,
     supportsHtmlBuilder: false,
     integrationStatus: "config_needed",
+    warning:
+      "Este canal é broadcast — a mensagem vai pra todos os membros do grupo configurado, sem filtro por cliente.",
   },
   telegram_x1: {
     key: "telegram_x1",
