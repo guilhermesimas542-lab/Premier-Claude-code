@@ -63,11 +63,11 @@ export const CHANNEL_CONFIG_SCHEMAS: Record<ChannelKey, ChannelConfigSchema> = {
   },
   sms: {
     providerHint:
-      "SMS Dev (smsdev.com.br) — pegue a Key em Minha Conta no painel.",
+      "Comtele (sms.comtele.com.br) — pegue a Auth Key no painel da Comtele.",
     fields: [
       {
         key: "api_key",
-        label: "SMS Dev — Chave de API (Key)",
+        label: "Comtele — Auth Key",
         type: "password",
         placeholder: "",
         required: true,
