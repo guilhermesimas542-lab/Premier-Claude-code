@@ -180,10 +180,10 @@ export function ScheduleWizard({ editingId, onDone, onCancel }: ScheduleWizardPr
     //   - audiência salva → audience_filters pode continuar null (audience_id satisfaz)
     //   - filtros ad-hoc  → usa o objeto preenchido
     //   - draft sem nada  → audience_filters = {} (objeto vazio é NOT NULL, constraint passa)
-    const isTelegramX1 = state.channel === "telegram_x1";
+    const isBroadcast = state.channel === "telegram_x1" || state.channel === "telegram_group";
     let normalizedFilters: AudienceFilters | { broadcast: true } | Record<string, never> | null =
       state.audience_filters;
-    if (isTelegramX1) {
+    if (isBroadcast && !state.audience_id && !hasFilters(state.audience_filters)) {
       normalizedFilters = { broadcast: true };
     } else if (!state.audience_id && !hasFilters(state.audience_filters)) {
       normalizedFilters = {};
