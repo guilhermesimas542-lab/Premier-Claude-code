@@ -106,7 +106,7 @@ const CardType2Top = ({ card, hasAccess, onAction }: Props) => {
             transition: 'opacity 0.2s',
             ...(hasAccess
               ? {
-                  background: card.button_bg_color || '#00FF7F',
+                  background: card.button_bg_color || '#eac064',
                   border: 'none',
                   color: card.button_font_color || '#000000',
                 }

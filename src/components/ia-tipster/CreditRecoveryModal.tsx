@@ -194,8 +194,8 @@ export function CreditRecoveryModal({ open, onClose }: Props) {
   const isHighlighted = (p: CreditProduct) =>
     p.product_type === "ai_credit_unlimited" && p.pricing?.unlimited_days === 30;
 
-  const matchAccent = "#00E87A";
-  const matchGradient = "linear-gradient(135deg, rgba(0,232,122,0.08) 0%, transparent 60%)";
+  const matchAccent = "#eac064";
+  const matchGradient = "linear-gradient(135deg, rgba(234, 192, 100,0.08) 0%, transparent 60%)";
 
   // ============================================================
   // CARD DO PRÓXIMO JOGO (mesmo visual do PremiumBettingCard)
@@ -211,7 +211,7 @@ export function CreditRecoveryModal({ open, onClose }: Props) {
             borderRadius: 16,
           }}
         >
-          <Loader2 className="w-6 h-6 animate-spin text-[#00FF7F]" />
+          <Loader2 className="w-6 h-6 animate-spin text-[#eac064]" />
         </div>
       );
     }
@@ -461,7 +461,7 @@ export function CreditRecoveryModal({ open, onClose }: Props) {
         onClick={() => setStep("plans")}
         className="w-full py-4 rounded-xl transition-all hover:scale-[1.02] active:scale-[0.99] flex items-center justify-center gap-2"
         style={{
-          background: "#00FF7F",
+          background: "#eac064",
           color: "#000000",
           fontFamily: "'Barlow Condensed', sans-serif",
           fontWeight: 800,
@@ -469,7 +469,7 @@ export function CreditRecoveryModal({ open, onClose }: Props) {
           letterSpacing: "0.8px",
           textTransform: "uppercase",
           border: "none",
-          boxShadow: "0 0 30px rgba(0,255,127,0.3)",
+          boxShadow: "0 0 30px rgba(234, 192, 100,0.3)",
         }}
       >
         <Zap className="w-5 h-5" />
@@ -507,8 +507,8 @@ export function CreditRecoveryModal({ open, onClose }: Props) {
           ? "Sem limite · 3 meses"
           : "";
 
-    const accentColor = highlighted ? "#00FF7F" : isUnlimited ? "#FACC15" : "#94A3B8";
-    const borderColor = highlighted ? "#00FF7F" : "rgba(255,255,255,0.10)";
+    const accentColor = highlighted ? "#eac064" : isUnlimited ? "#FACC15" : "#94A3B8";
+    const borderColor = highlighted ? "#eac064" : "rgba(255,255,255,0.10)";
     const disabled = !product.checkout_url;
 
     return (
@@ -516,9 +516,9 @@ export function CreditRecoveryModal({ open, onClose }: Props) {
         key={product.id}
         className="relative flex flex-col rounded-xl p-3 min-w-0"
         style={{
-          background: highlighted ? "rgba(0,255,127,0.06)" : "rgba(255,255,255,0.03)",
+          background: highlighted ? "rgba(234, 192, 100,0.06)" : "rgba(255,255,255,0.03)",
           border: `${highlighted ? "2px" : "1px"} solid ${borderColor}`,
-          boxShadow: highlighted ? "0 0 24px rgba(0,255,127,0.18)" : "none",
+          boxShadow: highlighted ? "0 0 24px rgba(234, 192, 100,0.18)" : "none",
           transform: highlighted ? "scale(1.03)" : "none",
           zIndex: highlighted ? 1 : 0,
         }}
@@ -527,14 +527,14 @@ export function CreditRecoveryModal({ open, onClose }: Props) {
           <div
             className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full flex items-center gap-1 whitespace-nowrap"
             style={{
-              background: "#00FF7F",
+              background: "#eac064",
               color: "#000",
               fontFamily: "'Barlow Condensed', sans-serif",
               fontWeight: 800,
               fontSize: "10px",
               letterSpacing: "1px",
               textTransform: "uppercase",
-              boxShadow: "0 0 12px rgba(0,255,127,0.5)",
+              boxShadow: "0 0 12px rgba(234, 192, 100,0.5)",
             }}
           >
             <Crown className="w-3 h-3" />
@@ -576,7 +576,7 @@ export function CreditRecoveryModal({ open, onClose }: Props) {
             className="text-lg md:text-xl font-bold leading-tight"
             style={{
               fontFamily: "'Barlow Condensed', sans-serif",
-              color: highlighted ? "#00FF7F" : "#FFFFFF",
+              color: highlighted ? "#eac064" : "#FFFFFF",
             }}
           >
             R$ {price.toFixed(2).replace(".", ",")}
@@ -588,7 +588,7 @@ export function CreditRecoveryModal({ open, onClose }: Props) {
           disabled={disabled || productsLoading}
           className="w-full py-2 rounded-lg text-[11px] font-bold transition-all hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed leading-tight mt-auto"
           style={{
-            background: highlighted ? "#00FF7F" : `${accentColor}20`,
+            background: highlighted ? "#eac064" : `${accentColor}20`,
             color: highlighted ? "#000" : accentColor,
             border: highlighted ? "none" : `1px solid ${accentColor}50`,
             fontFamily: "'Barlow Condensed', sans-serif",
@@ -641,7 +641,7 @@ export function CreditRecoveryModal({ open, onClose }: Props) {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-3">
         {productsLoading ? (
           <div className="col-span-2 md:col-span-4 flex justify-center py-10">
-            <Loader2 className="w-7 h-7 animate-spin text-[#00FF7F]" />
+            <Loader2 className="w-7 h-7 animate-spin text-[#eac064]" />
           </div>
         ) : products.length === 0 ? (
           <div className="col-span-2 md:col-span-4 text-center py-8 text-white/60 text-sm">
@@ -660,7 +660,7 @@ export function CreditRecoveryModal({ open, onClose }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="bg-[#112236] border-[#00FF7F]/30 text-white w-[98vw] max-w-3xl p-4 md:p-6 rounded-2xl max-h-[90vh] overflow-y-auto [&>button]:hidden">
+      <DialogContent className="bg-[#112236] border-[#eac064]/30 text-white w-[98vw] max-w-3xl p-4 md:p-6 rounded-2xl max-h-[90vh] overflow-y-auto [&>button]:hidden">
         <button
           onClick={onClose}
           className="absolute top-3 right-3 w-9 h-9 flex items-center justify-center rounded-full bg-black/70 backdrop-blur-sm border border-white/20 text-white hover:bg-black hover:border-white/40 z-50 transition shadow-lg"

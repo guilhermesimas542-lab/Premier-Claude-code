@@ -40,8 +40,13 @@ export interface NewSchedulePayload {
 export interface SchedulesFilter {
   channel?: ChannelKey;
   status?: ScheduleStatus;
-  /** ISO date string */
+  /** Busca por nome (partial match) */
+  name?: string;
+  /** Qual campo de data usar: created_at ou scheduled_at */
+  dateField?: "created_at" | "scheduled_at";
+  /** ISO date string (início) */
   from?: string;
+  /** ISO date string (fim) */
   to?: string;
 }
 
@@ -74,8 +79,16 @@ export function useSchedules(initialFilter: SchedulesFilter = {}) {
 
     if (filter.channel) q = q.eq("channel", filter.channel);
     if (filter.status) q = q.eq("status", filter.status);
-    if (filter.from) q = q.gte("created_at", filter.from);
-    if (filter.to) q = q.lte("created_at", filter.to);
+    if (filter.name) q = q.ilike("name", `%${filter.name}%`);
+
+    const dateCol = filter.dateField ?? "created_at";
+    if (filter.from) q = q.gte(dateCol, filter.from);
+    if (filter.to) {
+      // Adiciona um dia para incluir o dia todo no filtro
+      const end = new Date(filter.to);
+      end.setDate(end.getDate() + 1);
+      q = q.lt(dateCol, end.toISOString());
+    }
 
     const { data, error: err } = await q;
     if (err) {

@@ -175,12 +175,12 @@ const FEATURE_DISPLAY_ORDER: Record<FeatureKey, number> = {
 };
 
 const TAB_META: Record<FeatureKey, { label: string; labelShort: string; color: string }> = {
-  free:                 { label: "Cuota Gratis",      labelShort: "Cuota Gratis",      color: "#94A3B8" },
-  odds_safes:           { label: "Cuotas Safes",      labelShort: "Cuotas Safes",      color: "#60A5FA" },
-  odds_pro:             { label: "Cuotas Pro",        labelShort: "Cuotas Pro",        color: "#00E87A" },
-  alavancagem:          { label: "Apalancamiento",    labelShort: "Apalancamiento",    color: "#F0B429" },
-  multiplas_bingo:      { label: "Múltiples",         labelShort: "Múltiples",         color: "#FF6B9D" },
-  mercados_secundarios: { label: "Merc. Secundario",  labelShort: "Merc. Secundario",  color: "#A78BFA" },
+  free:                 { label: "Odd Grátis",        labelShort: "Odd Grátis",        color: "#94A3B8" },
+  odds_safes:           { label: "Odds Safes",        labelShort: "Odds Safes",        color: "#60A5FA" },
+  odds_pro:             { label: "Odds Pró",          labelShort: "Odds Pró",          color: "#eac064" },
+  alavancagem:          { label: "Alavancagem",       labelShort: "Alavancagem",       color: "#F0B429" },
+  multiplas_bingo:      { label: "Múltiplas",         labelShort: "Múltiplas",         color: "#FF6B9D" },
+  mercados_secundarios: { label: "Merc. Secundário",  labelShort: "Merc. Secundário",  color: "#A78BFA" },
   esportes_americanos:  { label: "Ligas Americanas",  labelShort: "Ligas Americanas",  color: "#EF4444" },
   odds_ultra:           { label: "Cuotas Ultra",      labelShort: "Cuotas Ultra",      color: "#22D3EE" },
 };
@@ -693,10 +693,10 @@ const Sport = () => {
         onShowLifetimeInfoModal={() => setShowLifetimeInfoModal(true)}
         leftContent={
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            <button className="p-1.5 rounded-lg transition-colors hover:bg-[rgba(0,255,0,0.08)]" onClick={() => navigate("/")}>
-              <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6" style={{ color: "#00FF00" }} />
+            <button className="p-1.5 rounded-lg transition-colors hover:bg-[rgba(234,192,100,0.08)]" onClick={() => navigate("/")}>
+              <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6" style={{ color: "#eac064" }} />
             </button>
-            <img src={logoImg} alt="CL" className="h-10 sm:h-12 w-auto" onClick={() => navigate("/")} style={{ cursor: "pointer", filter: "drop-shadow(0 0 10px rgba(0,255,0,0.5))" }} />
+            <img src="/images/Copa/Logo/header-logo.png" alt="Premier FC" className="h-10 sm:h-12 w-auto" onClick={() => navigate("/")} style={{ cursor: "pointer", filter: "drop-shadow(0 0 10px rgba(234, 192, 100,0.5))" }} />
             
           </div>
         }
@@ -844,13 +844,13 @@ const Sport = () => {
               <p className="text-base" style={{ color: "rgba(255,255,255,0.6)" }}>
                 Los tips de hoy expiraron.
               </p>
-              <p className="text-lg font-bold mb-2" style={{ color: "#00FF00" }}>
-                ¡Mañana tendremos nuevos tips!
+              <p className="text-lg font-bold mb-2" style={{ color: "#eac064" }}>
+                Amanhã teremos novas entradas!
               </p>
               <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>Próximos tips en</p>
               <span
                 className="text-3xl font-mono font-bold tabular-nums"
-                style={{ color: "#FFFFFF", textShadow: "0 0 14px rgba(0,255,0,0.4)" }}
+                style={{ color: "#FFFFFF", textShadow: "0 0 14px rgba(234, 192, 100,0.4)" }}
               >
                 {timerString}
               </span>
@@ -870,29 +870,29 @@ const Sport = () => {
       {/* Modal Info Vitalício */}
       {showLifetimeInfoModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={() => setShowLifetimeInfoModal(false)}>
-          <div className="w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden" style={{ background: "rgba(0,8,0,0.97)", border: "1px solid rgba(0,255,0,0.25)", boxShadow: "0 0 40px rgba(0,255,0,0.1)" }} onClick={(e) => e.stopPropagation()}>
-            <div className="relative px-6 py-5" style={{ borderBottom: "1px solid rgba(0,255,0,0.15)" }}>
+          <div className="w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden" style={{ background: "rgba(0,8,0,0.97)", border: "1px solid rgba(234, 192, 100,0.25)", boxShadow: "0 0 40px rgba(234, 192, 100,0.1)" }} onClick={(e) => e.stopPropagation()}>
+            <div className="relative px-6 py-5" style={{ borderBottom: "1px solid rgba(234, 192, 100,0.15)" }}>
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(0,255,0,0.1)", border: "1px solid rgba(0,255,0,0.3)" }}>
-                  <Crown className="w-5 h-5" style={{ color: "#00FF00" }} />
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(234, 192, 100,0.1)", border: "1px solid rgba(234, 192, 100,0.3)" }}>
+                  <Crown className="w-5 h-5" style={{ color: "#eac064" }} />
                 </div>
                 <div>
                   <h2 className="text-lg font-bold" style={{ color: "#FFFFFF" }}>¡Felicitaciones! 🎉</h2>
                   <p className="text-xs mt-0.5" style={{ color: "#AAAAAA" }}>Miembro Vitalicio</p>
                 </div>
               </div>
-              <button onClick={() => setShowLifetimeInfoModal(false)} className="absolute top-4 right-4 p-1.5 rounded-lg transition-colors hover:bg-[rgba(0,255,0,0.08)]">
-                <X className="w-5 h-5" style={{ color: "#00FF00" }} />
+              <button onClick={() => setShowLifetimeInfoModal(false)} className="absolute top-4 right-4 p-1.5 rounded-lg transition-colors hover:bg-[rgba(234,192,100,0.08)]">
+                <X className="w-5 h-5" style={{ color: "#eac064" }} />
               </button>
             </div>
             <div className="px-6 py-6">
               <p className="text-sm leading-relaxed" style={{ color: "#CCCCCC" }}>
-                Tienes <span style={{ color: "#00FF00", fontWeight: 600 }}>acceso vitalicio e ilimitado</span> a todas las funcionalidades y futuras actualizaciones de CL Ultra. ¡Disfruta!
+                Você tem <span style={{ color: "#eac064", fontWeight: 600 }}>acesso vitalício e ilimitado</span> a todas as funcionalidades e futuras atualizações do Premier Ultra. Aproveite!
               </p>
             </div>
             <div className="px-6 pb-6">
-              <button onClick={() => setShowLifetimeInfoModal(false)} className="w-full py-3 rounded-xl font-medium transition-colors" style={{ background: "rgba(0,255,0,0.08)", border: "1px solid rgba(0,255,0,0.3)", color: "#FFFFFF" }}>
-                Entendido
+              <button onClick={() => setShowLifetimeInfoModal(false)} className="w-full py-3 rounded-xl font-medium transition-colors" style={{ background: "rgba(234, 192, 100,0.08)", border: "1px solid rgba(234, 192, 100,0.3)", color: "#FFFFFF" }}>
+                Entendi
               </button>
             </div>
           </div>

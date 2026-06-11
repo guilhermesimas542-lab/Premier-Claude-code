@@ -61,7 +61,7 @@ export function TutorialSection({ onTestNow, completed }: TutorialSectionProps =
           style={{
             width: page === 1 ? "20px" : "6px",
             height: "6px",
-            background: page === 1 ? "#00FF7F" : "rgba(255,255,255,0.2)",
+            background: page === 1 ? "#eac064" : "rgba(255,255,255,0.2)",
           }}
         />
         <span
@@ -69,7 +69,7 @@ export function TutorialSection({ onTestNow, completed }: TutorialSectionProps =
           style={{
             width: page === 2 ? "20px" : "6px",
             height: "6px",
-            background: page === 2 ? "#00FF7F" : "rgba(255,255,255,0.2)",
+            background: page === 2 ? "#eac064" : "rgba(255,255,255,0.2)",
           }}
         />
         <span className="text-[10px] text-white/40 ml-2 uppercase tracking-wider"
@@ -123,7 +123,7 @@ export function TutorialSection({ onTestNow, completed }: TutorialSectionProps =
             onClick={() => setPage(2)}
             className="flex-1 py-3 rounded-xl flex items-center justify-center gap-2 transition-all hover:scale-[1.01] active:scale-[0.99]"
             style={{
-              background: "#24c660",
+              background: "#eac064",
               color: "#FFFFFF",
               fontFamily: "'Barlow Condensed', sans-serif",
               fontWeight: 800,
@@ -131,7 +131,7 @@ export function TutorialSection({ onTestNow, completed }: TutorialSectionProps =
               letterSpacing: "0.6px",
               textTransform: "uppercase",
               border: "none",
-              boxShadow: "0 0 22px rgba(0,255,127,0.2)",
+              boxShadow: "0 0 22px rgba(234, 192, 100,0.2)",
             }}
           >
             Próximo
@@ -142,7 +142,7 @@ export function TutorialSection({ onTestNow, completed }: TutorialSectionProps =
             onClick={onTestNow}
             className="flex-1 py-3 rounded-xl flex items-center justify-center gap-2 transition-all hover:scale-[1.02] active:scale-[0.99]"
             style={{
-              background: "#24c660",
+              background: "#eac064",
               color: "#FFFFFF",
               fontFamily: "'Barlow Condensed', sans-serif",
               fontWeight: 800,
@@ -150,7 +150,7 @@ export function TutorialSection({ onTestNow, completed }: TutorialSectionProps =
               letterSpacing: "0.6px",
               textTransform: "uppercase",
               border: "none",
-              boxShadow: "0 0 24px rgba(0,255,127,0.3)",
+              boxShadow: "0 0 24px rgba(234, 192, 100,0.3)",
             }}
           >
             <Zap className="w-4 h-4" />
@@ -283,10 +283,10 @@ function SectionCredits() {
       <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4 space-y-3">
         <CreditRow
           icon={<RefreshCw className="w-3.5 h-3.5" />}
-          label="Cuota semanal"
-          text="Recibes créditos cada semana según tu plan. Reinicia cada lunes."
-          valueLabel="Gratis"
-          valueColor="#00FF7F"
+          label="Cota semanal"
+          text="Você recebe créditos toda semana de acordo com seu plano. Reset toda segunda."
+          valueLabel="Grátis"
+          valueColor="#eac064"
         />
         <CreditRow
           icon={<Coins className="w-3.5 h-3.5" />}
@@ -297,10 +297,10 @@ function SectionCredits() {
         />
         <CreditRow
           icon={<InfinityIcon className="w-3.5 h-3.5" />}
-          label="Acceso ilimitado"
-          text="Análisis sin contar créditos por 1 o 3 meses. Para quien usa mucho."
-          valueLabel="Desde $29.900"
-          valueColor="#00FF7F"
+          label="Acesso ilimitado"
+          text="Análises sem contar créditos por 1 ou 3 meses. Pra quem usa muito."
+          valueLabel="A partir de R$ 99,00"
+          valueColor="#eac064"
         />
       </div>
     </div>

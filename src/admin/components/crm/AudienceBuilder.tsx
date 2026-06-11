@@ -13,6 +13,8 @@ import type {
 } from "../../hooks/crm/useAudiences";
 import { usePreviewAudience } from "../../hooks/crm/usePreviewAudience";
 import { useBehaviorOptions } from "../../hooks/crm/useBehaviorOptions";
+import { UserPicker } from "./UserPicker";
+import { PhonePicker } from "./PhonePicker";
 
 interface Props {
   open: boolean;
@@ -168,6 +170,40 @@ export function AudienceBuilder({ open, onClose, onSave, editing, initialFilters
               rows={2}
             />
           </div>
+
+          {/* Leads específicos */}
+          <FilterGroup
+            title="Leads específicos"
+            hint="Busque por email e selecione exatamente quem entra. Se preencher aqui, os outros filtros funcionam como refinamento."
+          >
+            <UserPicker
+              selectedIds={filters.user_ids ?? []}
+              onChange={(ids) =>
+                setFilters((prev) => ({
+                  ...prev,
+                  user_ids: ids.length > 0 ? ids : undefined,
+                }))
+              }
+            />
+          </FilterGroup>
+
+          {/* Telefones específicos (SMS) */}
+          <FilterGroup
+            title="Telefones específicos (SMS)"
+            hint="Cole/digite números BR — normalizados no formato SMS Dev. Override pra disparos de SMS."
+          >
+            <PhonePicker
+              selected={filters.phones ?? []}
+              onChange={(phones) =>
+                setFilters((prev) => ({
+                  ...prev,
+                  phones: phones.length > 0 ? phones : undefined,
+                }))
+              }
+            />
+          </FilterGroup>
+
+
 
           {/* Plano */}
           <FilterGroup title="Plano" hint="Selecione um ou mais planos">

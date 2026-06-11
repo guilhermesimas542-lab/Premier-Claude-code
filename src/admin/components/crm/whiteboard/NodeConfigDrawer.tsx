@@ -32,9 +32,10 @@ interface Props {
   triggerType?: string | null;
   onClose: () => void;
   onSave: (id: string, fields: UpdateNodeFields) => Promise<void> | void;
+  onDelete?: (id: string) => Promise<void> | void;
 }
 
-export function NodeConfigDrawer({ node, messageNodes, triggerType, onClose, onSave }: Props) {
+export function NodeConfigDrawer({ node, messageNodes, triggerType, onClose, onSave, onDelete }: Props) {
   const open = !!node;
   const [channel, setChannel] = useState<ChannelKey | null>(null);
   const [content, setContent] = useState<Record<string, any>>({});
@@ -270,15 +271,33 @@ export function NodeConfigDrawer({ node, messageNodes, triggerType, onClose, onS
           )}
         </div>
 
-        <SheetFooter>
-          <Button variant="ghost" onClick={onClose} disabled={saving}>
-            Cancelar
-          </Button>
-          {node.type !== "trigger" && (
-            <Button onClick={handleSave} disabled={saving}>
-              {saving ? "Salvando..." : "Salvar"}
+        <SheetFooter className="gap-2 sm:justify-between">
+          <div>
+            {onDelete && node.type !== "trigger" && (
+              <Button
+                variant="destructive"
+                disabled={saving}
+                onClick={async () => {
+                  if (!confirm("Excluir este nó? Ligações conectadas também serão removidas.")) return;
+                  setSaving(true);
+                  try { await onDelete(node.id); onClose(); }
+                  finally { setSaving(false); }
+                }}
+              >
+                Excluir
+              </Button>
+            )}
+          </div>
+          <div className="flex gap-2">
+            <Button variant="ghost" onClick={onClose} disabled={saving}>
+              Cancelar
             </Button>
-          )}
+            {node.type !== "trigger" && (
+              <Button onClick={handleSave} disabled={saving}>
+                {saving ? "Salvando..." : "Salvar"}
+              </Button>
+            )}
+          </div>
         </SheetFooter>
       </SheetContent>
     </Sheet>

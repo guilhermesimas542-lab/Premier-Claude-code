@@ -29,6 +29,15 @@ export function usePreviewAudience(filters: AudienceFilters, enabled = true) {
   useEffect(() => {
     if (!enabled) return;
 
+    // Override estrito de telefones (SMS): se a lista foi preenchida,
+    // o disparo vai SÓ pra esses números — espelha a contagem aqui também.
+    if (filters.phones && filters.phones.length > 0) {
+      setCount(filters.phones.length);
+      setLoading(false);
+      setError(null);
+      return;
+    }
+
     let cancelled = false;
     const timer = setTimeout(async () => {
       setLoading(true);
@@ -51,6 +60,11 @@ export function usePreviewAudience(filters: AudienceFilters, enabled = true) {
 
       if (behaviorUserIds) {
         q = q.in("id", behaviorUserIds);
+      }
+
+      // Lista explícita de user_ids (override)
+      if (filters.user_ids && filters.user_ids.length > 0) {
+        q = q.in("id", filters.user_ids);
       }
 
       // Plans

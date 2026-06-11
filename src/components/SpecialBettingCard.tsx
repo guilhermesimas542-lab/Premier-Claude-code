@@ -134,7 +134,7 @@ export const SpecialBettingCard = ({
           <button
             onClick={(e) => { e.stopPropagation(); onLockedClick?.(); }}
             className="animate-pulse-glow-green"
-            style={{ padding: "10px 24px", borderRadius: 999, background: "#00FF7F", color: "#000", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 14, border: "none", cursor: "pointer", letterSpacing: "0.5px" }}
+            style={{ padding: "10px 24px", borderRadius: 999, background: "#eac064", color: "#000", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 14, border: "none", cursor: "pointer", letterSpacing: "0.5px" }}
           >
             Adquiérelo ya
           </button>
@@ -152,7 +152,7 @@ export const SpecialBettingCard = ({
             fontFamily: "'Barlow Condensed', sans-serif",
             fontWeight: 800,
             fontSize: 28,
-            color: "#00FF7F",
+            color: "#eac064",
             lineHeight: 1,
             pointerEvents: "none",
           }}
@@ -254,7 +254,7 @@ export const SpecialBettingCard = ({
               disabled={isExpired}
               style={{
                 flex: 1,
-                background: isExpired ? "#374151" : "#00FF7F",
+                background: isExpired ? "#374151" : "#eac064",
                 color: isExpired ? "#6B7280" : "#000000",
                 fontFamily: "'Barlow Condensed', sans-serif",
                 fontWeight: 800,

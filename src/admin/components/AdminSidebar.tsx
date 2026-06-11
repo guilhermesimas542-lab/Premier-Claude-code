@@ -84,6 +84,7 @@ export function AdminSidebar() {
       label: "CRM",
       items: [
         { to: "/admin/crm", icon: Megaphone, label: "Relatórios CRM", end: true },
+        { to: "/admin/crm/kpis", icon: BarChart3, label: "Indicadores (KPIs)" },
         { to: "/admin/behavior", icon: BarChart3, label: "Comportamento" },
         { to: "/admin/crm/schedules", icon: Send, label: "Schedules" },
         { to: "/admin/crm/journeys", icon: Workflow, label: "Jornadas" },
