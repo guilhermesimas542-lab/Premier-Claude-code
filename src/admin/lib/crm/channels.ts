@@ -64,7 +64,7 @@ export const CHANNELS: Record<ChannelKey, ChannelConfig> = {
     color: "#FACC15",
     supportsFilter: true,
     supportsHtmlBuilder: false,
-    integrationStatus: "config_needed",
+    integrationStatus: "active",
   },
   telegram_group: {
     key: "telegram_group",
