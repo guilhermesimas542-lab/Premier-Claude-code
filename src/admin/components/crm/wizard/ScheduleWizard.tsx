@@ -1058,13 +1058,16 @@ function StepReview({ state }: { state: WizardState }) {
           value={
             state.channel === "telegram_x1"
               ? "Broadcast geral (toda a base SendPulse)"
-              : state.audience_id
-                ? "Audiência salva selecionada"
-                : hasFilters(state.audience_filters)
-                  ? "Filtros ad-hoc aplicados"
-                  : "—"
+              : state.channel === "telegram_group"
+                ? "Broadcast geral (membros do grupo)"
+                : state.audience_id
+                  ? "Audiência salva selecionada"
+                  : hasFilters(state.audience_filters)
+                    ? "Filtros ad-hoc aplicados"
+                    : "—"
           }
         />
+
 
         <ReviewRow
           label="Agendamento"
