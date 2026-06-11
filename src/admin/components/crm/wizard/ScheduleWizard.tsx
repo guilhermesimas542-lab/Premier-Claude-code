@@ -28,6 +28,7 @@ import {
   type ChannelKey,
 } from "../../../lib/crm/channels";
 import { useSchedules, type NewSchedulePayload } from "../../../hooks/crm/useSchedules";
+import { useDispatchSchedule } from "../../../hooks/crm/useDispatchSchedule";
 import { useAudiences, type AudienceFilters } from "../../../hooks/crm/useAudiences";
 import { usePreviewAudience } from "../../../hooks/crm/usePreviewAudience";
 import { ChannelPreview } from "./ChannelPreview";
@@ -87,6 +88,7 @@ interface ScheduleWizardProps {
 export function ScheduleWizard({ editingId, onDone, onCancel }: ScheduleWizardProps = {}) {
   const navigate = useNavigate();
   const { create, update: updateSchedule } = useSchedules();
+  const { dispatch } = useDispatchSchedule();
   const [state, setState] = useState<WizardState>(INITIAL_STATE);
   const [stepIdx, setStepIdx] = useState(0);
   const [saving, setSaving] = useState(false);
@@ -1143,8 +1145,9 @@ function validateContent(state: WizardState): boolean {
   const c = state.content;
   if (!state.channel) return false;
   if (state.channel === "email") return !!(c.subject?.trim() && (c.body?.trim() || c.image_url));
-  if (state.channel === "push" || state.channel === "popup")
-    return !!(c.title?.trim() && c.body?.trim());
+  if (state.channel === "push") return !!(c.title?.trim() && c.body?.trim());
+  if (state.channel === "popup")
+    return !!(c.title?.trim() || c.body?.trim() || c.image_url);
   return !!c.body?.trim();
 }
 

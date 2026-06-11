@@ -261,42 +261,83 @@ function PushPreview({ content }: { content: Record<string, any> }) {
 }
 
 // ---------- Popup ----------
+// Espelha CrmPopupModal: imagem é o botão; sem botão "Acessar" quando há imagem;
+// body só renderiza se preenchido; modo só-imagem sem card.
 function PopupPreview({ content }: { content: Record<string, any> }) {
-  const title = interpolate(content.title ?? "") || "(sem título)";
-  const body = interpolate(content.body ?? "") || "(sem descrição)";
-  const cta = interpolate(content.cta ?? "") || "Continuar";
+  const title = interpolate(content.title ?? "").trim();
+  const body = interpolate(content.body ?? "").trim();
+  const ctaText = interpolate(content.cta ?? "").trim();
+  const hasImage = !!content.image_url;
+  const ctaUrl = content?.cta_url ?? content?.link_url ?? null;
+  const imageOnly = hasImage && !title && !body;
+
   return (
     <div className="rounded-xl p-4 border border-slate-700 bg-black/40 relative overflow-hidden">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
-      <div className="relative max-w-sm mx-auto rounded-2xl border border-emerald-500/30 bg-[#112236] p-5 shadow-2xl">
-        <button
-          className="absolute top-2 right-2 text-slate-400 hover:text-white"
-          aria-label="Fechar (preview)"
-          type="button"
-          disabled
-        >
-          <X className="w-4 h-4" />
-        </button>
-        <div className="space-y-2 text-center">
-          {content.image_url && (
-            <img
-              src={content.image_url}
-              alt="Banner do popup"
-              className="w-full h-auto rounded-lg border border-emerald-500/20"
-              style={{ maxHeight: 220, objectFit: "cover" }}
-            />
-          )}
-          <h3 className="text-base font-bold text-white">{title}</h3>
-          <p className="text-xs text-slate-300 whitespace-pre-wrap">{body}</p>
+
+      {imageOnly ? (
+        <div className="relative max-w-sm mx-auto">
           <button
+            className="absolute -top-2 -right-2 z-10 rounded-full p-1.5 bg-black/70 border border-white/20 text-white"
             type="button"
             disabled
-            className="mt-2 inline-flex items-center justify-center rounded-lg px-4 py-2 text-xs font-bold uppercase tracking-wider bg-emerald-400 text-slate-900"
+            aria-label="Fechar (preview)"
           >
-            {cta}
+            <X className="w-3.5 h-3.5" />
           </button>
+          <img
+            src={content.image_url}
+            alt="Popup"
+            className="w-full h-auto rounded-2xl"
+          />
         </div>
-      </div>
+      ) : (
+        <div
+          className="relative max-w-sm mx-auto rounded-2xl border border-emerald-500/30 bg-[#112236] p-5 shadow-2xl"
+        >
+          <button
+            className="absolute top-2 right-2 text-slate-400"
+            aria-label="Fechar (preview)"
+            type="button"
+            disabled
+          >
+            <X className="w-4 h-4" />
+          </button>
+          <div className="space-y-3">
+            {title && (
+              <h3
+                className="text-2xl font-bold leading-tight text-white"
+                style={{ fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: "0.5px" }}
+              >
+                {title}
+              </h3>
+            )}
+            {body && (
+              <p className="text-sm text-white/80 whitespace-pre-wrap leading-relaxed">
+                {body}
+              </p>
+            )}
+            {hasImage && (
+              <img
+                src={content.image_url}
+                alt="Popup"
+                className="w-full h-auto rounded-xl mt-1"
+                style={{ objectFit: "cover" }}
+              />
+            )}
+            {!hasImage && (ctaUrl || ctaText) && (
+              <button
+                type="button"
+                disabled
+                className="block w-full mt-2 py-3.5 text-center font-bold rounded-xl text-sm tracking-wide"
+                style={{ backgroundColor: "#00FF7F", color: "#060D1E" }}
+              >
+                {ctaText || "Acessar"}
+              </button>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

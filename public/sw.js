@@ -32,18 +32,7 @@ self.addEventListener('push', (event) => {
     ],
   };
 
-  event.waitUntil(
-    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {
-      const visibleClients = clients.filter((client) => client.visibilityState === 'visible');
-
-      if (visibleClients.length > 0) {
-        visibleClients.forEach((client) => client.postMessage({ type: 'push-notification', payload: data }));
-        return;
-      }
-
-      return self.registration.showNotification(data.title, options);
-    })
-  );
+  event.waitUntil(self.registration.showNotification(data.title, options));
 });
 
 self.addEventListener('notificationclick', (event) => {
