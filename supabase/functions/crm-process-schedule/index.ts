@@ -228,32 +228,50 @@ Deno.serve(async (req: Request) => {
 
   let recipients: Recipient[] = [];
 
-  if (!isBroadcast && isStaticList && schedule.audience?.id) {
-    const { data: members, error: memErr } = await supabase
-      .from("crm_audience_members")
-      .select(
-        `email, phone, user_id,
-         user:users ( id, email, phone, nickname )`
-      )
-      .eq("audience_id", schedule.audience.id)
-      .limit(50000);
+  // Paginação em blocos de 1000 pra contornar o db-max-rows do PostgREST.
+  // makeQuery() PRECISA remontar a query do zero a cada chamada — .range()
+  // não pode ser aplicado duas vezes na mesma instância encadeada.
+  async function fetchAllPaginated<T = any>(
+    makeQuery: () => any
+  ): Promise<T[]> {
+    const PAGE = 1000;
+    let from = 0;
+    const all: T[] = [];
+    while (true) {
+      const { data, error } = await makeQuery().range(from, from + PAGE - 1);
+      if (error) throw error;
+      if (!data?.length) break;
+      all.push(...(data as T[]));
+      if (data.length < PAGE) break;
+      from += PAGE;
+    }
+    return all;
+  }
 
-    if (memErr) {
+  if (!isBroadcast && isStaticList && schedule.audience?.id) {
+    let members: any[] = [];
+    try {
+      members = await fetchAllPaginated(() =>
+        supabase
+          .from("crm_audience_members")
+          .select(
+            `email, phone, user_id,
+             user:users ( id, email, phone, nickname )`
+          )
+          .eq("audience_id", schedule.audience.id)
+      );
+    } catch (memErr: any) {
       await supabase
         .from("crm_schedules")
         .update({ status: "failed" })
         .eq("id", scheduleId);
       return json(
-        { error: "audience_resolution_failed", details: memErr.message },
+        { error: "audience_resolution_failed", details: memErr?.message },
         500
       );
     }
 
-    // Normaliza members → Recipient. Quando há user_id, usa dados do user;
-    // senão monta com o que tem do member (mas sempre devolve um id sintético
-    // pra event log conseguir guardar referência).
-    recipients = ((members ?? []) as any[]).map((m) => ({
-      // ID sintético: prefere user.id; senão usa identifier como pseudo-id
+    recipients = members.map((m) => ({
       id: m.user?.id ?? `audience_member:${m.email ?? m.phone}`,
       email: m.user?.email ?? m.email ?? null,
       phone: m.user?.phone ?? m.phone ?? null,
@@ -269,65 +287,68 @@ Deno.serve(async (req: Request) => {
     if (behaviorIds !== null && behaviorIds.length === 0) {
       recipients = [];
     } else {
-      let q: any = supabase.from("users").select("id, email, phone, nickname");
+      const buildUsersQuery = () => {
+        let q: any = supabase.from("users").select("id, email, phone, nickname");
 
-      if (behaviorIds !== null) {
-        q = q.in("id", behaviorIds);
-      }
+        if (behaviorIds !== null) {
+          q = q.in("id", behaviorIds);
+        }
 
-      // Lista explícita de user_ids (override) — leads escolhidos manualmente.
-      if (filters.user_ids && filters.user_ids.length > 0) {
-        q = q.in("id", filters.user_ids);
-      }
+        if (filters.user_ids && filters.user_ids.length > 0) {
+          q = q.in("id", filters.user_ids);
+        }
 
-    if (filters.plans && filters.plans.length > 0) {
-      q = q.in("main_tier", filters.plans);
-    }
+        if (filters.plans && filters.plans.length > 0) {
+          q = q.in("main_tier", filters.plans);
+        }
 
-    if (filters.days_since_login) {
-      const now = Date.now();
-      if (typeof filters.days_since_login.gte === "number") {
-        const cutoff = new Date(now - filters.days_since_login.gte * 86400000);
-        q = q.lte("last_seen_at", cutoff.toISOString());
-      }
-      if (typeof filters.days_since_login.lte === "number") {
-        const cutoff = new Date(now - filters.days_since_login.lte * 86400000);
-        q = q.gte("last_seen_at", cutoff.toISOString());
-      }
-    }
+        if (filters.days_since_login) {
+          const now = Date.now();
+          if (typeof filters.days_since_login.gte === "number") {
+            const cutoff = new Date(now - filters.days_since_login.gte * 86400000);
+            q = q.lte("last_seen_at", cutoff.toISOString());
+          }
+          if (typeof filters.days_since_login.lte === "number") {
+            const cutoff = new Date(now - filters.days_since_login.lte * 86400000);
+            q = q.gte("last_seen_at", cutoff.toISOString());
+          }
+        }
 
-    if (filters.status && filters.status.length > 0) {
-      const now = Date.now();
-      const sevenDaysAgo = new Date(now - 7 * 86400000).toISOString();
-      const thirtyDaysAgo = new Date(now - 30 * 86400000).toISOString();
-      const orConditions: string[] = [];
-      if (filters.status.includes("active")) {
-        orConditions.push(`last_seen_at.gte.${sevenDaysAgo}`);
-      }
-      if (filters.status.includes("inactive")) {
-        orConditions.push(
-          `and(last_seen_at.lt.${sevenDaysAgo},last_seen_at.gte.${thirtyDaysAgo})`
+        if (filters.status && filters.status.length > 0) {
+          const now = Date.now();
+          const sevenDaysAgo = new Date(now - 7 * 86400000).toISOString();
+          const thirtyDaysAgo = new Date(now - 30 * 86400000).toISOString();
+          const orConditions: string[] = [];
+          if (filters.status.includes("active")) {
+            orConditions.push(`last_seen_at.gte.${sevenDaysAgo}`);
+          }
+          if (filters.status.includes("inactive")) {
+            orConditions.push(
+              `and(last_seen_at.lt.${sevenDaysAgo},last_seen_at.gte.${thirtyDaysAgo})`
+            );
+          }
+          if (filters.status.includes("churn_risk")) {
+            orConditions.push(`last_seen_at.lt.${thirtyDaysAgo}`);
+            orConditions.push(`last_seen_at.is.null`);
+          }
+          if (orConditions.length > 0) q = q.or(orConditions.join(","));
+        }
+
+        return q;
+      };
+
+      try {
+        recipients = await fetchAllPaginated(buildUsersQuery);
+      } catch (usersErr: any) {
+        await supabase
+          .from("crm_schedules")
+          .update({ status: "failed" })
+          .eq("id", scheduleId);
+        return json(
+          { error: "audience_resolution_failed", details: usersErr?.message },
+          500
         );
       }
-      if (filters.status.includes("churn_risk")) {
-        orConditions.push(`last_seen_at.lt.${thirtyDaysAgo}`);
-        orConditions.push(`last_seen_at.is.null`);
-      }
-      if (orConditions.length > 0) q = q.or(orConditions.join(","));
-    }
-
-    const { data: users, error: usersErr } = await q.limit(50000);
-    if (usersErr) {
-      await supabase
-        .from("crm_schedules")
-        .update({ status: "failed" })
-        .eq("id", scheduleId);
-      return json(
-        { error: "audience_resolution_failed", details: usersErr.message },
-        500
-      );
-    }
-    recipients = users ?? [];
     }
   }
 
