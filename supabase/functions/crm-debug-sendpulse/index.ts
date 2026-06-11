@@ -44,15 +44,25 @@ Deno.serve(async (req) => {
       return { path, status: r.status, body: await r.json().catch(() => ({})) };
     }
 
+    async function post(path: string, body: any) {
+      const r = await fetch(`https://api.sendpulse.com${path}`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      return { path, method: "POST", status: r.status, body: await r.json().catch(() => ({})) };
+    }
+
     const results = await Promise.all([
       hit(`/telegram/bots`),
-      hit(`/telegram/contacts/getList?bot_id=${botId}&limit=1`),
-      hit(`/telegram/subscribers?bot_id=${botId}&limit=1`),
-      hit(`/telegram/bots/${botId}`),
-      hit(`/telegram/campaigns/list?limit=5`),
-      hit(`/telegram/campaigns?limit=5`),
-      hit(`/user/info`),
-      hit(`/messengers/bots`),
+      hit(`/telegram/contacts?bot_id=${botId}&limit=1`),
+      hit(`/telegram/contacts/list?bot_id=${botId}&limit=1`),
+      hit(`/telegram/contacts/getListByBot?bot_id=${botId}&limit=1`),
+      hit(`/telegram/contacts/getContactsCountByBot?bot_id=${botId}`),
+      hit(`/telegram/campaigns/list?bot_id=${botId}&limit=5`),
+      hit(`/telegram/audience?bot_id=${botId}`),
+      // Probe what /telegram/campaigns/send actually returns now (no real send: malformed body to avoid resending)
+      post(`/telegram/campaigns/send`, { bot_id: botId, title: "debug-probe", messages: [{ type: "text", message: { text: "probe-do-not-send" } }] }),
     ]);
 
     let campaignProbe: any = null;
