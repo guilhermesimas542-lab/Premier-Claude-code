@@ -352,7 +352,7 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && handleCloseAttempt()}>
-      <DialogContent className="bg-[#112236] border-[#eac064]/30 text-white max-w-sm p-6 [&>button]:hidden">
+      <DialogContent className="bg-[#112236] border-[#eac064]/30 text-white max-w-sm p-6">
         {phase === "main_step1" && (
           <PaywallEducationStep feature={feature} onContinue={() => setPhase("main_step2")} />
         )}
