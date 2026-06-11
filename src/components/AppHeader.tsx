@@ -81,7 +81,7 @@ const AppHeader = ({ leftContent, headerStyle, title }: AppHeaderProps) => {
                     <ArrowLeft className="w-5 h-5" />
                   </button>
                 )}
-                <img src={logoImg} alt="Premier Ultra" className="h-10 sm:h-12 w-auto" onClick={() => navigate("/")} style={{ cursor: "pointer", filter: "drop-shadow(0 0 10px rgba(0,255,0,0.5))" }} />
+                <img src="/images/Copa/Logo/header-logo.png" alt="Premier FC" className="h-10 sm:h-12 w-auto" onClick={() => navigate("/")} style={{ cursor: "pointer", filter: "drop-shadow(0 0 10px rgba(224,179,65,0.5))" }} />
                 {title && (
                   <span className="font-bold text-white text-sm">{title}</span>
                 )}
@@ -96,8 +96,8 @@ const AppHeader = ({ leftContent, headerStyle, title }: AppHeaderProps) => {
                   className="inline-flex items-center gap-1.5 rounded-full transition-all hover:scale-105"
                   style={{
                     padding: "7px 14px",
-                    background: "rgba(0,255,127,0.10)",
-                    border: "1px solid rgba(0,255,127,0.5)",
+                    background: "rgba(234, 192, 100,0.10)",
+                    border: "1px solid rgba(234, 192, 100,0.5)",
                     fontFamily: "'Barlow Condensed', sans-serif",
                     fontWeight: 700,
                     fontSize: "13px",
@@ -105,7 +105,7 @@ const AppHeader = ({ leftContent, headerStyle, title }: AppHeaderProps) => {
                     letterSpacing: "0.5px",
                   }}
                 >
-                  <Sparkles size={14} style={{ color: "#00FF7F" }} />
+                  <Sparkles size={14} style={{ color: "#eac064" }} />
                   Criar Odds
                 </button>
               )}
@@ -134,12 +134,12 @@ const AppHeader = ({ leftContent, headerStyle, title }: AppHeaderProps) => {
                   className="inline-flex items-center gap-1.5 rounded-full transition-all hover:scale-105"
                   style={{
                     padding: "7px 14px",
-                    background: "rgba(255,255,255,0.06)",
-                    border: "1px solid rgba(255,255,255,0.18)",
+                    background: "rgba(224,179,65,0.12)",
+                    border: "1px solid rgba(224,179,65,0.5)",
                     fontFamily: "'Barlow Condensed', sans-serif",
                     fontWeight: 700,
                     fontSize: "13px",
-                    color: "#FFFFFF",
+                    color: "#E0B341",
                     letterSpacing: "0.5px",
                   }}
                 >
@@ -153,14 +153,14 @@ const AppHeader = ({ leftContent, headerStyle, title }: AppHeaderProps) => {
                   className="inline-flex items-center gap-1.5 rounded-full transition-all hover:scale-105"
                   style={{
                     padding: "7px 14px",
-                    background: "#24c660",
-                    border: "1px solid rgba(0,255,127,0.5)",
+                    background: "#eac064",
+                    border: "1px solid rgba(234, 192, 100,0.5)",
                     fontFamily: "'Barlow Condensed', sans-serif",
                     fontWeight: 700,
                     fontSize: "13px",
                     color: "#FFFFFF",
                     letterSpacing: "0.5px",
-                    boxShadow: "0 0 14px rgba(0,255,127,0.3)",
+                    boxShadow: "0 0 14px rgba(234, 192, 100,0.3)",
                   }}
                   aria-label="Comprar créditos"
                 >

@@ -10,7 +10,7 @@ export const NewEntriesAlert = ({ betSiteUrl }: NewEntriesAlertProps) => {
   const navigate = useNavigate();
 
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#000636] via-[#001B70] to-[#000636] border-2 border-[#00FF7F] p-6 shadow-2xl shadow-[#00FF7F]/30 animate-fade-in hot-entry-alert">
+    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#000636] via-[#001B70] to-[#000636] border-2 border-[#eac064] p-6 shadow-2xl shadow-[#eac064]/30 animate-fade-in hot-entry-alert">
       {/* Animated border glow */}
       <div className="absolute inset-0 rounded-2xl border-glow" />
       
@@ -33,8 +33,8 @@ export const NewEntriesAlert = ({ betSiteUrl }: NewEntriesAlertProps) => {
         <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
           {/* Animated icon */}
           <div className="relative">
-            <div className="absolute inset-0 bg-[#00FF7F] blur-xl opacity-50 animate-pulse" />
-            <div className="relative bg-gradient-to-br from-[#005CFF] to-[#00FF7F] p-3 rounded-xl">
+            <div className="absolute inset-0 bg-[#eac064] blur-xl opacity-50 animate-pulse" />
+            <div className="relative bg-gradient-to-br from-[#005CFF] to-[#eac064] p-3 rounded-xl">
               <Zap className="w-6 h-6 text-white animate-pulse" fill="white" />
             </div>
           </div>
@@ -44,7 +44,7 @@ export const NewEntriesAlert = ({ betSiteUrl }: NewEntriesAlertProps) => {
             <h3 className="text-xl md:text-2xl font-black text-white tracking-tight mb-1">
               🎁 WELCOME10
             </h3>
-            <p className="text-sm text-[#00FF7F] font-semibold">
+            <p className="text-sm text-[#eac064] font-semibold">
               Cupom disponível que dobra seu depósito (200%), pegue antes que a casa tire do ar
             </p>
           </div>
@@ -61,7 +61,7 @@ export const NewEntriesAlert = ({ betSiteUrl }: NewEntriesAlertProps) => {
       </div>
 
       {/* Pulsing glow effect */}
-      <div className="absolute -inset-1 bg-gradient-to-r from-[#00FF7F]/20 via-[#005CFF]/20 to-[#00FF7F]/20 blur-2xl -z-10 animate-pulse" />
+      <div className="absolute -inset-1 bg-gradient-to-r from-[#eac064]/20 via-[#005CFF]/20 to-[#eac064]/20 blur-2xl -z-10 animate-pulse" />
     </div>
   );
 };

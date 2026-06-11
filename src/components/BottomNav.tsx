@@ -5,8 +5,8 @@ const ALL_NAV_ITEMS = [
   {
     path: "/sport/1",
     label: "Tips",
-    // Filled football/soccer ball SVG
-    iconPath: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-.52.07-1.06.07-1.58.02l-1.4-2.44 1.39-2.2h3.18l1.39 2.2-1.4 2.44c-.51.05-1.05.05-1.58-.02zm3.72-1.28l-.78-1.36 1.74-1.08 1.7.45A7.97 7.97 0 0116.72 18.65zM7.28 18.65a7.97 7.97 0 01-1.66-1.99l1.7-.45 1.74 1.08-.78 1.36zM5 12c0-.94.16-1.84.46-2.68l1.68.47.5 2.04-1.35 2.13-1.6-.42C4.87 13.04 5 12.54 5 12zm14 0c0 .54-.13 1.04-.29 1.54l-1.6.42-1.35-2.13.5-2.04 1.68-.47c.3.84.46 1.74.46 2.68zm-.97-3.79l-1.53.43-.95-1.82.47-1.4A8.04 8.04 0 0118.03 8.21zM5.97 8.21a8.04 8.04 0 012.01-2.79l.47 1.4-.95 1.82-1.53-.43zM12 4c.93 0 1.82.16 2.64.45l-.87 1.28H10.23l-.87-1.28C10.18 4.16 11.07 4 12 4z",
+    // Filled trophy SVG (Copa)
+    iconPath: "M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z",
     matchPaths: ["/sport", "/alavancagem", "/odds-altas"],
     previewOnly: false,
   },
@@ -62,13 +62,13 @@ export const BottomNav = () => {
               className="relative flex flex-col items-center justify-center gap-1 px-4 py-2 rounded-xl transition-all duration-200"
             >
               {active && (
-                <div className="absolute inset-0 rounded-xl" style={{ background: "rgba(0,255,127,0.08)" }} />
+                <div className="absolute inset-0 rounded-xl" style={{ background: "rgba(224,179,65,0.12)" }} />
               )}
               
               <svg
                 className="relative z-10 w-5 h-5 transition-colors"
                 viewBox="0 0 24 24"
-                fill={"#FFFFFF"}
+                fill={active ? "#F2C84B" : "#E0B341"}
                 xmlns="http://www.w3.org/2000/svg"
               >
                 <path d={item.iconPath} />
@@ -76,7 +76,7 @@ export const BottomNav = () => {
               <span
                 className="relative z-10 transition-colors"
                 style={{
-                  color: active ? "#00FF7F" : "#FFFFFF",
+                  color: active ? "#F2C84B" : "#E0B341",
                   fontFamily: "'Barlow Condensed', sans-serif",
                   fontWeight: 700,
                   fontSize: '10px',

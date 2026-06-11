@@ -81,7 +81,7 @@ export const QuickAccessCards = () => {
                 background: locked ? "rgba(20, 0, 0, 0.7)" : "rgba(0, 15, 0, 0.7)",
                 border: locked
                   ? "1px solid rgba(255,100,0,0.25)"
-                  : "1px solid rgba(0,255,0,0.2)",
+                  : "1px solid rgba(234, 192, 100,0.2)",
                 padding: "14px 16px",
                 minHeight: "64px",
               }}
@@ -91,15 +91,15 @@ export const QuickAccessCards = () => {
                   e.currentTarget.style.background = "rgba(30, 5, 0, 0.85)";
                   e.currentTarget.style.boxShadow = "0 0 16px rgba(255,100,0,0.1)";
                 } else {
-                  e.currentTarget.style.borderColor = "rgba(0,255,0,0.45)";
+                  e.currentTarget.style.borderColor = "rgba(234, 192, 100,0.45)";
                   e.currentTarget.style.background = "rgba(0,20,0,0.85)";
-                  e.currentTarget.style.boxShadow = "0 0 16px rgba(0,255,0,0.1)";
+                  e.currentTarget.style.boxShadow = "0 0 16px rgba(234, 192, 100,0.1)";
                 }
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.borderColor = locked
                   ? "rgba(255,100,0,0.25)"
-                  : "rgba(0,255,0,0.2)";
+                  : "rgba(234, 192, 100,0.2)";
                 e.currentTarget.style.background = locked
                   ? "rgba(20, 0, 0, 0.7)"
                   : "rgba(0, 15, 0, 0.7)";
@@ -113,10 +113,10 @@ export const QuickAccessCards = () => {
                   style={{
                     background: locked
                       ? "rgba(255,100,0,0.08)"
-                      : "rgba(0,255,0,0.08)",
+                      : "rgba(234, 192, 100,0.08)",
                     border: locked
                       ? "1px solid rgba(255,100,0,0.2)"
-                      : "1px solid rgba(0,255,0,0.2)",
+                      : "1px solid rgba(234, 192, 100,0.2)",
                     color: locked ? "#FF8800" : "#00CC00",
                   }}
                 >

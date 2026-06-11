@@ -222,10 +222,10 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
 
     return (
       <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-        <DialogContent className="bg-[#112236] border-[#00FF7F]/30 text-white max-w-sm p-6">
+        <DialogContent className="bg-[#112236] border-[#eac064]/30 text-white max-w-sm p-6">
           {showDiscount ? (
             <div className="text-center space-y-4">
-              <h2 className="text-3xl font-extrabold text-[#00FF7F]" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
+              <h2 className="text-3xl font-extrabold text-[#eac064]" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
                 Desconto de R$ 10
               </h2>
               <p className="text-base text-white">
@@ -233,7 +233,7 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
               </p>
               <p className="text-xs text-white/50">Oferta única, válida só agora</p>
               <Button
-                className="w-full bg-[#00FF7F] hover:bg-[#00FF7F]/90 text-black font-bold text-base py-6"
+                className="w-full bg-[#eac064] hover:bg-[#eac064]/90 text-black font-bold text-base py-6"
                 disabled={!canBuyDiscount || loadingPayCard}
                 onClick={handleBuyDiscount}
               >
@@ -253,13 +253,13 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
                 Espera!
               </h2>
               <p className="text-sm text-white/70">Você ainda pode liberar só essa categoria</p>
-              <div className="py-4 px-3 rounded-lg bg-[#00FF7F]/10 border border-[#00FF7F]/40">
-                <p className="text-xl font-bold text-[#00FF7F]" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
+              <div className="py-4 px-3 rounded-lg bg-[#eac064]/10 border border-[#eac064]/40">
+                <p className="text-xl font-bold text-[#eac064]" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
                   {featureLabel} por apenas R$ {PRICES.backredirect}
                 </p>
               </div>
               <Button
-                className="w-full bg-[#00FF7F] hover:bg-[#00FF7F]/90 text-black font-bold text-base py-6"
+                className="w-full bg-[#eac064] hover:bg-[#eac064]/90 text-black font-bold text-base py-6"
                 disabled={!canBuyFull || loadingPayCard}
                 onClick={() => backPayCard && setFunnelOpen(backPayCard)}
               >
@@ -293,7 +293,7 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
 
     return (
       <Dialog open={open} onOpenChange={(o) => !o && handleCloseAttempt()}>
-        <DialogContent className="bg-[#112236] border-[#00FF7F]/30 text-white w-[calc(100%-2rem)] max-w-sm p-5 sm:p-6 rounded-2xl">
+        <DialogContent className="bg-[#112236] border-[#eac064]/30 text-white w-[calc(100%-2rem)] max-w-sm p-5 sm:p-6 rounded-2xl">
           {phase === "main_step1" && (
             <PaywallEducationStep feature={feature} onContinue={() => setPhase("main_step2")} />
           )}
@@ -305,12 +305,12 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
                 <button
                   disabled={!canBuyAvulso || loadingPayCard}
                   onClick={() => backPayCard && setFunnelOpen(backPayCard)}
-                  className="w-full text-left rounded-lg border border-[#00FF7F]/40 bg-[#00FF7F]/10 hover:bg-[#00FF7F]/15 transition px-3 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full text-left rounded-lg border border-[#eac064]/40 bg-[#eac064]/10 hover:bg-[#eac064]/15 transition px-3 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   style={{ minHeight: 70 }}
                 >
                   <div className="font-bold text-white text-sm leading-snug break-words">
                     {canBuyAvulso
-                      ? <>Desbloquear <span className="text-[#00FF7F]">{featureLabel}</span> por R$ {PRICES.backredirect}</>
+                      ? <>Desbloquear <span className="text-[#eac064]">{featureLabel}</span> por R$ {PRICES.backredirect}</>
                       : <>Desbloquear {featureLabel} — <span className="text-white/60">Em breve</span></>}
                   </div>
                   <div className="text-xs text-white/60 mt-0.5 leading-tight">Pagamento único, acesso vitalício</div>
@@ -320,12 +320,12 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
                 <button
                   disabled={!canBuyUpgrade || loadingPayCard}
                   onClick={() => upgradePayCard && setFunnelOpen(upgradePayCard)}
-                  className="w-full text-left rounded-lg border border-[#00FF7F]/60 bg-gradient-to-r from-[#00FF7F]/15 to-[#00FF7F]/5 hover:from-[#00FF7F]/25 transition px-3 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full text-left rounded-lg border border-[#eac064]/60 bg-gradient-to-r from-[#eac064]/15 to-[#eac064]/5 hover:from-[#eac064]/25 transition px-3 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   style={{ minHeight: 70 }}
                 >
                   <div className="font-bold text-white text-sm leading-snug break-words">
                     {canBuyUpgrade
-                      ? <><span className="text-[#00FF7F]">Plano Diamante</span> (todos os mercados liberados — R$ {PRICES.diamante_upgrade})</>
+                      ? <><span className="text-[#eac064]">Plano Diamante</span> (todos os mercados liberados — R$ {PRICES.diamante_upgrade})</>
                       : <>Upgrade Diamante — <span className="text-white/60">Em breve</span></>}
                   </div>
                   <div className="text-xs text-white/60 mt-0.5 leading-tight break-words">Desbloqueia {otherFeatures}</div>
@@ -379,7 +379,7 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && handleCloseAttempt()}>
-      <DialogContent className="bg-[#112236] border-[#00FF7F]/30 text-white max-w-sm p-6 [&>button]:hidden">
+      <DialogContent className="bg-[#112236] border-[#eac064]/30 text-white max-w-sm p-6 [&>button]:hidden">
         {phase === "main_step1" && (
           <PaywallEducationStep feature={feature} onContinue={() => setPhase("main_step2")} />
         )}
@@ -387,7 +387,7 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
         {phase === "main_step2" && (
           <div className="space-y-5">
             <h2
-              className="text-xl sm:text-2xl font-extrabold text-center text-[#00FF7F] leading-tight text-balance px-2"
+              className="text-xl sm:text-2xl font-extrabold text-center text-[#eac064] leading-tight text-balance px-2"
               style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
             >
               {variant === "premium" ? "Plano Premium — Mais de 20 odds todos os dias" : ctaLabel}
@@ -397,7 +397,7 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
               <ul className="space-y-2">
                 {benefits.map((b, i) => (
                   <li key={i} className="flex items-start gap-2 text-sm text-white/90 leading-snug">
-                    <Check className="w-4 h-4 text-[#00FF7F] mt-0.5 shrink-0" />
+                    <Check className="w-4 h-4 text-[#eac064] mt-0.5 shrink-0" />
                     <span className="break-words">{b}</span>
                   </li>
                 ))}
@@ -405,7 +405,7 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
             )}
 
             <Button
-              className="w-full bg-[#00FF7F] hover:bg-[#00FF7F]/90 text-black font-bold text-lg py-6"
+              className="w-full bg-[#eac064] hover:bg-[#eac064]/90 text-black font-bold text-lg py-6"
               disabled={!canBuy || loadingPayCard}
               onClick={() => {
                 if (variant === "premium") handlePremiumCheckout();

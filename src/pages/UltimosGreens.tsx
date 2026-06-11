@@ -98,9 +98,9 @@ const GreenDetailModal = ({ entry, onClose }: { entry: GreenEntry | null; onClos
           >
             {style.label}
           </span>
-          <div className="flex items-center gap-1 px-2 py-0.5 rounded-full" style={{ background: "rgba(0,255,0,0.1)", border: "1px solid rgba(0,255,0,0.3)" }}>
-            <Check className="w-3 h-3" style={{ color: "#00FF00" }} />
-            <span className="text-[10px] font-bold" style={{ color: "#00FF00" }}>GREEN</span>
+          <div className="flex items-center gap-1 px-2 py-0.5 rounded-full" style={{ background: "rgba(234, 192, 100,0.1)", border: "1px solid rgba(234, 192, 100,0.3)" }}>
+            <Check className="w-3 h-3" style={{ color: "#eac064" }} />
+            <span className="text-[10px] font-bold" style={{ color: "#eac064" }}>GREEN</span>
           </div>
         </div>
 
@@ -171,7 +171,7 @@ const GreenDetailModal = ({ entry, onClose }: { entry: GreenEntry | null; onClos
 
         {/* Justification */}
         {entry.justification && (
-          <div className="rounded-lg p-3" style={{ background: "rgba(0,255,0,0.03)", border: "1px solid rgba(0,255,0,0.1)" }}>
+          <div className="rounded-lg p-3" style={{ background: "rgba(234, 192, 100,0.03)", border: "1px solid rgba(234, 192, 100,0.1)" }}>
             <p className="mb-1" style={{ color: "#94A3B8", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase" }}>Justificativa</p>
             <p className="text-xs leading-relaxed" style={{ color: "#AAAAAA" }}>{entry.justification}</p>
           </div>
@@ -181,8 +181,8 @@ const GreenDetailModal = ({ entry, onClose }: { entry: GreenEntry | null; onClos
         <div
           style={{
             background: "transparent",
-            border: "1.5px solid #00FF7F",
-            color: "#00FF7F",
+            border: "1.5px solid #eac064",
+            color: "#eac064",
             fontFamily: "'Barlow Condensed', sans-serif",
             fontWeight: 800,
             fontSize: 14,
@@ -198,7 +198,7 @@ const GreenDetailModal = ({ entry, onClose }: { entry: GreenEntry | null; onClos
             gap: 8,
           }}
         >
-          <Trophy className="w-5 h-5" style={{ color: "#00FF7F" }} />
+          <Trophy className="w-5 h-5" style={{ color: "#eac064" }} />
           <span>GREEN CONFIRMADO ✅</span>
         </div>
       </div>
@@ -318,8 +318,8 @@ const UltimosGreens = () => {
                     <button
                       className="flex items-center gap-1 transition-all"
                       style={{
-                        background: filter === "custom" ? "#00FF7F" : "transparent",
-                        border: filter === "custom" ? "1.5px solid #00FF7F" : "1.5px solid rgba(255,255,255,0.07)",
+                        background: filter === "custom" ? "#eac064" : "transparent",
+                        border: filter === "custom" ? "1.5px solid #eac064" : "1.5px solid rgba(255,255,255,0.07)",
                         color: filter === "custom" ? "#060D1E" : "rgba(255,255,255,0.6)",
                         fontFamily: "'Barlow Condensed', sans-serif",
                         fontWeight: 700,
@@ -353,8 +353,8 @@ const UltimosGreens = () => {
                 onClick={() => setFilter(f.key)}
                 className="transition-all"
                 style={{
-                  background: filter === f.key ? "#00FF7F" : "transparent",
-                  border: filter === f.key ? "1.5px solid #00FF7F" : "1.5px solid rgba(255,255,255,0.07)",
+                  background: filter === f.key ? "#eac064" : "transparent",
+                  border: filter === f.key ? "1.5px solid #eac064" : "1.5px solid rgba(255,255,255,0.07)",
                   color: filter === f.key ? "#060D1E" : "rgba(255,255,255,0.6)",
                   fontFamily: "'Barlow Condensed', sans-serif",
                   fontWeight: 700,
@@ -373,7 +373,7 @@ const UltimosGreens = () => {
         {loading ? (
           <div className="space-y-3">
             {[...Array(6)].map((_, i) => (
-              <Skeleton key={i} className="h-20 w-full rounded-xl" style={{ background: "rgba(0,255,0,0.05)" }} />
+              <Skeleton key={i} className="h-20 w-full rounded-xl" style={{ background: "rgba(234, 192, 100,0.05)" }} />
             ))}
           </div>
         ) : greens.length === 0 ? (
@@ -477,7 +477,7 @@ const UltimosGreens = () => {
             <div ref={observerRef} className="h-10 flex items-center justify-center">
               {loadingMore && (
                 <div className="flex items-center gap-2 text-sm" style={{ color: "#AAAAAA" }}>
-                  <div className="w-4 h-4 border-2 rounded-full animate-spin" style={{ borderColor: "rgba(0,255,0,0.2)", borderTopColor: "#00FF00" }} />
+                  <div className="w-4 h-4 border-2 rounded-full animate-spin" style={{ borderColor: "rgba(234, 192, 100,0.2)", borderTopColor: "#eac064" }} />
                   Carregando mais...
                 </div>
               )}

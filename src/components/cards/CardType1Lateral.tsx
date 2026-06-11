@@ -11,9 +11,9 @@ function getBadgeStyle(badgeText: string, color: string | null) {
   const upper = (badgeText || '').toUpperCase();
   if (upper.includes('IA') || upper.includes('ATIVADA') || color === 'green') {
     return {
-      background: 'rgba(0,255,127,0.15)',
-      border: '1px solid rgba(0,255,127,0.3)',
-      color: '#00FF7F',
+      background: 'rgba(224,179,65,0.15)',
+      border: '1px solid rgba(224,179,65,0.4)',
+      color: '#eac064',
     };
   }
   if (upper.includes('NOVO') || color === 'gold') {
@@ -31,38 +31,47 @@ function getBadgeStyle(badgeText: string, color: string | null) {
     };
   }
   if (color === 'black_green') {
-    return { background: "#000", color: "#00FF7F", border: "1px solid #00FF7F" };
+    return { background: "#000", color: "#eac064", border: "1px solid #eac064" };
   }
   if (color === 'tron') {
     return { background: "#000", color: "#00FFFF", border: "1px solid #00FFFF", boxShadow: "0 0 5px #00FFFF" };
   }
   // default
   return {
-    background: 'rgba(0,255,127,0.15)',
-    border: '1px solid rgba(0,255,127,0.3)',
-    color: '#00FF7F',
+    background: 'rgba(234, 192, 100,0.15)',
+    border: '1px solid rgba(234, 192, 100,0.3)',
+    color: '#eac064',
   };
 }
 
 function isGreenColor(c: string | null): boolean {
   if (!c) return false;
   const lower = c.toLowerCase();
-  return lower === '#00e87a' || lower === '#00ff7f' || lower.includes('00e87a') || lower.includes('00ff7f');
+  return lower === '#eac064' || lower === '#eac064' || lower.includes('00e87a') || lower.includes('00ff7f');
 }
 
 export function CardType1Lateral({ card, hasAccess = true, onAction }: Props) {
   const imgs = card.image_urls;
   const mobileImg = imgs?.mobile || imgs?.tablet || imgs?.desktop || null;
+
+  // Copa: personagens dourados locais sobrescrevem a imagem do banco por slug
+  const COPA_CHAR: Record<string, string> = {
+    futebol: "/images/Copa/Personagens/EntradasTip.png",
+    odds_altas: "/images/Copa/Personagens/odds%20altas.png",
+    "odds-altas": "/images/Copa/Personagens/odds%20altas.png",
+    alavancagem: "/images/Copa/Personagens/alavancagem.png",
+  };
+  const displayImg = COPA_CHAR[(card.slug || "").toLowerCase()] || mobileImg;
   const locked = !hasAccess;
 
   // Copa: botões em dourado (sobrescreve a cor do banco pro tema da Copa)
-  const buttonBg = '#F2C84B';
+  const buttonBg = '#eac064';
   const buttonColor = '#0a0f08';
 
   return (
     <button
       onClick={onAction}
-      className="relative w-full overflow-hidden rounded-xl border border-[#E0B341]/35 flex hover:-translate-y-0.5 hover:border-[#E0B341]/70 transition-all duration-200 text-left group"
+      className="relative w-full overflow-hidden rounded-xl border border-[#eac064]/35 flex hover:-translate-y-0.5 hover:border-[#eac064]/70 transition-all duration-200 text-left group"
       style={{ background: "#112236", minHeight: "120px" }}
     >
       {/* Badges */}
@@ -90,9 +99,9 @@ export function CardType1Lateral({ card, hasAccess = true, onAction }: Props) {
       )}
 
       {/* Image — fixed 100x120 portrait container */}
-      <div className="relative shrink-0 w-[100px] h-[120px]">
-        {mobileImg ? (
-          <img src={mobileImg} alt={card.name} className="w-full h-full object-cover rounded-l-xl" />
+      <div className="relative shrink-0 w-[100px] self-stretch min-h-[120px]">
+        {displayImg ? (
+          <img src={displayImg} alt={card.name} className="w-full h-full object-cover rounded-l-xl" />
         ) : (
           <div className="w-full h-full flex items-center justify-center rounded-l-xl" style={{ background: "hsl(0 0% 10%)" }}>
             <span className="text-3xl text-muted-foreground">📦</span>

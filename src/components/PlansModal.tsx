@@ -231,7 +231,7 @@ export function PlansModal({ open, onClose }: Props) {
               className="flex items-start gap-1.5 text-[11px] md:text-xs"
             >
               {b.available ? (
-                <Check className="w-3.5 h-3.5 mt-0.5 shrink-0 text-green-400" strokeWidth={3} />
+                <Check className="w-3.5 h-3.5 mt-0.5 shrink-0 text-[#eac064]" strokeWidth={3} />
               ) : (
                 <X className="w-3.5 h-3.5 mt-0.5 shrink-0 text-white/25" />
               )}
@@ -299,7 +299,7 @@ export function PlansModal({ open, onClose }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="bg-[#112236] border-[#00FF7F]/20 text-white w-[98vw] max-w-5xl p-3 md:p-6 rounded-2xl max-h-[90vh] overflow-y-auto [&>button]:hidden">
+      <DialogContent className="bg-[#112236] border-[#eac064]/20 text-white w-[98vw] max-w-5xl p-3 md:p-6 rounded-2xl max-h-[90vh] overflow-y-auto [&>button]:hidden">
         <button
           onClick={onClose}
           className="absolute top-3 right-3 p-1 rounded hover:bg-white/10 z-10"

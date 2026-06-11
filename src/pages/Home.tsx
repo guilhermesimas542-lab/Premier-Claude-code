@@ -188,10 +188,10 @@ const Home = () => {
     <style>{`
   @keyframes futebol-frame-pulse {
         0%, 100% {
-      background-color: rgba(224, 179, 65, 0.4);
+      background-color: rgba(234, 192, 100, 0.4);
         }
         50% {
-      background-color: rgba(242, 200, 75, 1);
+      background-color: rgba(234, 192, 100, 1);
         }
       }
       .futebol-glow-wrapper {
@@ -219,7 +219,7 @@ const Home = () => {
           backgroundRepeat: "no-repeat",
         }}
       />
-      <div className="absolute top-0 left-1/4 w-96 h-96 rounded-full blur-[140px] pointer-events-none" style={{ background: "rgba(224,179,65,0.06)" }} />
+      <div className="absolute top-0 left-1/4 w-96 h-96 rounded-full blur-[140px] pointer-events-none" style={{ background: "rgba(234,192,100,0.06)" }} />
 
       <AppHeader onShowLifetimeInfoModal={() => setShowLifetimeInfoModal(true)} />
 
@@ -248,9 +248,9 @@ const Home = () => {
               className="relative w-full overflow-hidden rounded-xl border flex hover:-translate-y-0.5 transition-all duration-200 text-left group"
               style={{
                 background: "#112236",
-                borderColor: 'rgba(224,179,65,0.55)',
+                borderColor: 'rgba(234,192,100,0.55)',
                 minHeight: '140px',
-                boxShadow: '0 0 30px rgba(224,179,65,0.15)',
+                boxShadow: '0 0 30px rgba(234,192,100,0.15)',
               }}
             >
               {/* Badges NOVO + BETA no canto superior direito */}
@@ -284,9 +284,9 @@ const Home = () => {
               </div>
 
               {/* Cartoon IA Tipster — padrão lateral idêntico ao CardType1Lateral */}
-              <div className="relative shrink-0" style={{ width: '120px', height: '140px' }}>
+              <div className="relative shrink-0 self-stretch" style={{ width: '120px', minHeight: '140px' }}>
                 <img
-                  src={iaTipsterCartoon}
+                  src="/images/Copa/Personagens/tipsAI.png"
                   alt="IA Tipster"
                   className="w-full h-full object-cover rounded-l-xl"
                 />
@@ -322,7 +322,7 @@ const Home = () => {
                   style={{
                     width: '100%',
                     padding: '8px 0',
-                    background: '#F2C84B',
+                    background: '#eac064',
                     border: 'none',
                     borderRadius: '8px',
                     fontFamily: "'Barlow Condensed', sans-serif",
@@ -416,7 +416,7 @@ const Home = () => {
             onClick={() => navigate("/ultimos-greens")}
             style={{
               background: '#112236',
-              border: '1.5px solid rgba(224,179,65,0.4)',
+              border: '1.5px solid rgba(234,192,100,0.4)',
               borderRadius: '12px',
               overflow: 'hidden',
               display: 'flex',
@@ -429,7 +429,8 @@ const Home = () => {
             <div style={{
               width: '100px',
               minWidth: '100px',
-              height: '120px',
+              minHeight: '120px',
+              alignSelf: 'stretch',
               borderRadius: '10px 0 0 10px',
               overflow: 'hidden',
               background: 'linear-gradient(135deg, #1a2a1a 0%, #0d1f0d 100%)',
@@ -437,15 +438,11 @@ const Home = () => {
               alignItems: 'center',
               justifyContent: 'center',
             }}>
-              {ultimosGreensCard?.image_urls?.mobile ? (
-                <img
-                  src={ultimosGreensCard.image_urls.mobile}
-                  alt="Últimos Greens"
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                />
-              ) : (
-                <span style={{ fontSize: '40px', lineHeight: 1 }}>🏆</span>
-              )}
+              <img
+                src="/images/Copa/Personagens/ultimos%20greens.png"
+                alt="Últimos Greens"
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
             </div>
             {/* Conteúdo direito */}
             <div style={{
@@ -502,7 +499,7 @@ const Home = () => {
                   marginTop: '10px',
                   width: '100%',
                   padding: '7px 0',
-                  background: '#F2C84B',
+                  background: '#eac064',
                   border: 'none',
                   borderRadius: '8px',
                   fontFamily: "'Barlow Condensed', sans-serif",
@@ -523,7 +520,7 @@ const Home = () => {
       {/* Footer */}
       <footer className="mt-12 pb-8">
         <div className="container max-w-7xl mx-auto px-4">
-          <div className="pt-6 text-center space-y-2" style={{ borderTop: "1px solid rgba(0,255,0,0.1)" }}>
+          <div className="pt-6 text-center space-y-2" style={{ borderTop: "1px solid rgba(234, 192, 100,0.1)" }}>
             <p className="text-sm font-medium" style={{ color: "#FFFFFF" }}>Premier Ultra ©</p>
             <p className="text-xs" style={{ color: "#AAAAAA" }}>Análises processadas continuamente</p>
             <p className="text-[11px] pt-2" style={{ color: "#888888" }}>
@@ -553,21 +550,21 @@ const Home = () => {
       {/* Modal Promoções */}
       {showPromotionsModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={() => setShowPromotionsModal(false)}>
-          <div className="w-full max-w-md rounded-2xl shadow-2xl overflow-hidden" style={{ background: "rgba(0,8,0,0.97)", border: "1px solid rgba(0,255,0,0.25)", boxShadow: "0 0 40px rgba(0,255,0,0.1)" }} onClick={(e) => e.stopPropagation()}>
-            <div className="relative px-6 py-5" style={{ borderBottom: "1px solid rgba(0,255,0,0.15)" }}>
+          <div className="w-full max-w-md rounded-2xl shadow-2xl overflow-hidden" style={{ background: "rgba(0,8,0,0.97)", border: "1px solid rgba(234, 192, 100,0.25)", boxShadow: "0 0 40px rgba(234, 192, 100,0.1)" }} onClick={(e) => e.stopPropagation()}>
+            <div className="relative px-6 py-5" style={{ borderBottom: "1px solid rgba(234, 192, 100,0.15)" }}>
               <div className="relative flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(0,255,0,0.1)", border: "1px solid rgba(0,255,0,0.3)" }}>
-                  <Gift className="w-5 h-5" style={{ color: "#00FF00" }} />
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(234, 192, 100,0.1)", border: "1px solid rgba(234, 192, 100,0.3)" }}>
+                  <Gift className="w-5 h-5" style={{ color: "#eac064" }} />
                 </div>
                 <div><h2 className="text-lg font-bold" style={{ color: "#FFFFFF" }}>Promoções do Premier Ultra</h2></div>
               </div>
-              <button onClick={() => setShowPromotionsModal(false)} className="absolute top-4 right-4 p-1.5 rounded-lg transition-colors hover:bg-[rgba(0,255,0,0.08)]">
-                <X className="w-5 h-5" style={{ color: "#00FF00" }} />
+              <button onClick={() => setShowPromotionsModal(false)} className="absolute top-4 right-4 p-1.5 rounded-lg transition-colors hover:bg-[rgba(234,192,100,0.08)]">
+                <X className="w-5 h-5" style={{ color: "#eac064" }} />
               </button>
             </div>
             <div className="px-6 py-8 text-center">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center" style={{ background: "rgba(0,255,0,0.08)", border: "1px solid rgba(0,255,0,0.2)" }}>
-                <Sparkles className="w-8 h-8" style={{ color: "#00FF00" }} />
+              <div className="w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center" style={{ background: "rgba(234, 192, 100,0.08)", border: "1px solid rgba(234, 192, 100,0.2)" }}>
+                <Sparkles className="w-8 h-8" style={{ color: "#eac064" }} />
               </div>
               <h3 className="text-lg font-semibold mb-2" style={{ color: "#FFFFFF" }}>Em breve!</h3>
               <p className="text-sm leading-relaxed" style={{ color: "#CCCCCC" }}>
@@ -575,7 +572,7 @@ const Home = () => {
               </p>
             </div>
             <div className="px-6 pb-6">
-              <button onClick={() => setShowPromotionsModal(false)} className="w-full py-3 rounded-xl font-medium transition-colors" style={{ background: "rgba(0,255,0,0.08)", border: "1px solid rgba(0,255,0,0.3)", color: "#FFFFFF" }}>
+              <button onClick={() => setShowPromotionsModal(false)} className="w-full py-3 rounded-xl font-medium transition-colors" style={{ background: "rgba(234, 192, 100,0.08)", border: "1px solid rgba(234, 192, 100,0.3)", color: "#FFFFFF" }}>
                 Entendi
               </button>
             </div>
@@ -588,28 +585,28 @@ const Home = () => {
       {/* Modal Info Vitalício */}
       {showLifetimeInfoModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={() => setShowLifetimeInfoModal(false)}>
-          <div className="w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden" style={{ background: "rgba(0,8,0,0.97)", border: "1px solid rgba(0,255,0,0.25)", boxShadow: "0 0 40px rgba(0,255,0,0.1)" }} onClick={(e) => e.stopPropagation()}>
-            <div className="relative px-6 py-5" style={{ borderBottom: "1px solid rgba(0,255,0,0.15)" }}>
+          <div className="w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden" style={{ background: "rgba(0,8,0,0.97)", border: "1px solid rgba(234, 192, 100,0.25)", boxShadow: "0 0 40px rgba(234, 192, 100,0.1)" }} onClick={(e) => e.stopPropagation()}>
+            <div className="relative px-6 py-5" style={{ borderBottom: "1px solid rgba(234, 192, 100,0.15)" }}>
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(0,255,0,0.1)", border: "1px solid rgba(0,255,0,0.3)" }}>
-                  <Crown className="w-5 h-5" style={{ color: "#00FF00" }} />
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(234, 192, 100,0.1)", border: "1px solid rgba(234, 192, 100,0.3)" }}>
+                  <Crown className="w-5 h-5" style={{ color: "#eac064" }} />
                 </div>
                 <div>
                   <h2 className="text-lg font-bold" style={{ color: "#FFFFFF" }}>Parabéns! 🎉</h2>
                   <p className="text-xs mt-0.5" style={{ color: "#AAAAAA" }}>Membro Vitalício</p>
                 </div>
               </div>
-              <button onClick={() => setShowLifetimeInfoModal(false)} className="absolute top-4 right-4 p-1.5 rounded-lg transition-colors hover:bg-[rgba(0,255,0,0.08)]">
-                <X className="w-5 h-5" style={{ color: "#00FF00" }} />
+              <button onClick={() => setShowLifetimeInfoModal(false)} className="absolute top-4 right-4 p-1.5 rounded-lg transition-colors hover:bg-[rgba(234,192,100,0.08)]">
+                <X className="w-5 h-5" style={{ color: "#eac064" }} />
               </button>
             </div>
             <div className="px-6 py-6">
               <p className="text-sm leading-relaxed" style={{ color: "#CCCCCC" }}>
-                Você tem <span style={{ color: "#00FF00", fontWeight: 600 }}>acesso vitalício e ilimitado</span> a todas as funcionalidades e futuras atualizações do Premier Ultra. Aproveite!
+                Você tem <span style={{ color: "#eac064", fontWeight: 600 }}>acesso vitalício e ilimitado</span> a todas as funcionalidades e futuras atualizações do Premier Ultra. Aproveite!
               </p>
             </div>
             <div className="px-6 pb-6">
-              <button onClick={() => setShowLifetimeInfoModal(false)} className="w-full py-3 rounded-xl font-medium transition-colors" style={{ background: "rgba(0,255,0,0.08)", border: "1px solid rgba(0,255,0,0.3)", color: "#FFFFFF" }}>
+              <button onClick={() => setShowLifetimeInfoModal(false)} className="w-full py-3 rounded-xl font-medium transition-colors" style={{ background: "rgba(234, 192, 100,0.08)", border: "1px solid rgba(234, 192, 100,0.3)", color: "#FFFFFF" }}>
                 Entendi
               </button>
             </div>
@@ -620,11 +617,11 @@ const Home = () => {
 
       {showTermsModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={() => setShowTermsModal(false)}>
-          <div className="w-full max-w-md rounded-2xl shadow-2xl overflow-hidden max-h-[80vh] overflow-y-auto" style={{ background: "rgba(0,8,0,0.97)", border: "1px solid rgba(0,255,0,0.25)" }} onClick={(e) => e.stopPropagation()}>
-            <div className="relative px-6 py-5 sticky top-0 z-10" style={{ background: "rgba(0,8,0,0.97)", borderBottom: "1px solid rgba(0,255,0,0.15)" }}>
+          <div className="w-full max-w-md rounded-2xl shadow-2xl overflow-hidden max-h-[80vh] overflow-y-auto" style={{ background: "rgba(0,8,0,0.97)", border: "1px solid rgba(234, 192, 100,0.25)" }} onClick={(e) => e.stopPropagation()}>
+            <div className="relative px-6 py-5 sticky top-0 z-10" style={{ background: "rgba(0,8,0,0.97)", borderBottom: "1px solid rgba(234, 192, 100,0.15)" }}>
               <h2 className="text-lg font-bold" style={{ color: "#FFFFFF" }}>Termos de Uso & Privacidade</h2>
-              <button onClick={() => setShowTermsModal(false)} className="absolute top-4 right-4 p-1.5 rounded-lg transition-colors hover:bg-[rgba(0,255,0,0.08)]">
-                <X className="w-5 h-5" style={{ color: "#00FF00" }} />
+              <button onClick={() => setShowTermsModal(false)} className="absolute top-4 right-4 p-1.5 rounded-lg transition-colors hover:bg-[rgba(234,192,100,0.08)]">
+                <X className="w-5 h-5" style={{ color: "#eac064" }} />
               </button>
             </div>
             <div className="px-6 py-5 space-y-4 text-sm leading-relaxed" style={{ color: "#CCCCCC" }}>
@@ -636,7 +633,7 @@ const Home = () => {
               <p><strong style={{ color: "#FFFFFF" }}>5. Reembolso:</strong> Política de reembolso conforme termos do provedor de pagamento.</p>
             </div>
             <div className="px-6 pb-6">
-              <button onClick={() => setShowTermsModal(false)} className="w-full py-3 rounded-xl font-medium transition-colors" style={{ background: "rgba(0,255,0,0.08)", border: "1px solid rgba(0,255,0,0.3)", color: "#FFFFFF" }}>
+              <button onClick={() => setShowTermsModal(false)} className="w-full py-3 rounded-xl font-medium transition-colors" style={{ background: "rgba(234, 192, 100,0.08)", border: "1px solid rgba(234, 192, 100,0.3)", color: "#FFFFFF" }}>
                 Entendi
               </button>
             </div>

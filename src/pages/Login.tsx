@@ -362,9 +362,9 @@ const Login = () => {
                                 letterSpacing: '1.5px',
                                 padding: '6px 14px',
                                 borderRadius: '6px',
-                                backgroundColor: 'rgba(224,179,65,0.14)',
-                                border: '1.5px solid rgba(224,179,65,0.55)',
-                                color: '#E0B341',
+                                backgroundColor: 'rgba(0,255,127,0.14)',
+                                border: '1.5px solid rgba(0,255,127,0.55)',
+                                color: '#00FF7F',
                                 lineHeight: 1,
                                 display: 'inline-flex',
                                 alignItems: 'center',
@@ -379,7 +379,7 @@ const Login = () => {
                                 fontFamily: 'Barlow Condensed, sans-serif',
                                 fontWeight: 900,
                                 fontSize: '36px',
-                                color: '#F2C84B',
+                                color: '#00FF7F',
                                 lineHeight: 1,
                               }}
                             >
@@ -444,8 +444,8 @@ const Login = () => {
                               alignItems: 'center',
                               justifyContent: 'center',
                               padding: '10px 16px',
-                              backgroundColor: 'rgba(224,179,65,0.10)',
-                              borderTop: '1px solid rgba(224,179,65,0.25)',
+                              backgroundColor: 'rgba(0,255,127,0.10)',
+                              borderTop: '1px solid rgba(0,255,127,0.25)',
                             }}
                           >
                             <span
@@ -453,7 +453,7 @@ const Login = () => {
                                 fontFamily: 'Barlow Condensed, sans-serif',
                                 fontWeight: 700,
                                 fontSize: '13px',
-                                color: '#E0B341',
+                                color: '#00FF7F',
                                 letterSpacing: '0.06em',
                                 textTransform: 'uppercase',
                               }}
@@ -517,7 +517,7 @@ const Login = () => {
                               fontFamily: 'Barlow Condensed, sans-serif',
                               fontWeight: 900,
                               fontSize: '36px',
-                              color: '#00FF7F',
+                              color: '#eac064',
                               lineHeight: 1,
                             }}
                           >
@@ -580,8 +580,8 @@ const Login = () => {
                             alignItems: 'center',
                             justifyContent: 'center',
                             padding: '10px 16px',
-                            backgroundColor: 'rgba(0,255,127,0.08)',
-                            borderTop: '1px solid rgba(0,255,127,0.15)',
+                            backgroundColor: 'rgba(234, 192, 100,0.08)',
+                            borderTop: '1px solid rgba(234, 192, 100,0.15)',
                           }}
                         >
                           <span
@@ -589,7 +589,7 @@ const Login = () => {
                               fontFamily: 'Barlow Condensed, sans-serif',
                               fontWeight: 700,
                               fontSize: '13px',
-                              color: '#00FF7F',
+                              color: '#eac064',
                               letterSpacing: '0.06em',
                               textTransform: 'uppercase',
                             }}
@@ -614,7 +614,7 @@ const Login = () => {
                     style={{
                       width: index === currentIndex ? '20px' : '6px',
                       height: '6px',
-                      backgroundColor: index === currentIndex ? '#00FF7F' : 'rgba(255,255,255,0.2)',
+                      backgroundColor: index === currentIndex ? '#eac064' : 'rgba(255,255,255,0.2)',
                     }}
                   />
                 ))}
@@ -676,7 +676,7 @@ const Login = () => {
           <button
             type="submit"
             disabled={isDisabled}
-            style={{ backgroundColor: "#F2C84B" }}
+            style={{ background: "linear-gradient(180deg, #1AFF93 0%, #00C853 100%)", boxShadow: "0 6px 20px rgba(0,200,83,0.40)" }}
             className="w-full h-14 rounded-[10px] font-display font-extrabold text-base uppercase tracking-wide text-background transition-opacity duration-200 disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.98] flex items-center justify-center"
           >
             {isLoading ? (
@@ -698,12 +698,12 @@ const Login = () => {
 
         {/* Social Proof Pills */}
         <div className="w-full flex gap-2 items-stretch flex-nowrap mt-8 mb-6">
-          <div className="flex-1 flex items-center justify-center gap-2 bg-white/5 border border-[#E0B341]/30 rounded-xl px-3 py-3.5">
-            <Users className="w-3.5 h-3.5 shrink-0" style={{ color: COPA_GOLD }} />
+          <div className="flex-1 flex items-center justify-center gap-2 bg-white/5 border border-[#00FF7F]/30 rounded-xl px-3 py-3.5">
+            <Users className="w-3.5 h-3.5 shrink-0" style={{ color: "#00FF7F" }} />
             <span className="text-white/70 whitespace-nowrap font-sans" style={{ fontSize: '12px', fontWeight: 500 }}>+50.000 apostadores</span>
           </div>
-          <div className="flex-1 flex items-center justify-center gap-2 bg-white/5 border border-[#E0B341]/30 rounded-xl px-3 py-3.5">
-            <Ticket className="w-3.5 h-3.5 shrink-0" style={{ color: COPA_GOLD }} />
+          <div className="flex-1 flex items-center justify-center gap-2 bg-white/5 border border-[#00FF7F]/30 rounded-xl px-3 py-3.5">
+            <Ticket className="w-3.5 h-3.5 shrink-0" style={{ color: "#00FF7F" }} />
             <span className="text-white/70 whitespace-nowrap font-sans" style={{ fontSize: '12px', fontWeight: 500 }}>+10 entradas por dia</span>
           </div>
         </div>
@@ -714,7 +714,7 @@ const Login = () => {
             Ao continuar, você concorda com nossos{" "}
             <button
               onClick={() => setShowTermsModal(true)}
-              style={{ color: "#E0B341" }}
+              style={{ color: "#00FF7F" }}
               className="hover:underline underline-offset-2 transition-colors"
             >
               Termos e Privacidade

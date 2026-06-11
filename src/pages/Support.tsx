@@ -59,13 +59,13 @@ const PlanUpgradeCard = () => {
       }}
     >
       <div className="flex items-center gap-3 mb-3">
-        <Crown className="w-5 h-5" style={{ color: '#00FF7F' }} />
+        <Crown className="w-5 h-5" style={{ color: '#eac064' }} />
         <h3 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 18, color: "#FFFFFF" }}>Seu Plano</h3>
       </div>
       <div className="flex items-center justify-between">
         <p className="text-sm" style={{ color: '#CCCCCC' }}>
           Plano atual:{' '}
-          <span style={{ color: '#00FF7F', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700 }}>
+          <span style={{ color: '#eac064', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700 }}>
             {planLabel}
           </span>
         </p>
@@ -74,9 +74,9 @@ const PlanUpgradeCard = () => {
             onClick={handleClick}
             className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all hover:scale-[1.03]"
             style={{
-              background: 'linear-gradient(135deg, #00FF7F, #00CC66)',
+              background: 'linear-gradient(135deg, #eac064, #00CC66)',
               color: '#000000',
-              boxShadow: '0 4px 15px rgba(0,255,127,0.25)',
+              boxShadow: '0 4px 15px rgba(234, 192, 100,0.25)',
             }}
           >
             <Rocket className="w-4 h-4" />
@@ -148,7 +148,7 @@ const Support = () => {
 
   return (
     <div className="min-h-screen relative overflow-hidden pb-24" style={{ background: "#060D1E" }}>
-      <div className="absolute top-0 left-1/4 w-96 h-96 rounded-full blur-[120px] pointer-events-none" style={{ background: "rgba(0,255,127,0.04)" }} />
+      <div className="absolute top-0 left-1/4 w-96 h-96 rounded-full blur-[120px] pointer-events-none" style={{ background: "rgba(234, 192, 100,0.04)" }} />
 
       <AppHeader onShowLifetimeInfoModal={() => setShowLifetimeInfoModal(true)} />
 
@@ -170,9 +170,9 @@ const Support = () => {
             <div
               className="w-16 h-16 rounded-full flex items-center justify-center text-3xl shrink-0"
               style={{
-                background: 'linear-gradient(135deg, rgba(0,255,127,0.2), rgba(0,200,100,0.1))',
-                border: '3px solid rgba(0,255,127,0.4)',
-                boxShadow: '0 0 15px rgba(0,255,127,0.2)',
+                background: 'linear-gradient(135deg, rgba(234, 192, 100,0.2), rgba(0,200,100,0.1))',
+                border: '3px solid rgba(234, 192, 100,0.4)',
+                boxShadow: '0 0 15px rgba(234, 192, 100,0.2)',
               }}
             >
               {currentAvatar.emoji}
@@ -190,12 +190,12 @@ const Support = () => {
               {/* Level Badge */}
               <div className="mt-1.5 flex flex-wrap gap-1.5">
                 {planLabel && (
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full" style={{ background: 'rgba(0,255,127,0.16)', border: '1px solid rgba(0,255,127,0.35)' }}>
-                    <Crown className="w-3 h-3" style={{ color: '#00FF7F' }} />
-                    <span className="text-xs font-bold" style={{ color: '#00FF7F' }}>Plano {planLabel}</span>
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full" style={{ background: 'rgba(234, 192, 100,0.16)', border: '1px solid rgba(234, 192, 100,0.35)' }}>
+                    <Crown className="w-3 h-3" style={{ color: '#eac064' }} />
+                    <span className="text-xs font-bold" style={{ color: '#eac064' }}>Plano {planLabel}</span>
                   </div>
                 )}
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full" style={{ background: 'rgba(0,255,127,0.12)', border: '1px solid rgba(0,255,127,0.25)' }}>
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full" style={{ background: 'rgba(234, 192, 100,0.12)', border: '1px solid rgba(234, 192, 100,0.25)' }}>
                   <Star className="w-3 h-3" style={{ color: '#94A3B8' }} />
                   <span className="text-xs font-bold" style={{ color: '#94A3B8' }}>Nível {level} — {levelTitle}</span>
                 </div>
@@ -204,16 +204,16 @@ const Support = () => {
               {/* XP Bar */}
               <div className="mt-2">
                 <div className="flex justify-between text-[10px] mb-1">
-                  <span style={{ color: '#00FF7F' }}>{totalXp} XP</span>
+                  <span style={{ color: '#eac064' }}>{totalXp} XP</span>
                   <span style={{ color: '#94A3B8' }}>{xpInLevel}/{xpNeeded}</span>
                 </div>
-                <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: 'rgba(0,255,127,0.1)' }}>
+                <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: 'rgba(234, 192, 100,0.1)' }}>
                   <div
                     className="h-full rounded-full transition-all duration-700"
                     style={{
                       width: `${progress}%`,
-                      background: 'linear-gradient(90deg, #00FF7F, #00CC66)',
-                      boxShadow: '0 0 8px rgba(0,255,127,0.4)',
+                      background: 'linear-gradient(90deg, #eac064, #00CC66)',
+                      boxShadow: '0 0 8px rgba(234, 192, 100,0.4)',
                     }}
                   />
                 </div>

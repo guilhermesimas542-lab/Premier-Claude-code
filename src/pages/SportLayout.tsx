@@ -109,7 +109,19 @@ const SportLayout = () => {
   };
 
   return (
-    <div className="min-h-screen md:min-h-0 md:h-[100dvh] md:flex md:flex-col overflow-x-hidden w-full max-w-full pb-20 md:pb-16 relative bg-navy-dark">
+    <div className="min-h-screen md:min-h-0 md:h-[100dvh] md:flex md:flex-col overflow-x-hidden w-full max-w-full pb-20 md:pb-16 relative bg-navy-dark" style={{ backgroundColor: "#0a0f08" }}>
+      {/* Copa background (visual) */}
+      <div
+        className="absolute top-0 left-0 right-0 pointer-events-none"
+        style={{
+          height: "100vh",
+          zIndex: -1,
+          backgroundImage: "url('/images/Copa/Menu/BRACKGROUND%20LIMPO%20V1.png')",
+          backgroundSize: "cover",
+          backgroundPosition: "top center",
+          backgroundRepeat: "no-repeat",
+        }}
+      />
       {/* Conteúdo específico da rota filha (header, tabs, carrossel, modais) */}
       <div className="md:flex-shrink-0">
         <Outlet context={ctx} />

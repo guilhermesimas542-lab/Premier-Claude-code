@@ -86,7 +86,7 @@ export function useGamificationCore() {
                 duration: 4000,
                 style: {
                   background: '#FFFFFF',
-                  border: '1.5px solid rgba(0,255,127,0.4)',
+                  border: '1.5px solid rgba(234, 192, 100,0.4)',
                   color: '#0D1929',
                 },
               });
@@ -133,7 +133,7 @@ export function useGamificationCore() {
               duration: 4000,
               style: {
                 background: '#FFFFFF',
-                border: '1.5px solid rgba(0,255,127,0.4)',
+                border: '1.5px solid rgba(234, 192, 100,0.4)',
                 color: '#0D1929',
               },
             });

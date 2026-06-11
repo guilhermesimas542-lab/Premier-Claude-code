@@ -136,16 +136,16 @@ All colors MUST be HSL.
     --popover: 215 45% 10%;
     --popover-foreground: 210 17% 95%;
 
-    --primary: 146 100% 50%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 41 76% 65%;
+    --primary-foreground: 0 0% 8%;
 
-    --secondary: 146 100% 40%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 41 70% 52%;
+    --secondary-foreground: 0 0% 8%;
 
     --muted: 220 30% 12%;
     --muted-foreground: 218 11% 61%;
 
-    --accent: 146 100% 50%;
+    --accent: 41 76% 65%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
@@ -153,7 +153,7 @@ All colors MUST be HSL.
 
     --border: 220 30% 14%;
     --input: 220 30% 14%;
-    --ring: 146 100% 50%;
+    --ring: 41 76% 65%;
 
     --success: 146 100% 50%;
     --warning: 42 88% 55%;
@@ -162,7 +162,7 @@ All colors MUST be HSL.
 
     --radius: 0.75rem;
 
-    --brand-green: 146 100% 50%;
+    --brand-green: 41 76% 65%;
     --brand-gold: 42 88% 55%;
     --brand-purple-ultra: 263 90% 58%;
     --card-bg: 215 35% 14%;
