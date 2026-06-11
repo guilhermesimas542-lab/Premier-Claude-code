@@ -37,39 +37,34 @@ Deno.serve(async (req) => {
     }
     const token = tj.access_token;
 
-    // Bot info
-    const bot = await fetch(`https://api.sendpulse.com/telegram/bots/${botId}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    const botJson = await bot.json().catch(() => ({}));
-
-    // Bot subscribers count
-    const subs = await fetch(`https://api.sendpulse.com/telegram/subscribers?bot_id=${botId}&limit=1`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    const subsJson = await subs.json().catch(() => ({}));
-
-    // Campaign info if id provided
-    let campaignJson: any = null;
-    if (campaign_id) {
-      const camp = await fetch(`https://api.sendpulse.com/telegram/campaigns/${campaign_id}`, {
+    async function hit(path: string) {
+      const r = await fetch(`https://api.sendpulse.com${path}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      campaignJson = { status: camp.status, body: await camp.json().catch(() => ({})) };
+      return { path, status: r.status, body: await r.json().catch(() => ({})) };
     }
 
-    // List recent campaigns
-    const list = await fetch(`https://api.sendpulse.com/telegram/campaigns?limit=5`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    const listJson = await list.json().catch(() => ({}));
+    const results = await Promise.all([
+      hit(`/telegram/bots`),
+      hit(`/telegram/contacts/getList?bot_id=${botId}&limit=1`),
+      hit(`/telegram/subscribers?bot_id=${botId}&limit=1`),
+      hit(`/telegram/bots/${botId}`),
+      hit(`/telegram/campaigns/list?limit=5`),
+      hit(`/telegram/campaigns?limit=5`),
+      hit(`/user/info`),
+      hit(`/messengers/bots`),
+    ]);
+
+    let campaignProbe: any = null;
+    if (campaign_id) {
+      campaignProbe = await hit(`/telegram/campaigns/${campaign_id}`);
+    }
 
     return new Response(JSON.stringify({
       bot_id: botId,
-      bot: botJson,
-      subscribers: subsJson,
-      campaign: campaignJson,
-      recent_campaigns: listJson,
+      token_ok: true,
+      probes: results,
+      campaign_probe: campaignProbe,
     }, null, 2), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
