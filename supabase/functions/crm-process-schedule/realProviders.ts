@@ -628,7 +628,13 @@ export async function sendBatchEmailReal(
   const imageHtml = imgTag && safeLink
     ? `<a href="${safeLink}" target="_blank" rel="noopener" style="text-decoration:none;display:block;">${imgTag}</a>`
     : imgTag;
-  const html = imageHtml + bodyToHtml(bodyText);
+
+  const LOGO_URL = "https://jdzndbkimjwtxpldmigi.supabase.co/storage/v1/object/public/email-assets/premier-logo.svg";
+  const logoHeader = `<div style="text-align:center;padding:16px 0;">
+    <img src="${LOGO_URL}" alt="Premier FC" style="height:48px;width:auto;border:0;display:inline-block;" />
+  </div>`;
+
+  const html = logoHeader + imageHtml + bodyToHtml(bodyText);
 
   const from = buildFrom(sender);
   const replyTo = sender.replyTo?.trim() || null;
