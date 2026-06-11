@@ -59,7 +59,7 @@ export const CHANNELS: Record<ChannelKey, ChannelConfig> = {
     key: "sms",
     label: "SMS",
     shortLabel: "SMS",
-    provider: "SMS Funnel",
+    provider: "Comtele",
     icon: MessageSquare,
     color: "#FACC15",
     supportsFilter: true,
