@@ -62,9 +62,23 @@ export function StickNoteNode({ id, data, selected }: NodeProps) {
         minWidth={400}
         minHeight={300}
         color={color}
-        isVisible={selected}
+        isVisible={true}
         onResizeEnd={handleResizeEnd}
-        handleStyle={{ width: 10, height: 10, borderRadius: 3, pointerEvents: "all" }}
+        handleStyle={{
+          width: 18,
+          height: 18,
+          borderRadius: 4,
+          background: color,
+          border: "2px solid white",
+          pointerEvents: "all",
+          opacity: selected ? 1 : 0.7,
+          zIndex: 20,
+        }}
+        lineStyle={{
+          borderWidth: 4,
+          borderColor: "transparent",
+          pointerEvents: "all",
+        }}
       />
       <div
         className="absolute top-0 left-0 right-0 flex items-center gap-2 px-3 py-2 rounded-t-2xl"

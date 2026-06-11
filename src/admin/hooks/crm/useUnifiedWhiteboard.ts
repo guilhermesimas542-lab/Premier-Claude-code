@@ -18,7 +18,7 @@ export interface JourneyRow {
   id: string;
   name: string;
   color: string | null;
-  canvas: { x?: number; y?: number; w?: number; h?: number } | null;
+  canvas: { x?: number; y?: number; w?: number; h?: number; showSticky?: boolean } | null;
   status: string | null;
   trigger_type: string | null;
   trigger_config: Record<string, any> | null;
@@ -104,7 +104,7 @@ export function useUnifiedWhiteboard() {
       });
     });
 
-    const stickyNodes: Node[] = journeys.map((j) => {
+    const stickyNodes: Node[] = journeys.filter((j) => (j.canvas as any)?.showSticky !== false).map((j) => {
       const lay = journeyLayout.get(j.id)!;
       return {
         id: `journey:${j.id}`,
@@ -124,13 +124,14 @@ export function useUnifiedWhiteboard() {
     steps.forEach((r) => {
       const isStage = r.node_type === "stage";
       const cfg = r.config ?? {};
-      const parentId = r.parent_step_id ? r.parent_step_id : `journey:${r.journey_id}`;
+      const lay = journeyLayout.get(r.journey_id) ?? { x: 0, y: 0 };
+      const savedPosition = r.position ?? { x: 24, y: 48 };
       const node: any = {
         id: r.id,
         type: r.node_type,
-        position: r.position ?? { x: 24, y: 48 },
-        parentId,
-        extent: "parent",
+        position: r.parent_step_id
+          ? savedPosition
+          : { x: lay.x + savedPosition.x, y: lay.y + savedPosition.y },
         zIndex: isStage ? 1 : 2,
         data: {
           channel: r.channel,
@@ -143,6 +144,10 @@ export function useUnifiedWhiteboard() {
           color: cfg.color,
         },
       };
+      if (r.parent_step_id) {
+        node.parentId = r.parent_step_id;
+        node.extent = "parent";
+      }
       if (isStage) {
         node.style = { width: cfg.width ?? 360, height: cfg.height ?? 220 };
         stageNodes.push(node);
@@ -175,7 +180,7 @@ export function useUnifiedWhiteboard() {
 
   // --- Mutations ----------------------------------------------------------
 
-  const createJourney = useCallback(async (canvasXY?: { x: number; y: number }) => {
+  const createJourney = useCallback(async (canvasXY?: { x: number; y: number; showSticky?: boolean }) => {
     const idx = journeys.length;
     const color = JOURNEY_PALETTE[idx % JOURNEY_PALETTE.length];
     // espaço livre simples: à direita da última
@@ -186,7 +191,7 @@ export function useUnifiedWhiteboard() {
       .insert({
         name: "Nova jornada",
         color,
-        canvas: { x, y, w: FALLBACK_W, h: FALLBACK_H },
+        canvas: { x, y, w: FALLBACK_W, h: FALLBACK_H, showSticky: canvasXY?.showSticky ?? true },
         trigger_type: "manual",
         status: "draft",
       })
@@ -325,6 +330,39 @@ export function useUnifiedWhiteboard() {
     return (data as StepRow).id;
   }, []);
 
+  const updateStep = useCallback(async (
+    stepId: string,
+    fields: {
+      channel?: ChannelKey | null;
+      content?: Record<string, any>;
+      config?: Record<string, any>;
+      delay_value?: number | null;
+      delay_unit?: any;
+    }
+  ) => {
+    const { error } = await (supabase as any)
+      .from("crm_journey_steps").update(fields).eq("id", stepId);
+    if (error) { toast.error(`Erro ao salvar nó: ${error.message}`); return; }
+    setSteps((prev) => prev.map((s) => s.id === stepId ? { ...s, ...fields } as StepRow : s));
+  }, []);
+
+  const deleteStep = useCallback(async (stepId: string) => {
+    // Remove edges que referenciam o nó
+    const e1 = await (supabase as any)
+      .from("crm_journey_edges").delete()
+      .or(`source_step_id.eq.${stepId},target_step_id.eq.${stepId}`);
+    if (e1.error) { toast.error(`Erro removendo ligações: ${e1.error.message}`); return; }
+    // Filhos com parent_step_id = stepId perdem o pai (não apaga em cascata)
+    await (supabase as any)
+      .from("crm_journey_steps").update({ parent_step_id: null }).eq("parent_step_id", stepId);
+    const { error } = await (supabase as any)
+      .from("crm_journey_steps").delete().eq("id", stepId);
+    if (error) { toast.error(`Erro excluindo nó: ${error.message}`); return; }
+    setEdgeRows((prev) => prev.filter((e) => e.source_step_id !== stepId && e.target_step_id !== stepId));
+    setSteps((prev) => prev.map((s) => s.parent_step_id === stepId ? { ...s, parent_step_id: null } : s).filter((s) => s.id !== stepId));
+    toast.success("Nó excluído");
+  }, []);
+
 
   const deleteJourney = useCallback(async (journeyId: string) => {
     // Apaga em cascata: edges -> steps -> enrollments -> jornada
@@ -402,7 +440,7 @@ export function useUnifiedWhiteboard() {
   return {
     journeys, steps, edgeRows, nodes, edges, loading, refresh: load,
     setNodes, setEdges,
-    createJourney, updateJourney, deleteJourney, assignNodeToJourney, createEdge, removeEdge, insertStep,
+    createJourney, updateJourney, deleteJourney, assignNodeToJourney, createEdge, removeEdge, insertStep, updateStep, deleteStep,
     organizeJourneys,
   };
 }

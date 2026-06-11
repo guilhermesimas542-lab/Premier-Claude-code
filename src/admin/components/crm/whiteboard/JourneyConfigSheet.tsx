@@ -10,6 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { TRIGGERS, TRIGGER_LIST, type TriggerKey } from "@/admin/lib/crm/triggers";
 import { useAudiences } from "@/admin/hooks/crm/useAudiences";
+import { NewAudienceInlineButton } from "@/admin/components/crm/NewAudienceInlineButton";
 import { JOURNEY_PALETTE, type JourneyRow } from "@/admin/hooks/crm/useUnifiedWhiteboard";
 
 interface Props {
@@ -37,7 +38,7 @@ const STATUSES = [
 ];
 
 export function JourneyConfigSheet({ journey, open, onOpenChange, onSave }: Props) {
-  const { items: audiences } = useAudiences();
+  const { items: audiences, create: createAudience, refresh: refreshAudiences } = useAudiences();
   const [name, setName] = useState("");
   const [color, setColor] = useState<string>(JOURNEY_PALETTE[0]);
   const [triggerType, setTriggerType] = useState<TriggerKey>("manual");
@@ -155,9 +156,16 @@ export function JourneyConfigSheet({ journey, open, onOpenChange, onSave }: Prop
 
           {/* Audiência */}
           <div className="space-y-1.5 pt-3 border-t border-border/50">
-            <Label className="text-xs uppercase tracking-wider text-muted-foreground">
-              Audiência (opcional)
-            </Label>
+            <div className="flex items-center justify-between gap-2">
+              <Label className="text-xs uppercase tracking-wider text-muted-foreground">
+                Audiência (opcional)
+              </Label>
+              <NewAudienceInlineButton
+                create={createAudience}
+                refresh={refreshAudiences}
+                onCreated={(a) => setAudienceId(a.id)}
+              />
+            </div>
             <Select
               value={audienceId ?? "none"}
               onValueChange={(v) => setAudienceId(v === "none" ? null : v)}

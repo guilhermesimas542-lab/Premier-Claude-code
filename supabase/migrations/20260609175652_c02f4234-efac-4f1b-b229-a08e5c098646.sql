@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX IF NOT EXISTS idx_products_catalog_provider_product_unique ON products_catalog (provider, provider_product_id);

@@ -51,6 +51,9 @@ interface AudienceFilters {
   status?: Array<"active" | "inactive" | "churn_risk">;
   origin?: "payt" | "db_app" | "both";
   opt_ins?: string[];
+  user_ids?: string[];
+  /** Telefones já normalizados no formato SMS Dev (55DDDNNNNNNNNN). Override pra SMS. */
+  phones?: string[];
   /** Marca semântica de broadcast (Telegram x1). */
   broadcast?: boolean;
   behavior?: BehaviorFilter;
@@ -272,6 +275,10 @@ Deno.serve(async (req: Request) => {
         q = q.in("id", behaviorIds);
       }
 
+      // Lista explícita de user_ids (override) — leads escolhidos manualmente.
+      if (filters.user_ids && filters.user_ids.length > 0) {
+        q = q.in("id", filters.user_ids);
+      }
 
     if (filters.plans && filters.plans.length > 0) {
       q = q.in("main_tier", filters.plans);
@@ -324,6 +331,24 @@ Deno.serve(async (req: Request) => {
     }
   }
 
+  // Override: telefones avulsos (SMS). Adiciona como recipients sintéticos.
+  if (!isBroadcast && filters.phones && filters.phones.length > 0) {
+    const existingPhones = new Set(
+      recipients.map((r) => (r.phone ?? "").replace(/\D/g, "")).filter(Boolean)
+    );
+    for (const p of filters.phones) {
+      const norm = p.replace(/\D/g, "");
+      if (!norm || existingPhones.has(norm)) continue;
+      recipients.push({
+        id: `phone:${norm}`,
+        email: null,
+        phone: norm,
+        nickname: null,
+      });
+      existingPhones.add(norm);
+    }
+  }
+
 
   const reachCount = recipients.length;
   let deliveredCount = 0;
@@ -370,9 +395,14 @@ Deno.serve(async (req: Request) => {
           metadata: { provider: "sendpulse", broadcast: true, real: true },
         };
       } else {
-        const content = (schedule.content ?? {}) as { body?: string | null; image_url?: string | null };
+        const content = (schedule.content ?? {}) as { body?: string | null; image_url?: string | null; link_url?: string | null };
+        const link = (content.link_url ?? "").toString().trim();
+        const baseBody = (content.body ?? "").toString();
+        const bodyWithLink = link && !baseBody.includes(link)
+          ? (baseBody.trim() ? `${baseBody}\n\n${link}` : link)
+          : baseBody;
         broadcastResult = await sendBroadcastTelegramX1Real(
-          content.body ?? "",
+          bodyWithLink,
           schedule.name,
           botId,
           apiId,
@@ -443,8 +473,13 @@ Deno.serve(async (req: Request) => {
       await supabase.from("crm_schedule_events").insert([event]);
       failedCount = 1;
     } else {
-      const content = (schedule.content ?? {}) as { body?: string | null; image_url?: string | null };
-      const tgResult = await sendTelegramGroupReal(content.body ?? "", botToken, chatId, content.image_url ?? null);
+      const content = (schedule.content ?? {}) as { body?: string | null; image_url?: string | null; link_url?: string | null };
+      const link = (content.link_url ?? "").toString().trim();
+      const baseBody = (content.body ?? "").toString();
+      const bodyWithLink = link && !baseBody.includes(link)
+        ? (baseBody.trim() ? `${baseBody}\n\n${link}` : link)
+        : baseBody;
+      const tgResult = await sendTelegramGroupReal(bodyWithLink, botToken, chatId, content.image_url ?? null);
       const event = {
         schedule_id: scheduleId,
         recipient_user_id: tgResult.recipient_user_id,

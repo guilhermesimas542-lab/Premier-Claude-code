@@ -23,6 +23,7 @@ self.addEventListener('push', (event) => {
     body: data.body,
     icon: '/icon-192.png',
     badge: '/favicon-32x32.png',
+    image: data.image || undefined,
     vibrate: [200, 100, 200],
     data: { url: data.url || '/' },
     actions: [
@@ -32,7 +33,16 @@ self.addEventListener('push', (event) => {
   };
 
   event.waitUntil(
-    self.registration.showNotification(data.title, options)
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {
+      const visibleClients = clients.filter((client) => client.visibilityState === 'visible');
+
+      if (visibleClients.length > 0) {
+        visibleClients.forEach((client) => client.postMessage({ type: 'push-notification', payload: data }));
+        return;
+      }
+
+      return self.registration.showNotification(data.title, options);
+    })
   );
 });
 

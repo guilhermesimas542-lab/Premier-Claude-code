@@ -10,14 +10,17 @@ import { normalizeBrazilMobile } from "./normalizePhone.ts";
 
 interface SmsContent {
   body?: string | null;
+  link_url?: string | null;
   [key: string]: unknown;
 }
 
 const SMSDEV_ENDPOINT = "https://api.smsdev.com.br/v1/send";
 
 
-function buildMessage(body: string | null | undefined): string {
-  const txt = (body ?? "").trim();
+function buildMessage(body: string | null | undefined, linkUrl?: string | null): string {
+  let txt = (body ?? "").trim();
+  const link = (linkUrl ?? "").trim();
+  if (link && !txt.includes(link)) txt = txt ? `${txt} ${link}` : link;
   if (!txt) return "Premier FC";
   if (/^premier\s*fc/i.test(txt)) return txt;
   return "Premier FC: " + txt;
@@ -28,7 +31,7 @@ export async function sendBatchSmsReal(
   content: SmsContent | null | undefined,
   apiKey: string
 ): Promise<SendResult[]> {
-  const msg = buildMessage(content?.body ?? null);
+  const msg = buildMessage(content?.body ?? null, content?.link_url ?? null);
   const sentAt = new Date().toISOString();
 
   const results: SendResult[] = [];
@@ -129,6 +132,7 @@ interface PushContent {
   title?: string | null;
   body?: string | null;
   image_url?: string | null;
+  link_url?: string | null;
   [key: string]: unknown;
 }
 
@@ -147,11 +151,15 @@ export async function sendBatchPushReal(
   const title = (content?.title ?? "").toString().trim() || "Premier FC";
   const bodyText = (content?.body ?? "").toString().trim() || "";
   const imageUrl = (content?.image_url ?? "").toString().trim() || null;
+  const linkUrl = (content?.link_url ?? "").toString().trim() || null;
   const sentAt = new Date().toISOString();
   const results: SendResult[] = [];
 
-  const pushPayload: { title: string; body: string; image?: string } = { title, body: bodyText };
+  const pushPayload: { title: string; body: string; image?: string; url?: string } = { title, body: bodyText };
   if (imageUrl) pushPayload.image = imageUrl;
+  if (linkUrl) pushPayload.url = linkUrl;
+
+
 
   // Filtra ids reais (UUID, descarta audience_member sintéticos)
   const userIds = recipients
@@ -278,13 +286,22 @@ export async function sendBatchPushReal(
           });
         }
       } catch (e: any) {
+        const errName = e?.name ?? "Error";
+        const errMsg = e?.message ?? String(e);
+        console.error("[CRM][push] exceção ao enviar:", {
+          user_id: recipientUserId,
+          endpoint_host: (() => { try { return new URL(sub.endpoint).host; } catch { return null; } })(),
+          name: errName,
+          message: errMsg,
+          stack: e?.stack?.slice?.(0, 500),
+        });
         results.push({
           recipient_user_id: recipientUserId,
           recipient_identifier: identifier,
           status: "failed",
           error_code: "push_exception",
-          error_message: e?.message ?? String(e),
-          metadata: { provider: "web_push", attempted_at: sentAt },
+          error_message: `${errName}: ${errMsg}`,
+          metadata: { provider: "web_push", attempted_at: sentAt, error_name: errName },
         });
       }
     }
@@ -337,8 +354,11 @@ export async function sendBroadcastTelegramX1Real(
 interface PopupContent {
   title?: string | null;
   body?: string | null;
-  cta?: Record<string, unknown> | null;
+  cta?: Record<string, unknown> | string | null;
   image_url?: string | null;
+  link_url?: string | null;
+  max_views?: number | string | null;
+  expires_at?: string | null;
   [key: string]: unknown;
 }
 
@@ -349,12 +369,39 @@ export async function sendBatchPopupReal(
   supabase: any
 ): Promise<SendResult[]> {
   const sentAt = new Date().toISOString();
+  const linkUrl = (content?.link_url ?? "").toString().trim() || null;
+  // Normaliza CTA: aceita string (texto do botão) ou objeto {text,url}.
+  // Se vier só link_url, monta CTA padrão "Acessar".
+  let cta: Record<string, unknown> | null = null;
+  if (content?.cta && typeof content.cta === "object") {
+    cta = { ...(content.cta as any) };
+    if (linkUrl && !(cta as any).url) (cta as any).url = linkUrl;
+  } else if (typeof content?.cta === "string" && content.cta.trim()) {
+    cta = { text: content.cta.trim(), url: linkUrl ?? null };
+  } else if (linkUrl) {
+    cta = { text: "Acessar", url: linkUrl };
+  }
+  // max_views: quantas vezes esse popup pode aparecer pro lead (default 1).
+  const rawMax = content?.max_views;
+  let maxViews = 1;
+  if (rawMax != null && rawMax !== "") {
+    const n = typeof rawMax === "number" ? rawMax : parseInt(String(rawMax), 10);
+    if (Number.isFinite(n) && n > 0) maxViews = Math.min(n, 50);
+  }
+  // expires_at: instante em que o popup deixa de fazer sentido.
+  let expiresAt: string | null = null;
+  if (content?.expires_at) {
+    const d = new Date(content.expires_at);
+    if (!isNaN(d.getTime())) expiresAt = d.toISOString();
+  }
   const normalizedContent = {
     title: (content?.title ?? "").toString().trim() || "Premier FC",
     body: (content?.body ?? "").toString().trim() || "",
-    cta: content?.cta ?? null,
+    cta,
     image_url: (content?.image_url ?? "").toString().trim() || null,
+    link_url: linkUrl,
   };
+
 
   const results: SendResult[] = [];
   const toInsert: Array<{
@@ -362,6 +409,8 @@ export async function sendBatchPopupReal(
     user_id: string;
     content: any;
     status: string;
+    max_views: number;
+    expires_at: string | null;
     recipient_index: number;
   }> = [];
 
@@ -387,6 +436,8 @@ export async function sendBatchPopupReal(
       user_id: recipientUserId,
       content: normalizedContent,
       status: "pending",
+      max_views: maxViews,
+      expires_at: expiresAt,
       recipient_index: idx,
     });
 
@@ -408,6 +459,7 @@ export async function sendBatchPopupReal(
     .from("crm_popup_deliveries")
     .insert(payload)
     .select("id, user_id");
+
 
   if (error) {
     console.error("[CRM][popup] erro inserindo deliveries:", error);
@@ -489,6 +541,7 @@ interface EmailContent {
   subject?: string | null;
   body?: string | null;
   image_url?: string | null;
+  link_url?: string | null;
   [key: string]: unknown;
 }
 
@@ -531,10 +584,19 @@ export async function sendBatchEmailReal(
   const subject = (content?.subject ?? "").toString().trim() || "Premier FC";
   const bodyText = (content?.body ?? "").toString();
   const imageUrl = (content?.image_url ?? "").toString().trim() || null;
-  const imageHtml = imageUrl
+  const linkUrl = (content?.link_url ?? "").toString().trim() || null;
+  const safeLink = linkUrl ? escapeHtml(linkUrl) : null;
+  const imgTag = imageUrl
     ? `<img src="${imageUrl.replace(/"/g, "&quot;")}" alt="" style="max-width:600px;width:100%;display:block;border:0;outline:none;text-decoration:none;margin:0 0 12px 0;" />`
     : "";
-  const html = imageHtml + bodyToHtml(bodyText);
+  const imageHtml = imgTag && safeLink
+    ? `<a href="${safeLink}" target="_blank" rel="noopener" style="text-decoration:none;display:block;">${imgTag}</a>`
+    : imgTag;
+  const ctaHtml = safeLink && bodyText.trim()
+    ? `<div style="margin:16px 0;"><a href="${safeLink}" target="_blank" rel="noopener" style="display:inline-block;padding:12px 22px;background:#00FF7F;color:#060D1E;font-family:Arial,Helvetica,sans-serif;font-weight:700;font-size:14px;text-decoration:none;border-radius:8px;">Acessar</a></div>`
+    : "";
+  const html = imageHtml + bodyToHtml(bodyText) + ctaHtml;
+
   const from = buildFrom(sender);
   const replyTo = sender.replyTo?.trim() || null;
 

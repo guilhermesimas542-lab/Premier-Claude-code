@@ -207,7 +207,7 @@ const Login = () => {
 
         try {
           if (dbUser.id) {
-            subscribe(dbUser.id);
+            subscribe(dbUser.id, email);
           }
         } catch {
           // Silently ignore push subscription errors

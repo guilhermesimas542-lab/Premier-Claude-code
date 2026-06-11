@@ -4,9 +4,11 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
+import { toast } from "sonner";
 import { installGlobalErrorTracker } from "@/lib/errorTracker";
 import { AnalyticsRouteTracker } from "@/components/AnalyticsRouteTracker";
 import { GlobalPopups } from "@/components/GlobalPopups";
+import { PushNotificationToast, type PushNotificationPayload } from "@/components/PushNotificationToast";
 
 import Home from "./pages/Home";
 import Sport from "./pages/Sport";
@@ -42,8 +44,6 @@ import AdminAnalytics from "./admin/pages/AdminAnalytics";
 import AdminRanking from "./admin/pages/AdminRanking";
 import AdminEventsPage from "./admin/pages/AdminEventsPage";
 import AdminOverview from "./admin/pages/AdminOverview";
-import AdminRevenue from "./admin/pages/AdminRevenue";
-import AdminMrrPremier from "./admin/pages/AdminMrrPremier";
 import AdminFunnelAnalytics from "./admin/pages/AdminFunnelAnalytics";
 
 import AdminBettingHouses from "./admin/pages/AdminBettingHouses";
@@ -65,6 +65,7 @@ import AdminCrmJourneys from "./admin/pages/crm/AdminCrmJourneys";
 import AdminCrmJourneyBuilder from "./admin/pages/crm/AdminCrmJourneyBuilder";
 import AdminCrmJourneyDetail from "./admin/pages/crm/AdminCrmJourneyDetail";
 import AdminCrmWhiteboardUnified from "./admin/pages/crm/AdminCrmWhiteboardUnified";
+import AdminCrmWhiteboardSchedules from "./admin/pages/crm/AdminCrmWhiteboardSchedules";
 import AdminBehavior from "./admin/pages/AdminBehavior";
 import AdminCrmSettings from "./admin/pages/crm/AdminCrmSettings";
 import AdminWebhook from "./admin/pages/AdminWebhook";
@@ -86,6 +87,28 @@ const LEGACY_GAME_MAP: Record<string, string> = {
 const App = () => {
   useEffect(() => {
     installGlobalErrorTracker();
+  }, []);
+
+  useEffect(() => {
+    if (!("serviceWorker" in navigator)) return;
+
+    const onMessage = (event: MessageEvent) => {
+      if (event.data?.type !== "push-notification") return;
+      const payload = (event.data.payload ?? {}) as PushNotificationPayload;
+      toast.custom((toastId) => (
+        <PushNotificationToast
+          payload={payload}
+          onClose={() => toast.dismiss(toastId)}
+        />
+      ), {
+        duration: 12000,
+        position: "top-center",
+        className: "!w-auto !border-0 !bg-transparent !p-0 !shadow-none",
+      });
+    };
+
+    navigator.serviceWorker.addEventListener("message", onMessage);
+    return () => navigator.serviceWorker.removeEventListener("message", onMessage);
   }, []);
 
   return (
@@ -141,8 +164,6 @@ const App = () => {
               <Route path="funnel-analytics" element={<AdminFunnelAnalytics />} />
               <Route path="behavior" element={<AdminBehavior />} />
               <Route path="ranking" element={<AdminRanking />} />
-              <Route path="revenue" element={<AdminRevenue />} />
-              <Route path="mrr-premier" element={<AdminMrrPremier />} />
               <Route path="default-links" element={<AdminDefaultLinks />} />
               <Route path="popups" element={<AdminPopups />} />
               <Route path="funis" element={<Navigate to="/admin/popups" replace />} />
@@ -164,6 +185,7 @@ const App = () => {
               <Route path="crm/journeys/:id/edit" element={<AdminCrmJourneyBuilder />} />
               <Route path="crm/journeys/:id/whiteboard" element={<Navigate to="/admin/crm/whiteboard" replace />} />
               <Route path="crm/whiteboard" element={<AdminCrmWhiteboardUnified />} />
+              <Route path="crm/whiteboard/schedules" element={<AdminCrmWhiteboardSchedules />} />
               <Route path="crm/whiteboard-legacy" element={<Navigate to="/admin/crm/whiteboard" replace />} />
               <Route path="crm/settings" element={<AdminCrmSettings />} />
             </Route>

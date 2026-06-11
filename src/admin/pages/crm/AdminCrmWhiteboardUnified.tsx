@@ -16,15 +16,17 @@ import {
   type Connection,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { ArrowLeft, Loader2, Plus, LayoutGrid, Layers, Play, Mail, Clock, GitBranch, Tag } from "lucide-react";
-import { toast } from "sonner";
+import { ArrowLeft, Loader2, Plus, LayoutGrid, Layers, Play, Mail, Clock, GitBranch, Tag, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import { useUnifiedWhiteboard } from "@/admin/hooks/crm/useUnifiedWhiteboard";
 import {
   TriggerNode, MessageNode, WaitNode, ConditionNode, TagNode, StageNode,
 } from "@/admin/components/crm/whiteboard/nodes";
 import { StickNoteNode } from "@/admin/components/crm/whiteboard/nodes/StickNoteNode";
 import { JourneyConfigSheet } from "@/admin/components/crm/whiteboard/JourneyConfigSheet";
+import { NodeConfigDrawer } from "@/admin/components/crm/whiteboard/NodeConfigDrawer";
+import { useWhiteboardShortcuts } from "@/admin/hooks/crm/useWhiteboardShortcuts";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -68,8 +70,9 @@ function Inner() {
   const {
     journeys, steps, nodes, edges, loading, setNodes, setEdges,
     createJourney, updateJourney, deleteJourney, assignNodeToJourney, createEdge, removeEdge,
-    organizeJourneys, insertStep,
+    organizeJourneys, insertStep, updateStep, deleteStep,
   } = useUnifiedWhiteboard();
+  const [editingNodeId, setEditingNodeId] = useState<string | null>(null);
   const { screenToFlowPosition, fitView } = useReactFlow();
   const [searchParams, setSearchParams] = useSearchParams();
   const [focusedJourneyId, setFocusedJourneyId] = useState<string | null>(null);
@@ -95,15 +98,37 @@ function Inner() {
     return m;
   }, [steps]);
 
+  // Layout real de cada jornada, mesmo quando o sticky note está oculto.
+  const journeyLayouts = useMemo(() => {
+    return journeys.map((j, i) => {
+      const c = j.canvas ?? {};
+      return {
+        id: j.id,
+        x: typeof c.x === "number" ? c.x : i * 1200,
+        y: typeof c.y === "number" ? c.y : 0,
+        w: typeof c.w === "number" ? c.w : 1000,
+        h: typeof c.h === "number" ? c.h : 700,
+        showSticky: (c as any).showSticky !== false,
+      };
+    });
+  }, [journeys]);
+
   const onNodesChange = useCallback((changes: NodeChange[]) => {
     setNodes((nds) => {
       const next = applyNodeChanges(changes, nds);
-      // rastrear stickNote selecionado pro botão "Adicionar nó"
       const sel = next.find((n) => n.type === "stickNote" && n.selected);
       setSelectedStickyJourneyId(sel ? ((sel.data as any)?.journeyId ?? null) : null);
       return next;
     });
-  }, [setNodes]);
+    // Persistir exclusões (tecla Delete/Backspace) — ignora stickNote/stage para evitar acidente
+    changes.forEach((c) => {
+      if (c.type !== "remove") return;
+      const n = nodes.find((x) => x.id === c.id);
+      if (!n) return;
+      if (n.type === "stickNote" || n.type === "stage" || n.type === "trigger") return;
+      deleteStep(c.id);
+    });
+  }, [setNodes, nodes, deleteStep]);
   const onEdgesChange = useCallback((changes: EdgeChange[]) => {
     setEdges((eds) => applyEdgeChanges(changes, eds));
     changes.forEach((c) => { if (c.type === "remove") removeEdge(c.id); });
@@ -119,7 +144,7 @@ function Inner() {
     await createEdge(sj, c.source, c.target, branch);
   }, [stepJourney, createEdge]);
 
-  // Drop detection: stage primeiro, depois stickNote da jornada
+  // Drop detection: stage primeiro; fora de tudo fica livre no canvas
   const onNodeDragStop = useCallback(async (_e: any, dragged: Node) => {
     const all = nodes;
 
@@ -157,7 +182,7 @@ function Inner() {
       return;
     }
 
-    // 2) Dentro de alguma região de jornada?
+    // 2) Dentro de alguma região visual de jornada?
     const sticky = all.find((n) => n.type === "stickNote" && isInside(n));
     if (sticky) {
       const journeyId = (sticky.data as any)?.journeyId as string;
@@ -170,14 +195,67 @@ function Inner() {
       return;
     }
 
-    // 3) Fora de tudo — reverter (force refresh local)
-    toast.error("Solte o nó dentro de uma jornada");
-    setNodes((prev) => prev.map((n) => n.id === dragged.id ? { ...n } : n));
-    // recarrega do banco pra restaurar posição original
-    // (alternativa simples: refresh)
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    (async () => {})();
-  }, [nodes, stepJourney, assignNodeToJourney, updateJourney, setNodes]);
+    // 3) Fora de tudo — mantém livre no canvas, sem exigir sticky note/jornada visual.
+    const currentJourneyId = stepJourney.get(dragged.id);
+    if (!currentJourneyId) return;
+    const layout = journeyLayouts.find((l) => l.id === currentJourneyId);
+    await assignNodeToJourney(dragged.id, {
+      journeyId: currentJourneyId,
+      parentStepId: null,
+      position: {
+        x: Math.round(abs.x - (layout?.x ?? 0)),
+        y: Math.round(abs.y - (layout?.y ?? 0)),
+      },
+    });
+  }, [nodes, stepJourney, assignNodeToJourney, updateJourney, journeyLayouts]);
+
+  // ============== Histórico / Undo (Ctrl+Z) ==============
+  type NodeSnap = {
+    id: string;
+    type?: string;
+    position: { x: number; y: number };
+    parentId?: string | null;
+  };
+  const captureNodesSnapshot = useCallback((): NodeSnap[] => {
+    return nodes.map((n) => ({
+      id: n.id,
+      type: n.type,
+      position: { x: n.position.x, y: n.position.y },
+      parentId: (n as any).parentId ?? null,
+    }));
+  }, [nodes]);
+
+  const { isPanMode, pushHistory } = useWhiteboardShortcuts<NodeSnap[]>({
+    onUndo: async (snap) => {
+      // restaura visualmente
+      setNodes((nds) => nds.map((n) => {
+        const s = snap.find((x) => x.id === n.id);
+        if (!s) return n;
+        return { ...n, position: { ...s.position }, parentId: s.parentId ?? undefined } as Node;
+      }));
+      // persiste no banco
+      for (const s of snap) {
+        if (s.type === "stickNote") {
+          const jid = (nodes.find((n) => n.id === s.id)?.data as any)?.journeyId;
+          if (jid) await updateJourney(jid, { canvas: { x: s.position.x, y: s.position.y } });
+        } else if (s.type && s.type !== "stage") {
+          const jid = stepJourney.get(s.id);
+          if (jid) {
+            await assignNodeToJourney(s.id, {
+              journeyId: jid,
+              parentStepId: s.parentId ?? null,
+              position: s.position,
+            });
+          }
+        }
+      }
+      toast.success("Última ação desfeita");
+    },
+  });
+
+  const onNodeDragStart = useCallback(() => {
+    pushHistory(captureNodesSnapshot());
+  }, [pushHistory, captureNodesSnapshot]);
 
   // Injetar handlers nos sticky notes via data + aplicar isolamento por foco
   const enhancedNodes = useMemo(() => nodes.map((n) => {
@@ -185,6 +263,22 @@ function Inner() {
       ? (n.data as any)?.journeyId
       : stepJourney.get(n.id);
     const hidden = focusedJourneyId != null && journeyOfNode !== focusedJourneyId;
+    if (n.type === "stage") {
+      const currentCfg = (n.data as any)?.config ?? {};
+      return {
+        ...n,
+        hidden,
+        data: {
+          ...n.data,
+          onChangeTitle: (id: string, title: string) =>
+            updateStep(id, { config: { ...currentCfg, title } } as any),
+          onChangeColor: (id: string, color: string) =>
+            updateStep(id, { config: { ...currentCfg, color } } as any),
+          onResize: (id: string, w: number, h: number) =>
+            updateStep(id, { config: { ...currentCfg, width: w, height: h } } as any),
+        },
+      };
+    }
     if (n.type !== "stickNote") return { ...n, hidden };
     return {
       ...n,
@@ -199,7 +293,7 @@ function Inner() {
         onDelete: (jid: string, name: string) => setDeleteTarget({ id: jid, name }),
       },
     };
-  }), [nodes, updateJourney, focusedJourneyId, stepJourney]);
+  }), [nodes, updateJourney, updateStep, focusedJourneyId, stepJourney]);
 
   // Edges: esconder as que tocam um nó escondido
   const visibleEdges = useMemo(() => {
@@ -231,55 +325,47 @@ function Inner() {
     await createJourney({ x: Math.round(center.x), y: Math.round(center.y) });
   }, [createJourney, screenToFlowPosition]);
 
-  // journey-layout (pra resolver "qual região contém o centro")
-  const journeyLayouts = useMemo(() => {
-    return nodes
-      .filter((n) => n.type === "stickNote")
-      .map((n) => {
-        const w = (n.width ?? (n.style as any)?.width ?? 1000) as number;
-        const h = (n.height ?? (n.style as any)?.height ?? 700) as number;
-        return {
-          id: (n.data as any).journeyId as string,
-          x: n.position.x, y: n.position.y, w, h,
-          stickyId: n.id,
-        };
-      });
-  }, [nodes]);
-
   const findContainingJourney = useCallback((px: number, py: number) => {
-    return journeyLayouts.find((l) => px >= l.x && px <= l.x + l.w && py >= l.y && py <= l.y + l.h) ?? null;
+    return journeyLayouts.find((l) => l.showSticky && px >= l.x && px <= l.x + l.w && py >= l.y && py <= l.y + l.h) ?? null;
   }, [journeyLayouts]);
 
   const handleAddNode = useCallback(async (type: NodeKind) => {
-    // 1) jornada focada > 2) sticky selecionado > 3) jornada que contém o centro
     let targetJourneyId: string | null = focusedJourneyId ?? selectedStickyJourneyId ?? null;
-    let center = screenToFlowPosition({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
+    const center = screenToFlowPosition({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
 
     if (!targetJourneyId) {
       const hit = findContainingJourney(center.x, center.y);
-      if (!hit) {
-        toast.error("Foque ou selecione uma jornada antes de adicionar um nó.");
-        return;
+      if (hit) {
+        targetJourneyId = hit.id;
+      } else {
+        targetJourneyId = await createJourney({
+          x: Math.round(center.x - 500),
+          y: Math.round(center.y - 350),
+          showSticky: false,
+        });
+        if (!targetJourneyId) return;
+        setSelectedStickyJourneyId(targetJourneyId);
       }
-      targetJourneyId = hit.id;
     }
 
     const layout = journeyLayouts.find((l) => l.id === targetJourneyId);
-    if (!layout) { toast.error("Jornada não encontrada"); return; }
-
-    // Posição inicial: se o centro cai dentro da região, usa ele; senão centro da região
-    const inside = center.x >= layout.x && center.x <= layout.x + layout.w
-      && center.y >= layout.y && center.y <= layout.y + layout.h;
-    const absX = inside ? center.x : layout.x + layout.w / 2;
-    const absY = inside ? center.y : layout.y + layout.h / 2;
-    // Posição relativa ao stickNote (parent)
+    const baseX = layout?.x ?? center.x - 500;
+    const baseY = layout?.y ?? center.y - 350;
+    const layoutW = layout?.w ?? 1000;
+    const layoutH = layout?.h ?? 700;
+    const inside = layout
+      ? center.x >= layout.x && center.x <= layout.x + layout.w
+        && center.y >= layout.y && center.y <= layout.y + layout.h
+      : true;
+    const absX = inside ? center.x : baseX + layoutW / 2;
+    const absY = inside ? center.y : baseY + layoutH / 2;
     const position = {
-      x: Math.max(24, Math.round(absX - layout.x - 110)),
-      y: Math.max(48, Math.round(absY - layout.y - 40)),
+      x: Math.max(24, Math.round(absX - baseX - 110)),
+      y: Math.max(48, Math.round(absY - baseY - 40)),
     };
 
     await insertStep({ type, journeyId: targetJourneyId, parentStepId: null, position });
-  }, [focusedJourneyId, selectedStickyJourneyId, screenToFlowPosition, findContainingJourney, journeyLayouts, insertStep]);
+  }, [focusedJourneyId, selectedStickyJourneyId, screenToFlowPosition, findContainingJourney, journeyLayouts, insertStep, createJourney]);
 
 
   if (loading) {
@@ -297,8 +383,24 @@ function Inner() {
           <ArrowLeft className="w-4 h-4 mr-1" /> Voltar
         </Button>
         <span className="text-sm font-bold uppercase tracking-wider">
-          Whiteboard unificado · Jornadas
+          Whiteboard · Jornadas
         </span>
+
+        {/* Toggle entre os 2 whiteboards */}
+        <div className="ml-3 flex rounded-md border border-border overflow-hidden">
+          <Button size="sm" className="rounded-none h-8">
+            <GitBranch className="w-4 h-4 mr-1" /> Jornadas
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            className="rounded-none h-8"
+            onClick={() => navigate("/admin/crm/whiteboard/schedules")}
+          >
+            <Send className="w-4 h-4 mr-1" /> Schedules
+          </Button>
+        </div>
+
         <Button size="sm" className="ml-3" onClick={handleNew}>
           <Plus className="w-4 h-4 mr-1" /> Nova jornada
         </Button>
@@ -341,7 +443,7 @@ function Inner() {
               ? "→ na jornada focada"
               : selectedStickyJourneyId
                 ? "→ na jornada selecionada"
-                : "→ solte sobre uma jornada"}
+                : "→ livre no canvas"}
           </div>
           <div className="border-t border-border my-1" />
           <div className="px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
@@ -376,6 +478,7 @@ function Inner() {
 
         <div
           className="flex-1 relative"
+          style={{ cursor: isPanMode ? "grab" : undefined }}
           onDragOver={(e) => {
             if (e.dataTransfer.types.includes("application/x-crm-node")) {
               e.preventDefault();
@@ -388,16 +491,22 @@ function Inner() {
             e.preventDefault();
             const pos = screenToFlowPosition({ x: e.clientX, y: e.clientY });
             const hit = findContainingJourney(pos.x, pos.y);
-            const targetJourneyId = hit?.id ?? focusedJourneyId ?? selectedStickyJourneyId ?? null;
+            let targetJourneyId = hit?.id ?? focusedJourneyId ?? selectedStickyJourneyId ?? null;
             if (!targetJourneyId) {
-              toast.error("Solte sobre uma jornada");
-              return;
+              targetJourneyId = await createJourney({
+                x: Math.round(pos.x - 500),
+                y: Math.round(pos.y - 350),
+                showSticky: false,
+              });
+              if (!targetJourneyId) return;
+              setSelectedStickyJourneyId(targetJourneyId);
             }
             const layout = journeyLayouts.find((l) => l.id === targetJourneyId);
-            if (!layout) return;
+            const baseX = layout?.x ?? pos.x - 500;
+            const baseY = layout?.y ?? pos.y - 350;
             const position = {
-              x: Math.max(24, Math.round(pos.x - layout.x - 110)),
-              y: Math.max(48, Math.round(pos.y - layout.y - 40)),
+              x: Math.max(24, Math.round(pos.x - baseX - 110)),
+              y: Math.max(48, Math.round(pos.y - baseY - 40)),
             };
             await insertStep({ type, journeyId: targetJourneyId, parentStepId: null, position });
           }}
@@ -409,16 +518,24 @@ function Inner() {
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
+            onNodeDragStart={onNodeDragStart}
             onNodeDragStop={onNodeDragStop}
+            onNodeClick={(_e, n) => {
+              if (isPanMode) return;
+              if (n.type === "stickNote" || n.type === "stage") return;
+              setEditingNodeId(n.id);
+            }}
             onNodeDoubleClick={(_e, n) => {
+              if (isPanMode) return;
               if (n.type === "stickNote") {
                 const jid = (n.data as any)?.journeyId;
                 if (jid) setFocusedJourneyId(jid);
               }
             }}
-            nodesDraggable
-            nodesConnectable
-            elementsSelectable
+            nodesDraggable={!isPanMode}
+            nodesConnectable={!isPanMode}
+            elementsSelectable={!isPanMode}
+            panOnDrag={isPanMode ? [0, 1, 2] : [1, 2]}
             panOnScroll
             minZoom={0.1}
             maxZoom={2}
@@ -437,6 +554,21 @@ function Inner() {
         onOpenChange={(v) => { if (!v) setConfigJourneyId(null); }}
         onSave={async (jid, fields) => { await updateJourney(jid, fields); }}
       />
+
+      <NodeConfigDrawer
+        node={editingNodeId ? (enhancedNodes.find((n) => n.id === editingNodeId) as any ?? null) : null}
+        messageNodes={enhancedNodes.filter((n) => n.type === "message") as any}
+        triggerType={(() => {
+          const n = enhancedNodes.find((x) => x.id === editingNodeId);
+          if (!n) return null;
+          const jid = stepJourney.get(n.id);
+          return journeys.find((j) => j.id === jid)?.trigger_type ?? null;
+        })()}
+        onClose={() => setEditingNodeId(null)}
+        onSave={async (id, fields) => { await updateStep(id, fields as any); }}
+        onDelete={async (id) => { await deleteStep(id); }}
+      />
+
 
       <AlertDialog open={deleteTarget != null} onOpenChange={(v) => { if (!v) setDeleteTarget(null); }}>
         <AlertDialogContent>

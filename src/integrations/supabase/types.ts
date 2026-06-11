@@ -1564,31 +1564,40 @@ export type Database = {
           acted_at: string | null
           content: Json
           created_at: string
+          expires_at: string | null
           id: string
+          max_views: number
           schedule_id: string | null
           shown_at: string | null
           status: string
           user_id: string
+          view_count: number
         }
         Insert: {
           acted_at?: string | null
           content?: Json
           created_at?: string
+          expires_at?: string | null
           id?: string
+          max_views?: number
           schedule_id?: string | null
           shown_at?: string | null
           status?: string
           user_id: string
+          view_count?: number
         }
         Update: {
           acted_at?: string | null
           content?: Json
           created_at?: string
+          expires_at?: string | null
           id?: string
+          max_views?: number
           schedule_id?: string | null
           shown_at?: string | null
           status?: string
           user_id?: string
+          view_count?: number
         }
         Relationships: [
           {
@@ -1872,6 +1881,7 @@ export type Database = {
           email: string | null
           fbclid: string | null
           funnel_slug: string
+          gtm_index_id: string | null
           id: string
           ip: string | null
           language: string | null
@@ -1895,6 +1905,7 @@ export type Database = {
           email?: string | null
           fbclid?: string | null
           funnel_slug?: string
+          gtm_index_id?: string | null
           id: string
           ip?: string | null
           language?: string | null
@@ -1918,6 +1929,7 @@ export type Database = {
           email?: string | null
           fbclid?: string | null
           funnel_slug?: string
+          gtm_index_id?: string | null
           id?: string
           ip?: string | null
           language?: string | null
@@ -2003,6 +2015,48 @@ export type Database = {
           nome?: string | null
           ordem?: number | null
           tipo?: string | null
+        }
+        Relationships: []
+      }
+      fa_touches: {
+        Row: {
+          created_at: string
+          fbclid: string | null
+          gtm_index_id: string | null
+          id: string
+          session_id: string
+          src_raw: string | null
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          utm_term: string | null
+        }
+        Insert: {
+          created_at?: string
+          fbclid?: string | null
+          gtm_index_id?: string | null
+          id?: string
+          session_id: string
+          src_raw?: string | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+        }
+        Update: {
+          created_at?: string
+          fbclid?: string | null
+          gtm_index_id?: string | null
+          id?: string
+          session_id?: string
+          src_raw?: string | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
         }
         Relationships: []
       }
@@ -3080,6 +3134,7 @@ export type Database = {
         Returns: Json
       }
       check_is_admin_email: { Args: { p_email: string }; Returns: boolean }
+      cleanup_retention_policies: { Args: never; Returns: Json }
       crm_clear_channel_secret: {
         Args: { p_channel: string; p_key: string }
         Returns: Json

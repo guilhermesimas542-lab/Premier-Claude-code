@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -14,6 +14,8 @@ import {
   Radio,
   Save,
   Clock,
+  Search,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,7 +32,10 @@ import { useAudiences, type AudienceFilters } from "../../../hooks/crm/useAudien
 import { usePreviewAudience } from "../../../hooks/crm/usePreviewAudience";
 import { ChannelPreview } from "./ChannelPreview";
 import { ImageAttachControl } from "../ImageAttachControl";
+import { LinkAttachControl } from "../LinkAttachControl";
 import { isImageSupportedChannel } from "../../../lib/crm/bannerTemplates";
+import { PhonePicker } from "../PhonePicker";
+import { NewAudienceInlineButton } from "../NewAudienceInlineButton";
 
 // ============================================================
 // Tipos do state do wizard
@@ -73,15 +78,21 @@ type StepKey = typeof STEPS[number]["key"];
 interface ScheduleWizardProps {
   /** ID do schedule a editar. Se omitido, o wizard cria um novo. */
   editingId?: string;
+  /** Callback após salvar. Se fornecido, substitui o navigate padrão. */
+  onDone?: () => void;
+  /** Callback ao cancelar. Se fornecido, substitui o navigate padrão. */
+  onCancel?: () => void;
 }
 
-export function ScheduleWizard({ editingId }: ScheduleWizardProps = {}) {
+export function ScheduleWizard({ editingId, onDone, onCancel }: ScheduleWizardProps = {}) {
   const navigate = useNavigate();
   const { create, update: updateSchedule } = useSchedules();
   const [state, setState] = useState<WizardState>(INITIAL_STATE);
   const [stepIdx, setStepIdx] = useState(0);
   const [saving, setSaving] = useState(false);
   const [loadingEdit, setLoadingEdit] = useState<boolean>(!!editingId);
+  const goBack = () => (onCancel ? onCancel() : navigate("/admin/crm/schedules"));
+  const goDone = () => (onDone ? onDone() : navigate("/admin/crm/schedules"));
 
   const isEditing = !!editingId;
 
@@ -100,7 +111,7 @@ export function ScheduleWizard({ editingId }: ScheduleWizardProps = {}) {
       if (!mounted) return;
       if (error || !data) {
         toast.error(`Erro ao carregar schedule: ${error?.message ?? "desconhecido"}`);
-        navigate("/admin/crm/schedules");
+        goBack();
         return;
       }
       const scheduledLocal =
@@ -202,7 +213,7 @@ export function ScheduleWizard({ editingId }: ScheduleWizardProps = {}) {
     setSaving(false);
 
     if (success) {
-      navigate("/admin/crm/schedules");
+      goDone();
     }
   };
 
@@ -237,7 +248,7 @@ export function ScheduleWizard({ editingId }: ScheduleWizardProps = {}) {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => navigate("/admin/crm/schedules")}
+              onClick={goBack}
               className="text-muted-foreground"
             >
               <ArrowLeft className="w-4 h-4 mr-1" />
@@ -462,7 +473,7 @@ function StepAudience({
   state: WizardState;
   update: (patch: Partial<WizardState>) => void;
 }) {
-  const { items: audiences, loading } = useAudiences();
+  const { items: audiences, loading, create: createAudience, refresh: refreshAudiences } = useAudiences();
   const { count } = usePreviewAudience(state.audience_filters ?? {}, !state.audience_id);
   const isTelegramX1 = state.channel === "telegram_x1";
 
@@ -499,9 +510,16 @@ function StepAudience({
 
       {/* Modo 1: audiência salva */}
       <div className="space-y-2">
-        <Label className="text-xs uppercase tracking-wider text-muted-foreground">
-          Audiência salva
-        </Label>
+        <div className="flex items-center justify-between gap-2">
+          <Label className="text-xs uppercase tracking-wider text-muted-foreground">
+            Audiência salva
+          </Label>
+          <NewAudienceInlineButton
+            create={createAudience}
+            refresh={refreshAudiences}
+            onCreated={(a) => update({ audience_id: a.id, audience_filters: null })}
+          />
+        </div>
         {loading ? (
           <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
         ) : audiences.length === 0 ? (
@@ -605,6 +623,35 @@ function AdHocFilters({
 
   return (
     <div className="rounded-lg border border-border p-3 space-y-3">
+      <div>
+        <div className="text-[11px] font-bold uppercase tracking-wider mb-1.5">
+          Leads específicos
+        </div>
+        <p className="text-[10px] text-muted-foreground mb-2">
+          Busque por email e selecione exatamente quem vai receber. Se preencher aqui, os outros filtros funcionam como refinamento adicional.
+        </p>
+        <UserPicker
+          selectedIds={filters.user_ids ?? []}
+          onChange={(ids) =>
+            onChange({ ...filters, user_ids: ids.length > 0 ? ids : undefined })
+          }
+        />
+      </div>
+      <div>
+        <div className="text-[11px] font-bold uppercase tracking-wider mb-1.5">
+          Telefones específicos (SMS)
+        </div>
+        <p className="text-[10px] text-muted-foreground mb-2">
+          Cole/digite números BR — normalizados no formato SMS Dev (55DDDNNNNNNNNN). Override pra envios de SMS.
+        </p>
+        <PhonePicker
+          selected={filters.phones ?? []}
+          onChange={(phones) =>
+            onChange({ ...filters, phones: phones.length > 0 ? phones : undefined })
+          }
+        />
+      </div>
+
       <div>
         <div className="text-[11px] font-bold uppercase tracking-wider mb-1.5">Plano</div>
         <div className="flex flex-wrap gap-1.5">
@@ -711,7 +758,7 @@ function StepContent({
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="email-body">Corpo da mensagem</Label>
+            <Label htmlFor="email-body">Corpo da mensagem <span className="text-muted-foreground font-normal">(opcional se enviar imagem)</span></Label>
             <Textarea
               id="email-body"
               value={content.body ?? ""}
@@ -789,16 +836,55 @@ function StepContent({
             />
           </div>
           {channel === "popup" && (
-            <div className="space-y-1.5">
-              <Label htmlFor="popup-cta">Texto do botão (CTA)</Label>
-              <Input
-                id="popup-cta"
-                value={content.cta ?? ""}
-                onChange={(e) => setField("cta", e.target.value)}
-                placeholder="Ex: Quero ver agora"
-                disabled={isPending}
-              />
-            </div>
+            <>
+              <div className="space-y-1.5">
+                <Label htmlFor="popup-cta">Texto do botão (CTA)</Label>
+                <Input
+                  id="popup-cta"
+                  value={content.cta ?? ""}
+                  onChange={(e) => setField("cta", e.target.value)}
+                  placeholder="Ex: Quero ver agora"
+                  disabled={isPending}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="popup-max-views">
+                    Quantas vezes aparece
+                  </Label>
+                  <Input
+                    id="popup-max-views"
+                    type="number"
+                    min={1}
+                    max={50}
+                    value={content.max_views ?? 1}
+                    onChange={(e) =>
+                      setField("max_views", e.target.value)
+                    }
+                    placeholder="1"
+                  />
+                  <p className="text-[10px] text-muted-foreground">
+                    Limite por lead em sessões diferentes.
+                  </p>
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="popup-expires-at">
+                    Expira em <span className="text-muted-foreground font-normal">(opcional)</span>
+                  </Label>
+                  <Input
+                    id="popup-expires-at"
+                    type="datetime-local"
+                    value={content.expires_at ?? ""}
+                    onChange={(e) =>
+                      setField("expires_at", e.target.value)
+                    }
+                  />
+                  <p className="text-[10px] text-muted-foreground">
+                    Some da fila do lead após essa data.
+                  </p>
+                </div>
+              </div>
+            </>
           )}
         </>
       )}
@@ -810,6 +896,13 @@ function StepContent({
           onChange={(url) => update({ content: { ...content, image_url: url ?? undefined } })}
         />
       )}
+
+      {/* Link clicável — disponível em todos os canais */}
+      <LinkAttachControl
+        value={content.link_url ?? null}
+        onChange={(url) => update({ content: { ...content, link_url: url ?? undefined } })}
+      />
+
         </div>
 
         <div className="lg:sticky lg:top-[200px] lg:self-start">
@@ -1049,7 +1142,7 @@ function ContentPreview({
 function validateContent(state: WizardState): boolean {
   const c = state.content;
   if (!state.channel) return false;
-  if (state.channel === "email") return !!(c.subject?.trim() && c.body?.trim());
+  if (state.channel === "email") return !!(c.subject?.trim() && (c.body?.trim() || c.image_url));
   if (state.channel === "push" || state.channel === "popup")
     return !!(c.title?.trim() && c.body?.trim());
   return !!c.body?.trim();
@@ -1065,4 +1158,184 @@ function autoName(state: WizardState): string {
   const ch = CHANNELS[state.channel];
   const date = new Date().toLocaleDateString("pt-BR");
   return `${ch.label} · ${date}`;
+}
+
+// ============================================================
+// UserPicker — busca usuários por email (dropdown com filtro)
+// ============================================================
+interface PickedUser {
+  id: string;
+  email: string;
+  main_tier: string | null;
+}
+
+function UserPicker({
+  selectedIds,
+  onChange,
+}: {
+  selectedIds: string[];
+  onChange: (ids: string[]) => void;
+}) {
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<PickedUser[]>([]);
+  const [selectedUsers, setSelectedUsers] = useState<PickedUser[]>([]);
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const boxRef = useRef<HTMLDivElement>(null);
+
+  // Hidrata labels dos IDs já selecionados
+  useEffect(() => {
+    const missing = selectedIds.filter(
+      (id) => !selectedUsers.some((u) => u.id === id)
+    );
+    if (missing.length === 0) {
+      setSelectedUsers((prev) => prev.filter((u) => selectedIds.includes(u.id)));
+      return;
+    }
+    (async () => {
+      const { data } = await (supabase as any)
+        .from("users")
+        .select("id, email, main_tier")
+        .in("id", missing);
+      if (data) {
+        setSelectedUsers((prev) => {
+          const merged = [...prev, ...(data as PickedUser[])];
+          return merged.filter((u) => selectedIds.includes(u.id));
+        });
+      }
+    })();
+  }, [selectedIds]);
+
+  // Busca por email (debounced)
+  useEffect(() => {
+    if (!open) return;
+    let cancelled = false;
+    const t = setTimeout(async () => {
+      setLoading(true);
+      let q: any = (supabase as any)
+        .from("users")
+        .select("id, email, main_tier")
+        .order("last_seen_at", { ascending: false, nullsFirst: false })
+        .limit(20);
+      if (query.trim()) {
+        q = q.ilike("email", `%${query.trim()}%`);
+      }
+      const { data } = await q;
+      if (!cancelled) {
+        setResults((data ?? []) as PickedUser[]);
+        setLoading(false);
+      }
+    }, 250);
+    return () => {
+      cancelled = true;
+      clearTimeout(t);
+    };
+  }, [query, open]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e: MouseEvent) => {
+      if (boxRef.current && !boxRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onDown);
+    return () => document.removeEventListener("mousedown", onDown);
+  }, [open]);
+
+  const selectedSet = useMemo(() => new Set(selectedIds), [selectedIds]);
+
+  const toggle = (u: PickedUser) => {
+    if (selectedSet.has(u.id)) {
+      onChange(selectedIds.filter((id) => id !== u.id));
+    } else {
+      onChange([...selectedIds, u.id]);
+      setSelectedUsers((prev) =>
+        prev.some((p) => p.id === u.id) ? prev : [...prev, u]
+      );
+    }
+  };
+
+  return (
+    <div ref={boxRef} className="relative">
+      <div className="relative">
+        <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+        <Input
+          value={query}
+          onChange={(e) => {
+            setQuery(e.target.value);
+            setOpen(true);
+          }}
+          onFocus={() => setOpen(true)}
+          placeholder="Buscar por email..."
+          className="pl-7 h-8 text-xs"
+        />
+      </div>
+
+      {open && (
+        <div className="absolute z-50 mt-1 w-full max-h-64 overflow-auto rounded-lg border border-border bg-popover shadow-lg">
+          {loading ? (
+            <div className="p-3 text-xs text-muted-foreground flex items-center gap-2">
+              <Loader2 className="w-3 h-3 animate-spin" /> Buscando...
+            </div>
+          ) : results.length === 0 ? (
+            <div className="p-3 text-xs text-muted-foreground">
+              Nenhum lead encontrado.
+            </div>
+          ) : (
+            results.map((u) => {
+              const active = selectedSet.has(u.id);
+              return (
+                <button
+                  key={u.id}
+                  type="button"
+                  onClick={() => toggle(u)}
+                  className={`w-full text-left px-3 py-2 text-xs hover:bg-muted/50 flex items-center justify-between gap-2 ${
+                    active ? "bg-primary/10" : ""
+                  }`}
+                >
+                  <span className="truncate flex-1">
+                    <span className="text-foreground">{u.email}</span>
+                    {u.main_tier && (
+                      <span className="ml-2 text-[10px] text-muted-foreground uppercase">
+                        {u.main_tier}
+                      </span>
+                    )}
+                  </span>
+                  {active && <Check className="w-3.5 h-3.5 text-primary shrink-0" />}
+                </button>
+              );
+            })
+          )}
+        </div>
+      )}
+
+      {selectedUsers.length > 0 && (
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          {selectedUsers.map((u) => (
+            <span
+              key={u.id}
+              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-primary/10 border border-primary/30 text-foreground"
+            >
+              {u.email}
+              <button
+                type="button"
+                onClick={() => toggle(u)}
+                className="hover:text-destructive"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          ))}
+          <button
+            type="button"
+            onClick={() => onChange([])}
+            className="text-[10px] text-muted-foreground hover:text-destructive underline ml-1"
+          >
+            limpar tudo
+          </button>
+        </div>
+      )}
+    </div>
+  );
 }
