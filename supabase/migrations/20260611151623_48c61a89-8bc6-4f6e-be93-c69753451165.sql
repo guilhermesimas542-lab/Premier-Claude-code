@@ -1,0 +1,2 @@
+DELETE FROM crm_schedule_events WHERE schedule_id = '4763b748-b93d-49b9-a7b6-f82e74877473';
+UPDATE crm_schedules SET status='scheduled', reach_count=0, delivered_count=0, failed_count=0, open_count=0, click_count=0 WHERE id='4763b748-b93d-49b9-a7b6-f82e74877473';
