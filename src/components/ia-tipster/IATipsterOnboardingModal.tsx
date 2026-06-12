@@ -28,7 +28,7 @@ const TOTAL_STEPS = 4;
  *   1. Boas-vindas (apresentação da feature)
  *   2. Como usar (3 passos: escolher jogo → gerar análise → apostar)
  *   3. Créditos (semanal, pacotes, ilimitado)
- *   4. Próxima etapa (aviso "vamos criar sua primeira análise")
+ *   4. Próxima etapa (aviso "vamos criar sua primer análisis")
  *
  * Aparece UMA VEZ. Sem botão X — o lead só sai clicando "Começar agora".
  */
@@ -154,7 +154,7 @@ function StepWelcome() {
         <Bullet
           icon={<Radio className="w-4 h-4 text-[#10ff80]" />}
           title="Jogos ao vivo"
-          text="Escolha uma partida rolando e a IA analisa em tempo real."
+          text="Elige un partido en vivo y la IA analiza en tiempo real."
         />
         <Bullet
           icon={<Coins className="w-4 h-4 text-[#10ff80]" />}
@@ -268,7 +268,7 @@ function StepFinal() {
         className="text-2xl font-bold leading-tight mb-2"
         style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
       >
-        Vamos criar sua <span style={{ color: "#10ff80" }}>primeira análise</span>
+        Vamos a crear tu <span style={{ color: "#10ff80" }}>primer análisis</span>
       </h2>
       <p className="text-sm text-white/70 max-w-sm mx-auto mb-5 leading-relaxed">
         En el siguiente paso, vas a la pantalla del IA Tipster para armar tu{" "}

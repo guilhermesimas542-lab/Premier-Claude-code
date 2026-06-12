@@ -218,7 +218,7 @@ const Login = () => {
       console.warn('[Login] outer catch, falling back to mock login:', err);
       mockLogin(email);
       window.dispatchEvent(new CustomEvent('premier:login'));
-      toast.success("Login realizado com sucesso!");
+      toast.success("Login realizado con éxito!");
       navigate("/", { replace: true });
     } finally {
       setIsLoading(false);

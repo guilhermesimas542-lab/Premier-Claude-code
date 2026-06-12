@@ -284,7 +284,7 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
                   <div className="font-bold text-white text-sm leading-snug break-words">
                     {canBuyAvulso
                       ? <>Desbloquear <span className="text-[#10ff80]">{featureLabel}</span> por R$ {PRICES.backredirect}</>
-                      : <>Desbloquear {featureLabel} — <span className="text-white/60">Em breve</span></>}
+                      : <>Desbloquear {featureLabel} — <span className="text-white/60">Próximamente</span></>}
                   </div>
                   <div className="text-xs text-white/60 mt-0.5 leading-tight">Pago único, acceso vitalicio</div>
                 </button>
@@ -298,8 +298,8 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
                 >
                   <div className="font-bold text-white text-sm leading-snug break-words">
                     {canBuyUpgrade
-                      ? <><span className="text-[#10ff80]">Plano Diamante</span> (todos os mercados liberados — R$ {PRICES.diamante_upgrade})</>
-                      : <>Upgrade Diamante — <span className="text-white/60">Em breve</span></>}
+                      ? <><span className="text-[#10ff80]">Plan Diamante</span> (todos os mercados liberados — R$ {PRICES.diamante_upgrade})</>
+                      : <>Upgrade Diamante — <span className="text-white/60">Próximamente</span></>}
                   </div>
                   <div className="text-xs text-white/60 mt-0.5 leading-tight break-words">Desbloquea {otherFeatures}</div>
                 </button>

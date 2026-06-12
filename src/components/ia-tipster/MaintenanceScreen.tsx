@@ -13,7 +13,7 @@ export function MaintenanceScreen({ message }: Props) {
         </div>
         <h2 className="text-lg font-bold">Sistema em atualização</h2>
         <p className="text-sm text-muted-foreground leading-relaxed">
-          {message || "Estamos atualizando o sistema. A IA Tipster estará disponível em breve."}
+          {message || "Estamos actualizando el sistema. El IA Tipster estará disponible pronto."}
         </p>
       </div>
     </div>

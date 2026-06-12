@@ -88,7 +88,7 @@ function formatMatchTime(kickoffIso: string): string {
  *   Etapa 1 ("hook"): headline emocional + card do siguiente jogo + 1 CTA grande
  *   Etapa 2 ("plans"): grid dos 4 produtos pra escolha real
  *
- * Quem clica em "Recarregar" já está mentalmente comprometido — CTR na escolha sobe.
+ * Quem clica em "Recargar" já está mentalmente comprometido — CTR na escolha sobe.
  */
 export function CreditRecoveryModal({ open, onClose }: Props) {
   const [step, setStep] = useState<Step>("hook");
@@ -473,7 +473,7 @@ export function CreditRecoveryModal({ open, onClose }: Props) {
         }}
       >
         <Zap className="w-5 h-5" />
-        Recarregar créditos
+        Recargar créditos
       </button>
 
       {/* Reforço sutil */}

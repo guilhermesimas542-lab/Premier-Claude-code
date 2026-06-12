@@ -114,7 +114,7 @@ export function BugReportDrawer({ open, onOpenChange, tipCacheId }: Props) {
                 onClick={handleSubmit}
                 disabled={!message.trim() || submitting}
               >
-                {submitting ? "Enviando..." : "Enviar relatório"}
+                {submitting ? "Enviando..." : "Enviar reporte"}
               </Button>
               <Button
                 variant="ghost"

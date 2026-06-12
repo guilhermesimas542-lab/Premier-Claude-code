@@ -317,7 +317,7 @@ const Sport = () => {
       console.log("[Sport] Query result:", { count: entries?.length, error: fetchError, today });
 
       if (fetchError) {
-        console.error("Erro ao buscar entries:", fetchError);
+        console.error("Error al buscar entries:", fetchError);
         setError("Error al cargar tips");
         return;
       }

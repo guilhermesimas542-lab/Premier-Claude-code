@@ -81,10 +81,10 @@ export function usePushNotifications() {
       if (!error) {
         localStorage.setItem(STORAGE_KEY, effectiveUserId);
       } else {
-        console.error('Erro ao salvar subscription:', error);
+        console.error('Error al salvar subscription:', error);
       }
     } catch (err) {
-      console.error('Erro ao registrar push:', err);
+      console.error('Error al registrar push:', err);
     } finally {
       setSubscribing(false);
     }

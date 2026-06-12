@@ -16,7 +16,7 @@ export default function Backredirect4() {
   const [secondsLeft, setSecondsLeft] = useState(5 * 60);
 
   useEffect(() => {
-    document.title = "Última chance: R$10 OFF | Premier FC";
+    document.title = "Última oportunidad: R$10 OFF | Premier FC";
   }, []);
 
   useEffect(() => {
@@ -124,7 +124,7 @@ export default function Backredirect4() {
         <div className="flex justify-center">
           <img
             src={formasPagamento}
-            alt="Formas de pagamento à vista: Mastercard, Elo, Visa, American Express, Boleto Bancário e Pix"
+            alt="Formas de pago à vista: Mastercard, Elo, Visa, American Express, Boleto Bancário e Pix"
             className="w-full max-w-[262px] h-auto"
           />
         </div>
@@ -135,24 +135,24 @@ export default function Backredirect4() {
         {/* 7) GUARANTEE BLOCK */}
         <div className="text-center space-y-2">
           <div className="font-bold text-base" style={{ color: RED_TEXT }}>
-            ⚠️ ATENÇÃO!
+            ⚠️ ¡ATENCIÓN!
           </div>
           <p className="font-bold text-neutral-900 text-sm sm:text-base leading-snug">
-            Se tú entrar no Premier FC e não conseguir pelo menos triplicar sua banca…
+            Si entras en CL Score y no logras al menos triplicar tu banca…
           </p>
           <p className="text-neutral-900 text-sm sm:text-base leading-snug">
-            Vamos devolver <span className="font-bold">cada centavo</span> que tú pagou. É 100% sem risco pra tú! 💯
+            Te devolvemos <span className="font-bold">cada peso</span> que pagaste. É 100% sin riesgo para ti! 💯
           </p>
         </div>
 
         {/* 8) GUARANTEE SEAL */}
         <div className="flex flex-col items-center gap-3">
           <div className="font-bold text-base text-neutral-900">
-            🛡️ Garantia Total de 30 Dias
+            🛡️ Garantía Total de 30 Días
           </div>
           <img
             src={seloGarantia}
-            alt="Selo de Garantia 30 Dias"
+            alt="Sello de Garantía 30 Días"
             className="w-[200px] h-[200px] object-contain"
           />
 
@@ -163,7 +163,7 @@ export default function Backredirect4() {
 
         {/* 9) FOOTER MICRO-COPY */}
         <p className="text-center text-xs text-neutral-500 pb-4">
-          Pagamento 100% seguro • Acesso liberado no WhatsApp em minutos
+          Pago 100% seguro • Acceso liberado en Telegram en minutos
         </p>
       </div>
     </div>

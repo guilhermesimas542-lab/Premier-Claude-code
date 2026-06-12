@@ -70,7 +70,7 @@ export function useChatTipster() {
     try {
       sessionStorage.setItem(SESSION_KEY, JSON.stringify(messages));
     } catch (e) {
-      console.warn("Falha ao persistir chat", e);
+      console.warn("Error ao persistir chat", e);
     }
   }, [messages]);
 
@@ -140,7 +140,7 @@ export function useChatTipster() {
           id: genId(),
           role: "bot",
           type: "error",
-          message: error.message || "Erro ao buscar jogo.",
+          message: error.message || "Error al buscar jogo.",
           createdAt: Date.now(),
         });
         return;
@@ -287,8 +287,8 @@ export function useChatTipster() {
           return;
         }
         if (status === 500 && errorBody?.error === "generation_failed") {
-          toast.error("Falha temporária", {
-            description: errorBody.message || "Não conseguimos gerar a análise agora. Seu crédito foi restituído. Tente novamente em alguns segundos.",
+          toast.error("Error temporária", {
+            description: errorBody.message || "Não conseguimos gerar a análise agora. Seu crédito foi restituído. Intenta de nuevo em alguns segundos.",
           });
           refreshCreditBalance();
           return;
@@ -309,8 +309,8 @@ export function useChatTipster() {
           error.message?.includes("FunctionsHttpError") ||
           (error as any).name === "FunctionsHttpError"
         ) {
-          toast.error("Falha temporária", {
-            description: "Não conseguimos gerar a análise agora. Tente novamente em alguns segundos.",
+          toast.error("Error temporária", {
+            description: "Não conseguimos gerar a análise agora. Intenta de nuevo em alguns segundos.",
           });
           return;
         }
@@ -319,8 +319,8 @@ export function useChatTipster() {
           role: "bot",
           type: "error",
           message: isDailyCap
-            ? "⚠️ Análise IA temporariamente indisponível. Tente novamente em algumas horas."
-            : error.message || "Erro ao gerar análise.",
+            ? "⚠️ Análise IA temporariamente indisponível. Intenta de nuevo em algumas horas."
+            : error.message || "Error al gerar análise.",
           createdAt: Date.now(),
         });
         return;
@@ -332,7 +332,7 @@ export function useChatTipster() {
           id: genId(),
           role: "bot",
           type: "error",
-          message: "⚠️ Análise IA temporariamente indisponível. Tente novamente em algumas horas.",
+          message: "⚠️ Análise IA temporariamente indisponível. Intenta de nuevo em algumas horas.",
           createdAt: Date.now(),
         });
         return;
@@ -342,7 +342,7 @@ export function useChatTipster() {
           id: genId(),
           role: "bot",
           type: "error",
-          message: "Tú não tem créditos suficientes. Compre créditos ou aguarde o reset diário.",
+          message: "No tienes créditos suficientes. Compra créditos o espera el reset diario.",
           createdAt: Date.now(),
         });
         return;

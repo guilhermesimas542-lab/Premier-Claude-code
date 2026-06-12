@@ -312,7 +312,7 @@ const Home = () => {
                   color: '#94A3B8',
                   lineHeight: 1.3,
                 }}>
-                  Pergunte sobre qualquer jogo ou escolha uma partida ao vivo.
+                  Pregunta sobre cualquier partido o elige uno en vivo.
                 </p>
                 <button
                   onClick={(e) => { e.stopPropagation(); navigate("/ia-tipster"); }}
@@ -616,7 +616,7 @@ const Home = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={() => setShowTermsModal(false)}>
           <div className="w-full max-w-md rounded-2xl shadow-2xl overflow-hidden max-h-[80vh] overflow-y-auto" style={{ background: "rgba(0,8,0,0.97)", border: "1px solid rgba(16, 255, 128,0.25)" }} onClick={(e) => e.stopPropagation()}>
             <div className="relative px-6 py-5 sticky top-0 z-10" style={{ background: "rgba(0,8,0,0.97)", borderBottom: "1px solid rgba(16, 255, 128,0.15)" }}>
-              <h2 className="text-lg font-bold" style={{ color: "#FFFFFF" }}>Termos de Uso & Privacidade</h2>
+              <h2 className="text-lg font-bold" style={{ color: "#FFFFFF" }}>Términos de Uso & Privacidad</h2>
               <button onClick={() => setShowTermsModal(false)} className="absolute top-4 right-4 p-1.5 rounded-lg transition-colors hover:bg-[rgba(16, 255, 128,0.08)]">
                 <X className="w-5 h-5" style={{ color: "#10ff80" }} />
               </button>

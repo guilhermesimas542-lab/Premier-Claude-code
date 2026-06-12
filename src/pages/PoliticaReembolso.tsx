@@ -40,7 +40,7 @@ export default function PoliticaReembolso() {
           </h2>
           <p className="text-sm sm:text-base leading-relaxed text-neutral-700">
             Tú pode cancelar quando quiser. Para não ser cobrado no siguiente
-            mês, cancele <strong>antes da data da próxima renovação</strong>.
+            mês, cancela <strong>antes de la fecha de la próxima renovación</strong>.
             Seu acesso continua até o fim do período já pago.
           </p>
         </section>

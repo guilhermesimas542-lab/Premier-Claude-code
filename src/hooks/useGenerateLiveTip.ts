@@ -17,7 +17,7 @@ const ERROR_MESSAGES: Record<string, string> = {
   league_not_supported:
     "Análise IA ainda não disponível para esta competição. Seu crédito foi devolvido.",
   generation_failed:
-    "Não conseguimos gerar análise no momento. Crédito devolvido. Tente novamente em alguns minutos.",
+    "Não conseguimos gerar análise no momento. Crédito devolvido. Intenta de nuevo em alguns minutos.",
   fixture_too_far:
     "Esse jogo ainda não está siguiente o suficiente para análise.",
   fixture_already_started_or_past:
@@ -26,19 +26,19 @@ const ERROR_MESSAGES: Record<string, string> = {
   no_credits:
     "Tú não tem créditos disponíveis. Considere adquirir mais ou aguardar a renovação semanal.",
   insufficient_credits:
-    "Tú não tem créditos suficientes. Compre créditos ou aguarde reset semanal.",
+    "No tienes créditos suficientes. Compra créditos o espera el reset semanal.",
   ai_overloaded:
-    "Sistema temporariamente sobrecarregado. Tente novamente em alguns instantes.",
+    "Sistema temporariamente sobrecarregado. Intenta de nuevo em alguns instantes.",
   system_disabled:
     "Análise IA temporariamente indisponível.",
   fixture_not_found: "Jogo não encontrado.",
   fixture_fetch_failed:
-    "Não conseguimos buscar os dados do jogo agora. Tente novamente.",
+    "Não conseguimos buscar os dados do jogo agora. Intenta de nuevo.",
 };
 
 export function getFriendlyTipError(errorCode: string | undefined | null): string {
-  if (!errorCode) return "Erro desconhecido. Tente novamente.";
-  return ERROR_MESSAGES[errorCode] ?? `Erro inesperado: ${errorCode}. Tente novamente.`;
+  if (!errorCode) return "Erro desconhecido. Intenta de nuevo.";
+  return ERROR_MESSAGES[errorCode] ?? `Erro inesperado: ${errorCode}. Intenta de nuevo.`;
 }
 
 export function useGenerateLiveTip() {
@@ -87,18 +87,18 @@ export function useGenerateLiveTip() {
           return;
         }
         if (status === 500 || errorBody?.error === "generation_failed") {
-          toast.error("Falha temporária", { description: getFriendlyTipError("generation_failed") });
+          toast.error("Error temporária", { description: getFriendlyTipError("generation_failed") });
           setError(getFriendlyTipError(errorBody?.error || "generation_failed"));
           refreshCreditBalance();
           return;
         }
         const isDailyCap = status === 429 || /daily_cost_limit_reached/i.test(invokeErr.message || "");
         if (isDailyCap) {
-          setError("⚠️ Análise IA temporariamente indisponível. Tente novamente em algumas horas.");
+          setError("⚠️ Análise IA temporariamente indisponível. Intenta de nuevo em algumas horas.");
           return;
         }
         if (invokeErr.message?.includes("non-2xx") || invokeErr.message?.includes("FunctionsHttpError")) {
-          toast.error("Falha temporária", { description: getFriendlyTipError("generation_failed") });
+          toast.error("Error temporária", { description: getFriendlyTipError("generation_failed") });
           setError(getFriendlyTipError("generation_failed"));
           return;
         }
@@ -106,7 +106,7 @@ export function useGenerateLiveTip() {
       }
       const d = data as any;
       if (d?.error === "daily_cost_limit_reached") {
-        setError("⚠️ Análise IA temporariamente indisponível. Tente novamente em algumas horas.");
+        setError("⚠️ Análise IA temporariamente indisponível. Intenta de nuevo em algumas horas.");
         return;
       }
       if (d?.error) {
