@@ -13,7 +13,7 @@ const BENEFITS = [
   "20 odds exclusivas todos os dias",
   "Acesso imediato ao IA Tipster para criar odds personalizadas",
   "Liberação imediata do mercado de Odds Safe, Pró e Ultra",
-  "Odds aumentadas em todos os jogos da Copa",
+  "Odds aumentadas en todos los partidos del fin de semana",
 ];
 
 function pad(n: number) {

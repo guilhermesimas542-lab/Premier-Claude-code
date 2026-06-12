@@ -29,6 +29,7 @@ import { resolvePaywallVariant, type FeatureKey } from "@/lib/paywallRouting";
 import { useLinks } from "@/contexts/LinksContext";
 import { isPreviewEnv } from "@/lib/previewEnv";
 import iaTipsterCartoon from "@/assets/ia-tipster-cartoon.png";
+import robotFootball from "@/assets/robot-football.png";
 import { IATipsterOnboardingModal } from "@/components/ia-tipster/IATipsterOnboardingModal";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 
@@ -215,18 +216,6 @@ const Home = () => {
 
     `}</style>
     <div className="min-h-screen relative overflow-hidden pb-20 md:pb-0 bg-navy-dark" style={{ backgroundColor: "#0a0f08" }}>
-      {/* Copa background (visual) */}
-      <div
-        className="absolute top-0 left-0 right-0 pointer-events-none"
-        style={{
-          height: "100vh",
-          zIndex: 0,
-          backgroundImage: "url('/images/Copa/Menu/BRACKGROUND%20LIMPO%20V1.png')",
-          backgroundSize: "cover",
-          backgroundPosition: "top center",
-          backgroundRepeat: "no-repeat",
-        }}
-      />
       <div className="absolute top-0 left-1/4 w-96 h-96 rounded-full blur-[140px] pointer-events-none" style={{ background: "rgba(234,192,100,0.06)" }} />
 
       <AppHeader onShowLifetimeInfoModal={() => setShowLifetimeInfoModal(true)} />
@@ -294,7 +283,7 @@ const Home = () => {
               {/* Cartoon IA Tipster — padrão lateral idêntico ao CardType1Lateral */}
               <div className="relative shrink-0 self-stretch" style={{ width: '120px', minHeight: '140px' }}>
                 <img
-                  src="/images/Copa/Personagens/tipsAI.png"
+                  src={iaTipsterCartoon}
                   alt="IA Tipster"
                   className="w-full h-full object-cover rounded-l-xl"
                 />
@@ -447,7 +436,7 @@ const Home = () => {
               justifyContent: 'center',
             }}>
               <img
-                src="/images/Copa/Personagens/ultimos%20greens.png"
+                src={robotFootball}
                 alt="Últimos Greens"
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />

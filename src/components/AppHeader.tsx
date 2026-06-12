@@ -66,7 +66,7 @@ const AppHeader = ({ leftContent, headerStyle, title }: AppHeaderProps) => {
                     <ArrowLeft className="w-5 h-5" />
                   </button>
                 )}
-                <img src="/images/Copa/Logo/header-logo.png" alt="Premier FC" className="h-10 sm:h-12 w-auto" onClick={() => navigate("/")} style={{ cursor: "pointer", filter: "drop-shadow(0 0 10px rgba(224,179,65,0.5))" }} />
+                <img src={logoImg} alt="CL Score" className="h-10 sm:h-12 w-auto" onClick={() => navigate("/")} style={{ cursor: "pointer" }} />
                 {title && (
                   <span className="font-bold text-white text-sm">{title}</span>
                 )}

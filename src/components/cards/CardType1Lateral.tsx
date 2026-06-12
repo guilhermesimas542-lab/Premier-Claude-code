@@ -54,17 +54,9 @@ export function CardType1Lateral({ card, hasAccess = true, onAction }: Props) {
   const imgs = card.image_urls;
   const mobileImg = imgs?.mobile || imgs?.tablet || imgs?.desktop || null;
 
-  // Copa: personagens dourados locais sobrescrevem a imagem do banco por slug
-  const COPA_CHAR: Record<string, string> = {
-    futebol: "/images/Copa/Personagens/EntradasTip.png",
-    odds_altas: "/images/Copa/Personagens/odds%20altas.png",
-    "odds-altas": "/images/Copa/Personagens/odds%20altas.png",
-    alavancagem: "/images/Copa/Personagens/alavancagem.png",
-  };
-  const displayImg = COPA_CHAR[(card.slug || "").toLowerCase()] || mobileImg;
+  const displayImg = mobileImg;
   const locked = !hasAccess;
 
-  // Copa: botões em dourado (sobrescreve a cor do banco pro tema da Copa)
   const buttonBg = '#eac064';
   const buttonColor = '#0a0f08';
 

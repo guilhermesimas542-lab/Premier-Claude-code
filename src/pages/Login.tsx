@@ -9,6 +9,7 @@ import { CHECKOUT_LINKS } from "@/lib/checkoutLinks";
 import { Crown, Loader2, ShoppingCart, Sparkles, Users, Ticket } from "lucide-react";
 import { isPreviewEnv } from "@/lib/previewEnv";
 import iaTipsterCartoon from "@/assets/ia-tipster-cartoon.png";
+import logoImg from "@/assets/premier-logo-custom.png";
 import { usePayCardTrigger } from "@/hooks/usePayCardTrigger";
 import { useLinks } from "@/contexts/LinksContext";
 import { PayCardFunnelModal } from "@/components/PayCardFunnelModal";
@@ -130,8 +131,8 @@ const Login = () => {
   // dando ideia da variedade que a IA pode gerar (de safe a alavancagem).
   const IA_FAKE_ODDS = [35.40, 2.15, 12.50, 1.75, 8.30, 4.20, 1.55, 22.00];
 
-  // Dourado da Copa (acentos visuais)
-  const COPA_GOLD = "#E0B341";
+  // Cor dourada de destaque
+  const ACCENT_GOLD = "#E0B341";
 
   // Monta array unificado de slides com alternância IA + green.
   type Slide =
@@ -240,16 +241,16 @@ const Login = () => {
     <div className="relative min-h-screen overflow-hidden" style={{ backgroundColor: "#0a1420" }}>
       {/* Shine dourado girando na borda das boxes de odd */}
       <style>{`
-        @property --copa-angle { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
-        @keyframes copa-rotate { to { --copa-angle: 360deg; } }
-        .copa-shine::before {
+        @property --gold-angle { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
+        @keyframes gold-rotate { to { --gold-angle: 360deg; } }
+        .gold-shine::before {
           content: "";
           position: absolute;
           inset: 0;
           border-radius: inherit;
           padding: 1.5px;
           background: conic-gradient(
-            from var(--copa-angle),
+            from var(--gold-angle),
             rgba(224,179,65,0) 0deg,
             rgba(224,179,65,0) 230deg,
             rgba(245,215,122,0.9) 300deg,
@@ -259,25 +260,13 @@ const Login = () => {
           -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
           -webkit-mask-composite: xor;
                   mask-composite: exclude;
-          animation: copa-rotate 3.5s linear infinite;
+          animation: gold-rotate 3.5s linear infinite;
           pointer-events: none;
         }
         @media (prefers-reduced-motion: reduce) {
-          .copa-shine::before { animation: none; }
+          .gold-shine::before { animation: none; }
         }
       `}</style>
-      {/* Copa background (visual) */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          zIndex: 0,
-          backgroundImage:
-            "url('/images/Copa/Login/BACKGORUND%20LOGIN%20PREMIER%20COPA.png')",
-          backgroundSize: "cover",
-          backgroundPosition: "top center",
-          backgroundRepeat: "no-repeat",
-        }}
-      />
       {/* Light trail decorations */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 0 }}>
         <div
@@ -304,11 +293,11 @@ const Login = () => {
 
       {/* Content */}
       <main className="relative flex flex-col items-center justify-center min-h-screen px-6 py-12 w-full max-w-md mx-auto" style={{ zIndex: 2 }}>
-        {/* Logo — hero element (Copa) */}
+        {/* Logo — hero element */}
         <div className="mb-6 pointer-events-none w-full">
           <img
-            src="/images/Copa/Login/LOGO_PREMIERE_COPAA-removebg-preview.png"
-            alt="Premier FC — Rumo ao Hexa"
+            src={logoImg}
+            alt="CL Score"
             className="w-full max-w-[300px] h-auto mx-auto object-contain"
           />
         </div>
@@ -334,7 +323,7 @@ const Login = () => {
                     return (
                       <div key={`ia-${slideIndex}`} className="w-full shrink-0" style={{ minWidth: '100%' }}>
                         <div
-                          className="copa-shine"
+                          className="gold-shine"
                           style={{
                             position: 'relative',
                             backgroundColor: '#112236',
@@ -692,7 +681,7 @@ const Login = () => {
           onClick={handleAcquireAccess}
           className="w-full h-12 rounded-[10px] font-display font-bold text-sm uppercase flex items-center justify-center gap-2 transition-colors duration-200 active:scale-[0.98] text-white border-2 border-white/15 bg-transparent hover:border-white/30"
         >
-          <ShoppingCart className="w-4 h-4" style={{ color: COPA_GOLD }} />
+          <ShoppingCart className="w-4 h-4" style={{ color: ACCENT_GOLD }} />
           Adquirir acesso
         </button>
 
