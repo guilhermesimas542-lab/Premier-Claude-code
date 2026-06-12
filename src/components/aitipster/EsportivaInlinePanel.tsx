@@ -76,7 +76,7 @@ export function EsportivaInlinePanel({
       <div className="flex items-center justify-between px-2 py-1.5 border-b bg-card sticky top-0 z-10">
         <Button onClick={onClose} variant="ghost" size="sm" className="h-8 px-2 shrink-0">
           <ArrowLeft className="w-4 h-4 mr-1" />
-          Voltar
+          Volver
         </Button>
         <span className="text-sm font-semibold truncate px-2 flex-1 text-center">
           {matchLabel}

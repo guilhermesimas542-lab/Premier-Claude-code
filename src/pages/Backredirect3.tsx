@@ -135,10 +135,10 @@ export default function Backredirect3() {
             ⚠️ ATENÇÃO!
           </div>
           <p className="font-bold text-neutral-900 text-sm sm:text-base leading-snug">
-            Se você entrar no Premier FC e não conseguir pelo menos triplicar sua banca…
+            Se tú entrar no Premier FC e não conseguir pelo menos triplicar sua banca…
           </p>
           <p className="text-neutral-900 text-sm sm:text-base leading-snug">
-            Vamos devolver <span className="font-bold">cada centavo</span> que você pagou. É 100% sem risco pra você! 💯
+            Vamos devolver <span className="font-bold">cada centavo</span> que tú pagou. É 100% sem risco pra tú! 💯
           </p>
         </div>
 

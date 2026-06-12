@@ -175,7 +175,7 @@ export function PayCardFunnelModal({ payCard, open, onClose }: Props) {
                 <ul className="text-left space-y-2">
                   {checkout.benefits.map((b, i) => (
                     <li key={i} className="flex items-start gap-2 text-sm text-gray-200">
-                      <Check className="w-4 h-4 text-[#eac064] mt-0.5 shrink-0" />
+                      <Check className="w-4 h-4 text-[#10ff80] mt-0.5 shrink-0" />
                       <span>{b}</span>
                     </li>
                   ))}

@@ -20,7 +20,7 @@ export function PushNotificationToast({ payload, onClose }: Props) {
   const imageUrl = payload.image || payload.image_url || "";
   const targetUrl = payload.url || payload.link_url || "";
   const title = (payload.title || "Premier Ultra").trim();
-  const body = (payload.body || "Nova atualização disponível pra você.").trim();
+  const body = (payload.body || "Nueva actualización disponible.").trim();
 
   const canOpen = useMemo(() => targetUrl.trim().length > 0, [targetUrl]);
 

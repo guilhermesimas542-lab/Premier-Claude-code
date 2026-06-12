@@ -173,8 +173,8 @@ export function useChatTipster() {
       if (status === "league_upcoming" || status === "team_upcoming") {
         const d = data as any;
         const header = status === "league_upcoming"
-          ? "Próximos jogos da rodada — qual quer analisar?"
-          : `Próximos jogos${d.team_name ? ` de ${d.team_name}` : ""} — qual quer analisar?`;
+          ? "Siguientes jogos da rodada — qual quer analisar?"
+          : `Siguientes jogos${d.team_name ? ` de ${d.team_name}` : ""} — qual quer analisar?`;
         append({
           id: genId(),
           role: "bot",
@@ -211,7 +211,7 @@ export function useChatTipster() {
           id: genId(),
           role: "bot",
           type: "text",
-          content: (data as any).message || "Esse jogo está fora da janela de análise (próximos 15 dias).",
+          content: (data as any).message || "Esse jogo está fora da janela de análise (siguientes 15 dias).",
           createdAt: Date.now(),
         });
         return;
@@ -281,7 +281,7 @@ export function useChatTipster() {
             });
           }
           toast.error("Sem créditos", {
-            description: `Você usou todos os créditos da semana. Renova em ${resetsLabel}.`,
+            description: `Tú usou todos os créditos da semana. Renova em ${resetsLabel}.`,
           });
           refreshCreditBalance();
           return;
@@ -342,7 +342,7 @@ export function useChatTipster() {
           id: genId(),
           role: "bot",
           type: "error",
-          message: "Você não tem créditos suficientes. Compre créditos ou aguarde o reset diário.",
+          message: "Tú não tem créditos suficientes. Compre créditos ou aguarde o reset diário.",
           createdAt: Date.now(),
         });
         return;

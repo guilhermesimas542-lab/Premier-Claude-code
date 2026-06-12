@@ -85,7 +85,7 @@ function formatMatchTime(kickoffIso: string): string {
 
 /**
  * Modal de recuperação de créditos em DUAS ETAPAS (progressive disclosure):
- *   Etapa 1 ("hook"): headline emocional + card do próximo jogo + 1 CTA grande
+ *   Etapa 1 ("hook"): headline emocional + card do siguiente jogo + 1 CTA grande
  *   Etapa 2 ("plans"): grid dos 4 produtos pra escolha real
  *
  * Quem clica em "Recarregar" já está mentalmente comprometido — CTR na escolha sobe.
@@ -105,7 +105,7 @@ export function CreditRecoveryModal({ open, onClose }: Props) {
     if (open) setStep("hook");
   }, [open]);
 
-  // Fetch produtos + próximo jogo (faz no open mesmo, pra estar pronto quando o user clicar)
+  // Fetch produtos + siguiente jogo (faz no open mesmo, pra estar pronto quando o user clicar)
   useEffect(() => {
     if (!open) return;
 
@@ -194,8 +194,8 @@ export function CreditRecoveryModal({ open, onClose }: Props) {
   const isHighlighted = (p: CreditProduct) =>
     p.product_type === "ai_credit_unlimited" && p.pricing?.unlimited_days === 30;
 
-  const matchAccent = "#eac064";
-  const matchGradient = "linear-gradient(135deg, rgba(234, 192, 100,0.08) 0%, transparent 60%)";
+  const matchAccent = "#10ff80";
+  const matchGradient = "linear-gradient(135deg, rgba(16, 255, 128,0.08) 0%, transparent 60%)";
 
   // ============================================================
   // CARD DO PRÓXIMO JOGO (mesmo visual do PremiumBettingCard)
@@ -211,7 +211,7 @@ export function CreditRecoveryModal({ open, onClose }: Props) {
             borderRadius: 16,
           }}
         >
-          <Loader2 className="w-6 h-6 animate-spin text-[#eac064]" />
+          <Loader2 className="w-6 h-6 animate-spin text-[#10ff80]" />
         </div>
       );
     }
@@ -296,7 +296,7 @@ export function CreditRecoveryModal({ open, onClose }: Props) {
                 borderRadius: 6,
               }}
             >
-              Próximo
+              Siguiente
             </div>
 
             <span
@@ -445,7 +445,7 @@ export function CreditRecoveryModal({ open, onClose }: Props) {
         <p className="text-sm text-white/70 mt-2 max-w-md mx-auto">
           {nextMatch ? (
             <>
-              No te pierdas el próximo partido. Ve el análisis de la IA antes del inicio.
+              No te pierdas el siguiente partido. Ve el análisis de la IA antes del inicio.
             </>
           ) : (
             "Recarga para seguir accediendo a los análisis de la IA."
@@ -453,7 +453,7 @@ export function CreditRecoveryModal({ open, onClose }: Props) {
         </p>
       </div>
 
-      {/* Card do próximo jogo */}
+      {/* Card do siguiente jogo */}
       {nextMatch && <div className="mb-5">{renderMatchCard()}</div>}
 
       {/* CTA principal — único botão da etapa */}
@@ -461,7 +461,7 @@ export function CreditRecoveryModal({ open, onClose }: Props) {
         onClick={() => setStep("plans")}
         className="w-full py-4 rounded-xl transition-all hover:scale-[1.02] active:scale-[0.99] flex items-center justify-center gap-2"
         style={{
-          background: "#eac064",
+          background: "#10ff80",
           color: "#000000",
           fontFamily: "'Barlow Condensed', sans-serif",
           fontWeight: 800,
@@ -469,7 +469,7 @@ export function CreditRecoveryModal({ open, onClose }: Props) {
           letterSpacing: "0.8px",
           textTransform: "uppercase",
           border: "none",
-          boxShadow: "0 0 30px rgba(234, 192, 100,0.3)",
+          boxShadow: "0 0 30px rgba(16, 255, 128,0.3)",
         }}
       >
         <Zap className="w-5 h-5" />
@@ -507,8 +507,8 @@ export function CreditRecoveryModal({ open, onClose }: Props) {
           ? "Sem limite · 3 meses"
           : "";
 
-    const accentColor = highlighted ? "#eac064" : isUnlimited ? "#FACC15" : "#94A3B8";
-    const borderColor = highlighted ? "#eac064" : "rgba(255,255,255,0.10)";
+    const accentColor = highlighted ? "#10ff80" : isUnlimited ? "#FACC15" : "#94A3B8";
+    const borderColor = highlighted ? "#10ff80" : "rgba(255,255,255,0.10)";
     const disabled = !product.checkout_url;
 
     return (
@@ -516,9 +516,9 @@ export function CreditRecoveryModal({ open, onClose }: Props) {
         key={product.id}
         className="relative flex flex-col rounded-xl p-3 min-w-0"
         style={{
-          background: highlighted ? "rgba(234, 192, 100,0.06)" : "rgba(255,255,255,0.03)",
+          background: highlighted ? "rgba(16, 255, 128,0.06)" : "rgba(255,255,255,0.03)",
           border: `${highlighted ? "2px" : "1px"} solid ${borderColor}`,
-          boxShadow: highlighted ? "0 0 24px rgba(234, 192, 100,0.18)" : "none",
+          boxShadow: highlighted ? "0 0 24px rgba(16, 255, 128,0.18)" : "none",
           transform: highlighted ? "scale(1.03)" : "none",
           zIndex: highlighted ? 1 : 0,
         }}
@@ -527,14 +527,14 @@ export function CreditRecoveryModal({ open, onClose }: Props) {
           <div
             className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full flex items-center gap-1 whitespace-nowrap"
             style={{
-              background: "#eac064",
+              background: "#10ff80",
               color: "#000",
               fontFamily: "'Barlow Condensed', sans-serif",
               fontWeight: 800,
               fontSize: "10px",
               letterSpacing: "1px",
               textTransform: "uppercase",
-              boxShadow: "0 0 12px rgba(234, 192, 100,0.5)",
+              boxShadow: "0 0 12px rgba(16, 255, 128,0.5)",
             }}
           >
             <Crown className="w-3 h-3" />
@@ -576,7 +576,7 @@ export function CreditRecoveryModal({ open, onClose }: Props) {
             className="text-lg md:text-xl font-bold leading-tight"
             style={{
               fontFamily: "'Barlow Condensed', sans-serif",
-              color: highlighted ? "#eac064" : "#FFFFFF",
+              color: highlighted ? "#10ff80" : "#FFFFFF",
             }}
           >
             R$ {price.toFixed(2).replace(".", ",")}
@@ -588,7 +588,7 @@ export function CreditRecoveryModal({ open, onClose }: Props) {
           disabled={disabled || productsLoading}
           className="w-full py-2 rounded-lg text-[11px] font-bold transition-all hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed leading-tight mt-auto"
           style={{
-            background: highlighted ? "#eac064" : `${accentColor}20`,
+            background: highlighted ? "#10ff80" : `${accentColor}20`,
             color: highlighted ? "#000" : accentColor,
             border: highlighted ? "none" : `1px solid ${accentColor}50`,
             fontFamily: "'Barlow Condensed', sans-serif",
@@ -616,7 +616,7 @@ export function CreditRecoveryModal({ open, onClose }: Props) {
         <button
           onClick={() => setStep("hook")}
           className="p-1 rounded hover:bg-white/10 text-white/70 hover:text-white transition-colors"
-          aria-label="Voltar"
+          aria-label="Volver"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
@@ -630,7 +630,7 @@ export function CreditRecoveryModal({ open, onClose }: Props) {
           {nextMatch && (
             <p className="text-[11px] text-white/50 mt-0.5">
               Para analisar <span className="text-white/70 font-semibold">{nextMatch.home}</span> ×{" "}
-              <span className="text-white/70 font-semibold">{nextMatch.away}</span> e os próximos jogos
+              <span className="text-white/70 font-semibold">{nextMatch.away}</span> e os siguientes jogos
             </p>
           )}
         </div>
@@ -641,7 +641,7 @@ export function CreditRecoveryModal({ open, onClose }: Props) {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-3">
         {productsLoading ? (
           <div className="col-span-2 md:col-span-4 flex justify-center py-10">
-            <Loader2 className="w-7 h-7 animate-spin text-[#eac064]" />
+            <Loader2 className="w-7 h-7 animate-spin text-[#10ff80]" />
           </div>
         ) : products.length === 0 ? (
           <div className="col-span-2 md:col-span-4 text-center py-8 text-white/60 text-sm">
@@ -660,7 +660,7 @@ export function CreditRecoveryModal({ open, onClose }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="bg-[#112236] border-[#eac064]/30 text-white w-[98vw] max-w-3xl p-4 md:p-6 rounded-2xl max-h-[90vh] overflow-y-auto [&>button]:hidden">
+      <DialogContent className="bg-[#112236] border-[#10ff80]/30 text-white w-[98vw] max-w-3xl p-4 md:p-6 rounded-2xl max-h-[90vh] overflow-y-auto [&>button]:hidden">
         <button
           onClick={onClose}
           className="absolute top-3 right-3 w-9 h-9 flex items-center justify-center rounded-full bg-black/70 backdrop-blur-sm border border-white/20 text-white hover:bg-black hover:border-white/40 z-50 transition shadow-lg"

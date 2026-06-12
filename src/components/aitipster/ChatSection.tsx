@@ -68,7 +68,7 @@ export function ChatSection({ onOpenEsportiva }: ChatSectionProps = {}) {
     if (loadingSuggestions && !suggestions) {
       return (
         <p className="text-xs text-muted-foreground text-center">
-          Carregando jogos próximos...
+          Carregando jogos siguientes...
         </p>
       );
     }
@@ -82,7 +82,7 @@ export function ChatSection({ onOpenEsportiva }: ChatSectionProps = {}) {
     return (
       <div className="space-y-1.5 w-full max-w-md mx-auto">
         <p className="text-[10px] text-muted-foreground text-center mb-2">
-          Próximos jogos nas ligas cobertas
+          Siguientes jogos nas ligas cobertas
         </p>
         {suggestions.map((s, i) => (
           <button
@@ -117,7 +117,7 @@ export function ChatSection({ onOpenEsportiva }: ChatSectionProps = {}) {
             <Sparkles className="w-10 h-10 text-primary mb-3" />
             <p className="text-sm font-medium mb-2">Pregunta sobre cualquier partido</p>
             <p className="text-xs text-muted-foreground max-w-xs mb-4">
-              Dime el nombre de los equipos. Busco en los próximos 15 días y analizo con datos reales.
+              Dime el nombre de los equipos. Busco en los siguientes 15 días y analizo con datos reales.
             </p>
             {renderSuggestions()}
           </div>

@@ -40,8 +40,8 @@ const MatrixRain = ({ opacity = 0.13, fixed = true }: MatrixRainProps) => {
       for (let i = 0; i < drops.length; i++) {
         const char = chars[Math.floor(Math.random() * chars.length)];
         const y = drops[i] * fontSize;
-        ctx.fillStyle = "#eac064";
-        ctx.shadowColor = "#eac064";
+        ctx.fillStyle = "#10ff80";
+        ctx.shadowColor = "#10ff80";
         ctx.shadowBlur = 6;
         ctx.fillText(char, i * fontSize, y);
         ctx.shadowBlur = 0;

@@ -88,7 +88,7 @@ export function CreditBalanceBadge() {
             <span className="font-medium">{balance.extras_purchased}</span>
           </div>
           <div className="border-t pt-2 flex justify-between">
-            <span className="text-muted-foreground">Próximo reinicio</span>
+            <span className="text-muted-foreground">Siguiente reinicio</span>
             <span className="font-medium">{resetLabel}</span>
           </div>
           <button

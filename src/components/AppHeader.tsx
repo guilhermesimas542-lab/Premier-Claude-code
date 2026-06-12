@@ -61,7 +61,7 @@ const AppHeader = ({ leftContent, headerStyle, title }: AppHeaderProps) => {
                   <button
                     onClick={() => navigate(-1)}
                     className="p-1 hover:bg-white/10 rounded-md transition-colors text-white"
-                    aria-label="Voltar"
+                    aria-label="Volver"
                   >
                     <ArrowLeft className="w-5 h-5" />
                   </button>
@@ -81,8 +81,8 @@ const AppHeader = ({ leftContent, headerStyle, title }: AppHeaderProps) => {
                   className="inline-flex items-center gap-1.5 rounded-full transition-all hover:scale-105"
                   style={{
                     padding: "7px 14px",
-                    background: "rgba(234, 192, 100,0.10)",
-                    border: "1px solid rgba(234, 192, 100,0.5)",
+                    background: "rgba(16, 255, 128,0.10)",
+                    border: "1px solid rgba(16, 255, 128,0.5)",
                     fontFamily: "'Barlow Condensed', sans-serif",
                     fontWeight: 700,
                     fontSize: "13px",
@@ -90,8 +90,8 @@ const AppHeader = ({ leftContent, headerStyle, title }: AppHeaderProps) => {
                     letterSpacing: "0.5px",
                   }}
                 >
-                  <Sparkles size={14} style={{ color: "#eac064" }} />
-                  Criar Odds
+                  <Sparkles size={14} style={{ color: "#10ff80" }} />
+                  Crear Cuotas
                 </button>
               )}
               {tierLoaded && isFree && (
@@ -110,7 +110,7 @@ const AppHeader = ({ leftContent, headerStyle, title }: AppHeaderProps) => {
                   }}
                 >
                   <Sparkles size={14} />
-                  Resgatar Odd Grátis
+                  Reclamar Cuota Gratis
                 </button>
               )}
               {tierLoaded && isPaid && (
@@ -119,12 +119,12 @@ const AppHeader = ({ leftContent, headerStyle, title }: AppHeaderProps) => {
                   className="inline-flex items-center gap-1.5 rounded-full transition-all hover:scale-105"
                   style={{
                     padding: "7px 14px",
-                    background: "rgba(224,179,65,0.12)",
-                    border: "1px solid rgba(224,179,65,0.5)",
+                    background: "rgba(16, 255, 128,0.12)",
+                    border: "1px solid rgba(16, 255, 128,0.5)",
                     fontFamily: "'Barlow Condensed', sans-serif",
                     fontWeight: 700,
                     fontSize: "13px",
-                    color: "#E0B341",
+                    color: "#10ff80",
                     letterSpacing: "0.5px",
                   }}
                 >
@@ -138,14 +138,14 @@ const AppHeader = ({ leftContent, headerStyle, title }: AppHeaderProps) => {
                   className="inline-flex items-center gap-1.5 rounded-full transition-all hover:scale-105"
                   style={{
                     padding: "7px 14px",
-                    background: "#eac064",
-                    border: "1px solid rgba(234, 192, 100,0.5)",
+                    background: "#10ff80",
+                    border: "1px solid rgba(16, 255, 128,0.5)",
                     fontFamily: "'Barlow Condensed', sans-serif",
                     fontWeight: 700,
                     fontSize: "13px",
                     color: "#FFFFFF",
                     letterSpacing: "0.5px",
-                    boxShadow: "0 0 14px rgba(234, 192, 100,0.3)",
+                    boxShadow: "0 0 14px rgba(16, 255, 128,0.3)",
                   }}
                   aria-label="Comprar créditos"
                 >

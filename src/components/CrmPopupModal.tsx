@@ -96,7 +96,7 @@ export function CrmPopupModal({ content, onClose, onCtaClick }: CrmPopupModalPro
             </p>
           )}
           {!title && !body && (
-            <p className="text-sm text-white/80">Você tem uma novidade no Premier.</p>
+            <p className="text-sm text-white/80">Tú tem uma novidade no Premier.</p>
           )}
 
           {hasImage && (

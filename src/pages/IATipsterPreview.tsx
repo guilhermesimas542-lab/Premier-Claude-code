@@ -77,7 +77,7 @@ Casa Pia ainda tem 2 trocas ofensivas no banco — pressão tende a aumentar.
 
 ⚡ **ALTERNATIVAS**
 
-***Próximo gol: Casa Pia*** @ 1.65
+***Siguiente gol: Casa Pia*** @ 1.65
 
 **Próx gol mandante**: 75% das finalizações do 2T saíram do mandante. Pressão concentrada no campo de ataque com sequência de escanteios.
 
@@ -95,7 +95,7 @@ Casa Pia ainda tem 2 trocas ofensivas no banco — pressão tende a aumentar.
 - Visitante sem substituições ofensivas no banco (só zagueiros e volantes)
 - Casa Pia historicamente forte nos minutos finais em casa (35% dos gols após o 70')
 
-⏱️ *Análise válida pelos próximos minutos. Cenário pode mudar com novos eventos.*`;
+⏱️ *Análise válida pelos siguientes minutos. Cenário pode mudar com novos eventos.*`;
 
 export default function IATipsterPreview() {
   if (!isPreviewEnv()) {

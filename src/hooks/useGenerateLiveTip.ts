@@ -19,14 +19,14 @@ const ERROR_MESSAGES: Record<string, string> = {
   generation_failed:
     "Não conseguimos gerar análise no momento. Crédito devolvido. Tente novamente em alguns minutos.",
   fixture_too_far:
-    "Esse jogo ainda não está próximo o suficiente para análise.",
+    "Esse jogo ainda não está siguiente o suficiente para análise.",
   fixture_already_started_or_past:
     "Esse jogo já começou ou terminou. Análise pré-jogo não disponível.",
   not_live: "O jogo não está mais ao vivo.",
   no_credits:
-    "Você não tem créditos disponíveis. Considere adquirir mais ou aguardar a renovação semanal.",
+    "Tú não tem créditos disponíveis. Considere adquirir mais ou aguardar a renovação semanal.",
   insufficient_credits:
-    "Você não tem créditos suficientes. Compre créditos ou aguarde reset semanal.",
+    "Tú não tem créditos suficientes. Compre créditos ou aguarde reset semanal.",
   ai_overloaded:
     "Sistema temporariamente sobrecarregado. Tente novamente em alguns instantes.",
   system_disabled:
@@ -75,7 +75,7 @@ export function useGenerateLiveTip() {
           if (errorBody?.resets_at) {
             resetsLabel = new Date(errorBody.resets_at).toLocaleDateString("pt-BR", { weekday: "short", day: "2-digit", month: "short" });
           }
-          toast.error("Sem créditos", { description: `Você usou todos os créditos da semana. Renova em ${resetsLabel}.` });
+          toast.error("Sem créditos", { description: `Tú usou todos os créditos da semana. Renova em ${resetsLabel}.` });
           setError(getFriendlyTipError("insufficient_credits"));
           refreshCreditBalance();
           return;

@@ -27,10 +27,10 @@ export default function PoliticaReembolso() {
             1. Como funciona a assinatura
           </h2>
           <p className="text-sm sm:text-base leading-relaxed text-neutral-700">
-            Você paga <strong>R$1 no primeiro mês</strong> e, a partir da
+            Tú paga <strong>R$1 no primeiro mês</strong> e, a partir da
             primeira renovação, <strong>R$99 por mês</strong>, cobrados
             automaticamente no mesmo cartão. A cobrança se repete todo mês até
-            você cancelar.
+            tú cancelar.
           </p>
         </section>
 
@@ -39,7 +39,7 @@ export default function PoliticaReembolso() {
             2. Cancelamento — a qualquer momento, sem multa
           </h2>
           <p className="text-sm sm:text-base leading-relaxed text-neutral-700">
-            Você pode cancelar quando quiser. Para não ser cobrado no próximo
+            Tú pode cancelar quando quiser. Para não ser cobrado no siguiente
             mês, cancele <strong>antes da data da próxima renovação</strong>.
             Seu acesso continua até o fim do período já pago.
           </p>
@@ -50,7 +50,7 @@ export default function PoliticaReembolso() {
             3. Garantia de 30 dias
           </h2>
           <p className="text-sm sm:text-base leading-relaxed text-neutral-700">
-            Se você não ficar satisfeito, devolvemos{" "}
+            Se tú não ficar satisfeito, devolvemos{" "}
             <strong>100% do valor pago</strong> se solicitado em até{" "}
             <strong>30 dias</strong> da contratação. Essa garantia já inclui o
             direito de arrependimento de 7 dias previsto no Código de Defesa do

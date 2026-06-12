@@ -65,7 +65,7 @@ export function PaywallEducationStep({ feature, onContinue, imageOverride }: Pro
       <p className="text-sm text-white/70 leading-relaxed">{explanation}</p>
       {feature === "alavancagem" && <AlavancagemSchema />}
       <Button
-        className="w-full bg-[#eac064] hover:bg-[#eac064]/90 text-black font-bold"
+        className="w-full bg-[#10ff80] hover:bg-[#10ff80]/90 text-black font-bold"
         onClick={onContinue}
       >
         Entendido, me interesa <ChevronRight className="w-4 h-4" />
@@ -88,25 +88,25 @@ function AlavancagemSchema() {
             <div
               className="flex-1 rounded-md p-2 text-center"
               style={{
-                background: "rgba(234, 192, 100,0.06)",
-                border: "1px solid rgba(234, 192, 100,0.25)",
+                background: "rgba(16, 255, 128,0.06)",
+                border: "1px solid rgba(16, 255, 128,0.25)",
               }}
             >
-              <div className="text-[9px] font-bold tracking-wider text-[#eac064] mb-1">{s.label}</div>
+              <div className="text-[9px] font-bold tracking-wider text-[#10ff80] mb-1">{s.label}</div>
               <div className="text-[10px] text-white leading-tight">{s.bet}</div>
               <div className="text-[10px] text-white/60 leading-tight">{s.odd}</div>
-              <div className="text-[10px] font-bold text-[#eac064] leading-tight mt-0.5">{s.win}</div>
+              <div className="text-[10px] font-bold text-[#10ff80] leading-tight mt-0.5">{s.win}</div>
             </div>
             {i < steps.length - 1 && (
               <div className="flex items-center">
-                <ArrowRight className="w-3 h-3 text-[#eac064]" />
+                <ArrowRight className="w-3 h-3 text-[#10ff80]" />
               </div>
             )}
           </div>
         ))}
       </div>
       <p className="text-[11px] text-white/60 leading-snug text-center px-2">
-        Cada acierto reinvierte la ganancia en el próximo tip, multiplicando el retorno final.
+        Cada acierto reinvierte la ganancia en el siguiente tip, multiplicando el retorno final.
       </p>
     </div>
   );

@@ -132,7 +132,7 @@ const Login = () => {
   const IA_FAKE_ODDS = [35.40, 2.15, 12.50, 1.75, 8.30, 4.20, 1.55, 22.00];
 
   // Cor dourada de destaque
-  const ACCENT_GOLD = "#E0B341";
+  const ACCENT_GOLD = "#10ff80";
 
   // Monta array unificado de slides com alternância IA + green.
   type Slide =
@@ -251,11 +251,11 @@ const Login = () => {
           padding: 1.5px;
           background: conic-gradient(
             from var(--gold-angle),
-            rgba(224,179,65,0) 0deg,
-            rgba(224,179,65,0) 230deg,
+            rgba(16, 255, 128,0) 0deg,
+            rgba(16, 255, 128,0) 230deg,
             rgba(245,215,122,0.9) 300deg,
             #FFF3C9 330deg,
-            rgba(224,179,65,0) 360deg
+            rgba(16, 255, 128,0) 360deg
           );
           -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
           -webkit-mask-composite: xor;
@@ -327,10 +327,10 @@ const Login = () => {
                           style={{
                             position: 'relative',
                             backgroundColor: '#112236',
-                            border: '1.5px solid rgba(224,179,65,0.85)',
+                            border: '1.5px solid rgba(16, 255, 128,0.85)',
                             borderRadius: '12px',
                             overflow: 'hidden',
-                            boxShadow: '0 0 24px rgba(224,179,65,0.22)',
+                            boxShadow: '0 0 24px rgba(16, 255, 128,0.22)',
                           }}
                         >
                           {/* LINHA 1: badge IA esquerda | odd direita (mesma estrutura dos greens) */}
@@ -469,10 +469,10 @@ const Login = () => {
                       <div
                         style={{
                           backgroundColor: '#112236',
-                          border: '1.5px solid rgba(224,179,65,0.45)',
+                          border: '1.5px solid rgba(16, 255, 128,0.45)',
                           borderRadius: '12px',
                           overflow: 'hidden',
-                          boxShadow: '0 0 20px rgba(224,179,65,0.15)',
+                          boxShadow: '0 0 20px rgba(16, 255, 128,0.15)',
                         }}
                       >
                         {/* LINHA 1: badge esquerda | odd direita */}
@@ -506,7 +506,7 @@ const Login = () => {
                               fontFamily: 'Barlow Condensed, sans-serif',
                               fontWeight: 900,
                               fontSize: '36px',
-                              color: '#eac064',
+                              color: '#10ff80',
                               lineHeight: 1,
                             }}
                           >
@@ -569,8 +569,8 @@ const Login = () => {
                             alignItems: 'center',
                             justifyContent: 'center',
                             padding: '10px 16px',
-                            backgroundColor: 'rgba(234, 192, 100,0.08)',
-                            borderTop: '1px solid rgba(234, 192, 100,0.15)',
+                            backgroundColor: 'rgba(16, 255, 128,0.08)',
+                            borderTop: '1px solid rgba(16, 255, 128,0.15)',
                           }}
                         >
                           <span
@@ -578,7 +578,7 @@ const Login = () => {
                               fontFamily: 'Barlow Condensed, sans-serif',
                               fontWeight: 700,
                               fontSize: '13px',
-                              color: '#eac064',
+                              color: '#10ff80',
                               letterSpacing: '0.06em',
                               textTransform: 'uppercase',
                             }}
@@ -603,7 +603,7 @@ const Login = () => {
                     style={{
                       width: index === currentIndex ? '20px' : '6px',
                       height: '6px',
-                      backgroundColor: index === currentIndex ? '#eac064' : 'rgba(255,255,255,0.2)',
+                      backgroundColor: index === currentIndex ? '#10ff80' : 'rgba(255,255,255,0.2)',
                     }}
                   />
                 ))}
@@ -623,7 +623,7 @@ const Login = () => {
                 fontWeight: 700,
                 fontSize: '11px',
                 letterSpacing: '1.5px',
-                color: '#E0B341',
+                color: '#10ff80',
                 textTransform: 'uppercase',
               }}
             >

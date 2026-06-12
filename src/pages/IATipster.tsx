@@ -29,7 +29,7 @@ export default function IATipster() {
 
   // Onboarding em 3 etapas:
   //   1. Modal de boas-vindas → clica "Continuar"
-  //   2. Tutorial slide 1 (Como usar) → clica "Próximo"
+  //   2. Tutorial slide 1 (Como usar) → clica "Siguiente"
   //   3. Tutorial slide 2 (Créditos+Dicas) → clica "Testar agora!" (libera Ao Vivo e Chat)
   const [tutorialCompleted, setTutorialCompleted] = useState<boolean>(() =>
     typeof window !== "undefined" && localStorage.getItem(LS_TUTORIAL_COMPLETED) === "true"
@@ -178,7 +178,7 @@ export default function IATipster() {
             {showNoCreditsBanner && (
               <div className="flex items-center gap-2 px-4 py-2 bg-destructive/10 border-t border-destructive/20 text-xs text-destructive">
                 <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
-                <span>Estás sin créditos. Próximo reinicio: {resetLabel}.</span>
+                <span>Estás sin créditos. Siguiente reinicio: {resetLabel}.</span>
               </div>
             )}
 
@@ -222,7 +222,7 @@ export default function IATipster() {
                 {!tutorialCompleted && (
                   <span
                     className="absolute top-2 right-3 w-1.5 h-1.5 rounded-full"
-                    style={{ background: "#eac064", boxShadow: "0 0 6px #eac064" }}
+                    style={{ background: "#10ff80", boxShadow: "0 0 6px #10ff80" }}
                   />
                 )}
               </button>

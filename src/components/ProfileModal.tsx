@@ -122,24 +122,24 @@ const ProfileModal = ({ isOpen, onClose }: ProfileModalProps) => {
       <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
         <DialogContent
           className="max-w-md max-h-[90vh] overflow-y-auto p-0 border-0 [&>button]:bg-white/10 [&>button]:backdrop-blur-sm [&>button]:rounded-full [&>button]:w-8 [&>button]:h-8 [&>button]:flex [&>button]:items-center [&>button]:justify-center [&>button]:border [&>button]:border-white/20 [&>button]:opacity-100 [&>button]:top-3 [&>button]:right-3 [&>button]:text-white [&>button:hover]:bg-white/20"
-          style={{ background: '#0a0a0a', border: '1px solid rgba(234, 192, 100,0.2)' }}
+          style={{ background: '#0a0a0a', border: '1px solid rgba(16, 255, 128,0.2)' }}
         >
           <div className="p-5 space-y-5">
             {/* Avatar & Level */}
             <div
               className="rounded-2xl p-6 text-center relative overflow-hidden"
               style={{
-                background: 'linear-gradient(135deg, rgba(234, 192, 100,0.08), rgba(0,100,0,0.15))',
-                border: '1px solid rgba(234, 192, 100,0.2)',
+                background: 'linear-gradient(135deg, rgba(16, 255, 128,0.08), rgba(0,100,0,0.15))',
+                border: '1px solid rgba(16, 255, 128,0.2)',
               }}
             >
               <button
                 onClick={() => setShowAvatarModal(true)}
                 className="mx-auto w-20 h-20 rounded-full flex items-center justify-center text-4xl mb-3 transition-transform hover:scale-110"
                 style={{
-                  background: 'linear-gradient(135deg, rgba(234, 192, 100,0.2), rgba(0,200,0,0.1))',
-                  border: '3px solid rgba(234, 192, 100,0.4)',
-                  boxShadow: '0 0 20px rgba(234, 192, 100,0.2)',
+                  background: 'linear-gradient(135deg, rgba(16, 255, 128,0.2), rgba(0,200,0,0.1))',
+                  border: '3px solid rgba(16, 255, 128,0.4)',
+                  boxShadow: '0 0 20px rgba(16, 255, 128,0.2)',
                 }}
               >
                 {currentAvatar.emoji}
@@ -147,7 +147,7 @@ const ProfileModal = ({ isOpen, onClose }: ProfileModalProps) => {
               <p className="text-xs opacity-60 mb-2 text-white">Toca para cambiar avatar</p>
 
               <button onClick={() => { setNicknameInput(nickname); setShowNicknameModal(true); }}>
-                <h2 className="text-lg font-bold" style={{ color: '#eac064' }}>
+                <h2 className="text-lg font-bold" style={{ color: '#10ff80' }}>
                   {nickname ? `@${nickname}` : 'Definir Nickname'}
                 </h2>
               </button>
@@ -155,12 +155,12 @@ const ProfileModal = ({ isOpen, onClose }: ProfileModalProps) => {
 
               <div className="mt-4 flex flex-wrap justify-center gap-2">
                 {planLabel && (
-                  <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full" style={{ background: 'rgba(234, 192, 100,0.16)', border: '1px solid rgba(234, 192, 100,0.35)' }}>
-                    <Trophy className="w-4 h-4" style={{ color: '#eac064' }} />
-                    <span className="text-sm font-bold" style={{ color: '#eac064' }}>Plano {planLabel}</span>
+                  <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full" style={{ background: 'rgba(16, 255, 128,0.16)', border: '1px solid rgba(16, 255, 128,0.35)' }}>
+                    <Trophy className="w-4 h-4" style={{ color: '#10ff80' }} />
+                    <span className="text-sm font-bold" style={{ color: '#10ff80' }}>Plano {planLabel}</span>
                   </div>
                 )}
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full" style={{ background: 'rgba(234, 192, 100,0.15)', border: '1px solid rgba(234, 192, 100,0.3)' }}>
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full" style={{ background: 'rgba(16, 255, 128,0.15)', border: '1px solid rgba(16, 255, 128,0.3)' }}>
                   <Star className="w-4 h-4" style={{ color: '#FFD700' }} />
                   <span className="text-sm font-bold" style={{ color: '#FFD700' }}>Nivel {level} — {levelTitle}</span>
                 </div>
@@ -168,16 +168,16 @@ const ProfileModal = ({ isOpen, onClose }: ProfileModalProps) => {
 
               <div className="mt-4">
                 <div className="flex justify-between text-xs mb-1.5">
-                  <span style={{ color: '#eac064' }}>{totalXp} XP total</span>
+                  <span style={{ color: '#10ff80' }}>{totalXp} XP total</span>
                   <span className="opacity-60 text-white">{xpInLevel}/{xpNeeded} XP</span>
                 </div>
-                <div className="w-full h-3 rounded-full overflow-hidden" style={{ background: 'rgba(234, 192, 100,0.1)' }}>
+                <div className="w-full h-3 rounded-full overflow-hidden" style={{ background: 'rgba(16, 255, 128,0.1)' }}>
                   <div
                     className="h-full rounded-full transition-all duration-700 ease-out"
                     style={{
                       width: `${progress}%`,
-                      background: 'linear-gradient(90deg, #eac064, #00CC00)',
-                      boxShadow: '0 0 10px rgba(234, 192, 100,0.5)',
+                      background: 'linear-gradient(90deg, #10ff80, #00CC00)',
+                      boxShadow: '0 0 10px rgba(16, 255, 128,0.5)',
                     }}
                   />
                 </div>
@@ -227,7 +227,7 @@ const ProfileModal = ({ isOpen, onClose }: ProfileModalProps) => {
       <Dialog open={showAvatarModal} onOpenChange={setShowAvatarModal}>
         <DialogContent className="bg-[#0a0a0a] border-[#1a3a1a] text-white max-w-sm">
           <DialogHeader>
-            <DialogTitle style={{ color: '#eac064' }}>Escolha seu Avatar</DialogTitle>
+            <DialogTitle style={{ color: '#10ff80' }}>Escolha seu Avatar</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <p className="text-xs opacity-60">¡Desbloquea nuevos avatares subiendo de nivel!</p>
@@ -242,8 +242,8 @@ const ProfileModal = ({ isOpen, onClose }: ProfileModalProps) => {
                     disabled={!isUnlockedAvatar}
                     className="flex flex-col items-center gap-1 p-2 rounded-xl transition-all"
                     style={{
-                      background: isSelected ? 'rgba(234, 192, 100,0.15)' : isUnlockedAvatar ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.3)',
-                      border: isSelected ? '2px solid #eac064' : '2px solid transparent',
+                      background: isSelected ? 'rgba(16, 255, 128,0.15)' : isUnlockedAvatar ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.3)',
+                      border: isSelected ? '2px solid #10ff80' : '2px solid transparent',
                       opacity: isUnlockedAvatar ? 1 : 0.4,
                     }}
                   >
@@ -262,7 +262,7 @@ const ProfileModal = ({ isOpen, onClose }: ProfileModalProps) => {
       <Dialog open={showNicknameModal} onOpenChange={setShowNicknameModal}>
         <DialogContent className="bg-[#0a0a0a] border-[#1a3a1a] text-white max-w-sm">
           <DialogHeader>
-            <DialogTitle style={{ color: '#eac064' }}>Definir Nickname</DialogTitle>
+            <DialogTitle style={{ color: '#10ff80' }}>Definir Nickname</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <p className="text-xs opacity-60">3-20 caracteres: letras, números y guión bajo</p>
