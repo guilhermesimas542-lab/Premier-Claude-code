@@ -3,7 +3,7 @@ import { Play, Mail, Clock, GitBranch, Tag, Info } from "lucide-react";
 import { CHANNELS, type ChannelKey } from "@/admin/lib/crm/channels";
 import type { DelayUnit } from "@/admin/hooks/crm/useJourneyGraph";
 import type { NodeMetrics } from "@/admin/lib/crm/journeyMetrics";
-import { formatBRL } from "@/admin/components/revenue/constants";
+import { formatCLP } from "@/admin/components/revenue/constants";
 import {
   Tooltip,
   TooltipContent,
@@ -49,7 +49,7 @@ function MetricsFooter({ metrics }: { metrics?: NodeMetrics }) {
       </span>
       {metrics.converted > 0 && (
         <span className="text-emerald-600 font-bold">
-          💰 {metrics.converted} · {formatBRL(metrics.conversionValueCents / 100)}
+          💰 {metrics.converted} · {formatCLP(metrics.conversionValueCents / 100)}
         </span>
       )}
     </div>

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { NodeResizer, useReactFlow, type NodeProps } from "@xyflow/react";
 import { Layers, Palette, Pencil } from "lucide-react";
 import type { StageMetrics } from "@/admin/lib/crm/journeyMetrics";
-import { formatBRL } from "@/admin/components/revenue/constants";
+import { formatCLP } from "@/admin/components/revenue/constants";
 
 export const STAGE_COLORS = [
   "#4D7A1F",
@@ -150,7 +150,7 @@ export function StageNode({ id, data, selected }: NodeProps) {
           }}
         >
           <span>Entraram: <b>{sm.leadsEntered}</b></span>
-          <span>Conv: <b>{sm.convertedCount}</b>{sm.conversionValueCents > 0 ? ` (${formatBRL(sm.conversionValueCents / 100)})` : ""}</span>
+          <span>Conv: <b>{sm.convertedCount}</b>{sm.conversionValueCents > 0 ? ` (${formatCLP(sm.conversionValueCents / 100)})` : ""}</span>
           <span>Taxa: <b>{(sm.conversionRate * 100).toFixed(1)}%</b></span>
         </div>
       )}
