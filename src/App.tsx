@@ -20,7 +20,7 @@ import IATipsterPreview from "./pages/IATipsterPreview";
 
 import UltimosGreens from "./pages/UltimosGreens";
 import Support from "./pages/Support";
-import Obrigado from "./pages/Obrigado";
+import Obg from "./pages/Obg";
 import Backredirect from "./pages/Backredirect";
 import Backredirect2 from "./pages/Backredirect2";
 import Backredirect3 from "./pages/Backredirect3";
@@ -137,8 +137,8 @@ const App = () => {
             <Route path="/ia-tipster" element={<IATipster />} />
             <Route path="/ia-tipster-preview" element={<IATipsterPreview />} />
             <Route path="/support" element={<Support />} />
-            <Route path="/obrigado" element={<Obrigado />} />
-            <Route path="/obg" element={<Navigate to="/obrigado" replace />} />
+            <Route path="/obg" element={<Obg />} />
+            <Route path="/obrigado" element={<Navigate to="/obg" replace />} />
             <Route path="/bd" element={<Backredirect />} />
             <Route path="/bd2" element={<Backredirect2 />} />
             <Route path="/bd3" element={<Backredirect3 />} />

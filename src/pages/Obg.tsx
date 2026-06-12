@@ -1,15 +1,17 @@
 import { useEffect } from "react";
-import { CircleCheck, Send, ShieldCheck } from "lucide-react";
+import { CheckCircle2, Send, ShieldCheck } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import logoImg from "@/assets/premier-logo-custom.png";
 
-const TELEGRAM_BOT_URL = "https://t.me/Clscore_bot?start=6a16457d978ba54070095b90";
+const TELEGRAM_URL = "https://t.me/Clscore_bot?start=6a16457d978ba54070095b90";
 
-const Obg = () => {
+export default function Obg() {
   useEffect(() => {
-    document.title = "¡Compra aprobada! Falta 1 paso | CL Score";
+    document.title = "¡Compra confirmada! | CL Score";
   }, []);
 
-  const handleOpenTelegram = () => {
-    window.open(TELEGRAM_BOT_URL, "_blank", "noopener,noreferrer");
+  const handleTelegram = () => {
+    window.open(TELEGRAM_URL, "_blank", "noopener,noreferrer");
   };
 
   return (
@@ -17,56 +19,52 @@ const Obg = () => {
       <div className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-[520px] h-[520px] rounded-full bg-primary/10 blur-3xl" />
 
       <header className="relative z-10 flex flex-col items-center gap-3 mt-2 sm:mt-6">
-        <img
-          src="/obg/premier-fc-logo.png"
-          alt="CL Score"
-          className="w-16 h-16 sm:w-20 sm:h-20 object-contain"
-        />
+        <img src={logoImg} alt="CL Score" className="w-16 h-16 sm:w-20 sm:h-20 object-contain" />
         <span className="text-xs tracking-[0.3em] text-primary font-semibold uppercase">
           CL Score
         </span>
       </header>
 
-      <main className="relative z-10 w-full max-w-md flex flex-col items-center text-center mt-6 sm:mt-8">
-        {/* Check icon */}
-        <div className="w-14 h-14 rounded-full bg-primary/15 border border-primary/40 flex items-center justify-center mb-5 shadow-[0_0_30px_rgba(0,255,127,0.25)]">
-          <CircleCheck className="w-8 h-8 text-primary" />
+      <main className="relative z-10 w-full max-w-md flex flex-col items-center text-center mt-8 sm:mt-10">
+        <div className="w-16 h-16 rounded-full bg-primary/15 border border-primary/40 flex items-center justify-center mb-5 shadow-[0_0_30px_rgba(234, 192, 100,0.25)]">
+          <CheckCircle2 className="w-9 h-9 text-primary" />
         </div>
 
-        {/* Headline */}
         <h1 className="font-['Barlow_Condensed'] font-extrabold text-3xl sm:text-4xl uppercase leading-tight">
-          ¡Compra aprobada! Falta 1 paso <span className="text-yellow-400">⚡</span>
+          ¡Compra aprobada! Falta 1 paso ⚡
         </h1>
 
-        {/* Subtítulo */}
-        <p className="mt-4 text-sm sm:text-base text-muted-foreground max-w-sm leading-relaxed">
+        <p className="text-sm sm:text-base text-muted-foreground mt-4 max-w-sm">
           Tu acceso <span className="text-foreground font-semibold">no se libera automáticamente</span>. Para activarlo ahora, necesitas hablar con nuestro bot oficial en Telegram.
         </p>
 
-        {/* Card explicativo */}
-        <section className="w-full mt-7 rounded-2xl border border-border bg-card/70 backdrop-blur p-5 sm:p-6 text-left">
+        <section className="w-full mt-7 rounded-2xl border p-5 sm:p-6 text-left" style={{ borderColor: "rgba(0,136,204,0.35)", background: "rgba(0,136,204,0.08)" }}>
           <div className="flex items-start gap-3">
-            <Send className="w-5 h-5 text-[#3B9EFF] mt-0.5 shrink-0" />
+            <Send className="w-5 h-5 mt-0.5 shrink-0" style={{ color: "#0088cc" }} />
             <div>
-              <h2 className="font-semibold text-base sm:text-lg leading-snug">
+              <h2 className="font-semibold text-base sm:text-lg text-foreground">
                 Haz clic en el botón de abajo y rescata tu acceso en Telegram
               </h2>
-              <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
+              <p className="text-sm text-muted-foreground mt-2">
                 Serás redirigido a nuestro bot oficial en Telegram, donde tu acceso a la I.A será liberado de forma inmediata y automática. Sin este paso, tu cuenta no queda activa.
               </p>
             </div>
           </div>
         </section>
 
-        {/* CTA Telegram (azul) */}
-        <button
-          type="button"
-          onClick={handleOpenTelegram}
-          className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 px-4 py-2 w-full mt-6 h-14 text-base font-bold uppercase tracking-wide bg-[#3B9EFF] text-white hover:bg-[#2E8AE6] shadow-[0_0_25px_rgba(59,158,255,0.35)]"
+        <Button
+          onClick={handleTelegram}
+          className="w-full mt-6 h-14 text-base font-bold uppercase tracking-wide text-white hover:text-white"
+          style={{
+            background: "#0088cc",
+            boxShadow: "0 0 25px rgba(0,136,204,0.45)",
+          }}
         >
-          <Send className="w-5 h-5 mr-1" />
+          <svg viewBox="0 0 24 24" className="w-5 h-5 mr-1" fill="currentColor" aria-hidden="true">
+            <path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z" />
+          </svg>
           Rescatar acceso en Telegram
-        </button>
+        </Button>
 
         <div className="flex items-center gap-2 text-xs text-muted-foreground mt-4">
           <ShieldCheck className="w-4 h-4 text-primary/80" />
@@ -75,10 +73,8 @@ const Obg = () => {
       </main>
 
       <footer className="relative z-10 text-[11px] text-muted-foreground mt-10 mb-2">
-        © 2026 CL Score — Todos los derechos reservados
+        © {new Date().getFullYear()} CL Score — Todos los derechos reservados
       </footer>
     </div>
   );
-};
-
-export default Obg;
+}
