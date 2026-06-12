@@ -168,9 +168,6 @@ export default function IATipster() {
               <div className="flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-primary" />
                 <h1 className="text-sm font-bold">IA Tipster</h1>
-                <span className="text-[10px] font-bold bg-primary/10 text-primary px-2 py-0.5 rounded">
-                  BETA
-                </span>
               </div>
               <CreditBalanceBadge />
             </div>

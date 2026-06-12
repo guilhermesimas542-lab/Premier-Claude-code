@@ -250,12 +250,12 @@ const Home = () => {
                 boxShadow: '0 0 30px rgba(16, 255, 128,0.15)',
               }}
             >
-              {/* Badges NOVO + BETA no canto superior direito */}
+              {/* Badge NUEVO */}
               <div className="absolute top-2 right-2 z-20 flex gap-1">
                 <span style={{
                   background: 'rgba(16, 255, 128,0.15)',
                   border: '1px solid rgba(16, 255, 128,0.3)',
-                  color: '#F0B429',
+                  color: '#10ff80',
                   fontFamily: "'Barlow Condensed', sans-serif",
                   fontWeight: 700,
                   fontSize: '11px',
@@ -263,20 +263,7 @@ const Home = () => {
                   padding: '2px 10px',
                   borderRadius: '6px',
                 }}>
-                  NOVO
-                </span>
-                <span style={{
-                  background: 'rgba(148,163,184,0.15)',
-                  border: '1px solid rgba(148,163,184,0.3)',
-                  color: '#94A3B8',
-                  fontFamily: "'Barlow Condensed', sans-serif",
-                  fontWeight: 700,
-                  fontSize: '11px',
-                  letterSpacing: '1px',
-                  padding: '2px 10px',
-                  borderRadius: '6px',
-                }}>
-                  BETA
+                  NUEVO
                 </span>
               </div>
 
