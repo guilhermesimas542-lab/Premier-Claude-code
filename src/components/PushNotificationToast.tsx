@@ -19,7 +19,7 @@ export function PushNotificationToast({ payload, onClose }: Props) {
   const [imageVisible, setImageVisible] = useState(true);
   const imageUrl = payload.image || payload.image_url || "";
   const targetUrl = payload.url || payload.link_url || "";
-  const title = (payload.title || "Premier Ultra").trim();
+  const title = (payload.title || "CL Score Ultra").trim();
   const body = (payload.body || "Nueva actualización disponible.").trim();
 
   const canOpen = useMemo(() => targetUrl.trim().length > 0, [targetUrl]);
@@ -41,7 +41,7 @@ export function PushNotificationToast({ payload, onClose }: Props) {
           type="button"
           onClick={onClose}
           className="absolute right-3 top-3 z-10 grid h-8 w-8 place-items-center rounded-full border border-border bg-background/80 text-muted-foreground backdrop-blur transition hover:text-foreground"
-          aria-label="Fechar notificação"
+          aria-label="Cerrar notificación"
         >
           <X className="h-4 w-4" />
         </button>
@@ -51,7 +51,7 @@ export function PushNotificationToast({ payload, onClose }: Props) {
             <Bell className="h-4 w-4" />
           </span>
           <span className="text-[11px] font-bold uppercase text-primary" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
-            Nova mensagem
+            Nuevo mensaje
           </span>
         </div>
 
@@ -90,7 +90,7 @@ export function PushNotificationToast({ payload, onClose }: Props) {
             onClick={handleOpen}
             className="mt-4 flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 text-sm font-bold text-primary-foreground shadow-[0_0_24px_hsl(var(--primary)/0.22)] transition active:scale-[0.98]"
           >
-            Abrir agora
+            Abrir ahora
             <ExternalLink className="h-4 w-4" />
           </button>
         )}

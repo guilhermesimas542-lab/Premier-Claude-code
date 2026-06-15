@@ -85,7 +85,7 @@ export default function AchievementDetailModal({ achievement, userAchievement, i
             <div className="space-y-2">
               <div className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl" style={{ background: 'rgba(16, 255, 128,0.08)', border: '1px solid rgba(16, 255, 128,0.2)' }}>
                 <Check className="w-4 h-4" style={{ color: '#10ff80' }} />
-                <span className="text-sm" style={{ color: '#10ff80' }}>Desbloqueado em {unlockedDate}</span>
+                <span className="text-sm" style={{ color: '#10ff80' }}>Desbloqueado el {unlockedDate}</span>
               </div>
               <p className="text-sm font-bold" style={{ color: '#FFD700' }}>+{achievement.xp_reward} XP recibidos</p>
             </div>

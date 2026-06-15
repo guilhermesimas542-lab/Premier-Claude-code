@@ -218,7 +218,7 @@ export function CreditRecoveryModal({ open, onClose }: Props) {
 
     if (!nextMatch) return null;
 
-    const isLive = countdown === "AO VIVO";
+    const isLive = countdown === "EN VIVO";
 
     return (
       <div
@@ -262,7 +262,7 @@ export function CreditRecoveryModal({ open, onClose }: Props) {
                       color: "#EF4444",
                     }}
                   >
-                    AO VIVO
+                    EN VIVO
                   </span>
                 </>
               ) : (
@@ -440,7 +440,7 @@ export function CreditRecoveryModal({ open, onClose }: Props) {
           className="text-2xl md:text-3xl font-bold leading-tight"
           style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
         >
-          Seus créditos <span style={{ color: "#EF4444" }}>acabaram!</span>
+          Tus créditos <span style={{ color: "#EF4444" }}>¡se acabaron!</span>
         </h2>
         <p className="text-sm text-white/70 mt-2 max-w-md mx-auto">
           {nextMatch ? (
@@ -478,7 +478,7 @@ export function CreditRecoveryModal({ open, onClose }: Props) {
 
       {/* Reforço sutil */}
       <p className="text-center text-[11px] text-white/50 mt-3">
-        Acesso liberado em segundos · Pagamento seguro
+        Acceso liberado en segundos · Pago seguro
       </p>
     </div>
   );
@@ -496,15 +496,15 @@ export function CreditRecoveryModal({ open, onClose }: Props) {
     const detailLabel = credits
       ? `${credits} crédito${credits === 1 ? "" : "s"}`
       : days
-        ? `${days} dias`
+        ? `${days} días`
         : "";
 
     const subDetail = credits
-      ? "Análises pontuais"
+      ? "Análisis puntuales"
       : days === 30
-        ? "Sem limite · 1 mês"
+        ? "Sin límite · 1 mes"
         : days === 90
-          ? "Sem limite · 3 meses"
+          ? "Sin límite · 3 meses"
           : "";
 
     const accentColor = highlighted ? "#10ff80" : isUnlimited ? "#FACC15" : "#94A3B8";
@@ -538,7 +538,7 @@ export function CreditRecoveryModal({ open, onClose }: Props) {
             }}
           >
             <Crown className="w-3 h-3" />
-            Mais Popular
+            Más Popular
           </div>
         )}
 
@@ -558,7 +558,7 @@ export function CreditRecoveryModal({ open, onClose }: Props) {
                 letterSpacing: "1px",
               }}
             >
-              {isUnlimited ? "Ilimitado" : "Pacote"}
+              {isUnlimited ? "Ilimitado" : "Paquete"}
             </span>
           </div>
 
@@ -579,7 +579,7 @@ export function CreditRecoveryModal({ open, onClose }: Props) {
               color: highlighted ? "#10ff80" : "#FFFFFF",
             }}
           >
-            R$ {price.toFixed(2).replace(".", ",")}
+            ${price.toFixed(2).replace(".", ",")}
           </div>
         </div>
 
@@ -598,11 +598,11 @@ export function CreditRecoveryModal({ open, onClose }: Props) {
           {productsLoading ? (
             <Loader2 className="w-4 h-4 animate-spin mx-auto" />
           ) : disabled ? (
-            "EM BREVE"
+            "PRÓXIMAMENTE"
           ) : highlighted ? (
-            "QUERO ESSE"
+            "QUIERO ESTE"
           ) : (
-            "ESCOLHER"
+            "ELEGIR"
           )}
         </button>
       </div>
@@ -625,12 +625,12 @@ export function CreditRecoveryModal({ open, onClose }: Props) {
             className="text-xl md:text-2xl font-bold leading-tight"
             style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
           >
-            Escolha seu plano
+            Elige tu plan
           </h2>
           {nextMatch && (
             <p className="text-[11px] text-white/50 mt-0.5">
-              Para analisar <span className="text-white/70 font-semibold">{nextMatch.home}</span> ×{" "}
-              <span className="text-white/70 font-semibold">{nextMatch.away}</span> e os siguientes jogos
+              Para analizar <span className="text-white/70 font-semibold">{nextMatch.home}</span> ×{" "}
+              <span className="text-white/70 font-semibold">{nextMatch.away}</span> y los siguientes partidos
             </p>
           )}
         </div>
@@ -645,7 +645,7 @@ export function CreditRecoveryModal({ open, onClose }: Props) {
           </div>
         ) : products.length === 0 ? (
           <div className="col-span-2 md:col-span-4 text-center py-8 text-white/60 text-sm">
-            Nenhum pacote disponível no momento.
+            Ningún paquete disponible por el momento.
           </div>
         ) : (
           products.map(renderProductCard)
@@ -653,7 +653,7 @@ export function CreditRecoveryModal({ open, onClose }: Props) {
       </div>
 
       <p className="text-center text-[10px] text-white/40 mt-4">
-        Pagamento seguro · Acesso liberado em segundos
+        Pago seguro · Acceso liberado en segundos
       </p>
     </div>
   );
@@ -664,7 +664,7 @@ export function CreditRecoveryModal({ open, onClose }: Props) {
         <button
           onClick={onClose}
           className="absolute top-3 right-3 w-9 h-9 flex items-center justify-center rounded-full bg-black/70 backdrop-blur-sm border border-white/20 text-white hover:bg-black hover:border-white/40 z-50 transition shadow-lg"
-          aria-label="Fechar"
+          aria-label="Cerrar"
         >
           <X className="w-4 h-4" />
         </button>

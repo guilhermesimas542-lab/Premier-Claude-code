@@ -104,7 +104,7 @@ export function useChatTipster() {
       id: genId(),
       role: "bot",
       type: "text",
-      content: "Beleza, qual jogo então? Pode escrever os dois times ou só o nome de um.",
+      content: "Dale, ¿qué partido entonces? Puedes escribir los dos equipos o solo el nombre de uno.",
       createdAt: Date.now(),
     });
   }, [append]);
@@ -124,7 +124,7 @@ export function useChatTipster() {
       id: genId(),
       role: "bot",
       type: "loading",
-      label: "Procurando o jogo...",
+      label: "Buscando el partido...",
       createdAt: Date.now(),
     });
 
@@ -140,7 +140,7 @@ export function useChatTipster() {
           id: genId(),
           role: "bot",
           type: "error",
-          message: error.message || "Error al buscar jogo.",
+          message: error.message || "Error al buscar partido.",
           createdAt: Date.now(),
         });
         return;
@@ -173,8 +173,8 @@ export function useChatTipster() {
       if (status === "league_upcoming" || status === "team_upcoming") {
         const d = data as any;
         const header = status === "league_upcoming"
-          ? "Siguientes jogos da rodada — qual quer analisar?"
-          : `Siguientes jogos${d.team_name ? ` de ${d.team_name}` : ""} — qual quer analisar?`;
+          ? "Siguientes partidos de la fecha — ¿cuál quieres analizar?"
+          : `Siguientes partidos${d.team_name ? ` de ${d.team_name}` : ""} — ¿cuál quieres analizar?`;
         append({
           id: genId(),
           role: "bot",
@@ -201,7 +201,7 @@ export function useChatTipster() {
           id: genId(),
           role: "bot",
           type: "text",
-          content: `Esse jogo já aconteceu em ${m?.played_label || "data desconhecida"}. ${m?.result || ""}\n\nNão há entrada possível para jogos passados.`,
+          content: `Ese partido ya ocurrió el ${m?.played_label || "fecha desconocida"}. ${m?.result || ""}\n\nNo hay entrada posible para partidos pasados.`,
           createdAt: Date.now(),
         });
         return;
@@ -211,7 +211,7 @@ export function useChatTipster() {
           id: genId(),
           role: "bot",
           type: "text",
-          content: (data as any).message || "Esse jogo está fora da janela de análise (siguientes 15 dias).",
+          content: (data as any).message || "Ese partido está fuera de la ventana de análisis (siguientes 15 días).",
           createdAt: Date.now(),
         });
         return;
@@ -220,7 +220,7 @@ export function useChatTipster() {
         id: genId(),
         role: "bot",
         type: "text",
-        content: (data as any)?.message || "Não encontrei esse confronto. Me dá mais detalhes (liga, data)?",
+        content: (data as any)?.message || "No encontré ese partido. ¿Me das más detalles (liga, fecha)?",
         createdAt: Date.now(),
       });
     } catch (err: any) {
@@ -229,7 +229,7 @@ export function useChatTipster() {
         id: genId(),
         role: "bot",
         type: "error",
-        message: err?.message || "Erro inesperado.",
+        message: err?.message || "Error inesperado.",
         createdAt: Date.now(),
       });
     } finally {
@@ -251,7 +251,7 @@ export function useChatTipster() {
       id: genId(),
       role: "bot",
       type: "loading",
-      label: "Analisando o jogo...",
+      label: "Analizando el partido...",
       createdAt: Date.now(),
     });
 
@@ -268,27 +268,27 @@ export function useChatTipster() {
         try { errorBody = await (error as any)?.context?.json?.(); } catch {}
         const isDailyCap = status === 429 || /daily_cost_limit_reached/i.test(error.message || "");
         if (status === 503) {
-          let msg = errorBody?.message || "Sistema temporariamente indisponível.";
-          toast.error("IA Tipster indisponível", { description: msg });
+          let msg = errorBody?.message || "Sistema temporalmente no disponible.";
+          toast.error("IA Tipster no disponible", { description: msg });
           refreshAiTipsterStatus();
           return;
         }
         if (status === 402) {
-          let resetsLabel = "segunda-feira";
+          let resetsLabel = "lunes";
           if (errorBody?.resets_at) {
             resetsLabel = new Date(errorBody.resets_at).toLocaleDateString("es-CL", {
               weekday: "short", day: "2-digit", month: "short",
             });
           }
-          toast.error("Sem créditos", {
-            description: `Tú usou todos os créditos da semana. Renova em ${resetsLabel}.`,
+          toast.error("Sin créditos", {
+            description: `Usaste todos los créditos de la semana. Se renuevan el ${resetsLabel}.`,
           });
           refreshCreditBalance();
           return;
         }
         if (status === 500 && errorBody?.error === "generation_failed") {
-          toast.error("Error temporária", {
-            description: errorBody.message || "Não conseguimos gerar a análise agora. Seu crédito foi restituído. Intenta de nuevo em alguns segundos.",
+          toast.error("Error temporal", {
+            description: errorBody.message || "No pudimos generar el análisis ahora. Tu crédito fue devuelto. Inténtalo de nuevo en unos segundos.",
           });
           refreshCreditBalance();
           return;
@@ -298,7 +298,7 @@ export function useChatTipster() {
             id: genId(),
             role: "bot",
             type: "text",
-            content: errorBody.message ?? "Esse jogo está muito distante. Volte mais perto da data para uma análise precisa.",
+            content: errorBody.message ?? "Ese partido está muy lejos. Vuelve más cerca de la fecha para un análisis preciso.",
             createdAt: Date.now(),
           });
           refreshCreditBalance();
@@ -309,8 +309,8 @@ export function useChatTipster() {
           error.message?.includes("FunctionsHttpError") ||
           (error as any).name === "FunctionsHttpError"
         ) {
-          toast.error("Error temporária", {
-            description: "Não conseguimos gerar a análise agora. Intenta de nuevo em alguns segundos.",
+          toast.error("Error temporal", {
+            description: "No pudimos generar el análisis ahora. Inténtalo de nuevo en unos segundos.",
           });
           return;
         }
@@ -319,8 +319,8 @@ export function useChatTipster() {
           role: "bot",
           type: "error",
           message: isDailyCap
-            ? "⚠️ Análise IA temporariamente indisponível. Intenta de nuevo em algumas horas."
-            : error.message || "Error al gerar análise.",
+            ? "⚠️ Análisis IA temporalmente no disponible. Inténtalo de nuevo en unas horas."
+            : error.message || "Error al generar análisis.",
           createdAt: Date.now(),
         });
         return;
@@ -332,7 +332,7 @@ export function useChatTipster() {
           id: genId(),
           role: "bot",
           type: "error",
-          message: "⚠️ Análise IA temporariamente indisponível. Intenta de nuevo em algumas horas.",
+          message: "⚠️ Análisis IA temporalmente no disponible. Inténtalo de nuevo en unas horas.",
           createdAt: Date.now(),
         });
         return;
@@ -352,7 +352,7 @@ export function useChatTipster() {
           id: genId(),
           role: "bot",
           type: "error",
-          message: d.message ?? "A IA está sobrecarregada. Tente em alguns segundos.",
+          message: d.message ?? "La IA está sobrecargada. Inténtalo en unos segundos.",
           createdAt: Date.now(),
         });
         return;
@@ -362,7 +362,7 @@ export function useChatTipster() {
           id: genId(),
           role: "bot",
           type: "text",
-          content: d.message ?? "Esse jogo está muito distante. Volte mais perto da data para uma análise precisa.",
+          content: d.message ?? "Ese partido está muy lejos. Vuelve más cerca de la fecha para un análisis preciso.",
           createdAt: Date.now(),
         });
         return;
@@ -372,7 +372,7 @@ export function useChatTipster() {
           id: genId(),
           role: "bot",
           type: "error",
-          message: d.message ?? `Erro: ${d.error}`,
+          message: d.message ?? `Error: ${d.error}`,
           createdAt: Date.now(),
         });
         return;
@@ -396,7 +396,7 @@ export function useChatTipster() {
         id: genId(),
         role: "bot",
         type: "error",
-        message: err?.message || "Erro inesperado.",
+        message: err?.message || "Error inesperado.",
         createdAt: Date.now(),
       });
     } finally {

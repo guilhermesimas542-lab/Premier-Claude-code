@@ -6,7 +6,7 @@ import { BuyCreditsModal } from "@/components/ia-tipster/BuyCreditsModal";
 import { isUnlimitedLifetime, formatUnlimitedUntil } from "@/lib/unlimitedAccess";
 
 function formatResetDate(iso: string | null): string {
-  if (!iso) return "segunda-feira";
+  if (!iso) return "lunes";
   try {
     return new Date(iso).toLocaleDateString("es-CL", {
       weekday: "short",
@@ -14,7 +14,7 @@ function formatResetDate(iso: string | null): string {
       month: "2-digit",
     });
   } catch {
-    return "segunda-feira";
+    return "lunes";
   }
 }
 
@@ -38,7 +38,7 @@ export function CreditBalanceBadge() {
     return (
       <span className="inline-flex items-center gap-1 text-xs font-semibold text-primary bg-primary/10 px-2 py-1 rounded">
         <InfinityIcon className="w-3 h-3" />
-        {lifetime ? "Vitalício" : `Ilimitado${untilLabel ? ` até ${untilLabel}` : ""}`}
+        {lifetime ? "Vitalicio" : `Ilimitado${untilLabel ? ` hasta ${untilLabel}` : ""}`}
       </span>
     );
   }
@@ -56,7 +56,7 @@ export function CreditBalanceBadge() {
 
   const label =
     total === 0
-      ? `0 créditos · Renova ${resetLabel}`
+      ? `0 créditos · Renueva ${resetLabel}`
       : `${total} crédito${total === 1 ? "" : "s"}`;
 
   return (

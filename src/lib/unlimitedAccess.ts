@@ -33,6 +33,6 @@ export const formatUnlimitedUntil = (
   date: string | null | undefined
 ): string => {
   if (!date) return "";
-  if (isUnlimitedLifetime(date)) return "Vitalício";
-  return new Date(date).toLocaleDateString("pt-BR");
+  if (isUnlimitedLifetime(date)) return "Vitalicio";
+  return new Date(date).toLocaleDateString("es-CL");
 };

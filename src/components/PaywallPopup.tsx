@@ -199,7 +199,7 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
           {showDiscount ? (
             <div className="text-center space-y-4">
               <h2 className="text-3xl font-extrabold text-[#10ff80]" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
-                Desconto de R$ 10
+                Descuento de $1.990
               </h2>
               <p className="text-base text-white">
                 Desbloquea solo <strong>{featureLabel}</strong> por ${PRICES.backredirect_discount}
@@ -225,10 +225,10 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
               <h2 className="text-2xl font-bold" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
                 ¡Espera!
               </h2>
-              <p className="text-sm text-white/70">Tú ainda pode liberar só essa categoria</p>
+              <p className="text-sm text-white/70">Aún puedes liberar solo esta categoría</p>
               <div className="py-4 px-3 rounded-lg bg-[#10ff80]/10 border border-[#10ff80]/40">
                 <p className="text-xl font-bold text-[#10ff80]" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
-                  {featureLabel} por apenas R$ {PRICES.backredirect}
+                  {featureLabel} por solo ${PRICES.backredirect}
                 </p>
               </div>
               <Button
@@ -283,7 +283,7 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
                 >
                   <div className="font-bold text-white text-sm leading-snug break-words">
                     {canBuyAvulso
-                      ? <>Desbloquear <span className="text-[#10ff80]">{featureLabel}</span> por R$ {PRICES.backredirect}</>
+                      ? <>Desbloquear <span className="text-[#10ff80]">{featureLabel}</span> por ${PRICES.backredirect}</>
                       : <>Desbloquear {featureLabel} — <span className="text-white/60">Próximamente</span></>}
                   </div>
                   <div className="text-xs text-white/60 mt-0.5 leading-tight">Pago único, acceso vitalicio</div>
@@ -298,7 +298,7 @@ export function PaywallPopup({ open, onClose, variant, feature }: Props) {
                 >
                   <div className="font-bold text-white text-sm leading-snug break-words">
                     {canBuyUpgrade
-                      ? <><span className="text-[#10ff80]">Plan Diamante</span> (todos os mercados liberados — R$ {PRICES.diamante_upgrade})</>
+                      ? <><span className="text-[#10ff80]">Plan Diamante</span> (todos los mercados liberados — ${PRICES.diamante_upgrade})</>
                       : <>Upgrade Diamante — <span className="text-white/60">Próximamente</span></>}
                   </div>
                   <div className="text-xs text-white/60 mt-0.5 leading-tight break-words">Desbloquea {otherFeatures}</div>

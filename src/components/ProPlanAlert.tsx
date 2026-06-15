@@ -40,10 +40,10 @@ export const ProPlanAlert = ({ proUrl }: ProPlanAlertProps) => {
           {/* Text */}
           <div className="flex-1">
             <h3 className="text-xl md:text-2xl font-black text-white tracking-tight mb-1">
-              Receba entradas exclusivas do Plano PRO, com odds mais altas e análises refinadas pela IA Olheiro!
+              ¡Recibe entradas exclusivas del Plan PRO, con cuotas más altas y análisis refinados por la IA Olheiro!
             </h3>
             <p className="text-sm text-[#9333EA] font-semibold">
-              Ganhe acesso às melhores oportunidades e lucre como um verdadeiro profissional!
+              ¡Obtén acceso a las mejores oportunidades y gana como un verdadero profesional!
             </p>
           </div>
         </div>

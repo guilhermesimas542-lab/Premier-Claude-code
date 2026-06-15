@@ -125,7 +125,7 @@ export function CardType1Lateral({ card, hasAccess = true, onAction }: Props) {
           fontWeight: 400,
           fontSize: '12px',
           color: '#94A3B8',
-        }}>{locked ? 'Desbloqueie para acessar' : (card.subtitle || '')}</p>
+        }}>{locked ? 'Desbloquea para acceder' : (card.subtitle || '')}</p>
         <button
           onClick={(e) => { e.stopPropagation(); onAction(); }}
           style={{

@@ -15,7 +15,7 @@ export function LiveMatchesSection({ onOpenEsportiva }: Props = {}) {
     return (
       <div className="flex flex-col items-center justify-center py-12 gap-3">
         <RefreshCw className="w-8 h-8 text-muted-foreground animate-spin" />
-        <p className="text-sm text-muted-foreground">Carregando jogos ao vivo...</p>
+        <p className="text-sm text-muted-foreground">Cargando partidos en vivo...</p>
       </div>
     );
   }
@@ -25,7 +25,7 @@ export function LiveMatchesSection({ onOpenEsportiva }: Props = {}) {
       <div className="flex flex-col items-center justify-center py-12 gap-3 px-4">
         <AlertCircle className="w-8 h-8 text-destructive" />
         <p className="text-sm text-muted-foreground text-center">
-          Erro ao carregar jogos: {error}
+          Error al cargar partidos: {error}
         </p>
         <Button onClick={refetch} variant="outline" size="sm">
           Tentar novamente

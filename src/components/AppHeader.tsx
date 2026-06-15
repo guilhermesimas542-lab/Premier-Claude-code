@@ -129,7 +129,7 @@ const AppHeader = ({ leftContent, headerStyle, title }: AppHeaderProps) => {
                   }}
                 >
                   <Sparkles size={14} />
-                  Planos
+                  Planes
                 </button>
               )}
               {isIATipsterRoute && (

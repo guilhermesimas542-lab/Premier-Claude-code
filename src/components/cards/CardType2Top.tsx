@@ -88,7 +88,7 @@ const CardType2Top = ({ card, hasAccess, onAction }: Props) => {
           lineHeight: 1.3,
           marginBottom: '6px',
         }}>
-          {hasAccess ? (card.subtitle || '') : 'Desbloqueie para acessar'}
+          {hasAccess ? (card.subtitle || '') : 'Desbloquea para acceder'}
         </span>
 
         {/* Botão — verde se liberado, outline branco se bloqueado */}

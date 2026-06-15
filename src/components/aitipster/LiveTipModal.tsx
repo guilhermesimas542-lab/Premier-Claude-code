@@ -148,8 +148,8 @@ export function LiveTipModal({ open, onOpenChange, match, onOpenEsportiva }: Pro
         {loading && (
           <div className="flex flex-col items-center py-8 gap-3">
             <RefreshCw className="w-8 h-8 text-primary animate-spin" />
-            <p className="text-sm font-medium">Analisando partida ao vivo...</p>
-            <p className="text-xs text-muted-foreground">Pode levar até 15 segundos.</p>
+            <p className="text-sm font-medium">Analizando partido en vivo...</p>
+            <p className="text-xs text-muted-foreground">Puede tardar hasta 15 segundos.</p>
           </div>
         )}
 

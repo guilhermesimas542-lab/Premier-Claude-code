@@ -61,7 +61,7 @@ export function BuyCreditsModal({ open, onClose }: Props) {
             Comprar créditos IA
           </DialogTitle>
           <DialogDescription className="text-white/60">
-            Escolha um pacote ou desbloqueie acesso ilimitado.
+            Elige un paquete o desbloquea acceso ilimitado.
           </DialogDescription>
         </DialogHeader>
 
@@ -74,7 +74,7 @@ export function BuyCreditsModal({ open, onClose }: Props) {
             {packs.length > 0 && (
               <div className="space-y-2">
                 <div className="text-xs uppercase text-white/50 tracking-wide flex items-center gap-1">
-                  <Coins className="w-3 h-3" /> Pacotes de créditos
+                  <Coins className="w-3 h-3" /> Paquetes de créditos
                 </div>
                 {packs.map((p) => (
                   <ProductButton key={p.id} p={p} onBuy={(url) => setCheckoutUrl(url)} />
@@ -84,7 +84,7 @@ export function BuyCreditsModal({ open, onClose }: Props) {
             {unlim.length > 0 && (
               <div className="space-y-2">
                 <div className="text-xs uppercase text-white/50 tracking-wide flex items-center gap-1 pt-2">
-                  <InfinityIcon className="w-3 h-3" /> Acesso ilimitado
+                  <InfinityIcon className="w-3 h-3" /> Acceso ilimitado
                 </div>
                 {unlim.map((p) => (
                   <ProductButton key={p.id} p={p} onBuy={(url) => setCheckoutUrl(url)} />
@@ -93,7 +93,7 @@ export function BuyCreditsModal({ open, onClose }: Props) {
             )}
             {products.length === 0 && (
               <div className="text-sm text-white/60 text-center py-6">
-                Nenhum pacote disponível no momento.
+                Ningún paquete disponible por el momento.
               </div>
             )}
           </div>
@@ -107,7 +107,7 @@ function ProductButton({ p, onBuy }: { p: CreditProduct; onBuy: (url: string) =>
   const price = p.pricing?.price_brl ?? 0;
   const credits = p.pricing?.credits_amount;
   const days = p.pricing?.unlimited_days;
-  const detail = credits ? `${credits} créditos` : days ? `${days} dias ilimitados` : "";
+  const detail = credits ? `${credits} créditos` : days ? `${days} días ilimitados` : "";
   const disabled = !p.checkout_url;
 
   return (
@@ -121,7 +121,7 @@ function ProductButton({ p, onBuy }: { p: CreditProduct; onBuy: (url: string) =>
         <div className="text-xs text-white/60">{detail}</div>
       </div>
       <div className="text-[#10ff80] font-bold">
-        R$ {price.toFixed(2).replace(".", ",")}
+        ${price.toFixed(2).replace(".", ",")}
       </div>
     </Button>
   );
