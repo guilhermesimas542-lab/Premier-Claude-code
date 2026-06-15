@@ -825,7 +825,7 @@ Deno.serve(async (req: Request) => {
 
 ${JSON.stringify(sourceData, null, 2)}
 
-Gere a análise no formato definido no system prompt. Considere o minuto atual ao escolher mercado e aplicar táticas.`;
+Genera el análisis siguiendo el formato definido en el system prompt. Considera el minuto actual al elegir mercado y aplicar tácticas. IMPORTANTE: Tu respuesta DEBE estar 100% en español neutro (Chile/LATAM). NUNCA respondas en portugués.`;
 
     const baseBody = {
       max_tokens: 1500,

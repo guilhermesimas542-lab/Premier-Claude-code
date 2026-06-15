@@ -678,7 +678,7 @@ Deno.serve(async (req: Request) => {
 
 ${JSON.stringify(sourceData, null, 2)}
 
-Gere a análise no formato definido no system prompt.`;
+Genera el análisis siguiendo el formato definido en el system prompt. IMPORTANTE: Tu respuesta DEBE estar 100% en español neutro (Chile/LATAM). NUNCA respondas en portugués.`;
 
     const baseBody = {
       max_tokens: 1500,

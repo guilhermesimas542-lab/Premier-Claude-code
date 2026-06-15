@@ -93,7 +93,7 @@ function StepIndicator({ current, total }: { current: number; total: number }) {
         className="text-[10px] text-white/45 ml-2 uppercase tracking-wider"
         style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
       >
-        Passo {current} de {total}
+        Paso {current} de {total}
       </span>
     </div>
   );
@@ -113,7 +113,7 @@ function StepWelcome() {
             "radial-gradient(circle at 50% 0%, rgba(16, 255, 128,0.18) 0%, rgba(17,34,54,0) 60%)",
         }}
       >
-        <Badge label="Nova feature" />
+        <Badge label="Nueva feature" />
 
         <div
           className="mx-auto mb-3 mt-3"
@@ -138,7 +138,7 @@ function StepWelcome() {
           className="text-2xl font-bold leading-tight mb-1"
           style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
         >
-          Conheça a <span style={{ color: "#10ff80" }}>IA Tipster</span>
+          Conoce el <span style={{ color: "#10ff80" }}>IA Tipster</span>
         </h2>
         <p className="text-sm text-white/65 max-w-xs mx-auto">
           Ahora creas tus propios análisis de IA para cualquier partido.
@@ -148,12 +148,12 @@ function StepWelcome() {
       <div className="space-y-2.5 mt-3">
         <Bullet
           icon={<MessageSquare className="w-4 h-4 text-[#10ff80]" />}
-          title="Chat com a IA"
-          text="Digite os times e receba análise completa em segundos."
+          title="Chat con la IA"
+          text="Escribe los equipos y recibe el análisis completo en segundos."
         />
         <Bullet
           icon={<Radio className="w-4 h-4 text-[#10ff80]" />}
-          title="Jogos ao vivo"
+          title="Partidos en vivo"
           text="Elige un partido en vivo y la IA analiza en tiempo real."
         />
         <Bullet
@@ -175,7 +175,7 @@ function StepHowToUse() {
     <div className="px-6 pt-2 pb-2">
       <Header
         icon={<Zap className="w-6 h-6 text-[#10ff80]" />}
-        title="Como usar em 3 passos"
+        title="Cómo usar en 3 pasos"
         subtitle="Flujo simple — desde elegir el partido hasta apostar."
       />
 
@@ -230,9 +230,9 @@ function StepCredits() {
           valueColor="#FACC15"
         />
         <CreditRow
-          label="Acesso ilimitado"
+          label="Acceso ilimitado"
           text="Análisis sin gastar créditos por 1 o 3 meses. Para quien usa mucho."
-          valueLabel="A partir de R$ 99,00"
+          valueLabel="Desde $19.990"
           valueColor="#10ff80"
         />
       </div>
@@ -291,15 +291,15 @@ function StepFinal() {
         <ul className="text-xs text-white/80 space-y-1.5 leading-snug">
           <li className="flex gap-2">
             <span className="text-[#10ff80] font-bold">1.</span>
-            Vamos abrir a tela do IA Tipster
+            Abriremos la pantalla del IA Tipster
           </li>
           <li className="flex gap-2">
             <span className="text-[#10ff80] font-bold">2.</span>
-            Tú escolhe um jogo (Ao Vivo ou Chat)
+            Eliges un partido (En Vivo o Chat)
           </li>
           <li className="flex gap-2">
             <span className="text-[#10ff80] font-bold">3.</span>
-            A IA gera sua análise em segundos — 1 crédito é descontado
+            La IA genera tu análisis en segundos — se descuenta 1 crédito
           </li>
         </ul>
       </div>
