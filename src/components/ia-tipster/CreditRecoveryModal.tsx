@@ -63,7 +63,7 @@ function formatMatchTime(kickoffIso: string): string {
     tomorrow.setDate(tomorrow.getDate() + 1);
     const isTomorrow = kickoff.toDateString() === tomorrow.toDateString();
 
-    const time = kickoff.toLocaleString("pt-BR", {
+    const time = kickoff.toLocaleString("es-CL", {
       hour: "2-digit",
       minute: "2-digit",
       timeZone: "America/Sao_Paulo",
@@ -72,7 +72,7 @@ function formatMatchTime(kickoffIso: string): string {
     if (sameDay) return `Hoje ${time}`;
     if (isTomorrow) return `Amanhã ${time}`;
 
-    const date = kickoff.toLocaleString("pt-BR", {
+    const date = kickoff.toLocaleString("es-CL", {
       day: "2-digit",
       month: "2-digit",
       timeZone: "America/Sao_Paulo",

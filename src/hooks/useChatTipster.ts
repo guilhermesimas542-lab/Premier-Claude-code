@@ -244,7 +244,7 @@ export function useChatTipster() {
     append({
       id: genId(),
       role: "user",
-      content: `Sim, é esse: ${label}`,
+      content: `Sí, es este: ${label}`,
       createdAt: Date.now(),
     });
     append({
@@ -276,7 +276,7 @@ export function useChatTipster() {
         if (status === 402) {
           let resetsLabel = "segunda-feira";
           if (errorBody?.resets_at) {
-            resetsLabel = new Date(errorBody.resets_at).toLocaleDateString("pt-BR", {
+            resetsLabel = new Date(errorBody.resets_at).toLocaleDateString("es-CL", {
               weekday: "short", day: "2-digit", month: "short",
             });
           }

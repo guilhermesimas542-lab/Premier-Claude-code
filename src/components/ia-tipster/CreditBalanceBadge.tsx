@@ -8,7 +8,7 @@ import { isUnlimitedLifetime, formatUnlimitedUntil } from "@/lib/unlimitedAccess
 function formatResetDate(iso: string | null): string {
   if (!iso) return "segunda-feira";
   try {
-    return new Date(iso).toLocaleDateString("pt-BR", {
+    return new Date(iso).toLocaleDateString("es-CL", {
       weekday: "short",
       day: "2-digit",
       month: "2-digit",

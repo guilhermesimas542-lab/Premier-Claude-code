@@ -103,9 +103,9 @@ function detectLeague(rawQuery: string): number[] | null {
 }
 
 function formatKickoff(iso: string): string {
-  return new Date(iso).toLocaleString("pt-BR", {
+  return new Date(iso).toLocaleString("es-CL", {
     day: "2-digit", month: "long", hour: "2-digit", minute: "2-digit",
-    timeZone: "America/Sao_Paulo",
+    timeZone: "America/Santiago",
   });
 }
 
@@ -535,7 +535,7 @@ Deno.serve(async (req: Request) => {
         away: c.fixture.teams.away.name,
         league: c.fixture.league.name,
         kickoff_at: c.fixture.fixture.date,
-        kickoff_label: kickoff.toLocaleString("pt-BR", { day: "2-digit", month: "long", hour: "2-digit", minute: "2-digit", timeZone: "America/Sao_Paulo" }),
+        kickoff_label: kickoff.toLocaleString("es-CL", { day: "2-digit", month: "long", hour: "2-digit", minute: "2-digit", timeZone: "America/Santiago" }),
         score: c.totalScore,
       }],
     });
@@ -551,7 +551,7 @@ Deno.serve(async (req: Request) => {
         away: c.fixture.teams.away.name,
         league: c.fixture.league.name,
         kickoff_at: c.fixture.fixture.date,
-        kickoff_label: new Date(c.fixture.fixture.date).toLocaleString("pt-BR", { day: "2-digit", month: "long", hour: "2-digit", minute: "2-digit", timeZone: "America/Sao_Paulo" }),
+        kickoff_label: new Date(c.fixture.fixture.date).toLocaleString("es-CL", { day: "2-digit", month: "long", hour: "2-digit", minute: "2-digit", timeZone: "America/Santiago" }),
         score: c.totalScore,
       })),
     });
@@ -566,7 +566,7 @@ Deno.serve(async (req: Request) => {
         away: c.fixture.teams.away.name,
         league: c.fixture.league.name,
         played_at: c.fixture.fixture.date,
-        played_label: new Date(c.fixture.fixture.date).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" }),
+        played_label: new Date(c.fixture.fixture.date).toLocaleDateString("es-CL", { timeZone: "America/Santiago" }),
         result: c.fixture.goals.home !== null
           ? `${c.fixture.teams.home.name} ${c.fixture.goals.home} x ${c.fixture.goals.away} ${c.fixture.teams.away.name}`
           : "resultado não disponível",
