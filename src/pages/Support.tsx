@@ -60,11 +60,11 @@ const PlanUpgradeCard = () => {
     >
       <div className="flex items-center gap-3 mb-3">
         <Crown className="w-5 h-5" style={{ color: '#10ff80' }} />
-        <h3 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 18, color: "#FFFFFF" }}>Seu Plano</h3>
+        <h3 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 18, color: "#FFFFFF" }}>Tu Plan</h3>
       </div>
       <div className="flex items-center justify-between">
         <p className="text-sm" style={{ color: '#CCCCCC' }}>
-          Plano atual:{' '}
+          Plan actual:{' '}
           <span style={{ color: '#10ff80', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700 }}>
             {planLabel}
           </span>

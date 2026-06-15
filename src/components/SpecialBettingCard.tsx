@@ -35,10 +35,10 @@ const formatCountdown = (totalSeconds: number): string => {
 const CARD_CONFIG: Record<SpecialCardType, { icon: typeof TrendingUp; label: string; color: string; gradient: string; subtitle: string }> = {
   ALAVANCAGEM: {
     icon: TrendingUp,
-    label: "ALAVANCAGEM",
+    label: "APALANCAMIENTO",
     color: "#F0B429",
     gradient: "linear-gradient(135deg, rgba(16, 255, 128,0.08) 0%, transparent 60%)",
-    subtitle: "Alavancagem do Dia",
+    subtitle: "Apalancamiento del Día",
   },
   ODDS_ALTAS: {
     icon: Ticket,
@@ -233,7 +233,7 @@ export const SpecialBettingCard = ({
             padding: "0px 10px 4px 10px",
           }}>
             <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 17, color: isExpired ? "#6B7280" : "#FFFFFF", flex: 1, paddingRight: 8, lineHeight: 1.2 }}>
-              {type === "ALAVANCAGEM" ? "Alavancagem do Dia" : "Múltipla do Dia"}
+              {type === "ALAVANCAGEM" ? "Apalancamiento del Día" : "Múltiple del Día"}
             </span>
             <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "flex-end" }}>
               <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 9, color: "#94A3B8" }}>Odd</span>

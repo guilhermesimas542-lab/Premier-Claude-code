@@ -290,7 +290,7 @@ const Home = () => {
                   letterSpacing: '0.5px',
                   paddingRight: '90px',
                 }}>
-                  Análises de IA em tempo real
+                  Análisis de IA en tiempo real
                 </h3>
                 <p style={{
                   fontFamily: "'DM Sans', sans-serif",
@@ -317,7 +317,7 @@ const Home = () => {
                     cursor: 'pointer',
                   }}
                 >
-                  TESTAR A IA TIPSTER
+                  PROBAR LA IA TIPSTER
                 </button>
               </div>
             </button>

@@ -27,7 +27,7 @@ const cards: QuickCard[] = [
   },
   {
     id: "alavancagem",
-    title: "Alavancagem",
+    title: "Apalancamiento",
     subtitle: "Secuencias y progreso",
     route: "/alavancagem",
     icon: <TrendingUp className="w-5 h-5" />,

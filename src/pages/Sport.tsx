@@ -178,7 +178,7 @@ const TAB_META: Record<FeatureKey, { label: string; labelShort: string; color: s
   free:                 { label: "Odd Gratis",        labelShort: "Odd Gratis",        color: "#94A3B8" },
   odds_safes:           { label: "Odds Safes",        labelShort: "Odds Safes",        color: "#60A5FA" },
   odds_pro:             { label: "Odds Pró",          labelShort: "Odds Pró",          color: "#10ff80" },
-  alavancagem:          { label: "Alavancagem",       labelShort: "Alavancagem",       color: "#F0B429" },
+  alavancagem:          { label: "Apalancamiento",    labelShort: "Apalancamiento",    color: "#F0B429" },
   multiplas_bingo:      { label: "Múltiplas",         labelShort: "Múltiplas",         color: "#FF6B9D" },
   mercados_secundarios: { label: "Merc. Secundário",  labelShort: "Merc. Secundário",  color: "#A78BFA" },
   esportes_americanos:  { label: "Ligas Americanas",  labelShort: "Ligas Americanas",  color: "#EF4444" },
