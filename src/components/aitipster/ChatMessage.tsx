@@ -277,7 +277,7 @@ export function ChatMessage({ message, onConfirmFixture, onOpenEsportiva, onReje
             className="ml-auto text-black font-semibold"
           >
             <ExternalLink className="w-3 h-3 mr-1" />
-            Esportiva Bet
+            Bet7k
           </Button>
         </div>
 

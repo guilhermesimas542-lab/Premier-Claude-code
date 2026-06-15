@@ -129,7 +129,7 @@ export function EsportivaInlinePanel({
       <div className="flex-1 min-h-0 bg-background">
         <iframe
           src={iframeSrc}
-          title={`Esportiva Bet - ${matchLabel}`}
+          title={`Bet7k - ${matchLabel}`}
           className="w-full h-full border-0"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen

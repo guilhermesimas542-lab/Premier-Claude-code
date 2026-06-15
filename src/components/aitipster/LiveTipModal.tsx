@@ -195,7 +195,7 @@ export function LiveTipModal({ open, onOpenChange, match, onOpenEsportiva }: Pro
 
             <Button onClick={handleOpenEsportiva} className="w-full text-black font-semibold" variant="default">
               <ExternalLink className="w-4 h-4 mr-2" />
-              Abrir Esportiva Bet
+              Abrir Bet7k
               <ChevronRight className="w-4 h-4 ml-auto" />
             </Button>
           </div>
