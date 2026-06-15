@@ -372,7 +372,7 @@ const Home = () => {
             >
               ⚡ Acceso Rápido
             </h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <div className="flex flex-col gap-3">
               {quickCards.map(renderCard)}
             </div>
           </section>

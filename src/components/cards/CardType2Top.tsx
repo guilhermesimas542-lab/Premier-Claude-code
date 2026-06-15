@@ -23,8 +23,8 @@ const CardType2Top = ({ card, hasAccess, onAction }: Props) => {
         cursor: 'pointer',
       }}
     >
-      {/* Área da imagem — quadrada 1:1 */}
-      <div style={{ position: 'relative', width: '100%', aspectRatio: '1 / 1' }}>
+      {/* Área da imagem — retangular 16:9 (limita altura) */}
+      <div style={{ position: 'relative', width: '100%', aspectRatio: '16 / 9', maxHeight: '180px' }}>
         {imageUrl ? (
           <img
             src={imageUrl}
