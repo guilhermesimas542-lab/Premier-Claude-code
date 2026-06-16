@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { LogIn, AlertCircle, Loader2 } from "lucide-react";
+import clscoreLogo from "@/assets/clscore-logo.png";
 
 export default function AdminLogin() {
   const navigate = useNavigate();
@@ -71,8 +72,8 @@ export default function AdminLogin() {
   return (
     <div className="flex h-screen items-center justify-center bg-gray-950 px-4">
       <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-5">
-        <div className="text-center space-y-1">
-          <h1 className="text-2xl font-bold text-white">CL Ultra Admin</h1>
+        <div className="text-center space-y-3">
+          <img src={clscoreLogo} alt="CL Score" className="mx-auto h-20 w-auto object-contain" />
           <p className="text-gray-500 text-sm">
             {mode === "login" ? "Inicia sesión con tu cuenta admin" : "Crea tu cuenta admin"}
           </p>
