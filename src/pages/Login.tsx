@@ -294,11 +294,11 @@ const Login = () => {
       {/* Content */}
       <main className="relative flex flex-col items-center justify-center min-h-screen px-6 py-12 w-full max-w-md mx-auto" style={{ zIndex: 2 }}>
         {/* Logo — hero element */}
-        <div className="mb-6 pointer-events-none w-full">
+        <div className="mb-4 pointer-events-none w-full">
           <img
             src={logoImg}
             alt="CL Score"
-            className="w-full max-w-[300px] h-auto mx-auto object-contain"
+            className="w-full max-w-[260px] h-auto mx-auto object-contain"
           />
         </div>
 
