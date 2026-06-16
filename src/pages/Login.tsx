@@ -9,7 +9,7 @@ import { CHECKOUT_LINKS } from "@/lib/checkoutLinks";
 import { Crown, Loader2, ShoppingCart, Sparkles, Users, Ticket } from "lucide-react";
 import { isPreviewEnv } from "@/lib/previewEnv";
 import iaTipsterCartoon from "@/assets/ia-tipster-cartoon.png";
-import logoImg from "@/assets/premier-logo-custom.png";
+import logoImg from "@/assets/clscore-logo.png";
 import { usePayCardTrigger } from "@/hooks/usePayCardTrigger";
 import { useLinks } from "@/contexts/LinksContext";
 import { PayCardFunnelModal } from "@/components/PayCardFunnelModal";
