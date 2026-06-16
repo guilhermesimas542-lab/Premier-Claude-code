@@ -149,9 +149,8 @@ export function ScheduleWizard({ editingId, onDone, onCancel }: ScheduleWizardPr
   const canAdvance = (() => {
     if (currentStep === "channel") return state.channel !== null;
     if (currentStep === "audience") {
-      // Telegram x1 e Telegram grupo não precisam de audiência (broadcast)
-      if (state.channel === "telegram_x1" || state.channel === "telegram_group") return true;
-      return state.audience_id !== null || hasFilters(state.audience_filters);
+      // Audiência é opcional — sem audience_id nem filtros = broadcast pra toda a base
+      return true;
     }
     if (currentStep === "content") return validateContent(state);
     if (currentStep === "schedule") {
@@ -176,17 +175,13 @@ export function ScheduleWizard({ editingId, onDone, onCancel }: ScheduleWizardPr
 
     // Normaliza audience pra satisfazer constraint:
     //   crm_schedules_audience_check: audience_id IS NOT NULL OR audience_filters IS NOT NULL
-    //   - telegram_x1     → audience_filters = { broadcast: true } (semantic)
     //   - audiência salva → audience_filters pode continuar null (audience_id satisfaz)
     //   - filtros ad-hoc  → usa o objeto preenchido
-    //   - draft sem nada  → audience_filters = {} (objeto vazio é NOT NULL, constraint passa)
-    const isBroadcast = state.channel === "telegram_x1" || state.channel === "telegram_group";
-    let normalizedFilters: AudienceFilters | { broadcast: true } | Record<string, never> | null =
+    //   - sem nada        → audience_filters = { broadcast: true } (dispara pra toda a base)
+    let normalizedFilters: AudienceFilters | { broadcast: true } | null =
       state.audience_filters;
-    if (isBroadcast && !state.audience_id && !hasFilters(state.audience_filters)) {
+    if (!state.audience_id && !hasFilters(state.audience_filters)) {
       normalizedFilters = { broadcast: true };
-    } else if (!state.audience_id && !hasFilters(state.audience_filters)) {
-      normalizedFilters = {};
     }
 
     const payload: NewSchedulePayload = {
@@ -512,7 +507,7 @@ function StepAudience({
       <div>
         <h2 className="text-xl font-bold text-foreground">Audiência</h2>
         <p className="text-sm text-muted-foreground">
-          Use uma audiência salva ou aplique filtros ad-hoc.
+          Use uma audiência salva, filtros ad-hoc — ou deixe vazio pra disparar pra toda a base.
         </p>
       </div>
 
