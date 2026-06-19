@@ -1,5 +1,5 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Globe2, ShieldCheck, Copy, Search, CheckCircle2, Sparkles, X } from "lucide-react";
+import { Rocket, ShieldCheck, Copy, Search, CheckCircle2, X, CalendarClock } from "lucide-react";
 
 interface TipHowItWorksModalProps {
   open: boolean;
@@ -21,7 +21,7 @@ export const TipHowItWorksModal = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="max-w-md p-0 gap-0 overflow-hidden border-0"
+        className="max-w-md p-0 gap-0 overflow-hidden border-0 max-h-[90vh] overflow-y-auto"
         style={{ background: "#060D1E", border: `1.5px solid ${TIER}33` }}
       >
         <button
@@ -37,6 +37,7 @@ export const TipHowItWorksModal = ({
           <X className="w-4 h-4 text-white/80" />
         </button>
 
+        {/* HEADER — anúncio da próxima atualização */}
         <div style={{
           padding: "20px 20px 16px 20px",
           background: `linear-gradient(135deg, ${TIER}1A 0%, transparent 70%)`,
@@ -49,33 +50,93 @@ export const TipHowItWorksModal = ({
               background: `${TIER}26`, border: `1px solid ${TIER}66`,
               alignSelf: "flex-start", width: "fit-content",
             }}>
-              <Sparkles className="w-3 h-3" style={{ color: TIER }} />
+              <CalendarClock className="w-3 h-3" style={{ color: TIER }} />
               <span style={{
                 fontFamily: "'Barlow Condensed', sans-serif",
                 fontWeight: 800, fontSize: 11, letterSpacing: "0.8px",
                 color: TIER, textTransform: "uppercase",
               }}>
-                Próximamente con 1 clic
+                Llega antes del 05/07
               </span>
             </div>
             <DialogTitle style={{
               fontFamily: "'Barlow Condensed', sans-serif",
-              fontWeight: 800, fontSize: 22, color: "#FFFFFF", lineHeight: 1.15,
+              fontWeight: 800, fontSize: 22, color: "#FFFFFF", lineHeight: 1.2,
             }}>
-              Cómo añadir tu tip al sportsbook
+              Estamos terminando la integración con los sportsbooks de Chile
             </DialogTitle>
             <p style={{
               fontFamily: "'DM Sans', sans-serif", fontSize: 13,
-              color: "#94A3B8", lineHeight: 1.5, marginTop: 4,
+              color: "#94A3B8", lineHeight: 1.55, marginTop: 4,
             }}>
-              Hoy tienes que copiar la apuesta manualmente en tu casa de apuestas.
-              En la próxima actualización, podrás añadir el tip con <strong style={{ color: "#FFFFFF" }}>un solo clic</strong> — estamos terminando la integración con los sportsbooks de Chile.
+              Ya estamos en la recta final de los trámites legales para operar
+              al 100% en Chile. A partir del <strong style={{ color: "#FFFFFF" }}>05/07</strong> vas
+              a poder añadir tu tip al cupón con <strong style={{ color: "#FFFFFF" }}>un solo clic</strong>,
+              sin salir del app. Hasta entonces, te enviamos el tip y tú lo copias en tu
+              casa de apuestas — sigue siendo simple, ya te explicamos abajo.
             </p>
           </DialogHeader>
         </div>
 
+        {/* TRUST — operação consolidada no BR (breve) */}
+        <div style={{
+          margin: "14px 20px 0 20px",
+          padding: "10px 12px",
+          borderRadius: 12,
+          background: "rgba(255,255,255,0.03)",
+          border: "1px solid rgba(255,255,255,0.08)",
+          display: "flex", gap: 10, alignItems: "center",
+        }}>
+          <div style={{
+            width: 32, height: 32, flexShrink: 0,
+            borderRadius: 10, background: `${TIER}1A`,
+            border: `1px solid ${TIER}33`,
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}>
+            <ShieldCheck className="w-4 h-4" style={{ color: TIER }} />
+          </div>
+          <p style={{
+            fontFamily: "'DM Sans', sans-serif", fontSize: 12,
+            color: "#CBD5E1", lineHeight: 1.45, margin: 0, flex: 1,
+          }}>
+            Somos la misma operación de <strong style={{ color: "#FFFFFF" }}>CL Score Brasil</strong>,
+            con miles de leads activos a diario. Chile es la expansión natural — mismo equipo, mismos tips.
+          </p>
+        </div>
+
+        {/* HOW-TO — 3 passos */}
+        <div style={{ padding: "16px 20px 4px 20px" }}>
+          <h3 style={{
+            fontFamily: "'Barlow Condensed', sans-serif",
+            fontWeight: 800, fontSize: 13, color: "#FFFFFF",
+            letterSpacing: "0.5px", textTransform: "uppercase", marginBottom: 10,
+          }}>
+            Cómo añadir el tip hoy
+          </h3>
+
+          <Step
+            n={1}
+            icon={<Copy className="w-4 h-4" style={{ color: TIER }} />}
+            title="Anota el mercado y la cuota"
+            desc="En el card del tip ya ves el mercado, la selección y la cuota mínima."
+          />
+          <Step
+            n={2}
+            icon={<Search className="w-4 h-4" style={{ color: TIER }} />}
+            title="Abre tu sportsbook y busca el partido"
+            desc="Ingresa a la casa de apuestas que ya usas y ubica el encuentro indicado."
+          />
+          <Step
+            n={3}
+            icon={<CheckCircle2 className="w-4 h-4" style={{ color: TIER }} />}
+            title="Añade la apuesta en tu cupón"
+            desc="Selecciona el mismo mercado con cuota igual o superior y listo."
+          />
+        </div>
+
+        {/* Resumo da aposta atual */}
         {(market || betChoice || typeof odds === "number") && (
-          <div style={{ padding: "14px 20px 0 20px" }}>
+          <div style={{ padding: "8px 20px 16px 20px" }}>
             <div style={{
               background: "rgba(16,255,128,0.05)",
               border: `1px solid ${TIER}33`,
@@ -103,78 +164,13 @@ export const TipHowItWorksModal = ({
               )}
               {typeof odds === "number" && odds > 0 && (
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
-                  <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: "#94A3B8" }}>Cuota</span>
+                  <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: "#94A3B8" }}>Cuota mínima</span>
                   <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: 18, color: TIER }}>{odds.toFixed(2)}</span>
                 </div>
               )}
             </div>
           </div>
         )}
-
-        <div style={{ padding: "16px 20px 4px 20px" }}>
-          <h3 style={{
-            fontFamily: "'Barlow Condensed', sans-serif",
-            fontWeight: 800, fontSize: 13, color: "#FFFFFF",
-            letterSpacing: "0.5px", textTransform: "uppercase", marginBottom: 10,
-          }}>
-            Cómo hacerlo en 3 pasos
-          </h3>
-
-          <Step
-            n={1}
-            icon={<Copy className="w-4 h-4" style={{ color: TIER }} />}
-            title="Anota el mercado y la cuota"
-            desc="Mira el card del tip y memoriza (o copia) el mercado, la selección y la cuota."
-          />
-          <Step
-            n={2}
-            icon={<Search className="w-4 h-4" style={{ color: TIER }} />}
-            title="Abre tu sportsbook y busca el partido"
-            desc="Ingresa a la casa de apuestas que ya utilizas y encuentra el encuentro indicado."
-          />
-          <Step
-            n={3}
-            icon={<CheckCircle2 className="w-4 h-4" style={{ color: TIER }} />}
-            title="Añade la apuesta en tu cupón"
-            desc="Selecciona el mismo mercado y selección con cuota igual o superior a la indicada."
-          />
-        </div>
-
-        <div style={{
-          margin: "16px 20px 20px 20px",
-          padding: "12px 14px",
-          borderRadius: 12,
-          background: "rgba(255,255,255,0.03)",
-          border: "1px solid rgba(255,255,255,0.08)",
-          display: "flex", gap: 10, alignItems: "flex-start",
-        }}>
-          <div style={{
-            width: 36, height: 36, flexShrink: 0,
-            borderRadius: 10, background: `${TIER}1A`,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            border: `1px solid ${TIER}33`,
-          }}>
-            <Globe2 className="w-5 h-5" style={{ color: TIER }} />
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <span style={{
-                fontFamily: "'Barlow Condensed', sans-serif",
-                fontWeight: 800, fontSize: 14, color: "#FFFFFF",
-              }}>
-                Operación 100% en Brasil y Chile
-              </span>
-              <ShieldCheck className="w-4 h-4" style={{ color: TIER }} />
-            </div>
-            <p style={{
-              fontFamily: "'DM Sans', sans-serif", fontSize: 12,
-              color: "#94A3B8", lineHeight: 1.5, margin: 0,
-            }}>
-              CL Score es una empresa con operación mundial, activa de forma plena
-              en Brasil y Chile. Miles de leads ya usan nuestros tips a diario.
-            </p>
-          </div>
-        </div>
 
         <div style={{ padding: "0 20px 20px 20px" }}>
           <button
@@ -185,9 +181,11 @@ export const TipHowItWorksModal = ({
               fontFamily: "'Barlow Condensed', sans-serif",
               fontWeight: 800, fontSize: 14, letterSpacing: "0.5px",
               textTransform: "uppercase", cursor: "pointer",
+              display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6,
             }}
           >
-            Entendido
+            <Rocket className="w-4 h-4" />
+            Entendido, voy al sportsbook
           </button>
         </div>
       </DialogContent>
