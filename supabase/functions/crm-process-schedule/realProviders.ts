@@ -14,23 +14,27 @@ interface SmsContent {
   [key: string]: unknown;
 }
 
-const COMTELE_ENDPOINT = "https://sms.comtele.com.br/api/v2/send";
+// API NOVA da Comtele (gateway). API velha (sms.comtele.com.br/api/v2/send + header
+// auth-key) foi desativada e retorna 401. Documentado no blueprint do CRM.
+const COMTELE_ENDPOINT = "https://api.comtele.com.br/messages/sms/send";
 const COMTELE_BATCH_SIZE = 100;
+const COMTELE_DEFAULT_ROUTE = "16"; // 16 = Marketing. Configurável via crm_channel_settings.config.route.
 
 
 function buildMessage(body: string | null | undefined, linkUrl?: string | null): string {
   let txt = (body ?? "").trim();
   const link = (linkUrl ?? "").trim();
   if (link && !txt.includes(link)) txt = txt ? `${txt} ${link}` : link;
-  if (!txt) return "Premier FC";
-  if (/^premier\s*fc/i.test(txt)) return txt;
-  return "Premier FC: " + txt;
+  if (!txt) return "CL Score";
+  if (/^cl\s*score/i.test(txt)) return txt;
+  return "CL Score: " + txt;
 }
 
 export async function sendBatchSmsReal(
   recipients: Recipient[],
   content: SmsContent | null | undefined,
-  apiKey: string
+  apiKey: string,
+  route: string = COMTELE_DEFAULT_ROUTE,
 ): Promise<SendResult[]> {
   const msg = buildMessage(content?.body ?? null, content?.link_url ?? null);
   const sentAt = new Date().toISOString();
@@ -73,27 +77,40 @@ export async function sendBatchSmsReal(
     const sliceIdx = validIdx.slice(start, start + COMTELE_BATCH_SIZE);
     const sliceLocal = validLocalPhone.slice(start, start + COMTELE_BATCH_SIZE);
     const sliceFull = validFullPhone.slice(start, start + COMTELE_BATCH_SIZE);
-    const receivers = sliceLocal.join(",");
+    // API nova: receivers como array de strings COM prefixo 55 (DDI Brasil).
+    const receiversArr = sliceFull;
 
     try {
       const resp = await fetch(COMTELE_ENDPOINT, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "auth-key": apiKey,
+          "x-api-key": apiKey,
         },
-        body: JSON.stringify({ Receivers: receivers, Content: msg }),
+        body: JSON.stringify({
+          receivers: receiversArr,
+          contactGroups: [],
+          message: msg,
+          route,
+          tag: "crm",
+          custom: "crm",
+          scheduleDate: null,
+        }),
       });
 
       const text = await resp.text();
       let parsed: any = null;
       try { parsed = JSON.parse(text); } catch { /* não-JSON */ }
 
-      const success = resp.status === 200 && parsed && parsed.Success === true;
+      // API nova: success = HTTP 200 AND hasError === false
+      const success = resp.status === 200 && parsed && parsed.hasError === false;
 
       if (success) {
-        const requestUniqueId = parsed?.Object?.requestUniqueId
-          ? String(parsed.Object.requestUniqueId)
+        // API nova: parsed.result[].messageId ou parsed.data.batchId. Pegamos batchId quando disponível.
+        const requestUniqueId =
+          parsed?.data?.batchId ? String(parsed.data.batchId)
+          : parsed?.batchId ? String(parsed.batchId)
+          : parsed?.result?.[0]?.messageId ? String(parsed.result[0].messageId)
           : undefined;
         for (let k = 0; k < sliceIdx.length; k++) {
           const i = sliceIdx[k];
@@ -114,7 +131,7 @@ export async function sendBatchSmsReal(
         }
       } else {
         const errMsg =
-          (parsed && (parsed.Message ?? parsed.message)) ??
+          (parsed && (parsed.message ?? parsed.Message ?? parsed.errorMessage)) ??
           (text ? text.slice(0, 200) : `http_${resp.status}`);
         for (let k = 0; k < sliceIdx.length; k++) {
           const i = sliceIdx[k];
@@ -350,13 +367,27 @@ export async function sendBatchPushReal(
 // Telegram x1 (SendPulse) — broadcast pra todos assinantes do bot.
 // ============================================================
 
+// Converte URL de Storage signed (com ?token=...) em URL pública.
+// SendPulse rejeita signed URL longa com query string ("The given data was invalid").
+function sanitizeStorageUrl(url: string | null | undefined): string | null {
+  if (!url) return null;
+  const s = url.trim();
+  if (!s) return null;
+  // Padrão signed: /storage/v1/object/sign/<bucket>/<path>?token=...
+  // Converte pra: /storage/v1/object/public/<bucket>/<path>
+  const m = s.match(/^(https?:\/\/[^/]+\/storage\/v1\/object)\/sign\/([^?]+)(?:\?.*)?$/);
+  if (m) return `${m[1]}/public/${m[2]}`;
+  return s;
+}
+
 export async function sendBroadcastTelegramX1Real(
   text: string, title: string, botId: string, apiId: string, apiSecret: string, imageUrl?: string | null,
 ): Promise<SendResult> {
+  const cleanImageUrl = sanitizeStorageUrl(imageUrl);
   const fail = (code: string, msg: string): SendResult => ({
     recipient_user_id: null, recipient_identifier: "broadcast", status: "failed",
     error_code: code, error_message: msg,
-    metadata: { provider: "sendpulse", broadcast: true, real: true, with_image: !!imageUrl },
+    metadata: { provider: "sendpulse", broadcast: true, real: true, with_image: !!cleanImageUrl, image_url: cleanImageUrl },
   });
   // 1. OAuth (token vale 1h)
   const t = await fetch("https://api.sendpulse.com/oauth/access_token", {
@@ -366,8 +397,8 @@ export async function sendBroadcastTelegramX1Real(
   const tj = await t.json().catch(() => ({}));
   if (!t.ok || !tj?.access_token) return fail("sendpulse_auth_error", tj?.error_description ?? "Falha no OAuth do SendPulse");
   // 2. Broadcast pra todos os assinantes do bot
-  const messageBlock = imageUrl
-    ? { type: "image", message: { url: imageUrl, text } }
+  const messageBlock = cleanImageUrl
+    ? { type: "image", message: { url: cleanImageUrl, text } }
     : { type: "text", message: { text } };
   const c = await fetch("https://api.sendpulse.com/telegram/campaigns/send", {
     method: "POST",
@@ -379,7 +410,7 @@ export async function sendBroadcastTelegramX1Real(
   const id = cj?.data?.id ?? cj?.id ?? null;
   return { recipient_user_id: null, recipient_identifier: "broadcast", status: "delivered",
     provider_message_id: id ? String(id) : undefined,
-    metadata: { provider: "sendpulse", broadcast: true, real: true, with_image: !!imageUrl } };
+    metadata: { provider: "sendpulse", broadcast: true, real: true, with_image: !!cleanImageUrl } };
 }
 
 // ============================================================
