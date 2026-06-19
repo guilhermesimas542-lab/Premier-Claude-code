@@ -14,6 +14,8 @@ import { getAvatarById, LEVEL_TITLES } from "@/lib/avatars";
 import { BottomNav } from "@/components/BottomNav";
 
 import ProfileModal from "@/components/ProfileModal";
+import InstallPWA from "@/components/InstallPWA";
+import EnablePushButton from "@/components/EnablePushButton";
 import { useUserAccess } from "@/hooks/useUserAccess";
 
 import { PlansModal } from "@/components/PlansModal";
@@ -351,6 +353,10 @@ const Support = () => {
             Hablar con Soporte
           </button>
         </section>
+
+        {/* App PWA + Notificaciones */}
+        <EnablePushButton />
+        <InstallPWA />
 
         {/* Logout */}
         <section className="rounded-2xl p-4 sm:p-5 space-y-3" style={{ background: "#112236", border: "1.5px solid rgba(255,255,255,0.30)", borderRadius: 16 }}>
