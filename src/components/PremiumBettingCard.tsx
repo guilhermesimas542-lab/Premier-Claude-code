@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { HelpCircle, Info, Link2, Clock, Layers, BarChart3, Lock, BadgeCheck } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { ShirtIcon } from "./ShirtIcon";
+import { TipHowItWorksModal } from "./TipHowItWorksModal";
 
 export interface ShirtConfig {
   variant: "solid" | "stripes";
@@ -122,6 +123,7 @@ export const PremiumBettingCard = ({
   const [showBetHelp, setShowBetHelp] = useState(false);
   const [countdown, setCountdown] = useState<string>("");
   const [isExpiredLocal, setIsExpiredLocal] = useState(false);
+  const [showHowItWorks, setShowHowItWorks] = useState(false);
   const betHelpRef = useRef<HTMLDivElement>(null);
 
   const displayTier = getDisplayTier(tier);
@@ -324,22 +326,42 @@ export const PremiumBettingCard = ({
         </div>
 
 
-        {/* Line 3: recommendation + odd */}
+        {/* Line 3: market + recommendation + odd (descriptive block — lead copia manualmente) */}
         {!isLocked ? (
           <div style={{
-            display: "flex",
-            alignItems: "flex-end",
-            justifyContent: "space-between",
-            padding: "0px 10px 4px 10px",
+            margin: "0 10px 6px 10px",
+            padding: "6px 10px 8px 10px",
+            background: isExpired ? "rgba(255,255,255,0.02)" : `${tierColor}0D`,
+            border: `1px solid ${isExpired ? "rgba(255,255,255,0.06)" : `${tierColor}33`}`,
+            borderRadius: 10,
           }}>
-            <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 17, color: isExpired ? "#6B7280" : "#FFFFFF", flex: 1, paddingRight: 8, lineHeight: 1.2 }}>
-              {betChoice}
-            </span>
-            <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "flex-end" }}>
-              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 9, color: "#94A3B8" }}>Cuota</span>
-              <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: 20, color: isExpired ? "#6B7280" : tierColor, lineHeight: 1 }}>
-                {odds.toFixed(2)}
-              </span>
+            {market && (
+              <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 6, marginBottom: 2 }}>
+                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 9, color: "#94A3B8", letterSpacing: "0.8px", textTransform: "uppercase" as const }}>
+                  Mercado
+                </span>
+                <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 12, color: isExpired ? "#6B7280" : "rgba(255,255,255,0.85)", textAlign: "right" as const, lineHeight: 1.2, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
+                  {market}
+                </span>
+              </div>
+            )}
+            <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 8 }}>
+              <div style={{ flex: 1, display: "flex", flexDirection: "column" as const }}>
+                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 9, color: "#94A3B8", letterSpacing: "0.8px", textTransform: "uppercase" as const }}>
+                  Selección
+                </span>
+                <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 17, color: isExpired ? "#6B7280" : "#FFFFFF", lineHeight: 1.2, paddingRight: 8 }}>
+                  {betChoice}
+                </span>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "flex-end" }}>
+                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 9, color: "#94A3B8", letterSpacing: "0.8px", textTransform: "uppercase" as const }}>
+                  Cuota
+                </span>
+                <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: 22, color: isExpired ? "#6B7280" : tierColor, lineHeight: 1 }}>
+                  {odds.toFixed(2)}
+                </span>
+              </div>
             </div>
           </div>
         ) : (
@@ -405,7 +427,37 @@ export const PremiumBettingCard = ({
         ) : (
           <div style={{ height: 42 }} />
         )}
+
+        {/* Trust link — explica que cópia é manual hoje, integração vem no próximo upgrade */}
+        {!isLocked && !isExpired && (
+          <div style={{ padding: "0 10px 6px 10px", display: "flex", justifyContent: "center" }}>
+            <button
+              type="button"
+              onClick={() => setShowHowItWorks(true)}
+              style={{
+                display: "inline-flex", alignItems: "center", gap: 4,
+                background: "transparent", border: "none", cursor: "pointer",
+                padding: "2px 6px",
+                fontFamily: "'DM Sans', sans-serif", fontSize: 11,
+                color: "rgba(255,255,255,0.55)", textDecoration: "underline",
+                textDecorationColor: "rgba(255,255,255,0.25)",
+                textUnderlineOffset: 2,
+              }}
+            >
+              <Info className="w-3 h-3" style={{ color: tierColor }} />
+              ¿Cómo añadir este tip?
+            </button>
+          </div>
+        )}
       </div>
+
+      <TipHowItWorksModal
+        open={showHowItWorks}
+        onOpenChange={setShowHowItWorks}
+        market={market}
+        betChoice={betChoice}
+        odds={odds}
+      />
     </div>
   );
 };
