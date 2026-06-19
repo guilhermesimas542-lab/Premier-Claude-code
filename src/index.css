@@ -1,0 +1,201 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Tokens espelham 1:1 o src/index.css do app prod (ultrateste111).
+ * Manter sincronizado quando o app prod mudar paleta — o onboarding deve
+ * sempre nascer com as cores corretas pra plugar sem ajuste.
+ */
+
+@layer base {
+  :root {
+    --background: 220 65% 7%;
+    --foreground: 210 17% 95%;
+
+    --card: 215 35% 14%;
+    --card-foreground: 210 17% 95%;
+
+    --popover: 215 45% 10%;
+    --popover-foreground: 210 17% 95%;
+
+    --primary: 41 76% 65%;
+    --primary-foreground: 0 0% 8%;
+
+    --secondary: 41 70% 52%;
+    --secondary-foreground: 0 0% 8%;
+
+    --muted: 220 30% 12%;
+    --muted-foreground: 218 11% 61%;
+
+    --accent: 41 76% 65%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 220 30% 14%;
+    --input: 220 30% 14%;
+    --ring: 41 76% 65%;
+
+    --success: 146 100% 50%;
+    --warning: 42 88% 55%;
+    --vip: 280 100% 60%;
+    --ultra: 280 100% 60%;
+
+    --radius: 0.75rem;
+
+    --brand-green: 41 76% 65%;
+    --brand-gold: 42 88% 55%;
+    --brand-purple-ultra: 263 90% 58%;
+    --card-bg: 215 35% 14%;
+    --navy-dark: 220 65% 7%;
+
+    --gradient-card: linear-gradient(135deg, hsl(215, 45%, 12%) 0%, hsl(220, 65%, 7%) 100%);
+    --shadow-glow-primary: 0 0 20px hsl(146 100% 50% / 0.3);
+    --shadow-glow-accent: 0 0 20px hsl(146 100% 50% / 0.2);
+    --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.4);
+  }
+
+  .dark {
+    --background: 220 65% 7%;
+    --foreground: 210 17% 95%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: "DM Sans", system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: #060d1e;
+    background-image:
+      radial-gradient(circle at 50% 0%, rgba(0, 255, 127, 0.1) 0%, rgba(0, 255, 127, 0) 30%),
+      url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23112236' fill-opacity='0.1' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E");
+  }
+}
+
+@layer utilities {
+  .text-tabular {
+    font-variant-numeric: tabular-nums;
+  }
+  .tracking-tight {
+    letter-spacing: -0.01em;
+  }
+}
+
+/* Scrollbar fino global (igual prod) */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Pulso do ícone do Premier na ilustração do step 3 — só escala + glow,
+   NUNCA mexe na opacidade (o ícone tem que ficar 100% visível o tempo todo). */
+@keyframes premier-app-pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 14px rgba(0, 255, 135, 0.45);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 22px rgba(0, 255, 135, 0.75);
+  }
+}
+.animate-premier-app-pulse {
+  animation: premier-app-pulse 1.8s ease-in-out infinite;
+}
+
+/* ── Animações do Step 4 (ativação gameificada) ── */
+@keyframes orbit-spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes orbit-spin-reverse {
+  to { transform: rotate(-360deg); }
+}
+.animate-orbit-spin {
+  animation: orbit-spin var(--orbit-duration, 14s) linear infinite;
+}
+.animate-orbit-spin-reverse {
+  animation: orbit-spin-reverse var(--orbit-duration, 18s) linear infinite;
+}
+
+@keyframes scanline {
+  0% { transform: translateY(0); opacity: 0.85; }
+  100% { transform: translateY(100%); opacity: 0.85; }
+}
+.animate-scanline {
+  animation: scanline 2.4s linear infinite;
+}
+
+@keyframes activation-glow {
+  0%, 100% {
+    box-shadow:
+      0 0 24px rgba(0, 255, 135, 0.35),
+      inset 0 0 16px rgba(0, 255, 135, 0.18);
+  }
+  50% {
+    box-shadow:
+      0 0 38px rgba(0, 255, 135, 0.6),
+      inset 0 0 24px rgba(0, 255, 135, 0.32);
+  }
+}
+.animate-activation-glow {
+  animation: activation-glow 1.8s ease-in-out infinite;
+}
+
+@keyframes hud-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+.animate-hud-blink {
+  animation: hud-blink 1.2s ease-in-out infinite;
+}
+
+/* Sonar ping — anéis expandindo pra fora do orbe do estado "idle" do step 4 */
+@keyframes sonar-ping {
+  0%   { transform: scale(0.55); opacity: 0; }
+  10%  { opacity: 0.7; }
+  100% { transform: scale(1.85); opacity: 0; }
+}
+.animate-sonar-ping {
+  animation: sonar-ping 3s ease-out infinite;
+}
+
+/* Explosão de sucesso — usada no momento em que o vídeo termina e o lead
+   é direcionado pro popup do Telegram. Check icon dá bounce. */
+@keyframes success-burst {
+  0%   { transform: scale(0); opacity: 0; }
+  50%  { transform: scale(1.25); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.animate-success-burst {
+  animation: success-burst 520ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Ripple — anéis que se expandem uma vez (não em loop) após a ativação. */
+@keyframes ripple-out {
+  0%   { transform: scale(0.3); opacity: 0.75; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+.animate-ripple-out {
+  animation: ripple-out 900ms ease-out forwards;
+}
+
+/* Pop-in do popup final — bounce springy pra entrada satisfatória. */
+@keyframes popup-pop-in {
+  0%   { transform: scale(0.7) translateY(16px); opacity: 0; }
+  60%  { transform: scale(1.04) translateY(-2px); opacity: 1; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+.animate-popup-pop-in {
+  animation: popup-pop-in 360ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}

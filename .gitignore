@@ -1,0 +1,26 @@
+node_modules
+dist
+dist-ssr
+*.local
+
+.DS_Store
+Thumbs.db
+
+# IDEs / ferramentas
+.vscode
+.idea
+*.swp
+.claude/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Clone do app de produção (read-only, só pra eu consultar)
+_app-prod-ref/
+
+# Extrações brutas (mantemos o limpo em docs/briefing/)
+_admin_docs.txt
+_admin_docs_full.txt
