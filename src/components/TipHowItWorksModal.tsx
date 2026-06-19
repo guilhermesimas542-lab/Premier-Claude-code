@@ -1,5 +1,5 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Rocket, Copy, Search, CheckCircle2, X, CalendarClock } from "lucide-react";
+import { Rocket, Copy, Search, CheckCircle2, CalendarClock } from "lucide-react";
 
 interface TipHowItWorksModalProps {
   open: boolean;
@@ -24,19 +24,6 @@ export const TipHowItWorksModal = ({
         className="max-w-md p-0 gap-0 overflow-hidden border-0 max-h-[90vh] overflow-y-auto"
         style={{ background: "#060D1E", border: `1.5px solid ${TIER}33` }}
       >
-        <button
-          onClick={() => onOpenChange(false)}
-          aria-label="Cerrar"
-          style={{
-            position: "absolute", top: 12, right: 12, zIndex: 10,
-            width: 28, height: 28, borderRadius: 999,
-            background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)",
-            display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer",
-          }}
-        >
-          <X className="w-4 h-4 text-white/80" />
-        </button>
-
         {/* HEADER — anúncio da próxima atualização */}
         <div style={{
           padding: "20px 20px 16px 20px",
