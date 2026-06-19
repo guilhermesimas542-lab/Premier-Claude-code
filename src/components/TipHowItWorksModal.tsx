@@ -1,5 +1,5 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Rocket, ShieldCheck, Copy, Search, CheckCircle2, X, CalendarClock } from "lucide-react";
+import { Rocket, Copy, Search, CheckCircle2, X, CalendarClock } from "lucide-react";
 
 interface TipHowItWorksModalProps {
   open: boolean;
@@ -63,45 +63,19 @@ export const TipHowItWorksModal = ({
               fontFamily: "'Barlow Condensed', sans-serif",
               fontWeight: 800, fontSize: 22, color: "#FFFFFF", lineHeight: 1.2,
             }}>
-              Estamos terminando la integración con los sportsbooks de Chile
+              Estamos terminando la integración
+              <br />
+              con los sportsbooks de la Bet7k
             </DialogTitle>
             <p style={{
               fontFamily: "'DM Sans', sans-serif", fontSize: 13,
               color: "#94A3B8", lineHeight: 1.55, marginTop: 4,
             }}>
-              Ya estamos en la recta final de los trámites legales para operar
-              al 100% en Chile. A partir del <strong style={{ color: "#FFFFFF" }}>05/07</strong> vas
-              a poder añadir tu tip al cupón con <strong style={{ color: "#FFFFFF" }}>un solo clic</strong>,
-              sin salir del app. Hasta entonces, te enviamos el tip y tú lo copias en tu
-              casa de apuestas — sigue siendo simple, ya te explicamos abajo.
+              Estamos iniciando ahora nuestra operación en Chile y esta función
+              quedará activa hasta el <strong style={{ color: "#FFFFFF" }}>05/07</strong> —
+              ahí vas a poder añadir tu tip con un solo clic.
             </p>
           </DialogHeader>
-        </div>
-
-        {/* TRUST — operação consolidada no BR (breve) */}
-        <div style={{
-          margin: "14px 20px 0 20px",
-          padding: "10px 12px",
-          borderRadius: 12,
-          background: "rgba(255,255,255,0.03)",
-          border: "1px solid rgba(255,255,255,0.08)",
-          display: "flex", gap: 10, alignItems: "center",
-        }}>
-          <div style={{
-            width: 32, height: 32, flexShrink: 0,
-            borderRadius: 10, background: `${TIER}1A`,
-            border: `1px solid ${TIER}33`,
-            display: "flex", alignItems: "center", justifyContent: "center",
-          }}>
-            <ShieldCheck className="w-4 h-4" style={{ color: TIER }} />
-          </div>
-          <p style={{
-            fontFamily: "'DM Sans', sans-serif", fontSize: 12,
-            color: "#CBD5E1", lineHeight: 1.45, margin: 0, flex: 1,
-          }}>
-            Somos la misma operación de <strong style={{ color: "#FFFFFF" }}>CL Score Brasil</strong>,
-            con miles de leads activos a diario. Chile es la expansión natural — mismo equipo, mismos tips.
-          </p>
         </div>
 
         {/* HOW-TO — 3 passos */}
