@@ -90,6 +90,34 @@ const App = () => {
     installGlobalErrorTracker();
   }, []);
 
+  // One-time cleanup: desregistra service workers órfãos (ex: SW de tracking
+  // do Stape em api.clscore.app que ficou interceptando requests). Mantém só
+  // o /sw.js do próprio app (push notifications).
+  useEffect(() => {
+    if (!("serviceWorker" in navigator)) return;
+    (async () => {
+      try {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        const myOrigin = window.location.origin;
+        for (const r of regs) {
+          const url = r.active?.scriptURL || r.installing?.scriptURL || r.waiting?.scriptURL || "";
+          if (!url.startsWith(myOrigin)) {
+            await r.unregister();
+            console.warn("[sw-cleanup] desregistrado SW estranho:", url);
+          }
+        }
+        const cacheKeys = await caches.keys();
+        for (const k of cacheKeys) {
+          if (!k.startsWith("workbox-") && !k.includes("clscore")) {
+            await caches.delete(k);
+          }
+        }
+      } catch (e) {
+        console.warn("[sw-cleanup] falha:", e);
+      }
+    })();
+  }, []);
+
   useEffect(() => {
     if (!("serviceWorker" in navigator)) return;
 
