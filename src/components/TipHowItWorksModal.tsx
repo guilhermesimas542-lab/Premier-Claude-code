@@ -1,0 +1,190 @@
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Rocket, Copy, Search, CheckCircle2, CalendarClock } from "lucide-react";
+
+interface TipHowItWorksModalProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  market?: string;
+  betChoice?: string;
+  odds?: number;
+}
+
+const TIER = "#10ff80";
+
+export const TipHowItWorksModal = ({
+  open,
+  onOpenChange,
+  market,
+  betChoice,
+  odds,
+}: TipHowItWorksModalProps) => {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent
+        className="max-w-md p-0 gap-0 overflow-hidden border-0 max-h-[90vh] overflow-y-auto"
+        style={{ background: "#060D1E", border: `1.5px solid ${TIER}33` }}
+      >
+        {/* HEADER — anúncio da próxima atualização */}
+        <div style={{
+          padding: "20px 20px 16px 20px",
+          background: `linear-gradient(135deg, ${TIER}1A 0%, transparent 70%)`,
+          borderBottom: "1px solid rgba(255,255,255,0.06)",
+        }}>
+          <DialogHeader className="space-y-2">
+            <div style={{
+              display: "inline-flex", alignItems: "center", gap: 6,
+              padding: "3px 10px", borderRadius: 999,
+              background: `${TIER}26`, border: `1px solid ${TIER}66`,
+              alignSelf: "flex-start", width: "fit-content",
+            }}>
+              <CalendarClock className="w-3 h-3" style={{ color: TIER }} />
+              <span style={{
+                fontFamily: "'Barlow Condensed', sans-serif",
+                fontWeight: 800, fontSize: 11, letterSpacing: "0.8px",
+                color: TIER, textTransform: "uppercase",
+              }}>
+                Llega antes del 05/07
+              </span>
+            </div>
+            <DialogTitle style={{
+              fontFamily: "'Barlow Condensed', sans-serif",
+              fontWeight: 800, fontSize: 22, color: "#FFFFFF", lineHeight: 1.2,
+              textAlign: "center" as const,
+            }}>
+              Estamos terminando la integración
+              <br />
+              con los sportsbooks de la Bet7k
+            </DialogTitle>
+            <p style={{
+              fontFamily: "'DM Sans', sans-serif", fontSize: 13,
+              color: "#94A3B8", lineHeight: 1.55, marginTop: 19,
+            }}>
+              Estamos iniciando ahora nuestra operación en Chile y esta función
+              quedará activa hasta el <strong style={{ color: "#FFFFFF" }}>05/07</strong> —
+              ahí vas a poder añadir tu tip con un solo clic.
+            </p>
+          </DialogHeader>
+        </div>
+
+        {/* HOW-TO — 3 passos */}
+        <div style={{ padding: "16px 20px 4px 20px" }}>
+          <h3 style={{
+            fontFamily: "'Barlow Condensed', sans-serif",
+            fontWeight: 800, fontSize: 13, color: "#FFFFFF",
+            letterSpacing: "0.5px", textTransform: "uppercase", marginBottom: 10,
+          }}>
+            Cómo añadir el tip hoy
+          </h3>
+
+          <Step
+            n={1}
+            icon={<Copy className="w-4 h-4" style={{ color: TIER }} />}
+            title="Anota el mercado y la cuota"
+            desc="En el card del tip ya ves el mercado, la selección y la cuota mínima."
+          />
+          <Step
+            n={2}
+            icon={<Search className="w-4 h-4" style={{ color: TIER }} />}
+            title="Abre tu sportsbook y busca el partido"
+            desc="Ingresa a la casa de apuestas que ya usas y ubica el encuentro indicado."
+          />
+          <Step
+            n={3}
+            icon={<CheckCircle2 className="w-4 h-4" style={{ color: TIER }} />}
+            title="Añade la apuesta en tu cupón"
+            desc="Selecciona el mismo mercado con cuota igual o superior y listo."
+          />
+        </div>
+
+        {/* Resumo da aposta atual */}
+        {(market || betChoice || typeof odds === "number") && (
+          <div style={{ padding: "8px 20px 16px 20px" }}>
+            <div style={{
+              background: "rgba(16,255,128,0.05)",
+              border: `1px solid ${TIER}33`,
+              borderRadius: 12,
+              padding: "12px 14px",
+              display: "flex", flexDirection: "column", gap: 6,
+            }}>
+              <span style={{
+                fontFamily: "'DM Sans', sans-serif", fontSize: 10,
+                color: "#94A3B8", letterSpacing: "1px", textTransform: "uppercase",
+              }}>
+                Tu apuesta de hoy
+              </span>
+              {market && (
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
+                  <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: "#94A3B8" }}>Mercado</span>
+                  <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 14, color: "#FFFFFF", textAlign: "right" as const }}>{market}</span>
+                </div>
+              )}
+              {betChoice && (
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
+                  <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: "#94A3B8" }}>Selección</span>
+                  <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 14, color: "#FFFFFF", textAlign: "right" as const }}>{betChoice}</span>
+                </div>
+              )}
+              {typeof odds === "number" && odds > 0 && (
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
+                  <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: "#94A3B8" }}>Cuota mínima</span>
+                  <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: 18, color: TIER }}>{odds.toFixed(2)}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        <div style={{ padding: "0 20px 20px 20px" }}>
+          <button
+            onClick={() => onOpenChange(false)}
+            style={{
+              width: "100%", padding: "12px 0", border: "none",
+              borderRadius: 10, background: TIER, color: "#000",
+              fontFamily: "'Barlow Condensed', sans-serif",
+              fontWeight: 800, fontSize: 14, letterSpacing: "0.5px",
+              textTransform: "uppercase", cursor: "pointer",
+              display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6,
+            }}
+          >
+            <Rocket className="w-4 h-4" />
+            Entendido, voy al sportsbook
+          </button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+const Step = ({ n, icon, title, desc }: { n: number; icon: React.ReactNode; title: string; desc: string }) => (
+  <div style={{ display: "flex", gap: 10, padding: "8px 0", alignItems: "flex-start" }}>
+    <div style={{
+      width: 28, height: 28, flexShrink: 0,
+      borderRadius: 999, background: `${TIER}1A`,
+      border: `1px solid ${TIER}66`,
+      display: "flex", alignItems: "center", justifyContent: "center",
+      fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800,
+      fontSize: 13, color: TIER,
+    }}>
+      {n}
+    </div>
+    <div style={{ flex: 1 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
+        {icon}
+        <span style={{
+          fontFamily: "'Barlow Condensed', sans-serif",
+          fontWeight: 800, fontSize: 13, color: "#FFFFFF",
+        }}>
+          {title}
+        </span>
+      </div>
+      <p style={{
+        fontFamily: "'DM Sans', sans-serif", fontSize: 12,
+        color: "#94A3B8", lineHeight: 1.45, margin: 0,
+      }}>
+        {desc}
+      </p>
+    </div>
+  </div>
+);
+
+export default TipHowItWorksModal;
