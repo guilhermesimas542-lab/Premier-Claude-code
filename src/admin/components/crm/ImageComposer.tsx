@@ -72,11 +72,13 @@ function ImageComposerInner({
       .from("crm-creatives")
       .upload(path, blob, { contentType: "image/png", upsert: false });
     if (error) throw error;
-    const { data: signed, error: signErr } = await supabase.storage
+    // Bucket é público — usamos getPublicUrl. URL assinada (createSignedUrl) gera
+    // ?token=... que rompe alguns providers (SendPulse rejeita: "given data invalid").
+    const { data: pub } = supabase.storage
       .from("crm-creatives")
-      .createSignedUrl(path, 60 * 60 * 24 * 3650);
-    if (signErr || !signed?.signedUrl) throw new Error(signErr?.message || "Falha gerando URL assinada");
-    return signed.signedUrl;
+      .getPublicUrl(path);
+    if (!pub?.publicUrl) throw new Error("Falha gerando URL pública");
+    return pub.publicUrl;
   }
 
   const handleGenerateAI = async () => {
