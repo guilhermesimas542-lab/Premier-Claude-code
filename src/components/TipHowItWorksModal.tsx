@@ -62,6 +62,7 @@ export const TipHowItWorksModal = ({
             <DialogTitle style={{
               fontFamily: "'Barlow Condensed', sans-serif",
               fontWeight: 800, fontSize: 22, color: "#FFFFFF", lineHeight: 1.2,
+              textAlign: "center" as const,
             }}>
               Estamos terminando la integración
               <br />
