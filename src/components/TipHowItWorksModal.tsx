@@ -58,6 +58,7 @@ export const TipHowItWorksModal = ({
             <p style={{
               fontFamily: "'DM Sans', sans-serif", fontSize: 13,
               color: "#94A3B8", lineHeight: 1.55, marginTop: 19,
+              textWrap: "balance" as const,
             }}>
               Estamos iniciando ahora nuestra operación en Chile y esta función
               quedará activa hasta el <strong style={{ color: "#FFFFFF" }}>05/07</strong> —
