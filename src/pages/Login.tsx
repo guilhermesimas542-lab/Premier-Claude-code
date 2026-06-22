@@ -111,7 +111,16 @@ const useLastGreens = () => {
   return { greens, greenLabel };
 };
 
-const Login = () => {
+const Login = ({ onboardingFlow = false }: { onboardingFlow?: boolean }) => {
+  // Fluxo isolado (rota /onboarding, pós-compra): marca o lead pra ver o
+  // onboarding de 5 steps no Home. O /login normal não seta isto, então
+  // leads recorrentes não passam pelo funil.
+  useEffect(() => {
+    if (onboardingFlow) {
+      try { localStorage.setItem("app_onboarding_flow_v1", "1"); } catch { /* ignore */ }
+    }
+  }, [onboardingFlow]);
+
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [emailError, setEmailError] = useState("");

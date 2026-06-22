@@ -31,11 +31,37 @@ import { isPreviewEnv } from "@/lib/previewEnv";
 import iaTipsterCartoon from "@/assets/ia-tipster-cartoon.png";
 import robotFootball from "@/assets/robot-football.png";
 import { IATipsterOnboardingModal } from "@/components/ia-tipster/IATipsterOnboardingModal";
+import { OnboardingModal } from "@/components/onboarding/OnboardingModal";
+import { clearPersistedStep } from "@/components/onboarding/hooks/useOnboardingState";
+import { STEPS, FINAL_CTA_LABEL } from "@/data/steps";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 
 // Mesmo localStorage key usado em IATipster.tsx — mantém sincronizado o estado
 // "lead já viu o anúncio da feature" entre Home e a página interna.
 const LS_IA_ONBOARDING_SEEN = "ia_tipster_onboarding_seen_v2";
+
+// Onboarding de 1º acesso (5 steps: tour → atalho → ativação no Telegram).
+// Quem já tem essa flag (base antiga) NÃO revê — só novos leads passam pelo fluxo.
+const LS_APP_ONBOARDING_SEEN = "app_onboarding_seen_v1";
+// Flag ligada só pela rota isolada /onboarding (pós-compra).
+const LS_APP_ONBOARDING_FLOW = "app_onboarding_flow_v1";
+
+// LIGA/DESLIGA o onboarding pra TODOS os novos leads. Quando `true`, todo lead
+// no 1º acesso passa pelo fluxo; `?test_onb=1` continua forçando em qualquer caso.
+const ONBOARDING_LIVE = true;
+const LS_ONBOARDING_TEST_MODE = "onb_test_mode";
+
+// Deep-link do bot de ativação no Telegram (última etapa do onboarding).
+// TODO: trocar pelo bot chileno quando estiver pronto. Por enquanto reusa o ES.
+const ONBOARDING_TELEGRAM_URL =
+  "https://t.me/Clscorees_bot?start=6a341e3df4aaaf18640aa822";
+
+/** Primeiro nome (capitalizado) a partir do `full_name` do comprador. */
+function firstNameFromFull(full?: string | null): string | undefined {
+  const token = (full ?? "").trim().split(/\s+/)[0] ?? "";
+  if (!token) return undefined;
+  return token.charAt(0).toUpperCase() + token.slice(1).toLowerCase();
+}
 
 const CARD_TO_FEATURE: Record<string, FeatureKey> = {
   odds_altas: "multiplas_bingo",
@@ -51,6 +77,10 @@ const Home = () => {
   // Anúncio da nova feature IA Tipster — aparece UMA VEZ pra todo lead
   // que entrar no app pela primeira vez após a release.
   const [showIaAnnouncement, setShowIaAnnouncement] = useState(false);
+  const [showAppOnboarding, setShowAppOnboarding] = useState(false);
+  // Primeiro nome do lead (do full_name salvo pelo webhook de pagamento). Usado
+  // pra personalizar o onboarding ("Hola, [Nome]."). undefined → saudação neutra.
+  const [leadFirstName, setLeadFirstName] = useState<string | undefined>(undefined);
   const [showLifetimeModal, setShowLifetimeModal] = useState(false);
   const [showLifetimeInfoModal, setShowLifetimeInfoModal] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
@@ -76,8 +106,9 @@ const Home = () => {
   useEffect(() => {
     const checkEntitlements = async () => {
       if (!mockUser) return;
-      const { data: userData } = await supabase.from("users").select("id").eq("email", mockUser.email.toLowerCase().trim()).maybeSingle();
+      const { data: userData } = await supabase.from("users").select("id, full_name").eq("email", mockUser.email.toLowerCase().trim()).maybeSingle();
       if (!userData?.id) return;
+      setLeadFirstName(firstNameFromFull(userData.full_name));
       const { data: ents } = await supabase
         .from("entitlements")
         .select("product_key")
@@ -106,16 +137,41 @@ const Home = () => {
   }, [availableEntries]);
 
   useEffect(() => {
+    // Modo teste do onboarding: ?test_onb=1 persiste em localStorage pra
+    // sobreviver ao redirect de login; ?test_onb=0 desliga.
+    const testParam = new URLSearchParams(window.location.search).get("test_onb");
+    if (testParam === "1") localStorage.setItem(LS_ONBOARDING_TEST_MODE, "1");
+    if (testParam === "0") localStorage.removeItem(LS_ONBOARDING_TEST_MODE);
+
     if (!isAuthenticated()) { navigate("/login"); return; }
     setLoading(false);
     Object.keys(localStorage).forEach(key => {
       if (key.startsWith('popup_shown_') || key === 'welcome_popup_shown') localStorage.removeItem(key);
     });
+    // Onboarding de 5 steps abre só em 2 casos: modo teste (?test_onb=1) OU
+    // fluxo isolado pós-compra (rota /onboarding, que liga a flag). O /login
+    // normal NÃO liga a flag — leads recorrentes não veem o funil.
+    const testOnb = localStorage.getItem(LS_ONBOARDING_TEST_MODE) === "1";
+    const onbFlow = localStorage.getItem(LS_APP_ONBOARDING_FLOW) === "1";
+    const firstAccess = localStorage.getItem(LS_APP_ONBOARDING_SEEN) !== "true";
+    if (testOnb || (ONBOARDING_LIVE && onbFlow && firstAccess)) {
+      setShowAppOnboarding(true);
+      return;
+    }
     // Anúncio IA Tipster: aparece 1x pra todo lead autenticado (só em preview).
     if (isPreviewEnv() && localStorage.getItem(LS_IA_ONBOARDING_SEEN) !== "true") {
       setShowIaAnnouncement(true);
     }
   }, [navigate]);
+
+  const handleAppOnboardingComplete = () => {
+    localStorage.setItem(LS_APP_ONBOARDING_SEEN, "true");
+    localStorage.removeItem(LS_APP_ONBOARDING_FLOW);
+    // Limpa o ponteiro do step persistido — próxima vez (se houver) começa
+    // do 1, em vez de retomar no final.
+    clearPersistedStep();
+    setShowAppOnboarding(false);
+  };
 
   /** Conclusão do funil de onboarding (todos os 4 steps do modal vistos).
    *  Marca onboarding+tutorial como concluídos pra não exibir mais o tutorial
@@ -529,6 +585,16 @@ const Home = () => {
       <IATipsterOnboardingModal
         open={showIaAnnouncement}
         onComplete={handleIaOnboardingComplete}
+      />
+
+      {/* Onboarding de 1º acesso — 5 steps; o último congela forçando a
+          ativação no Telegram. `onComplete` marca como visto e libera o app. */}
+      <OnboardingModal
+        open={showAppOnboarding}
+        steps={STEPS}
+        user={{ firstName: leadFirstName, telegramUrl: ONBOARDING_TELEGRAM_URL }}
+        finalLabel={FINAL_CTA_LABEL}
+        onComplete={handleAppOnboardingComplete}
       />
 
       {/* Modal Promoções */}

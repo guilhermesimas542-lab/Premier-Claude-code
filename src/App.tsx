@@ -155,6 +155,7 @@ const App = () => {
           <GlobalPopups />
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/onboarding" element={<Login onboardingFlow />} />
             <Route path="/" element={<Home />} />
             <Route element={<SportLayout />}>
               <Route path="/sport/:sportId" element={<Sport />} />

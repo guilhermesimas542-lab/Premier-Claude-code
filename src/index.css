@@ -384,3 +384,107 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     text-underline-offset: 3px;
   }
 }
+
+/* ============================================================
+ * Onboarding in-app (components/onboarding) — animações.
+ * Portadas do projeto de preview do onboarding. Não remover sem
+ * checar uso em src/components/onboarding/.
+ * ============================================================ */
+
+/* Entrada de cada step (fullscreen) + itens da lista do step 1. */
+@keyframes onb-fade-in-scale {
+  0% { opacity: 0; transform: scale(0.95); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.animate-fade-in-scale {
+  animation: onb-fade-in-scale 250ms ease-out;
+}
+@keyframes onb-slide-up {
+  0% { transform: translateY(10px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+.animate-slide-up {
+  animation: onb-slide-up 120ms ease-out;
+}
+
+/* Pulso do ícone do app na ilustração do step 3 — só escala + glow,
+   NUNCA mexe na opacidade (o ícone fica 100% visível o tempo todo). */
+@keyframes premier-app-pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 14px rgba(0, 255, 135, 0.45);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 22px rgba(0, 255, 135, 0.75);
+  }
+}
+.animate-premier-app-pulse {
+  animation: premier-app-pulse 1.8s ease-in-out infinite;
+}
+
+/* ── Animações do Step 4 (ativação gameificada) ── */
+@keyframes orbit-spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes orbit-spin-reverse {
+  to { transform: rotate(-360deg); }
+}
+.animate-orbit-spin {
+  animation: orbit-spin var(--orbit-duration, 14s) linear infinite;
+}
+.animate-orbit-spin-reverse {
+  animation: orbit-spin-reverse var(--orbit-duration, 18s) linear infinite;
+}
+
+@keyframes scanline {
+  0% { transform: translateY(0); opacity: 0.85; }
+  100% { transform: translateY(100%); opacity: 0.85; }
+}
+.animate-scanline {
+  animation: scanline 2.4s linear infinite;
+}
+
+@keyframes activation-glow {
+  0%, 100% {
+    box-shadow:
+      0 0 24px rgba(0, 255, 135, 0.35),
+      inset 0 0 16px rgba(0, 255, 135, 0.18);
+  }
+  50% {
+    box-shadow:
+      0 0 38px rgba(0, 255, 135, 0.6),
+      inset 0 0 24px rgba(0, 255, 135, 0.32);
+  }
+}
+.animate-activation-glow {
+  animation: activation-glow 1.8s ease-in-out infinite;
+}
+
+@keyframes hud-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+.animate-hud-blink {
+  animation: hud-blink 1.2s ease-in-out infinite;
+}
+
+/* Sonar ping — anéis expandindo pra fora do orbe do estado "idle" do step 4. */
+@keyframes sonar-ping {
+  0%   { transform: scale(0.55); opacity: 0; }
+  10%  { opacity: 0.7; }
+  100% { transform: scale(1.85); opacity: 0; }
+}
+.animate-sonar-ping {
+  animation: sonar-ping 3s ease-out infinite;
+}
+
+/* Pop-in do popup final — bounce springy pra entrada satisfatória. */
+@keyframes popup-pop-in {
+  0%   { transform: scale(0.7) translateY(16px); opacity: 0; }
+  60%  { transform: scale(1.04) translateY(-2px); opacity: 1; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+.animate-popup-pop-in {
+  animation: popup-pop-in 360ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
