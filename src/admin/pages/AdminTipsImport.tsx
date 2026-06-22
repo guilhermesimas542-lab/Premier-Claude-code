@@ -2,7 +2,7 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Upload, Loader2, CheckCircle, AlertTriangle } from "lucide-react";
+import { Upload, Loader2, CheckCircle, AlertTriangle, HelpCircle } from "lucide-react";
 import { toast } from "sonner";
 import { TeamAutocomplete } from "../components/TeamAutocomplete";
 import {
@@ -13,6 +13,7 @@ import {
   dedupKey,
   type ParsedTipRow,
 } from "../lib/csvExportImport";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 interface Team { id: string; name: string; logo_url: string; }
 
@@ -31,6 +32,7 @@ export default function AdminTipsImport() {
   const [isDragging, setIsDragging] = useState(false);
   const [fileName, setFileName] = useState<string | null>(null);
   const [dedupe, setDedupe] = useState(true);
+  const [showHelp, setShowHelp] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -60,6 +62,16 @@ export default function AdminTipsImport() {
       const text = ev.target?.result as string;
       const raw = parseCSV(text);
       if (raw.length === 0) { toast.error("Ninguna línea encontrada"); return; }
+
+      // Trava: o CSV precisa ter as colunas de times (formato reimportável).
+      const cols = Object.keys(raw[0] || {});
+      const hasTeam1 = ["time1", "team1_name", "team1"].some((c) => cols.includes(c));
+      const hasTeam2 = ["time2", "team2_name", "team2"].some((c) => cols.includes(c));
+      if (!hasTeam1 || !hasTeam2) {
+        toast.error('Esse CSV não é o "reimportável" (faltam as colunas time1/time2). Use o botão "Exportar reimportável" — não o "Exportar relatório".');
+        setFileName(null);
+        return;
+      }
 
       const parsed: ReviewRow[] = raw.map((r) => {
         const norm = normalizeRow(r);
@@ -134,10 +146,10 @@ export default function AdminTipsImport() {
 
       const skipped = validRows.length - rowsToImport.length;
       if (skipped > 0) {
-        toast.message(`Saltadas ${skipped} duplicada(s)`);
+        toast.message(`Puladas ${skipped} duplicata(s)`);
       }
       if (rowsToImport.length === 0) {
-        toast.success("Nada por importar — todas ya existen");
+        toast.success("Nada para importar — todas já existem");
         setImporting(false);
         return;
       }
@@ -197,7 +209,7 @@ export default function AdminTipsImport() {
 
         <label className="flex items-center gap-2 text-sm cursor-pointer">
           <Checkbox checked={dedupe} onCheckedChange={(v) => setDedupe(v === true)} />
-          <span>Evitar duplicadas (misma fecha + equipos + cuota + pronóstico)</span>
+          <span>Evitar duplicatas (mesma data + times + cuota + palpite)</span>
         </label>
 
         <div className="space-y-3">
@@ -273,7 +285,12 @@ export default function AdminTipsImport() {
 
   return (
     <div className="max-w-3xl space-y-4">
-      <h2 className="text-xl font-bold">Importar CSV</h2>
+      <div className="flex items-center justify-between gap-2">
+        <h2 className="text-xl font-bold">Importar CSV</h2>
+        <Button variant="outline" size="sm" onClick={() => setShowHelp(true)}>
+          <HelpCircle className="w-4 h-4 mr-2" /> Como importar?
+        </Button>
+      </div>
 
       <div
         className={`relative rounded-xl p-8 text-center cursor-pointer transition-all duration-200 border-2 border-dashed
@@ -313,6 +330,24 @@ export default function AdminTipsImport() {
           (Chile ↔ Espanha). Los escudos resuelven automáticamente desde la tabla <code>teams</code> del destino.
         </p>
       </div>
+
+      <Dialog open={showHelp} onOpenChange={setShowHelp}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Como importar tips</DialogTitle>
+          </DialogHeader>
+          <ol className="space-y-2 text-sm text-muted-foreground list-decimal pl-5">
+            <li>Na outra operação, clique em <strong className="text-foreground">"Exportar reimportável"</strong> (botão azul). ⚠️ Não use o "Exportar relatório".</li>
+            <li>Aqui, <strong className="text-foreground">arraste o arquivo</strong> <code>tips_reimport_*.csv</code> (ou clique pra selecionar).</li>
+            <li>Confira os times — eles batem sozinhos com a tabela de times e o escudo aparece. Ajuste os que ficarem pendentes.</li>
+            <li>Deixe <strong className="text-foreground">"Evitar duplicatas"</strong> ligado pra não repetir tips.</li>
+            <li>Clique em <strong className="text-foreground">Importar</strong>. Pronto ✅</li>
+          </ol>
+          <p className="text-xs text-muted-foreground border-t border-border pt-2">
+            O arquivo precisa ter as colunas: <code>data_hora, time1, time2, categoria, odd, palpite, mercado, explicacao, justificativa</code>
+          </p>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

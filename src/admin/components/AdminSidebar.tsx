@@ -1,6 +1,6 @@
 import { NavLink, useLocation } from "react-router-dom";
 import {
-  LayoutDashboard, Image, PlusCircle, List,
+  LayoutDashboard, Image, PlusCircle, List, Upload,
   Users, Bell, BarChart3, ChevronLeft, ChevronRight,
   Activity, Home, Link, Layers, Shield, CreditCard, Bug, Zap,
   ChevronDown, UserPlus, UserX, UserCheck, Trophy, MessageSquare, Sparkles,
@@ -68,6 +68,7 @@ export function AdminSidebar() {
       label: "Tips",
       items: [
         { to: "/admin/tips/create", icon: PlusCircle, label: "Tips: Registrar" },
+        { to: "/admin/tips/import", icon: Upload, label: "Tips: Importar" },
         { to: "/admin/tips/list", icon: List, label: "Tips: Listar", badge: counts.tips, badgeColor: "bg-blue-500" },
         { to: "/admin/tips/analytics", icon: BarChart3, label: "Analytics" },
         { to: "/admin/teams", icon: Shield, label: "Equipos (Logos)" },

@@ -560,9 +560,9 @@ function getPlanoLabel(t: any): { label: string; color: string } {
             URL.revokeObjectURL(url);
           }}
           className="flex items-center gap-2 px-4 py-2 rounded-lg bg-green-600/20 text-green-400 hover:bg-green-600/30 text-sm font-medium transition-colors"
-          title="CSV plano para revisión humana (no re-importable)"
+          title="CSV simples para conferência (não reimportável)"
         >
-          Exportar reporte
+          Exportar relatório
         </button>
         <button
           onClick={() => {
@@ -588,12 +588,12 @@ function getPlanoLabel(t: any): { label: string; color: string } {
             a.download = `tips_reimport_${new Date().toISOString().split("T")[0]}.csv`;
             a.click();
             URL.revokeObjectURL(url);
-            toast.success(`${tips.length} tips exportadas en formato re-importable`);
+            toast.success(`${tips.length} tips exportadas (reimportável)`);
           }}
           className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 text-sm font-medium transition-colors"
-          title="CSV re-importable — el mismo formato sirve para subir en otra operación (Chile ↔ Espanha)"
+          title="CSV reimportável — mesmo formato pra subir em outra operação (Chile ↔ Espanha)"
         >
-          Exportar reimportable
+          Exportar reimportável
         </button>
         <button
           onClick={handleExportBatchGreens}

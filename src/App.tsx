@@ -36,6 +36,7 @@ import AdminDashboard from "./admin/pages/AdminDashboard";
 
 import AdminTipsCreate from "./admin/pages/AdminTipsCreate";
 import AdminTipsList from "./admin/pages/AdminTipsList";
+import AdminTipsImport from "./admin/pages/AdminTipsImport";
 import AdminTipsAnalytics from "./admin/pages/AdminTipsAnalytics";
 import AdminClientsManage from "./admin/pages/AdminClientsManage";
 import AdminClientsCreate from "./admin/pages/AdminClientsCreate";
@@ -183,6 +184,7 @@ const App = () => {
               <Route path="predictions" element={<AdminPredictions />} />
               <Route path="tips/create" element={<AdminTipsCreate />} />
               <Route path="tips/list" element={<AdminTipsList />} />
+              <Route path="tips/import" element={<AdminTipsImport />} />
               <Route path="tips/analytics" element={<AdminTipsAnalytics />} />
               <Route path="clients" element={<AdminClientsManage />} />
               <Route path="clients/nao-acessou" element={<AdminNaoAcessou />} />

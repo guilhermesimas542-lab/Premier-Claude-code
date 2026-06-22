@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { HelpCircle, Info, Link2, Clock, Layers, BarChart3, Lock, BadgeCheck } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { ShirtIcon } from "./ShirtIcon";
+import { getTeamLogo } from "@/lib/teamLogos";
 import { TipHowItWorksModal } from "./TipHowItWorksModal";
 
 export interface ShirtConfig {
@@ -96,6 +97,33 @@ const getDisplayTier = (tier: string): "GRÁTIS" | "BÁSICO" | "PRO" | "ULTRA" =
   if (tier === "GRÁTIS") return "GRÁTIS";
   return "BÁSICO";
 };
+
+/**
+ * Escudo do time: usa a logo explícita se vier; senão busca no bucket
+ * compartilhado team_logos pelo nome; senão cai no ShirtIcon (camisa).
+ */
+function TeamCrest({ team, isExpired }: { team: TeamWithShirt; isExpired: boolean }) {
+  const [bucketLogo, setBucketLogo] = useState<string | null>(null);
+  useEffect(() => {
+    if (team.logo) return;
+    let alive = true;
+    getTeamLogo(team.name).then((u) => { if (alive) setBucketLogo(u); });
+    return () => { alive = false; };
+  }, [team.logo, team.name]);
+
+  const logo = team.logo || bucketLogo;
+  return (
+    <div style={{ width: 62, height: 62, borderRadius: "50%", border: "1.5px solid rgba(255,255,255,0.15)", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(255,255,255,0.05)" }}>
+      {logo ? (
+        <img src={logo} alt={team.name} className={isExpired ? "opacity-50" : ""} style={{ width: 48, height: 48, objectFit: "contain" }} />
+      ) : team.shirt ? (
+        <ShirtIcon variant={team.shirt.variant} primaryColor={team.shirt.primaryColor} secondaryColor={team.shirt.secondaryColor} size={50} />
+      ) : (
+        <ShirtIcon variant="solid" primaryColor="#6B7280" size={50} />
+      )}
+    </div>
+  );
+}
 
 export const PremiumBettingCard = ({
   tipId,
@@ -291,15 +319,7 @@ export const PremiumBettingCard = ({
         }}>
           {/* Team 1 */}
           <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 4 }}>
-            <div style={{ width: 62, height: 62, borderRadius: "50%", border: "1.5px solid rgba(255,255,255,0.15)", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(255,255,255,0.05)" }}>
-              {team1.logo ? (
-                <img src={team1.logo} alt={team1.name} className={isExpired ? "opacity-50" : ""} style={{ width: 48, height: 48, objectFit: "contain" }} />
-              ) : team1.shirt ? (
-                <ShirtIcon variant={team1.shirt.variant} primaryColor={team1.shirt.primaryColor} secondaryColor={team1.shirt.secondaryColor} size={50} />
-              ) : (
-                <ShirtIcon variant="solid" primaryColor="#6B7280" size={50} />
-              )}
-            </div>
+            <TeamCrest team={team1} isExpired={isExpired} />
             <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 16, color: isExpired ? "#6B7280" : "#FFFFFF", textAlign: "center" as const, maxWidth: 80, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const, marginTop: 2 }}>
               {team1.name}
             </span>
@@ -310,15 +330,7 @@ export const PremiumBettingCard = ({
 
           {/* Team 2 */}
           <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 4 }}>
-            <div style={{ width: 62, height: 62, borderRadius: "50%", border: "1.5px solid rgba(255,255,255,0.15)", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(255,255,255,0.05)" }}>
-              {team2.logo ? (
-                <img src={team2.logo} alt={team2.name} className={isExpired ? "opacity-50" : ""} style={{ width: 48, height: 48, objectFit: "contain" }} />
-              ) : team2.shirt ? (
-                <ShirtIcon variant={team2.shirt.variant} primaryColor={team2.shirt.primaryColor} secondaryColor={team2.shirt.secondaryColor} size={50} />
-              ) : (
-                <ShirtIcon variant="solid" primaryColor="#6B7280" size={50} />
-              )}
-            </div>
+            <TeamCrest team={team2} isExpired={isExpired} />
             <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 16, color: isExpired ? "#6B7280" : "#FFFFFF", textAlign: "center" as const, maxWidth: 80, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const, marginTop: 2 }}>
               {team2.name}
             </span>
