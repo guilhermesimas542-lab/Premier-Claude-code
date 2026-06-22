@@ -88,13 +88,21 @@ export function inferCategoria(t: {
 
 /** Formata data pra ISO local sem timezone shift (`YYYY-MM-DDTHH:MM:SS`). */
 export function formatDateForExport(starts_at: string | null, date: string | null): string {
+  // DIA canônico = campo `date` (o dia ao qual a tip pertence). A HORA vem de
+  // starts_at só como referência. Isso evita que o dia desloque por fuso
+  // (ex.: jogo de hoje à noite cujo starts_at em UTC já é madrugada de amanhã).
+  let time = "00:00:00";
   if (starts_at) {
-    // remove qualquer Z/offset pra manter formato local
-    const m = starts_at.match(/^(\d{4}-\d{2}-\d{2})[T ](\d{2}:\d{2})(:\d{2})?/);
-    if (m) return `${m[1]}T${m[2]}${m[3] || ":00"}`;
+    const m = String(starts_at).match(/[T ](\d{2}:\d{2})(:\d{2})?/);
+    if (m) time = `${m[1]}${m[2] || ":00"}`;
   }
-  if (date) return `${date}T00:00:00`;
-  return "";
+  const day =
+    date && /^\d{4}-\d{2}-\d{2}/.test(date)
+      ? date.slice(0, 10)
+      : starts_at
+        ? String(starts_at).slice(0, 10)
+        : "";
+  return day ? `${day}T${time}` : "";
 }
 
 function escapeCSVCell(value: unknown): string {
