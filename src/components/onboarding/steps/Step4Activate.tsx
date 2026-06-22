@@ -5,7 +5,7 @@ import { useApplyCtaOverride } from "@/components/onboarding/cta-context";
 import { isVideoCompleted, useVideoGating } from "@/components/onboarding/hooks/useVideoGating";
 import { vturbPlayerSrc } from "@/components/onboarding/lib/vturb";
 import { cn } from "@/lib/utils";
-import clscoreLogo from "@/assets/clscore-logo.png";
+import clscoreLogo from "@/assets/clscore-logo.webp";
 
 type State = "idle" | "activating" | "complete";
 

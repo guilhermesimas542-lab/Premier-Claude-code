@@ -19,7 +19,7 @@ import { usePwaInstall } from "@/components/onboarding/hooks/usePwaInstall";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { IAB_LABELS, type IabType } from "@/lib/in-app-browser";
 import { cn } from "@/lib/utils";
-import clscoreLogo from "@/assets/clscore-logo.png";
+import clscoreLogo from "@/assets/clscore-logo.webp";
 
 /**
  * Step 3 — Atalho do PREMIER na tela inicial.
