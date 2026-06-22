@@ -1,80 +1,36 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Upload, Loader2, CheckCircle, AlertCircle, AlertTriangle } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Upload, Loader2, CheckCircle, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { TeamAutocomplete } from "../components/TeamAutocomplete";
-
-const CSV_HEADERS = [
-  "data_hora", "time1", "time2", "categoria", "odd",
-  "palpite", "mercado", "explicacao", "justificativa",
-];
-
-const CATEGORIA_MAP: Record<string, { tier: string; addon: string | null; feature: string | null }> = {
-  free:                 { tier: "free",  addon: null,          feature: null },
-  basico:               { tier: "basic", addon: null,          feature: "odds_safes" },
-  basic:                { tier: "basic", addon: null,          feature: "odds_safes" },
-  pro:                  { tier: "pro",   addon: null,          feature: "odds_pro" },
-  ultra:                { tier: "ultra", addon: null,          feature: "odds_pro" },
-  premium:              { tier: "pro",   addon: null,          feature: "odds_pro" },
-  alavancagem:          { tier: "ultra", addon: "alavancagem", feature: "alavancagem" },
-  multiplas_bingo:      { tier: "ultra", addon: null,          feature: "multiplas_bingo" },
-  mercados_secundarios: { tier: "ultra", addon: null,          feature: "mercados_secundarios" },
-  esportes_americanos:  { tier: "ultra", addon: null,          feature: "esportes_americanos" },
-  odds_ultra:           { tier: "ultra", addon: null,          feature: "odds_ultra" },
-};
+import {
+  CSV_HEADERS,
+  CATEGORIA_MAP,
+  parseCSV,
+  normalizeRow,
+  dedupKey,
+  type ParsedTipRow,
+} from "../lib/csvExportImport";
 
 interface Team { id: string; name: string; logo_url: string; }
 
-interface ParsedRow {
-  date: string;
-  starts_at: string;
-  team1_name: string;
+interface ReviewRow extends ParsedTipRow {
   team1_logo_url: string;
   team1_matched: boolean;
-  team2_name: string;
   team2_logo_url: string;
   team2_matched: boolean;
-  categoria: string;
-  odd: string;
-  palpite: string;
-  mercado: string;
-  explicacao: string;
-  justificativa: string;
-}
-
-function parseCSV(text: string): any[] {
-  const sep = text.includes(";") ? ";" : ",";
-  const lines = text.trim().split("\n").map((l) => l.split(sep).map((c) => c.trim().replace(/^"|"$/g, "")));
-  const headers = lines[0].map((h) => h.toLowerCase().replace(/\s+/g, "_"));
-  return lines.slice(1).filter(cols => cols.some(c => c.trim())).map((cols) => {
-    const row: any = {};
-    headers.forEach((h, i) => { row[h] = cols[i] ?? ""; });
-    return row;
-  });
-}
-
-function parseDateBR(raw: string): { date: string; starts_at: string } {
-  // Supports "26/02/2026 20:00" or "2026-02-26T20:00" or "2026-02-26 20:00"
-  let cleaned = raw.trim();
-  const brMatch = cleaned.match(/^(\d{2})\/(\d{2})\/(\d{4})\s+(\d{2}:\d{2})$/);
-  if (brMatch) {
-    const [, dd, mm, yyyy, time] = brMatch;
-    cleaned = `${yyyy}-${mm}-${dd}T${time}`;
-  }
-  const dt = new Date(cleaned.replace(" ", "T"));
-  if (isNaN(dt.getTime())) return { date: "", starts_at: "" };
-  const dateOnly = dt.toISOString().split("T")[0];
-  return { date: dateOnly, starts_at: dt.toISOString() };
 }
 
 export default function AdminTipsImport() {
   const [step, setStep] = useState<"upload" | "review">("upload");
-  const [rows, setRows] = useState<ParsedRow[]>([]);
+  const [rows, setRows] = useState<ReviewRow[]>([]);
   const [teams, setTeams] = useState<Team[]>([]);
   const [importing, setImporting] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [fileName, setFileName] = useState<string | null>(null);
+  const [dedupe, setDedupe] = useState(true);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -105,28 +61,16 @@ export default function AdminTipsImport() {
       const raw = parseCSV(text);
       if (raw.length === 0) { toast.error("Ninguna línea encontrada"); return; }
 
-      const parsed: ParsedRow[] = raw.map((r) => {
-        const rawDate = r.data_hora || r.date || r.data || "";
-        const { date, starts_at } = parseDateBR(rawDate);
-        const t1name = r.time1 || r.team1_name || r.team1 || "";
-        const t2name = r.time2 || r.team2_name || r.team2 || "";
-        const t1 = matchTeam(t1name);
-        const t2 = matchTeam(t2name);
+      const parsed: ReviewRow[] = raw.map((r) => {
+        const norm = normalizeRow(r);
+        const t1 = matchTeam(norm.team1_name);
+        const t2 = matchTeam(norm.team2_name);
         return {
-          date,
-          starts_at,
-          team1_name: t1name,
+          ...norm,
           team1_logo_url: t1.logo_url,
           team1_matched: t1.matched,
-          team2_name: t2name,
           team2_logo_url: t2.logo_url,
           team2_matched: t2.matched,
-          categoria: r.categoria || r.category || "free",
-          odd: r.odd || "",
-          palpite: r.palpite || r.condition_to_win || "",
-          mercado: r.mercado || r.market || "",
-          explicacao: r.explicacao || r.mercado_explicacao || r.category_explanation || "",
-          justificativa: r.justificativa || r.justification || "",
         };
       });
 
@@ -139,10 +83,6 @@ export default function AdminTipsImport() {
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) processFile(file);
-  };
-
-  const updateRow = (idx: number, field: keyof ParsedRow, value: any) => {
-    setRows(prev => prev.map((r, i) => i === idx ? { ...r, [field]: value } : r));
   };
 
   const handleTeamChange = (idx: number, teamNum: 1 | 2, name: string, logoUrl: string) => {
@@ -163,7 +103,47 @@ export default function AdminTipsImport() {
     if (validRows.length === 0) { toast.error("Ninguna línea válida"); return; }
     setImporting(true);
 
-    const payload = validRows.map((r) => {
+    // Dedup: busca tips existentes nas mesmas datas e remove duplicatas da payload
+    let rowsToImport = validRows;
+    if (dedupe) {
+      const dates = Array.from(new Set(validRows.map(r => r.date)));
+      const { data: existing } = await (supabase as any)
+        .from("content_entries")
+        .select("date,team1_name,team2_name,odd,condition_to_win")
+        .in("date", dates);
+
+      const existingKeys = new Set(
+        (existing || []).map((e: any) =>
+          dedupKey({
+            date: e.date,
+            team1_name: e.team1_name || "",
+            team2_name: e.team2_name || "",
+            odd: e.odd ?? 0,
+            condition_to_win: e.condition_to_win,
+          })
+        )
+      );
+
+      rowsToImport = validRows.filter(r => !existingKeys.has(dedupKey({
+        date: r.date,
+        team1_name: r.team1_name,
+        team2_name: r.team2_name,
+        odd: r.odd,
+        palpite: r.palpite,
+      })));
+
+      const skipped = validRows.length - rowsToImport.length;
+      if (skipped > 0) {
+        toast.message(`Saltadas ${skipped} duplicada(s)`);
+      }
+      if (rowsToImport.length === 0) {
+        toast.success("Nada por importar — todas ya existen");
+        setImporting(false);
+        return;
+      }
+    }
+
+    const payload = rowsToImport.map((r) => {
       const cat = CATEGORIA_MAP[r.categoria.toLowerCase()] || CATEGORIA_MAP.free;
       return {
         title: `${r.team1_name} x ${r.team2_name}`,
@@ -191,7 +171,7 @@ export default function AdminTipsImport() {
     if (error) {
       toast.error(error.message);
     } else {
-      toast.success(`¡${validRows.length} tips importadas con éxito!`);
+      toast.success(`¡${rowsToImport.length} tips importadas con éxito!`);
       setRows([]);
       setStep("upload");
       setFileName(null);
@@ -214,6 +194,11 @@ export default function AdminTipsImport() {
           <span className="text-emerald-400">✅ {matchedCount} confirmadas</span>
           {pendingCount > 0 && <span className="text-amber-400">⚠️ {pendingCount} pendientes</span>}
         </div>
+
+        <label className="flex items-center gap-2 text-sm cursor-pointer">
+          <Checkbox checked={dedupe} onCheckedChange={(v) => setDedupe(v === true)} />
+          <span>Evitar duplicadas (misma fecha + equipos + cuota + pronóstico)</span>
+        </label>
 
         <div className="space-y-3">
           {rows.map((row, idx) => {
@@ -319,10 +304,14 @@ export default function AdminTipsImport() {
       <div className="bg-muted/20 border border-border rounded-lg p-3 text-xs text-muted-foreground space-y-1">
         <p className="font-semibold text-foreground">Ejemplo de CSV:</p>
         <pre className="overflow-x-auto text-[10px] leading-relaxed">
-{`data_hora,time1,time2,categoria,odd,palpite,mercado,explicacao
-26/02/2026 20:00,Colo-Colo,Universidad de Chile,free,1.45,Más de 1.5 goles,Over/Under,Explicación aquí
-27/02/2026 18:00,U Católica,Palestino,pro,2.10,Ambos Marcan,BTTS,Clásico chileno`}
+{`data_hora,time1,time2,categoria,odd,palpite,mercado,explicacao,justificativa
+2026-02-26T20:00:00,Colo-Colo,Universidad de Chile,free,1.45,Más de 1.5 goles,Over/Under,Explicación,Justificativa
+2026-02-27T18:00:00,U Católica,Palestino,pro,2.10,Ambos Marcan,BTTS,Clásico chileno,Análisis`}
         </pre>
+        <p className="text-[10px] text-muted-foreground/70 pt-1">
+          💡 Este CSV es <strong>re-importable</strong>: el mismo formato sirve para exportar desde una operación e importar en otra
+          (Chile ↔ Espanha). Los escudos resuelven automáticamente desde la tabla <code>teams</code> del destino.
+        </p>
       </div>
     </div>
   );
