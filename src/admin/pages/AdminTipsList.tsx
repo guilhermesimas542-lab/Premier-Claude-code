@@ -13,6 +13,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Pencil, Trash2, ArrowUpDown, ArrowUp, ArrowDown, Snowflake, RefreshCw, ImageDown, Loader2, Smartphone, Monitor } from "lucide-react";
 import { downloadSingleTipPng, exportGreensAsZip, type TipForExport } from "@/admin/lib/exportTipPng";
+import { serializeBatch, type ExportableTip } from "@/admin/lib/csvExportImport";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -554,13 +555,45 @@ function getPlanoLabel(t: any): { label: string; color: string } {
             const url = URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = url;
-            a.download = `tips_premier_${new Date().toISOString().split("T")[0]}.csv`;
+            a.download = `tips_reporte_${new Date().toISOString().split("T")[0]}.csv`;
             a.click();
             URL.revokeObjectURL(url);
           }}
           className="flex items-center gap-2 px-4 py-2 rounded-lg bg-green-600/20 text-green-400 hover:bg-green-600/30 text-sm font-medium transition-colors"
+          title="CSV plano para revisión humana (no re-importable)"
         >
-          Exportar CSV
+          Exportar reporte
+        </button>
+        <button
+          onClick={() => {
+            const tips: ExportableTip[] = sortedItems.map((item: any) => ({
+              date: item.date ?? null,
+              starts_at: item.starts_at ?? null,
+              team1_name: item.team1_name ?? null,
+              team2_name: item.team2_name ?? null,
+              tier_required: item.tier_required ?? null,
+              addon_required: item.addon_required ?? null,
+              feature_required: item.feature_required ?? null,
+              odd: item.odd ?? null,
+              condition_to_win: item.condition_to_win ?? null,
+              market: item.market ?? null,
+              category_explanation: item.category_explanation ?? null,
+              justification: item.justification ?? null,
+            }));
+            const csv = serializeBatch(tips);
+            const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `tips_reimport_${new Date().toISOString().split("T")[0]}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+            toast.success(`${tips.length} tips exportadas en formato re-importable`);
+          }}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 text-sm font-medium transition-colors"
+          title="CSV re-importable — el mismo formato sirve para subir en otra operación (Chile ↔ Espanha)"
+        >
+          Exportar reimportable
         </button>
         <button
           onClick={handleExportBatchGreens}
