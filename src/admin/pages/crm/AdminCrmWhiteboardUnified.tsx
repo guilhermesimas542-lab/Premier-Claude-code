@@ -816,7 +816,7 @@ function Inner() {
     // posiciona no centro atual da viewport
     const center = screenToFlowPosition({ x: window.innerWidth / 2 - 500, y: window.innerHeight / 2 - 350 });
     const _newId = await createJourney({ x: Math.round(center.x), y: Math.round(center.y) });
-    if (_newId) lastJourneyRef.current = _newId;
+    if (_newId) { lastJourneyRef.current = _newId; setSelectedStickyJourneyId(_newId); }
   }, [createJourney, screenToFlowPosition]);
 
   const handleDuplicateJourney = useCallback(async (journeyId: string) => {
@@ -834,25 +834,21 @@ function Inner() {
   const handleAddNode = useCallback(async (type: NodeKind, opts?: { allowStageCreation?: boolean }) => {
     if (type === "stage" && opts?.allowStageCreation !== true) return;
 
-    const reuseId = lastJourneyRef.current && journeys.some((j) => j.id === lastJourneyRef.current) ? lastJourneyRef.current : null;
-    let targetJourneyId: string | null = focusedJourneyId ?? selectedStickyJourneyId ?? reuseId;
     const center = screenToFlowPosition({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
+    // 1 sticky = 1 jornada: o nó vai pro sticky selecionado / sob o centro / focado.
+    // Sem nenhum desses, cria uma jornada NOVA com sticky visível.
+    let targetJourneyId: string | null =
+      selectedStickyJourneyId ?? findContainingJourney(center.x, center.y)?.id ?? focusedJourneyId ?? null;
 
     if (!targetJourneyId) {
-      const hit = findContainingJourney(center.x, center.y);
-      if (hit) {
-        targetJourneyId = hit.id;
-      } else {
-        targetJourneyId = await createJourney({
-          x: Math.round(center.x - 500),
-          y: Math.round(center.y - 350),
-          showSticky: false,
-        });
-        if (!targetJourneyId) return;
-        setSelectedStickyJourneyId(targetJourneyId);
-      }
+      targetJourneyId = await createJourney({
+        x: Math.round(center.x - 500),
+        y: Math.round(center.y - 350),
+        showSticky: true,
+      });
+      if (!targetJourneyId) return;
+      setSelectedStickyJourneyId(targetJourneyId);
     }
-    lastJourneyRef.current = targetJourneyId;
 
     const layout = journeyLayouts.find((l) => l.id === targetJourneyId);
     const baseX = layout?.x ?? center.x - 500;
@@ -1044,18 +1040,16 @@ function Inner() {
             if (type === "stage") return;
             const pos = screenToFlowPosition({ x: e.clientX, y: e.clientY });
             const hit = findContainingJourney(pos.x, pos.y);
-            const reuseId = lastJourneyRef.current && journeys.some((j) => j.id === lastJourneyRef.current) ? lastJourneyRef.current : null;
-            let targetJourneyId = hit?.id ?? focusedJourneyId ?? selectedStickyJourneyId ?? reuseId;
+            let targetJourneyId = hit?.id ?? selectedStickyJourneyId ?? focusedJourneyId ?? null;
             if (!targetJourneyId) {
               targetJourneyId = await createJourney({
                 x: Math.round(pos.x - 500),
                 y: Math.round(pos.y - 350),
-                showSticky: false,
+                showSticky: true,
               });
               if (!targetJourneyId) return;
               setSelectedStickyJourneyId(targetJourneyId);
             }
-            lastJourneyRef.current = targetJourneyId;
             const layout = journeyLayouts.find((l) => l.id === targetJourneyId);
             const baseX = layout?.x ?? pos.x - 500;
             const baseY = layout?.y ?? pos.y - 350;
