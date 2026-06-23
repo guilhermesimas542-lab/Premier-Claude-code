@@ -68,7 +68,7 @@ export function NodeConfigDrawer({ node, messageNodes, triggerType, triggerConfi
     setDelayValue(node.data.delay_value ?? 1);
     setDelayUnit((node.data.delay_unit as DelayUnit) ?? "day");
     setConfig(node.data.config ?? {});
-    setTrigType(((triggerType as TriggerKey) ?? "manual"));
+    setTrigType(((triggerType && triggerType in TRIGGERS ? triggerType : "manual") as TriggerKey));
     setTrigCfg(triggerConfig ?? {});
   }, [node?.id, triggerType, triggerConfig]);
 
@@ -166,7 +166,7 @@ export function NodeConfigDrawer({ node, messageNodes, triggerType, triggerConfi
                   </SelectContent>
                 </Select>
                 <p className="text-[11px] text-muted-foreground italic">
-                  {TRIGGERS[trigType].description}
+                  {(TRIGGERS[trigType] ?? TRIGGERS.manual).description}
                 </p>
               </div>
               {trigType === "churn_inactive" && (
