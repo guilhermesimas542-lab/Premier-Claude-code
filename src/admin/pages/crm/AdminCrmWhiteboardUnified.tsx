@@ -198,6 +198,7 @@ function Inner() {
   const [configJourneyId, setConfigJourneyId] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
   const [selectedStickyJourneyId, setSelectedStickyJourneyId] = useState<string | null>(null);
+  const lastJourneyRef = useRef<string | null>(null);
 
   // === Ferramenta ativa da toolbar ===
   type ToolKind = "select" | "pan" | "cut";
@@ -814,7 +815,8 @@ function Inner() {
   const handleNew = useCallback(async () => {
     // posiciona no centro atual da viewport
     const center = screenToFlowPosition({ x: window.innerWidth / 2 - 500, y: window.innerHeight / 2 - 350 });
-    await createJourney({ x: Math.round(center.x), y: Math.round(center.y) });
+    const _newId = await createJourney({ x: Math.round(center.x), y: Math.round(center.y) });
+    if (_newId) lastJourneyRef.current = _newId;
   }, [createJourney, screenToFlowPosition]);
 
   const handleDuplicateJourney = useCallback(async (journeyId: string) => {
@@ -832,7 +834,8 @@ function Inner() {
   const handleAddNode = useCallback(async (type: NodeKind, opts?: { allowStageCreation?: boolean }) => {
     if (type === "stage" && opts?.allowStageCreation !== true) return;
 
-    let targetJourneyId: string | null = focusedJourneyId ?? selectedStickyJourneyId ?? null;
+    const reuseId = lastJourneyRef.current && journeys.some((j) => j.id === lastJourneyRef.current) ? lastJourneyRef.current : null;
+    let targetJourneyId: string | null = focusedJourneyId ?? selectedStickyJourneyId ?? reuseId;
     const center = screenToFlowPosition({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
 
     if (!targetJourneyId) {
@@ -849,6 +852,7 @@ function Inner() {
         setSelectedStickyJourneyId(targetJourneyId);
       }
     }
+    lastJourneyRef.current = targetJourneyId;
 
     const layout = journeyLayouts.find((l) => l.id === targetJourneyId);
     const baseX = layout?.x ?? center.x - 500;
@@ -873,7 +877,7 @@ function Inner() {
       position,
       allowStageCreation: opts?.allowStageCreation === true,
     });
-  }, [focusedJourneyId, selectedStickyJourneyId, screenToFlowPosition, findContainingJourney, journeyLayouts, addNodeWithUndo, createJourney]);
+  }, [focusedJourneyId, selectedStickyJourneyId, journeys, screenToFlowPosition, findContainingJourney, journeyLayouts, addNodeWithUndo, createJourney]);
 
 
 
@@ -1035,7 +1039,8 @@ function Inner() {
             if (type === "stage") return;
             const pos = screenToFlowPosition({ x: e.clientX, y: e.clientY });
             const hit = findContainingJourney(pos.x, pos.y);
-            let targetJourneyId = hit?.id ?? focusedJourneyId ?? selectedStickyJourneyId ?? null;
+            const reuseId = lastJourneyRef.current && journeys.some((j) => j.id === lastJourneyRef.current) ? lastJourneyRef.current : null;
+            let targetJourneyId = hit?.id ?? focusedJourneyId ?? selectedStickyJourneyId ?? reuseId;
             if (!targetJourneyId) {
               targetJourneyId = await createJourney({
                 x: Math.round(pos.x - 500),
@@ -1045,6 +1050,7 @@ function Inner() {
               if (!targetJourneyId) return;
               setSelectedStickyJourneyId(targetJourneyId);
             }
+            lastJourneyRef.current = targetJourneyId;
             const layout = journeyLayouts.find((l) => l.id === targetJourneyId);
             const baseX = layout?.x ?? pos.x - 500;
             const baseY = layout?.y ?? pos.y - 350;
