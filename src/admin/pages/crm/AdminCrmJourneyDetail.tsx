@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   ArrowLeft,
@@ -16,6 +17,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { useJourneyDetail } from "../../hooks/crm/useJourneyDetail";
 import { useJourneys } from "../../hooks/crm/useJourneys";
+import {
+  useJourneyStepEvents,
+  type StepEventRow,
+  type StepEventCounts,
+} from "../../hooks/crm/useJourneyStepEvents";
 import { MockTriggerPanel } from "../../components/crm/journey/MockTriggerPanel";
 import { CHANNELS } from "../../lib/crm/channels";
 import {
@@ -36,6 +42,7 @@ export default function AdminCrmJourneyDetail() {
   const navigate = useNavigate();
   const { data, loading, schemaMissing, refresh } = useJourneyDetail(id ?? null);
   const { setStatus } = useJourneys();
+  const dispatchLog = useJourneyStepEvents(id ?? null);
 
   const { journey, steps, funnel, recent_enrollments, enrollment_counts } = data;
 
@@ -360,6 +367,16 @@ export default function AdminCrmJourneyDetail() {
           </div>
         )}
       </section>
+
+      {/* Disparos (log de envios) */}
+      <DispatchLogSection
+        events={dispatchLog.events}
+        counts={dispatchLog.counts}
+        loading={dispatchLog.loading}
+        error={dispatchLog.error}
+        activeCount={enrollment_counts.active}
+        onRefresh={dispatchLog.refresh}
+      />
     </div>
   );
 }
@@ -424,6 +441,167 @@ function EnrollmentStatusPill({ status }: { status: string }) {
     >
       {m.label}
     </span>
+  );
+}
+
+const EVENT_STATUS_META: Record<string, { label: string; color: string }> = {
+  sent:      { label: "Enviado",  color: "#22C55E" },
+  delivered: { label: "Entregue", color: "#3B82F6" },
+  opened:    { label: "Aberto",   color: "#A855F7" },
+  clicked:   { label: "Clicado",  color: "#EC4899" },
+  failed:    { label: "Falhou",   color: "#EF4444" },
+  skipped:   { label: "Pulado",   color: "#94A3B8" },
+};
+const EVENT_STATUS_ORDER = ["sent", "delivered", "opened", "clicked", "failed", "skipped"] as const;
+
+function DispatchStatusPill({ status }: { status: string }) {
+  const m = EVENT_STATUS_META[status] ?? { label: status, color: "#64748B" };
+  return (
+    <span
+      className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded"
+      style={{ background: `${m.color}20`, border: `1px solid ${m.color}50`, color: m.color }}
+    >
+      {m.label}
+    </span>
+  );
+}
+
+function DispatchLogSection({
+  events,
+  counts,
+  loading,
+  error,
+  activeCount,
+  onRefresh,
+}: {
+  events: StepEventRow[];
+  counts: StepEventCounts;
+  loading: boolean;
+  error: string | null;
+  activeCount: number;
+  onRefresh: () => void;
+}) {
+  const [filter, setFilter] = useState<string | null>(null);
+  const rows = filter ? events.filter((e) => e.status === filter) : events;
+  return (
+    <section className="space-y-3">
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-bold text-foreground">Disparos (log de envios)</h2>
+        <Button size="sm" variant="ghost" onClick={onRefresh}>
+          <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
+          Recarregar
+        </Button>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2">
+        {EVENT_STATUS_ORDER.map((st) => {
+          const m = EVENT_STATUS_META[st];
+          const val = counts[st];
+          const on = filter === st;
+          return (
+            <button
+              key={st}
+              onClick={() => setFilter(on ? null : st)}
+              className="text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded transition-opacity"
+              style={{
+                background: `${m.color}${on ? "33" : "15"}`,
+                border: `1px solid ${m.color}40`,
+                color: m.color,
+                opacity: filter && !on ? 0.45 : 1,
+              }}
+            >
+              {m.label}: {val}
+            </button>
+          );
+        })}
+        {activeCount > 0 && (
+          <span className="text-[11px] text-muted-foreground ml-1">
+            {activeCount} inscrição(ões) ativa(s) ainda em andamento
+          </span>
+        )}
+      </div>
+
+      {loading ? (
+        <div className="rounded-2xl border border-border bg-card/50 p-8 text-center">
+          <Loader2 className="w-5 h-5 animate-spin text-muted-foreground mx-auto" />
+        </div>
+      ) : error ? (
+        <div className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-4 text-sm text-amber-500">
+          Não foi possível carregar os disparos: {error}
+        </div>
+      ) : rows.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-border bg-card/50 p-8 text-center">
+          <p className="text-sm text-muted-foreground">
+            {filter ? "Nenhum disparo com esse status." : "Nenhum disparo registrado ainda."}
+          </p>
+        </div>
+      ) : (
+        <div className="rounded-2xl border border-border bg-card overflow-hidden">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border bg-muted/30 text-[11px] uppercase tracking-wider text-muted-foreground">
+                <Th>Lead</Th>
+                <Th>Canal</Th>
+                <Th>Status</Th>
+                <Th>Passo</Th>
+                <Th>Quando</Th>
+                <Th>Erro</Th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((ev) => {
+                const ch =
+                  CHANNELS[ev.channel] ?? { icon: Send, color: "#64748B", shortLabel: ev.channel };
+                const Icon = ch.icon;
+                return (
+                  <tr key={ev.id} className="border-b border-border/50">
+                    <Td>
+                      <span className="text-foreground">
+                        {ev.user_nickname || ev.user_email || "—"}
+                      </span>
+                    </Td>
+                    <Td>
+                      <div
+                        className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md"
+                        style={{ background: `${ch.color}15`, border: `1px solid ${ch.color}40` }}
+                      >
+                        <Icon className="w-3 h-3" style={{ color: ch.color }} />
+                        <span
+                          className="text-[10px] font-bold uppercase tracking-wider"
+                          style={{ color: ch.color }}
+                        >
+                          {ch.shortLabel}
+                        </span>
+                      </div>
+                    </Td>
+                    <Td>
+                      <DispatchStatusPill status={ev.status} />
+                    </Td>
+                    <Td>
+                      <span className="text-xs text-muted-foreground">
+                        {ev.step_order != null ? `Passo ${ev.step_order}` : "—"}
+                      </span>
+                    </Td>
+                    <Td>
+                      <span className="text-xs text-muted-foreground">{formatDate(ev.created_at)}</span>
+                    </Td>
+                    <Td>
+                      {ev.error_code || ev.error_message ? (
+                        <span className="text-xs text-destructive" title={ev.error_message ?? ""}>
+                          {ev.error_code || ev.error_message}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">—</span>
+                      )}
+                    </Td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </section>
   );
 }
 
