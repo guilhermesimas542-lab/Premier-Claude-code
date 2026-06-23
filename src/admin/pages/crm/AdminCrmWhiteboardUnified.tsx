@@ -870,6 +870,11 @@ function Inner() {
       y: Math.max(48, Math.round(absY - baseY - 40)),
     };
 
+    if (type === "trigger" && steps.some((s) => s.journey_id === targetJourneyId && s.node_type === "trigger")) {
+      toast.error('Esta jornada já tem um gatilho. Use "+ Nova jornada" para outro fluxo (1 gatilho = 1 jornada).');
+      return;
+    }
+
     await addNodeWithUndo({
       type,
       journeyId: targetJourneyId,
@@ -877,7 +882,7 @@ function Inner() {
       position,
       allowStageCreation: opts?.allowStageCreation === true,
     });
-  }, [focusedJourneyId, selectedStickyJourneyId, journeys, screenToFlowPosition, findContainingJourney, journeyLayouts, addNodeWithUndo, createJourney]);
+  }, [focusedJourneyId, selectedStickyJourneyId, journeys, steps, screenToFlowPosition, findContainingJourney, journeyLayouts, addNodeWithUndo, createJourney]);
 
 
 
@@ -1058,6 +1063,10 @@ function Inner() {
               x: Math.max(24, Math.round(pos.x - baseX - 110)),
               y: Math.max(48, Math.round(pos.y - baseY - 40)),
             };
+            if (type === "trigger" && steps.some((s) => s.journey_id === targetJourneyId && s.node_type === "trigger")) {
+              toast.error('Esta jornada já tem um gatilho. Use "+ Nova jornada" para outro fluxo (1 gatilho = 1 jornada).');
+              return;
+            }
             await addNodeWithUndo({ type, journeyId: targetJourneyId, parentStepId: null, position });
           }}
         >
