@@ -68,6 +68,36 @@ interface UserLite {
   email: string | null;
   phone: string | null;
   nickname?: string | null;
+  full_name?: string | null;
+  main_tier?: string | null;
+}
+
+// ---- merge tags: troca {nome}, {email}, {plano}, etc. pelos dados do lead ----
+function renderTokens(text: string, user: UserLite): string {
+  if (typeof text !== "string" || text.indexOf("{") === -1) return text;
+  const localPart = user.email ? user.email.split("@")[0] : "";
+  const nome = String(user.full_name || user.nickname || localPart || "").trim();
+  const map: Record<string, string> = {
+    nome, name: nome, nombre: nome,
+    nick: user.nickname ?? "", nickname: user.nickname ?? "",
+    email: user.email ?? "",
+    plano: user.main_tier ?? "", plan: user.main_tier ?? "", tier: user.main_tier ?? "",
+  };
+  return text.replace(/\{(\w+)\}/g, (m, k) => {
+    const key = String(k).toLowerCase();
+    return Object.prototype.hasOwnProperty.call(map, key) ? map[key] : m;
+  });
+}
+
+function applyTokens(content: any, user: UserLite): any {
+  if (!content || typeof content !== "object") return content;
+  const out: any = Array.isArray(content) ? [] : {};
+  for (const [k, v] of Object.entries(content)) {
+    if (typeof v === "string") out[k] = renderTokens(v, user);
+    else if (v && typeof v === "object") out[k] = applyTokens(v, user);
+    else out[k] = v;
+  }
+  return out;
 }
 
 Deno.serve(async (req: Request) => {
@@ -137,7 +167,7 @@ Deno.serve(async (req: Request) => {
     const slice = userIds.slice(i, i + 500);
     const { data: us } = await supabase
       .from("users")
-      .select("id, email, phone, nickname")
+      .select("id, email, phone, nickname, full_name, main_tier")
       .in("id", slice);
     for (const u of (us ?? []) as UserLite[]) usersById.set(u.id, u);
   }
@@ -223,7 +253,7 @@ Deno.serve(async (req: Request) => {
     step: Step,
     user: UserLite,
   ): Promise<SendResult | { status: "failed"; error_code: string; error_message: string }> {
-    const content = step.content ?? {};
+    const content = applyTokens(step.content ?? {}, user);
     const recipient: Recipient = {
       id: user.id,
       email: user.email ?? null,
