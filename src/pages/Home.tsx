@@ -13,6 +13,7 @@ import { trackEvent } from "@/lib/events";
 import BasicPlanModal from "@/components/BasicPlanModal";
 
 import { BottomNav } from "@/components/BottomNav";
+import OnboardingPWA from "@/components/OnboardingPWA";
 import { CHECKOUT_LINKS } from "@/lib/checkoutLinks";
 import logoImg from "@/assets/premier-logo-custom.png";
 
@@ -691,8 +692,9 @@ const Home = () => {
         </div>
       )}
 
-      
+
       <BottomNav />
+      <OnboardingPWA />
 
       {funnelCard && (
         <CardFunnelModal card={funnelCard} open={!!funnelCard} onClose={() => setFunnelCard(null)} />
