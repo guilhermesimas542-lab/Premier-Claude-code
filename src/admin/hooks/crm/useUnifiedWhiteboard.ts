@@ -24,7 +24,9 @@ export interface JourneyRow {
   trigger_config: Record<string, any> | null;
   audience_id: string | null;
   audience_filters: Record<string, any> | null;
+  sort_order: number | null;
 }
+
 
 
 interface StepRow {
@@ -73,8 +75,10 @@ export function useUnifiedWhiteboard() {
     setLoading(true);
     const [jRes, sRes, eRes] = await Promise.all([
       (supabase as any).from("crm_journeys")
-        .select("id, name, color, canvas, status, trigger_type, trigger_config, audience_id, audience_filters")
+        .select("id, name, color, canvas, status, trigger_type, trigger_config, audience_id, audience_filters, sort_order")
+        .order("sort_order", { ascending: true, nullsFirst: false })
         .order("created_at", { ascending: true }),
+
       (supabase as any).from("crm_journey_steps").select("*"),
       (supabase as any).from("crm_journey_edges").select("*"),
     ]);
@@ -167,6 +171,8 @@ export function useUnifiedWhiteboard() {
         id: e.id,
         source: e.source_step_id,
         target: e.target_step_id,
+        sourceHandle:
+          e.branch === "sim" ? "yes" : e.branch === "não" ? "no" : undefined,
         label: e.branch ?? "",
         animated: !!cross,
         style: {
@@ -214,7 +220,9 @@ export function useUnifiedWhiteboard() {
       audience_id?: string | null;
       audience_filters?: Record<string, any> | null;
       status?: string;
+      sort_order?: number | null;
     }
+
   ) => {
     // Merge canvas em vez de sobrescrever
     let payload: any = { ...fields };
@@ -231,6 +239,28 @@ export function useUnifiedWhiteboard() {
         : j
     ));
   }, [journeys]);
+
+  // Reordena jornadas: aplica nova ordem local e persiste sort_order de cada uma.
+  const reorderJourneys = useCallback(async (orderedIds: string[]) => {
+    setJourneys((prev) => {
+      const map = new Map(prev.map((j) => [j.id, j] as const));
+      const next: JourneyRow[] = [];
+      orderedIds.forEach((id, idx) => {
+        const j = map.get(id);
+        if (j) { next.push({ ...j, sort_order: idx + 1 }); map.delete(id); }
+      });
+      // qualquer jornada não citada permanece no fim, na ordem original
+      map.forEach((j) => next.push(j));
+      return next;
+    });
+    const updates = orderedIds.map((id, idx) =>
+      (supabase as any).from("crm_journeys").update({ sort_order: idx + 1 }).eq("id", id)
+    );
+    const results = await Promise.all(updates);
+    const firstErr = results.find((r: any) => r.error);
+    if (firstErr) toast.error(`Erro ao reordenar: ${firstErr.error.message}`);
+  }, []);
+
 
   // Religa edges quando o nó muda de jornada: edge.journey_id segue a jornada do nó de ORIGEM.
   // Cross-journey é permitido (não apaga mais).
@@ -282,16 +312,18 @@ export function useUnifiedWhiteboard() {
 
   const createEdge = useCallback(async (
     journeyId: string, sourceId: string, targetId: string, branch: string | null
-  ) => {
+  ): Promise<string | null> => {
     const { data, error } = await (supabase as any).from("crm_journey_edges").insert({
       journey_id: journeyId,
       source_step_id: sourceId,
       target_step_id: targetId,
       branch,
     }).select().single();
-    if (error) { toast.error(`Erro ao ligar: ${error.message}`); return; }
+    if (error) { toast.error(`Erro ao ligar: ${error.message}`); return null; }
     setEdgeRows((prev) => [...prev, data as EdgeRow]);
+    return (data as EdgeRow).id;
   }, []);
+
 
   const removeEdge = useCallback(async (edgeId: string) => {
     const { error } = await (supabase as any).from("crm_journey_edges").delete().eq("id", edgeId);
@@ -305,8 +337,13 @@ export function useUnifiedWhiteboard() {
     parentStepId?: string | null;
     position: { x: number; y: number };
     config?: Record<string, any>;
+    allowStageCreation?: boolean;
   }): Promise<string | null> => {
     const isStage = opts.type === "stage";
+    if (isStage && opts.allowStageCreation !== true) {
+      toast.error("Etapa só pode ser adicionada pelo botão Etapa");
+      return null;
+    }
     const defaultConfig = isStage
       ? { title: "Etapa", color: "#4D7A1F", width: 360, height: 220 }
       : {};
@@ -362,6 +399,54 @@ export function useUnifiedWhiteboard() {
     setSteps((prev) => prev.map((s) => s.parent_step_id === stepId ? { ...s, parent_step_id: null } : s).filter((s) => s.id !== stepId));
     toast.success("Nó excluído");
   }, []);
+
+  // === Helpers para UNDO (não fazem reload) ============================
+
+  // Atualiza só a position (sem mexer em journey/parent).
+  const updateStepPosition = useCallback(async (
+    stepId: string, position: { x: number; y: number }
+  ) => {
+    const { error } = await (supabase as any)
+      .from("crm_journey_steps").update({ position }).eq("id", stepId);
+    if (error) { toast.error(`Erro restaurando posição: ${error.message}`); return; }
+    setSteps((prev) => prev.map((s) => s.id === stepId ? { ...s, position } : s));
+  }, []);
+
+  // Re-insere um step preservando o id original (pra undo de deleteNode).
+  const restoreStep = useCallback(async (row: StepRow) => {
+    const { data, error } = await (supabase as any)
+      .from("crm_journey_steps").insert({
+        id: row.id,
+        journey_id: row.journey_id,
+        node_type: row.node_type,
+        position: row.position,
+        channel: row.channel,
+        content: row.content,
+        config: row.config,
+        delay_value: row.delay_value,
+        delay_unit: row.delay_unit,
+        parent_step_id: row.parent_step_id,
+      }).select().single();
+    if (error) { toast.error(`Erro restaurando nó: ${error.message}`); return; }
+    setSteps((prev) => [...prev, data as StepRow]);
+  }, []);
+
+  // Re-insere uma edge preservando o id original (pra undo de deleteEdge).
+  const restoreEdge = useCallback(async (row: EdgeRow) => {
+    const { data, error } = await (supabase as any)
+      .from("crm_journey_edges").insert({
+        id: row.id,
+        journey_id: row.journey_id,
+        source_step_id: row.source_step_id,
+        target_step_id: row.target_step_id,
+        branch: row.branch,
+        condition: row.condition,
+      }).select().single();
+    if (error) { toast.error(`Erro restaurando ligação: ${error.message}`); return; }
+    setEdgeRows((prev) => [...prev, data as EdgeRow]);
+  }, []);
+
+
 
 
   const deleteJourney = useCallback(async (journeyId: string) => {
@@ -441,6 +526,9 @@ export function useUnifiedWhiteboard() {
     journeys, steps, edgeRows, nodes, edges, loading, refresh: load,
     setNodes, setEdges,
     createJourney, updateJourney, deleteJourney, assignNodeToJourney, createEdge, removeEdge, insertStep, updateStep, deleteStep,
-    organizeJourneys,
+    organizeJourneys, reorderJourneys,
+    updateStepPosition, restoreStep, restoreEdge,
+
   };
 }
+

@@ -1,9 +1,20 @@
-import { UserPlus, ArrowUpCircle, MoonStar, Hand, type LucideIcon } from "lucide-react";
+import { UserPlus, ArrowUpCircle, MoonStar, Hand, Webhook, type LucideIcon } from "lucide-react";
 
 /**
  * Trigger_type das jornadas (mesmos valores do CHECK constraint em crm_journeys).
  */
-export type TriggerKey = "onboarding" | "upgrade" | "churn_inactive" | "manual";
+export type TriggerKey = "onboarding" | "upgrade" | "churn_inactive" | "manual" | "webhook_status";
+
+/** Eventos de status do funil da Payt aceitos como gatilho de jornada. */
+export const PAYT_EVENT_OPTIONS: Array<{ value: string; label: string }> = [
+  { value: "pedido_criado", label: "Pedido criado" },
+  { value: "aguardando_boleto", label: "Aguardando boleto" },
+  { value: "aguardando_pix", label: "Aguardando Pix" },
+  { value: "pagamento_confirmado", label: "Pagamento confirmado (compra)" },
+  { value: "reembolso", label: "Reembolso" },
+  { value: "chargeback", label: "Chargeback" },
+  { value: "cancelado", label: "Cancelado / expirado" },
+];
 
 export interface TriggerConfig {
   key: TriggerKey;
@@ -52,6 +63,15 @@ export const TRIGGERS: Record<TriggerKey, TriggerConfig> = {
     icon: Hand,
     color: "#A855F7",
     shortHint: "Entrada manual",
+  },
+  webhook_status: {
+    key: "webhook_status",
+    label: "Webhook — status do funil (Payt)",
+    shortLabel: "Webhook Payt",
+    description: "Dispara quando o lead muda de status no checkout da Payt.",
+    icon: Webhook,
+    color: "#F59E0B",
+    shortHint: "Status do funil Payt",
   },
 };
 

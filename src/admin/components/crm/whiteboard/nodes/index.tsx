@@ -164,7 +164,7 @@ export function ConditionNode({ data }: NodeProps) {
   const w = d.config?.window_hours;
   const subtitle = ev ? `${EVENT_LABEL[ev] ?? ev} em ${w ?? 72}h` : "ramificação";
   return (
-    <>
+    <div className="relative pb-5">
       <Handle type="target" position={Position.Top} />
       <Card
         color="#A855F7"
@@ -173,13 +173,51 @@ export function ConditionNode({ data }: NodeProps) {
         subtitle={subtitle}
         metrics={d.metrics}
       />
-      <Handle id="yes" type="source" position={Position.Bottom} style={{ left: "30%" }} />
-      <Handle id="no" type="source" position={Position.Bottom} style={{ left: "70%" }} />
-      <div className="flex justify-between px-2 mt-1 text-[10px] font-bold text-muted-foreground">
-        <span>sim</span>
-        <span>não</span>
+      {/* Saída SIM — esquerda */}
+      <Handle
+        id="yes"
+        type="source"
+        position={Position.Bottom}
+        isConnectableStart
+        style={{
+          left: "25%",
+          width: 14,
+          height: 14,
+          background: "#10B981",
+          border: "2px solid white",
+          bottom: -7,
+        }}
+      />
+      {/* Saída NÃO — direita */}
+      <Handle
+        id="no"
+        type="source"
+        position={Position.Bottom}
+        isConnectableStart
+        style={{
+          left: "75%",
+          width: 14,
+          height: 14,
+          background: "#EF4444",
+          border: "2px solid white",
+          bottom: -7,
+        }}
+      />
+      <div className="absolute -bottom-1 left-0 right-0 text-[10px] font-bold pointer-events-none">
+        <span
+          className="text-emerald-600 absolute"
+          style={{ left: "25%", transform: "translateX(-50%)" }}
+        >
+          sim
+        </span>
+        <span
+          className="text-red-500 absolute"
+          style={{ left: "75%", transform: "translateX(-50%)" }}
+        >
+          não
+        </span>
       </div>
-    </>
+    </div>
   );
 }
 

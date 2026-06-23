@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { NodeResizer, useReactFlow, type NodeProps } from "@xyflow/react";
-import { Palette, Pencil, Settings, Trash2 } from "lucide-react";
+import { Lock, Palette, Pencil, Settings, Trash2, Unlock } from "lucide-react";
 import { JOURNEY_PALETTE } from "@/admin/hooks/crm/useUnifiedWhiteboard";
 
 interface StickNoteData {
@@ -12,6 +12,8 @@ interface StickNoteData {
   onResize?: (journeyId: string, w: number, h: number) => void;
   onOpenConfig?: (journeyId: string) => void;
   onDelete?: (journeyId: string, name: string) => void;
+  onToggleLock?: (journeyId: string, val: boolean) => void;
+  locked?: boolean;
 }
 
 function hexToRgba(hex: string, alpha: number) {
@@ -58,28 +60,30 @@ export function StickNoteNode({ id, data, selected }: NodeProps) {
         pointerEvents: "none",
       }}
     >
-      <NodeResizer
-        minWidth={400}
-        minHeight={300}
-        color={color}
-        isVisible={true}
-        onResizeEnd={handleResizeEnd}
-        handleStyle={{
-          width: 18,
-          height: 18,
-          borderRadius: 4,
-          background: color,
-          border: "2px solid white",
-          pointerEvents: "all",
-          opacity: selected ? 1 : 0.7,
-          zIndex: 20,
-        }}
-        lineStyle={{
-          borderWidth: 4,
-          borderColor: "transparent",
-          pointerEvents: "all",
-        }}
-      />
+      {!d.locked && (
+        <NodeResizer
+          minWidth={400}
+          minHeight={300}
+          color={color}
+          isVisible={true}
+          onResizeEnd={handleResizeEnd}
+          handleStyle={{
+            width: 18,
+            height: 18,
+            borderRadius: 4,
+            background: color,
+            border: "2px solid white",
+            pointerEvents: "all",
+            opacity: selected ? 1 : 0.7,
+            zIndex: 20,
+          }}
+          lineStyle={{
+            borderWidth: 4,
+            borderColor: "transparent",
+            pointerEvents: "all",
+          }}
+        />
+      )}
       <div
         className="absolute top-0 left-0 right-0 flex items-center gap-2 px-3 py-2 rounded-t-2xl"
         style={{ background: hexToRgba(color, 0.22), pointerEvents: "all" }}
@@ -129,6 +133,15 @@ export function StickNoteNode({ id, data, selected }: NodeProps) {
           title="Configurar jornada"
         >
           <Settings className="w-3.5 h-3.5" style={{ color }} />
+        </button>
+        <button
+          onClick={(e) => { e.stopPropagation(); d.onToggleLock?.(d.journeyId, !d.locked); }}
+          className="p-0.5 rounded hover:bg-background/40"
+          title={d.locked ? "Destravar jornada" : "Travar jornada"}
+        >
+          {d.locked
+            ? <Lock className="w-3.5 h-3.5" style={{ color }} />
+            : <Unlock className="w-3.5 h-3.5" style={{ color }} />}
         </button>
         <button
           onClick={(e) => { e.stopPropagation(); d.onDelete?.(d.journeyId, title); }}

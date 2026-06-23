@@ -1,22 +1,17 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useCallback } from "react";
 
 /**
- * Atalhos de teclado pro whiteboard:
- * - Barra de espaço pressionada → modo pan (mover o mapa). Solta → modo seleção.
- * - Ctrl/Cmd + Z → undo (chama callback fornecido).
- *
- * Também expõe uma pilha de snapshots genérica pra histórico.
+ * Atalho de teclado: Ctrl/Cmd+Z → undo.
+ * (O modo pan agora é controlado pela toolbar, não mais por Space.)
  */
 export function useWhiteboardShortcuts<T = unknown>(opts: {
   onUndo: (snapshot: T) => void | Promise<void>;
 }) {
   const { onUndo } = opts;
-  const [isPanMode, setIsPanMode] = useState(false);
   const historyRef = useRef<T[]>([]);
 
   const pushHistory = useCallback((snapshot: T) => {
     historyRef.current.push(snapshot);
-    // limita pra evitar memory bloat
     if (historyRef.current.length > 100) historyRef.current.shift();
   }, []);
 
@@ -37,31 +32,16 @@ export function useWhiteboardShortcuts<T = unknown>(opts: {
 
     const onKeyDown = (e: KeyboardEvent) => {
       if (isTypingTarget(e.target)) return;
-      if (e.code === "Space" && !e.repeat) {
-        e.preventDefault();
-        setIsPanMode(true);
-        return;
-      }
       const meta = e.ctrlKey || e.metaKey;
       if (meta && !e.shiftKey && (e.key === "z" || e.key === "Z")) {
         e.preventDefault();
         void undo();
       }
     };
-    const onKeyUp = (e: KeyboardEvent) => {
-      if (e.code === "Space") setIsPanMode(false);
-    };
-    const onBlur = () => setIsPanMode(false);
 
     window.addEventListener("keydown", onKeyDown);
-    window.addEventListener("keyup", onKeyUp);
-    window.addEventListener("blur", onBlur);
-    return () => {
-      window.removeEventListener("keydown", onKeyDown);
-      window.removeEventListener("keyup", onKeyUp);
-      window.removeEventListener("blur", onBlur);
-    };
+    return () => window.removeEventListener("keydown", onKeyDown);
   }, [undo]);
 
-  return { isPanMode, pushHistory, undo };
+  return { isPanMode: false, pushHistory, undo };
 }

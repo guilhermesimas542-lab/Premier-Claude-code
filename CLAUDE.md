@@ -9,6 +9,14 @@ App do **CL Score** (Chile) — fork do template Premier FC adaptado pra mercado
 - **Hosting front:** Vercel (deploy automático no push pra `main`)
 - **Hosting back:** Supabase + Stape (GTM Server)
 
+## Build & Deploy — ⚠️ LEIA ANTES DE QUALQUER COISA
+
+**Nada que precise rodar/buildar na máquina do usuário funciona.** O ambiente local dele não executa `npm run build`, `npm run dev`, `vite`, typecheck local, testes, nem qualquer servidor. **Nunca** peça pro usuário rodar build/preview local, e **nunca** dependa disso pra validar.
+
+- **Deploy = sempre direto pro GitHub.** Commit + push na branch e abrir PR (origin). Não tente validar rodando build na máquina dele.
+- **Precisa de preview / ver o resultado?** Crie um **deploy de preview na Vercel** (a Vercel buildar no cloud). Nunca um `npm run dev` local.
+- **Quer typecheck/build de verdade?** Faça num clone isolado em `/tmp` (fora dos repos com poller de git) e rode lá — nunca no working tree do usuário.
+
 ## Regras de comunicação
 
 **Fale leigo e curto.** O usuário não é programador.
