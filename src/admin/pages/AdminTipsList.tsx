@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Pencil, Trash2, ArrowUpDown, ArrowUp, ArrowDown, Snowflake, RefreshCw, ImageDown, Loader2, Smartphone, Monitor } from "lucide-react";
-import { downloadSingleTipPng, exportGreensAsZip, type TipForExport } from "@/admin/lib/exportTipPng";
+import { downloadSingleTipPng, exportGreensSingleImage, type TipForExport } from "@/admin/lib/exportTipPng";
 import { serializeBatch, type ExportableTip } from "@/admin/lib/csvExportImport";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
@@ -168,11 +168,11 @@ export default function AdminTipsList() {
     const greens = (items as any[]).filter((t) => t.result === "green");
     if (greens.length === 0) { toast.error("Nenhuma tip GREEN no filtro atual"); return; }
     setExportingBatch(true);
-    toast.info(`Exportando ${greens.length} tips green...`);
+    toast.info(`Gerando imagem com ${greens.length} green${greens.length > 1 ? "s" : ""}...`);
     try {
       const label = filters.dateFrom || new Date().toISOString().split("T")[0];
-      await exportGreensAsZip(greens.map(tipToExport), label);
-      toast.success(`ZIP com ${greens.length} tips baixado`);
+      await exportGreensSingleImage(greens.map(tipToExport), label);
+      toast.success(`Imagem com ${greens.length} green${greens.length > 1 ? "s" : ""} baixada`);
     } catch (e: any) {
       console.error("[export batch]", e);
       toast.error("Falha no batch: " + (e?.message ?? "erro"));
@@ -601,7 +601,7 @@ function getPlanoLabel(t: any): { label: string; color: string } {
           className="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 disabled:bg-gray-600 text-black text-sm font-bold transition-colors"
           title="Exportar PNGs de todas as tips GREEN do filtro atual"
         >
-          {exportingBatch ? (<><Loader2 className="w-4 h-4 animate-spin" />Processando...</>) : (<><ImageDown className="w-4 h-4" />Exportar Greens (ZIP)</>)}
+          {exportingBatch ? (<><Loader2 className="w-4 h-4 animate-spin" />Processando...</>) : (<><ImageDown className="w-4 h-4" />Exportar Greens (stories)</>)}
         </button>
       </div>
 

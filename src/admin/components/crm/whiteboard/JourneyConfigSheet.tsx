@@ -8,7 +8,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { TRIGGERS, TRIGGER_LIST, type TriggerKey } from "@/admin/lib/crm/triggers";
+import { TRIGGERS, TRIGGER_LIST, PAYT_EVENT_OPTIONS, type TriggerKey } from "@/admin/lib/crm/triggers";
 import { useAudiences } from "@/admin/hooks/crm/useAudiences";
 import { NewAudienceInlineButton } from "@/admin/components/crm/NewAudienceInlineButton";
 import { JOURNEY_PALETTE, type JourneyRow } from "@/admin/hooks/crm/useUnifiedWhiteboard";
@@ -150,6 +150,27 @@ export function JourneyConfigSheet({ journey, open, onOpenChange, onSave }: Prop
                   }
                   className="mt-1 w-32"
                 />
+              </div>
+            )}
+            {triggerType === "webhook_status" && (
+              <div className="pt-2 space-y-1.5">
+                <Label className="text-xs">Evento da Payt</Label>
+                <Select
+                  value={triggerConfig.payt_event ?? ""}
+                  onValueChange={(v) =>
+                    setTriggerConfig((c) => ({ ...c, payt_event: v }))
+                  }
+                >
+                  <SelectTrigger><SelectValue placeholder="Escolha um evento" /></SelectTrigger>
+                  <SelectContent>
+                    {PAYT_EVENT_OPTIONS.map((o) => (
+                      <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-[11px] text-muted-foreground italic">
+                  A jornada dispara automaticamente quando o lead atingir esse status no checkout da Payt.
+                </p>
               </div>
             )}
           </div>
