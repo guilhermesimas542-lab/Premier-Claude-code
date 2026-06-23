@@ -51,7 +51,7 @@ export function JourneyConfigSheet({ journey, open, onOpenChange, onSave }: Prop
     if (!journey) return;
     setName(journey.name ?? "");
     setColor(journey.color ?? JOURNEY_PALETTE[0]);
-    setTriggerType((journey.trigger_type as TriggerKey) ?? "manual");
+    setTriggerType((journey.trigger_type && journey.trigger_type in TRIGGERS ? journey.trigger_type : "manual") as TriggerKey);
     setTriggerConfig(journey.trigger_config ?? {});
     setAudienceId(journey.audience_id ?? null);
     setStatus(journey.status ?? "draft");
@@ -136,7 +136,7 @@ export function JourneyConfigSheet({ journey, open, onOpenChange, onSave }: Prop
               </SelectContent>
             </Select>
             <p className="text-[11px] text-muted-foreground italic">
-              {TRIGGERS[triggerType].description}
+              {(TRIGGERS[triggerType] ?? TRIGGERS.manual).description}
             </p>
             {triggerType === "churn_inactive" && (
               <div className="pt-2">
