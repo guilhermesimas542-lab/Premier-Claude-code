@@ -380,7 +380,7 @@ export function NodeConfigDrawer({ node, messageNodes, triggerType, triggerConfi
 
         <SheetFooter className="gap-2 sm:justify-between">
           <div>
-            {onDelete && node.type !== "trigger" && (
+            {onDelete && (
               <Button
                 variant="destructive"
                 disabled={saving}

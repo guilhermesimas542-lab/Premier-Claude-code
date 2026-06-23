@@ -293,7 +293,7 @@ function Inner() {
       if (c.type !== "remove") return;
       const n = nodes.find((x) => x.id === c.id);
       if (!n) return;
-      if (n.type === "stickNote" || n.type === "trigger") return;
+      if (n.type === "stickNote") return;
       // push undo: captura step + edges relacionadas
       const step = steps.find((s) => s.id === c.id);
       const relEdges = edgeRows.filter((e) => e.source_step_id === c.id || e.target_step_id === c.id);
