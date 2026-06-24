@@ -532,11 +532,12 @@ Deno.serve(async (req: Request) => {
     // SMS real (SMS Dev): só quando dry_run=false e chave configurada.
     // Resto dos canais (e qualquer dry_run=true) continua no mock.
     let smsRealKey: string | null = null;
+    let smsRoute: string = "16"; // default Comtele: 16 Marketing
     if (channel === "sms" && !dryRun) {
-      const { data: keyData, error: keyErr } = await supabase.rpc(
-        "crm_get_channel_secret",
-        { p_channel: "sms", p_key: "api_key" }
-      );
+      const [{ data: keyData, error: keyErr }, { data: cfgRow }] = await Promise.all([
+        supabase.rpc("crm_get_channel_secret", { p_channel: "sms", p_key: "api_key" }),
+        supabase.from("crm_channel_settings").select("config").eq("channel", "sms").maybeSingle(),
+      ]);
       if (keyErr) {
         console.error("[CRM][SMS] erro lendo chave do Vault:", keyErr);
       } else if (typeof keyData === "string" && keyData.length > 0) {
@@ -544,6 +545,8 @@ Deno.serve(async (req: Request) => {
       } else {
         console.warn("[CRM][SMS] chave api_key não configurada — caindo no mock.");
       }
+      const cfgRoute = (cfgRow as any)?.config?.route;
+      if (typeof cfgRoute === "string" && cfgRoute.length > 0) smsRoute = cfgRoute;
     }
     useRealSms = channel === "sms" && !dryRun && smsRealKey !== null;
 
@@ -601,7 +604,7 @@ Deno.serve(async (req: Request) => {
     for (let i = 0; i < recipients.length; i += CHUNK) {
       const slice = recipients.slice(i, i + CHUNK);
       const results: SendResult[] = useRealSms
-        ? await sendBatchSmsReal(slice, schedule.content ?? null, smsRealKey!)
+        ? await sendBatchSmsReal(slice, schedule.content ?? null, smsRealKey!, smsRoute)
         : useRealPush
           ? await sendBatchPushReal(slice, schedule.content ?? null, supabase, pushVapid!)
           : useRealPopup
