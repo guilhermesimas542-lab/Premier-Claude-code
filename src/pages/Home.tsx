@@ -157,7 +157,12 @@ const Home = () => {
     // fluxo isolado pós-compra (rota /onboarding, que liga a flag). O /login
     // normal NÃO liga a flag — leads recorrentes não veem o funil.
     const testOnb = localStorage.getItem(LS_ONBOARDING_TEST_MODE) === "1";
+    // O flag de fluxo é uma "senha" de uso único: só é ligado pela rota
+    // /onboarding (em Login). Consumimos (lê + apaga) já na 1ª chegada ao
+    // Home, garantindo que o onboarding NUNCA re-dispare em acessos normais
+    // (login direto / refresh) caso o lead não conclua o funil.
     const onbFlow = localStorage.getItem(LS_APP_ONBOARDING_FLOW) === "1";
+    if (onbFlow) localStorage.removeItem(LS_APP_ONBOARDING_FLOW);
     const firstAccess = localStorage.getItem(LS_APP_ONBOARDING_SEEN) !== "true";
     if (testOnb || (ONBOARDING_LIVE && onbFlow && firstAccess)) {
       setShowAppOnboarding(true);
