@@ -10,6 +10,7 @@ import { Crown, Loader2, ShoppingCart, Sparkles, Users, Ticket } from "lucide-re
 import { isPreviewEnv } from "@/lib/previewEnv";
 import iaTipsterCartoon from "@/assets/ia-tipster-cartoon.png";
 import logoImg from "@/assets/clscore-logo.png";
+import loginBg from "@/assets/login-trophy-bg.png";
 import { usePayCardTrigger } from "@/hooks/usePayCardTrigger";
 import { useLinks } from "@/contexts/LinksContext";
 import { PayCardFunnelModal } from "@/components/PayCardFunnelModal";
@@ -247,7 +248,7 @@ const Login = ({ onboardingFlow = false }: { onboardingFlow?: boolean }) => {
   const isDisabled = !email.trim() || isLoading;
 
   return (
-    <div className="relative min-h-screen overflow-hidden" style={{ backgroundColor: "#0a1420" }}>
+    <div className="relative min-h-screen overflow-hidden" style={{ background: `radial-gradient(120% 50% at 50% -5%, rgba(233,200,115,0.07), rgba(233,200,115,0) 55%), #050507 url(${loginBg}) top center / 100% auto no-repeat` }}>
       {/* Shine dourado girando na borda das boxes de odd */}
       <style>{`
         @property --gold-angle { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
@@ -285,7 +286,7 @@ const Login = ({ onboardingFlow = false }: { onboardingFlow?: boolean }) => {
             height: "200px",
             top: "-40px",
             left: "-100px",
-            background: "radial-gradient(ellipse, hsl(155 100% 45% / 0.07) 0%, transparent 70%)",
+            background: "radial-gradient(ellipse, rgba(233,185,73,0.07) 0%, transparent 70%)",
           }}
         />
         <div
@@ -295,7 +296,7 @@ const Login = ({ onboardingFlow = false }: { onboardingFlow?: boolean }) => {
             height: "180px",
             bottom: "100px",
             right: "-80px",
-            background: "radial-gradient(ellipse, hsl(155 100% 45% / 0.05) 0%, transparent 70%)",
+            background: "radial-gradient(ellipse, rgba(233,185,73,0.05) 0%, transparent 70%)",
           }}
         />
       </div>
@@ -303,12 +304,9 @@ const Login = ({ onboardingFlow = false }: { onboardingFlow?: boolean }) => {
       {/* Content */}
       <main className="relative flex flex-col items-center justify-center min-h-screen px-6 py-12 w-full max-w-md mx-auto" style={{ zIndex: 2 }}>
         {/* Logo — hero element */}
-        <div className="mb-4 pointer-events-none w-full">
-          <img
-            src={logoImg}
-            alt="CL Score"
-            className="w-full max-w-[260px] h-auto mx-auto object-contain"
-          />
+        <div className="mb-6 w-full pointer-events-none" style={{ position: "relative", zIndex: 1 }}>
+          <img src={logoImg} alt="CL Score" className="max-w-[170px] h-auto object-contain" />
+          <div style={{ fontFamily: "monospace", fontSize: "11px", color: "#6a6c74", letterSpacing: ".32em", marginTop: "6px", textTransform: "uppercase" }}>Tus mejores cuotas</div>
         </div>
 
         {/* Last Greens Carousel + IA Tipster teaser */}
