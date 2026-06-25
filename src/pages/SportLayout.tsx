@@ -144,7 +144,7 @@ const SportLayout = () => {
               Abrir sitio de apuestas ↗
             </a>
           ) : (
-            <div className="w-full mb-2 h-[calc(100dvh-124px-env(safe-area-inset-bottom,0px))] min-h-[480px] md:h-auto md:mb-0 md:flex-1 md:min-h-0 md:max-w-[480px] md:w-full bg-gradient-to-br from-muted/40 to-muted/20 rounded-xl overflow-hidden border border-border/30 backdrop-blur-sm">
+            <div className="w-full mb-2 h-[calc(100dvh-96px-env(safe-area-inset-bottom,0px))] min-h-[560px] md:h-auto md:mb-0 md:flex-1 md:min-h-0 md:max-w-[1000px] md:w-full bg-gradient-to-br from-muted/40 to-muted/20 rounded-xl overflow-hidden border border-border/30 backdrop-blur-sm">
               <iframe
                 ref={iframeRef}
                 src={iframeUrl}
