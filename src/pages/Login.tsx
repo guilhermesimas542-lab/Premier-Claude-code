@@ -432,7 +432,7 @@ const Login = ({ onboardingFlow = false }: { onboardingFlow?: boolean }) => {
                                 flexShrink: 0,
                               }}
                             >
-                              {`R$ 100 → R$ ${iaReturn.toLocaleString('pt-BR')}`}
+                              {`$100 → $${iaReturn.toLocaleString('es-CL')}`}
                             </span>
                           </div>
 

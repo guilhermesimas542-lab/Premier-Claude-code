@@ -16,7 +16,7 @@ export default function Backredirect3() {
   const [secondsLeft, setSecondsLeft] = useState(5 * 60);
 
   useEffect(() => {
-    document.title = "Última oportunidad: R$10 OFF | Premier FC";
+    document.title = "Última oportunidad: $10 OFF | CL Score";
   }, []);
 
   useEffect(() => {
@@ -36,7 +36,7 @@ export default function Backredirect3() {
           className="w-full text-center py-3 px-4 font-bold text-sm sm:text-base"
           style={{ backgroundColor: RED_BG, color: RED_TEXT }}
         >
-          ESSA OFERTA EXPIRA EM: {pad(mm)}:{pad(ss)}
+          ESTA OFERTA EXPIRA EN: {pad(mm)}:{pad(ss)}
         </div>
       )}
 
@@ -53,7 +53,7 @@ export default function Backredirect3() {
               padding: "6px 14px",
             }}
           >
-            🎯 DESCONTO EXCLUSIVO NESSA PÁGINA
+            🎯 DESCUENTO EXCLUSIVO EN ESTA PÁGINA
           </span>
         </div>
 
@@ -63,10 +63,10 @@ export default function Backredirect3() {
           style={{ backgroundColor: OLIVE }}
         >
           <div className="font-extrabold text-2xl sm:text-3xl leading-tight">
-            🔥 DESCONTO DE R$10!
+            🔥 ¡DESCUENTO DE $10!
           </div>
           <div className="mt-2 text-base sm:text-lg text-white/85">
-            Economize R$10 e garanta seu acesso ao PremierFC agora.
+            Ahorra $10 y asegura tu acceso a CL Score ahora.
           </div>
         </div>
 
@@ -89,20 +89,20 @@ export default function Backredirect3() {
               boxShadow: "0 2px 4px rgba(0,0,0,0.15)",
             }}
           >
-            -R$10
+            -$10
           </div>
           <div className="flex items-center justify-between gap-3">
             <div className="flex-1">
               <h1 className="font-extrabold text-2xl text-neutral-900 leading-tight ml-[8px]">
-                Premier FC
+                CL Score
               </h1>
             </div>
             <div className="bg-neutral-100 rounded-xl px-3 py-2 text-right">
               <div className="text-xs text-neutral-500 line-through leading-tight">
-                De R$ 39,90 por
+                De $ 39,90 por
               </div>
               <div className="font-extrabold text-2xl text-neutral-900 leading-tight">
-                R$ 29,90
+                $ 29,90
               </div>
             </div>
           </div>
@@ -114,14 +114,14 @@ export default function Backredirect3() {
           className="block w-full text-center rounded-xl py-4 font-extrabold uppercase tracking-wide text-white text-base sm:text-lg shadow-sm hover:opacity-95 transition"
           style={{ backgroundColor: OLIVE }}
         >
-          Garantir desconto de R$10
+          Asegurar descuento de $10
         </a>
 
         {/* 5) PAYMENT METHODS */}
         <div className="flex justify-center">
           <img
             src={formasPagamento}
-            alt="Formas de pago à vista: Mastercard, Elo, Visa, American Express, Boleto Bancário e Pix"
+            alt="Formas de pago: Mastercard, Visa, American Express"
             className="w-full max-w-[262px] h-auto"
           />
         </div>
@@ -138,7 +138,7 @@ export default function Backredirect3() {
             Si entras en CL Score y no logras al menos triplicar tu banca…
           </p>
           <p className="text-neutral-900 text-sm sm:text-base leading-snug">
-            Te devolvemos <span className="font-bold">cada peso</span> que pagaste. É 100% sin riesgo para ti! 💯
+            Te devolvemos <span className="font-bold">cada centavo</span> que pagaste. ¡Es 100% sin riesgo para ti! 💯
           </p>
         </div>
 
