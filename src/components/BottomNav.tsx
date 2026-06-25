@@ -63,13 +63,13 @@ export const BottomNav = () => {
               className="relative flex flex-col items-center justify-center gap-1 px-4 py-2 rounded-xl transition-all duration-200"
             >
               {active && (
-                <div className="absolute inset-0 rounded-xl" style={{ background: "rgba(16, 255, 128,0.12)" }} />
+                <div className="absolute inset-0 rounded-xl" style={{ background: "rgba(233,185,73,0.12)" }} />
               )}
               
               <svg
                 className="relative z-10 w-5 h-5 transition-colors"
                 viewBox="0 0 24 24"
-                fill={active ? "#F2C84B" : "#10ff80"}
+                fill={active ? "#F2C84B" : "#e9b949"}
                 xmlns="http://www.w3.org/2000/svg"
               >
                 <path d={item.iconPath} />
@@ -77,7 +77,7 @@ export const BottomNav = () => {
               <span
                 className="relative z-10 transition-colors"
                 style={{
-                  color: active ? "#F2C84B" : "#10ff80",
+                  color: active ? "#F2C84B" : "#e9b949",
                   fontFamily: "'Barlow Condensed', sans-serif",
                   fontWeight: 700,
                   fontSize: '10px',

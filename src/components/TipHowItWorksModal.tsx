@@ -9,7 +9,7 @@ interface TipHowItWorksModalProps {
   odds?: number;
 }
 
-const TIER = "#10ff80";
+const TIER = "#e9b949";
 
 export const TipHowItWorksModal = ({
   open,

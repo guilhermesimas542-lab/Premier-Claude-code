@@ -11,15 +11,15 @@ function getBadgeStyle(badgeText: string, color: string | null) {
   const upper = (badgeText || '').toUpperCase();
   if (upper.includes('IA') || upper.includes('ATIVADA') || color === 'green') {
     return {
-      background: 'rgba(16, 255, 128,0.15)',
-      border: '1px solid rgba(16, 255, 128,0.4)',
-      color: '#10ff80',
+      background: 'rgba(233,185,73,0.15)',
+      border: '1px solid rgba(233,185,73,0.4)',
+      color: '#e9b949',
     };
   }
   if (upper.includes('NOVO') || color === 'gold') {
     return {
-      background: 'rgba(16, 255, 128,0.15)',
-      border: '1px solid rgba(16, 255, 128,0.3)',
+      background: 'rgba(233,185,73,0.15)',
+      border: '1px solid rgba(233,185,73,0.3)',
       color: '#F0B429',
     };
   }
@@ -31,23 +31,23 @@ function getBadgeStyle(badgeText: string, color: string | null) {
     };
   }
   if (color === 'black_green') {
-    return { background: "#000", color: "#10ff80", border: "1px solid #10ff80" };
+    return { background: "#000", color: "#e9b949", border: "1px solid #e9b949" };
   }
   if (color === 'tron') {
     return { background: "#000", color: "#00FFFF", border: "1px solid #00FFFF", boxShadow: "0 0 5px #00FFFF" };
   }
   // default
   return {
-    background: 'rgba(16, 255, 128,0.15)',
-    border: '1px solid rgba(16, 255, 128,0.3)',
-    color: '#10ff80',
+    background: 'rgba(233,185,73,0.15)',
+    border: '1px solid rgba(233,185,73,0.3)',
+    color: '#e9b949',
   };
 }
 
 function isGreenColor(c: string | null): boolean {
   if (!c) return false;
   const lower = c.toLowerCase();
-  return lower === '#10ff80' || lower === '#10ff80' || lower.includes('00e87a') || lower.includes('00ff7f');
+  return lower === '#e9b949' || lower === '#e9b949' || lower.includes('00e87a') || lower.includes('00ff7f');
 }
 
 export function CardType1Lateral({ card, hasAccess = true, onAction }: Props) {
@@ -57,13 +57,13 @@ export function CardType1Lateral({ card, hasAccess = true, onAction }: Props) {
   const displayImg = mobileImg;
   const locked = !hasAccess;
 
-  const buttonBg = '#10ff80';
+  const buttonBg = '#e9b949';
   const buttonColor = '#0a0f08';
 
   return (
     <button
       onClick={onAction}
-      className="relative w-full overflow-hidden rounded-xl border border-[#10ff80]/35 flex hover:-translate-y-0.5 hover:border-[#10ff80]/70 transition-all duration-200 text-left group"
+      className="relative w-full overflow-hidden rounded-xl border border-[#e9b949]/35 flex hover:-translate-y-0.5 hover:border-[#e9b949]/70 transition-all duration-200 text-left group"
       style={{ background: "#112236", minHeight: "120px" }}
     >
       {/* Badges */}

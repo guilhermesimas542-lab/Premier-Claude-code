@@ -27,7 +27,7 @@ export function AppOnboardingModal({ open, onComplete }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={() => { /* sem fechar por fora */ }}>
-      <DialogContent className="bg-[#112236] border-[#00FF7F]/40 text-white w-[96vw] max-w-md p-0 rounded-2xl overflow-hidden [&>button]:hidden max-h-[92vh] overflow-y-auto">
+      <DialogContent className="bg-[#112236] border-[#e9b949]/40 text-white w-[96vw] max-w-md p-0 rounded-2xl overflow-hidden [&>button]:hidden max-h-[92vh] overflow-y-auto">
         {/* Indicador de passos */}
         <div className="flex items-center justify-center gap-1.5 pt-5 pb-1">
           {Array.from({ length: TOTAL_STEPS }).map((_, i) => {
@@ -41,7 +41,7 @@ export function AppOnboardingModal({ open, onComplete }: Props) {
                 style={{
                   width: active ? 22 : 6,
                   height: 6,
-                  background: active ? "#00FF7F" : done ? "rgba(0,255,127,0.55)" : "rgba(255,255,255,0.2)",
+                  background: active ? "#e9b949" : done ? "rgba(233,185,73,0.55)" : "rgba(255,255,255,0.2)",
                 }}
               />
             );
@@ -62,7 +62,7 @@ export function AppOnboardingModal({ open, onComplete }: Props) {
             onClick={isLast ? onComplete : () => setStep(2)}
             className="w-full py-3 rounded-xl flex items-center justify-center gap-2 transition-all hover:scale-[1.02] active:scale-[0.99]"
             style={{
-              background: "#00FF7F",
+              background: "#e9b949",
               color: "#060D1E",
               fontFamily: "'Barlow Condensed', sans-serif",
               fontWeight: 800,
@@ -70,7 +70,7 @@ export function AppOnboardingModal({ open, onComplete }: Props) {
               letterSpacing: "0.6px",
               textTransform: "uppercase",
               border: "none",
-              boxShadow: "0 0 24px rgba(0,255,127,0.3)",
+              boxShadow: "0 0 24px rgba(233,185,73,0.3)",
             }}
           >
             {isLast ? (
@@ -96,16 +96,16 @@ function StepWelcome() {
     <div className="px-6 pt-3 pb-2">
       <div
         className="relative pt-4 pb-4 text-center"
-        style={{ background: "radial-gradient(circle at 50% 0%, rgba(0,255,127,0.18) 0%, rgba(17,34,54,0) 60%)" }}
+        style={{ background: "radial-gradient(circle at 50% 0%, rgba(233,185,73,0.18) 0%, rgba(17,34,54,0) 60%)" }}
       >
         <div
           className="mx-auto mb-3 mt-1 flex items-center justify-center"
-          style={{ width: 96, height: 96, borderRadius: "50%", background: "#0a1628", border: "2px solid rgba(0,255,127,0.4)", boxShadow: "0 0 24px rgba(0,255,127,0.18)", overflow: "hidden" }}
+          style={{ width: 96, height: 96, borderRadius: "50%", background: "#0a1628", border: "2px solid rgba(233,185,73,0.4)", boxShadow: "0 0 24px rgba(233,185,73,0.18)", overflow: "hidden" }}
         >
           <img src={logoImg} alt="CL Score" style={{ width: "72%", height: "72%", objectFit: "contain" }} />
         </div>
         <h2 className="text-2xl font-bold leading-tight mb-1" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
-          Bienvenido a <span style={{ color: "#00FF7F" }}>CL Score</span>
+          Bienvenido a <span style={{ color: "#e9b949" }}>CL Score</span>
         </h2>
         <p className="text-sm text-white/65 max-w-xs mx-auto">
           Los mejores tips de apuestas, con cuotas actualizadas y análisis con IA.
@@ -113,9 +113,9 @@ function StepWelcome() {
       </div>
 
       <div className="space-y-2.5 mt-3">
-        <Bullet icon={<TrendingUp className="w-4 h-4 text-[#00FF7F]" />} title="Tips diarios" text="Selecciones con cuotas actualizadas, listas para apostar." />
-        <Bullet icon={<Sparkles className="w-4 h-4 text-[#00FF7F]" />} title="IA Tipster" text="Genera tus propios análisis para cualquier partido." />
-        <Bullet icon={<Bell className="w-4 h-4 text-[#00FF7F]" />} title="Avisos al instante" text="Recibe los tips en el momento, sin perderte ninguno." />
+        <Bullet icon={<TrendingUp className="w-4 h-4 text-[#e9b949]" />} title="Tips diarios" text="Selecciones con cuotas actualizadas, listas para apostar." />
+        <Bullet icon={<Sparkles className="w-4 h-4 text-[#e9b949]" />} title="IA Tipster" text="Genera tus propios análisis para cualquier partido." />
+        <Bullet icon={<Bell className="w-4 h-4 text-[#e9b949]" />} title="Avisos al instante" text="Recibe los tips en el momento, sin perderte ninguno." />
       </div>
     </div>
   );
@@ -125,8 +125,8 @@ function StepInstall() {
   return (
     <div className="px-6 pt-2 pb-2">
       <div className="text-center mb-4 pt-2">
-        <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#00FF7F]/10 border border-[#00FF7F]/25 mb-2">
-          <Bell className="w-6 h-6 text-[#00FF7F]" />
+        <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#e9b949]/10 border border-[#e9b949]/25 mb-2">
+          <Bell className="w-6 h-6 text-[#e9b949]" />
         </div>
         <h2 className="text-xl font-bold mb-1" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
           No te pierdas ningún tip
@@ -144,7 +144,7 @@ function StepInstall() {
 function Bullet({ icon, title, text }: { icon: React.ReactNode; title: string; text: string }) {
   return (
     <div className="flex gap-3 items-start">
-      <div className="shrink-0 w-8 h-8 rounded-lg bg-[#00FF7F]/10 border border-[#00FF7F]/25 flex items-center justify-center mt-0.5">
+      <div className="shrink-0 w-8 h-8 rounded-lg bg-[#e9b949]/10 border border-[#e9b949]/25 flex items-center justify-center mt-0.5">
         {icon}
       </div>
       <div className="flex-1 min-w-0">

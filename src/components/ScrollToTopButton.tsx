@@ -35,7 +35,7 @@ export function ScrollToTopButton() {
           right: 0,
           bottom: "calc(64px + env(safe-area-inset-bottom))",
           height: 36,
-          background: "#10ff80",
+          background: "#e9b949",
           color: "#000000",
           fontFamily: "'Barlow Condensed', sans-serif",
           fontWeight: 800,
@@ -52,7 +52,7 @@ export function ScrollToTopButton() {
           gap: 6,
           opacity: visible ? 1 : 0,
           transition: "opacity 200ms ease-out",
-          boxShadow: "0 -2px 8px rgba(16, 255, 128, 0.25)",
+          boxShadow: "0 -2px 8px rgba(233,185,73, 0.25)",
         }}
       >
         <ChevronUp

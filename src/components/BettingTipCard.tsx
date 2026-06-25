@@ -44,7 +44,7 @@ export const BettingTipCard = ({
           className={`text-center py-3 px-4 font-bold text-sm tracking-wide relative ${
             isPro
               ? "bg-gradient-to-r from-warning via-secondary to-warning bg-[length:200%_100%] animate-gradient"
-              : "bg-gradient-to-r from-success to-[#10ff80]"
+              : "bg-gradient-to-r from-success to-[#e9b949]"
           }`}
           style={{
             animation: isPro ? "gradient 3s ease infinite" : "none",

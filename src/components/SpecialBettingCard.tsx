@@ -38,7 +38,7 @@ const CARD_CONFIG: Record<SpecialCardType, { icon: typeof TrendingUp; label: str
     icon: TrendingUp,
     label: "APALANCAMIENTO",
     color: "#F0B429",
-    gradient: "linear-gradient(135deg, rgba(16, 255, 128,0.08) 0%, transparent 60%)",
+    gradient: "linear-gradient(135deg, rgba(233,185,73,0.08) 0%, transparent 60%)",
     subtitle: "Apalancamiento del Día",
   },
   ODDS_ALTAS: {
@@ -136,7 +136,7 @@ export const SpecialBettingCard = ({
           <button
             onClick={(e) => { e.stopPropagation(); onLockedClick?.(); }}
             className="animate-pulse-glow-green"
-            style={{ padding: "10px 24px", borderRadius: 999, background: "#10ff80", color: "#000", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 14, border: "none", cursor: "pointer", letterSpacing: "0.5px" }}
+            style={{ padding: "10px 24px", borderRadius: 999, background: "#e9b949", color: "#000", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 14, border: "none", cursor: "pointer", letterSpacing: "0.5px" }}
           >
             Adquiérelo ya
           </button>
@@ -154,7 +154,7 @@ export const SpecialBettingCard = ({
             fontFamily: "'Barlow Condensed', sans-serif",
             fontWeight: 800,
             fontSize: 28,
-            color: "#10ff80",
+            color: "#e9b949",
             lineHeight: 1,
             pointerEvents: "none",
           }}
@@ -284,7 +284,7 @@ export const SpecialBettingCard = ({
               disabled={isExpired}
               style={{
                 flex: 1,
-                background: isExpired ? "#374151" : "#10ff80",
+                background: isExpired ? "#374151" : "#e9b949",
                 color: isExpired ? "#6B7280" : "#000000",
                 fontFamily: "'Barlow Condensed', sans-serif",
                 fontWeight: 800,

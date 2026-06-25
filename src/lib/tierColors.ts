@@ -3,7 +3,7 @@
  *
  * GRÁTIS  — #94A3B8 cinza
  * BÁSICO  — #60A5FA azul claro
- * PRO     — #10ff80 verde
+ * PRO     — #e9b949 verde
  * ULTRA   — #7C3AED roxo
  * ALAVANCAGEM — #F0B429 gold
  * MÚLTIPLAS / BINGO — #F97316 laranja
@@ -34,10 +34,10 @@ const STYLES: Record<string, TierColorStyle> = {
   },
   pro: {
     label: 'PRO',
-    color: '#10ff80',
-    bg: 'rgba(16, 255, 128,0.15)',
-    border: '#10ff80',
-    glow: '0 0 15px rgba(16, 255, 128,0.15)',
+    color: '#e9b949',
+    bg: 'rgba(233,185,73,0.15)',
+    border: '#e9b949',
+    glow: '0 0 15px rgba(233,185,73,0.15)',
   },
   ultra: {
     label: 'ULTRA',
@@ -49,9 +49,9 @@ const STYLES: Record<string, TierColorStyle> = {
   alavancagem: {
     label: 'ALAVANCAGEM',
     color: '#F0B429',
-    bg: 'rgba(16, 255, 128,0.15)',
+    bg: 'rgba(233,185,73,0.15)',
     border: '#F0B429',
-    glow: '0 0 15px rgba(16, 255, 128,0.15)',
+    glow: '0 0 15px rgba(233,185,73,0.15)',
   },
   multiplas_bingo: {
     label: 'MÚLTIPLAS / BINGO',

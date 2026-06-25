@@ -41,7 +41,7 @@ export function IATipsterOnboardingModal({ open, onComplete }: Props) {
   return (
     <Dialog open={open} onOpenChange={() => { /* sem fechar por fora */ }}>
       <DialogContent
-        className="bg-[#112236] border-[#10ff80]/40 text-white w-[96vw] max-w-md p-0 rounded-2xl overflow-hidden [&>button]:hidden max-h-[92vh] overflow-y-auto"
+        className="bg-[#112236] border-[#e9b949]/40 text-white w-[96vw] max-w-md p-0 rounded-2xl overflow-hidden [&>button]:hidden max-h-[92vh] overflow-y-auto"
       >
         <StepIndicator current={step} total={TOTAL_STEPS} />
 
@@ -81,9 +81,9 @@ function StepIndicator({ current, total }: { current: number; total: number }) {
               width: active ? 22 : 6,
               height: 6,
               background: active
-                ? "#10ff80"
+                ? "#e9b949"
                 : done
-                  ? "rgba(16, 255, 128,0.55)"
+                  ? "rgba(233,185,73,0.55)"
                   : "rgba(255,255,255,0.2)",
             }}
           />
@@ -110,7 +110,7 @@ function StepWelcome() {
         className="relative pt-4 pb-4 text-center"
         style={{
           background:
-            "radial-gradient(circle at 50% 0%, rgba(16, 255, 128,0.18) 0%, rgba(17,34,54,0) 60%)",
+            "radial-gradient(circle at 50% 0%, rgba(233,185,73,0.18) 0%, rgba(17,34,54,0) 60%)",
         }}
       >
         <Badge label="Nueva feature" />
@@ -123,8 +123,8 @@ function StepWelcome() {
             borderRadius: "50%",
             overflow: "hidden",
             background: "#0a1628",
-            border: "2px solid rgba(16, 255, 128,0.4)",
-            boxShadow: "0 0 24px rgba(16, 255, 128,0.18)",
+            border: "2px solid rgba(233,185,73,0.4)",
+            boxShadow: "0 0 24px rgba(233,185,73,0.18)",
           }}
         >
           <img
@@ -138,7 +138,7 @@ function StepWelcome() {
           className="text-2xl font-bold leading-tight mb-1"
           style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
         >
-          Conoce el <span style={{ color: "#10ff80" }}>IA Tipster</span>
+          Conoce el <span style={{ color: "#e9b949" }}>IA Tipster</span>
         </h2>
         <p className="text-sm text-white/65 max-w-xs mx-auto">
           Ahora creas tus propios análisis de IA para cualquier partido.
@@ -147,17 +147,17 @@ function StepWelcome() {
 
       <div className="space-y-2.5 mt-3">
         <Bullet
-          icon={<MessageSquare className="w-4 h-4 text-[#10ff80]" />}
+          icon={<MessageSquare className="w-4 h-4 text-[#e9b949]" />}
           title="Chat con la IA"
           text="Escribe los equipos y recibe el análisis completo en segundos."
         />
         <Bullet
-          icon={<Radio className="w-4 h-4 text-[#10ff80]" />}
+          icon={<Radio className="w-4 h-4 text-[#e9b949]" />}
           title="Partidos en vivo"
           text="Elige un partido en vivo y la IA analiza en tiempo real."
         />
         <Bullet
-          icon={<Coins className="w-4 h-4 text-[#10ff80]" />}
+          icon={<Coins className="w-4 h-4 text-[#e9b949]" />}
           title="Sistema de créditos"
           text="Recibes créditos semanales y puedes comprar más cuando necesites."
         />
@@ -174,7 +174,7 @@ function StepHowToUse() {
   return (
     <div className="px-6 pt-2 pb-2">
       <Header
-        icon={<Zap className="w-6 h-6 text-[#10ff80]" />}
+        icon={<Zap className="w-6 h-6 text-[#e9b949]" />}
         title="Cómo usar en 3 pasos"
         subtitle="Flujo simple — desde elegir el partido hasta apostar."
       />
@@ -211,7 +211,7 @@ function StepCredits() {
   return (
     <div className="px-6 pt-2 pb-2">
       <Header
-        icon={<Coins className="w-6 h-6 text-[#10ff80]" />}
+        icon={<Coins className="w-6 h-6 text-[#e9b949]" />}
         title="Cómo funcionan los créditos"
         subtitle="Siempre puedes generar análisis — gratis o comprando más cuando necesites."
       />
@@ -221,7 +221,7 @@ function StepCredits() {
           label="Cota semanal"
           text="Recibes créditos cada semana según tu plan. Reset todos los lunes."
           valueLabel="Gratis"
-          valueColor="#10ff80"
+          valueColor="#e9b949"
         />
         <CreditRow
           label="Paquetes extra"
@@ -233,7 +233,7 @@ function StepCredits() {
           label="Acceso ilimitado"
           text="Análisis sin gastar créditos por 1 o 3 meses. Para quien usa mucho."
           valueLabel="Desde $19.990"
-          valueColor="#10ff80"
+          valueColor="#e9b949"
         />
       </div>
     </div>
@@ -253,22 +253,22 @@ function StepFinal() {
           width: 64,
           height: 64,
           borderRadius: "50%",
-          background: "rgba(16, 255, 128,0.12)",
-          border: "2px solid rgba(16, 255, 128,0.45)",
+          background: "rgba(233,185,73,0.12)",
+          border: "2px solid rgba(233,185,73,0.45)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          boxShadow: "0 0 28px rgba(16, 255, 128,0.25)",
+          boxShadow: "0 0 28px rgba(233,185,73,0.25)",
         }}
       >
-        <Target className="w-7 h-7 text-[#10ff80]" />
+        <Target className="w-7 h-7 text-[#e9b949]" />
       </div>
 
       <h2
         className="text-2xl font-bold leading-tight mb-2"
         style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
       >
-        Vamos a crear tu <span style={{ color: "#10ff80" }}>primer análisis</span>
+        Vamos a crear tu <span style={{ color: "#e9b949" }}>primer análisis</span>
       </h2>
       <p className="text-sm text-white/70 max-w-sm mx-auto mb-5 leading-relaxed">
         En el siguiente paso, vas a la pantalla del IA Tipster para armar tu{" "}
@@ -278,27 +278,27 @@ function StepFinal() {
       <div
         className="rounded-xl px-4 py-3 mb-4 text-left"
         style={{
-          background: "rgba(16, 255, 128,0.06)",
-          border: "1px solid rgba(16, 255, 128,0.25)",
+          background: "rgba(233,185,73,0.06)",
+          border: "1px solid rgba(233,185,73,0.25)",
         }}
       >
         <p
           className="text-[10px] uppercase tracking-wider mb-1 font-bold"
-          style={{ color: "#10ff80", fontFamily: "'Barlow Condensed', sans-serif" }}
+          style={{ color: "#e9b949", fontFamily: "'Barlow Condensed', sans-serif" }}
         >
           Qué va a pasar
         </p>
         <ul className="text-xs text-white/80 space-y-1.5 leading-snug">
           <li className="flex gap-2">
-            <span className="text-[#10ff80] font-bold">1.</span>
+            <span className="text-[#e9b949] font-bold">1.</span>
             Abriremos la pantalla del IA Tipster
           </li>
           <li className="flex gap-2">
-            <span className="text-[#10ff80] font-bold">2.</span>
+            <span className="text-[#e9b949] font-bold">2.</span>
             Eliges un partido (En Vivo o Chat)
           </li>
           <li className="flex gap-2">
-            <span className="text-[#10ff80] font-bold">3.</span>
+            <span className="text-[#e9b949] font-bold">3.</span>
             La IA genera tu análisis en segundos — se descuenta 1 crédito
           </li>
         </ul>
@@ -353,7 +353,7 @@ function NavBar({
         onClick={isLast ? onComplete : onNext}
         className="flex-1 py-3 rounded-xl flex items-center justify-center gap-2 transition-all hover:scale-[1.02] active:scale-[0.99]"
         style={{
-          background: "#10ff80",
+          background: "#e9b949",
           color: "#FFFFFF",
           fontFamily: "'Barlow Condensed', sans-serif",
           fontWeight: 800,
@@ -361,7 +361,7 @@ function NavBar({
           letterSpacing: "0.6px",
           textTransform: "uppercase",
           border: "none",
-          boxShadow: "0 0 24px rgba(16, 255, 128,0.3)",
+          boxShadow: "0 0 24px rgba(233,185,73,0.3)",
         }}
       >
         {isLast ? (
@@ -391,13 +391,13 @@ function Badge({ label }: { label: string }) {
       style={{
         padding: "5px 12px",
         borderRadius: "999px",
-        background: "rgba(16, 255, 128,0.12)",
-        border: "1.5px solid rgba(16, 255, 128,0.45)",
+        background: "rgba(233,185,73,0.12)",
+        border: "1.5px solid rgba(233,185,73,0.45)",
       }}
     >
-      <Sparkles className="w-3.5 h-3.5 text-[#10ff80]" />
+      <Sparkles className="w-3.5 h-3.5 text-[#e9b949]" />
       <span
-        className="text-[10px] font-bold uppercase tracking-wider text-[#10ff80]"
+        className="text-[10px] font-bold uppercase tracking-wider text-[#e9b949]"
         style={{ fontFamily: "'Barlow Condensed', sans-serif", letterSpacing: "1.5px" }}
       >
         {label}
@@ -417,7 +417,7 @@ function Header({
 }) {
   return (
     <div className="text-center mb-4 pt-2">
-      <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#10ff80]/10 border border-[#10ff80]/25 mb-2">
+      <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#e9b949]/10 border border-[#e9b949]/25 mb-2">
         {icon}
       </div>
       <h2
@@ -444,7 +444,7 @@ function Bullet({
 }) {
   return (
     <div className="flex gap-3 items-start">
-      <div className="shrink-0 w-8 h-8 rounded-lg bg-[#10ff80]/10 border border-[#10ff80]/25 flex items-center justify-center mt-0.5">
+      <div className="shrink-0 w-8 h-8 rounded-lg bg-[#e9b949]/10 border border-[#e9b949]/25 flex items-center justify-center mt-0.5">
         {icon}
       </div>
       <div className="flex-1 min-w-0">
@@ -473,7 +473,7 @@ function StepCard({
 }) {
   return (
     <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3 flex gap-3">
-      <div className="shrink-0 w-8 h-8 rounded-lg bg-[#10ff80] text-[#0a1628] flex items-center justify-center font-bold">
+      <div className="shrink-0 w-8 h-8 rounded-lg bg-[#e9b949] text-[#0a1628] flex items-center justify-center font-bold">
         {number}
       </div>
       <div className="flex-1 min-w-0">

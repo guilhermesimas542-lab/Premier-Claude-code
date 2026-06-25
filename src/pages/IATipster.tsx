@@ -219,7 +219,7 @@ export default function IATipster() {
                 {!tutorialCompleted && (
                   <span
                     className="absolute top-2 right-3 w-1.5 h-1.5 rounded-full"
-                    style={{ background: "#10ff80", boxShadow: "0 0 6px #10ff80" }}
+                    style={{ background: "#e9b949", boxShadow: "0 0 6px #e9b949" }}
                   />
                 )}
               </button>

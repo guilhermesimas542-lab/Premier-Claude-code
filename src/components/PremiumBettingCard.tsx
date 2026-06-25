@@ -51,7 +51,7 @@ interface PremiumBettingCardProps {
 const TIER_COLORS: Record<string, string> = {
   "GRÁTIS": "#94A3B8",
   "BÁSICO": "#60A5FA",
-  "PRO": "#10ff80",
+  "PRO": "#e9b949",
   "ULTRA": "#7C3AED",
   "MÚLTIPLA": "#7C3AED",
 };
@@ -59,7 +59,7 @@ const TIER_COLORS: Record<string, string> = {
 const TIER_GRADIENTS: Record<string, string> = {
   "GRÁTIS": "none",
   "BÁSICO": "linear-gradient(135deg, rgba(96,165,250,0.08) 0%, transparent 60%)",
-  "PRO": "linear-gradient(135deg, rgba(16, 255, 128,0.08) 0%, transparent 60%)",
+  "PRO": "linear-gradient(135deg, rgba(233,185,73,0.08) 0%, transparent 60%)",
   "ULTRA": "linear-gradient(135deg, rgba(124,58,237,0.08) 0%, transparent 60%)",
   "MÚLTIPLA": "linear-gradient(135deg, rgba(124,58,237,0.08) 0%, transparent 60%)",
 };
@@ -236,7 +236,7 @@ export const PremiumBettingCard = ({
           <button
             onClick={(e) => { e.stopPropagation(); handleLockedClick(); }}
             className="animate-pulse-glow-green"
-            style={{ padding: "10px 24px", borderRadius: 999, background: "#10ff80", color: "#000", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 14, border: "none", cursor: "pointer", letterSpacing: "0.5px" }}
+            style={{ padding: "10px 24px", borderRadius: 999, background: "#e9b949", color: "#000", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 14, border: "none", cursor: "pointer", letterSpacing: "0.5px" }}
           >
             Adquiere ya
           </button>
@@ -254,7 +254,7 @@ export const PremiumBettingCard = ({
             fontFamily: "'Barlow Condensed', sans-serif",
             fontWeight: 800,
             fontSize: 28,
-            color: "#10ff80",
+            color: "#e9b949",
             lineHeight: 1,
             pointerEvents: "none",
           }}
@@ -400,7 +400,7 @@ export const PremiumBettingCard = ({
               disabled={isExpired}
               style={{
                 flex: 1,
-                background: isExpired ? "#374151" : "#10ff80",
+                background: isExpired ? "#374151" : "#e9b949",
                 color: isExpired ? "#6B7280" : "#000000",
                 fontFamily: "'Barlow Condensed', sans-serif",
                 fontWeight: 800,
@@ -426,7 +426,7 @@ export const PremiumBettingCard = ({
               {showBetHelp && (
                 <div className="absolute right-0 bottom-12 w-44 bg-black/90 backdrop-blur-md border border-white/20 rounded-lg p-2 shadow-xl z-50">
                   <p className="text-[11px] text-white/90 leading-relaxed">
-                    <strong className="text-[#10ff80]">{betChoice}:</strong> {betExplanation}
+                    <strong className="text-[#e9b949]">{betChoice}:</strong> {betExplanation}
                   </p>
                 </div>
               )}
@@ -434,10 +434,10 @@ export const PremiumBettingCard = ({
 
             {showVerifiedBadge ? (
               <div
-                style={{ width: 34, height: 34, borderRadius: 8, background: "rgba(16, 255, 128,0.12)", border: "1px solid rgba(16, 255, 128,0.45)", display: "flex", alignItems: "center", justifyContent: "center" }}
+                style={{ width: 34, height: 34, borderRadius: 8, background: "rgba(233,185,73,0.12)", border: "1px solid rgba(233,185,73,0.45)", display: "flex", alignItems: "center", justifyContent: "center" }}
                 aria-label="Verificado"
               >
-                <BadgeCheck className="w-5 h-5" style={{ color: "#10ff80" }} />
+                <BadgeCheck className="w-5 h-5" style={{ color: "#e9b949" }} />
               </div>
             ) : (
               <button

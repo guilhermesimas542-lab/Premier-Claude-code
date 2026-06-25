@@ -81,8 +81,8 @@ const AppHeader = ({ leftContent, headerStyle, title }: AppHeaderProps) => {
                   className="inline-flex items-center gap-1.5 rounded-full transition-all hover:scale-105"
                   style={{
                     padding: "7px 14px",
-                    background: "rgba(16, 255, 128,0.10)",
-                    border: "1px solid rgba(16, 255, 128,0.5)",
+                    background: "rgba(233,185,73,0.10)",
+                    border: "1px solid rgba(233,185,73,0.5)",
                     fontFamily: "'Barlow Condensed', sans-serif",
                     fontWeight: 700,
                     fontSize: "13px",
@@ -90,7 +90,7 @@ const AppHeader = ({ leftContent, headerStyle, title }: AppHeaderProps) => {
                     letterSpacing: "0.5px",
                   }}
                 >
-                  <Sparkles size={14} style={{ color: "#10ff80" }} />
+                  <Sparkles size={14} style={{ color: "#e9b949" }} />
                   Crear Cuotas
                 </button>
               )}
@@ -119,12 +119,12 @@ const AppHeader = ({ leftContent, headerStyle, title }: AppHeaderProps) => {
                   className="inline-flex items-center gap-1.5 rounded-full transition-all hover:scale-105"
                   style={{
                     padding: "7px 14px",
-                    background: "rgba(16, 255, 128,0.12)",
-                    border: "1px solid rgba(16, 255, 128,0.5)",
+                    background: "rgba(233,185,73,0.12)",
+                    border: "1px solid rgba(233,185,73,0.5)",
                     fontFamily: "'Barlow Condensed', sans-serif",
                     fontWeight: 700,
                     fontSize: "13px",
-                    color: "#10ff80",
+                    color: "#e9b949",
                     letterSpacing: "0.5px",
                   }}
                 >
@@ -138,14 +138,14 @@ const AppHeader = ({ leftContent, headerStyle, title }: AppHeaderProps) => {
                   className="inline-flex items-center gap-1.5 rounded-full transition-all hover:scale-105"
                   style={{
                     padding: "7px 14px",
-                    background: "#10ff80",
-                    border: "1px solid rgba(16, 255, 128,0.5)",
+                    background: "#e9b949",
+                    border: "1px solid rgba(233,185,73,0.5)",
                     fontFamily: "'Barlow Condensed', sans-serif",
                     fontWeight: 700,
                     fontSize: "13px",
                     color: "#FFFFFF",
                     letterSpacing: "0.5px",
-                    boxShadow: "0 0 14px rgba(16, 255, 128,0.3)",
+                    boxShadow: "0 0 14px rgba(233,185,73,0.3)",
                   }}
                   aria-label="Comprar créditos"
                 >

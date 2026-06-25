@@ -55,9 +55,9 @@ export function BuyCreditsModal({ open, onClose }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="bg-[#112236] border-[#10ff80]/30 text-white max-w-md">
+      <DialogContent className="bg-[#112236] border-[#e9b949]/30 text-white max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-[#10ff80]" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
+          <DialogTitle className="text-[#e9b949]" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
             Comprar créditos IA
           </DialogTitle>
           <DialogDescription className="text-white/60">
@@ -67,7 +67,7 @@ export function BuyCreditsModal({ open, onClose }: Props) {
 
         {loading ? (
           <div className="flex justify-center py-8">
-            <Loader2 className="w-6 h-6 animate-spin text-[#10ff80]" />
+            <Loader2 className="w-6 h-6 animate-spin text-[#e9b949]" />
           </div>
         ) : (
           <div className="space-y-3 pt-2">
@@ -114,13 +114,13 @@ function ProductButton({ p, onBuy }: { p: CreditProduct; onBuy: (url: string) =>
     <Button
       onClick={() => p.checkout_url && onBuy(p.checkout_url)}
       disabled={disabled}
-      className="w-full justify-between bg-[#10ff80]/10 hover:bg-[#10ff80]/20 text-white border border-[#10ff80]/40 py-6"
+      className="w-full justify-between bg-[#e9b949]/10 hover:bg-[#e9b949]/20 text-white border border-[#e9b949]/40 py-6"
     >
       <div className="text-left">
         <div className="font-semibold text-sm">{p.product_name}</div>
         <div className="text-xs text-white/60">{detail}</div>
       </div>
-      <div className="text-[#10ff80] font-bold">
+      <div className="text-[#e9b949] font-bold">
         ${price.toFixed(2).replace(".", ",")}
       </div>
     </Button>
