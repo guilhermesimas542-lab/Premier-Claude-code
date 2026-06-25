@@ -64,6 +64,8 @@ export function PaywallEducationStep({ feature, onContinue, imageOverride }: Pro
       )}
       <p className="text-sm text-white/70 leading-relaxed">{explanation}</p>
       {feature === "alavancagem" && <AlavancagemSchema />}
+      {feature === "esportes_americanos" && <LigasChips />}
+      {feature === "mercados_secundarios" && <MercadosChips />}
       <Button
         className="w-full bg-[#e9b949] hover:bg-[#e9b949]/90 text-black font-bold"
         onClick={onContinue}
@@ -108,6 +110,53 @@ function AlavancagemSchema() {
       <p className="text-[11px] text-white/60 leading-snug text-center px-2">
         Cada acierto reinvierte la ganancia en el siguiente tip, multiplicando el retorno final.
       </p>
+    </div>
+  );
+}
+
+/** Lâmina 2.3 — chips de ligas USA (estilo dourado mono do design) */
+function LigasChips() {
+  const ligas = ["NBA", "NFL", "MLB", "NHL"];
+  return (
+    <div className="flex gap-1.5">
+      {ligas.map((l) => (
+        <span
+          key={l}
+          className="flex-1 text-center font-mono text-[11px] font-semibold py-2"
+          style={{
+            color: "#e7c878",
+            border: "1px solid rgba(214,177,95,.3)",
+            background: "rgba(214,177,95,.07)",
+            borderRadius: "9px",
+          }}
+        >
+          {l}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+/** Lâmina 2.3 — chips de mercados secundários (estilo verde-sálvia do design) */
+function MercadosChips() {
+  const mercados = ["Córners", "Tarjetas", "Hándicap", "Ambos marcan"];
+  return (
+    <div className="flex flex-wrap justify-center gap-1.5">
+      {mercados.map((m) => (
+        <span
+          key={m}
+          className="text-[11px] font-semibold"
+          style={{
+            color: "#9ad8b4",
+            border: "1px solid rgba(47,124,73,.32)",
+            background: "rgba(47,124,73,.08)",
+            borderRadius: "999px",
+            padding: "6px 12px",
+          }}
+        >
+          {m}
+        </span>
+      ))}
     </div>
   );
 }
