@@ -1,4 +1,4 @@
-import { LogOut, Headphones, X, Gift, Sparkles, ShoppingCart, Crown } from "lucide-react";
+import { LogOut, Headphones, X, Gift, Sparkles, ShoppingCart, Crown, Download, ArrowRight, ChevronRight, ScrollText } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import AppHeader from "@/components/AppHeader";
 import { useNavigate } from "react-router-dom";
@@ -15,6 +15,7 @@ import BasicPlanModal from "@/components/BasicPlanModal";
 import { BottomNav } from "@/components/BottomNav";
 import { CHECKOUT_LINKS } from "@/lib/checkoutLinks";
 import logoImg from "@/assets/premier-logo-custom.png";
+import chatBg from "@/assets/chat-bg.png";
 
 import { useUserBettingHouse } from "@/hooks/useUserBettingHouse";
 import { useCards, useCardsBySlugs, CardData } from "@/hooks/useCards";
@@ -86,6 +87,7 @@ const Home = () => {
   const [showLifetimeModal, setShowLifetimeModal] = useState(false);
   const [showLifetimeInfoModal, setShowLifetimeInfoModal] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
+  const [showMarquee, setShowMarquee] = useState(true);
   const [funnelCard, setFunnelCard] = useState<CardData | null>(null);
   const [bannerPayCard, setBannerPayCard] = useState<PayCardData | null>(null);
   const [paywallFeature, setPaywallFeature] = useState<FeatureKey | null>(null);
@@ -258,6 +260,11 @@ const Home = () => {
   return (
     <>
     <style>{`
+      @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
+      .dc-mono { font-family: 'JetBrains Mono', monospace; }
+      @keyframes dc-pulseDot { 0%,100% { opacity: 1; } 50% { opacity: .3; } }
+      @keyframes dc-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
   @keyframes futebol-frame-pulse {
         0%, 100% {
       background-color: rgba(233,185,73, 0.4);
@@ -278,289 +285,83 @@ const Home = () => {
       }
 
     `}</style>
-    <div className="min-h-screen relative overflow-hidden pb-20 md:pb-0 bg-navy-dark" style={{ backgroundColor: "#0a0f08" }}>
+    <div className="min-h-screen relative overflow-hidden pb-20 md:pb-0 bg-navy-dark" style={{ background: "radial-gradient(130% 70% at 50% -15%, rgba(140,147,200,.06), rgba(140,147,200,0) 55%), linear-gradient(180deg, #0d0e12 0%, #0a0b0e 32%, #090a0d 100%)" }}>
       <div className="absolute top-0 left-1/4 w-96 h-96 rounded-full blur-[140px] pointer-events-none" style={{ background: "rgba(233,185,73,0.06)" }} />
 
       <AppHeader onShowLifetimeInfoModal={() => setShowLifetimeInfoModal(true)} />
 
-      <main className="container max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6 relative z-10">
-
-        {/* IA Tipster — Hero (somente preview/local até liberação em produção) */}
-        {isPreviewEnv() && (
-          <section className="space-y-3">
-            <h2
-              style={{
-                fontFamily: "'Barlow Condensed', sans-serif",
-                fontWeight: 800,
-                fontSize: '20px',
-                color: '#FFFFFF',
-                textTransform: 'uppercase',
-                letterSpacing: '1px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-              }}
-            >
-              ✨ IA Tipster
-            </h2>
-            <button
-              onClick={() => { if (isLocked) { requestActivation(); return; } navigate("/ia-tipster"); }}
-              className="relative w-full overflow-hidden rounded-xl border flex hover:-translate-y-0.5 transition-all duration-200 text-left group"
-              style={{
-                background: "#112236",
-                borderColor: 'rgba(233,185,73,0.55)',
-                minHeight: '140px',
-                boxShadow: '0 0 30px rgba(233,185,73,0.15)',
-              }}
-            >
-              {/* Badge NUEVO */}
-              <div className="absolute top-2 right-2 z-20 flex gap-1">
-                <span style={{
-                  background: 'rgba(233,185,73,0.15)',
-                  border: '1px solid rgba(233,185,73,0.3)',
-                  color: '#e9b949',
-                  fontFamily: "'Barlow Condensed', sans-serif",
-                  fontWeight: 700,
-                  fontSize: '11px',
-                  letterSpacing: '1px',
-                  padding: '2px 10px',
-                  borderRadius: '6px',
-                }}>
-                  NUEVO
+      <main className="container max-w-md mx-auto px-4 pt-2 pb-24 relative z-10">
+        {showMarquee && (
+          <div style={{ position: "relative", display: "flex", alignItems: "center", height: 30, borderRadius: 10, background: "#111217", border: "1px solid rgba(233,185,73,0.18)", overflow: "hidden", marginBottom: 16 }}>
+            <div style={{ display: "flex", whiteSpace: "nowrap", animation: "dc-marquee 20s linear infinite", willChange: "transform" }}>
+              {[0,1].map((i) => (
+                <span key={i} aria-hidden={i===1} style={{ display: "inline-flex", alignItems: "center", gap: 9, paddingRight: 18, fontSize: 11, fontWeight: 600, color: "#d7d9e0" }}>
+                  <Download className="w-3.5 h-3.5" style={{ color: "#e9b949" }} />
+                  <span style={{ fontWeight: 800, color: "#e9b949", letterSpacing: ".04em" }}>DESCARGA LA APP DE CL ULTRA</span>
+                  <span style={{ width: 3, height: 3, borderRadius: "50%", background: "rgba(255,255,255,.35)" }} />
+                  <span>Directo en tu pantalla de inicio</span>
+                  <span style={{ width: 3, height: 3, borderRadius: "50%", background: "rgba(255,255,255,.35)" }} />
+                  <span style={{ color: "#9a9ca4" }}>Android y iPhone</span>
+                  <span style={{ width: 3, height: 3, borderRadius: "50%", background: "rgba(255,255,255,.35)" }} />
                 </span>
-              </div>
-
-              {/* Cartoon IA Tipster — padrão lateral idêntico ao CardType1Lateral */}
-              <div className="relative shrink-0 self-stretch" style={{ width: '120px', minHeight: '140px' }}>
-                <img
-                  src={iaTipsterCartoon}
-                  alt="IA Tipster"
-                  className="w-full h-full object-cover rounded-l-xl"
-                />
-                {/* Gradient fade pro conteúdo do card */}
-                <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(to right, transparent 55%, #112236 100%)" }} />
-              </div>
-
-              {/* Conteúdo direito */}
-              <div className="flex-1 p-4 flex flex-col justify-center gap-2 pr-3">
-                <h3 style={{
-                  fontFamily: "'Barlow Condensed', sans-serif",
-                  fontWeight: 800,
-                  fontSize: '20px',
-                  color: '#FFFFFF',
-                  lineHeight: 1.1,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px',
-                  paddingRight: '90px',
-                }}>
-                  Análisis de IA en tiempo real
-                </h3>
-                <p style={{
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontWeight: 400,
-                  fontSize: '12px',
-                  color: '#94A3B8',
-                  lineHeight: 1.3,
-                }}>
-                  Pregunta sobre cualquier partido o elige uno en vivo.
-                </p>
-                <button
-                  onClick={(e) => { e.stopPropagation(); if (isLocked) { requestActivation(); return; } navigate("/ia-tipster"); }}
-                  style={{
-                    width: '100%',
-                    padding: '8px 0',
-                    background: '#e9b949',
-                    border: 'none',
-                    borderRadius: '8px',
-                    fontFamily: "'Barlow Condensed', sans-serif",
-                    fontWeight: 800,
-                    fontSize: '13px',
-                    color: '#0a0f08',
-                    letterSpacing: '0.5px',
-                    cursor: 'pointer',
-                  }}
-                >
-                  PROBAR LA IA TIPSTER
-                </button>
-              </div>
+              ))}
+            </div>
+            <button onClick={() => setShowMarquee(false)} aria-label="Cerrar" style={{ position: "absolute", right: 0, top: 0, bottom: 0, display: "flex", alignItems: "center", padding: "0 10px 0 16px", background: "linear-gradient(90deg, rgba(17,18,23,0), #111217 38%)", border: "none", cursor: "pointer" }}>
+              <X className="w-4 h-4" style={{ color: "#9a9ca4" }} />
             </button>
-          </section>
+          </div>
         )}
 
-        {/* Main Entry Cards */}
-        <section className="space-y-4 sm:space-y-6">
-          <h2
-            style={{
-              fontFamily: "'Barlow Condensed', sans-serif",
-              fontWeight: 800,
-              fontSize: '20px',
-              color: '#FFFFFF',
-              textTransform: 'uppercase',
-              letterSpacing: '1px',
-            }}
-          >
-            Tips Disponibles
-          </h2>
-          <div className="space-y-3">
-            {loadingEntries ? (
-              <p className="px-1 text-sm text-muted-foreground">Cargando...</p>
-            ) : availableEntries.length > 0 ? (
-              availableEntries.map((card) => (
-              card.slug?.toLowerCase() === "futebol" ? (
-                  <div key={card.id} className="futebol-glow-wrapper">
-                    <CardType1Lateral card={card} onAction={() => handleCardAction(card)} />
-                  </div>
-                ) : (
-                  <CardType1Lateral key={card.id} card={card} onAction={() => handleCardAction(card)} />
-                )
-              ))
-            ) : (
-              <p className="px-1 text-sm text-muted-foreground">Ningún tip disponible en este momento.</p>
-            )}
+        <div onClick={() => { if (isLocked) { requestActivation(); return; } navigate("/sport/1"); }} style={{ border: "1px solid rgba(235,235,245,.08)", borderRadius: 18, overflow: "hidden", background: "radial-gradient(130% 170% at 50% -25%, rgba(47,124,73,.18), rgba(47,124,73,0) 55%), #101218", cursor: "pointer", marginBottom: 22 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "11px 14px 9px", borderBottom: "1px solid rgba(235,235,245,.06)" }}>
+            <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#e5484d", animation: "dc-pulseDot 1.6s infinite" }} />
+              <span className="dc-mono" style={{ fontSize: 10, fontWeight: 600, color: "#e5484d", letterSpacing: ".14em" }}>EN VIVO</span>
+              <span className="dc-mono" style={{ fontSize: 9, color: "#6a6c74", letterSpacing: ".12em" }}>&middot; COPA DEL MUNDO</span>
+            </span>
+            <span style={{ display: "flex", alignItems: "center", gap: 4, color: "#7d7c76", fontSize: 11, fontWeight: 600 }}>Ver an&aacute;lisis <ChevronRight className="w-3.5 h-3.5" /></span>
           </div>
-        </section>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "13px 18px 15px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}><span style={{ width: 23, height: 23, borderRadius: "50%", backgroundImage: "url('https://flagcdn.com/w80/br.png')", backgroundSize: "cover", backgroundPosition: "center" }} /><span style={{ fontSize: 14, fontWeight: 600, color: "#ECEAE4" }}>Brasil</span></div>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}><span style={{ fontWeight: 700, fontSize: 23, color: "#ECEAE4" }}>1 <span style={{ color: "#5c5e66", fontWeight: 400 }}>-</span> 0</span><span className="dc-mono" style={{ fontSize: 9, color: "#e5484d", fontWeight: 600 }}>78&#39;</span></div>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}><span style={{ fontSize: 14, fontWeight: 600, color: "#ECEAE4" }}>Hait&iacute;</span><span style={{ width: 23, height: 23, borderRadius: "50%", backgroundImage: "url('https://flagcdn.com/w80/ht.png')", backgroundSize: "cover", backgroundPosition: "center" }} /></div>
+          </div>
+        </div>
 
-        {/* Quick Access */}
-        {quickCards.length > 0 && (
-          <section className="space-y-2.5">
-            <h2
-              style={{
-                fontFamily: "'Barlow Condensed', sans-serif",
-                fontWeight: 800,
-                fontSize: '18px',
-                color: '#FFFFFF',
-                textTransform: 'uppercase',
-                letterSpacing: '1px',
-              }}
-            >
-              ⚡ Acceso Rápido
-            </h2>
-            <div className="flex flex-col gap-3">
-              {quickCards.map(renderCard)}
-            </div>
-          </section>
-        )}
+        <div className="dc-mono" style={{ fontSize: 10, letterSpacing: ".22em", color: "#ECEAE4", marginBottom: 15 }}>FUNCIONALIDADES</div>
 
-        {/* Seção Últimos Bilhetes */}
-        <div>
-          {/* Título da seção */}
-          <h2 style={{
-            fontFamily: "'Barlow Condensed', sans-serif",
-            fontWeight: 800,
-            fontSize: '18px',
-            color: '#FFFFFF',
-            textTransform: 'uppercase',
-            letterSpacing: '1px',
-            marginBottom: '12px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-          }}>
-            🎫 ÚLTIMOS TICKETS
-          </h2>
-          {/* Card no formato lateral — idêntico ao CardType1Lateral */}
-          <div
-            onClick={() => { if (isLocked) { requestActivation(); return; } navigate("/ultimos-greens"); }}
-            style={{
-              background: '#112236',
-              border: '1.5px solid rgba(233,185,73,0.4)',
-              borderRadius: '12px',
-              overflow: 'hidden',
-              display: 'flex',
-              alignItems: 'stretch',
-              cursor: 'pointer',
-              position: 'relative',
-            }}
-          >
-            {/* Imagem lateral esquerda — 100×120px igual ao CardType1Lateral */}
-            <div style={{
-              width: '100px',
-              minWidth: '100px',
-              minHeight: '120px',
-              alignSelf: 'stretch',
-              borderRadius: '10px 0 0 10px',
-              overflow: 'hidden',
-              background: 'linear-gradient(135deg, #1a2a1a 0%, #0d1f0d 100%)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}>
-              <img
-                src={robotFootball}
-                alt="Últimos Greens"
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              />
-            </div>
-            {/* Conteúdo direito */}
-            <div style={{
-              flex: 1,
-              padding: '12px 12px 12px 14px',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between',
-              position: 'relative',
-            }}>
-              {/* Badge GREENS no canto superior direito */}
-              <div style={{
-                position: 'absolute',
-                top: '10px',
-                right: '10px',
-                background: 'rgba(233,185,73,0.15)',
-                border: '1px solid rgba(233,185,73,0.3)',
-                borderRadius: '6px',
-                padding: '2px 8px',
-                fontFamily: "'Barlow Condensed', sans-serif",
-                fontWeight: 700,
-                fontSize: '11px',
-                color: '#F0B429',
-                letterSpacing: '1px',
-              }}>
-                🏆 GREENS
-              </div>
-              {/* Título e subtítulo */}
-              <div style={{ paddingRight: '70px' }}>
-                <div style={{
-                  fontFamily: "'Barlow Condensed', sans-serif",
-                  fontWeight: 800,
-                  fontSize: '18px',
-                  color: '#FFFFFF',
-                  lineHeight: 1.2,
-                  marginBottom: '4px',
-                }}>
-                  {ultimosGreensCard?.title || 'Últimos Greens'}
-                </div>
-                <div style={{
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontWeight: 400,
-                  fontSize: '12px',
-                  color: '#94A3B8',
-                  lineHeight: 1.3,
-                }}>
-                  {ultimosGreensCard?.subtitle || 'Ve los tickets que ganaron'}
-                </div>
-              </div>
-              {/* Botão VER HISTÓRICO */}
-              <button
-                onClick={(e) => { e.stopPropagation(); if (isLocked) { requestActivation(); return; } navigate("/ultimos-greens"); }}
-                style={{
-                  marginTop: '10px',
-                  width: '100%',
-                  padding: '7px 0',
-                  background: '#e9b949',
-                  border: 'none',
-                  borderRadius: '8px',
-                  fontFamily: "'Barlow Condensed', sans-serif",
-                  fontWeight: 800,
-                  fontSize: '13px',
-                  color: '#0a0f08',
-                  letterSpacing: '0.5px',
-                  cursor: 'pointer',
-                }}
-              >
-                VER HISTORIAL
-              </button>
+        <div style={{ border: "1px solid rgba(235,235,245,.08)", borderRadius: 24, background: "#111217", padding: "16px 20px 20px", marginBottom: 16, position: "relative", overflow: "hidden" }}>
+          <div style={{ position: "absolute", top: 18, left: 0, width: 3, height: 56, background: "#6fd18a", borderRadius: "0 3px 3px 0" }} />
+          <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: ".04em", color: "#fff", marginBottom: 10, textTransform: "uppercase", fontFamily: "'Barlow Condensed', sans-serif" }}>Tips Disponibles</div>
+          <div style={{ height: 1, background: "rgba(235,235,245,.07)", margin: "0 0 12px" }} />
+          <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 26, color: "#ECEAE4", lineHeight: 1.08, textTransform: "uppercase" }}>Las mejores <span style={{ color: "#e9b949" }}>entradas</span> del d&iacute;a</div>
+          <div style={{ fontSize: 13.5, color: "#9a9ca4", marginTop: 7, lineHeight: 1.45 }}>Tickets listos analizados por la inteligencia de CL Ultra.</div>
+          <div className="space-y-3" style={{ margin: "18px 0" }}>
+            {loadingEntries ? (<p className="px-1 text-sm text-muted-foreground">Cargando...</p>) : availableEntries.length > 0 ? (availableEntries.map((card) => (card.slug?.toLowerCase() === "futebol" ? (<div key={card.id} className="futebol-glow-wrapper"><CardType1Lateral card={card} onAction={() => handleCardAction(card)} /></div>) : (<CardType1Lateral key={card.id} card={card} onAction={() => handleCardAction(card)} />)))) : (<p className="px-1 text-sm text-muted-foreground">Ning&uacute;n tip disponible en este momento.</p>)}
+          </div>
+          <button onClick={() => { if (isLocked) { requestActivation(); return; } navigate("/sport/1"); }} style={{ width: "100%", border: "none", cursor: "pointer", padding: 14, borderRadius: 13, background: "#ECEAE4", color: "#15161a", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 15, textTransform: "uppercase", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>Ver Tips <ArrowRight className="w-4 h-4" /></button>
+        </div>
+
+        <div style={{ border: "1px solid rgba(235,235,245,.08)", borderRadius: 24, background: "#111217", padding: "16px 20px 20px", marginBottom: 16, position: "relative", overflow: "hidden" }}>
+          <div style={{ position: "absolute", top: 18, left: 0, width: 3, height: 56, background: "#8c93c8", borderRadius: "0 3px 3px 0" }} />
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}><span style={{ fontSize: 13, fontWeight: 700, letterSpacing: ".04em", color: "#fff", textTransform: "uppercase", fontFamily: "'Barlow Condensed', sans-serif" }}>IA Tipster</span><span style={{ background: "rgba(233,185,73,0.15)", border: "1px solid rgba(233,185,73,0.3)", color: "#e9b949", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 10, letterSpacing: "1px", padding: "1px 8px", borderRadius: 6 }}>NUEVO</span></div>
+          <div style={{ height: 1, background: "rgba(235,235,245,.07)", margin: "0 0 12px" }} />
+          <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 26, color: "#ECEAE4", lineHeight: 1.08, textTransform: "uppercase" }}>Pregunta a la IA sobre <span style={{ color: "#e9b949" }}>cualquier partido</span></div>
+          <div style={{ fontSize: 13.5, color: "#9a9ca4", marginTop: 7, lineHeight: 1.45 }}>Conversa con el chat de inteligencia artificial de CL Ultra.</div>
+          <div style={{ margin: "18px 0", border: "1px solid rgba(235,235,245,.09)", borderRadius: 16, overflow: "hidden" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 14px", background: "#1a1c23", borderBottom: "1px solid rgba(235,235,245,.08)" }}><span style={{ width: 22, height: 22, borderRadius: 7, background: "rgba(140,147,200,.16)", display: "grid", placeItems: "center" }}><Sparkles className="w-3 h-3" style={{ color: "#9aa0d8" }} /></span><span style={{ fontSize: 12.5, fontWeight: 600, color: "#ECEAE4" }}>Haz tu pregunta:</span></div>
+            <div style={{ padding: "16px 14px", background: `linear-gradient(rgba(8,9,12,.62), rgba(8,9,12,.62)), url(${chatBg})`, backgroundSize: "auto, 300px", backgroundPosition: "center" }}>
+              <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 10 }}><div style={{ background: "#3b4276", color: "#eceefb", fontSize: 11.5, padding: "9px 13px", borderRadius: "14px 14px 4px 14px", maxWidth: "82%" }}>&iquest;Francia x Espa&ntilde;a cu&aacute;l mejor cuota?</div></div>
+              <div style={{ display: "flex", justifyContent: "flex-start" }}><div style={{ background: "#1b1d24", border: "1px solid rgba(235,235,245,.08)", color: "#d4d6de", fontSize: 11.5, lineHeight: 1.5, padding: "9px 13px", borderRadius: "14px 14px 14px 4px", maxWidth: "88%" }}>Media alta de goles de ambos equipos. Entrada sugerida: <span style={{ color: "#7fc6a0", fontWeight: 600 }}>+2.5 goles pagando 3.7x.</span></div></div>
             </div>
           </div>
+          <button onClick={() => { if (isLocked) { requestActivation(); return; } navigate("/ia-tipster"); }} style={{ width: "100%", border: "none", cursor: "pointer", padding: 14, borderRadius: 13, background: "#ECEAE4", color: "#15161a", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 15, textTransform: "uppercase", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>Abrir IA Tipster <ArrowRight className="w-4 h-4" /></button>
+        </div>
+
+        <div onClick={() => { if (isLocked) { requestActivation(); return; } navigate("/ultimos-greens"); }} style={{ display: "flex", alignItems: "center", gap: 13, border: "1px solid rgba(37,150,190,.3)", borderRadius: 16, background: "#0d1418", padding: "14px 16px", cursor: "pointer" }}>
+          <span style={{ width: 38, height: 38, borderRadius: 10, background: "rgba(37,150,190,.14)", display: "grid", placeItems: "center" }}><ScrollText className="w-5 h-5" style={{ color: "#2596be" }} /></span>
+          <div style={{ flex: 1 }}><div style={{ fontSize: 14, fontWeight: 600, color: "#ECEAE4" }}>{ultimosGreensCard?.title || "Historial de Tips"}</div><div style={{ fontSize: 11.5, color: "#7f8c92", marginTop: 3 }}>Ve los tickets que ganaron</div></div>
+          <ChevronRight className="w-4 h-4" style={{ color: "#2596be" }} />
         </div>
       </main>
 
