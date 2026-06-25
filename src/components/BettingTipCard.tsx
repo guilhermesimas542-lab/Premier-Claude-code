@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { TrendingUp } from "lucide-react";
+import { useActivationLock } from "@/components/onboarding/ActivationGateProvider";
 
 interface BettingTipCardProps {
   category: "PRO" | "BÁSICO";
@@ -28,7 +29,13 @@ export const BettingTipCard = ({
   onAddTip,
 }: BettingTipCardProps) => {
   const isPro = category === "PRO";
-  
+  const { isLocked, requestActivation } = useActivationLock();
+
+  const handleAddTip = () => {
+    if (isLocked) { requestActivation(); return; }
+    onAddTip?.();
+  };
+
   return (
     <Card className="min-w-[340px] max-w-[340px] bg-gradient-to-br from-card to-card/50 border border-border/50 overflow-hidden select-none hover:shadow-[0_8px_32px_-8px_rgba(66,153,225,0.5)] transition-all duration-300 hover:-translate-y-1 backdrop-blur-sm">
       {/* Category Badge with Gradient */}
@@ -127,8 +134,8 @@ export const BettingTipCard = ({
         </div>
 
         {/* CTA Button */}
-        <Button 
-          onClick={onAddTip}
+        <Button
+          onClick={handleAddTip}
           className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-6 text-base shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
         >
           Añadir tip

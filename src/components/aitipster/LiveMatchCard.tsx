@@ -3,6 +3,7 @@ import { LiveMatch } from "@/hooks/useLiveMatches";
 import { LiveTipModal } from "./LiveTipModal";
 import type { OpenEsportivaPayload } from "./ChatMessage";
 import { Radio } from "lucide-react";
+import { useActivationLock } from "@/components/onboarding/ActivationGateProvider";
 
 interface Props {
   match: LiveMatch;
@@ -11,11 +12,12 @@ interface Props {
 
 export function LiveMatchCard({ match, onOpenEsportiva }: Props) {
   const [open, setOpen] = useState(false);
+  const { isLocked, requestActivation } = useActivationLock();
 
   return (
     <>
       <button
-        onClick={() => setOpen(true)}
+        onClick={() => { if (isLocked) { requestActivation(); return; } setOpen(true); }}
         className="w-full rounded-lg border bg-card p-3 hover:bg-accent transition-colors text-left"
       >
         <div className="flex items-center justify-between mb-2">

@@ -240,7 +240,18 @@ function AwaitingActivation({
 }) {
   const countdown = useActivationCountdown();
   return (
-    <div className="flex flex-col text-white">
+    <div className="relative flex flex-col text-white">
+      {/* X fecha o onboarding — equivalente ao "Ya hablé con el bot · entrar"
+          embaixo, mas como atalho no canto pra quem prefere fechar direto. */}
+      <button
+        type="button"
+        onClick={onDone}
+        aria-label="Cerrar"
+        className="absolute right-3 top-3 z-30 grid h-9 w-9 place-items-center rounded-full border border-white/15 bg-white/10 text-white transition hover:bg-white/20"
+      >
+        <X className="h-4 w-4" strokeWidth={2.4} />
+      </button>
+
       <header className="px-5 pb-3 pt-6 text-center">
         <div
           className="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-2xl"

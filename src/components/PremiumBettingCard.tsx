@@ -5,6 +5,7 @@ import { useState, useEffect, useRef } from "react";
 import { ShirtIcon } from "./ShirtIcon";
 import { getTeamLogo } from "@/lib/teamLogos";
 import { TipHowItWorksModal } from "./TipHowItWorksModal";
+import { useActivationLock } from "@/components/onboarding/ActivationGateProvider";
 
 export interface ShirtConfig {
   variant: "solid" | "stripes";
@@ -153,6 +154,17 @@ export const PremiumBettingCard = ({
   const [isExpiredLocal, setIsExpiredLocal] = useState(false);
   const [showHowItWorks, setShowHowItWorks] = useState(false);
   const betHelpRef = useRef<HTMLDivElement>(null);
+  const { isLocked: gateLocked, requestActivation } = useActivationLock();
+
+  const handleAddTip = () => {
+    if (gateLocked) { requestActivation(); return; }
+    onAddTip?.();
+  };
+
+  const handleLockedClick = () => {
+    if (gateLocked) { requestActivation(); return; }
+    onLockedClick?.();
+  };
 
   const displayTier = getDisplayTier(tier);
   const tierColor = TIER_COLORS[displayTier] || TIER_COLORS["BÁSICO"];
@@ -222,7 +234,7 @@ export const PremiumBettingCard = ({
             <Lock className="w-6 h-6 text-black" />
           </div>
           <button
-            onClick={(e) => { e.stopPropagation(); onLockedClick?.(); }}
+            onClick={(e) => { e.stopPropagation(); handleLockedClick(); }}
             className="animate-pulse-glow-green"
             style={{ padding: "10px 24px", borderRadius: 999, background: "#10ff80", color: "#000", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 14, border: "none", cursor: "pointer", letterSpacing: "0.5px" }}
           >
@@ -384,7 +396,7 @@ export const PremiumBettingCard = ({
         {!isLocked ? (
           <div style={{ display: "flex", gap: 8, padding: "0 10px 4px 10px" }}>
             <button
-              onClick={isExpired ? undefined : onAddTip}
+              onClick={isExpired ? undefined : handleAddTip}
               disabled={isExpired}
               style={{
                 flex: 1,

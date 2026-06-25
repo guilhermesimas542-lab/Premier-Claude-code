@@ -7,6 +7,7 @@ import { ChatInput } from "./ChatInput";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Trash2, Calendar, Trophy } from "lucide-react";
 import { invokeWithAuth } from "@/lib/invokeWithAuth";
+import { useActivationLock } from "@/components/onboarding/ActivationGateProvider";
 
 interface Suggestion {
   home: string;
@@ -22,9 +23,15 @@ interface ChatSectionProps {
 export function ChatSection({ onOpenEsportiva }: ChatSectionProps = {}) {
   const { messages, busy, sendQuery, confirmFixture, clear, rejectMatch } = useChatTipster();
   const { refetch: refetchBalance } = useCreditBalance();
+  const { isLocked, requestActivation } = useActivationLock();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [suggestions, setSuggestions] = useState<Suggestion[] | null>(null);
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
+
+  const guardedSendQuery = (query: string) => {
+    if (isLocked) { requestActivation(); return; }
+    sendQuery(query);
+  };
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -60,6 +67,7 @@ export function ChatSection({ onOpenEsportiva }: ChatSectionProps = {}) {
   }, [messages.length, suggestions, loadingSuggestions]);
 
   const handleConfirm = async (fixtureId: number, label: string) => {
+    if (isLocked) { requestActivation(); return; }
     await confirmFixture(fixtureId, label);
     refetchBalance();
   };
@@ -87,7 +95,7 @@ export function ChatSection({ onOpenEsportiva }: ChatSectionProps = {}) {
         {suggestions.map((s, i) => (
           <button
             key={i}
-            onClick={() => sendQuery(`${s.home} x ${s.away}`)}
+            onClick={() => guardedSendQuery(`${s.home} x ${s.away}`)}
             className="w-full text-left rounded-md border bg-card px-3 py-2 hover:bg-accent transition-colors"
           >
             <div className="text-xs font-medium">
@@ -149,7 +157,7 @@ export function ChatSection({ onOpenEsportiva }: ChatSectionProps = {}) {
           </div>
         )}
 
-        <ChatInput onSend={sendQuery} disabled={busy} />
+        <ChatInput onSend={guardedSendQuery} disabled={busy} />
       </div>
     </div>
   );

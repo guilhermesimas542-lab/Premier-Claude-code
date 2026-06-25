@@ -8,6 +8,9 @@ import { toast } from "sonner";
 import { installGlobalErrorTracker } from "@/lib/errorTracker";
 import { AnalyticsRouteTracker } from "@/components/AnalyticsRouteTracker";
 import { GlobalPopups } from "@/components/GlobalPopups";
+import { ActivationGateProvider } from "@/components/onboarding/ActivationGateProvider";
+import { NavigationGate } from "@/components/onboarding/NavigationGate";
+import { getStoredTelegramUrl } from "@/components/onboarding/gateStorage";
 import { PushNotificationToast, type PushNotificationPayload } from "@/components/PushNotificationToast";
 
 import Home from "./pages/Home";
@@ -153,6 +156,8 @@ const App = () => {
         <BrowserRouter>
           <AnalyticsRouteTracker />
           <GlobalPopups />
+          <ActivationGateProvider telegramUrl={getStoredTelegramUrl() ?? ""}>
+          <NavigationGate />
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/onboarding" element={<Login onboardingFlow />} />
@@ -225,6 +230,7 @@ const App = () => {
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </ActivationGateProvider>
         </BrowserRouter>
       </PendingTipProvider>
       </FunnelPopupProvider>

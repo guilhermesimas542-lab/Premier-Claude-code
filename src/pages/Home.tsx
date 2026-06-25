@@ -34,6 +34,8 @@ import robotFootball from "@/assets/robot-football.png";
 import { IATipsterOnboardingModal } from "@/components/ia-tipster/IATipsterOnboardingModal";
 import { OnboardingModal } from "@/components/onboarding/OnboardingModal";
 import { clearPersistedStep } from "@/components/onboarding/hooks/useOnboardingState";
+import { startActivationGate } from "@/components/onboarding/startActivationGate";
+import { useActivationLock } from "@/components/onboarding/ActivationGateProvider";
 import { STEPS, FINAL_CTA_LABEL } from "@/data/steps";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 
@@ -100,6 +102,7 @@ const Home = () => {
   const { triggerPayCard, payCard: pcData, open: pcOpen, closePayCard } = usePayCardTrigger();
   const { links } = useLinks();
   const { subscribe: subscribeToPush } = usePushNotifications();
+  const { isLocked, requestActivation } = useActivationLock();
 
   // Derive lifetime for info modal only
   const [isLifetime, setIsLifetime] = useState(false);
@@ -171,6 +174,9 @@ const Home = () => {
     // Limpa o ponteiro do step persistido — próxima vez (se houver) começa
     // do 1, em vez de retomar no final.
     clearPersistedStep();
+    // Arma a trava de 10min — popup "Cuenta en activación" aparece quando o
+    // lead clicar em features gated (não trava o app inteiro).
+    startActivationGate(ONBOARDING_TELEGRAM_URL);
     setShowAppOnboarding(false);
   };
 
@@ -212,6 +218,7 @@ const Home = () => {
   };
 
   const handleCardAction = (card: CardData) => {
+    if (isLocked) { requestActivation(); return; }
     if (card.requires_access && !hasAccess(card)) {
       const slug = (card.slug || "").toLowerCase();
       const feature = CARD_TO_FEATURE[slug];
@@ -298,7 +305,7 @@ const Home = () => {
               ✨ IA Tipster
             </h2>
             <button
-              onClick={() => navigate("/ia-tipster")}
+              onClick={() => { if (isLocked) { requestActivation(); return; } navigate("/ia-tipster"); }}
               className="relative w-full overflow-hidden rounded-xl border flex hover:-translate-y-0.5 transition-all duration-200 text-left group"
               style={{
                 background: "#112236",
@@ -359,7 +366,7 @@ const Home = () => {
                   Pregunta sobre cualquier partido o elige uno en vivo.
                 </p>
                 <button
-                  onClick={(e) => { e.stopPropagation(); navigate("/ia-tipster"); }}
+                  onClick={(e) => { e.stopPropagation(); if (isLocked) { requestActivation(); return; } navigate("/ia-tipster"); }}
                   style={{
                     width: '100%',
                     padding: '8px 0',
@@ -454,7 +461,7 @@ const Home = () => {
           </h2>
           {/* Card no formato lateral — idêntico ao CardType1Lateral */}
           <div
-            onClick={() => navigate("/ultimos-greens")}
+            onClick={() => { if (isLocked) { requestActivation(); return; } navigate("/ultimos-greens"); }}
             style={{
               background: '#112236',
               border: '1.5px solid rgba(16, 255, 128,0.4)',
@@ -535,7 +542,7 @@ const Home = () => {
               </div>
               {/* Botão VER HISTÓRICO */}
               <button
-                onClick={(e) => { e.stopPropagation(); navigate("/ultimos-greens"); }}
+                onClick={(e) => { e.stopPropagation(); if (isLocked) { requestActivation(); return; } navigate("/ultimos-greens"); }}
                 style={{
                   marginTop: '10px',
                   width: '100%',
