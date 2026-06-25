@@ -6,23 +6,27 @@ import { parseAnalysis } from "@/lib/parseAnalysis";
 interface SectionCardProps {
   icon: React.ReactNode;
   title: string;
-  iconColorClass: string;
-  borderColorClass?: string;
-  bgColorClass?: string;
+  /** Cor do rótulo/ícone e do chevron (hex). */
+  accentColor: string;
+  /** Borda do card (CSS border value). */
+  borderStyle?: string;
+  /** Fundo do card (CSS background value). */
+  bgStyle?: string;
   collapsedMaxHeight?: string;
   markdown: string;
-  gradientFromClass?: string;
+  /** Cor do gradiente de fade (deve casar com o fundo do card). */
+  fadeColor?: string;
 }
 
 function SectionCard({
   icon,
   title,
-  iconColorClass,
-  borderColorClass = "border-border",
-  bgColorClass = "bg-card",
-  collapsedMaxHeight = "5rem",
+  accentColor,
+  borderStyle = "1px solid rgba(235,235,245,.07)",
+  bgStyle = "rgba(17,18,23,.7)",
+  collapsedMaxHeight = "58px",
   markdown,
-  gradientFromClass = "from-card",
+  fadeColor = "rgba(17,18,23,.85)",
 }: SectionCardProps) {
   const [expanded, setExpanded] = useState(false);
   const toggle = () => setExpanded((v) => !v);
@@ -39,24 +43,43 @@ function SectionCard({
         }
       }}
       aria-expanded={expanded}
-      className={`rounded-lg border ${borderColorClass} ${bgColorClass} overflow-hidden cursor-pointer hover:brightness-110 transition-all`}
+      className="overflow-hidden cursor-pointer hover:brightness-110 transition-all"
+      style={{ border: borderStyle, borderRadius: 16, background: bgStyle }}
     >
-      <div className="w-full flex items-center justify-between px-4 pt-3 pb-2">
-        <div className="flex items-center gap-2">
-          <span className={iconColorClass}>{icon}</span>
-          <span className={`text-xs font-bold uppercase tracking-wider ${iconColorClass}`}>
-            {title}
-          </span>
-        </div>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          padding: "15px 15px 9px",
+        }}
+      >
+        <span style={{ color: accentColor, display: "flex" }}>{icon}</span>
+        <span
+          style={{
+            fontFamily: "'JetBrains Mono', monospace",
+            fontSize: 10,
+            fontWeight: 700,
+            letterSpacing: ".16em",
+            textTransform: "uppercase",
+            color: accentColor,
+          }}
+        >
+          {title}
+        </span>
       </div>
       <div
-        className="px-4 pb-3 relative"
+        className="relative"
         style={{
+          padding: "0 15px",
           maxHeight: expanded ? "none" : collapsedMaxHeight,
           overflow: "hidden",
         }}
       >
-        <div className="prose prose-sm dark:prose-invert max-w-none">
+        <div
+          className="prose prose-sm dark:prose-invert max-w-none"
+          style={{ fontSize: 12.5, color: "#c2c4cc", lineHeight: 1.5 }}
+        >
           <ReactMarkdown
             components={{
               // Espaçamento consistente entre blocos. Cada parágrafo / lista /
@@ -108,13 +131,32 @@ function SectionCard({
             {markdown}
           </ReactMarkdown>
         </div>
+        {!expanded && (
+          <div
+            aria-hidden
+            style={{
+              position: "absolute",
+              left: 0,
+              right: 0,
+              bottom: 0,
+              height: 22,
+              background: `linear-gradient(transparent, ${fadeColor})`,
+              pointerEvents: "none",
+            }}
+          />
+        )}
       </div>
-      <div className="flex justify-center pb-2">
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          padding: "4px 0 11px",
+        }}
+      >
         <ChevronDown
           aria-label={expanded ? "Recolher" : "Expandir"}
-          className={`w-4 h-4 ${iconColorClass} transition-transform ${
-            expanded ? "rotate-180" : "animate-bounce"
-          }`}
+          className={`w-4 h-4 transition-transform ${expanded ? "rotate-180" : ""}`}
+          style={{ color: "#6a6c74" }}
         />
       </div>
     </div>
@@ -129,15 +171,15 @@ export function TipAnalysis({ markdown }: TipAnalysisProps) {
   const sections = parseAnalysis(markdown);
 
   return (
-    <div className="space-y-3 w-full">
+    <div className="flex flex-col gap-2.5 w-full">
       {sections.entrada && (
         <SectionCard
           icon={<Target className="w-4 h-4" />}
           title="Entrada Principal"
-          iconColorClass="text-primary"
-          borderColorClass="border-primary/30"
-          bgColorClass="bg-primary/5"
-          gradientFromClass="from-primary/5"
+          accentColor="#e9b949"
+          borderStyle="1px solid rgba(233,185,73,.3)"
+          bgStyle="rgba(233,185,73,.06)"
+          fadeColor="#15140f"
           markdown={sections.entrada}
         />
       )}
@@ -146,10 +188,10 @@ export function TipAnalysis({ markdown }: TipAnalysisProps) {
         <SectionCard
           icon={<Zap className="w-4 h-4" />}
           title="Alternativas"
-          iconColorClass="text-amber-500"
-          borderColorClass="border-amber-500/30"
-          bgColorClass="bg-amber-500/5"
-          gradientFromClass="from-amber-500/5"
+          accentColor="#9aa0d8"
+          borderStyle="1px solid rgba(140,147,200,.3)"
+          bgStyle="rgba(140,147,200,.06)"
+          fadeColor="#131420"
           markdown={sections.alternativas}
         />
       )}
@@ -158,7 +200,7 @@ export function TipAnalysis({ markdown }: TipAnalysisProps) {
         <SectionCard
           icon={<ClipboardList className="w-4 h-4" />}
           title="Resumo"
-          iconColorClass="text-muted-foreground"
+          accentColor="#8a8c94"
           markdown={sections.resumo}
         />
       )}
@@ -167,15 +209,21 @@ export function TipAnalysis({ markdown }: TipAnalysisProps) {
         <SectionCard
           icon={<Search className="w-4 h-4" />}
           title="Contexto"
-          iconColorClass="text-muted-foreground"
-          bgColorClass="bg-muted/30"
-          gradientFromClass="from-muted/30"
+          accentColor="#8a8c94"
           markdown={sections.contexto}
         />
       )}
 
       {sections.footer && (
-        <div className="text-xs text-muted-foreground text-center italic px-2 pt-1">
+        <div
+          className="text-center italic"
+          style={{
+            fontSize: 11,
+            color: "#8a8c94",
+            padding: "4px 8px 0",
+            lineHeight: 1.5,
+          }}
+        >
           <ReactMarkdown
             components={{
               p: ({ children }) => <p className="m-0">{children}</p>,

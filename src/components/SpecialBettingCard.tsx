@@ -33,19 +33,24 @@ const formatCountdown = (totalSeconds: number): string => {
   return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
 };
 
+// Claude Design: verde do design pra ODD, fundo glass comum a todos os cards.
+const ODD_GREEN = "#6fb58c";
+const GLASS_BG =
+  "linear-gradient(100deg, rgba(47,107,214,0.5) -10%, rgba(11,12,16,0.93) 38%, rgba(11,12,16,0.95) 62%, rgba(196,48,46,0.5) 110%), #0c0d11";
+
 const CARD_CONFIG: Record<SpecialCardType, { icon: typeof TrendingUp; label: string; color: string; gradient: string; subtitle: string }> = {
   ALAVANCAGEM: {
     icon: TrendingUp,
     label: "APALANCAMIENTO",
-    color: "#F0B429",
-    gradient: "linear-gradient(135deg, rgba(233,185,73,0.08) 0%, transparent 60%)",
+    color: "#e9b949",
+    gradient: GLASS_BG,
     subtitle: "Apalancamiento del Día",
   },
   ODDS_ALTAS: {
     icon: Ticket,
     label: "MÚLTIPLAS",
-    color: "#FF6B9D",
-    gradient: "linear-gradient(135deg, rgba(255,107,157,0.08) 0%, transparent 60%)",
+    color: "#c98aa0",
+    gradient: GLASS_BG,
     subtitle: "Múltipla do Dia",
   },
 };
@@ -105,7 +110,7 @@ export const SpecialBettingCard = ({
     <div
       className="select-none relative flex flex-col w-full"
       style={{
-        background: isExpired ? "#0A0F1A" : `${config.gradient}, #0c0d11`,
+        background: isExpired ? "#0A0F1A" : config.gradient,
         border: `1px solid ${isExpired ? expiredColor : "rgba(255,255,255,0.1)"}`,
         borderRadius: 20,
         boxShadow: isExpired ? "none" : "inset 0 1px 0 rgba(255,255,255,0.08)",
@@ -122,45 +127,41 @@ export const SpecialBettingCard = ({
         />
       )}
 
-      {/* Locked Overlay */}
+      {/* Dim backdrop for locked (design: rgba(8,9,11,.42)) */}
       {isLocked && !isExpired && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3" style={{ zIndex: 20, borderRadius: 16 }}>
-          {lockedLabel && (
-            <span style={{ color: "rgba(255,255,255,0.8)", fontSize: 13, fontWeight: 600, background: "rgba(0,0,0,0.8)", padding: "4px 10px", borderRadius: 6 }}>
-              Exclusivo do {lockedLabel}
-            </span>
-          )}
-          <div style={{ width: 48, height: 48, borderRadius: "50%", background: "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 8px rgba(255,255,255,0.15)" }}>
-            <Lock className="w-6 h-6 text-black" />
-          </div>
-          <button
-            onClick={(e) => { e.stopPropagation(); onLockedClick?.(); }}
-            className="animate-pulse-glow-green"
-            style={{ padding: "10px 24px", borderRadius: 999, background: "#e9b949", color: "#000", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 14, border: "none", cursor: "pointer", letterSpacing: "0.5px" }}
-          >
-            Adquiérelo ya
-          </button>
-        </div>
+        <div className="absolute inset-0 pointer-events-none" style={{ background: "rgba(8,9,11,0.42)", zIndex: 16, borderRadius: 16 }} />
       )}
 
-      {isLocked && !isExpired && odds > 0 && (
-        <div
-          className="animate-pulse-glow-green"
-          style={{
-            position: "absolute",
-            bottom: 12,
-            right: 14,
-            zIndex: 25,
-            fontFamily: "'Barlow Condensed', sans-serif",
-            fontWeight: 800,
-            fontSize: 28,
-            color: "#e9b949",
-            lineHeight: 1,
-            pointerEvents: "none",
-          }}
-        >
-          {(odds * 2).toFixed(2)}
-        </div>
+      {/* Locked Overlay */}
+      {isLocked && !isExpired && (
+        <>
+          {lockedLabel && (
+            <div style={{ position: "absolute", top: 30, left: 0, right: 0, textAlign: "center" as const, zIndex: 22, fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 600, color: "#c9a56b" }}>
+              Exclusivo de {lockedLabel}
+            </div>
+          )}
+          {/* Cadeado dourado central */}
+          <div style={{ position: "absolute", top: 56, left: "50%", transform: "translateX(-50%)", zIndex: 22, width: 50, height: 50, borderRadius: "50%", background: "rgba(8,9,11,0.92)", border: "1px solid rgba(201,165,107,0.4)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 6px 18px -6px rgba(0,0,0,0.7)" }}>
+            <Lock className="w-5 h-5" style={{ color: "#c9a56b" }} />
+          </div>
+          {/* Linha de ação: botão Desbloquear + ODD verde com glow */}
+          <div style={{ position: "absolute", bottom: 18, left: 14, right: 14, zIndex: 22, display: "flex", alignItems: "center", gap: 12 }}>
+            <button
+              onClick={(e) => { e.stopPropagation(); onLockedClick?.(); }}
+              style={{ flex: 1, padding: "13px", borderRadius: 12, background: "rgba(255,255,255,0.9)", color: "#14151a", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 14, border: "none", cursor: "pointer", letterSpacing: "0.3px" }}
+            >
+              Desbloquear Cuota
+            </button>
+            {odds > 0 && (
+              <div style={{ textAlign: "right" as const, flexShrink: 0 }}>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, letterSpacing: "1.5px", color: "#8a8c94", marginBottom: 2 }}>CUOTA</div>
+                <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: 29, color: ODD_GREEN, lineHeight: 1, textShadow: "0 0 18px rgba(111,181,140,0.4)" }}>
+                  {(odds * 2).toFixed(2)}
+                </div>
+              </div>
+            )}
+          </div>
+        </>
       )}
 
       {/* Content — 4-line compact layout */}
@@ -178,13 +179,13 @@ export const SpecialBettingCard = ({
               <span style={{ fontSize: 12, color: "transparent" }}>—</span>
             ) : countdown === "AO VIVO" ? (
               <>
-                <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#EF4444", display: "inline-block", animation: "pulse 1.5s infinite" }} />
-                <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 12, color: "#EF4444" }}>AO VIVO</span>
+                <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#e5484d", display: "inline-block", animation: "pulse 1.5s infinite" }} />
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 600, fontSize: 11, color: "#e5484d", letterSpacing: "0.5px" }}>EN VIVO</span>
               </>
             ) : countdown ? (
               <>
-                <Clock className="w-3 h-3" style={{ color: "#94A3B8" }} />
-                <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600, fontSize: 12, color: "#94A3B8" }}>{countdown}</span>
+                <Clock className="w-3 h-3" style={{ color: "#9a9ca4" }} />
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 500, fontSize: 11, color: "#9a9ca4" }}>{countdown}</span>
               </>
             ) : (
               <span style={{ fontSize: 12, color: "transparent" }}>—</span>
@@ -192,16 +193,16 @@ export const SpecialBettingCard = ({
           </div>
 
           {isExpired ? (
-            <div style={{ background: "rgba(75,85,99,0.25)", border: "1px solid rgba(75,85,99,0.5)", color: expiredColor, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 11, letterSpacing: "1px", textTransform: "uppercase" as const, padding: "2px 10px", borderRadius: 6 }}>
+            <div style={{ background: "rgba(75,85,99,0.25)", border: "1px solid rgba(75,85,99,0.5)", color: expiredColor, fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: 9, letterSpacing: "1.5px", textTransform: "uppercase" as const, padding: "3px 8px", borderRadius: 6 }}>
               EXPIRADA
             </div>
           ) : (
-            <div style={{ background: `${tierColor}26`, border: `1px solid ${tierColor}66`, color: tierColor, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 11, letterSpacing: "1px", textTransform: "uppercase" as const, padding: "2px 10px", borderRadius: 6 }}>
+            <div style={{ background: `${tierColor}14`, border: `1px solid ${tierColor}55`, color: tierColor, fontFamily: "'JetBrains Mono', monospace", fontWeight: 600, fontSize: 9, letterSpacing: "1.5px", textTransform: "uppercase" as const, padding: "3px 8px", borderRadius: 6 }}>
               {config.label}
             </div>
           )}
 
-          <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 14, color: isExpired ? "#6B7280" : "#FFFFFF", width: 70, flexShrink: 0, textAlign: "right" as const }}>
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 500, fontSize: 11, color: isExpired ? "#6B7280" : "#9a9ca4", width: 70, flexShrink: 0, textAlign: "right" as const }}>
             {matchDate || "—"}
           </span>
         </div>
@@ -229,44 +230,41 @@ export const SpecialBettingCard = ({
         {/* Line 3: market + recommendation + odd (descriptive block — lead copia manualmente) */}
         {!isLocked ? (
           <div style={{
-            margin: "0 10px 6px 10px",
-            padding: "6px 10px 8px 10px",
-            background: isExpired ? "rgba(255,255,255,0.02)" : `${tierColor}0D`,
-            border: `1px solid ${isExpired ? "rgba(255,255,255,0.06)" : `${tierColor}33`}`,
-            borderRadius: 10,
+            margin: "0 14px 8px 14px",
+            padding: 0,
           }}>
-            <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 6, marginBottom: 2 }}>
-              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 9, color: "#94A3B8", letterSpacing: "0.8px", textTransform: "uppercase" as const }}>
+            <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 6, marginBottom: 4 }}>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: 10, color: "#8a8c94", letterSpacing: "1.6px", textTransform: "uppercase" as const }}>
                 Tipo
               </span>
-              <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 12, color: isExpired ? "#6B7280" : "rgba(255,255,255,0.85)", textAlign: "right" as const, lineHeight: 1.2, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
+              <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 12, color: isExpired ? "#6B7280" : "rgba(236,234,228,0.85)", textAlign: "right" as const, lineHeight: 1.2, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
                 {type === "ALAVANCAGEM" ? "Apalancamiento del Día" : "Múltiple del Día"}
               </span>
             </div>
             {market && (
-              <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 6, marginBottom: 2 }}>
-                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 9, color: "#94A3B8", letterSpacing: "0.8px", textTransform: "uppercase" as const }}>
+              <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 6, marginBottom: 4 }}>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: 10, color: "#8a8c94", letterSpacing: "1.6px", textTransform: "uppercase" as const }}>
                   Mercado
                 </span>
-                <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 12, color: isExpired ? "#6B7280" : "rgba(255,255,255,0.85)", textAlign: "right" as const, lineHeight: 1.2, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
+                <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 12, color: isExpired ? "#6B7280" : "rgba(236,234,228,0.85)", textAlign: "right" as const, lineHeight: 1.2, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
                   {market}
                 </span>
               </div>
             )}
             <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 8 }}>
               <div style={{ flex: 1, display: "flex", flexDirection: "column" as const }}>
-                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 9, color: "#94A3B8", letterSpacing: "0.8px", textTransform: "uppercase" as const }}>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: 10, color: "#8a8c94", letterSpacing: "1.6px", textTransform: "uppercase" as const }}>
                   Selección
                 </span>
-                <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 15, color: isExpired ? "#6B7280" : "#FFFFFF", lineHeight: 1.2, paddingRight: 8 }}>
+                <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 15, color: isExpired ? "#6B7280" : "#ECEAE4", lineHeight: 1.2, paddingRight: 8 }}>
                   {betChoice}
                 </span>
               </div>
               <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "flex-end" }}>
-                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 9, color: "#94A3B8", letterSpacing: "0.8px", textTransform: "uppercase" as const }}>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: 10, color: "#8a8c94", letterSpacing: "1.6px", textTransform: "uppercase" as const }}>
                   Cuota
                 </span>
-                <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: 22, color: isExpired ? "#6B7280" : tierColor, lineHeight: 1 }}>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: 22, color: isExpired ? "#6B7280" : ODD_GREEN, lineHeight: 1 }}>
                   {odds.toFixed(2)}
                 </span>
               </div>
@@ -288,10 +286,10 @@ export const SpecialBettingCard = ({
                 color: isExpired ? "#6B7280" : "#14151a",
                 fontFamily: "'Barlow Condensed', sans-serif",
                 fontWeight: 800,
-                fontSize: 12,
-                letterSpacing: "0.5px",
-                padding: "7px 0",
-                borderRadius: 8,
+                fontSize: 13,
+                letterSpacing: "0.3px",
+                padding: "9px 0",
+                borderRadius: 12,
                 border: "none",
                 cursor: isExpired ? "not-allowed" : "pointer",
                 textTransform: "uppercase" as const,
@@ -302,14 +300,14 @@ export const SpecialBettingCard = ({
 
             <button
               onClick={handleOpenJustificativaClick}
-              style={{ width: 34, height: 34, borderRadius: 8, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
+              style={{ width: 38, height: 38, borderRadius: 12, background: "transparent", border: "1px solid rgba(235,235,245,0.12)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
             >
               <HelpCircle className={`w-5 h-5 ${isExpired ? "text-gray-500" : "text-white/80"}`} />
             </button>
 
             <button
               onClick={handleOpenJustificativaClick}
-              style={{ width: 34, height: 34, borderRadius: 8, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
+              style={{ width: 38, height: 38, borderRadius: 12, background: "transparent", border: "1px solid rgba(235,235,245,0.12)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
             >
               <BarChart3 className={`w-5 h-5 ${isExpired ? "text-gray-500" : "text-white/80"}`} />
             </button>
@@ -334,7 +332,7 @@ export const SpecialBettingCard = ({
                 textUnderlineOffset: 2,
               }}
             >
-              <Info className="w-3 h-3" style={{ color: tierColor }} />
+              <Info className="w-3 h-3" style={{ color: "#c9a56b" }} />
               ¿Cómo añadir este tip?
             </button>
           </div>

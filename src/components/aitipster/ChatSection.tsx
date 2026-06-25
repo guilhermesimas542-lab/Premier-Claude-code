@@ -5,7 +5,7 @@ import { ChatMessage } from "./ChatMessage";
 import type { OpenEsportivaPayload } from "./ChatMessage";
 import { ChatInput } from "./ChatInput";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Trash2, Calendar, Trophy } from "lucide-react";
+import { Trash2, Calendar, Trophy } from "lucide-react";
 import { invokeWithAuth } from "@/lib/invokeWithAuth";
 import { useActivationLock } from "@/components/onboarding/ActivationGateProvider";
 
@@ -75,39 +75,46 @@ export function ChatSection({ onOpenEsportiva }: ChatSectionProps = {}) {
   const renderSuggestions = () => {
     if (loadingSuggestions && !suggestions) {
       return (
-        <p className="text-xs text-muted-foreground text-center">
-          Carregando jogos siguientes...
+        <p className="text-center text-xs" style={{ color: "#8a8c94" }}>
+          Cargando próximos partidos...
         </p>
       );
     }
     if (!suggestions || suggestions.length === 0) {
       return (
-        <p className="text-xs text-muted-foreground text-center">
-          Digite o nome dos times no campo abaixo para começar.
+        <p className="text-center text-xs" style={{ color: "#8a8c94" }}>
+          Escribe el nombre de los equipos abajo para empezar.
         </p>
       );
     }
     return (
-      <div className="space-y-1.5 w-full max-w-md mx-auto">
-        <p className="text-[10px] text-muted-foreground text-center mb-2">
-          Siguientes jogos nas ligas cobertas
+      <div className="mx-auto w-full max-w-md space-y-1.5">
+        <p
+          className="mb-2 text-center text-[10px] uppercase tracking-[0.12em]"
+          style={{ fontFamily: "'JetBrains Mono', monospace", color: "#8a8c94" }}
+        >
+          Próximos partidos en las ligas cubiertas
         </p>
         {suggestions.map((s, i) => (
           <button
             key={i}
             onClick={() => guardedSendQuery(`${s.home} x ${s.away}`)}
-            className="w-full text-left rounded-md border bg-card px-3 py-2 hover:bg-accent transition-colors"
+            className="w-full rounded-xl px-3 py-2.5 text-left transition-colors"
+            style={{
+              background: "rgba(235,235,245,.04)",
+              border: "1px solid rgba(235,235,245,.1)",
+            }}
           >
-            <div className="text-xs font-medium">
-              {s.home} <span className="text-muted-foreground">x</span> {s.away}
+            <div className="text-xs font-semibold" style={{ color: "#ECEAE4" }}>
+              {s.home} <span style={{ color: "#8a8c94" }}>×</span> {s.away}
             </div>
-            <div className="flex items-center gap-3 mt-1 text-[10px] text-muted-foreground">
+            <div className="mt-1 flex items-center gap-3 text-[10px]" style={{ color: "#8a8c94" }}>
               <span className="flex items-center gap-1">
-                <Trophy className="w-2.5 h-2.5" />
+                <Trophy className="h-2.5 w-2.5" style={{ color: "#c9a56b" }} />
                 {s.league}
               </span>
               <span className="flex items-center gap-1">
-                <Calendar className="w-2.5 h-2.5" />
+                <Calendar className="h-2.5 w-2.5" style={{ color: "#c9a56b" }} />
                 {s.kickoff_label}
               </span>
             </div>
@@ -118,14 +125,36 @@ export function ChatSection({ onOpenEsportiva }: ChatSectionProps = {}) {
   };
 
   return (
-    <div className="flex flex-col h-full">
-      <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-4 space-y-3">
+    <div className="flex h-full flex-col" style={{ background: "#0a0b0e" }}>
+      <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto px-3 py-4">
         {messages.length === 0 && (
-          <div className="flex flex-col items-center justify-center text-center pt-10 px-3">
-            <Sparkles className="w-10 h-10 text-primary mb-3" />
-            <p className="text-sm font-medium mb-2">Pregunta sobre cualquier partido</p>
-            <p className="text-xs text-muted-foreground max-w-xs mb-4">
-              Dime el nombre de los equipos. Busco en los siguientes 15 días y analizo con datos reales.
+          <div className="flex flex-col items-center justify-center px-4 pt-12 text-center">
+            <svg
+              viewBox="0 0 24 24"
+              width="42"
+              height="42"
+              className="mb-3.5 block"
+              aria-hidden="true"
+            >
+              <defs>
+                <linearGradient id="iaStarChat" x1="3" y1="2" x2="21" y2="22" gradientUnits="userSpaceOnUse">
+                  <stop offset="0" stopColor="#f6d588" />
+                  <stop offset="1" stopColor="#c9952f" />
+                </linearGradient>
+              </defs>
+              <path
+                d="M12 1.2 C12.7 7.1 16.9 11.3 22.8 12 C16.9 12.7 12.7 16.9 12 22.8 C11.3 16.9 7.1 12.7 1.2 12 C7.1 11.3 11.3 7.1 12 1.2 Z"
+                fill="url(#iaStarChat)"
+              />
+            </svg>
+            <p
+              className="mb-2 text-[22px] leading-tight"
+              style={{ fontFamily: "'Barlow Condensed', sans-serif", color: "#cfd1cb" }}
+            >
+              Pregunta sobre cualquier partido
+            </p>
+            <p className="mb-5 max-w-[30ch] text-[13px] leading-relaxed" style={{ color: "#8a8c94" }}>
+              Dime el nombre de los equipos. Busco en los siguientes 15 días y armo la mejor entrada con datos reales.
             </p>
             {renderSuggestions()}
           </div>
@@ -142,17 +171,21 @@ export function ChatSection({ onOpenEsportiva }: ChatSectionProps = {}) {
         ))}
       </div>
 
-      <div className="shrink-0 bg-background border-t">
+      <div
+        className="shrink-0"
+        style={{ background: "#0a0b0e", borderTop: "1px solid rgba(235,235,245,.07)" }}
+      >
         {messages.length > 0 && (
-          <div className="px-3 py-1 flex justify-end">
+          <div className="flex justify-end px-3 pt-1.5">
             <Button
               onClick={clear}
               variant="ghost"
               size="sm"
-              className="h-7 text-xs text-muted-foreground"
+              className="h-7 text-xs hover:bg-transparent"
+              style={{ color: "#8a8c94" }}
             >
-              <Trash2 className="w-3 h-3 mr-1" />
-              Limpar
+              <Trash2 className="mr-1 h-3 w-3" />
+              Limpiar
             </Button>
           </div>
         )}

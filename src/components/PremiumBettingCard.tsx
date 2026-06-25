@@ -48,20 +48,28 @@ interface PremiumBettingCardProps {
 }
 
 
+// Claude Design: acento de marca dourado. A cor da ODD agora é o verde do design (#6fb58c)
+// independente do tier; o tier vira só um selo discreto cinza/dourado.
+const ODD_GREEN = "#6fb58c";
+
 const TIER_COLORS: Record<string, string> = {
-  "GRÁTIS": "#94A3B8",
-  "BÁSICO": "#60A5FA",
+  "GRÁTIS": "#9a9ca4",
+  "BÁSICO": "#9a9ca4",
   "PRO": "#e9b949",
-  "ULTRA": "#7C3AED",
-  "MÚLTIPLA": "#7C3AED",
+  "ULTRA": "#c9a56b",
+  "MÚLTIPLA": "#c9a56b",
 };
 
+// Fundo glass do design: leve azul → quase-preto → leve vermelho.
+const GLASS_BG =
+  "linear-gradient(100deg, rgba(47,107,214,0.5) -10%, rgba(11,12,16,0.93) 38%, rgba(11,12,16,0.95) 62%, rgba(196,48,46,0.5) 110%), #0c0d11";
+
 const TIER_GRADIENTS: Record<string, string> = {
-  "GRÁTIS": "none",
-  "BÁSICO": "linear-gradient(135deg, rgba(96,165,250,0.08) 0%, transparent 60%)",
-  "PRO": "linear-gradient(135deg, rgba(233,185,73,0.08) 0%, transparent 60%)",
-  "ULTRA": "linear-gradient(135deg, rgba(124,58,237,0.08) 0%, transparent 60%)",
-  "MÚLTIPLA": "linear-gradient(135deg, rgba(124,58,237,0.08) 0%, transparent 60%)",
+  "GRÁTIS": GLASS_BG,
+  "BÁSICO": GLASS_BG,
+  "PRO": GLASS_BG,
+  "ULTRA": GLASS_BG,
+  "MÚLTIPLA": GLASS_BG,
 };
 
 // Helper function to generate bet explanation
@@ -205,7 +213,7 @@ export const PremiumBettingCard = ({
     <div
       className="select-none relative flex flex-col w-full"
       style={{
-        background: isExpired ? "#0A0F1A" : `${tierGradient}, #0c0d11`,
+        background: isExpired ? "#0A0F1A" : tierGradient,
         border: `1px solid ${isExpired ? expiredColor : "rgba(255,255,255,0.1)"}`,
         borderRadius: 20,
         boxShadow: isExpired ? "none" : "inset 0 1px 0 rgba(255,255,255,0.08)",
@@ -222,45 +230,41 @@ export const PremiumBettingCard = ({
         />
       )}
 
-      {/* Locked Overlay */}
+      {/* Dim backdrop for locked (design: rgba(8,9,11,.42)) */}
       {isLocked && !isExpired && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3" style={{ zIndex: 20, borderRadius: 16 }}>
-          {lockedLabel && (
-            <span style={{ color: "rgba(255,255,255,0.8)", fontSize: 13, fontWeight: 600, background: "rgba(0,0,0,0.8)", padding: "4px 10px", borderRadius: 6 }}>
-              Exclusivo del {lockedLabel}
-            </span>
-          )}
-          <div style={{ width: 48, height: 48, borderRadius: "50%", background: "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 8px rgba(255,255,255,0.15)" }}>
-            <Lock className="w-6 h-6 text-black" />
-          </div>
-          <button
-            onClick={(e) => { e.stopPropagation(); handleLockedClick(); }}
-            className="animate-pulse-glow-green"
-            style={{ padding: "10px 24px", borderRadius: 999, background: "#e9b949", color: "#000", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 14, border: "none", cursor: "pointer", letterSpacing: "0.5px" }}
-          >
-            Adquiere ya
-          </button>
-        </div>
+        <div className="absolute inset-0 pointer-events-none" style={{ background: "rgba(8,9,11,0.42)", zIndex: 16, borderRadius: 16 }} />
       )}
 
-      {isLocked && !isExpired && odds > 0 && (
-        <div
-          className="animate-pulse-glow-green"
-          style={{
-            position: "absolute",
-            bottom: 12,
-            right: 14,
-            zIndex: 25,
-            fontFamily: "'Barlow Condensed', sans-serif",
-            fontWeight: 800,
-            fontSize: 28,
-            color: "#e9b949",
-            lineHeight: 1,
-            pointerEvents: "none",
-          }}
-        >
-          {(odds * 2).toFixed(2)}
-        </div>
+      {/* Locked Overlay */}
+      {isLocked && !isExpired && (
+        <>
+          {lockedLabel && (
+            <div style={{ position: "absolute", top: 30, left: 0, right: 0, textAlign: "center" as const, zIndex: 22, fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 600, color: "#c9a56b" }}>
+              Exclusivo de {lockedLabel}
+            </div>
+          )}
+          {/* Cadeado dourado central */}
+          <div style={{ position: "absolute", top: 56, left: "50%", transform: "translateX(-50%)", zIndex: 22, width: 50, height: 50, borderRadius: "50%", background: "rgba(8,9,11,0.92)", border: "1px solid rgba(201,165,107,0.4)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 6px 18px -6px rgba(0,0,0,0.7)" }}>
+            <Lock className="w-5 h-5" style={{ color: "#c9a56b" }} />
+          </div>
+          {/* Linha de ação: botão Desbloquear + ODD verde com glow */}
+          <div style={{ position: "absolute", bottom: 18, left: 14, right: 14, zIndex: 22, display: "flex", alignItems: "center", gap: 12 }}>
+            <button
+              onClick={(e) => { e.stopPropagation(); handleLockedClick(); }}
+              style={{ flex: 1, padding: "13px", borderRadius: 12, background: "rgba(255,255,255,0.9)", color: "#14151a", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 14, border: "none", cursor: "pointer", letterSpacing: "0.3px" }}
+            >
+              Desbloquear Cuota
+            </button>
+            {odds > 0 && (
+              <div style={{ textAlign: "right" as const, flexShrink: 0 }}>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, letterSpacing: "1.5px", color: "#8a8c94", marginBottom: 2 }}>CUOTA</div>
+                <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: 29, color: ODD_GREEN, lineHeight: 1, textShadow: "0 0 18px rgba(111,181,140,0.4)" }}>
+                  {(odds * 2).toFixed(2)}
+                </div>
+              </div>
+            )}
+          </div>
+        </>
       )}
 
       {/* Expired overlay */}
@@ -288,13 +292,13 @@ export const PremiumBettingCard = ({
               <span style={{ fontSize: 12, color: "transparent" }}>—</span>
             ) : countdown === "EN VIVO" ? (
               <>
-                <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#EF4444", display: "inline-block", animation: "pulse 1.5s infinite" }} />
-                <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 12, color: "#EF4444" }}>EN VIVO</span>
+                <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#e5484d", display: "inline-block", animation: "pulse 1.5s infinite" }} />
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 600, fontSize: 11, color: "#e5484d", letterSpacing: "0.5px" }}>EN VIVO</span>
               </>
             ) : countdown ? (
               <>
-                <Clock className="w-3 h-3" style={{ color: "#94A3B8" }} />
-                <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600, fontSize: 12, color: "#94A3B8" }}>{countdown}</span>
+                <Clock className="w-3 h-3" style={{ color: "#9a9ca4" }} />
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 500, fontSize: 11, color: "#9a9ca4" }}>{countdown}</span>
               </>
             ) : (
               <span style={{ fontSize: 12, color: "transparent" }}>—</span>
@@ -304,17 +308,17 @@ export const PremiumBettingCard = ({
 
           {/* Badge — center */}
           {isExpired ? (
-            <div style={{ background: "rgba(75,85,99,0.25)", border: "1px solid rgba(75,85,99,0.5)", color: expiredColor, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 11, letterSpacing: "1px", textTransform: "uppercase" as const, padding: "2px 10px", borderRadius: 6 }}>
+            <div style={{ background: "rgba(75,85,99,0.25)", border: "1px solid rgba(75,85,99,0.5)", color: expiredColor, fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: 9, letterSpacing: "1.5px", textTransform: "uppercase" as const, padding: "3px 8px", borderRadius: 6 }}>
               EXPIRADA
             </div>
           ) : (
-            <div style={{ background: `${tierColor}26`, border: `1px solid ${tierColor}66`, color: tierColor, fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 11, letterSpacing: "1px", textTransform: "uppercase" as const, padding: "2px 10px", borderRadius: 6 }}>
+            <div style={{ background: displayTier === "PRO" || displayTier === "ULTRA" ? `${tierColor}14` : "transparent", border: `1px solid ${displayTier === "PRO" || displayTier === "ULTRA" ? `${tierColor}55` : "rgba(235,235,245,0.14)"}`, color: displayTier === "PRO" || displayTier === "ULTRA" ? tierColor : "#8c8e96", fontFamily: "'JetBrains Mono', monospace", fontWeight: 600, fontSize: 9, letterSpacing: "1.5px", textTransform: "uppercase" as const, padding: "3px 8px", borderRadius: 6 }}>
               {displayTier}
             </div>
           )}
 
           {/* Match time */}
-          <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 14, color: isExpired ? "#6B7280" : "#FFFFFF", width: 70, flexShrink: 0, textAlign: "right" as const }}>
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 500, fontSize: 11, color: isExpired ? "#6B7280" : "#9a9ca4", width: 70, flexShrink: 0, textAlign: "right" as const }}>
             {matchDate || "—"}
           </span>
         </div>
@@ -332,57 +336,59 @@ export const PremiumBettingCard = ({
           {/* Team 1 */}
           <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 4 }}>
             <TeamCrest team={team1} isExpired={isExpired} />
-            <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 16, color: isExpired ? "#6B7280" : "#FFFFFF", textAlign: "center" as const, maxWidth: 80, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const, marginTop: 2 }}>
+            <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 16, color: isExpired ? "#6B7280" : "#ECEAE4", textAlign: "center" as const, maxWidth: 80, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const, marginTop: 2 }}>
               {team1.name}
             </span>
           </div>
 
           {/* VS */}
-          <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 16, color: "#94A3B8", marginTop: 28 }}>VS</span>
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 500, fontSize: 11, color: "#6a6c74", marginTop: 30 }}>VS</span>
 
           {/* Team 2 */}
           <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "center", gap: 4 }}>
             <TeamCrest team={team2} isExpired={isExpired} />
-            <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 16, color: isExpired ? "#6B7280" : "#FFFFFF", textAlign: "center" as const, maxWidth: 80, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const, marginTop: 2 }}>
+            <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 16, color: isExpired ? "#6B7280" : "#ECEAE4", textAlign: "center" as const, maxWidth: 80, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const, marginTop: 2 }}>
               {team2.name}
             </span>
           </div>
         </div>
 
+        {/* Divisor gradiente (design) */}
+        {!isLocked && !isExpired && (
+          <div style={{ height: 1, margin: "0 14px 8px 14px", background: "linear-gradient(90deg, transparent, rgba(235,235,245,0.16), transparent)" }} />
+        )}
+
 
         {/* Line 3: market + recommendation + odd (descriptive block — lead copia manualmente) */}
         {!isLocked ? (
           <div style={{
-            margin: "0 10px 6px 10px",
-            padding: "6px 10px 8px 10px",
-            background: isExpired ? "rgba(255,255,255,0.02)" : `${tierColor}0D`,
-            border: `1px solid ${isExpired ? "rgba(255,255,255,0.06)" : `${tierColor}33`}`,
-            borderRadius: 10,
+            margin: "0 14px 8px 14px",
+            padding: 0,
           }}>
             {market && (
-              <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 6, marginBottom: 2 }}>
-                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 9, color: "#94A3B8", letterSpacing: "0.8px", textTransform: "uppercase" as const }}>
+              <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 6, marginBottom: 4 }}>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: 10, color: "#8a8c94", letterSpacing: "1.6px", textTransform: "uppercase" as const }}>
                   Mercado
                 </span>
-                <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 12, color: isExpired ? "#6B7280" : "rgba(255,255,255,0.85)", textAlign: "right" as const, lineHeight: 1.2, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
+                <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 12, color: isExpired ? "#6B7280" : "rgba(236,234,228,0.85)", textAlign: "right" as const, lineHeight: 1.2, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
                   {market}
                 </span>
               </div>
             )}
             <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 8 }}>
               <div style={{ flex: 1, display: "flex", flexDirection: "column" as const }}>
-                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 9, color: "#94A3B8", letterSpacing: "0.8px", textTransform: "uppercase" as const }}>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: 10, color: "#8a8c94", letterSpacing: "1.6px", textTransform: "uppercase" as const }}>
                   Selección
                 </span>
-                <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 17, color: isExpired ? "#6B7280" : "#FFFFFF", lineHeight: 1.2, paddingRight: 8 }}>
+                <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 17, color: isExpired ? "#6B7280" : "#ECEAE4", lineHeight: 1.2, paddingRight: 8 }}>
                   {betChoice}
                 </span>
               </div>
               <div style={{ display: "flex", flexDirection: "column" as const, alignItems: "flex-end" }}>
-                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 9, color: "#94A3B8", letterSpacing: "0.8px", textTransform: "uppercase" as const }}>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: 10, color: "#8a8c94", letterSpacing: "1.6px", textTransform: "uppercase" as const }}>
                   Cuota
                 </span>
-                <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: 22, color: isExpired ? "#6B7280" : tierColor, lineHeight: 1 }}>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: 22, color: isExpired ? "#6B7280" : ODD_GREEN, lineHeight: 1 }}>
                   {odds.toFixed(2)}
                 </span>
               </div>
@@ -404,10 +410,10 @@ export const PremiumBettingCard = ({
                 color: isExpired ? "#6B7280" : "#14151a",
                 fontFamily: "'Barlow Condensed', sans-serif",
                 fontWeight: 800,
-                fontSize: 12,
-                letterSpacing: "0.5px",
-                padding: "7px 0",
-                borderRadius: 8,
+                fontSize: 13,
+                letterSpacing: "0.3px",
+                padding: "9px 0",
+                borderRadius: 12,
                 border: "none",
                 cursor: isExpired ? "not-allowed" : "pointer",
                 textTransform: "uppercase" as const,
@@ -419,7 +425,7 @@ export const PremiumBettingCard = ({
             <div className="relative" ref={betHelpRef}>
               <button
                 onClick={() => setShowBetHelp(!showBetHelp)}
-                style={{ width: 34, height: 34, borderRadius: 8, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
+                style={{ width: 38, height: 38, borderRadius: 12, background: "transparent", border: "1px solid rgba(235,235,245,0.12)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
               >
                 <HelpCircle className={`w-5 h-5 ${isExpired ? "text-gray-500" : "text-white/80"}`} />
               </button>
@@ -434,7 +440,7 @@ export const PremiumBettingCard = ({
 
             {showVerifiedBadge ? (
               <div
-                style={{ width: 34, height: 34, borderRadius: 8, background: "rgba(233,185,73,0.12)", border: "1px solid rgba(233,185,73,0.45)", display: "flex", alignItems: "center", justifyContent: "center" }}
+                style={{ width: 38, height: 38, borderRadius: 12, background: "rgba(233,185,73,0.12)", border: "1px solid rgba(233,185,73,0.45)", display: "flex", alignItems: "center", justifyContent: "center" }}
                 aria-label="Verificado"
               >
                 <BadgeCheck className="w-5 h-5" style={{ color: "#e9b949" }} />
@@ -442,7 +448,7 @@ export const PremiumBettingCard = ({
             ) : (
               <button
                 onClick={() => onOpenJustificativa?.(justificativa || "Próximamente: dados e percentuais do confronto.")}
-                style={{ width: 34, height: 34, borderRadius: 8, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
+                style={{ width: 38, height: 38, borderRadius: 12, background: "transparent", border: "1px solid rgba(235,235,245,0.12)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
               >
                 <BarChart3 className={`w-5 h-5 ${isExpired ? "text-gray-500" : "text-white/80"}`} />
               </button>
@@ -468,7 +474,7 @@ export const PremiumBettingCard = ({
                 textUnderlineOffset: 2,
               }}
             >
-              <Info className="w-3 h-3" style={{ color: tierColor }} />
+              <Info className="w-3 h-3" style={{ color: "#c9a56b" }} />
               ¿Cómo añadir este tip?
             </button>
           </div>

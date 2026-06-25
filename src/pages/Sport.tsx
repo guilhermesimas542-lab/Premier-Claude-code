@@ -174,15 +174,16 @@ const FEATURE_DISPLAY_ORDER: Record<FeatureKey, number> = {
   alavancagem: 7,
 };
 
+// Cores dos pontinhos das abas — paleta do Claude Design (dourado/glass).
 const TAB_META: Record<FeatureKey, { label: string; labelShort: string; color: string }> = {
-  free:                 { label: "Odd Gratis",        labelShort: "Odd Gratis",        color: "#94A3B8" },
-  odds_safes:           { label: "Odds Safes",        labelShort: "Odds Safes",        color: "#60A5FA" },
-  odds_pro:             { label: "Odds Pró",          labelShort: "Odds Pró",          color: "#e9b949" },
-  alavancagem:          { label: "Apalancamiento",    labelShort: "Apalancamiento",    color: "#F0B429" },
-  multiplas_bingo:      { label: "Múltiplas",         labelShort: "Múltiplas",         color: "#FF6B9D" },
-  mercados_secundarios: { label: "Merc. Secundário",  labelShort: "Merc. Secundário",  color: "#A78BFA" },
-  esportes_americanos:  { label: "Ligas Americanas",  labelShort: "Ligas Americanas",  color: "#EF4444" },
-  odds_ultra:           { label: "Cuotas Ultra",      labelShort: "Cuotas Ultra",      color: "#22D3EE" },
+  free:                 { label: "Odd Gratis",        labelShort: "Odd Gratis",        color: "#9a9ca4" },
+  odds_safes:           { label: "Odds Safes",        labelShort: "Odds Safes",        color: "#6fb58c" },
+  odds_pro:             { label: "Odds Pró",          labelShort: "Odds Pró",          color: "#8c93c8" },
+  alavancagem:          { label: "Apalancamiento",    labelShort: "Apalancamiento",    color: "#e9b949" },
+  multiplas_bingo:      { label: "Múltiplas",         labelShort: "Múltiplas",         color: "#c98aa0" },
+  mercados_secundarios: { label: "Merc. Secundário",  labelShort: "Merc. Secundário",  color: "#c9a56b" },
+  esportes_americanos:  { label: "Ligas Americanas",  labelShort: "Ligas Americanas",  color: "#e5484d" },
+  odds_ultra:           { label: "Cuotas Ultra",      labelShort: "Cuotas Ultra",      color: "#c9a56b" },
 };
 
 const Sport = () => {
@@ -707,16 +708,16 @@ const Sport = () => {
         <button
           type="button"
           onClick={() => tabsScrollRef.current?.scrollBy({ left: tabsScrollRef.current.clientWidth * 0.8, behavior: 'smooth' })}
-          className="relative flex items-center justify-center pt-4 pb-3 px-1 w-full cursor-pointer"
+          className="relative flex items-center justify-between pt-4 pb-3 px-2 w-full cursor-pointer"
           aria-label="Ver más mercados"
         >
           <h2
-            className="text-white font-bold"
-            style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 15 }}
+            className="font-semibold"
+            style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 17, color: "#ffffff", letterSpacing: "-0.01em" }}
           >
-            Mercados disponibles
+            Mercados disponibles:
           </h2>
-          <ChevronRight className="w-5 h-5 text-white/60 absolute right-1" />
+          <ChevronRight className="w-5 h-5" style={{ color: "#6a6c74" }} />
         </button>
         {/* Feature Tabs */}
         <div className="relative">
@@ -827,7 +828,7 @@ const Sport = () => {
                     width: activeCardIndex === i ? 16 : 4,
                     height: 4,
                     borderRadius: 2,
-                    background: activeCardIndex === i ? (activeFeatureHighlight ? TAB_META[activeFeatureHighlight].color : "#60A5FA") : "rgba(255,255,255,0.2)",
+                    background: activeCardIndex === i ? (activeFeatureHighlight ? TAB_META[activeFeatureHighlight].color : "#6fb58c") : "rgba(235,235,245,0.18)",
                     transition: "all 0.3s ease",
                   }}
                 />
@@ -842,13 +843,13 @@ const Sport = () => {
               className="w-full max-w-[420px] h-[210px] rounded-xl border border-dashed flex flex-col items-center justify-center text-center p-4 gap-1"
               style={{ background: "rgba(255,255,255,0.03)", borderColor: "rgba(255,255,255,0.15)" }}
             >
-              <p className="text-base" style={{ color: "rgba(255,255,255,0.6)" }}>
+              <p className="text-base" style={{ color: "rgba(236,234,228,0.6)" }}>
                 Los tips de hoy expiraron.
               </p>
               <p className="text-lg font-bold mb-2" style={{ color: "#e9b949" }}>
-                Amanhã teremos novas entradas!
+                ¡Mañana tendremos nuevas entradas!
               </p>
-              <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>Siguientes tips en</p>
+              <p className="text-xs" style={{ color: "rgba(236,234,228,0.4)" }}>Próximos tips en</p>
               <span
                 className="text-3xl font-mono font-bold tabular-nums"
                 style={{ color: "#FFFFFF", textShadow: "0 0 14px rgba(233,185,73,0.4)" }}
@@ -888,7 +889,7 @@ const Sport = () => {
             </div>
             <div className="px-6 py-6">
               <p className="text-sm leading-relaxed" style={{ color: "#CCCCCC" }}>
-                Tú tem <span style={{ color: "#e9b949", fontWeight: 600 }}>acesso vitalício e ilimitado</span> a todas as funcionalidades e futuras atualizações do Premier Ultra. Aprovecha!
+                Tienes <span style={{ color: "#e9b949", fontWeight: 600 }}>acceso vitalicio e ilimitado</span> a todas las funcionalidades y futuras actualizaciones de CL Ultra. ¡Aprovecha!
               </p>
             </div>
             <div className="px-6 pb-6">

@@ -57,20 +57,20 @@ const BULLETS: Record<PlanKey, Bullet[]> = {
 };
 
 const PLAN_META: Record<PlanKey, { title: string; color: string; price: string; suffix?: string; glow?: { border: string } }> = {
-  free: { title: "Gratis", color: "#94A3B8", price: "Gratis" },
+  free: { title: "Gratis", color: "#c2c4cc", price: "Gratis" },
   premium: {
     title: "Premium",
-    color: "#FACC15",
+    color: "#e9b949",
     price: `$${PRICES.premium}`,
     suffix: "vitalicio",
-    glow: { border: "#FACC15" },
+    glow: { border: "#e9b949" },
   },
   diamante: {
     title: "Diamante",
-    color: "#A855F7",
+    color: "#96a0eb",
     price: `$${PRICES.diamante_upgrade}`,
     suffix: "vitalicio",
-    glow: { border: "#A855F7" },
+    glow: { border: "#96a0eb" },
   },
 };
 
@@ -182,54 +182,88 @@ export function PlansModal({ open, onClose }: Props) {
     const cta = getCta(plan);
     const isCurrent = cta.type === "current";
 
-    const glow = meta.glow;
-    const borderColor = isCurrent
-      ? meta.color
-      : glow
-        ? glow.border
-        : "rgba(255,255,255,0.08)";
+    // Fundo / borda / glow por plano, seguindo o design dourado-quase-preto.
+    let cardBackground = "rgba(235,235,245,0.02)";
+    let cardBorder = "1px solid rgba(235,235,245,0.1)";
+    let cardShadow: string | undefined;
+
+    if (plan === "premium") {
+      cardBackground =
+        "radial-gradient(120% 80% at 50% 0%, rgba(233,185,73,.1), rgba(233,185,73,0) 60%), rgba(235,235,245,.02)";
+      cardBorder = "1px solid rgba(233,185,73,.5)";
+    } else if (plan === "diamante") {
+      cardBackground =
+        "radial-gradient(130% 85% at 50% 0%, rgba(150,160,235,.26), rgba(150,160,235,.04) 62%), rgba(150,160,235,.03)";
+      cardBorder = "1px solid rgba(150,160,235,.7)";
+      cardShadow = "0 0 0 1px rgba(150,160,235,.25), 0 12px 34px -8px rgba(120,132,230,.55)";
+    }
+
+    if (isCurrent) {
+      cardBackground = `${meta.color}14`;
+      cardBorder = `1px solid ${meta.color}`;
+    }
+
+    // Cor do \u00EDcone de check: verde no Free, dourado/periwinkle nos pagos.
+    const checkColor = plan === "free" ? "#6fb58c" : meta.color;
 
     return (
       <div
         key={plan}
-        className="flex-1 basis-0 flex flex-col rounded-xl p-2 md:p-4 min-w-0"
+        className="flex-1 basis-0 flex flex-col rounded-2xl p-2.5 md:p-3.5 min-w-0 relative"
         style={{
-          background: isCurrent ? `${meta.color}14` : "rgba(255,255,255,0.03)",
-          border: `1px solid ${borderColor}`,
+          background: cardBackground,
+          border: cardBorder,
+          boxShadow: cardShadow,
         }}
       >
         {/* Header */}
-        <div className="text-center pb-3 mb-3 border-b border-white/10">
+        <div className="text-center mb-3.5">
           <h3
-            className="text-lg md:text-xl font-bold"
-            style={{ fontFamily: "'Barlow Condensed', sans-serif", color: meta.color }}
+            className="text-sm md:text-base font-extrabold"
+            style={{ fontFamily: "'Barlow Condensed', sans-serif", color: meta.color, letterSpacing: "0.01em" }}
           >
             {meta.title}
           </h3>
-          <div className="mt-1 text-lg md:text-xl font-bold text-white leading-tight">{meta.price}</div>
-          <div className="text-[9px] md:text-[10px] text-white/50 uppercase tracking-wide">
+          <div
+            className="mt-1 text-lg md:text-xl font-extrabold leading-tight"
+            style={{ color: "#ECEAE4" }}
+          >
+            {meta.price}
+          </div>
+          <div
+            className="text-[8px] md:text-[9px] uppercase mt-0.5"
+            style={{
+              fontFamily: "'JetBrains Mono', monospace",
+              letterSpacing: "0.14em",
+              color: meta.suffix ? "#c9a56b" : "transparent",
+              fontWeight: 600,
+            }}
+          >
             {meta.suffix ?? "\u00A0"}
           </div>
         </div>
 
         {/* Bullets unificados */}
-        <ul className="flex-1 space-y-2 mb-3">
+        <ul className="flex-1 space-y-2 mb-3.5">
           {BULLETS[plan].map((b, idx) => (
             <li
               key={idx}
-              className="flex items-start gap-1.5 text-[11px] md:text-xs"
+              className="flex items-start gap-1.5 text-[11px] md:text-xs leading-tight"
             >
               {b.available ? (
-                <Check className="w-3.5 h-3.5 mt-0.5 shrink-0 text-[#e9b949]" strokeWidth={3} />
+                <Check
+                  className="w-3 h-3 mt-px shrink-0"
+                  strokeWidth={3}
+                  style={{ color: checkColor }}
+                />
               ) : (
-                <X className="w-3.5 h-3.5 mt-0.5 shrink-0 text-white/25" />
+                <X className="w-3 h-3 mt-px shrink-0" style={{ color: "#5c5e66" }} />
               )}
               <span
-                className={
-                  b.available
-                    ? "text-white font-semibold"
-                    : "text-white/30 line-through"
-                }
+                style={{
+                  color: b.available ? "#d4d6de" : "#6a6c74",
+                  textDecoration: b.available ? "none" : "line-through",
+                }}
               >
                 {b.label}
               </span>
@@ -242,8 +276,13 @@ export function PlansModal({ open, onClose }: Props) {
           {cta.type === "current" && (
             <button
               disabled
-              className="w-full py-2 rounded-lg text-[11px] md:text-xs font-bold opacity-80 cursor-not-allowed"
-              style={{ background: `${meta.color}26`, color: meta.color, border: `1px solid ${meta.color}` }}
+              className="w-full py-2.5 rounded-[10px] text-[11px] md:text-xs font-bold opacity-80 cursor-not-allowed"
+              style={{
+                background: `${meta.color}26`,
+                color: meta.color,
+                border: `1px solid ${meta.color}`,
+                fontFamily: "'DM Sans', sans-serif",
+              }}
             >
               Plan actual
             </button>
@@ -251,7 +290,13 @@ export function PlansModal({ open, onClose }: Props) {
           {cta.type === "info" && (
             <button
               disabled
-              className="w-full py-2 rounded-lg text-[11px] md:text-xs font-bold opacity-60 cursor-not-allowed bg-white/5 text-white/50 border border-white/10"
+              className="w-full py-2.5 rounded-[10px] text-[11px] md:text-xs font-semibold cursor-not-allowed leading-tight"
+              style={{
+                background: "rgba(235,235,245,.03)",
+                color: "#8a8c94",
+                border: "1px solid rgba(235,235,245,.1)",
+                fontFamily: "'DM Sans', sans-serif",
+              }}
             >
               {cta.label}
             </button>
@@ -260,8 +305,8 @@ export function PlansModal({ open, onClose }: Props) {
             <button
               disabled={!cta.card || loading}
               onClick={() => cta.card && setFunnel(cta.card)}
-              className="w-full py-2 rounded-lg text-[11px] md:text-xs font-bold transition-all hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed leading-tight"
-              style={{ background: meta.color, color: "#060D1E" }}
+              className="w-full py-2.5 rounded-[10px] text-[11px] md:text-xs font-bold transition-all hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed leading-tight"
+              style={{ background: meta.color, color: "#0a0b0e", fontFamily: "'DM Sans', sans-serif" }}
             >
               {loading ? (
                 <Loader2 className="w-4 h-4 animate-spin mx-auto" />
@@ -279,23 +324,31 @@ export function PlansModal({ open, onClose }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="bg-[#112236] border-[#e9b949]/20 text-white w-[98vw] max-w-5xl p-3 md:p-6 rounded-2xl max-h-[90vh] overflow-y-auto [&>button]:hidden">
+      <DialogContent
+        className="text-white w-[98vw] max-w-3xl p-4 md:p-6 rounded-3xl max-h-[90vh] overflow-y-auto [&>button]:hidden"
+        style={{
+          background: "linear-gradient(180deg, #14161c, #101116)",
+          border: "1px solid rgba(235,235,245,.12)",
+          boxShadow: "0 30px 70px -18px rgba(0,0,0,.75)",
+        }}
+      >
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 p-1 rounded hover:bg-white/10 z-10"
+          className="absolute top-4 right-4 w-[30px] h-[30px] rounded-full grid place-items-center z-10"
+          style={{ background: "rgba(235,235,245,.06)" }}
           aria-label="Cerrar"
         >
-          <X className="w-5 h-5" />
+          <X className="w-4 h-4" style={{ color: "#9a9ca4" }} />
         </button>
 
         <h2
-          className="text-2xl font-bold text-center mb-5"
-          style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
+          className="text-xl font-extrabold text-center mb-5"
+          style={{ fontFamily: "'Barlow Condensed', sans-serif", color: "#ECEAE4", letterSpacing: "-0.01em" }}
         >
           Compara los planes
         </h2>
 
-        <div className="flex flex-row gap-2 md:gap-3">
+        <div className="flex flex-row gap-2 md:gap-2.5 items-stretch">
           {(["free", "premium", "diamante"] as PlanKey[]).map(renderCard)}
         </div>
       </DialogContent>

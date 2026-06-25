@@ -69,7 +69,10 @@ export function ChatMessage({ message, onConfirmFixture, onOpenEsportiva, onReje
   if (message.role === "user") {
     return (
       <div className="flex justify-end">
-        <div className="max-w-[80%] rounded-2xl rounded-br-md bg-primary px-4 py-2 text-black font-semibold text-sm">
+        <div
+          className="max-w-[80%] rounded-2xl rounded-br-md px-4 py-2.5 text-sm font-semibold"
+          style={{ background: "#e9b949", color: "#14151a" }}
+        >
           {message.content}
         </div>
       </div>
@@ -79,9 +82,15 @@ export function ChatMessage({ message, onConfirmFixture, onOpenEsportiva, onReje
   if (message.type === "loading") {
     return (
       <div className="flex justify-start">
-        <div className="max-w-[80%] rounded-2xl rounded-bl-md bg-muted px-4 py-2 text-sm flex items-center gap-2">
-          <Loader2 className="w-3 h-3 animate-spin" />
-          <span className="text-muted-foreground">{message.label}</span>
+        <div
+          className="flex max-w-[80%] items-center gap-2 rounded-2xl rounded-bl-md px-4 py-2.5 text-sm"
+          style={{
+            background: "#1a1c23",
+            border: "1px solid rgba(235,235,245,.08)",
+          }}
+        >
+          <Loader2 className="h-3.5 w-3.5 animate-spin" style={{ color: "#8c93c8" }} />
+          <span style={{ color: "#9a9ca4" }}>{message.label}</span>
         </div>
       </div>
     );
@@ -90,7 +99,14 @@ export function ChatMessage({ message, onConfirmFixture, onOpenEsportiva, onReje
   if (message.type === "text") {
     return (
       <div className="flex justify-start">
-        <div className="max-w-[80%] rounded-2xl rounded-bl-md bg-muted px-4 py-2 text-sm whitespace-pre-wrap">
+        <div
+          className="max-w-[80%] whitespace-pre-wrap rounded-2xl rounded-bl-md px-4 py-2.5 text-sm"
+          style={{
+            background: "#1a1c23",
+            border: "1px solid rgba(235,235,245,.08)",
+            color: "#ECEAE4",
+          }}
+        >
           {message.content}
         </div>
       </div>
@@ -100,8 +116,15 @@ export function ChatMessage({ message, onConfirmFixture, onOpenEsportiva, onReje
   if (message.type === "error") {
     return (
       <div className="flex justify-start">
-        <div className="max-w-[80%] rounded-2xl rounded-bl-md bg-destructive/10 text-destructive px-4 py-2 text-sm flex items-start gap-2">
-          <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
+        <div
+          className="flex max-w-[80%] items-start gap-2 rounded-2xl rounded-bl-md px-4 py-2.5 text-sm"
+          style={{
+            background: "rgba(229,72,77,.12)",
+            border: "1px solid rgba(229,72,77,.28)",
+            color: "#e5484d",
+          }}
+        >
+          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
           <span>{message.message}</span>
         </div>
       </div>
@@ -274,7 +297,8 @@ export function ChatMessage({ message, onConfirmFixture, onOpenEsportiva, onReje
             }}
             variant="default"
             size="sm"
-            className="ml-auto text-black font-semibold"
+            className="ml-auto font-semibold"
+            style={{ background: "#e9b949", color: "#14151a" }}
           >
             <ExternalLink className="w-3 h-3 mr-1" />
             Bet7k
@@ -296,7 +320,7 @@ export function ChatMessage({ message, onConfirmFixture, onOpenEsportiva, onReje
           className="w-full"
         >
           <Search className="w-3 h-3 mr-1" />
-          Pedir análise de outro jogo
+          Pedir análisis de otro partido
         </Button>
 
         <BugReportDrawer

@@ -12,7 +12,6 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import {
   Sparkles,
   ExternalLink,
@@ -118,47 +117,98 @@ export function LiveTipModal({ open, onOpenChange, match, onOpenEsportiva }: Pro
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+      <DialogContent
+        className="max-w-md max-h-[90vh] overflow-y-auto"
+        style={{
+          background:
+            "radial-gradient(130% 70% at 50% -15%, rgba(140,147,200,0.06), rgba(140,147,200,0) 55%), #0c0d11",
+          border: "1px solid rgba(235,235,245,0.08)",
+        }}
+      >
         <DialogHeader>
-          <DialogTitle className="text-base">
-            {match.home.name} x {match.away.name}
+          <DialogTitle
+            className="text-base"
+            style={{ color: "#ECEAE4", fontFamily: "'Barlow Condensed', sans-serif" }}
+          >
+            {match.home.name} <span style={{ color: "#5c5e66" }}>×</span> {match.away.name}
           </DialogTitle>
-          <DialogDescription className="text-xs">
-            {match.league.name} ·{" "}
-            <span className="font-semibold text-foreground">
+          <DialogDescription className="text-xs" style={{ color: "#9a9ca4" }}>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.08em" }}>
+              {match.league.name}
+            </span>{" "}
+            ·{" "}
+            <span className="font-semibold" style={{ color: "#ECEAE4" }}>
               {match.home.score ?? 0} - {match.away.score ?? 0}
-              {match.status.minute !== null && ` · ${match.status.minute}'`}
             </span>
+            {match.status.minute !== null && (
+              <span className="font-semibold" style={{ color: "#e5484d" }}>
+                {" "}
+                · {match.status.minute}'
+              </span>
+            )}
           </DialogDescription>
         </DialogHeader>
 
         {!tip && !loading && !error && (
           <div className="space-y-3 py-2">
-            <p className="text-xs text-muted-foreground">
-              Gerar análise IA consome 1 crédito. Análises de cache compartilhado
-              (já geradas por outros usuários nos últimos 60s) não consomem.
+            <p className="text-xs leading-relaxed" style={{ color: "#9a9ca4" }}>
+              Generar análisis IA consume 1 crédito. Los análisis de caché compartido
+              (ya generados por otros usuarios en los últimos 60s) no consumen.
             </p>
-            <Button onClick={handleGenerate} className="w-full">
-              <Sparkles className="w-4 h-4 mr-2" />
-              Gerar análise IA
-            </Button>
+            <button
+              onClick={handleGenerate}
+              className="w-full py-3 rounded-xl flex items-center justify-center gap-2 transition-all hover:scale-[1.01] active:scale-[0.99]"
+              style={{
+                background: "#e9b949",
+                color: "#1c1810",
+                fontFamily: "'Barlow Condensed', sans-serif",
+                fontWeight: 800,
+                fontSize: 15,
+                letterSpacing: "0.6px",
+                textTransform: "uppercase",
+                border: "none",
+                boxShadow: "0 0 22px rgba(233,185,73,0.2)",
+              }}
+            >
+              <Sparkles className="w-4 h-4" />
+              Generar análisis IA
+            </button>
           </div>
         )}
 
         {loading && (
           <div className="flex flex-col items-center py-8 gap-3">
-            <RefreshCw className="w-8 h-8 text-primary animate-spin" />
-            <p className="text-sm font-medium">Analizando partido en vivo...</p>
-            <p className="text-xs text-muted-foreground">Puede tardar hasta 15 segundos.</p>
+            <RefreshCw className="w-8 h-8 animate-spin" style={{ color: "#8c93c8" }} />
+            <p className="text-sm font-medium" style={{ color: "#ECEAE4" }}>
+              Analizando partido en vivo...
+            </p>
+            <p className="text-xs" style={{ color: "#9a9ca4" }}>
+              Puede tardar hasta 15 segundos.
+            </p>
           </div>
         )}
 
         {error && (
           <div className="space-y-3 py-2">
-            <p className="text-sm text-destructive">{error}</p>
-            <Button onClick={handleGenerate} variant="outline" className="w-full">
+            <p className="text-sm" style={{ color: "#e5484d" }}>
+              {error}
+            </p>
+            <button
+              onClick={handleGenerate}
+              className="w-full py-3 rounded-xl flex items-center justify-center transition-all hover:scale-[1.01] active:scale-[0.99]"
+              style={{
+                background: "rgba(255,255,255,0.05)",
+                border: "1px solid rgba(255,255,255,0.15)",
+                color: "#ECEAE4",
+                fontFamily: "'Barlow Condensed', sans-serif",
+                fontWeight: 700,
+                fontSize: 14,
+                letterSpacing: "0.5px",
+                textTransform: "uppercase",
+              }}
+            >
               Intentar de nuevo
-            </Button>
+            </button>
           </div>
         )}
 
@@ -167,37 +217,65 @@ export function LiveTipModal({ open, onOpenChange, match, onOpenEsportiva }: Pro
             <TipAnalysis markdown={tip.content?.markdown ?? ""} />
 
             <div className="flex items-center gap-2">
-              <Button
+              <button
                 onClick={() => sendFeedback("up")}
-                variant={feedback === "up" ? "default" : "outline"}
-                size="sm"
                 disabled={!!feedback}
+                className="flex items-center justify-center w-9 h-9 rounded-lg transition-all disabled:opacity-50"
+                style={
+                  feedback === "up"
+                    ? { background: "rgba(111,181,140,0.15)", border: "1px solid #6fb58c", color: "#6fb58c" }
+                    : { background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.12)", color: "#9a9ca4" }
+                }
+                aria-label="Me gusta"
               >
                 <ThumbsUp className="w-4 h-4" />
-              </Button>
-              <Button
+              </button>
+              <button
                 onClick={() => sendFeedback("down")}
-                variant={feedback === "down" ? "default" : "outline"}
-                size="sm"
                 disabled={!!feedback}
+                className="flex items-center justify-center w-9 h-9 rounded-lg transition-all disabled:opacity-50"
+                style={
+                  feedback === "down"
+                    ? { background: "rgba(229,72,77,0.15)", border: "1px solid #e5484d", color: "#e5484d" }
+                    : { background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.12)", color: "#9a9ca4" }
+                }
+                aria-label="No me gusta"
               >
                 <ThumbsDown className="w-4 h-4" />
-              </Button>
-              <Button
+              </button>
+              <button
                 onClick={() => setBugOpen(true)}
-                variant="outline"
-                size="sm"
+                className="flex items-center gap-1.5 px-3 h-9 rounded-lg text-xs font-medium transition-all"
+                style={{
+                  background: "rgba(255,255,255,0.04)",
+                  border: "1px solid rgba(255,255,255,0.12)",
+                  color: "#9a9ca4",
+                }}
               >
-                <Bug className="w-4 h-4 mr-1" />
-                Reportar erro
-              </Button>
+                <Bug className="w-4 h-4" />
+                Reportar error
+              </button>
             </div>
 
-            <Button onClick={handleOpenEsportiva} className="w-full text-black font-semibold" variant="default">
-              <ExternalLink className="w-4 h-4 mr-2" />
-              Abrir Bet7k
+            <button
+              onClick={handleOpenEsportiva}
+              className="w-full py-3 rounded-xl flex items-center justify-center gap-2 transition-all hover:scale-[1.01] active:scale-[0.99]"
+              style={{
+                background: "#e9b949",
+                color: "#1c1810",
+                fontFamily: "'Barlow Condensed', sans-serif",
+                fontWeight: 800,
+                fontSize: 15,
+                letterSpacing: "0.6px",
+                textTransform: "uppercase",
+                border: "none",
+                boxShadow: "0 0 22px rgba(233,185,73,0.2)",
+              }}
+            >
+              <ExternalLink className="w-4 h-4" />
+              Abrir en la casa
               <ChevronRight className="w-4 h-4 ml-auto" />
-            </Button>
+            </button>
           </div>
         )}
       </DialogContent>

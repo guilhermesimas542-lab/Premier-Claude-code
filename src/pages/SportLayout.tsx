@@ -133,7 +133,7 @@ const SportLayout = () => {
       {/* Iframe persistente — vive aqui no pai, sobrevive a trocas de rota.
           Renderiza apenas quando houver casa de apostas integrada (URL externa). */}
       {!shouldHideIframeSection && (
-        <section id="bet-iframe-section" className="w-full mt-2 max-w-7xl mx-auto px-4 md:flex-1 md:min-h-0 md:flex md:flex-col md:items-center">
+        <section id="bet-iframe-section" className="w-full mt-2 max-w-7xl mx-auto px-2 sm:px-4 md:flex-1 md:min-h-0 md:flex md:flex-col md:items-center">
           {userHouse?.open_in_new_tab ? (
             <a
               href={iframeUrl || userHouse.iframe_url}
@@ -144,7 +144,7 @@ const SportLayout = () => {
               Abrir sitio de apuestas ↗
             </a>
           ) : (
-            <div className="w-full mb-2 h-[600px] md:h-auto md:mb-0 md:flex-1 md:min-h-0 md:max-w-[480px] md:w-full bg-gradient-to-br from-muted/40 to-muted/20 rounded-xl overflow-hidden border border-border/30 backdrop-blur-sm">
+            <div className="w-full mb-2 h-[calc(100dvh-124px-env(safe-area-inset-bottom,0px))] min-h-[480px] md:h-auto md:mb-0 md:flex-1 md:min-h-0 md:max-w-[480px] md:w-full bg-gradient-to-br from-muted/40 to-muted/20 rounded-xl overflow-hidden border border-border/30 backdrop-blur-sm">
               <iframe
                 ref={iframeRef}
                 src={iframeUrl}

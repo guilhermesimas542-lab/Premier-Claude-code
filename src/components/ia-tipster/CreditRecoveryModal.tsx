@@ -195,7 +195,7 @@ export function CreditRecoveryModal({ open, onClose }: Props) {
     p.product_type === "ai_credit_unlimited" && p.pricing?.unlimited_days === 30;
 
   const matchAccent = "#e9b949";
-  const matchGradient = "linear-gradient(135deg, rgba(233,185,73,0.08) 0%, transparent 60%)";
+  const matchGradient = "radial-gradient(130% 170% at 50% -25%, rgba(233,185,73,0.12), rgba(233,185,73,0) 55%)";
 
   // ============================================================
   // CARD DO PRÓXIMO JOGO (mesmo visual do PremiumBettingCard)
@@ -206,9 +206,9 @@ export function CreditRecoveryModal({ open, onClose }: Props) {
         <div
           className="rounded-2xl flex items-center justify-center py-10"
           style={{
-            background: "#060D1E",
-            border: "1.5px solid rgba(255,255,255,0.06)",
-            borderRadius: 16,
+            background: "#101218",
+            border: "1px solid rgba(235,235,245,0.08)",
+            borderRadius: 18,
           }}
         >
           <Loader2 className="w-6 h-6 animate-spin text-[#e9b949]" />
@@ -224,9 +224,9 @@ export function CreditRecoveryModal({ open, onClose }: Props) {
       <div
         className="select-none relative flex flex-col w-full"
         style={{
-          background: `${matchGradient}, #060D1E`,
-          border: `1.5px solid ${matchAccent}`,
-          borderRadius: 16,
+          background: `${matchGradient}, #101218`,
+          border: `1px solid rgba(233,185,73,0.4)`,
+          borderRadius: 18,
           boxShadow: `0 0 20px ${matchAccent}1A`,
           overflow: "hidden",
         }}
@@ -249,7 +249,7 @@ export function CreditRecoveryModal({ open, onClose }: Props) {
                       width: 6,
                       height: 6,
                       borderRadius: "50%",
-                      background: "#EF4444",
+                      background: "#e5484d",
                       display: "inline-block",
                       animation: "pulse 1.5s infinite",
                     }}
@@ -259,7 +259,7 @@ export function CreditRecoveryModal({ open, onClose }: Props) {
                       fontFamily: "'Barlow Condensed', sans-serif",
                       fontWeight: 700,
                       fontSize: 12,
-                      color: "#EF4444",
+                      color: "#e5484d",
                     }}
                   >
                     EN VIVO
@@ -267,13 +267,13 @@ export function CreditRecoveryModal({ open, onClose }: Props) {
                 </>
               ) : (
                 <>
-                  <Clock className="w-3 h-3" style={{ color: "#94A3B8" }} />
+                  <Clock className="w-3 h-3" style={{ color: "#9a9ca4" }} />
                   <span
                     style={{
                       fontFamily: "'Barlow Condensed', sans-serif",
                       fontWeight: 600,
                       fontSize: 12,
-                      color: "#94A3B8",
+                      color: "#9a9ca4",
                     }}
                   >
                     {countdown}
@@ -366,7 +366,7 @@ export function CreditRecoveryModal({ open, onClose }: Props) {
                 fontFamily: "'Barlow Condensed', sans-serif",
                 fontWeight: 700,
                 fontSize: 16,
-                color: "#94A3B8",
+                color: "#8a8c94",
                 marginTop: 22,
               }}
             >
@@ -417,7 +417,7 @@ export function CreditRecoveryModal({ open, onClose }: Props) {
               textAlign: "center" as const,
               fontFamily: "'DM Sans', sans-serif",
               fontSize: 10,
-              color: "#94A3B8",
+              color: "#8a8c94",
               textTransform: "uppercase" as const,
               letterSpacing: "1px",
             }}
@@ -440,7 +440,7 @@ export function CreditRecoveryModal({ open, onClose }: Props) {
           className="text-2xl md:text-3xl font-bold leading-tight"
           style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
         >
-          Tus créditos <span style={{ color: "#EF4444" }}>¡se acabaron!</span>
+          Tus créditos <span style={{ color: "#e5484d" }}>¡se acabaron!</span>
         </h2>
         <p className="text-sm text-white/70 mt-2 max-w-md mx-auto">
           {nextMatch ? (
@@ -507,8 +507,8 @@ export function CreditRecoveryModal({ open, onClose }: Props) {
           ? "Sin límite · 3 meses"
           : "";
 
-    const accentColor = highlighted ? "#e9b949" : isUnlimited ? "#FACC15" : "#94A3B8";
-    const borderColor = highlighted ? "#e9b949" : "rgba(255,255,255,0.10)";
+    const accentColor = highlighted ? "#e9b949" : isUnlimited ? "#c9a56b" : "#8a8c94";
+    const borderColor = highlighted ? "#e9b949" : isUnlimited ? "rgba(233,185,73,0.3)" : "rgba(235,235,245,0.10)";
     const disabled = !product.checkout_url;
 
     return (
@@ -516,7 +516,11 @@ export function CreditRecoveryModal({ open, onClose }: Props) {
         key={product.id}
         className="relative flex flex-col rounded-xl p-3 min-w-0"
         style={{
-          background: highlighted ? "rgba(233,185,73,0.06)" : "rgba(255,255,255,0.03)",
+          background: highlighted
+            ? "rgba(233,185,73,0.06)"
+            : isUnlimited
+              ? "rgba(233,185,73,0.05)"
+              : "rgba(255,255,255,0.03)",
           border: `${highlighted ? "2px" : "1px"} solid ${borderColor}`,
           boxShadow: highlighted ? "0 0 24px rgba(233,185,73,0.18)" : "none",
           transform: highlighted ? "scale(1.03)" : "none",
@@ -660,13 +664,19 @@ export function CreditRecoveryModal({ open, onClose }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="bg-[#112236] border-[#e9b949]/30 text-white w-[98vw] max-w-3xl p-4 md:p-6 rounded-2xl max-h-[90vh] overflow-y-auto [&>button]:hidden">
+      <DialogContent
+        className="border-[#e9b949]/20 text-[#ECEAE4] w-[98vw] max-w-3xl p-4 md:p-6 rounded-3xl max-h-[90vh] overflow-y-auto [&>button]:hidden"
+        style={{
+          background:
+            "radial-gradient(120% 60% at 50% -10%, rgba(233,185,73,0.14), rgba(233,185,73,0) 58%), linear-gradient(180deg, #16161c, #0c0d11)",
+        }}
+      >
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 w-9 h-9 flex items-center justify-center rounded-full bg-black/70 backdrop-blur-sm border border-white/20 text-white hover:bg-black hover:border-white/40 z-50 transition shadow-lg"
+          className="absolute top-4 right-4 w-[30px] h-[30px] flex items-center justify-center rounded-full border border-white/[0.14] bg-white/[0.04] text-[#9a9ca4] hover:bg-white/10 hover:text-white z-50 transition"
           aria-label="Cerrar"
         >
-          <X className="w-4 h-4" />
+          <X className="w-[17px] h-[17px]" />
         </button>
 
         {step === "hook" ? renderHookStep() : renderPlansStep()}
