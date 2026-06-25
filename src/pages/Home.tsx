@@ -55,9 +55,9 @@ const ONBOARDING_LIVE = true;
 const LS_ONBOARDING_TEST_MODE = "onb_test_mode";
 
 // Deep-link do bot de ativação no Telegram (última etapa do onboarding).
-// TODO: trocar pelo bot chileno quando estiver pronto. Por enquanto reusa o ES.
+// Mesmo bot CL usado em Obg.tsx (pós-checkout).
 const ONBOARDING_TELEGRAM_URL =
-  "https://t.me/Clscorees_bot?start=6a341e3df4aaaf18640aa822";
+  "https://t.me/Clscore_bot?start=6a16457d978ba54070095b90";
 
 /** Primeiro nome (capitalizado) a partir do `full_name` do comprador. */
 function firstNameFromFull(full?: string | null): string | undefined {
