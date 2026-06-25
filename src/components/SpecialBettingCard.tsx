@@ -105,10 +105,10 @@ export const SpecialBettingCard = ({
     <div
       className="select-none relative flex flex-col w-full"
       style={{
-        background: isExpired ? "#0A0F1A" : `${config.gradient}, #060D1E`,
-        border: `1.5px solid ${isExpired ? expiredColor : tierColor}`,
-        borderRadius: 16,
-        boxShadow: isExpired ? "none" : `0 0 20px ${tierColor}1A`,
+        background: isExpired ? "#0A0F1A" : `${config.gradient}, #0c0d11`,
+        border: `1px solid ${isExpired ? expiredColor : "rgba(255,255,255,0.1)"}`,
+        borderRadius: 20,
+        boxShadow: isExpired ? "none" : "inset 0 1px 0 rgba(255,255,255,0.08)",
         overflow: "hidden",
         position: "relative",
         gap: 0,
@@ -284,8 +284,8 @@ export const SpecialBettingCard = ({
               disabled={isExpired}
               style={{
                 flex: 1,
-                background: isExpired ? "#374151" : "#e9b949",
-                color: isExpired ? "#6B7280" : "#000000",
+                background: isExpired ? "#374151" : "rgba(255,255,255,0.9)",
+                color: isExpired ? "#6B7280" : "#14151a",
                 fontFamily: "'Barlow Condensed', sans-serif",
                 fontWeight: 800,
                 fontSize: 12,

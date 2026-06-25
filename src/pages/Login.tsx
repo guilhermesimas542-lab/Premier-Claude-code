@@ -141,7 +141,7 @@ const Login = ({ onboardingFlow = false }: { onboardingFlow?: boolean }) => {
   const IA_FAKE_ODDS = [35.40, 2.15, 12.50, 1.75, 8.30, 4.20, 1.55, 22.00];
 
   // Cor dourada de destaque
-  const ACCENT_GOLD = "#10ff80";
+  const ACCENT_GOLD = "#e9b949";
 
   // Monta array unificado de slides com alternância IA + green.
   type Slide =
@@ -260,11 +260,11 @@ const Login = ({ onboardingFlow = false }: { onboardingFlow?: boolean }) => {
           padding: 1.5px;
           background: conic-gradient(
             from var(--gold-angle),
-            rgba(16, 255, 128,0) 0deg,
-            rgba(16, 255, 128,0) 230deg,
+            rgba(233,185,73,0) 0deg,
+            rgba(233,185,73,0) 230deg,
             rgba(245,215,122,0.9) 300deg,
             #FFF3C9 330deg,
-            rgba(16, 255, 128,0) 360deg
+            rgba(233,185,73,0) 360deg
           );
           -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
           -webkit-mask-composite: xor;
@@ -336,10 +336,10 @@ const Login = ({ onboardingFlow = false }: { onboardingFlow?: boolean }) => {
                           style={{
                             position: 'relative',
                             backgroundColor: '#112236',
-                            border: '1.5px solid rgba(16, 255, 128,0.85)',
+                            border: '1.5px solid rgba(233,185,73,0.85)',
                             borderRadius: '12px',
                             overflow: 'hidden',
-                            boxShadow: '0 0 24px rgba(16, 255, 128,0.22)',
+                            boxShadow: '0 0 24px rgba(233,185,73,0.22)',
                           }}
                         >
                           {/* LINHA 1: badge IA esquerda | odd direita (mesma estrutura dos greens) */}
@@ -360,9 +360,9 @@ const Login = ({ onboardingFlow = false }: { onboardingFlow?: boolean }) => {
                                 letterSpacing: '1.5px',
                                 padding: '6px 14px',
                                 borderRadius: '6px',
-                                backgroundColor: 'rgba(0,255,127,0.14)',
-                                border: '1.5px solid rgba(0,255,127,0.55)',
-                                color: '#00FF7F',
+                                backgroundColor: 'rgba(233,185,73,0.14)',
+                                border: '1.5px solid rgba(233,185,73,0.55)',
+                                color: '#e9b949',
                                 lineHeight: 1,
                                 display: 'inline-flex',
                                 alignItems: 'center',
@@ -377,7 +377,7 @@ const Login = ({ onboardingFlow = false }: { onboardingFlow?: boolean }) => {
                                 fontFamily: 'Barlow Condensed, sans-serif',
                                 fontWeight: 900,
                                 fontSize: '36px',
-                                color: '#00FF7F',
+                                color: '#e9b949',
                                 lineHeight: 1,
                               }}
                             >
@@ -442,8 +442,8 @@ const Login = ({ onboardingFlow = false }: { onboardingFlow?: boolean }) => {
                               alignItems: 'center',
                               justifyContent: 'center',
                               padding: '10px 16px',
-                              backgroundColor: 'rgba(0,255,127,0.10)',
-                              borderTop: '1px solid rgba(0,255,127,0.25)',
+                              backgroundColor: 'rgba(233,185,73,0.10)',
+                              borderTop: '1px solid rgba(233,185,73,0.25)',
                             }}
                           >
                             <span
@@ -451,7 +451,7 @@ const Login = ({ onboardingFlow = false }: { onboardingFlow?: boolean }) => {
                                 fontFamily: 'Barlow Condensed, sans-serif',
                                 fontWeight: 700,
                                 fontSize: '13px',
-                                color: '#00FF7F',
+                                color: '#e9b949',
                                 letterSpacing: '0.06em',
                                 textTransform: 'uppercase',
                               }}
@@ -478,10 +478,10 @@ const Login = ({ onboardingFlow = false }: { onboardingFlow?: boolean }) => {
                       <div
                         style={{
                           backgroundColor: '#112236',
-                          border: '1.5px solid rgba(16, 255, 128,0.45)',
+                          border: '1.5px solid rgba(233,185,73,0.45)',
                           borderRadius: '12px',
                           overflow: 'hidden',
-                          boxShadow: '0 0 20px rgba(16, 255, 128,0.15)',
+                          boxShadow: '0 0 20px rgba(233,185,73,0.15)',
                         }}
                       >
                         {/* LINHA 1: badge esquerda | odd direita */}
@@ -515,7 +515,7 @@ const Login = ({ onboardingFlow = false }: { onboardingFlow?: boolean }) => {
                               fontFamily: 'Barlow Condensed, sans-serif',
                               fontWeight: 900,
                               fontSize: '36px',
-                              color: '#10ff80',
+                              color: '#e9b949',
                               lineHeight: 1,
                             }}
                           >
@@ -578,8 +578,8 @@ const Login = ({ onboardingFlow = false }: { onboardingFlow?: boolean }) => {
                             alignItems: 'center',
                             justifyContent: 'center',
                             padding: '10px 16px',
-                            backgroundColor: 'rgba(16, 255, 128,0.08)',
-                            borderTop: '1px solid rgba(16, 255, 128,0.15)',
+                            backgroundColor: 'rgba(233,185,73,0.08)',
+                            borderTop: '1px solid rgba(233,185,73,0.15)',
                           }}
                         >
                           <span
@@ -587,7 +587,7 @@ const Login = ({ onboardingFlow = false }: { onboardingFlow?: boolean }) => {
                               fontFamily: 'Barlow Condensed, sans-serif',
                               fontWeight: 700,
                               fontSize: '13px',
-                              color: '#10ff80',
+                              color: '#e9b949',
                               letterSpacing: '0.06em',
                               textTransform: 'uppercase',
                             }}
@@ -612,7 +612,7 @@ const Login = ({ onboardingFlow = false }: { onboardingFlow?: boolean }) => {
                     style={{
                       width: index === currentIndex ? '20px' : '6px',
                       height: '6px',
-                      backgroundColor: index === currentIndex ? '#10ff80' : 'rgba(255,255,255,0.2)',
+                      backgroundColor: index === currentIndex ? '#e9b949' : 'rgba(255,255,255,0.2)',
                     }}
                   />
                 ))}
@@ -632,7 +632,7 @@ const Login = ({ onboardingFlow = false }: { onboardingFlow?: boolean }) => {
                 fontWeight: 700,
                 fontSize: '11px',
                 letterSpacing: '1.5px',
-                color: '#10ff80',
+                color: '#e9b949',
                 textTransform: 'uppercase',
               }}
             >
@@ -696,12 +696,12 @@ const Login = ({ onboardingFlow = false }: { onboardingFlow?: boolean }) => {
 
         {/* Social Proof Pills */}
         <div className="w-full flex gap-2 items-stretch flex-nowrap mt-8 mb-6">
-          <div className="flex-1 flex items-center justify-center gap-2 bg-white/5 border border-[#00FF7F]/30 rounded-xl px-3 py-3.5">
-            <Users className="w-3.5 h-3.5 shrink-0" style={{ color: "#00FF7F" }} />
+          <div className="flex-1 flex items-center justify-center gap-2 bg-white/5 border border-[#e9b949]/30 rounded-xl px-3 py-3.5">
+            <Users className="w-3.5 h-3.5 shrink-0" style={{ color: "#e9b949" }} />
             <span className="text-white/70 whitespace-nowrap font-sans" style={{ fontSize: '12px', fontWeight: 500 }}>+50.000 apostadores</span>
           </div>
-          <div className="flex-1 flex items-center justify-center gap-2 bg-white/5 border border-[#00FF7F]/30 rounded-xl px-3 py-3.5">
-            <Ticket className="w-3.5 h-3.5 shrink-0" style={{ color: "#00FF7F" }} />
+          <div className="flex-1 flex items-center justify-center gap-2 bg-white/5 border border-[#e9b949]/30 rounded-xl px-3 py-3.5">
+            <Ticket className="w-3.5 h-3.5 shrink-0" style={{ color: "#e9b949" }} />
             <span className="text-white/70 whitespace-nowrap font-sans" style={{ fontSize: '12px', fontWeight: 500 }}>+10 entradas por dia</span>
           </div>
         </div>
@@ -712,7 +712,7 @@ const Login = ({ onboardingFlow = false }: { onboardingFlow?: boolean }) => {
             Al continuar, aceptas nuestros{" "}
             <button
               onClick={() => setShowTermsModal(true)}
-              style={{ color: "#00FF7F" }}
+              style={{ color: "#e9b949" }}
               className="hover:underline underline-offset-2 transition-colors"
             >
               Términos y Privacidad

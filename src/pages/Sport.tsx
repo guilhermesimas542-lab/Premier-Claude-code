@@ -748,7 +748,7 @@ const Sport = () => {
                 }
               };
 
-              const baseStyle = { fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 13, padding: "9px 14px", borderRadius: 24, whiteSpace: "nowrap" as const, flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 6 };
+              const baseStyle = { fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 13, padding: "9px 13px", borderRadius: 11, whiteSpace: "nowrap" as const, flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 7 };
 
               const style =
                 (!hasContent && !isPaidTab)
@@ -763,9 +763,10 @@ const Sport = () => {
 
               return (
                 <button key={f} onClick={handleClick} style={style}>
+                  <span style={{ width: 6, height: 6, borderRadius: "50%", background: tabColor, flexShrink: 0 }} />
                   <span>{meta.label}</span>
                   {((hasContent && !userHasAccess) || (!hasContent && isPaidTab && !userHasAccess)) && <Lock className="w-3 h-3" style={{ opacity: 0.7 }} />}
-                  {hasContent && <span style={{ fontSize: 13, opacity: 0.7 }}>({count})</span>}
+                  {hasContent && <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, background: `${tabColor}26`, color: tabColor, padding: "1px 6px", borderRadius: 6 }}>{count}</span>}
                 </button>
               );
             })}

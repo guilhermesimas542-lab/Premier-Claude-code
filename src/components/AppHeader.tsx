@@ -52,7 +52,7 @@ const AppHeader = ({ leftContent, headerStyle, title }: AppHeaderProps) => {
 
   return (
     <>
-      <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80" style={{ borderBottom: '1px solid rgba(255,255,255,0.07)', ...headerStyle }}>
+      <header className="sticky top-0 z-50 backdrop-blur" style={{ background: 'radial-gradient(130% 150% at 16% -10%, rgba(233,185,73,.10), rgba(233,185,73,0) 52%), #0a0b0e', borderBottom: '1px solid rgba(235,235,245,0.08)', ...headerStyle }}>
         <div className="container max-w-7xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
           <div className="flex items-center justify-between gap-2 sm:gap-4">
             {leftContent ? leftContent : (
