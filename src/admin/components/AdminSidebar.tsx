@@ -109,6 +109,7 @@ export function AdminSidebar() {
         { to: "/admin/analytics", icon: BarChart3, label: "Visión General" },
         { to: "/admin/analytics/events", icon: Activity, label: "Eventos" },
         { to: "/admin/funnel-analytics", icon: BarChart3, label: "Funnel Analytics" },
+        { to: "/admin/onboarding-analytics", icon: BarChart3, label: "Onboarding Analytics" },
         { to: "/admin/ranking", icon: Trophy, label: "Ranking" },
         { to: "/admin/errors", icon: Bug, label: "Errores", badge: counts.errors },
         { to: "/admin/feedback", icon: MessageSquare, label: "Feedback", badge: counts.feedback },
