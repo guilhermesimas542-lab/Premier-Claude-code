@@ -96,7 +96,7 @@ const AppHeader = ({ leftContent, headerStyle, title }: AppHeaderProps) => {
               )}
               {tierLoaded && isFree && (
                 <button
-                  onClick={() => window.open("https://t.me/Clscore_bot", "_blank", "noopener,noreferrer")}
+                  onClick={() => navigate("/sport/1?tab=free")}
                   className="inline-flex items-center gap-1.5 rounded-full transition-all hover:scale-105"
                   style={{
                     padding: "7px 14px",
