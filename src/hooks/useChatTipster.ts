@@ -16,11 +16,26 @@ export interface DisambiguationMatch {
   score?: number;
 }
 
+export interface CombinedMarket {
+  market: string;
+  selection: string;
+  odd: number;
+  reason?: string;
+}
+
+export interface CombinedTip {
+  bet_type_label: string;
+  intro: string;
+  markets: CombinedMarket[];
+  total_odd: number;
+  probability: number;
+}
+
 export interface ChatTipResponse {
   cached: boolean;
   tip_cache_id: string;
   credit_source: string;
-  content: { markdown: string };
+  content: { markdown: string; combined?: CombinedTip };
   source_data: any;
   generated_at: string;
 }
@@ -40,7 +55,7 @@ export type ChatMessage =
   | { id: string; role: "bot"; type: "loading"; label: string; createdAt: number }
   | { id: string; role: "bot"; type: "disambiguation"; matches: DisambiguationMatch[]; confidence: "high" | "medium"; createdAt: number }
   | { id: string; role: "bot"; type: "upcoming_list"; matches: UpcomingMatch[]; listType: "team" | "league"; teamId: number | null; leagueIds: number[] | null; originalQuery: string; createdAt: number }
-  | { id: string; role: "bot"; type: "tip"; tipCacheId: string; markdown: string; sourceData: any; cached: boolean; createdAt: number }
+  | { id: string; role: "bot"; type: "tip"; tipCacheId: string; markdown: string; sourceData: any; combined?: CombinedTip; cached: boolean; createdAt: number }
   | { id: string; role: "bot"; type: "bet_type_selector"; fixtureId: number; label: string; createdAt: number }
   | { id: string; role: "bot"; type: "error"; message: string; createdAt: number };
 
@@ -381,6 +396,7 @@ export function useChatTipster() {
         tipCacheId: tipResp.tip_cache_id,
         markdown: tipResp.content.markdown,
         sourceData: tipResp.source_data,
+        combined: tipResp.content.combined,
         cached: tipResp.cached,
         createdAt: Date.now(),
       });

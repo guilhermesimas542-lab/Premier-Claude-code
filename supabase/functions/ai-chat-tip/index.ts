@@ -255,6 +255,85 @@ REGRAS DE LINGUAGEM ESTATÍSTICA — APLICAR SEMPRE
 ═══════════════════════════════════════════════════════
 `;
 
+// ─── COMBINADA (aditivo) ───
+const COMBINED_BET_TYPES = new Set([
+  "safe",
+  "ultra",
+  "multiple_partido",
+  "multiple_jornada",
+]);
+
+// Rótulo + faixa de nº de mercados por tipo de aposta combinada.
+const COMBINED_CONFIG: Record<string, { label: string; min: number; max: number; jornada?: boolean }> = {
+  safe: { label: "Combinada Safe", min: 2, max: 3 },
+  ultra: { label: "Combinada Ultra", min: 3, max: 5 },
+  multiple_partido: { label: "Múltiple del Partido", min: 4, max: 6 },
+  multiple_jornada: { label: "Múltiples de la Jornada", min: 3, max: 5, jornada: true },
+};
+
+// Instrução em espanhol anexada ao prompt quando o bet_type é de combinada.
+function buildCombinedInstruction(betType: string): string {
+  const cfg = COMBINED_CONFIG[betType];
+  if (!cfg) return "";
+  const jornadaNote = cfg.jornada
+    ? " Como solo tienes datos de este partido, enfócate en mercados de ESTE mismo partido y, en el campo \"intro\", menciona que es la entrada principal de la jornada."
+    : "";
+  return `
+
+═══════════════════════════════════════════════════════
+COMBINADA (BLOQUE ADICIONAL OBLIGATORIO)
+═══════════════════════════════════════════════════════
+
+ADEMÁS del análisis markdown normal (que sigue siendo obligatorio y va PRIMERO, sin cambios), DEBES anexar AL FINAL de tu respuesta un bloque \`\`\`json ... \`\`\` con una combinada para este partido.
+
+Reglas del bloque JSON:
+- Genera entre ${cfg.min} y ${cfg.max} mercados, TODOS del MISMO partido.${jornadaNote}
+- Los mercados deben ser DIFERENTES entre sí (no repetir el mismo mercado/línea).
+- Usa SOLO odds reales presentes en el contexto del partido. NO inventes odds. Si falta la odd de un mercado, elige otro mercado que sí tenga odd disponible en el contexto.
+- "total_odd" = producto de todas las odds de los mercados, redondeado a 2 decimales.
+- "probability" = estimación entre 0 y 100 (entero) de probabilidad combinada.
+- Todo el texto del JSON en español neutro (Chile/LATAM).
+
+Esquema EXACTO (anéxalo tal cual al final, después de todo el análisis markdown):
+
+\`\`\`json
+{
+  "bet_type_label": "${cfg.label}",
+  "intro": "<frase corta en español: tipo + partido + nº de mercados + cuota total>",
+  "markets": [
+    { "market": "<nombre del mercado>", "selection": "<selección>", "odd": <number>, "reason": "<1 frase corta opcional>" }
+  ],
+  "total_odd": <number>,
+  "probability": <number 0-100>
+}
+\`\`\`
+`;
+}
+
+// Extrai o último bloco ```json da resposta. Retorna { combined, markdown } com
+// fallback seguro: se nada parsear, combined = null e markdown intacto.
+function extractCombined(text: string): { combined: any | null; markdown: string } {
+  if (!text) return { combined: null, markdown: text };
+  const fenceRe = /```json\s*([\s\S]*?)```/gi;
+  let match: RegExpExecArray | null;
+  let last: RegExpExecArray | null = null;
+  while ((match = fenceRe.exec(text)) !== null) {
+    last = match;
+  }
+  if (!last) return { combined: null, markdown: text };
+  try {
+    const parsed = JSON.parse(last[1].trim());
+    if (parsed && Array.isArray(parsed.markets) && parsed.markets.length > 0) {
+      // Remove o bloco json do markdown pra não aparecer cru.
+      const markdown = (text.slice(0, last.index) + text.slice(last.index + last[0].length)).trim();
+      return { combined: parsed, markdown };
+    }
+  } catch (e) {
+    console.warn("[ai-chat-tip] combined JSON parse failed", e);
+  }
+  return { combined: null, markdown: text };
+}
+
 async function fetchStandings(
   supabase: any,
   leagueId: number,
@@ -476,7 +555,7 @@ Deno.serve(async (req: Request) => {
 
 
 
-  let body: { fixture_id?: number };
+  let body: { fixture_id?: number; bet_type?: string };
   try {
     body = await req.json();
   } catch {
@@ -486,6 +565,8 @@ Deno.serve(async (req: Request) => {
   if (!fixtureId || typeof fixtureId !== "number") {
     return jsonResp({ error: "fixture_id_required" }, 400);
   }
+  // Tipo de aposta (combinada). Aditivo: ausente = comportamento atual.
+  const betType = typeof body.bet_type === "string" ? body.bet_type : null;
 
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL")!,
@@ -674,11 +755,14 @@ Deno.serve(async (req: Request) => {
       return jsonResp({ error: "anthropic_key_missing" }, 500);
     }
 
+    const combinedInstruction =
+      betType && COMBINED_BET_TYPES.has(betType) ? buildCombinedInstruction(betType) : "";
+
     const userMessage = `Contexto do jogo (use APENAS estes dados; ignore campos null):
 
 ${JSON.stringify(sourceData, null, 2)}
 
-Genera el análisis siguiendo el formato definido en el system prompt. IMPORTANTE: Tu respuesta DEBE estar 100% en español neutro (Chile/LATAM). NUNCA respondas en portugués.`;
+Genera el análisis siguiendo el formato definido en el system prompt. IMPORTANTE: Tu respuesta DEBE estar 100% en español neutro (Chile/LATAM). NUNCA respondas en portugués.${combinedInstruction}`;
 
     const baseBody = {
       max_tokens: 1500,
@@ -749,8 +833,13 @@ Genera el análisis siguiendo el formato definido en el system prompt. IMPORTANT
     }
 
     const claudeData = await claudeResp.json();
-    const responseText = claudeData.content?.[0]?.text || "";
+    const rawResponseText = claudeData.content?.[0]?.text || "";
     const usage = claudeData.usage || {};
+
+    // Combinada (aditivo + fallback): extrai bloco json se houver e remove do markdown.
+    const { combined, markdown: responseText } = combinedInstruction
+      ? extractCombined(rawResponseText)
+      : { combined: null, markdown: rawResponseText };
 
     const expiresKickoff = kickoff.getTime();
     const expires24h = Date.now() + CACHE_TTL_HOURS * 3600000;
@@ -763,7 +852,7 @@ Genera el análisis siguiendo el formato definido en el system prompt. IMPORTANT
         match_type: "chat_prematch",
         api_football_fixture_id: fixtureId,
         altenar_event_id: altenar?.altenar_event_id ?? null,
-        content: { markdown: responseText },
+        content: combined ? { markdown: responseText, combined } : { markdown: responseText },
         source_data: { ...sourceData, claude_model_used: modelUsed },
         tokens_input: usage.input_tokens || 0,
         tokens_output: usage.output_tokens || 0,
@@ -778,7 +867,7 @@ Genera el análisis siguiendo el formato definido en el system prompt. IMPORTANT
       cached: false,
       tip_cache_id: inserted?.id,
       credit_source: creditResult.debit_type,
-      content: { markdown: responseText },
+      content: combined ? { markdown: responseText, combined } : { markdown: responseText },
       source_data: sourceData,
       generated_at: new Date().toISOString(),
     });

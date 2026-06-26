@@ -3,6 +3,7 @@ import { ChatMessage as Msg } from "@/hooks/useChatTipster";
 import { DisambiguationCard } from "./DisambiguationCard";
 import { BetTypeSelector } from "./BetTypeSelector";
 import { TipAnalysis } from "./TipAnalysis";
+import { CombinedTipCard } from "./CombinedTipCard";
 import { BugReportDrawer } from "./BugReportDrawer";
 import { Button } from "@/components/ui/button";
 import { ThumbsUp, ThumbsDown, Bug, ExternalLink, AlertCircle, Loader2, Search, ChevronRight, Trophy, Calendar } from "lucide-react";
@@ -238,8 +239,66 @@ export function ChatMessage({ message, onConfirmFixture, onSelectBetType, onOpen
       }
     };
 
+    const openEsportiva = () => {
+      const altenarUrl = message.sourceData?.altenar_event_url as string | undefined;
+      const altenarId = message.sourceData?.altenar_event_id as string | undefined;
+      const home = getTeamName(message.sourceData?.fixture?.home);
+      const away = getTeamName(message.sourceData?.fixture?.away);
+
+      trackEsportivaOpened({
+        source: "chat",
+        fixture: {
+          fixture_id:
+            (message.sourceData?.fixture?.fixture_id as number | undefined) ??
+            (message.sourceData?.fixture_id as number | undefined) ??
+            null,
+          home,
+          away,
+          league_id:
+            (message.sourceData?.fixture?.league_id as number | undefined) ??
+            (message.sourceData?.league_id as number | undefined) ??
+            null,
+          league_name:
+            (message.sourceData?.fixture?.league_name as string | undefined) ??
+            (message.sourceData?.fixture?.league as string | undefined) ??
+            (message.sourceData?.league_name as string | undefined) ??
+            null,
+          league_country:
+            (message.sourceData?.fixture?.league_country as string | undefined) ?? null,
+        },
+        markdown: message.markdown,
+        altenar_event_id: altenarId ?? null,
+        altenar_event_url: altenarUrl ?? null,
+      });
+
+      onOpenEsportiva?.({
+        matchLabel: `${home} × ${away}`,
+        markdown: message.markdown ?? null,
+        altenarEventUrl: altenarUrl ?? null,
+      });
+    };
+
+    const askAnother = () => {
+      const input = document.querySelector<HTMLInputElement | HTMLTextAreaElement>(
+        'input[placeholder*="Pregunta sobre un partido"], textarea[placeholder*="Pregunta sobre un partido"]'
+      );
+      if (input) {
+        input.focus();
+        input.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    };
+
     return (
       <div className="w-full space-y-2">
+        {message.combined && (
+          <CombinedTipCard
+            combined={message.combined}
+            sourceData={message.sourceData}
+            onOpenEsportiva={openEsportiva}
+            onAskAnother={askAnother}
+          />
+        )}
+
         <TipAnalysis markdown={message.markdown} />
 
         <div className="flex items-center gap-2 flex-wrap px-1 pt-1">
@@ -268,45 +327,7 @@ export function ChatMessage({ message, onConfirmFixture, onSelectBetType, onOpen
             Reportar erro
           </Button>
           <Button
-            onClick={() => {
-              const altenarUrl = message.sourceData?.altenar_event_url as string | undefined;
-              const altenarId = message.sourceData?.altenar_event_id as string | undefined;
-              const home = getTeamName(message.sourceData?.fixture?.home);
-              const away = getTeamName(message.sourceData?.fixture?.away);
-
-              trackEsportivaOpened({
-                source: "chat",
-                fixture: {
-                  fixture_id:
-                    (message.sourceData?.fixture?.fixture_id as number | undefined) ??
-                    (message.sourceData?.fixture_id as number | undefined) ??
-                    null,
-                  home,
-                  away,
-                  league_id:
-                    (message.sourceData?.fixture?.league_id as number | undefined) ??
-                    (message.sourceData?.league_id as number | undefined) ??
-                    null,
-                  league_name:
-                    (message.sourceData?.fixture?.league_name as string | undefined) ??
-                    (message.sourceData?.fixture?.league as string | undefined) ??
-                    (message.sourceData?.league_name as string | undefined) ??
-                    null,
-                  league_country:
-                    (message.sourceData?.fixture?.league_country as string | undefined) ??
-                    null,
-                },
-                markdown: message.markdown,
-                altenar_event_id: altenarId ?? null,
-                altenar_event_url: altenarUrl ?? null,
-              });
-
-              onOpenEsportiva?.({
-                matchLabel: `${home} × ${away}`,
-                markdown: message.markdown ?? null,
-                altenarEventUrl: altenarUrl ?? null,
-              });
-            }}
+            onClick={openEsportiva}
             variant="default"
             size="sm"
             className="ml-auto font-semibold"
@@ -318,15 +339,7 @@ export function ChatMessage({ message, onConfirmFixture, onSelectBetType, onOpen
         </div>
 
         <Button
-          onClick={() => {
-            const input = document.querySelector<HTMLInputElement | HTMLTextAreaElement>(
-              'input[placeholder*="Pregunta sobre un partido"], textarea[placeholder*="Pregunta sobre un partido"]'
-            );
-            if (input) {
-              input.focus();
-              input.scrollIntoView({ behavior: "smooth", block: "center" });
-            }
-          }}
+          onClick={askAnother}
           variant="outline"
           size="sm"
           className="w-full"
