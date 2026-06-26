@@ -22,6 +22,7 @@ import { useCards, useCardsBySlugs, CardData } from "@/hooks/useCards";
 import { useUserAccess } from "@/hooks/useUserAccess";
 import { CardType1Lateral } from "@/components/cards/CardType1Lateral";
 import CardType2Top from "@/components/cards/CardType2Top";
+import { OddsTicker } from "@/components/OddsTicker";
 import { CardFunnelModal } from "@/components/cards/CardFunnelModal";
 import { usePayCardTrigger } from "@/hooks/usePayCardTrigger";
 import { PayCardFunnelModal } from "@/components/PayCardFunnelModal";
@@ -341,9 +342,7 @@ const Home = () => {
           <div style={{ height: 1, background: "rgba(235,235,245,.07)", margin: "0 0 12px" }} />
           <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 26, color: "#ECEAE4", lineHeight: 1.08, textTransform: "uppercase" }}>Las mejores <span style={{ color: "#e9b949" }}>entradas</span> del d&iacute;a</div>
           <div style={{ fontSize: 13.5, color: "#9a9ca4", marginTop: 7, lineHeight: 1.45 }}>Tickets listos analizados por la inteligencia de CL Ultra.</div>
-          <div className="space-y-3" style={{ margin: "18px 0" }}>
-            {loadingEntries ? (<p className="px-1 text-sm text-muted-foreground">Cargando...</p>) : availableEntries.length > 0 ? (availableEntries.map((card) => (card.slug?.toLowerCase() === "futebol" ? (<div key={card.id} className="futebol-glow-wrapper"><CardType1Lateral card={card} onAction={() => handleCardAction(card)} /></div>) : (<CardType1Lateral key={card.id} card={card} onAction={() => handleCardAction(card)} />)))) : (<p className="px-1 text-sm text-muted-foreground">Ning&uacute;n tip disponible en este momento.</p>)}
-          </div>
+          <OddsTicker />
           <button onClick={() => { if (isLocked) { requestActivation(); return; } navigate("/sport/1"); }} style={{ width: "100%", border: "none", cursor: "pointer", padding: 14, borderRadius: 13, background: "#ECEAE4", color: "#15161a", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 15, textTransform: "uppercase", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>Ver Tips <ArrowRight className="w-4 h-4" /></button>
         </div>
 
