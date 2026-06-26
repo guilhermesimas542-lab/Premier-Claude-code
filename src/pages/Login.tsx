@@ -457,7 +457,7 @@ const Login = ({ onboardingFlow = false }: { onboardingFlow?: boolean }) => {
                                 textTransform: 'uppercase',
                               }}
                             >
-                              ✨ Disponível dentro do app
+                              ✨ Disponible dentro de la app
                             </span>
                           </div>
                         </div>
@@ -680,14 +680,14 @@ const Login = ({ onboardingFlow = false }: { onboardingFlow?: boolean }) => {
             )}
           </label>
 
-          {/* Primary CTA — botão premium dourado */}
+          {/* Primary CTA — botão verde (igual à lâmina 0 "Acessar") */}
           <button
             type="submit"
             disabled={isDisabled}
             style={{
-              background: "linear-gradient(180deg, #efc662, #d6a93f)",
-              color: "#1c1810",
-              boxShadow: "0 10px 24px -10px rgba(214,177,95,0.5)",
+              background: "linear-gradient(180deg, #2e9b66, #1f7a4f)",
+              color: "#ffffff",
+              boxShadow: "0 10px 24px -10px rgba(46,155,102,0.5)",
             }}
             className="relative w-full h-14 rounded-[13px] font-display font-extrabold text-base uppercase tracking-wide transition-opacity duration-200 disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.98] flex items-center justify-center"
           >
