@@ -25,15 +25,43 @@ export const ONB_STEPS: FaStep[] = [
 
 export const ONB_STEP_IDS = ONB_STEPS.map((s) => s.id);
 
+// Mesma chave usada no Home (`LS_ONBOARDING_TEST_MODE`). Quando o onboarding é
+// aberto em modo teste (`?test_onb=1`, usado por QA/admin), NÃO registramos
+// eventos — senão os testes internos contaminam as métricas reais do funil.
+const LS_ONBOARDING_TEST_MODE = "onb_test_mode";
+function isTestMode(): boolean {
+  try {
+    return localStorage.getItem(LS_ONBOARDING_TEST_MODE) === "1";
+  } catch {
+    return false;
+  }
+}
+
 /** Marca que o lead alcançou (viu) o passo de índice 1..5 do onboarding. */
 export function trackOnboardingReached(stepIndex1Based: number) {
+  if (isTestMode()) return;
   const step = ONB_STEPS[stepIndex1Based - 1];
   if (!step) return;
   void trackStep({ step, eventType: "loaded", funnelSlug: ONB_FUNNEL_SLUG });
 }
 
+/** Marca o clique no botão do Telegram (passo 5) — a ação de ativação real. */
+export function trackOnboardingTelegramClick() {
+  if (isTestMode()) return;
+  void trackStep({ step: ONB_STEPS[4], eventType: "clicked", funnelSlug: ONB_FUNNEL_SLUG });
+}
+
+/** Marca engajamento com o vídeo de um passo (deu play / iniciou a ativação). */
+export function trackOnboardingVideoPlay(stepIndex1Based: number) {
+  if (isTestMode()) return;
+  const step = ONB_STEPS[stepIndex1Based - 1];
+  if (!step) return;
+  void trackStep({ step, eventType: "clicked", funnelSlug: ONB_FUNNEL_SLUG });
+}
+
 /** Marca a conclusão do onboarding (passo final "Completado"). */
 export function trackOnboardingCompleted() {
+  if (isTestMode()) return;
   const step = ONB_STEPS[ONB_STEPS.length - 1];
   void trackStep({ step, eventType: "loaded", funnelSlug: ONB_FUNNEL_SLUG });
 }

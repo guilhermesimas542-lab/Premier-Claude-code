@@ -3,6 +3,7 @@ import { CheckCircle2, Lock, Play, Zap } from "lucide-react";
 
 import { useApplyCtaOverride } from "@/components/onboarding/cta-context";
 import { isVideoCompleted, useVideoGating } from "@/components/onboarding/hooks/useVideoGating";
+import { trackOnboardingVideoPlay } from "@/components/onboarding/onboardingFunnel";
 import { vturbPlayerSrc } from "@/components/onboarding/lib/vturb";
 import { cn } from "@/lib/utils";
 import clscoreLogo from "@/assets/clscore-logo.webp";
@@ -67,6 +68,7 @@ export function Step4Activate({ videoId, simulateSeconds = 22 }: Props) {
   useApplyCtaOverride(override);
 
   function startActivation() {
+    trackOnboardingVideoPlay(4);
     setState("activating");
     if (!videoId) {
       setTimeout(() => simulate(), 400);
