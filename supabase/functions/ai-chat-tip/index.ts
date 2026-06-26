@@ -264,11 +264,11 @@ const COMBINED_BET_TYPES = new Set([
 ]);
 
 // Rótulo + faixa de nº de mercados por tipo de aposta combinada.
-const COMBINED_CONFIG: Record<string, { label: string; min: number; max: number; jornada?: boolean }> = {
-  safe: { label: "Combinada Safe", min: 2, max: 3 },
-  ultra: { label: "Combinada Ultra", min: 3, max: 5 },
-  multiple_partido: { label: "Múltiple del Partido", min: 4, max: 6 },
-  multiple_jornada: { label: "Múltiples de la Jornada", min: 3, max: 5, jornada: true },
+const COMBINED_CONFIG: Record<string, { label: string; min: number; max: number; oddMin: number; oddMax: number; jornada?: boolean }> = {
+  safe: { label: "Combinada Safe", min: 2, max: 3, oddMin: 2.0, oddMax: 3.5 },
+  ultra: { label: "Combinada Ultra", min: 3, max: 5, oddMin: 3.5, oddMax: 6.0 },
+  multiple_partido: { label: "Múltiple del Partido", min: 4, max: 6, oddMin: 6.0, oddMax: 15.0 },
+  multiple_jornada: { label: "Múltiples de la Jornada", min: 3, max: 5, oddMin: 10.0, oddMax: 100.0, jornada: true },
 };
 
 // Instrução em espanhol anexada ao prompt quando o bet_type é de combinada.
@@ -291,6 +291,7 @@ Reglas del bloque JSON:
 - Los mercados deben ser DIFERENTES entre sí (no repetir el mismo mercado/línea).
 - Usa SOLO odds reales presentes en el contexto del partido. NO inventes odds. Si falta la odd de un mercado, elige otro mercado que sí tenga odd disponible en el contexto.
 - "total_odd" = producto de todas las odds de los mercados, redondeado a 2 decimales.
+- ⚠️ OBLIGATORIO: la "total_odd" DEBE quedar ENTRE ${cfg.oddMin}x y ${cfg.oddMax}x (es el rango del tipo "${cfg.label}"). Ajusta CUÁNTOS mercados (entre ${cfg.min} y ${cfg.max}) y QUÉ selecciones/líneas eliges para que el producto caiga DENTRO de ese rango: si te quedas corto, agrega un mercado o una selección de odd más alta; si te pasas, usa menos mercados o selecciones más probables (odd más baja). El total NUNCA debe salir del rango ${cfg.oddMin}x–${cfg.oddMax}x.
 - "probability" = estimación entre 0 y 100 (entero) de probabilidad combinada.
 - Todo el texto del JSON en español neutro (Chile/LATAM).
 
