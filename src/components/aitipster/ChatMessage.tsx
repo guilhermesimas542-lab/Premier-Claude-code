@@ -326,7 +326,10 @@ export function ChatMessage({ message, onConfirmFixture, onSelectBetType, onChan
           />
         )}
 
-        <TipAnalysis markdown={message.markdown} />
+        {/* Com combinada: só Resumen + Contexto (esconde o modelo antigo de
+            "Entrada Principal + Alternativas", que já está no CombinedTipCard).
+            Sem combinada: análise completa como antes. */}
+        <TipAnalysis markdown={message.markdown} resumoContextoOnly={!!message.combined} />
 
         <div className="flex items-center gap-2 flex-wrap px-1 pt-1">
           <Button

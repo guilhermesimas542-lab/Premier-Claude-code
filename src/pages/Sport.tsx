@@ -611,6 +611,8 @@ const Sport = () => {
     const team1 = {
       name: entry.team1_name || "Equipo 1",
       logo: entry.team1_logo_url || undefined,
+      // Cor primária pro gradiente do card (vale mesmo com logo, sem camisa).
+      primaryColor: entry.team1_primary_color || undefined,
       shirt: (!entry.team1_logo_url && entry.team1_shirt_variant) ? {
         variant: entry.team1_shirt_variant as "solid" | "stripes",
         primaryColor: entry.team1_primary_color || "#6B7280",
@@ -620,6 +622,8 @@ const Sport = () => {
     const team2 = {
       name: entry.team2_name || "Equipo 2",
       logo: entry.team2_logo_url || undefined,
+      // Cor primária pro gradiente do card (vale mesmo com logo, sem camisa).
+      primaryColor: entry.team2_primary_color || undefined,
       shirt: (!entry.team2_logo_url && entry.team2_shirt_variant) ? {
         variant: entry.team2_shirt_variant as "solid" | "stripes",
         primaryColor: entry.team2_primary_color || "#6B7280",
@@ -732,7 +736,7 @@ const Sport = () => {
         >
           <h2
             className="font-semibold"
-            style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 17, color: "#ffffff", letterSpacing: "-0.01em" }}
+            style={{ fontFamily: "'Schibsted Grotesk', sans-serif", fontSize: 17, color: "#ffffff", letterSpacing: "-0.01em" }}
           >
             Mercados disponibles:
           </h2>

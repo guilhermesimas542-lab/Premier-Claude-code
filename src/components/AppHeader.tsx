@@ -81,8 +81,8 @@ const AppHeader = ({ leftContent, headerStyle, title }: AppHeaderProps) => {
                   className="inline-flex items-center gap-1.5 rounded-full transition-all hover:scale-105"
                   style={{
                     padding: "7px 14px",
-                    background: "rgba(233,185,73,0.10)",
-                    border: "1px solid rgba(233,185,73,0.5)",
+                    background: "linear-gradient(180deg, #2e9b66, #1f7a4f)",
+                    border: "1px solid rgba(46,155,102,0.6)",
                     fontFamily: "'Barlow Condensed', sans-serif",
                     fontWeight: 700,
                     fontSize: "13px",
@@ -90,7 +90,7 @@ const AppHeader = ({ leftContent, headerStyle, title }: AppHeaderProps) => {
                     letterSpacing: "0.5px",
                   }}
                 >
-                  <Sparkles size={14} style={{ color: "#e9b949" }} />
+                  <Sparkles size={14} style={{ color: "#FFFFFF" }} />
                   Crear Cuotas
                 </button>
               )}
@@ -100,8 +100,8 @@ const AppHeader = ({ leftContent, headerStyle, title }: AppHeaderProps) => {
                   className="inline-flex items-center gap-1.5 rounded-full transition-all hover:scale-105"
                   style={{
                     padding: "7px 14px",
-                    background: "rgba(255,255,255,0.06)",
-                    border: "1px solid rgba(255,255,255,0.18)",
+                    background: "linear-gradient(180deg, #2e9b66, #1f7a4f)",
+                    border: "1px solid rgba(46,155,102,0.6)",
                     fontFamily: "'Barlow Condensed', sans-serif",
                     fontWeight: 700,
                     fontSize: "13px",
@@ -119,12 +119,12 @@ const AppHeader = ({ leftContent, headerStyle, title }: AppHeaderProps) => {
                   className="inline-flex items-center gap-1.5 rounded-full transition-all hover:scale-105"
                   style={{
                     padding: "7px 14px",
-                    background: "rgba(233,185,73,0.12)",
-                    border: "1px solid rgba(233,185,73,0.5)",
+                    background: "linear-gradient(180deg, #2e9b66, #1f7a4f)",
+                    border: "1px solid rgba(46,155,102,0.6)",
                     fontFamily: "'Barlow Condensed', sans-serif",
                     fontWeight: 700,
                     fontSize: "13px",
-                    color: "#e9b949",
+                    color: "#FFFFFF",
                     letterSpacing: "0.5px",
                   }}
                 >
@@ -138,14 +138,14 @@ const AppHeader = ({ leftContent, headerStyle, title }: AppHeaderProps) => {
                   className="inline-flex items-center gap-1.5 rounded-full transition-all hover:scale-105"
                   style={{
                     padding: "7px 14px",
-                    background: "#e9b949",
-                    border: "1px solid rgba(233,185,73,0.5)",
+                    background: "linear-gradient(180deg, #2e9b66, #1f7a4f)",
+                    border: "1px solid rgba(46,155,102,0.6)",
                     fontFamily: "'Barlow Condensed', sans-serif",
                     fontWeight: 700,
                     fontSize: "13px",
                     color: "#FFFFFF",
                     letterSpacing: "0.5px",
-                    boxShadow: "0 0 14px rgba(233,185,73,0.3)",
+                    boxShadow: "0 0 14px rgba(46,155,102,0.35)",
                   }}
                   aria-label="Comprar créditos"
                 >

@@ -64,29 +64,46 @@ const PlanUpgradeCard = () => {
         <Crown className="w-5 h-5" style={{ color: '#c9a56b' }} />
         <h3 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 18, color: "#ECEAE4" }}>Tu Plan</h3>
       </div>
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3">
         <p className="text-sm" style={{ color: '#9a9ca4' }}>
           Plan actual:{' '}
           <span style={{ color: '#e9b949', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700 }}>
             {planLabel}
           </span>
         </p>
-        {!isDiamante && (
+        {/* CTAs: "Gestionar" SEMPRE visível (abre o modal de Planos). Pra quem
+            ainda não é Diamante, mantemos também o CTA dourado de Upgrade. */}
+        <div className="flex items-center gap-2 shrink-0">
+          {!isDiamante && (
+            <button
+              onClick={handleClick}
+              className="flex items-center gap-2 px-4 py-2 text-sm font-extrabold transition-all hover:scale-[1.03]"
+              style={{
+                background: 'linear-gradient(135deg, #f6d177 0%, #e2af46 52%, #c98f2f 100%)',
+                color: '#1c1810',
+                borderRadius: 999,
+                letterSpacing: '-0.01em',
+                boxShadow: '0 8px 20px -7px rgba(214,177,95,0.6), inset 0 1px 0 rgba(255,255,255,0.45)',
+              }}
+            >
+              <Rocket className="w-4 h-4" />
+              Upgrade
+            </button>
+          )}
           <button
             onClick={handleClick}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-extrabold transition-all hover:scale-[1.03]"
+            className="flex items-center gap-2 px-4 py-2 text-sm font-bold transition-all hover:scale-[1.03]"
             style={{
-              background: 'linear-gradient(135deg, #f6d177 0%, #e2af46 52%, #c98f2f 100%)',
-              color: '#1c1810',
+              background: 'rgba(233,185,73,0.10)',
+              border: '1px solid rgba(233,185,73,0.34)',
+              color: '#e9b949',
               borderRadius: 999,
-              letterSpacing: '-0.01em',
-              boxShadow: '0 8px 20px -7px rgba(214,177,95,0.6), inset 0 1px 0 rgba(255,255,255,0.45)',
             }}
           >
-            <Rocket className="w-4 h-4" />
-            Upgrade
+            <Crown className="w-4 h-4" />
+            Gestionar
           </button>
-        )}
+        </div>
       </div>
       <PlansModal open={plansOpen} onClose={() => setPlansOpen(false)} />
     </section>

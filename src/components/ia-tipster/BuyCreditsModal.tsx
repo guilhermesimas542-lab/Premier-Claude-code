@@ -20,18 +20,28 @@ interface Props {
 export function BuyCreditsModal({ open, onClose }: Props) {
   const [products, setProducts] = useState<CreditProduct[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState(false);
   const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (!open) return;
     setLoading(true);
+    setLoadError(false);
     supabase
       .from("products_catalog")
       .select("id, product_name, product_type, pricing, checkout_url")
       .in("product_type", ["ai_credit_pack", "ai_credit_unlimited"])
       .eq("active", true)
-      .then(({ data }) => {
-        setProducts(((data ?? []) as any[]) as CreditProduct[]);
+      .then(({ data, error }) => {
+        // Sem tratamento de erro o spinner ficava preso (loading nunca voltava
+        // a false) quando a query falhava — por isso os planos "sumiam".
+        if (error) {
+          console.error("BuyCreditsModal: falha ao buscar produtos", error);
+          setLoadError(true);
+          setProducts([]);
+        } else {
+          setProducts(((data ?? []) as any[]) as CreditProduct[]);
+        }
         setLoading(false);
       });
   }, [open]);
@@ -107,7 +117,9 @@ export function BuyCreditsModal({ open, onClose }: Props) {
             )}
             {products.length === 0 && (
               <div className="text-sm text-[#9a9ca4] text-center py-6">
-                Ningún paquete disponible por el momento.
+                {loadError
+                  ? "No pudimos cargar los paquetes. Inténtalo de nuevo en un momento."
+                  : "Ningún paquete disponible por el momento."}
               </div>
             )}
           </div>

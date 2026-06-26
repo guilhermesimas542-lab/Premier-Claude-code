@@ -296,7 +296,7 @@ const Home = () => {
 
       <AppHeader onShowLifetimeInfoModal={() => setShowLifetimeInfoModal(true)} />
 
-      <main className="container max-w-md mx-auto px-4 pt-2 pb-24 relative z-10">
+      <main className="container max-w-md mx-auto px-4 pt-2 pb-6 relative z-10">
         {showMarquee && (
           <div style={{ position: "relative", display: "flex", alignItems: "center", height: 30, borderRadius: 10, background: "#111217", border: "1px solid rgba(233,185,73,0.18)", overflow: "hidden", marginBottom: 16 }}>
             <div style={{ display: "flex", whiteSpace: "nowrap", animation: "dc-marquee 20s linear infinite", willChange: "transform" }}>
@@ -340,7 +340,7 @@ const Home = () => {
           <div style={{ position: "absolute", top: 18, left: 0, width: 3, height: 56, background: "#6fd18a", borderRadius: "0 3px 3px 0" }} />
           <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: ".04em", color: "#fff", marginBottom: 10, textTransform: "uppercase", fontFamily: "'Barlow Condensed', sans-serif" }}>Tips Disponibles</div>
           <div style={{ height: 1, background: "rgba(235,235,245,.07)", margin: "0 0 12px" }} />
-          <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 26, color: "#ECEAE4", lineHeight: 1.08, textTransform: "uppercase" }}>Las mejores <span style={{ color: "#e9b949" }}>entradas</span> del d&iacute;a</div>
+          <div style={{ fontFamily: "'Schibsted Grotesk', sans-serif", fontWeight: 800, fontSize: 26, color: "#ECEAE4", lineHeight: 1.08, textTransform: "uppercase" }}>Las mejores entradas del d&iacute;a</div>
           <div style={{ fontSize: 13.5, color: "#9a9ca4", marginTop: 7, lineHeight: 1.45 }}>Tickets listos analizados por la inteligencia de CL Ultra.</div>
           <OddsTicker />
           <button onClick={() => { if (isLocked) { requestActivation(); return; } navigate("/sport/1"); }} style={{ width: "100%", border: "none", cursor: "pointer", padding: 14, borderRadius: 13, background: "#ECEAE4", color: "#15161a", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 15, textTransform: "uppercase", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>Ver Tips <ArrowRight className="w-4 h-4" /></button>
@@ -350,7 +350,7 @@ const Home = () => {
           <div style={{ position: "absolute", top: 18, left: 0, width: 3, height: 56, background: "#8c93c8", borderRadius: "0 3px 3px 0" }} />
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}><span style={{ fontSize: 13, fontWeight: 700, letterSpacing: ".04em", color: "#fff", textTransform: "uppercase", fontFamily: "'Barlow Condensed', sans-serif" }}>IA Tipster</span><span style={{ background: "rgba(233,185,73,0.15)", border: "1px solid rgba(233,185,73,0.3)", color: "#e9b949", fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 10, letterSpacing: "1px", padding: "1px 8px", borderRadius: 6 }}>NUEVO</span></div>
           <div style={{ height: 1, background: "rgba(235,235,245,.07)", margin: "0 0 12px" }} />
-          <div style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 26, color: "#ECEAE4", lineHeight: 1.08, textTransform: "uppercase" }}>Pregunta a la IA sobre <span style={{ color: "#e9b949" }}>cualquier partido</span></div>
+          <div style={{ fontFamily: "'Schibsted Grotesk', sans-serif", fontWeight: 800, fontSize: 26, color: "#ECEAE4", lineHeight: 1.08, textTransform: "uppercase" }}>Pregunta a la IA sobre cualquier partido</div>
           <div style={{ fontSize: 13.5, color: "#9a9ca4", marginTop: 7, lineHeight: 1.45 }}>Conversa con el chat de inteligencia artificial de CL Ultra.</div>
           <div style={{ margin: "18px 0", border: "1px solid rgba(235,235,245,.09)", borderRadius: 16, overflow: "hidden" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 14px", background: "#1a1c23", borderBottom: "1px solid rgba(235,235,245,.08)" }}><span style={{ width: 22, height: 22, borderRadius: 7, background: "rgba(140,147,200,.16)", display: "grid", placeItems: "center" }}><Sparkles className="w-3 h-3" style={{ color: "#9aa0d8" }} /></span><span style={{ fontSize: 12.5, fontWeight: 600, color: "#ECEAE4" }}>Haz tu pregunta:</span></div>
@@ -370,7 +370,7 @@ const Home = () => {
       </main>
 
       {/* Footer */}
-      <footer className="mt-12 pb-8">
+      <footer className="mt-6 pb-8">
         <div className="container max-w-7xl mx-auto px-4">
           <div className="pt-6 text-center space-y-2" style={{ borderTop: "1px solid rgba(233,185,73,0.1)" }}>
             <p className="text-sm font-medium" style={{ color: "#FFFFFF" }}>Premier Ultra ©</p>

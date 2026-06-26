@@ -165,14 +165,20 @@ function SectionCard({
 
 interface TipAnalysisProps {
   markdown: string;
+  /**
+   * Quando true, esconde "Entrada Principal" e "Alternativas" (modelo antigo) e
+   * mostra apenas Resumen + Contexto. Usado quando a IA já retornou uma combinada
+   * (CombinedTipCard), pra não duplicar a recomendação.
+   */
+  resumoContextoOnly?: boolean;
 }
 
-export function TipAnalysis({ markdown }: TipAnalysisProps) {
+export function TipAnalysis({ markdown, resumoContextoOnly = false }: TipAnalysisProps) {
   const sections = parseAnalysis(markdown);
 
   return (
     <div className="flex flex-col gap-2.5 w-full">
-      {sections.entrada && (
+      {!resumoContextoOnly && sections.entrada && (
         <SectionCard
           icon={<Target className="w-4 h-4" />}
           title="Entrada Principal"
@@ -184,7 +190,7 @@ export function TipAnalysis({ markdown }: TipAnalysisProps) {
         />
       )}
 
-      {sections.alternativas && (
+      {!resumoContextoOnly && sections.alternativas && (
         <SectionCard
           icon={<Zap className="w-4 h-4" />}
           title="Alternativas"

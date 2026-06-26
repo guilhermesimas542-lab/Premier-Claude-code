@@ -17,6 +17,9 @@ export interface TeamWithShirt {
   name: string;
   logo?: string;
   shirt?: ShirtConfig;
+  /** Cor primária do time (team1_primary_color / team2_primary_color do content_entry).
+   *  Usada pra montar o gradiente do card mesmo quando há logo (sem camisa). */
+  primaryColor?: string;
 }
 
 interface PremiumBettingCardProps {
@@ -60,16 +63,25 @@ const TIER_COLORS: Record<string, string> = {
   "MÚLTIPLA": "#c9a56b",
 };
 
-// Fundo glass do design: leve azul → quase-preto → leve vermelho.
+// Fundo glass do design (FALLBACK): leve azul → quase-preto → leve vermelho.
+// Usado quando não temos a cor de nenhum dos times.
 const GLASS_BG =
   "linear-gradient(100deg, rgba(47,107,214,0.5) -10%, rgba(11,12,16,0.93) 38%, rgba(11,12,16,0.95) 62%, rgba(196,48,46,0.5) 110%), #0c0d11";
 
-const TIER_GRADIENTS: Record<string, string> = {
-  "GRÁTIS": GLASS_BG,
-  "BÁSICO": GLASS_BG,
-  "PRO": GLASS_BG,
-  "ULTRA": GLASS_BG,
-  "MÚLTIPLA": GLASS_BG,
+/**
+ * Monta o gradiente do card a partir das cores dos times: cor do time1 na
+ * esquerda, cor do time2 na direita, com o miolo escuro neutro. Se nenhuma cor
+ * estiver disponível, cai no GLASS_BG fixo.
+ *
+ * O sufixo "55" é o alpha em hex (~33%) aplicado em cima da cor hex do time.
+ */
+const buildTeamGradient = (color1?: string, color2?: string): string => {
+  const c1 = color1 || color2;
+  const c2 = color2 || color1;
+  if (!c1 && !c2) return GLASS_BG;
+  const left = c1 ?? "#2f6bd6";
+  const right = c2 ?? "#c4302e";
+  return `linear-gradient(100deg, ${left}55 -10%, rgba(11,12,16,.93) 40%, rgba(11,12,16,.95) 60%, ${right}55 110%), #0c0d11`;
 };
 
 // Helper function to generate bet explanation
@@ -176,7 +188,10 @@ export const PremiumBettingCard = ({
 
   const displayTier = getDisplayTier(tier);
   const tierColor = TIER_COLORS[displayTier] || TIER_COLORS["BÁSICO"];
-  const tierGradient = TIER_GRADIENTS[displayTier] || "none";
+  // Cor do time tem prioridade: primaryColor explícita ou a da camisa.
+  const team1Color = team1.primaryColor || team1.shirt?.primaryColor;
+  const team2Color = team2.primaryColor || team2.shirt?.primaryColor;
+  const tierGradient = buildTeamGradient(team1Color, team2Color);
   const betExplanation = getBetExplanation(betChoice);
   const isExpired = isExpiredProp || isExpiredLocal;
   const isMultiple = tier === "MÚLTIPLA" || tier === "ULTRA" || (selectionsCount && selectionsCount > 1);

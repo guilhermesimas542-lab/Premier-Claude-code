@@ -305,7 +305,7 @@ const Login = ({ onboardingFlow = false }: { onboardingFlow?: boolean }) => {
       <main className="relative flex flex-col items-center justify-start min-h-screen px-6 pt-8 pb-12 w-full max-w-md mx-auto" style={{ zIndex: 2 }}>
         {/* Logo — hero element */}
         <div className="mb-6 w-full pointer-events-none flex flex-col items-center text-center" style={{ position: "relative", zIndex: 1 }}>
-          <img src={logoImg} alt="CL Score" className="max-w-[170px] h-auto object-contain" />
+          <img src={logoImg} alt="CL Score" className="max-w-[230px] h-auto object-contain" />
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "11px", color: "#8c887e", letterSpacing: ".24em", marginTop: "8px", textTransform: "uppercase", display: "flex", alignItems: "center", gap: "9px" }}>
             <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#e9b949", flex: "none" }} />
             Tus mejores cuotas
