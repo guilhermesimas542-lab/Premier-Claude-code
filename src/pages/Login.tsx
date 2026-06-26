@@ -302,7 +302,7 @@ const Login = ({ onboardingFlow = false }: { onboardingFlow?: boolean }) => {
       </div>
 
       {/* Content */}
-      <main className="relative flex flex-col items-center justify-center min-h-screen px-6 py-12 w-full max-w-md mx-auto" style={{ zIndex: 2 }}>
+      <main className="relative flex flex-col items-center justify-start min-h-screen px-6 pt-8 pb-12 w-full max-w-md mx-auto" style={{ zIndex: 2 }}>
         {/* Logo — hero element */}
         <div className="mb-6 w-full pointer-events-none" style={{ position: "relative", zIndex: 1 }}>
           <img src={logoImg} alt="CL Score" className="max-w-[170px] h-auto object-contain" />
@@ -418,7 +418,7 @@ const Login = ({ onboardingFlow = false }: { onboardingFlow?: boolean }) => {
                                   margin: 0,
                                 }}
                               >
-                                Análise de IA em segundos
+                                Análisis de IA en segundos
                               </p>
                             </div>
                             <span
