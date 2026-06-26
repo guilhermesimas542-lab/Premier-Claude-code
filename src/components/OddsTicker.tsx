@@ -95,25 +95,42 @@ export function OddsTicker() {
     let alive = true;
     (async () => {
       try {
+        const mapRows = (data: OddRow[] | null): OddRow[] =>
+          (data ?? [])
+            .filter((r) => r.team1_name && r.team2_name && r.odd != null)
+            .map((r) => ({
+              id: r.id,
+              team1_name: r.team1_name,
+              team1_logo_url: r.team1_logo_url,
+              team2_name: r.team2_name,
+              team2_logo_url: r.team2_logo_url,
+              condition_to_win: r.condition_to_win,
+              odd: r.odd,
+            }));
+
         const today = getTodayInChile();
-        const { data } = await supabase
+        const todayRes = await supabase
           .from("content_entries")
           .select("*")
           .eq("active", true)
           .eq("date", today)
           .order("created_at", { ascending: false });
         if (!alive) return;
-        const rows = (data ?? [])
-          .filter((r: OddRow) => r.team1_name && r.team2_name && r.odd != null)
-          .map((r: OddRow) => ({
-            id: r.id,
-            team1_name: r.team1_name,
-            team1_logo_url: r.team1_logo_url,
-            team2_name: r.team2_name,
-            team2_logo_url: r.team2_logo_url,
-            condition_to_win: r.condition_to_win,
-            odd: r.odd,
-          }));
+        let rows = mapRows(todayRes.data as OddRow[] | null);
+
+        // Fallback: sem odds pra hoje → últimas odds que estiveram no app (qualquer data)
+        if (rows.length === 0) {
+          const lastRes = await supabase
+            .from("content_entries")
+            .select("*")
+            .eq("active", true)
+            .order("date", { ascending: false })
+            .order("created_at", { ascending: false })
+            .limit(12);
+          if (!alive) return;
+          rows = mapRows(lastRes.data as OddRow[] | null);
+        }
+
         if (rows.length > 0) {
           setOdds(rows);
           try {
@@ -122,7 +139,6 @@ export function OddsTicker() {
             /* ignora */
           }
         }
-        // se hoje vier vazio, mantém o cache (últimas odds que estiveram no app)
       } catch {
         /* mantém o cache em caso de erro */
       }
