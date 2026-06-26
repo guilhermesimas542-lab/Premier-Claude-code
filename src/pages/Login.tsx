@@ -248,7 +248,7 @@ const Login = ({ onboardingFlow = false }: { onboardingFlow?: boolean }) => {
   const isDisabled = !email.trim() || isLoading;
 
   return (
-    <div className="relative min-h-screen overflow-hidden" style={{ background: `radial-gradient(120% 50% at 50% -5%, rgba(233,200,115,0.07), rgba(233,200,115,0) 55%), #050507 url(${loginBg}) top center / 100% auto no-repeat` }}>
+    <div className="relative min-h-screen overflow-hidden" style={{ background: `radial-gradient(120% 50% at 50% -5%, rgba(233,200,115,0.07), rgba(233,200,115,0) 55%), #050507 url(${loginBg}) top center / min(100%, 448px) auto no-repeat` }}>
       {/* Shine dourado girando na borda das boxes de odd */}
       <style>{`
         @property --gold-angle { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
