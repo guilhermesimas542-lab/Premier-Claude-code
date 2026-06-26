@@ -704,6 +704,25 @@ const Sport = () => {
       />
 
       <main className="w-full max-w-7xl mx-auto px-4 pt-2 pb-6 space-y-2 overflow-x-hidden">
+        {/* Banner promocional (Lâmina 2) — espaço reservado acima de "Mercados disponibles".
+            Trocar o conteúdo por <img src={...} /> quando houver banner CL (CLP/EUR). */}
+        <div
+          className="w-full overflow-hidden rounded-2xl mt-1"
+          style={{
+            height: 64,
+            border: "1px solid rgba(235,235,245,0.08)",
+            background:
+              "radial-gradient(120% 140% at 0% 0%, rgba(233,185,73,0.14), rgba(233,185,73,0) 60%), linear-gradient(90deg, rgba(20,21,26,0.9), rgba(12,13,17,0.9))",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+          aria-label="Banner promocional"
+        >
+          <span style={{ fontSize: 11, letterSpacing: "0.16em", color: "rgba(235,235,245,0.35)", fontFamily: "'Barlow Condensed', sans-serif", textTransform: "uppercase" }}>
+            Espacio para banner
+          </span>
+        </div>
         {/* Section header above feature tabs */}
         <button
           type="button"
