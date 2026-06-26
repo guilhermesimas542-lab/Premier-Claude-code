@@ -41,6 +41,7 @@ export type ChatMessage =
   | { id: string; role: "bot"; type: "disambiguation"; matches: DisambiguationMatch[]; confidence: "high" | "medium"; createdAt: number }
   | { id: string; role: "bot"; type: "upcoming_list"; matches: UpcomingMatch[]; listType: "team" | "league"; teamId: number | null; leagueIds: number[] | null; originalQuery: string; createdAt: number }
   | { id: string; role: "bot"; type: "tip"; tipCacheId: string; markdown: string; sourceData: any; cached: boolean; createdAt: number }
+  | { id: string; role: "bot"; type: "bet_type_selector"; fixtureId: number; label: string; createdAt: number }
   | { id: string; role: "bot"; type: "error"; message: string; createdAt: number };
 
 function genId(): string {
@@ -237,16 +238,10 @@ export function useChatTipster() {
     }
   }, [append, removeLoading, busy]);
 
-  const confirmFixture = useCallback(async (fixtureId: number, label: string) => {
+  const runAnalysis = useCallback(async (fixtureId: number, label: string, betType: string) => {
     if (busy) return;
     setBusy(true);
 
-    append({
-      id: genId(),
-      role: "user",
-      content: `Sí, es este: ${label}`,
-      createdAt: Date.now(),
-    });
     append({
       id: genId(),
       role: "bot",
@@ -257,7 +252,7 @@ export function useChatTipster() {
 
     try {
       const { data, error } = await invokeWithAuth("ai-chat-tip", {
-        body: { fixture_id: fixtureId },
+        body: { fixture_id: fixtureId, bet_type: betType },
       });
 
       removeLoading();
@@ -404,5 +399,40 @@ export function useChatTipster() {
     }
   }, [append, removeLoading, busy]);
 
-  return { messages, busy, sendQuery, confirmFixture, clear, rejectMatch };
+  const confirmFixture = useCallback(async (fixtureId: number, label: string) => {
+    if (busy) return;
+    append({
+      id: genId(),
+      role: "user",
+      content: `Sí, es este: ${label}`,
+      createdAt: Date.now(),
+    });
+    append({
+      id: genId(),
+      role: "bot",
+      type: "bet_type_selector",
+      fixtureId,
+      label,
+      createdAt: Date.now(),
+    });
+  }, [append, busy]);
+
+  const selectBetType = useCallback(async (fixtureId: number, label: string, betType: string) => {
+    const labels: Record<string, string> = {
+      simple: "Apuesta Simple",
+      safe: "Combinadas Safe",
+      ultra: "Combinadas Ultra",
+      multiple_partido: "Múltiple del Partido",
+      multiple_jornada: "Múltiples de la Jornada",
+    };
+    append({
+      id: genId(),
+      role: "user",
+      content: labels[betType] ?? betType,
+      createdAt: Date.now(),
+    });
+    await runAnalysis(fixtureId, label, betType);
+  }, [append, runAnalysis]);
+
+  return { messages, busy, sendQuery, confirmFixture, selectBetType, clear, rejectMatch };
 }

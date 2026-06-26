@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { ChatMessage as Msg } from "@/hooks/useChatTipster";
 import { DisambiguationCard } from "./DisambiguationCard";
+import { BetTypeSelector } from "./BetTypeSelector";
 import { TipAnalysis } from "./TipAnalysis";
 import { BugReportDrawer } from "./BugReportDrawer";
 import { Button } from "@/components/ui/button";
@@ -28,11 +29,12 @@ export interface OpenEsportivaPayload {
 interface Props {
   message: Msg;
   onConfirmFixture: (fixtureId: number, label: string) => void;
+  onSelectBetType: (fixtureId: number, label: string, betType: string) => void;
   onOpenEsportiva?: (payload: OpenEsportivaPayload) => void;
   onRejectMatch?: (fixtureIds: number[]) => void;
 }
 
-export function ChatMessage({ message, onConfirmFixture, onOpenEsportiva, onRejectMatch }: Props) {
+export function ChatMessage({ message, onConfirmFixture, onSelectBetType, onOpenEsportiva, onRejectMatch }: Props) {
   const [feedback, setFeedback] = useState<"up" | "down" | null>(null);
   const [bugOpen, setBugOpen] = useState(false);
 
@@ -139,6 +141,16 @@ export function ChatMessage({ message, onConfirmFixture, onOpenEsportiva, onReje
           confidence={message.confidence}
           onConfirm={onConfirmFixture}
           onReject={onRejectMatch}
+        />
+      </div>
+    );
+  }
+
+  if (message.type === "bet_type_selector") {
+    return (
+      <div className="w-full">
+        <BetTypeSelector
+          onSelect={(bt) => onSelectBetType(message.fixtureId, message.label, bt)}
         />
       </div>
     );
