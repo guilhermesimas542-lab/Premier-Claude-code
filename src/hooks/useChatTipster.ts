@@ -433,6 +433,30 @@ export function useChatTipster() {
     });
   }, [append, busy]);
 
+  /**
+   * Re-exibe o seletor de tipo de entrada para o MESMO jogo, sem refazer
+   * a busca/desambiguação. Usado pelo botão "Cambiar tipo de entrada" no
+   * output: dá um append de uma nova msg bet_type_selector com o mesmo
+   * fixtureId/label, mantendo o fluxo aditivo.
+   */
+  const changeBetType = useCallback((fixtureId: number, label: string) => {
+    append({
+      id: genId(),
+      role: "bot",
+      type: "text",
+      content: "Dale, elige otro tipo de entrada para el mismo partido.",
+      createdAt: Date.now(),
+    });
+    append({
+      id: genId(),
+      role: "bot",
+      type: "bet_type_selector",
+      fixtureId,
+      label,
+      createdAt: Date.now(),
+    });
+  }, [append]);
+
   const selectBetType = useCallback(async (fixtureId: number, label: string, betType: string) => {
     const labels: Record<string, string> = {
       simple: "Apuesta Simple",
@@ -450,5 +474,5 @@ export function useChatTipster() {
     await runAnalysis(fixtureId, label, betType);
   }, [append, runAnalysis]);
 
-  return { messages, busy, sendQuery, confirmFixture, selectBetType, clear, rejectMatch };
+  return { messages, busy, sendQuery, confirmFixture, selectBetType, changeBetType, clear, rejectMatch };
 }

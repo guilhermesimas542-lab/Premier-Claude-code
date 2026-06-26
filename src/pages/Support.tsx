@@ -303,7 +303,7 @@ const Support = () => {
           style={{ background: "#111217", border: "1px solid rgba(235,235,245,0.08)", borderRadius: 20 }}
         >
           <div className="flex items-center gap-3">
-            <MessageSquare className="w-5 h-5" style={{ color: '#ECEAE4' }} />
+            <MessageSquare className="w-5 h-5" style={{ color: '#e9b949' }} />
             <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 18, color: "#ECEAE4" }}>
               Feedback
             </h2>
@@ -338,7 +338,7 @@ const Support = () => {
         {/* Support Card */}
         <section className="p-4 sm:p-5 space-y-4" style={{ background: "#111217", border: "1px solid rgba(235,235,245,0.08)", borderRadius: 20 }}>
           <div className="flex items-center gap-3">
-            <Headphones className="w-5 h-5" style={{ color: '#ECEAE4' }} />
+            <Headphones className="w-5 h-5" style={{ color: '#e9b949' }} />
             <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 18, color: "#ECEAE4" }}>
               Soporte
             </h2>

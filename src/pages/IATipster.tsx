@@ -173,7 +173,7 @@ export default function IATipster() {
                 <svg viewBox="0 0 24 24" width="16" height="16" style={{ display: "block", flex: "none" }}>
                   <path
                     d="M12 1.2 C12.7 7.1 16.9 11.3 22.8 12 C16.9 12.7 12.7 16.9 12 22.8 C11.3 16.9 7.1 12.7 1.2 12 C7.1 11.3 11.3 7.1 12 1.2 Z"
-                    fill="#c9a56b"
+                    fill="#ffffff"
                   />
                 </svg>
                 <h1 className="text-sm font-semibold" style={{ color: "#ECEAE4" }}>
@@ -219,8 +219,8 @@ export default function IATipster() {
                   !tutorialCompleted ? "opacity-40 cursor-not-allowed" : ""
                 }`}
                 style={{
-                  color: activeTab === "chat" ? "#e9b949" : "#9a9ca4",
-                  borderBottom: activeTab === "chat" ? "2px solid #e9b949" : "2px solid transparent",
+                  color: activeTab === "chat" ? "#ffffff" : "#9a9ca4",
+                  borderBottom: activeTab === "chat" ? "2px solid #ffffff" : "2px solid transparent",
                 }}
                 title={!tutorialCompleted ? "Completa el tutorial primero" : undefined}
               >
@@ -234,8 +234,8 @@ export default function IATipster() {
                   !tutorialCompleted ? "opacity-40 cursor-not-allowed" : ""
                 }`}
                 style={{
-                  color: activeTab === "live" ? "#e9b949" : "#9a9ca4",
-                  borderBottom: activeTab === "live" ? "2px solid #e9b949" : "2px solid transparent",
+                  color: activeTab === "live" ? "#ffffff" : "#9a9ca4",
+                  borderBottom: activeTab === "live" ? "2px solid #ffffff" : "2px solid transparent",
                 }}
                 title={!tutorialCompleted ? "Completa el tutorial primero" : undefined}
               >
@@ -253,8 +253,8 @@ export default function IATipster() {
                 onClick={() => handleTabClick("tutorial")}
                 className="flex-1 py-3 flex items-center justify-center gap-1.5 text-sm font-medium transition-colors relative"
                 style={{
-                  color: activeTab === "tutorial" ? "#e9b949" : "#9a9ca4",
-                  borderBottom: activeTab === "tutorial" ? "2px solid #e9b949" : "2px solid transparent",
+                  color: activeTab === "tutorial" ? "#ffffff" : "#9a9ca4",
+                  borderBottom: activeTab === "tutorial" ? "2px solid #ffffff" : "2px solid transparent",
                 }}
               >
                 <BookOpen className="w-4 h-4" />

@@ -27,19 +27,21 @@ export function ScrollToTopButton() {
       `}</style>
       <button
         onClick={handleClick}
-        aria-label="Volver ao topo"
+        aria-label="Volver arriba"
         className="md:hidden"
         style={{
           position: "fixed",
           left: 0,
           right: 0,
           bottom: "calc(64px + env(safe-area-inset-bottom))",
-          height: 36,
+          minHeight: 44,
+          padding: "11px 0",
           background: "#e9b949",
           color: "#000000",
           fontFamily: "'Barlow Condensed', sans-serif",
           fontWeight: 800,
           fontSize: 13,
+          lineHeight: 1,
           letterSpacing: "0.5px",
           textTransform: "uppercase",
           border: "none",
@@ -59,7 +61,7 @@ export function ScrollToTopButton() {
           size={16}
           style={{ animation: "scrollTopUpPulse 1.4s ease-in-out infinite" }}
         />
-        Volver ao topo
+        Volver arriba
         <ChevronUp
           size={16}
           style={{ animation: "scrollTopUpPulse 1.4s ease-in-out infinite" }}
