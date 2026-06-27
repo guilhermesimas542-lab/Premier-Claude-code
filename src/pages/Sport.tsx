@@ -174,15 +174,16 @@ const FEATURE_DISPLAY_ORDER: Record<FeatureKey, number> = {
   alavancagem: 7,
 };
 
+// Cores dos pontinhos das abas — paleta do Claude Design (dourado/glass).
 const TAB_META: Record<FeatureKey, { label: string; labelShort: string; color: string }> = {
-  free:                 { label: "Odd Gratis",        labelShort: "Odd Gratis",        color: "#94A3B8" },
-  odds_safes:           { label: "Odds Safes",        labelShort: "Odds Safes",        color: "#60A5FA" },
-  odds_pro:             { label: "Odds Pró",          labelShort: "Odds Pró",          color: "#10ff80" },
-  alavancagem:          { label: "Apalancamiento",    labelShort: "Apalancamiento",    color: "#F0B429" },
-  multiplas_bingo:      { label: "Múltiplas",         labelShort: "Múltiplas",         color: "#FF6B9D" },
-  mercados_secundarios: { label: "Merc. Secundário",  labelShort: "Merc. Secundário",  color: "#A78BFA" },
-  esportes_americanos:  { label: "Ligas Americanas",  labelShort: "Ligas Americanas",  color: "#EF4444" },
-  odds_ultra:           { label: "Cuotas Ultra",      labelShort: "Cuotas Ultra",      color: "#22D3EE" },
+  free:                 { label: "Odd Gratis",        labelShort: "Odd Gratis",        color: "#9a9ca4" },
+  odds_safes:           { label: "Odds Safes",        labelShort: "Odds Safes",        color: "#6fb58c" },
+  odds_pro:             { label: "Odds Pró",          labelShort: "Odds Pró",          color: "#8c93c8" },
+  alavancagem:          { label: "Apalancamiento",    labelShort: "Apalancamiento",    color: "#e9b949" },
+  multiplas_bingo:      { label: "Múltiplas",         labelShort: "Múltiplas",         color: "#c98aa0" },
+  mercados_secundarios: { label: "Merc. Secundário",  labelShort: "Merc. Secundário",  color: "#c9a56b" },
+  esportes_americanos:  { label: "Ligas Americanas",  labelShort: "Ligas Americanas",  color: "#e5484d" },
+  odds_ultra:           { label: "Cuotas Ultra",      labelShort: "Cuotas Ultra",      color: "#c9a56b" },
 };
 
 const Sport = () => {
@@ -610,6 +611,8 @@ const Sport = () => {
     const team1 = {
       name: entry.team1_name || "Equipo 1",
       logo: entry.team1_logo_url || undefined,
+      // Cor primária pro gradiente do card (vale mesmo com logo, sem camisa).
+      primaryColor: entry.team1_primary_color || undefined,
       shirt: (!entry.team1_logo_url && entry.team1_shirt_variant) ? {
         variant: entry.team1_shirt_variant as "solid" | "stripes",
         primaryColor: entry.team1_primary_color || "#6B7280",
@@ -619,6 +622,8 @@ const Sport = () => {
     const team2 = {
       name: entry.team2_name || "Equipo 2",
       logo: entry.team2_logo_url || undefined,
+      // Cor primária pro gradiente do card (vale mesmo com logo, sem camisa).
+      primaryColor: entry.team2_primary_color || undefined,
       shirt: (!entry.team2_logo_url && entry.team2_shirt_variant) ? {
         variant: entry.team2_shirt_variant as "solid" | "stripes",
         primaryColor: entry.team2_primary_color || "#6B7280",
@@ -693,8 +698,8 @@ const Sport = () => {
         onShowLifetimeInfoModal={() => setShowLifetimeInfoModal(true)}
         leftContent={
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            <button className="p-1.5 rounded-lg transition-colors hover:bg-[rgba(16, 255, 128,0.08)]" onClick={() => navigate("/")}>
-              <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6" style={{ color: "#10ff80" }} />
+            <button className="p-1.5 rounded-lg transition-colors hover:bg-[rgba(233,185,73,0.08)]" onClick={() => navigate("/")}>
+              <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6" style={{ color: "#e9b949" }} />
             </button>
             <img src={logoImg} alt="CL Score" className="h-10 sm:h-12 w-auto" onClick={() => navigate("/")} style={{ cursor: "pointer" }} />
             
@@ -703,20 +708,39 @@ const Sport = () => {
       />
 
       <main className="w-full max-w-7xl mx-auto px-4 pt-2 pb-6 space-y-2 overflow-x-hidden">
+        {/* Banner promocional (Lâmina 2) — espaço reservado acima de "Mercados disponibles".
+            Trocar o conteúdo por <img src={...} /> quando houver banner CL (CLP/EUR). */}
+        <div
+          className="w-full overflow-hidden rounded-2xl mt-1"
+          style={{
+            height: 64,
+            border: "1px solid rgba(235,235,245,0.08)",
+            background:
+              "radial-gradient(120% 140% at 0% 0%, rgba(233,185,73,0.14), rgba(233,185,73,0) 60%), linear-gradient(90deg, rgba(20,21,26,0.9), rgba(12,13,17,0.9))",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+          aria-label="Banner promocional"
+        >
+          <span style={{ fontSize: 11, letterSpacing: "0.16em", color: "rgba(235,235,245,0.35)", fontFamily: "'Barlow Condensed', sans-serif", textTransform: "uppercase" }}>
+            Espacio para banner
+          </span>
+        </div>
         {/* Section header above feature tabs */}
         <button
           type="button"
           onClick={() => tabsScrollRef.current?.scrollBy({ left: tabsScrollRef.current.clientWidth * 0.8, behavior: 'smooth' })}
-          className="relative flex items-center justify-center pt-4 pb-3 px-1 w-full cursor-pointer"
+          className="relative flex items-center justify-between pt-4 pb-3 px-2 w-full cursor-pointer"
           aria-label="Ver más mercados"
         >
           <h2
-            className="text-white font-bold"
-            style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: 15 }}
+            className="font-semibold"
+            style={{ fontFamily: "'Schibsted Grotesk', sans-serif", fontSize: 17, color: "#ffffff", letterSpacing: "-0.01em" }}
           >
-            Mercados disponibles
+            Mercados disponibles:
           </h2>
-          <ChevronRight className="w-5 h-5 text-white/60 absolute right-1" />
+          <ChevronRight className="w-5 h-5" style={{ color: "#6a6c74" }} />
         </button>
         {/* Feature Tabs */}
         <div className="relative">
@@ -748,7 +772,7 @@ const Sport = () => {
                 }
               };
 
-              const baseStyle = { fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 13, padding: "9px 14px", borderRadius: 24, whiteSpace: "nowrap" as const, flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 6 };
+              const baseStyle = { fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: 13, padding: "9px 13px", borderRadius: 11, whiteSpace: "nowrap" as const, flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 7 };
 
               const style =
                 (!hasContent && !isPaidTab)
@@ -763,9 +787,10 @@ const Sport = () => {
 
               return (
                 <button key={f} onClick={handleClick} style={style}>
+                  <span style={{ width: 6, height: 6, borderRadius: "50%", background: tabColor, flexShrink: 0 }} />
                   <span>{meta.label}</span>
                   {((hasContent && !userHasAccess) || (!hasContent && isPaidTab && !userHasAccess)) && <Lock className="w-3 h-3" style={{ opacity: 0.7 }} />}
-                  {hasContent && <span style={{ fontSize: 13, opacity: 0.7 }}>({count})</span>}
+                  {hasContent && <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, background: `${tabColor}26`, color: tabColor, padding: "1px 6px", borderRadius: 6 }}>{count}</span>}
                 </button>
               );
             })}
@@ -826,7 +851,7 @@ const Sport = () => {
                     width: activeCardIndex === i ? 16 : 4,
                     height: 4,
                     borderRadius: 2,
-                    background: activeCardIndex === i ? (activeFeatureHighlight ? TAB_META[activeFeatureHighlight].color : "#60A5FA") : "rgba(255,255,255,0.2)",
+                    background: activeCardIndex === i ? (activeFeatureHighlight ? TAB_META[activeFeatureHighlight].color : "#6fb58c") : "rgba(235,235,245,0.18)",
                     transition: "all 0.3s ease",
                   }}
                 />
@@ -841,16 +866,16 @@ const Sport = () => {
               className="w-full max-w-[420px] h-[210px] rounded-xl border border-dashed flex flex-col items-center justify-center text-center p-4 gap-1"
               style={{ background: "rgba(255,255,255,0.03)", borderColor: "rgba(255,255,255,0.15)" }}
             >
-              <p className="text-base" style={{ color: "rgba(255,255,255,0.6)" }}>
+              <p className="text-base" style={{ color: "rgba(236,234,228,0.6)" }}>
                 Los tips de hoy expiraron.
               </p>
-              <p className="text-lg font-bold mb-2" style={{ color: "#10ff80" }}>
-                Amanhã teremos novas entradas!
+              <p className="text-lg font-bold mb-2" style={{ color: "#e9b949" }}>
+                ¡Mañana tendremos nuevas entradas!
               </p>
-              <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>Siguientes tips en</p>
+              <p className="text-xs" style={{ color: "rgba(236,234,228,0.4)" }}>Próximos tips en</p>
               <span
                 className="text-3xl font-mono font-bold tabular-nums"
-                style={{ color: "#FFFFFF", textShadow: "0 0 14px rgba(16, 255, 128,0.4)" }}
+                style={{ color: "#FFFFFF", textShadow: "0 0 14px rgba(233,185,73,0.4)" }}
               >
                 {timerString}
               </span>
@@ -870,28 +895,28 @@ const Sport = () => {
       {/* Modal Info Vitalício */}
       {showLifetimeInfoModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={() => setShowLifetimeInfoModal(false)}>
-          <div className="w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden" style={{ background: "rgba(0,8,0,0.97)", border: "1px solid rgba(16, 255, 128,0.25)", boxShadow: "0 0 40px rgba(16, 255, 128,0.1)" }} onClick={(e) => e.stopPropagation()}>
-            <div className="relative px-6 py-5" style={{ borderBottom: "1px solid rgba(16, 255, 128,0.15)" }}>
+          <div className="w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden" style={{ background: "rgba(0,8,0,0.97)", border: "1px solid rgba(233,185,73,0.25)", boxShadow: "0 0 40px rgba(233,185,73,0.1)" }} onClick={(e) => e.stopPropagation()}>
+            <div className="relative px-6 py-5" style={{ borderBottom: "1px solid rgba(233,185,73,0.15)" }}>
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(16, 255, 128,0.1)", border: "1px solid rgba(16, 255, 128,0.3)" }}>
-                  <Crown className="w-5 h-5" style={{ color: "#10ff80" }} />
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(233,185,73,0.1)", border: "1px solid rgba(233,185,73,0.3)" }}>
+                  <Crown className="w-5 h-5" style={{ color: "#e9b949" }} />
                 </div>
                 <div>
                   <h2 className="text-lg font-bold" style={{ color: "#FFFFFF" }}>¡Felicitaciones! 🎉</h2>
                   <p className="text-xs mt-0.5" style={{ color: "#AAAAAA" }}>Miembro Vitalicio</p>
                 </div>
               </div>
-              <button onClick={() => setShowLifetimeInfoModal(false)} className="absolute top-4 right-4 p-1.5 rounded-lg transition-colors hover:bg-[rgba(16, 255, 128,0.08)]">
-                <X className="w-5 h-5" style={{ color: "#10ff80" }} />
+              <button onClick={() => setShowLifetimeInfoModal(false)} className="absolute top-4 right-4 p-1.5 rounded-lg transition-colors hover:bg-[rgba(233,185,73,0.08)]">
+                <X className="w-5 h-5" style={{ color: "#e9b949" }} />
               </button>
             </div>
             <div className="px-6 py-6">
               <p className="text-sm leading-relaxed" style={{ color: "#CCCCCC" }}>
-                Tú tem <span style={{ color: "#10ff80", fontWeight: 600 }}>acesso vitalício e ilimitado</span> a todas as funcionalidades e futuras atualizações do Premier Ultra. Aprovecha!
+                Tienes <span style={{ color: "#e9b949", fontWeight: 600 }}>acceso vitalicio e ilimitado</span> a todas las funcionalidades y futuras actualizaciones de CL Ultra. ¡Aprovecha!
               </p>
             </div>
             <div className="px-6 pb-6">
-              <button onClick={() => setShowLifetimeInfoModal(false)} className="w-full py-3 rounded-xl font-medium transition-colors" style={{ background: "rgba(16, 255, 128,0.08)", border: "1px solid rgba(16, 255, 128,0.3)", color: "#FFFFFF" }}>
+              <button onClick={() => setShowLifetimeInfoModal(false)} className="w-full py-3 rounded-xl font-medium transition-colors" style={{ background: "rgba(233,185,73,0.08)", border: "1px solid rgba(233,185,73,0.3)", color: "#FFFFFF" }}>
                 Entendi
               </button>
             </div>

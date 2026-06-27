@@ -123,7 +123,7 @@ const BasicPlanModal = ({ open, onClose }: BasicPlanModalProps) => {
             </p>
 
             {/* Plan badge */}
-            <div className="bg-gradient-to-r from-[#10ff80]/10 to-[#10ff80]/5 border border-[#10ff80]/30 rounded-xl p-4 mb-6">
+            <div className="bg-gradient-to-r from-[#e9b949]/10 to-[#e9b949]/5 border border-[#e9b949]/30 rounded-xl p-4 mb-6">
               <h3 className="text-[#111111] font-bold text-lg mb-3 text-center">
                 PLAN BASIC — Acceso Inmediato
               </h3>
@@ -132,7 +132,7 @@ const BasicPlanModal = ({ open, onClose }: BasicPlanModalProps) => {
               <div className="space-y-2.5">
                 {benefits.map((benefit, index) => (
                   <div key={index} className="flex items-center gap-3">
-                    <div className="flex-shrink-0 w-5 h-5 rounded-full bg-[#10ff80] flex items-center justify-center">
+                    <div className="flex-shrink-0 w-5 h-5 rounded-full bg-[#e9b949] flex items-center justify-center">
                       <Check className="w-3 h-3 text-black" strokeWidth={3} />
                     </div>
                     <span className="text-[#222222] text-sm font-medium">{benefit}</span>

@@ -75,7 +75,7 @@ export const PremiumSportCard = ({
     if (isPreSale) {
       return (
         <div className="flex flex-col justify-center space-y-1">
-          <h4 className="text-xs font-bold text-[#10ff80] tracking-wide">Lançamento Exclusivo</h4>
+          <h4 className="text-xs font-bold text-[#e9b949] tracking-wide">Lançamento Exclusivo</h4>
           {countdown && (
             <div className="flex gap-0.5">
               {[
@@ -85,11 +85,11 @@ export const PremiumSportCard = ({
                 { value: countdown.seconds, label: 's', show: true }
               ].filter(item => item.show).map((item, i, arr) => (
                 <div key={i} className="flex items-center">
-                  <div className="bg-[#0A0A0A] rounded px-1 py-0.5 border border-[#10ff80]/20">
+                  <div className="bg-[#0A0A0A] rounded px-1 py-0.5 border border-[#e9b949]/20">
                     <span className="text-[10px] font-bold text-white">{String(item.value).padStart(2, '0')}</span>
                     <span className="text-[8px] text-[#A1A1A1] ml-0.5">{item.label}</span>
                   </div>
-                  {i < arr.length - 1 && <span className="text-[#10ff80] mx-0.5 text-[10px]">:</span>}
+                  {i < arr.length - 1 && <span className="text-[#e9b949] mx-0.5 text-[10px]">:</span>}
                 </div>
               ))}
             </div>
@@ -97,7 +97,7 @@ export const PremiumSportCard = ({
           {priceFrom && priceTo && (
             <div>
               <p className="text-[10px] text-[#A1A1A1] line-through">{priceFrom}</p>
-              <p className="text-sm font-bold text-[#10ff80]">{priceTo}</p>
+              <p className="text-sm font-bold text-[#e9b949]">{priceTo}</p>
             </div>
           )}
         </div>
@@ -129,8 +129,8 @@ export const PremiumSportCard = ({
                 width: 6,
                 height: 6,
                 borderRadius: "50%",
-                background: "#10ff80",
-                boxShadow: "0 0 6px rgba(16, 255, 128,0.8)",
+                background: "#e9b949",
+                boxShadow: "0 0 6px rgba(233,185,73,0.8)",
                 animation: "live-pulse 1.4s ease-in-out infinite",
                 flexShrink: 0,
               }}
@@ -179,8 +179,8 @@ export const PremiumSportCard = ({
         <button
           className="relative overflow-hidden px-3 py-2 text-[10px] font-bold tracking-wider transition-all duration-300 rounded-full border-0 whitespace-nowrap"
           style={{
-            background: 'linear-gradient(135deg, #10ff80 0%, #00CC66 100%)',
-            boxShadow: '0 0 16px rgba(16, 255, 128,0.4)',
+            background: 'linear-gradient(135deg, #e9b949 0%, #00CC66 100%)',
+            boxShadow: '0 0 16px rgba(233,185,73,0.4)',
             color: '#000000'
           }}
           onClick={onClick}
@@ -211,7 +211,7 @@ export const PremiumSportCard = ({
   const getBorderStyle = () => {
     if (isLocked) return { borderColor: '#FBBF24', boxShadow: '0 0 12px rgba(251,191,36,0.2)' };
     if (isDevelopment) return { borderColor: '#00D4FF33', boxShadow: '0 0 8px rgba(0,212,255,0.1)' };
-    if (isPreSale) return { borderColor: '#10ff8044', boxShadow: '0 0 12px rgba(16, 255, 128,0.15)' };
+    if (isPreSale) return { borderColor: '#e9b94944', boxShadow: '0 0 12px rgba(233,185,73,0.15)' };
     return { borderColor: `${colors.primary}55`, boxShadow: `0 0 10px ${colors.glow}` };
   };
 
@@ -238,7 +238,7 @@ export const PremiumSportCard = ({
           background: `linear-gradient(45deg, transparent 0%, ${
             isLocked ? 'rgba(251,191,36,0.05)' :
             isDevelopment ? 'rgba(0,212,255,0.05)' :
-            isPreSale ? 'rgba(16, 255, 128,0.05)' :
+            isPreSale ? 'rgba(233,185,73,0.05)' :
             `${colors.primary}08`
           } 50%, transparent 100%)`
         }}
@@ -253,21 +253,21 @@ export const PremiumSportCard = ({
               className="flex items-center gap-1 px-1.5 py-0.5 rounded-full backdrop-blur-sm"
               style={{
                 background: 'rgba(0,0,0,0.65)',
-                border: '1px solid rgba(16, 255, 128,0.45)',
-                boxShadow: '0 0 8px rgba(16, 255, 128,0.35)',
+                border: '1px solid rgba(233,185,73,0.45)',
+                boxShadow: '0 0 8px rgba(233,185,73,0.35)',
               }}
             >
               <span
                 style={{
                   width: 5, height: 5, borderRadius: '50%',
-                  background: '#10ff80',
-                  boxShadow: '0 0 4px rgba(16, 255, 128,0.9)',
+                  background: '#e9b949',
+                  boxShadow: '0 0 4px rgba(233,185,73,0.9)',
                   display: 'inline-block',
                   animation: 'live-pulse 1.4s ease-in-out infinite',
                   flexShrink: 0,
                 }}
               />
-              <span className="text-[8px] font-bold tracking-wider" style={{ color: '#10ff80' }}>LIVE</span>
+              <span className="text-[8px] font-bold tracking-wider" style={{ color: '#e9b949' }}>LIVE</span>
             </div>
           ) : (
             /* Padrão — outros cards premium */

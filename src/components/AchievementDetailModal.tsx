@@ -55,15 +55,15 @@ export default function AchievementDetailModal({ achievement, userAchievement, i
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent
         className="max-w-xs p-0 border-0 [&>button]:bg-white/10 [&>button]:backdrop-blur-sm [&>button]:rounded-full [&>button]:w-8 [&>button]:h-8 [&>button]:flex [&>button]:items-center [&>button]:justify-center [&>button]:border [&>button]:border-white/20 [&>button]:opacity-100 [&>button]:top-3 [&>button]:right-3 [&>button]:text-white [&>button:hover]:bg-white/20"
-        style={{ background: '#0a0a0a', border: unlocked ? '1px solid rgba(16, 255, 128,0.3)' : '1px solid rgba(255,255,255,0.1)' }}
+        style={{ background: '#0a0a0a', border: unlocked ? '1px solid rgba(233,185,73,0.3)' : '1px solid rgba(255,255,255,0.1)' }}
       >
         <div className="p-6 text-center space-y-4">
           {/* Icon */}
           <div
             className="mx-auto w-20 h-20 rounded-full flex items-center justify-center text-4xl relative"
             style={{
-              background: unlocked ? 'rgba(16, 255, 128,0.1)' : 'rgba(255,255,255,0.05)',
-              border: unlocked ? '2px solid rgba(16, 255, 128,0.3)' : '2px solid rgba(255,255,255,0.1)',
+              background: unlocked ? 'rgba(233,185,73,0.1)' : 'rgba(255,255,255,0.05)',
+              border: unlocked ? '2px solid rgba(233,185,73,0.3)' : '2px solid rgba(255,255,255,0.1)',
             }}
           >
             {unlocked ? achievement.icon : <span style={{ filter: 'grayscale(1)', opacity: 0.4 }}>{achievement.icon}</span>}
@@ -83,9 +83,9 @@ export default function AchievementDetailModal({ achievement, userAchievement, i
           {/* Status */}
           {unlocked ? (
             <div className="space-y-2">
-              <div className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl" style={{ background: 'rgba(16, 255, 128,0.08)', border: '1px solid rgba(16, 255, 128,0.2)' }}>
-                <Check className="w-4 h-4" style={{ color: '#10ff80' }} />
-                <span className="text-sm" style={{ color: '#10ff80' }}>Desbloqueado el {unlockedDate}</span>
+              <div className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl" style={{ background: 'rgba(233,185,73,0.08)', border: '1px solid rgba(233,185,73,0.2)' }}>
+                <Check className="w-4 h-4" style={{ color: '#e9b949' }} />
+                <span className="text-sm" style={{ color: '#e9b949' }}>Desbloqueado el {unlockedDate}</span>
               </div>
               <p className="text-sm font-bold" style={{ color: '#FFD700' }}>+{achievement.xp_reward} XP recibidos</p>
             </div>

@@ -26,7 +26,7 @@ export default function Obg() {
       </header>
 
       <main className="relative z-10 w-full max-w-md flex flex-col items-center text-center mt-8 sm:mt-10">
-        <div className="w-16 h-16 rounded-full bg-primary/15 border border-primary/40 flex items-center justify-center mb-5 shadow-[0_0_30px_rgba(16, 255, 128,0.25)]">
+        <div className="w-16 h-16 rounded-full bg-primary/15 border border-primary/40 flex items-center justify-center mb-5 shadow-[0_0_30px_rgba(233,185,73,0.25)]">
           <CheckCircle2 className="w-9 h-9 text-primary" />
         </div>
 

@@ -10,9 +10,9 @@ export type FeatureKey =
   | "odds_ultra";
 
 export type PaywallVariant =
-  | "premium"           // R$47 — free user, odds_safes/odds_pro/mercados_secundarios
-  | "diamante"          // R$147 — free user, diamante-only feature
-  | "diamante_upgrade"; // R$127 — premium user upgrading
+  | "premium"           // $47 — free user, odds_safes/odds_pro/mercados_secundarios
+  | "diamante"          // $147 — free user, diamante-only feature
+  | "diamante_upgrade"; // $127 — premium user upgrading
 
 export const FEATURE_LABELS: Record<Exclude<FeatureKey, "free">, string> = {
   odds_safes: "Cuotas Safes",
@@ -70,7 +70,7 @@ export function featureToBackredirectPlanKey(f: FeatureKey): string | null {
   return f;
 }
 
-/** associated_plan slug for the DISCOUNTED avulso pay_card (one-time R$ 10 off) */
+/** associated_plan slug for the DISCOUNTED avulso pay_card (one-time $ 10 off) */
 export function featureToDiscountPlanKey(f: FeatureKey): string | null {
   if (f === "free") return null;
   return `${f}_discount`;

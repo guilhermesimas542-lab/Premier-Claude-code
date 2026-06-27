@@ -69,9 +69,9 @@ export function CrmPopupModal({ content, onClose, onCtaClick }: CrmPopupModalPro
         className="p-0 overflow-hidden max-w-[calc(100vw-2rem)] sm:max-w-md [&>button]:hidden"
         style={{
           background: "#112236",
-          border: "1px solid #00FF7F",
+          border: "1px solid #e9b949",
           borderRadius: "16px",
-          boxShadow: "0 24px 48px rgba(0,0,0,0.6), 0 0 24px rgba(0,255,127,0.15)",
+          boxShadow: "0 24px 48px rgba(0,0,0,0.6), 0 0 24px rgba(233,185,73,0.15)",
         }}
       >
         <button
@@ -118,9 +118,9 @@ export function CrmPopupModal({ content, onClose, onCtaClick }: CrmPopupModalPro
               onClick={handleCta}
               className="block w-full py-3.5 text-center font-bold rounded-xl text-sm tracking-wide transition-transform hover:scale-[1.02] active:scale-[0.98]"
               style={{
-                backgroundColor: "#00FF7F",
+                backgroundColor: "#e9b949",
                 color: "#060D1E",
-                boxShadow: "0 0 20px rgba(0,255,127,0.4)",
+                boxShadow: "0 0 20px rgba(233,185,73,0.4)",
               }}
             >
               {ctaText}

@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { ChatMessage as Msg } from "@/hooks/useChatTipster";
 import { DisambiguationCard } from "./DisambiguationCard";
+import { BetTypeSelector } from "./BetTypeSelector";
 import { TipAnalysis } from "./TipAnalysis";
+import { CombinedTipCard } from "./CombinedTipCard";
 import { BugReportDrawer } from "./BugReportDrawer";
 import { Button } from "@/components/ui/button";
-import { ThumbsUp, ThumbsDown, Bug, ExternalLink, AlertCircle, Loader2, Search, ChevronRight, Trophy, Calendar } from "lucide-react";
+import { ThumbsUp, ThumbsDown, Bug, ExternalLink, AlertCircle, Loader2, Search, ChevronRight, Trophy, Calendar, RotateCcw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { invokeWithAuth } from "@/lib/invokeWithAuth";
 import { trackEvent } from "@/lib/events";
@@ -28,11 +30,16 @@ export interface OpenEsportivaPayload {
 interface Props {
   message: Msg;
   onConfirmFixture: (fixtureId: number, label: string) => void;
+  onSelectBetType: (fixtureId: number, label: string, betType: string) => void;
+  /** Re-exibe o BetTypeSelector do mesmo jogo (botão "Cambiar tipo de entrada"). */
+  onChangeBetType?: (fixtureId: number, label: string) => void;
+  /** Limpa o chat e volta ao estado inicial (botão "Pedir análisis de otro partido"). */
+  onAskAnother?: () => void;
   onOpenEsportiva?: (payload: OpenEsportivaPayload) => void;
   onRejectMatch?: (fixtureIds: number[]) => void;
 }
 
-export function ChatMessage({ message, onConfirmFixture, onOpenEsportiva, onRejectMatch }: Props) {
+export function ChatMessage({ message, onConfirmFixture, onSelectBetType, onChangeBetType, onAskAnother, onOpenEsportiva, onRejectMatch }: Props) {
   const [feedback, setFeedback] = useState<"up" | "down" | null>(null);
   const [bugOpen, setBugOpen] = useState(false);
 
@@ -69,7 +76,10 @@ export function ChatMessage({ message, onConfirmFixture, onOpenEsportiva, onReje
   if (message.role === "user") {
     return (
       <div className="flex justify-end">
-        <div className="max-w-[80%] rounded-2xl rounded-br-md bg-primary px-4 py-2 text-black font-semibold text-sm">
+        <div
+          className="max-w-[80%] rounded-2xl rounded-br-md px-4 py-2.5 text-sm font-semibold"
+          style={{ background: "#3b4276", color: "#ffffff" }}
+        >
           {message.content}
         </div>
       </div>
@@ -79,9 +89,15 @@ export function ChatMessage({ message, onConfirmFixture, onOpenEsportiva, onReje
   if (message.type === "loading") {
     return (
       <div className="flex justify-start">
-        <div className="max-w-[80%] rounded-2xl rounded-bl-md bg-muted px-4 py-2 text-sm flex items-center gap-2">
-          <Loader2 className="w-3 h-3 animate-spin" />
-          <span className="text-muted-foreground">{message.label}</span>
+        <div
+          className="flex max-w-[80%] items-center gap-2 rounded-2xl rounded-bl-md px-4 py-2.5 text-sm"
+          style={{
+            background: "#1b1d24",
+            border: "1px solid rgba(235,235,245,.08)",
+          }}
+        >
+          <Loader2 className="h-3.5 w-3.5 animate-spin" style={{ color: "#8c93c8" }} />
+          <span style={{ color: "#9a9ca4" }}>{message.label}</span>
         </div>
       </div>
     );
@@ -90,7 +106,14 @@ export function ChatMessage({ message, onConfirmFixture, onOpenEsportiva, onReje
   if (message.type === "text") {
     return (
       <div className="flex justify-start">
-        <div className="max-w-[80%] rounded-2xl rounded-bl-md bg-muted px-4 py-2 text-sm whitespace-pre-wrap">
+        <div
+          className="max-w-[80%] whitespace-pre-wrap rounded-2xl rounded-bl-md px-4 py-2.5 text-sm"
+          style={{
+            background: "#1b1d24",
+            border: "1px solid rgba(235,235,245,.08)",
+            color: "#ECEAE4",
+          }}
+        >
           {message.content}
         </div>
       </div>
@@ -100,8 +123,15 @@ export function ChatMessage({ message, onConfirmFixture, onOpenEsportiva, onReje
   if (message.type === "error") {
     return (
       <div className="flex justify-start">
-        <div className="max-w-[80%] rounded-2xl rounded-bl-md bg-destructive/10 text-destructive px-4 py-2 text-sm flex items-start gap-2">
-          <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
+        <div
+          className="flex max-w-[80%] items-start gap-2 rounded-2xl rounded-bl-md px-4 py-2.5 text-sm"
+          style={{
+            background: "rgba(229,72,77,.12)",
+            border: "1px solid rgba(229,72,77,.28)",
+            color: "#e5484d",
+          }}
+        >
+          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
           <span>{message.message}</span>
         </div>
       </div>
@@ -116,6 +146,16 @@ export function ChatMessage({ message, onConfirmFixture, onOpenEsportiva, onReje
           confidence={message.confidence}
           onConfirm={onConfirmFixture}
           onReject={onRejectMatch}
+        />
+      </div>
+    );
+  }
+
+  if (message.type === "bet_type_selector") {
+    return (
+      <div className="w-full">
+        <BetTypeSelector
+          onSelect={(bt) => onSelectBetType(message.fixtureId, message.label, bt)}
         />
       </div>
     );
@@ -203,9 +243,93 @@ export function ChatMessage({ message, onConfirmFixture, onOpenEsportiva, onReje
       }
     };
 
+    const openEsportiva = () => {
+      const altenarUrl = message.sourceData?.altenar_event_url as string | undefined;
+      const altenarId = message.sourceData?.altenar_event_id as string | undefined;
+      const home = getTeamName(message.sourceData?.fixture?.home);
+      const away = getTeamName(message.sourceData?.fixture?.away);
+
+      trackEsportivaOpened({
+        source: "chat",
+        fixture: {
+          fixture_id:
+            (message.sourceData?.fixture?.fixture_id as number | undefined) ??
+            (message.sourceData?.fixture_id as number | undefined) ??
+            null,
+          home,
+          away,
+          league_id:
+            (message.sourceData?.fixture?.league_id as number | undefined) ??
+            (message.sourceData?.league_id as number | undefined) ??
+            null,
+          league_name:
+            (message.sourceData?.fixture?.league_name as string | undefined) ??
+            (message.sourceData?.fixture?.league as string | undefined) ??
+            (message.sourceData?.league_name as string | undefined) ??
+            null,
+          league_country:
+            (message.sourceData?.fixture?.league_country as string | undefined) ?? null,
+        },
+        markdown: message.markdown,
+        altenar_event_id: altenarId ?? null,
+        altenar_event_url: altenarUrl ?? null,
+      });
+
+      onOpenEsportiva?.({
+        matchLabel: `${home} × ${away}`,
+        markdown: message.markdown ?? null,
+        altenarEventUrl: altenarUrl ?? null,
+      });
+    };
+
+    // "Pedir análisis de otro partido": limpa o chat e volta ao estado inicial.
+    // Se o handler não vier (compat), faz fallback focando o input.
+    const askAnother = () => {
+      if (onAskAnother) {
+        onAskAnother();
+        return;
+      }
+      const input = document.querySelector<HTMLInputElement | HTMLTextAreaElement>(
+        'input[placeholder*="Pregunta sobre un partido"], textarea[placeholder*="Pregunta sobre un partido"]'
+      );
+      if (input) {
+        input.focus();
+        input.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    };
+
+    // "Cambiar tipo de entrada": re-exibe o seletor de tipo do MESMO jogo.
+    const fixtureIdForChange =
+      (message.sourceData?.fixture?.fixture_id as number | undefined) ??
+      (message.sourceData?.fixture_id as number | undefined) ??
+      null;
+    const homeForChange = getTeamName(message.sourceData?.fixture?.home);
+    const awayForChange = getTeamName(message.sourceData?.fixture?.away);
+    const labelForChange =
+      homeForChange && awayForChange ? `${homeForChange} x ${awayForChange}` : "";
+    const canChangeBetType = !!onChangeBetType && fixtureIdForChange != null;
+
+    const changeBetType = () => {
+      if (fixtureIdForChange != null) {
+        onChangeBetType?.(fixtureIdForChange, labelForChange);
+      }
+    };
+
     return (
       <div className="w-full space-y-2">
-        <TipAnalysis markdown={message.markdown} />
+        {message.combined && (
+          <CombinedTipCard
+            combined={message.combined}
+            sourceData={message.sourceData}
+            onOpenEsportiva={openEsportiva}
+            onAskAnother={askAnother}
+          />
+        )}
+
+        {/* Com combinada: só Resumen + Contexto (esconde o modelo antigo de
+            "Entrada Principal + Alternativas", que já está no CombinedTipCard).
+            Sem combinada: análise completa como antes. */}
+        <TipAnalysis markdown={message.markdown} resumoContextoOnly={!!message.combined} />
 
         <div className="flex items-center gap-2 flex-wrap px-1 pt-1">
           <Button
@@ -233,70 +357,37 @@ export function ChatMessage({ message, onConfirmFixture, onOpenEsportiva, onReje
             Reportar erro
           </Button>
           <Button
-            onClick={() => {
-              const altenarUrl = message.sourceData?.altenar_event_url as string | undefined;
-              const altenarId = message.sourceData?.altenar_event_id as string | undefined;
-              const home = getTeamName(message.sourceData?.fixture?.home);
-              const away = getTeamName(message.sourceData?.fixture?.away);
-
-              trackEsportivaOpened({
-                source: "chat",
-                fixture: {
-                  fixture_id:
-                    (message.sourceData?.fixture?.fixture_id as number | undefined) ??
-                    (message.sourceData?.fixture_id as number | undefined) ??
-                    null,
-                  home,
-                  away,
-                  league_id:
-                    (message.sourceData?.fixture?.league_id as number | undefined) ??
-                    (message.sourceData?.league_id as number | undefined) ??
-                    null,
-                  league_name:
-                    (message.sourceData?.fixture?.league_name as string | undefined) ??
-                    (message.sourceData?.fixture?.league as string | undefined) ??
-                    (message.sourceData?.league_name as string | undefined) ??
-                    null,
-                  league_country:
-                    (message.sourceData?.fixture?.league_country as string | undefined) ??
-                    null,
-                },
-                markdown: message.markdown,
-                altenar_event_id: altenarId ?? null,
-                altenar_event_url: altenarUrl ?? null,
-              });
-
-              onOpenEsportiva?.({
-                matchLabel: `${home} × ${away}`,
-                markdown: message.markdown ?? null,
-                altenarEventUrl: altenarUrl ?? null,
-              });
-            }}
+            onClick={openEsportiva}
             variant="default"
             size="sm"
-            className="ml-auto text-black font-semibold"
+            className="ml-auto font-semibold"
+            style={{ background: "#e9b949", color: "#14151a" }}
           >
             <ExternalLink className="w-3 h-3 mr-1" />
             Bet7k
           </Button>
         </div>
 
+        {canChangeBetType && (
+          <Button
+            onClick={changeBetType}
+            variant="outline"
+            size="sm"
+            className="w-full"
+          >
+            <RotateCcw className="w-3 h-3 mr-1" />
+            Cambiar tipo de entrada
+          </Button>
+        )}
+
         <Button
-          onClick={() => {
-            const input = document.querySelector<HTMLInputElement | HTMLTextAreaElement>(
-              'input[placeholder*="Pregunta sobre un partido"], textarea[placeholder*="Pregunta sobre un partido"]'
-            );
-            if (input) {
-              input.focus();
-              input.scrollIntoView({ behavior: "smooth", block: "center" });
-            }
-          }}
+          onClick={askAnother}
           variant="outline"
           size="sm"
           className="w-full"
         >
           <Search className="w-3 h-3 mr-1" />
-          Pedir análise de outro jogo
+          Pedir análisis de otro partido
         </Button>
 
         <BugReportDrawer

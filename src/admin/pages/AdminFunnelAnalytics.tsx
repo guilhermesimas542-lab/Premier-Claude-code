@@ -131,13 +131,18 @@ export default function AdminFunnelAnalytics() {
     return Array.from(set);
   }, [sessions]);
 
+  // O onboarding tem painel próprio (/admin/onboarding-analytics) e grava nas
+  // mesmas tabelas fa_*; excluímos aqui pra não misturar os dois funis.
   const filteredSessions = useMemo(
-    () => (variant === "all" ? sessions : sessions.filter((s) => s.variant === variant)),
+    () =>
+      sessions.filter(
+        (s) => s.funnel_slug !== "onboarding" && (variant === "all" || s.variant === variant)
+      ),
     [sessions, variant]
   );
   const sessionIds = useMemo(() => new Set(filteredSessions.map((s) => s.id)), [filteredSessions]);
   const filteredEvents = useMemo(
-    () => events.filter((e) => sessionIds.has(e.session_id)),
+    () => events.filter((e) => sessionIds.has(e.session_id) && !(e.step_id ?? "").startsWith("onb_")),
     [events, sessionIds]
   );
 

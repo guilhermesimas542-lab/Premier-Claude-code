@@ -136,7 +136,7 @@ export default function IATipster() {
 
   if (!aiStatusLoading && aiStatus && !aiStatus.enabled) {
     return (
-      <div className="h-[100dvh] flex flex-col overflow-hidden bg-background">
+      <div className="h-[100dvh] flex flex-col overflow-hidden" style={{ background: "#0a0b0e" }}>
         <AppHeader />
         <div className="flex-1 flex flex-col pb-[64px] overflow-hidden">
           <MaintenanceScreen message={aiStatus.message} />
@@ -147,7 +147,7 @@ export default function IATipster() {
   }
 
   return (
-    <div className="h-[100dvh] flex flex-col overflow-hidden bg-background">
+    <div className="h-[100dvh] flex flex-col overflow-hidden" style={{ background: "#0a0b0e" }}>
       <AppHeader />
 
       {openEsportiva ? (
@@ -163,31 +163,65 @@ export default function IATipster() {
         </div>
       ) : (
         <div className="flex-1 flex flex-col overflow-hidden pb-[64px]">
-          <div className="max-w-3xl w-full mx-auto shrink-0 z-40 bg-background border-b">
-            <div className="flex items-center justify-between px-4 py-2">
+          <div
+            className="max-w-3xl w-full mx-auto shrink-0 z-40"
+            style={{ background: "#0a0b0e", borderBottom: "1px solid rgba(235,235,245,.08)" }}
+          >
+            {/* Título + BETA + saldo (estilo lâmina: estrela dourada) */}
+            <div className="flex items-center justify-between px-5 py-3">
               <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-primary" />
-                <h1 className="text-sm font-bold">IA Tipster</h1>
+                <svg viewBox="0 0 24 24" width="16" height="16" style={{ display: "block", flex: "none" }}>
+                  <path
+                    d="M12 1.2 C12.7 7.1 16.9 11.3 22.8 12 C16.9 12.7 12.7 16.9 12 22.8 C11.3 16.9 7.1 12.7 1.2 12 C7.1 11.3 11.3 7.1 12 1.2 Z"
+                    fill="#ffffff"
+                  />
+                </svg>
+                <h1 className="text-sm font-semibold" style={{ color: "#ECEAE4" }}>
+                  IA Tipster
+                </h1>
+                <span
+                  style={{
+                    fontFamily: "'JetBrains Mono', monospace",
+                    fontSize: "8.5px",
+                    fontWeight: 600,
+                    color: "#8c93c8",
+                    letterSpacing: ".12em",
+                    border: "1px solid rgba(140,147,200,.35)",
+                    padding: "2px 6px",
+                    borderRadius: "5px",
+                  }}
+                >
+                  BETA
+                </span>
               </div>
               <CreditBalanceBadge />
             </div>
 
             {showNoCreditsBanner && (
-              <div className="flex items-center gap-2 px-4 py-2 bg-destructive/10 border-t border-destructive/20 text-xs text-destructive">
+              <div
+                className="flex items-center gap-2 px-5 py-2 text-xs"
+                style={{
+                  background: "rgba(229,72,77,.1)",
+                  borderTop: "1px solid rgba(229,72,77,.2)",
+                  color: "#e5484d",
+                }}
+              >
                 <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
                 <span>Estás sin créditos. Siguiente reinicio: {resetLabel}.</span>
               </div>
             )}
 
-            <div className="flex border-b">
+            <div className="flex px-3.5" style={{ borderBottom: "1px solid rgba(235,235,245,.08)" }}>
               <button
                 onClick={() => handleTabClick("chat")}
                 disabled={!tutorialCompleted}
-                className={`flex-1 py-3 flex items-center justify-center gap-2 text-sm font-medium transition-colors ${
-                  activeTab === "chat"
-                    ? "text-primary border-b-2 border-primary"
-                    : "text-muted-foreground"
-                } ${!tutorialCompleted ? "opacity-40 cursor-not-allowed" : ""}`}
+                className={`flex-1 py-3 flex items-center justify-center gap-1.5 text-sm font-medium transition-colors ${
+                  !tutorialCompleted ? "opacity-40 cursor-not-allowed" : ""
+                }`}
+                style={{
+                  color: activeTab === "chat" ? "#ffffff" : "#9a9ca4",
+                  borderBottom: activeTab === "chat" ? "2px solid #ffffff" : "2px solid transparent",
+                }}
                 title={!tutorialCompleted ? "Completa el tutorial primero" : undefined}
               >
                 {!tutorialCompleted ? <Lock className="w-3.5 h-3.5" /> : <MessageSquare className="w-4 h-4" />}
@@ -196,30 +230,39 @@ export default function IATipster() {
               <button
                 onClick={() => handleTabClick("live")}
                 disabled={!tutorialCompleted}
-                className={`flex-1 py-3 flex items-center justify-center gap-2 text-sm font-medium transition-colors relative ${
-                  activeTab === "live"
-                    ? "text-primary border-b-2 border-primary"
-                    : "text-muted-foreground"
-                } ${!tutorialCompleted ? "opacity-40 cursor-not-allowed" : ""}`}
+                className={`flex-1 py-3 flex items-center justify-center gap-1.5 text-sm font-medium transition-colors relative ${
+                  !tutorialCompleted ? "opacity-40 cursor-not-allowed" : ""
+                }`}
+                style={{
+                  color: activeTab === "live" ? "#ffffff" : "#9a9ca4",
+                  borderBottom: activeTab === "live" ? "2px solid #ffffff" : "2px solid transparent",
+                }}
                 title={!tutorialCompleted ? "Completa el tutorial primero" : undefined}
               >
-                {!tutorialCompleted ? <Lock className="w-3.5 h-3.5" /> : <Radio className="w-4 h-4" />}
-                En Vivo
+                {!tutorialCompleted ? (
+                  <Lock className="w-3.5 h-3.5" />
+                ) : (
+                  <span
+                    className="inline-block rounded-full"
+                    style={{ width: "8px", height: "8px", background: "#e5484d" }}
+                  />
+                )}
+                <span className="whitespace-nowrap">En Vivo</span>
               </button>
               <button
                 onClick={() => handleTabClick("tutorial")}
-                className={`flex-1 py-3 flex items-center justify-center gap-2 text-sm font-medium transition-colors relative ${
-                  activeTab === "tutorial"
-                    ? "text-primary border-b-2 border-primary"
-                    : "text-muted-foreground"
-                }`}
+                className="flex-1 py-3 flex items-center justify-center gap-1.5 text-sm font-medium transition-colors relative"
+                style={{
+                  color: activeTab === "tutorial" ? "#ffffff" : "#9a9ca4",
+                  borderBottom: activeTab === "tutorial" ? "2px solid #ffffff" : "2px solid transparent",
+                }}
               >
                 <BookOpen className="w-4 h-4" />
                 Tutorial
                 {!tutorialCompleted && (
                   <span
                     className="absolute top-2 right-3 w-1.5 h-1.5 rounded-full"
-                    style={{ background: "#10ff80", boxShadow: "0 0 6px #10ff80" }}
+                    style={{ background: "#e9b949", boxShadow: "0 0 6px #e9b949" }}
                   />
                 )}
               </button>

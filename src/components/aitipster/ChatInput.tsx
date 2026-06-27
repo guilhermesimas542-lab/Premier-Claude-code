@@ -26,25 +26,34 @@ export function ChatInput({ onSend, disabled }: Props) {
   };
 
   return (
-    <div className="border-t bg-card p-3">
-      <div className="flex items-end gap-2">
+    <div className="px-3.5 pb-4 pt-2" style={{ background: "#0a0b0e" }}>
+      <div
+        className="flex items-end gap-3 rounded-[22px] pl-[18px] pr-3 py-3"
+        style={{
+          border: "1px solid rgba(235,235,245,.12)",
+          background: "rgba(235,235,245,.04)",
+        }}
+      >
         <Textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={handleKey}
           placeholder="Pregunta sobre un partido"
           rows={1}
-          className="min-h-[40px] max-h-[120px] resize-none"
           disabled={disabled}
+          className="min-h-[24px] max-h-[120px] flex-1 resize-none border-0 bg-transparent p-0 text-[15px] leading-snug shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
+          style={{ color: "#ECEAE4" }}
         />
-        <Button
+        <button
+          type="button"
           onClick={handleSend}
           disabled={!text.trim() || disabled}
-          size="icon"
-          className="shrink-0"
+          aria-label="Enviar"
+          className="grid h-10 w-10 shrink-0 place-items-center rounded-full transition-opacity disabled:opacity-40"
+          style={{ background: "#ffffff" }}
         >
-          <Send className="w-4 h-4" />
-        </Button>
+          <Send className="h-[18px] w-[18px]" style={{ color: "#14151a" }} />
+        </button>
       </div>
     </div>
   );

@@ -52,7 +52,7 @@ const AppHeader = ({ leftContent, headerStyle, title }: AppHeaderProps) => {
 
   return (
     <>
-      <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80" style={{ borderBottom: '1px solid rgba(255,255,255,0.07)', ...headerStyle }}>
+      <header className="sticky top-0 z-50 backdrop-blur" style={{ background: 'radial-gradient(130% 150% at 16% -10%, rgba(233,185,73,.10), rgba(233,185,73,0) 52%), #0a0b0e', borderBottom: '1px solid rgba(235,235,245,0.08)', ...headerStyle }}>
         <div className="container max-w-7xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
           <div className="flex items-center justify-between gap-2 sm:gap-4">
             {leftContent ? leftContent : (
@@ -81,8 +81,8 @@ const AppHeader = ({ leftContent, headerStyle, title }: AppHeaderProps) => {
                   className="inline-flex items-center gap-1.5 rounded-full transition-all hover:scale-105"
                   style={{
                     padding: "7px 14px",
-                    background: "rgba(16, 255, 128,0.10)",
-                    border: "1px solid rgba(16, 255, 128,0.5)",
+                    background: "linear-gradient(180deg, #2e9b66, #1f7a4f)",
+                    border: "1px solid rgba(46,155,102,0.6)",
                     fontFamily: "'Barlow Condensed', sans-serif",
                     fontWeight: 700,
                     fontSize: "13px",
@@ -90,18 +90,18 @@ const AppHeader = ({ leftContent, headerStyle, title }: AppHeaderProps) => {
                     letterSpacing: "0.5px",
                   }}
                 >
-                  <Sparkles size={14} style={{ color: "#10ff80" }} />
+                  <Sparkles size={14} style={{ color: "#FFFFFF" }} />
                   Crear Cuotas
                 </button>
               )}
               {tierLoaded && isFree && (
                 <button
-                  onClick={() => window.open("https://t.me/Clscore_bot", "_blank", "noopener,noreferrer")}
+                  onClick={() => navigate("/sport/1?tab=free")}
                   className="inline-flex items-center gap-1.5 rounded-full transition-all hover:scale-105"
                   style={{
                     padding: "7px 14px",
-                    background: "rgba(255,255,255,0.06)",
-                    border: "1px solid rgba(255,255,255,0.18)",
+                    background: "linear-gradient(180deg, #2e9b66, #1f7a4f)",
+                    border: "1px solid rgba(46,155,102,0.6)",
                     fontFamily: "'Barlow Condensed', sans-serif",
                     fontWeight: 700,
                     fontSize: "13px",
@@ -119,12 +119,12 @@ const AppHeader = ({ leftContent, headerStyle, title }: AppHeaderProps) => {
                   className="inline-flex items-center gap-1.5 rounded-full transition-all hover:scale-105"
                   style={{
                     padding: "7px 14px",
-                    background: "rgba(16, 255, 128,0.12)",
-                    border: "1px solid rgba(16, 255, 128,0.5)",
+                    background: "linear-gradient(180deg, #2e9b66, #1f7a4f)",
+                    border: "1px solid rgba(46,155,102,0.6)",
                     fontFamily: "'Barlow Condensed', sans-serif",
                     fontWeight: 700,
                     fontSize: "13px",
-                    color: "#10ff80",
+                    color: "#FFFFFF",
                     letterSpacing: "0.5px",
                   }}
                 >
@@ -138,14 +138,14 @@ const AppHeader = ({ leftContent, headerStyle, title }: AppHeaderProps) => {
                   className="inline-flex items-center gap-1.5 rounded-full transition-all hover:scale-105"
                   style={{
                     padding: "7px 14px",
-                    background: "#10ff80",
-                    border: "1px solid rgba(16, 255, 128,0.5)",
+                    background: "linear-gradient(180deg, #2e9b66, #1f7a4f)",
+                    border: "1px solid rgba(46,155,102,0.6)",
                     fontFamily: "'Barlow Condensed', sans-serif",
                     fontWeight: 700,
                     fontSize: "13px",
                     color: "#FFFFFF",
                     letterSpacing: "0.5px",
-                    boxShadow: "0 0 14px rgba(16, 255, 128,0.3)",
+                    boxShadow: "0 0 14px rgba(46,155,102,0.35)",
                   }}
                   aria-label="Comprar créditos"
                 >

@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 
@@ -6,6 +6,7 @@ import { CtaProvider, type CtaOverride } from "./cta-context";
 import { NavBar } from "./NavBar";
 import { StepIndicator } from "./StepIndicator";
 import { useOnboardingState } from "./hooks/useOnboardingState";
+import { trackOnboardingReached, trackOnboardingCompleted } from "./onboardingFunnel";
 import type { OnboardingStep, OnboardingUser } from "./types";
 
 interface Props {
@@ -41,6 +42,20 @@ export function OnboardingModal({ open, steps, user, onComplete, finalLabel }: P
 
   const [ctaOverride, setCtaOverride] = useState<CtaOverride>({});
   const resetCta = useCallback(() => setCtaOverride({}), []);
+
+  // Funil de onboarding: registra que o lead alcançou o passo atual sempre
+  // que o modal está aberto e o passo muda. A conversão/abandono entre passos
+  // é derivada disso no painel `/admin/onboarding-analytics`.
+  useEffect(() => {
+    if (open) trackOnboardingReached(step);
+  }, [open, step]);
+
+  // Envolve o onComplete para marcar a conclusão (passo final) antes de
+  // executar o callback original, cobrindo todos os caminhos de conclusão.
+  const handleComplete = useCallback(() => {
+    trackOnboardingCompleted();
+    onComplete();
+  }, [onComplete]);
 
   // Não fazemos `setCtaOverride({})` no efeito de troca de step. Como effects
   // bottom-up rodam (filho primeiro, depois pai), esse reset chegava DEPOIS do
@@ -92,7 +107,7 @@ export function OnboardingModal({ open, steps, user, onComplete, finalLabel }: P
           goNext={goNext}
           goPrev={goPrev}
           user={user}
-          onComplete={onComplete}
+          onComplete={handleComplete}
         >
           {/* `key={step}` re-monta o wrapper em cada troca → anima a entrada
               do novo step. Fullscreen usa fade-scale sutil; popup usa pop-in
@@ -124,7 +139,7 @@ export function OnboardingModal({ open, steps, user, onComplete, finalLabel }: P
               total={total}
               onPrev={goPrev}
               onNext={goNext}
-              onComplete={onComplete}
+              onComplete={handleComplete}
               nextLabel={current.ctaLabel}
               finalLabel={finalLabel}
             />

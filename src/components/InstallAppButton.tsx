@@ -31,10 +31,10 @@ export const InstallAppButton = ({ variant = 'header' }: InstallAppButtonProps) 
   const baseStyles = `
     inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[13px] font-medium
     transition-all duration-200 ease-out
-    border border-[#10ff80]/60
+    border border-[#e9b949]/60
     ${showAsInstalled 
-      ? 'bg-[#060606]/60 text-[#10ff80]/60 cursor-default border-[#10ff80]/30' 
-      : 'bg-[#060606]/80 text-[#10ff80] hover:scale-[1.02] hover:shadow-[0_0_12px_rgba(16, 255, 128,0.3)] hover:border-[#10ff80] cursor-pointer'
+      ? 'bg-[#060606]/60 text-[#e9b949]/60 cursor-default border-[#e9b949]/30' 
+      : 'bg-[#060606]/80 text-[#e9b949] hover:scale-[1.02] hover:shadow-[0_0_12px_rgba(233,185,73,0.3)] hover:border-[#e9b949] cursor-pointer'
     }
   `;
 
@@ -67,7 +67,7 @@ export const InstallAppButton = ({ variant = 'header' }: InstallAppButtonProps) 
         <DialogContent className="bg-[#0C0F14] border-border/30 max-w-sm">
           <DialogHeader>
             <DialogTitle className="text-foreground text-lg font-bold flex items-center gap-2">
-              <Smartphone className="w-5 h-5 text-[#10ff80]" />
+              <Smartphone className="w-5 h-5 text-[#e9b949]" />
               Instalar Premier Ultra
             </DialogTitle>
           </DialogHeader>
@@ -79,27 +79,27 @@ export const InstallAppButton = ({ variant = 'header' }: InstallAppButtonProps) 
             
             <ol className="space-y-3 text-sm">
               <li className="flex items-start gap-3">
-                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-[#10ff80]/20 text-[#10ff80] flex items-center justify-center text-xs font-bold">
+                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-[#e9b949]/20 text-[#e9b949] flex items-center justify-center text-xs font-bold">
                   1
                 </span>
                 <span className="text-foreground">
-                  Toque no botão <strong className="text-[#10ff80]">Compartilhar</strong> (ícone de quadrado com seta para cima) na barra do Safari
+                  Toque no botão <strong className="text-[#e9b949]">Compartilhar</strong> (ícone de quadrado com seta para cima) na barra do Safari
                 </span>
               </li>
               <li className="flex items-start gap-3">
-                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-[#10ff80]/20 text-[#10ff80] flex items-center justify-center text-xs font-bold">
+                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-[#e9b949]/20 text-[#e9b949] flex items-center justify-center text-xs font-bold">
                   2
                 </span>
                 <span className="text-foreground">
-                  Role para baixo e toque em <strong className="text-[#10ff80]">"Adicionar à Tela de Início"</strong>
+                  Role para baixo e toque em <strong className="text-[#e9b949]">"Adicionar à Tela de Início"</strong>
                 </span>
               </li>
               <li className="flex items-start gap-3">
-                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-[#10ff80]/20 text-[#10ff80] flex items-center justify-center text-xs font-bold">
+                <span className="flex-shrink-0 w-6 h-6 rounded-full bg-[#e9b949]/20 text-[#e9b949] flex items-center justify-center text-xs font-bold">
                   3
                 </span>
                 <span className="text-foreground">
-                  Confirme tocando em <strong className="text-[#10ff80]">"Adicionar"</strong>
+                  Confirme tocando em <strong className="text-[#e9b949]">"Adicionar"</strong>
                 </span>
               </li>
             </ol>

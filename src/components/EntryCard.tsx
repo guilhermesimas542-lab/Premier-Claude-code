@@ -25,7 +25,7 @@ export function EntryCard({
   const tierColors: Record<string, string> = {
     free: 'bg-[#94A3B8]/20 text-[#94A3B8] border-[#94A3B8]/30',
     basic: 'bg-[#60A5FA]/20 text-[#60A5FA] border-[#60A5FA]/30',
-    pro: 'bg-[#10ff80]/20 text-[#10ff80] border-[#10ff80]/30',
+    pro: 'bg-[#e9b949]/20 text-[#e9b949] border-[#e9b949]/30',
     ultra: 'bg-[#7C3AED]/20 text-[#7C3AED] border-[#7C3AED]/30',
   };
 
@@ -74,7 +74,7 @@ export function EntryCard({
   }
 
   return (
-    <div className="relative overflow-hidden rounded-xl border border-[#10ff80]/30 bg-gradient-to-br from-[#10ff80]/20 to-[#10ff80]/10 p-4 hover:border-[#10ff80]/50 transition-colors">
+    <div className="relative overflow-hidden rounded-xl border border-[#e9b949]/30 bg-gradient-to-br from-[#e9b949]/20 to-[#e9b949]/10 p-4 hover:border-[#e9b949]/50 transition-colors">
       <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase border ${tierBadgeClass}`}>
         {tier_required}
         {addon_required && ` + ${addon_required}`}
@@ -84,14 +84,14 @@ export function EntryCard({
         {display_market && (
           <div className="flex items-center gap-2">
             <span className="text-xs text-white/60">Mercado:</span>
-            <span className="text-xs text-[#10ff80] font-medium">{display_market}</span>
+            <span className="text-xs text-[#e9b949] font-medium">{display_market}</span>
           </div>
         )}
         {display_odd !== null && (
           <div className="flex items-center gap-2">
-            <TrendingUp className="w-3 h-3 text-[#10ff80]" />
+            <TrendingUp className="w-3 h-3 text-[#e9b949]" />
             <span className="text-xs text-white/60">Odd:</span>
-            <span className="text-sm text-[#10ff80] font-bold">{display_odd.toFixed(2)}</span>
+            <span className="text-sm text-[#e9b949] font-bold">{display_odd.toFixed(2)}</span>
           </div>
         )}
       </div>

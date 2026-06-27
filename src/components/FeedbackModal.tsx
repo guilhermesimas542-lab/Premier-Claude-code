@@ -98,7 +98,7 @@ export default function FeedbackModal({ isOpen, onClose, userId, userEmail }: Fe
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <MessageSquare className="w-5 h-5" style={{ color: "#10ff80" }} />
+            <MessageSquare className="w-5 h-5" style={{ color: "#e9b949" }} />
             <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 18, color: "#FFFFFF" }}>
               Enviar Feedback
             </h2>
@@ -118,9 +118,9 @@ export default function FeedbackModal({ isOpen, onClose, userId, userEmail }: Fe
                 onClick={() => setCategory(c.key)}
                 className="px-3 py-1.5 rounded-full text-xs font-medium transition-all"
                 style={{
-                  background: category === c.key ? "rgba(16, 255, 128,0.15)" : "rgba(255,255,255,0.05)",
-                  border: category === c.key ? "1.5px solid rgba(16, 255, 128,0.5)" : "1.5px solid rgba(255,255,255,0.15)",
-                  color: category === c.key ? "#10ff80" : "#94A3B8",
+                  background: category === c.key ? "rgba(233,185,73,0.15)" : "rgba(255,255,255,0.05)",
+                  border: category === c.key ? "1.5px solid rgba(233,185,73,0.5)" : "1.5px solid rgba(255,255,255,0.15)",
+                  color: category === c.key ? "#e9b949" : "#94A3B8",
                 }}
               >
                 {c.label}
@@ -145,7 +145,7 @@ export default function FeedbackModal({ isOpen, onClose, userId, userEmail }: Fe
               fontFamily: "'DM Sans', sans-serif",
             }}
           />
-          <p className="text-[10px] mt-1" style={{ color: message.trim().length < 10 ? "#94A3B8" : "#10ff80" }}>
+          <p className="text-[10px] mt-1" style={{ color: message.trim().length < 10 ? "#94A3B8" : "#e9b949" }}>
             {message.trim().length}/10 caracteres mínimos
           </p>
         </div>
@@ -197,10 +197,10 @@ export default function FeedbackModal({ isOpen, onClose, userId, userEmail }: Fe
           disabled={!canSubmit}
           className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all"
           style={{
-            background: canSubmit ? "linear-gradient(135deg, #10ff80, #00CC66)" : "rgba(255,255,255,0.05)",
+            background: canSubmit ? "linear-gradient(135deg, #e9b949, #00CC66)" : "rgba(255,255,255,0.05)",
             color: canSubmit ? "#000000" : "#94A3B8",
             cursor: canSubmit ? "pointer" : "not-allowed",
-            boxShadow: canSubmit ? "0 4px 15px rgba(16, 255, 128,0.25)" : "none",
+            boxShadow: canSubmit ? "0 4px 15px rgba(233,185,73,0.25)" : "none",
             fontFamily: "'Barlow Condensed', sans-serif",
           }}
         >

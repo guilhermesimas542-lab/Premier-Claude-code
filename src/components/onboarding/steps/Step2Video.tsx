@@ -3,6 +3,7 @@ import { Play, Sparkles } from "lucide-react";
 
 import { useApplyCtaOverride } from "@/components/onboarding/cta-context";
 import { useVideoGating } from "@/components/onboarding/hooks/useVideoGating";
+import { trackOnboardingVideoPlay } from "@/components/onboarding/onboardingFunnel";
 import { vturbPlayerSrc } from "@/components/onboarding/lib/vturb";
 
 interface Props {
@@ -35,6 +36,16 @@ export function Step2Video({
 }: Props) {
   const hasVideo = !!videoId;
   const { started, progress, ended } = useVideoGating({ simulateSeconds, videoId });
+
+  // Mede "deu play" no vídeo (engajamento) — uma vez por montagem. A diferença
+  // entre "chegou no passo" e "deu play" mostra quem nem começou o vídeo.
+  const playTrackedRef = useRef(false);
+  useEffect(() => {
+    if (started && !playTrackedRef.current) {
+      playTrackedRef.current = true;
+      trackOnboardingVideoPlay(2);
+    }
+  }, [started]);
 
   // Com vídeo (vTurb), o CTA libera conforme o progresso real do vídeo
   // (postMessage). Sem vídeo conectado, não há nada a assistir — a pessoa

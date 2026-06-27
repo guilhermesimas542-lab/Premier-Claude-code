@@ -53,38 +53,40 @@ const PlanUpgradeCard = () => {
 
   return (
     <section
-      className="rounded-2xl p-4 sm:p-5"
+      className="p-4 sm:p-5"
       style={{
-        background: "#112236",
-        border: "1.5px solid rgba(255,255,255,0.30)",
-        borderRadius: 16,
+        background: "#111217",
+        border: "1px solid rgba(235,235,245,0.08)",
+        borderRadius: 20,
       }}
     >
       <div className="flex items-center gap-3 mb-3">
-        <Crown className="w-5 h-5" style={{ color: '#10ff80' }} />
-        <h3 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 18, color: "#FFFFFF" }}>Tu Plan</h3>
+        <Crown className="w-5 h-5" style={{ color: '#c9a56b' }} />
+        <h3 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 18, color: "#ECEAE4" }}>Tu Plan</h3>
       </div>
-      <div className="flex items-center justify-between">
-        <p className="text-sm" style={{ color: '#CCCCCC' }}>
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-sm" style={{ color: '#9a9ca4' }}>
           Plan actual:{' '}
-          <span style={{ color: '#10ff80', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700 }}>
+          <span style={{ color: '#e9b949', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700 }}>
             {planLabel}
           </span>
         </p>
-        {!isDiamante && (
+        {/* CTA: "Gestionar" abre o modal de Planos. */}
+        <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={handleClick}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all hover:scale-[1.03]"
+            className="flex items-center gap-2 px-4 py-2 text-sm font-bold transition-all hover:scale-[1.03]"
             style={{
-              background: 'linear-gradient(135deg, #10ff80, #00CC66)',
-              color: '#000000',
-              boxShadow: '0 4px 15px rgba(16, 255, 128,0.25)',
+              background: 'rgba(233,185,73,0.10)',
+              border: '1px solid rgba(233,185,73,0.34)',
+              color: '#e9b949',
+              borderRadius: 999,
             }}
           >
-            <Rocket className="w-4 h-4" />
-            Upgrade
+            <Crown className="w-4 h-4" />
+            Gestionar
           </button>
-        )}
+        </div>
       </div>
       <PlansModal open={plansOpen} onClose={() => setPlansOpen(false)} />
     </section>
@@ -150,8 +152,14 @@ const Support = () => {
 
 
   return (
-    <div className="min-h-screen relative overflow-hidden pb-24" style={{ background: "#060D1E" }}>
-      <div className="absolute top-0 left-1/4 w-96 h-96 rounded-full blur-[120px] pointer-events-none" style={{ background: "rgba(16, 255, 128,0.04)" }} />
+    <div
+      className="min-h-screen relative overflow-hidden pb-24"
+      style={{
+        background:
+          "radial-gradient(130% 70% at 50% -8%, rgba(233,185,73,0.06), rgba(233,185,73,0) 55%), linear-gradient(180deg, #0d0e12 0%, #0a0b0e 32%, #090a0d 100%)",
+      }}
+    >
+      <div className="absolute top-0 left-1/4 w-96 h-96 rounded-full blur-[120px] pointer-events-none" style={{ background: "rgba(233,185,73,0.04)" }} />
 
       <AppHeader onShowLifetimeInfoModal={() => setShowLifetimeInfoModal(true)} />
 
@@ -161,69 +169,74 @@ const Support = () => {
         {/* Compact Profile Card - Clickable */}
         <section
           onClick={() => setProfileModalOpen(true)}
-          className="rounded-2xl p-4 sm:p-5 cursor-pointer transition-all hover:scale-[1.01] active:scale-[0.99]"
+          className="p-4 sm:p-5 cursor-pointer transition-all hover:scale-[1.01] active:scale-[0.99]"
           style={{
-            background: "#112236",
-            border: "1.5px solid rgba(255,255,255,0.30)",
-            borderRadius: 16,
+            background: "#111217",
+            border: "1px solid rgba(235,235,245,0.08)",
+            borderRadius: 20,
           }}
         >
           <div className="flex items-center gap-4">
             {/* Avatar */}
             <div
-              className="w-16 h-16 rounded-full flex items-center justify-center text-3xl shrink-0"
+              className="rounded-full shrink-0"
               style={{
-                background: 'linear-gradient(135deg, rgba(16, 255, 128,0.2), rgba(0,200,100,0.1))',
-                border: '3px solid rgba(16, 255, 128,0.4)',
-                boxShadow: '0 0 15px rgba(16, 255, 128,0.2)',
+                width: 66,
+                height: 66,
+                padding: 3,
+                background: 'conic-gradient(from 215deg, #efc662, #d6a93f 60%, rgba(255,255,255,0.08) 60%)',
               }}
             >
-              {currentAvatar.emoji}
+              <div
+                className="w-full h-full rounded-full flex items-center justify-center text-3xl"
+                style={{ background: '#0d0f15' }}
+              >
+                {currentAvatar.emoji}
+              </div>
             </div>
 
             <div className="flex-1 min-w-0">
               {/* Nickname & Email */}
-              <h2 className="text-base font-bold truncate" style={{ color: '#FFFFFF' }}>
+              <h2 className="text-base font-bold truncate" style={{ color: '#ECEAE4', letterSpacing: '-0.01em' }}>
                 {nickname ? `@${nickname}` : mockUser?.email || '—'}
               </h2>
               {nickname && (
-                <p className="text-xs truncate" style={{ color: '#94A3B8', fontFamily: "'DM Sans', sans-serif", fontSize: 14 }}>{mockUser?.email}</p>
+                <p className="text-xs truncate" style={{ color: '#8a8c94', fontFamily: "'DM Sans', sans-serif", fontSize: 12 }}>{mockUser?.email}</p>
               )}
 
               {/* Level Badge */}
               <div className="mt-1.5 flex flex-wrap gap-1.5">
                 {planLabel && (
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full" style={{ background: 'rgba(16, 255, 128,0.16)', border: '1px solid rgba(16, 255, 128,0.35)' }}>
-                    <Crown className="w-3 h-3" style={{ color: '#10ff80' }} />
-                    <span className="text-xs font-bold" style={{ color: '#10ff80' }}>Plano {planLabel}</span>
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full" style={{ background: 'rgba(233,185,73,0.10)', border: '1px solid rgba(233,185,73,0.34)' }}>
+                    <Crown className="w-3 h-3" style={{ color: '#c9a56b' }} />
+                    <span className="text-xs font-semibold" style={{ color: '#c9a56b' }}>Plan {planLabel}</span>
                   </div>
                 )}
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full" style={{ background: 'rgba(16, 255, 128,0.12)', border: '1px solid rgba(16, 255, 128,0.25)' }}>
-                  <Star className="w-3 h-3" style={{ color: '#94A3B8' }} />
-                  <span className="text-xs font-bold" style={{ color: '#94A3B8' }}>Nivel {level} — {levelTitle}</span>
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full" style={{ background: 'rgba(235,235,245,0.04)', border: '1px solid rgba(235,235,245,0.10)' }}>
+                  <Star className="w-3 h-3" style={{ color: '#9a9ca4' }} />
+                  <span className="text-xs font-semibold" style={{ color: '#c4c8e0' }}>Nivel {level} — {levelTitle}</span>
                 </div>
               </div>
 
               {/* XP Bar */}
-              <div className="mt-2">
-                <div className="flex justify-between text-[10px] mb-1">
-                  <span style={{ color: '#10ff80' }}>{totalXp} XP</span>
-                  <span style={{ color: '#94A3B8' }}>{xpInLevel}/{xpNeeded}</span>
+              <div className="mt-2.5">
+                <div className="flex justify-between text-[10px] mb-1.5">
+                  <span style={{ color: '#ECEAE4', fontFamily: "'JetBrains Mono', monospace", fontWeight: 600 }}>{totalXp} XP</span>
+                  <span style={{ color: '#8a8c94', fontFamily: "'JetBrains Mono', monospace" }}>{xpInLevel}/{xpNeeded}</span>
                 </div>
-                <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: 'rgba(16, 255, 128,0.1)' }}>
+                <div className="w-full rounded-full overflow-hidden" style={{ height: 7, background: 'rgba(235,235,245,0.08)' }}>
                   <div
                     className="h-full rounded-full transition-all duration-700"
                     style={{
                       width: `${progress}%`,
-                      background: 'linear-gradient(90deg, #10ff80, #00CC66)',
-                      boxShadow: '0 0 8px rgba(16, 255, 128,0.4)',
+                      background: 'linear-gradient(90deg, #3a8a5a, #6fd18a)',
                     }}
                   />
                 </div>
               </div>
             </div>
           </div>
-          <p className="text-center text-[10px] mt-3" style={{ color: 'rgba(255,255,255,0.4)' }}>
+          <p className="text-center text-[11px] mt-3" style={{ color: '#6a6c74' }}>
             Toca para ver detalles completos
           </p>
         </section>
@@ -232,19 +245,22 @@ const Support = () => {
         {/* Achievements Preview Card */}
         <section
           onClick={() => setProfileModalOpen(true)}
-          className="rounded-2xl p-4 sm:p-5 cursor-pointer transition-all hover:scale-[1.01] active:scale-[0.99]"
+          className="p-4 sm:p-5 cursor-pointer transition-all hover:scale-[1.01] active:scale-[0.99]"
           style={{
-            background: "#112236",
-            border: "1.5px solid rgba(255,255,255,0.30)",
-            borderRadius: 16,
+            background: "#111217",
+            border: "1px solid rgba(235,235,245,0.08)",
+            borderRadius: 20,
           }}
         >
-          <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <Trophy className="w-5 h-5" style={{ color: '#FFFFFF' }} />
-              <h3 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 18, color: "#FFFFFF" }}>Logros</h3>
+              <Trophy className="w-5 h-5" style={{ color: '#c9a56b' }} />
+              <h3 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 18, color: "#ECEAE4" }}>Logros</h3>
             </div>
-            <span className="text-xs" style={{ color: '#FFFFFF' }}>{unlockedPermanentCount}/{permanentAchievements.length} →</span>
+            <span className="text-xs flex items-center gap-1.5" style={{ color: '#8a8c94' }}>
+              <span style={{ color: '#c9a56b', fontFamily: "'JetBrains Mono', monospace", fontWeight: 600 }}>{unlockedPermanentCount}/{permanentAchievements.length}</span>
+              <span>→</span>
+            </span>
           </div>
           <div className="flex gap-2 flex-wrap">
             {permanentAchievements.slice(0, 6).map(ach => {
@@ -257,23 +273,23 @@ const Support = () => {
                   style={{
                     width: 40,
                     height: 40,
-                    borderRadius: 8,
-                    background: '#0D1929',
-                    border: unlocked ? '1.5px solid rgba(16, 255, 128,0.3)' : '1.5px solid rgba(255,255,255,0.12)',
-                    opacity: unlocked ? 1 : 0.4,
+                    borderRadius: 11,
+                    background: unlocked ? 'rgba(233,185,73,0.06)' : 'rgba(235,235,245,0.02)',
+                    border: unlocked ? '1px solid rgba(233,185,73,0.3)' : '1px solid rgba(235,235,245,0.08)',
+                    opacity: unlocked ? 1 : 0.5,
                   }}
                 >
-                  {unlocked ? ach.icon : <Lock className="w-3 h-3 text-gray-500" />}
+                  {unlocked ? ach.icon : <Lock className="w-3 h-3" style={{ color: '#5c5e66' }} />}
                 </button>
               );
             })}
             {permanentAchievements.length > 6 && (
-              <div className="flex items-center justify-center text-[10px] text-gray-400" style={{ width: 40, height: 40, borderRadius: 8, background: '#0D1929', border: '1.5px solid rgba(255,255,255,0.12)' }}>
+              <div className="flex items-center justify-center text-[12px] font-semibold" style={{ width: 40, height: 40, borderRadius: 11, background: 'rgba(235,235,245,0.02)', border: '1px solid rgba(235,235,245,0.08)', color: '#8a8c94', fontFamily: "'JetBrains Mono', monospace" }}>
                 +{permanentAchievements.length - 6}
               </div>
             )}
           </div>
-          <p className="text-center text-[10px] mt-3" style={{ color: 'rgba(255,255,255,0.4)' }}>
+          <p className="text-center text-[11px] mt-3.5" style={{ color: '#6a6c74' }}>
             Toca para ver todos los logros
           </p>
         </section>
@@ -283,30 +299,30 @@ const Support = () => {
 
         {/* Feedback Card */}
         <section
-          className="rounded-2xl p-4 sm:p-5 space-y-4"
-          style={{ background: "#112236", border: "1.5px solid rgba(255,255,255,0.30)", borderRadius: 16 }}
+          className="p-4 sm:p-5 space-y-4"
+          style={{ background: "#111217", border: "1px solid rgba(235,235,245,0.08)", borderRadius: 20 }}
         >
           <div className="flex items-center gap-3">
-            <MessageSquare className="w-5 h-5" style={{ color: '#FFFFFF' }} />
-            <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 18, color: "#FFFFFF" }}>
+            <MessageSquare className="w-5 h-5" style={{ color: '#e9b949' }} />
+            <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 18, color: "#ECEAE4" }}>
               Feedback
             </h2>
           </div>
-          <p className="text-sm" style={{ color: "#CCCCCC" }}>
+          <p className="text-sm" style={{ color: "#9a9ca4", lineHeight: 1.45 }}>
             ¿Encontraste un problema o tienes una sugerencia? Cuéntanos.
           </p>
           <button
             onClick={() => setFeedbackOpen(true)}
             className="w-full transition-all"
             style={{
-              background: "transparent",
-              border: "1.5px solid rgba(255,255,255,0.3)",
-              color: "#FFFFFF",
+              background: "rgba(235,235,245,0.03)",
+              border: "1px solid rgba(235,235,245,0.12)",
+              color: "#ECEAE4",
               fontFamily: "'Barlow Condensed', sans-serif",
               fontWeight: 700,
               fontSize: 14,
-              padding: "10px 0",
-              borderRadius: 10,
+              padding: "12px 0",
+              borderRadius: 12,
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
@@ -320,28 +336,28 @@ const Support = () => {
         </section>
 
         {/* Support Card */}
-        <section className="rounded-2xl p-4 sm:p-5 space-y-4" style={{ background: "#112236", border: "1.5px solid rgba(255,255,255,0.30)", borderRadius: 16 }}>
+        <section className="p-4 sm:p-5 space-y-4" style={{ background: "#111217", border: "1px solid rgba(235,235,245,0.08)", borderRadius: 20 }}>
           <div className="flex items-center gap-3">
-            <Headphones className="w-5 h-5" style={{ color: '#FFFFFF' }} />
-            <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 18, color: "#FFFFFF" }}>
+            <Headphones className="w-5 h-5" style={{ color: '#e9b949' }} />
+            <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 800, fontSize: 18, color: "#ECEAE4" }}>
               Soporte
             </h2>
           </div>
-          <p className="text-sm" style={{ color: "#CCCCCC" }}>
+          <p className="text-sm" style={{ color: "#9a9ca4", lineHeight: 1.45 }}>
             ¿Necesitas ayuda? Nuestro equipo está listo para atenderte.
           </p>
           <button
             onClick={handleOpenSupport}
             className="w-full transition-all"
             style={{
-              background: "transparent",
-              border: "1.5px solid rgba(255,255,255,0.3)",
-              color: "#FFFFFF",
+              background: "rgba(37,211,102,0.08)",
+              border: "1px solid rgba(37,211,102,0.35)",
+              color: "#ECEAE4",
               fontFamily: "'Barlow Condensed', sans-serif",
               fontWeight: 700,
               fontSize: 14,
-              padding: "10px 0",
-              borderRadius: 10,
+              padding: "12px 0",
+              borderRadius: 12,
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
@@ -349,7 +365,7 @@ const Support = () => {
               gap: 8,
             }}
           >
-            <MessageCircle className="w-4 h-4" />
+            <MessageCircle className="w-4 h-4" style={{ color: '#25d366' }} />
             Hablar con Soporte
           </button>
         </section>
@@ -359,13 +375,24 @@ const Support = () => {
         <InstallPWA />
 
         {/* Logout */}
-        <section className="rounded-2xl p-4 sm:p-5 space-y-3" style={{ background: "#112236", border: "1.5px solid rgba(255,255,255,0.30)", borderRadius: 16 }}>
-          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: "#94A3B8", lineHeight: 1.5 }}>
+        <section className="p-4 sm:p-5 space-y-3" style={{ background: "rgba(229,72,77,0.03)", border: "1px solid rgba(229,72,77,0.18)", borderRadius: 20 }}>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12.5, color: "#9a9ca4", lineHeight: 1.45 }}>
             ¿Quieres cerrar sesión? Tendrás que iniciar sesión de nuevo.
           </p>
           <button
             onClick={() => { mockLogout(); navigate("/login", { replace: true }); }}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-medium transition-colors border border-red-500/50 text-red-400 hover:bg-red-500/10"
+            className="w-full flex items-center justify-center gap-2 transition-colors hover:bg-red-500/10"
+            style={{
+              border: "1px solid rgba(229,72,77,0.45)",
+              background: "transparent",
+              color: "#e5484d",
+              fontFamily: "'Barlow Condensed', sans-serif",
+              fontWeight: 700,
+              fontSize: 14,
+              padding: "13px 0",
+              borderRadius: 12,
+              cursor: "pointer",
+            }}
           >
             <LogOut className="w-4 h-4" />
             Cerrar sesión

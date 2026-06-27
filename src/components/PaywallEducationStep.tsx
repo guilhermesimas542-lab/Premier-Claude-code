@@ -64,8 +64,10 @@ export function PaywallEducationStep({ feature, onContinue, imageOverride }: Pro
       )}
       <p className="text-sm text-white/70 leading-relaxed">{explanation}</p>
       {feature === "alavancagem" && <AlavancagemSchema />}
+      {feature === "esportes_americanos" && <LigasChips />}
+      {feature === "mercados_secundarios" && <MercadosChips />}
       <Button
-        className="w-full bg-[#10ff80] hover:bg-[#10ff80]/90 text-black font-bold"
+        className="w-full bg-[#e9b949] hover:bg-[#e9b949]/90 text-black font-bold"
         onClick={onContinue}
       >
         Entendido, me interesa <ChevronRight className="w-4 h-4" />
@@ -88,18 +90,18 @@ function AlavancagemSchema() {
             <div
               className="flex-1 rounded-md p-2 text-center"
               style={{
-                background: "rgba(16, 255, 128,0.06)",
-                border: "1px solid rgba(16, 255, 128,0.25)",
+                background: "rgba(233,185,73,0.06)",
+                border: "1px solid rgba(233,185,73,0.25)",
               }}
             >
-              <div className="text-[9px] font-bold tracking-wider text-[#10ff80] mb-1">{s.label}</div>
+              <div className="text-[9px] font-bold tracking-wider text-[#e9b949] mb-1">{s.label}</div>
               <div className="text-[10px] text-white leading-tight">{s.bet}</div>
               <div className="text-[10px] text-white/60 leading-tight">{s.odd}</div>
-              <div className="text-[10px] font-bold text-[#10ff80] leading-tight mt-0.5">{s.win}</div>
+              <div className="text-[10px] font-bold text-[#e9b949] leading-tight mt-0.5">{s.win}</div>
             </div>
             {i < steps.length - 1 && (
               <div className="flex items-center">
-                <ArrowRight className="w-3 h-3 text-[#10ff80]" />
+                <ArrowRight className="w-3 h-3 text-[#e9b949]" />
               </div>
             )}
           </div>
@@ -108,6 +110,53 @@ function AlavancagemSchema() {
       <p className="text-[11px] text-white/60 leading-snug text-center px-2">
         Cada acierto reinvierte la ganancia en el siguiente tip, multiplicando el retorno final.
       </p>
+    </div>
+  );
+}
+
+/** Lâmina 2.3 — chips de ligas USA (estilo dourado mono do design) */
+function LigasChips() {
+  const ligas = ["NBA", "NFL", "MLB", "NHL"];
+  return (
+    <div className="flex gap-1.5">
+      {ligas.map((l) => (
+        <span
+          key={l}
+          className="flex-1 text-center font-mono text-[11px] font-semibold py-2"
+          style={{
+            color: "#e7c878",
+            border: "1px solid rgba(214,177,95,.3)",
+            background: "rgba(214,177,95,.07)",
+            borderRadius: "9px",
+          }}
+        >
+          {l}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+/** Lâmina 2.3 — chips de mercados secundários (estilo verde-sálvia do design) */
+function MercadosChips() {
+  const mercados = ["Córners", "Tarjetas", "Hándicap", "Ambos marcan"];
+  return (
+    <div className="flex flex-wrap justify-center gap-1.5">
+      {mercados.map((m) => (
+        <span
+          key={m}
+          className="text-[11px] font-semibold"
+          style={{
+            color: "#9ad8b4",
+            border: "1px solid rgba(47,124,73,.32)",
+            background: "rgba(47,124,73,.08)",
+            borderRadius: "999px",
+            padding: "6px 12px",
+          }}
+        >
+          {m}
+        </span>
+      ))}
     </div>
   );
 }

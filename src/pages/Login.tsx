@@ -6,10 +6,11 @@ import { mockLogin } from "@/mocks/user";
 import { storeToken, trackEvent } from "@/lib/events";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { CHECKOUT_LINKS } from "@/lib/checkoutLinks";
-import { Crown, Loader2, ShoppingCart, Sparkles, Users, Ticket } from "lucide-react";
+import { Crown, Loader2, ShoppingCart, Sparkles, Users, Ticket, Mail, Lock } from "lucide-react";
 import { isPreviewEnv } from "@/lib/previewEnv";
 import iaTipsterCartoon from "@/assets/ia-tipster-cartoon.png";
 import logoImg from "@/assets/clscore-logo.png";
+import loginBg from "@/assets/login-trophy-bg.png";
 import { usePayCardTrigger } from "@/hooks/usePayCardTrigger";
 import { useLinks } from "@/contexts/LinksContext";
 import { PayCardFunnelModal } from "@/components/PayCardFunnelModal";
@@ -141,7 +142,7 @@ const Login = ({ onboardingFlow = false }: { onboardingFlow?: boolean }) => {
   const IA_FAKE_ODDS = [35.40, 2.15, 12.50, 1.75, 8.30, 4.20, 1.55, 22.00];
 
   // Cor dourada de destaque
-  const ACCENT_GOLD = "#10ff80";
+  const ACCENT_GOLD = "#e9b949";
 
   // Monta array unificado de slides com alternância IA + green.
   type Slide =
@@ -247,7 +248,7 @@ const Login = ({ onboardingFlow = false }: { onboardingFlow?: boolean }) => {
   const isDisabled = !email.trim() || isLoading;
 
   return (
-    <div className="relative min-h-screen overflow-hidden" style={{ backgroundColor: "#0a1420" }}>
+    <div className="relative min-h-screen overflow-hidden" style={{ background: `radial-gradient(120% 50% at 50% -5%, rgba(233,200,115,0.07), rgba(233,200,115,0) 55%), #050507` }}>
       {/* Shine dourado girando na borda das boxes de odd */}
       <style>{`
         @property --gold-angle { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
@@ -260,11 +261,11 @@ const Login = ({ onboardingFlow = false }: { onboardingFlow?: boolean }) => {
           padding: 1.5px;
           background: conic-gradient(
             from var(--gold-angle),
-            rgba(16, 255, 128,0) 0deg,
-            rgba(16, 255, 128,0) 230deg,
+            rgba(233,185,73,0) 0deg,
+            rgba(233,185,73,0) 230deg,
             rgba(245,215,122,0.9) 300deg,
             #FFF3C9 330deg,
-            rgba(16, 255, 128,0) 360deg
+            rgba(233,185,73,0) 360deg
           );
           -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
           -webkit-mask-composite: xor;
@@ -285,7 +286,7 @@ const Login = ({ onboardingFlow = false }: { onboardingFlow?: boolean }) => {
             height: "200px",
             top: "-40px",
             left: "-100px",
-            background: "radial-gradient(ellipse, hsl(155 100% 45% / 0.07) 0%, transparent 70%)",
+            background: "radial-gradient(ellipse, rgba(233,185,73,0.07) 0%, transparent 70%)",
           }}
         />
         <div
@@ -295,20 +296,20 @@ const Login = ({ onboardingFlow = false }: { onboardingFlow?: boolean }) => {
             height: "180px",
             bottom: "100px",
             right: "-80px",
-            background: "radial-gradient(ellipse, hsl(155 100% 45% / 0.05) 0%, transparent 70%)",
+            background: "radial-gradient(ellipse, rgba(233,185,73,0.05) 0%, transparent 70%)",
           }}
         />
       </div>
 
       {/* Content */}
-      <main className="relative flex flex-col items-center justify-center min-h-screen px-6 py-12 w-full max-w-md mx-auto" style={{ zIndex: 2 }}>
+      <main className="relative flex flex-col items-center justify-start min-h-screen px-6 pt-8 pb-12 w-full max-w-md mx-auto" style={{ zIndex: 2 }}>
         {/* Logo — hero element */}
-        <div className="mb-4 pointer-events-none w-full">
-          <img
-            src={logoImg}
-            alt="CL Score"
-            className="w-full max-w-[260px] h-auto mx-auto object-contain"
-          />
+        <div className="mb-6 w-full pointer-events-none flex flex-col items-center text-center" style={{ position: "relative", zIndex: 1 }}>
+          <img src={logoImg} alt="CL Score" className="max-w-[230px] h-auto object-contain" />
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "11px", color: "#8c887e", letterSpacing: ".24em", marginTop: "8px", textTransform: "uppercase", display: "flex", alignItems: "center", gap: "9px" }}>
+            <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#e9b949", flex: "none" }} />
+            Tus mejores cuotas
+          </div>
         </div>
 
         {/* Last Greens Carousel + IA Tipster teaser */}
@@ -336,10 +337,10 @@ const Login = ({ onboardingFlow = false }: { onboardingFlow?: boolean }) => {
                           style={{
                             position: 'relative',
                             backgroundColor: '#112236',
-                            border: '1.5px solid rgba(16, 255, 128,0.85)',
+                            border: '1.5px solid rgba(233,185,73,0.85)',
                             borderRadius: '12px',
                             overflow: 'hidden',
-                            boxShadow: '0 0 24px rgba(16, 255, 128,0.22)',
+                            boxShadow: '0 0 24px rgba(233,185,73,0.22)',
                           }}
                         >
                           {/* LINHA 1: badge IA esquerda | odd direita (mesma estrutura dos greens) */}
@@ -360,9 +361,9 @@ const Login = ({ onboardingFlow = false }: { onboardingFlow?: boolean }) => {
                                 letterSpacing: '1.5px',
                                 padding: '6px 14px',
                                 borderRadius: '6px',
-                                backgroundColor: 'rgba(0,255,127,0.14)',
-                                border: '1.5px solid rgba(0,255,127,0.55)',
-                                color: '#00FF7F',
+                                backgroundColor: 'rgba(233,185,73,0.14)',
+                                border: '1.5px solid rgba(233,185,73,0.55)',
+                                color: '#e9b949',
                                 lineHeight: 1,
                                 display: 'inline-flex',
                                 alignItems: 'center',
@@ -377,7 +378,7 @@ const Login = ({ onboardingFlow = false }: { onboardingFlow?: boolean }) => {
                                 fontFamily: 'Barlow Condensed, sans-serif',
                                 fontWeight: 900,
                                 fontSize: '36px',
-                                color: '#00FF7F',
+                                color: '#e9b949',
                                 lineHeight: 1,
                               }}
                             >
@@ -417,7 +418,7 @@ const Login = ({ onboardingFlow = false }: { onboardingFlow?: boolean }) => {
                                   margin: 0,
                                 }}
                               >
-                                Análise de IA em segundos
+                                Análisis de IA en segundos
                               </p>
                             </div>
                             <span
@@ -431,7 +432,7 @@ const Login = ({ onboardingFlow = false }: { onboardingFlow?: boolean }) => {
                                 flexShrink: 0,
                               }}
                             >
-                              {`R$ 100 → R$ ${iaReturn.toLocaleString('pt-BR')}`}
+                              {`$100 → $${iaReturn.toLocaleString('es-CL')}`}
                             </span>
                           </div>
 
@@ -442,8 +443,8 @@ const Login = ({ onboardingFlow = false }: { onboardingFlow?: boolean }) => {
                               alignItems: 'center',
                               justifyContent: 'center',
                               padding: '10px 16px',
-                              backgroundColor: 'rgba(0,255,127,0.10)',
-                              borderTop: '1px solid rgba(0,255,127,0.25)',
+                              backgroundColor: 'rgba(233,185,73,0.10)',
+                              borderTop: '1px solid rgba(233,185,73,0.25)',
                             }}
                           >
                             <span
@@ -451,12 +452,12 @@ const Login = ({ onboardingFlow = false }: { onboardingFlow?: boolean }) => {
                                 fontFamily: 'Barlow Condensed, sans-serif',
                                 fontWeight: 700,
                                 fontSize: '13px',
-                                color: '#00FF7F',
+                                color: '#e9b949',
                                 letterSpacing: '0.06em',
                                 textTransform: 'uppercase',
                               }}
                             >
-                              ✨ Disponível dentro do app
+                              ✨ Disponible dentro de la app
                             </span>
                           </div>
                         </div>
@@ -478,10 +479,10 @@ const Login = ({ onboardingFlow = false }: { onboardingFlow?: boolean }) => {
                       <div
                         style={{
                           backgroundColor: '#112236',
-                          border: '1.5px solid rgba(16, 255, 128,0.45)',
+                          border: '1.5px solid rgba(233,185,73,0.45)',
                           borderRadius: '12px',
                           overflow: 'hidden',
-                          boxShadow: '0 0 20px rgba(16, 255, 128,0.15)',
+                          boxShadow: '0 0 20px rgba(233,185,73,0.15)',
                         }}
                       >
                         {/* LINHA 1: badge esquerda | odd direita */}
@@ -515,7 +516,7 @@ const Login = ({ onboardingFlow = false }: { onboardingFlow?: boolean }) => {
                               fontFamily: 'Barlow Condensed, sans-serif',
                               fontWeight: 900,
                               fontSize: '36px',
-                              color: '#10ff80',
+                              color: '#e9b949',
                               lineHeight: 1,
                             }}
                           >
@@ -578,8 +579,8 @@ const Login = ({ onboardingFlow = false }: { onboardingFlow?: boolean }) => {
                             alignItems: 'center',
                             justifyContent: 'center',
                             padding: '10px 16px',
-                            backgroundColor: 'rgba(16, 255, 128,0.08)',
-                            borderTop: '1px solid rgba(16, 255, 128,0.15)',
+                            backgroundColor: 'rgba(233,185,73,0.08)',
+                            borderTop: '1px solid rgba(233,185,73,0.15)',
                           }}
                         >
                           <span
@@ -587,7 +588,7 @@ const Login = ({ onboardingFlow = false }: { onboardingFlow?: boolean }) => {
                               fontFamily: 'Barlow Condensed, sans-serif',
                               fontWeight: 700,
                               fontSize: '13px',
-                              color: '#10ff80',
+                              color: '#e9b949',
                               letterSpacing: '0.06em',
                               textTransform: 'uppercase',
                             }}
@@ -612,7 +613,7 @@ const Login = ({ onboardingFlow = false }: { onboardingFlow?: boolean }) => {
                     style={{
                       width: index === currentIndex ? '20px' : '6px',
                       height: '6px',
-                      backgroundColor: index === currentIndex ? '#10ff80' : 'rgba(255,255,255,0.2)',
+                      backgroundColor: index === currentIndex ? '#e9b949' : 'rgba(255,255,255,0.2)',
                     }}
                   />
                 ))}
@@ -622,60 +623,73 @@ const Login = ({ onboardingFlow = false }: { onboardingFlow?: boolean }) => {
         )}
 
         {/* Form */}
-        <form onSubmit={handleLogin} className="w-full space-y-3 mb-6">
-          <div className="flex flex-col gap-1.5">
+        <form onSubmit={handleLogin} className="w-full space-y-4 mb-5">
+          <label className="flex flex-col gap-1.5">
             {/* Label */}
-            <label
-              htmlFor="email"
+            <span
               style={{
-                fontFamily: 'Barlow Condensed, sans-serif',
+                fontFamily: "'JetBrains Mono', monospace",
                 fontWeight: 700,
-                fontSize: '11px',
-                letterSpacing: '1.5px',
-                color: '#10ff80',
+                fontSize: '9.5px',
+                letterSpacing: '0.16em',
+                color: '#8a8c94',
                 textTransform: 'uppercase',
               }}
             >
-              CORREO
-            </label>
-            <input
-              id="email"
-              type="email"
-              placeholder="tu@email.com"
-              value={email}
-              onChange={(e) => {
-                setEmail(e.target.value);
-                if (emailError) setEmailError("");
-              }}
-              disabled={isLoading}
-              className="w-full h-[52px] rounded-[10px] px-4 text-base font-sans bg-card text-foreground outline-none transition-colors duration-200 disabled:opacity-50 placeholder:text-white/50 focus:border-primary"
+              Correo
+            </span>
+            {/* Input pill with icon */}
+            <span
+              className="flex items-center gap-2.5 rounded-xl px-3.5"
               style={{
+                background: "rgba(255,255,255,0.03)",
                 border: emailError
-                  ? "1.5px solid hsl(var(--destructive))"
-                  : "1.5px solid rgba(255,255,255,0.15)",
+                  ? "1px solid hsl(var(--destructive))"
+                  : "1px solid rgba(235,235,245,0.12)",
+                transition: "border-color 0.2s",
+                height: "52px",
               }}
               onFocus={(e) => {
                 if (!emailError) {
-                  e.currentTarget.style.border = "1.5px solid hsl(155,100%,45%)";
+                  e.currentTarget.style.border = "1px solid rgba(233,185,73,0.55)";
                 }
               }}
               onBlur={(e) => {
                 if (!emailError) {
-                  e.currentTarget.style.border = "1.5px solid rgba(255,255,255,0.15)";
+                  e.currentTarget.style.border = "1px solid rgba(235,235,245,0.12)";
                 }
               }}
-            />
+            >
+              <Mail className="w-4 h-4 shrink-0" style={{ color: "#6a6c74" }} />
+              <input
+                id="email"
+                type="email"
+                placeholder="tu@email.com"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (emailError) setEmailError("");
+                }}
+                disabled={isLoading}
+                className="flex-1 min-w-0 bg-transparent border-none outline-none font-sans disabled:opacity-50"
+                style={{ color: "#ECEAE4", fontSize: "13.5px" }}
+              />
+            </span>
             {emailError && (
               <p className="text-sm text-destructive">{emailError}</p>
             )}
-          </div>
+          </label>
 
-          {/* Primary CTA */}
+          {/* Primary CTA — botão verde (igual à lâmina 0 "Acessar") */}
           <button
             type="submit"
             disabled={isDisabled}
-            style={{ background: "linear-gradient(180deg, #1AFF93 0%, #00C853 100%)", boxShadow: "0 6px 20px rgba(0,200,83,0.40)" }}
-            className="w-full h-14 rounded-[10px] font-display font-extrabold text-base uppercase tracking-wide text-background transition-opacity duration-200 disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.98] flex items-center justify-center"
+            style={{
+              background: "linear-gradient(180deg, #2e9b66, #1f7a4f)",
+              color: "#ffffff",
+              boxShadow: "0 10px 24px -10px rgba(46,155,102,0.5)",
+            }}
+            className="relative w-full h-14 rounded-[13px] font-display font-extrabold text-base uppercase tracking-wide transition-opacity duration-200 disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.98] flex items-center justify-center"
           >
             {isLoading ? (
               <Loader2 className="w-5 h-5 animate-spin" />
@@ -685,34 +699,51 @@ const Login = ({ onboardingFlow = false }: { onboardingFlow?: boolean }) => {
           </button>
         </form>
 
-        {/* Secondary CTA */}
+        {/* Secondary CTA — adquirir acesso (outline discreto) */}
         <button
           onClick={handleAcquireAccess}
-          className="w-full h-12 rounded-[10px] font-display font-bold text-sm uppercase flex items-center justify-center gap-2 transition-colors duration-200 active:scale-[0.98] text-white border-2 border-white/15 bg-transparent hover:border-white/30"
+          className="relative w-full h-12 rounded-[13px] font-display font-bold text-sm uppercase flex items-center justify-center gap-2 transition-colors duration-200 active:scale-[0.98]"
+          style={{
+            color: "#b0b2ba",
+            border: "1px solid rgba(235,235,245,0.1)",
+            background: "transparent",
+          }}
         >
           <ShoppingCart className="w-4 h-4" style={{ color: ACCENT_GOLD }} />
-          Adquirir acesso
+          Adquirir acceso
         </button>
 
+        {/* Reassurance line */}
+        <div className="flex items-center justify-center gap-1.5 mt-3" style={{ fontSize: "10.5px", color: "#6a6c74" }}>
+          <Lock className="w-3 h-3 shrink-0" />
+          Sin costo · tus datos están protegidos
+        </div>
+
         {/* Social Proof Pills */}
-        <div className="w-full flex gap-2 items-stretch flex-nowrap mt-8 mb-6">
-          <div className="flex-1 flex items-center justify-center gap-2 bg-white/5 border border-[#00FF7F]/30 rounded-xl px-3 py-3.5">
-            <Users className="w-3.5 h-3.5 shrink-0" style={{ color: "#00FF7F" }} />
-            <span className="text-white/70 whitespace-nowrap font-sans" style={{ fontSize: '12px', fontWeight: 500 }}>+50.000 apostadores</span>
+        <div className="w-full flex gap-2 items-stretch flex-nowrap mt-7 mb-6">
+          <div
+            className="flex-1 flex items-center justify-center gap-2 rounded-xl px-3 py-3.5"
+            style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(233,185,73,0.28)" }}
+          >
+            <Users className="w-3.5 h-3.5 shrink-0" style={{ color: "#e9b949" }} />
+            <span className="whitespace-nowrap font-sans" style={{ fontSize: '12px', fontWeight: 500, color: "#9a9ca4" }}>+50.000 apostadores</span>
           </div>
-          <div className="flex-1 flex items-center justify-center gap-2 bg-white/5 border border-[#00FF7F]/30 rounded-xl px-3 py-3.5">
-            <Ticket className="w-3.5 h-3.5 shrink-0" style={{ color: "#00FF7F" }} />
-            <span className="text-white/70 whitespace-nowrap font-sans" style={{ fontSize: '12px', fontWeight: 500 }}>+10 entradas por dia</span>
+          <div
+            className="flex-1 flex items-center justify-center gap-2 rounded-xl px-3 py-3.5"
+            style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(233,185,73,0.28)" }}
+          >
+            <Ticket className="w-3.5 h-3.5 shrink-0" style={{ color: "#e9b949" }} />
+            <span className="whitespace-nowrap font-sans" style={{ fontSize: '12px', fontWeight: 500, color: "#9a9ca4" }}>+10 entradas por día</span>
           </div>
         </div>
 
         {/* Footer */}
         <div className="text-center space-y-3">
-          <p className="text-sm text-[#4A5568]">
+          <p className="text-sm" style={{ color: "#6a6c74" }}>
             Al continuar, aceptas nuestros{" "}
             <button
               onClick={() => setShowTermsModal(true)}
-              style={{ color: "#00FF7F" }}
+              style={{ color: "#e9b949" }}
               className="hover:underline underline-offset-2 transition-colors"
             >
               Términos y Privacidad
@@ -721,21 +752,23 @@ const Login = ({ onboardingFlow = false }: { onboardingFlow?: boolean }) => {
           <div className="flex items-center justify-center gap-3 text-xs">
             <button
               onClick={() => setShowTermsModal(true)}
-              className="text-[#4A5568] hover:text-primary transition-colors"
+              className="transition-colors hover:text-[#e9b949]"
+              style={{ color: "#6a6c74" }}
             >
               Términos y Privacidad
             </button>
-            <span className="text-[#4A5568]/40">|</span>
+            <span style={{ color: "rgba(106,108,116,0.4)" }}>|</span>
             <a
               href={links.support_whatsapp_url || "https://wa.link/1p68qg"}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[#4A5568] hover:text-primary transition-colors"
+              className="transition-colors hover:text-[#e9b949]"
+              style={{ color: "#6a6c74" }}
             >
               Soporte
             </a>
           </div>
-          <p className="text-xs text-[#4A5568]">+18 • Juega con responsabilidad.</p>
+          <p className="text-xs" style={{ color: "#6a6c74" }}>+18 • Juega con responsabilidad.</p>
         </div>
       </main>
 

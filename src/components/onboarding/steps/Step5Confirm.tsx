@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 
 import { useCtaOverride } from "@/components/onboarding/cta-context";
+import { trackOnboardingTelegramClick } from "@/components/onboarding/onboardingFunnel";
 
 /**
  * Cronômetro de ativação: os 10 minutos começam a contar quando o lead CHEGA
@@ -75,6 +76,7 @@ export function Step5Confirm() {
   // Side-effect ao clicar no CTA do Telegram: muda pra "awaiting".
   // A navegação em nova guia é feita pelo proprio <a target="_blank">.
   const handleTelegramClick = () => {
+    trackOnboardingTelegramClick();
     setScreen("awaiting");
   };
 
