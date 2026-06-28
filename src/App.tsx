@@ -33,6 +33,7 @@ import PoliticaReembolso from "./pages/PoliticaReembolso";
 import NotFound from "./pages/NotFound";
 import { AdminGuard } from "./admin/components/AdminGuard";
 import { AdminLayout } from "./admin/components/AdminLayout";
+import { UserShell } from "./components/UserShell";
 import AdminLogin from "./admin/pages/AdminLogin";
 import AdminVerify from "./admin/pages/AdminVerify";
 import AdminDashboard from "./admin/pages/AdminDashboard";
@@ -160,6 +161,8 @@ const App = () => {
           <ActivationGateProvider telegramUrl={getStoredTelegramUrl() ?? ""}>
           <NavigationGate />
           <Routes>
+            {/* Telas do usuário — moldura central no desktop; mobile intocado */}
+            <Route element={<UserShell />}>
             <Route path="/login" element={<Login />} />
             <Route path="/onboarding" element={<Login onboardingFlow />} />
             <Route path="/" element={<Home />} />
@@ -180,6 +183,7 @@ const App = () => {
             <Route path="/bd3" element={<Backredirect3 />} />
             <Route path="/bd4" element={<Backredirect4 />} />
             <Route path="/politica-assinatura-reembolso" element={<PoliticaReembolso />} />
+            </Route>
             {/* Admin routes */}
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin/verify" element={<AdminVerify />} />
