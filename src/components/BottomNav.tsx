@@ -36,7 +36,7 @@ export const BottomNav = () => {
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50" style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)", background: "#08090b", borderTop: "1px solid rgba(235,235,245,0.07)" }}>
+    <nav className="fixed bottom-0 left-0 right-0 md:left-1/2 md:right-auto md:w-[480px] md:-translate-x-1/2 z-50" style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)", background: "#08090b", borderTop: "1px solid rgba(235,235,245,0.07)" }}>
       <div className="flex items-center justify-around max-w-md mx-auto" style={{ padding: "12px 12px 16px" }}>
         {NAV_ITEMS.map((item) => {
           const active = isActive(item);
