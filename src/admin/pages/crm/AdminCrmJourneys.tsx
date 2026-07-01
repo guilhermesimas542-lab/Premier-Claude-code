@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TemplateLibrary } from "../../components/crm/journey/TemplateLibrary";
+import { ImportJourneyButton } from "../../components/crm/journey/ImportJourneyButton";
 import {
   Select,
   SelectContent,
@@ -83,6 +84,7 @@ export default function AdminCrmJourneys() {
           </p>
         </div>
         <div className="flex gap-2">
+          <ImportJourneyButton onImported={refresh} disabled={schemaMissing} />
           <Button
             variant="outline"
             onClick={() => setTemplateOpen(true)}
