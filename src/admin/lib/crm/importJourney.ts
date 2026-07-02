@@ -14,15 +14,11 @@ import { supabase } from "@/integrations/supabase/client";
  *  - NUNCA importa enrollments/step_events.
  */
 
-// Valores aceitos pelos CHECK constraints do banco DESTE app.
-// Obs: o banco usa "auto" (o código chama de "webhook_status") — mapeamos abaixo.
-const VALID_TRIGGERS = ["onboarding", "upgrade", "churn_inactive", "manual", "auto"];
+// Valores aceitos pelos CHECK constraints do banco (alinhados ao código do app).
+const VALID_TRIGGERS = ["onboarding", "upgrade", "churn_inactive", "manual", "webhook_status"];
 const VALID_CHANNELS = ["email", "sms", "telegram_group", "telegram_x1", "whatsapp", "push", "popup"];
 const VALID_NODE_TYPES = ["trigger", "message", "wait", "condition", "tag", "stage"];
 const VALID_DELAY_UNITS = ["minute", "hour", "day", "week"];
-
-// Aliases conhecidos entre apps (nome no código -> valor aceito no banco).
-const TRIGGER_ALIASES: Record<string, string> = { webhook_status: "auto" };
 
 export interface ImportResult {
   ok: boolean;
@@ -63,11 +59,10 @@ export async function importJourney(file: File): Promise<ImportResult> {
     // ── 2) Enums da jornada — CONVERTE valores inválidos (o banco tem CHECK). ─
     let trigger_type = j.trigger_type ?? "manual";
     if (!VALID_TRIGGERS.includes(trigger_type)) {
-      const mapped = TRIGGER_ALIASES[trigger_type] ?? "manual";
       adjustments.push(
-        `trigger "${trigger_type}" não é aceito aqui — convertido para "${mapped}". Reconfigure na jornada se precisar.`
+        `trigger "${trigger_type}" não é reconhecido — convertido para "manual". Reconfigure na jornada se precisar.`
       );
-      trigger_type = mapped;
+      trigger_type = "manual";
     }
     let channel = j.channel ?? null;
     if (channel && !VALID_CHANNELS.includes(channel)) {
