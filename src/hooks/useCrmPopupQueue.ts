@@ -5,6 +5,7 @@ import { mockGetUser } from "@/mocks/user";
 export interface CrmPopupContent {
   title?: string | null;
   body?: string | null;
+  html?: string | null;
   image_url?: string | null;
   link_url?: string | null;
   cta?: {

@@ -5,6 +5,7 @@ import { type ChannelKey, CHANNELS } from "../../../lib/crm/channels";
 import { isImageSupportedChannel } from "../../../lib/crm/bannerTemplates";
 import { ImageAttachControl } from "../ImageAttachControl";
 import { LinkAttachControl } from "../LinkAttachControl";
+import { HtmlAttachControl } from "../HtmlAttachControl";
 
 interface Props {
   channel: ChannelKey;
@@ -41,6 +42,15 @@ export function ChannelContentForm({ channel, content, onChange }: Props) {
     />
   );
 
+  // Canais de conteúdo rico (email, popup) aceitam upload de HTML — substitui o corpo de texto.
+  const htmlControl =
+    channel === "email" || channel === "popup" ? (
+      <HtmlAttachControl
+        html={content.html ?? null}
+        onChange={(html) => onChange({ ...content, html: html ?? undefined })}
+      />
+    ) : null;
+
   if (channel === "email") {
     return (
       <div className="space-y-3">
@@ -65,6 +75,7 @@ export function ChannelContentForm({ channel, content, onChange }: Props) {
             <code>{"{dias_sem_login}"}</code>, <code>{"{data_cadastro}"}</code>
           </p>
         </div>
+        {htmlControl}
         {imageControl}
         {linkControl}
       </div>
@@ -164,6 +175,7 @@ export function ChannelContentForm({ channel, content, onChange }: Props) {
           </div>
         </>
       )}
+      {htmlControl}
       {imageControl}
       {linkControl}
     </div>

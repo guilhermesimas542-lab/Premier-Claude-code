@@ -634,7 +634,10 @@ export async function sendBatchEmailReal(
     <img src="${LOGO_URL}" alt="CL Score" style="height:48px;width:auto;border:0;display:inline-block;" />
   </div>`;
 
-  const html = logoHeader + imageHtml + bodyToHtml(bodyText);
+  // Se o passo tem HTML customizado (upload), usa ele direto (o autor controla o layout).
+  // Senão, monta o padrão: logo + imagem + corpo de texto convertido.
+  const customHtml = ((content as any)?.html ?? "").toString().trim() || null;
+  const html = customHtml ? customHtml : logoHeader + imageHtml + bodyToHtml(bodyText);
 
   const from = buildFrom(sender);
   const replyTo = sender.replyTo?.trim() || null;

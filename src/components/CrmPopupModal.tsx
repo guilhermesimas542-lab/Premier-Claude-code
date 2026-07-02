@@ -26,6 +26,34 @@ export function CrmPopupModal({ content, onClose, onCtaClick }: CrmPopupModalPro
     onClose();
   };
 
+  const htmlContent = (content?.html ?? "").toString().trim();
+
+  // Modo 0: HTML customizado (upload) — renderizado isolado em iframe (sem scripts).
+  if (htmlContent) {
+    return (
+      <Dialog open onOpenChange={(o) => !o && onClose()}>
+        <DialogContent
+          className="p-0 overflow-hidden max-w-[calc(100vw-2rem)] sm:max-w-md [&>button]:hidden"
+          style={{ background: "#112236", border: "1px solid #e9b949", borderRadius: "16px" }}
+        >
+          <button
+            onClick={onClose}
+            className="absolute top-3 right-3 z-20 rounded-full p-1.5 transition-colors bg-black/60 border border-white/10 hover:bg-black/80"
+          >
+            <X className="w-3.5 h-3.5 text-white/80" />
+          </button>
+          <iframe
+            title="Popup"
+            srcDoc={htmlContent}
+            sandbox="allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation"
+            className="w-full rounded-2xl bg-white"
+            style={{ height: "70vh", border: 0 }}
+          />
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
   // Modo 1: só imagem — clicável, sem card por trás
   if (imageOnly) {
     return (
