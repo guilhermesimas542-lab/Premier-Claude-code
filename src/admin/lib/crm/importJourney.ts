@@ -14,10 +14,15 @@ import { supabase } from "@/integrations/supabase/client";
  *  - NUNCA importa enrollments/step_events.
  */
 
-const VALID_TRIGGERS = ["onboarding", "upgrade", "churn_inactive", "manual", "webhook_status"];
+// Valores aceitos pelos CHECK constraints do banco DESTE app.
+// Obs: o banco usa "auto" (o código chama de "webhook_status") — mapeamos abaixo.
+const VALID_TRIGGERS = ["onboarding", "upgrade", "churn_inactive", "manual", "auto"];
 const VALID_CHANNELS = ["email", "sms", "telegram_group", "telegram_x1", "whatsapp", "push", "popup"];
 const VALID_NODE_TYPES = ["trigger", "message", "wait", "condition", "tag", "stage"];
 const VALID_DELAY_UNITS = ["minute", "hour", "day", "week"];
+
+// Aliases conhecidos entre apps (nome no código -> valor aceito no banco).
+const TRIGGER_ALIASES: Record<string, string> = { webhook_status: "auto" };
 
 export interface ImportResult {
   ok: boolean;
@@ -55,18 +60,19 @@ export async function importJourney(file: File): Promise<ImportResult> {
     const srcSteps: any[] = Array.isArray(data.steps) ? data.steps : [];
     const srcEdges: any[] = Array.isArray(data.edges) ? data.edges : [];
 
-    // ── 2) Enums da jornada ─────────────────────────────────────────────────
-    const trigger_type = j.trigger_type ?? "manual";
+    // ── 2) Enums da jornada — CONVERTE valores inválidos (o banco tem CHECK). ─
+    let trigger_type = j.trigger_type ?? "manual";
     if (!VALID_TRIGGERS.includes(trigger_type)) {
+      const mapped = TRIGGER_ALIASES[trigger_type] ?? "manual";
       adjustments.push(
-        `trigger "${trigger_type}" não é reconhecido aqui — mantido, reconfigure na jornada (válidos: ${VALID_TRIGGERS.join(", ")}).`
+        `trigger "${trigger_type}" não é aceito aqui — convertido para "${mapped}". Reconfigure na jornada se precisar.`
       );
+      trigger_type = mapped;
     }
-    const channel = j.channel ?? null;
+    let channel = j.channel ?? null;
     if (channel && !VALID_CHANNELS.includes(channel)) {
-      adjustments.push(
-        `canal "${channel}" não é reconhecido aqui — mantido, reconfigure (válidos: ${VALID_CHANNELS.join(", ")}).`
-      );
+      adjustments.push(`canal "${channel}" não é aceito aqui — removido (defina o canal manualmente).`);
+      channel = null;
     }
 
     // ── 3) audience_id: só mantém se existir em crm_audiences deste app ──────
@@ -112,16 +118,20 @@ export async function importJourney(file: File): Promise<ImportResult> {
     const stepsToInsert = srcSteps.map((s) => {
       const newId = (s && s.id && idMap.get(s.id)) || newUuid();
 
-      if (s.node_type && !VALID_NODE_TYPES.includes(s.node_type)) {
-        adjustments.push(`passo: tipo "${s.node_type}" não reconhecido — mantido.`);
+      let node_type = s.node_type ?? "message";
+      if (!VALID_NODE_TYPES.includes(node_type)) {
+        adjustments.push(`passo: tipo "${s.node_type}" não aceito — convertido para "message".`);
+        node_type = "message";
       }
       let delay_unit = s.delay_unit ?? "day";
-      if (s.delay_unit && !VALID_DELAY_UNITS.includes(s.delay_unit)) {
-        adjustments.push(`passo: unidade de tempo "${s.delay_unit}" não reconhecida — mantida.`);
+      if (!VALID_DELAY_UNITS.includes(delay_unit)) {
+        adjustments.push(`passo: unidade de tempo "${s.delay_unit}" não aceita — convertida para "day".`);
+        delay_unit = "day";
       }
-      const stepChannel = s.channel ?? null;
+      let stepChannel = s.channel ?? null;
       if (stepChannel && !VALID_CHANNELS.includes(stepChannel)) {
-        adjustments.push(`passo: canal "${stepChannel}" não reconhecido — mantido.`);
+        adjustments.push(`passo: canal "${stepChannel}" não aceito — removido.`);
+        stepChannel = null;
       }
 
       // content: remove referência a template/mensagem que não existe aqui.
@@ -143,7 +153,7 @@ export async function importJourney(file: File): Promise<ImportResult> {
         id: newId,
         journey_id: createdJourneyId,
         parent_step_id: s.parent_step_id ? idMap.get(s.parent_step_id) ?? null : null,
-        node_type: s.node_type ?? "message",
+        node_type,
         position: s.position ?? null,
         channel: stepChannel,
         content,
