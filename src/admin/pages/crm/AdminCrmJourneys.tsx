@@ -13,9 +13,11 @@ import {
   Layers,
   Users,
   Sparkles,
+  Download,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TemplateLibrary } from "../../components/crm/journey/TemplateLibrary";
+import { ImportJourneyButton } from "../../components/crm/journey/ImportJourneyButton";
 import {
   Select,
   SelectContent,
@@ -32,6 +34,7 @@ import {
   type TriggerKey,
 } from "../../lib/crm/triggers";
 import { CHANNELS, CHANNEL_LIST, type ChannelKey } from "../../lib/crm/channels";
+import { exportJourney } from "../../lib/crm/exportJourney";
 
 const STATUS_KEYS: JourneyStatus[] = ["draft", "active", "paused", "archived"];
 
@@ -81,6 +84,7 @@ export default function AdminCrmJourneys() {
           </p>
         </div>
         <div className="flex gap-2">
+          <ImportJourneyButton onImported={refresh} disabled={schemaMissing} />
           <Button
             variant="outline"
             onClick={() => setTemplateOpen(true)}
@@ -217,6 +221,7 @@ export default function AdminCrmJourneys() {
               onEdit={() => navigate(`/admin/crm/journeys/${j.id}/edit`)}
               onWhiteboard={() => navigate(`/admin/crm/whiteboard?focus=${j.id}`)}
               onDuplicate={() => handleDuplicate(j)}
+              onExport={() => exportJourney(j.id, j.name)}
               onDelete={() => handleDelete(j)}
               onStatusToggle={() => handleStatusToggle(j)}
             />
@@ -244,6 +249,7 @@ function JourneyCard({
   onEdit,
   onWhiteboard,
   onDuplicate,
+  onExport,
   onDelete,
   onStatusToggle,
 }: {
@@ -253,6 +259,7 @@ function JourneyCard({
   onEdit: () => void;
   onWhiteboard: () => void;
   onDuplicate: () => void;
+  onExport: () => void;
   onDelete: () => void;
   onStatusToggle: () => void;
 }) {
@@ -405,6 +412,14 @@ function JourneyCard({
             title="Duplicar"
           >
             <Copy className="w-3.5 h-3.5" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onExport}
+            title="Exportar jornada (.json)"
+          >
+            <Download className="w-3.5 h-3.5" />
           </Button>
           <Button
             variant="ghost"
